@@ -1,0 +1,100 @@
+// file = { SOI ~ NEWLINE* ~ import_section* ~ NEWLINE* ~ ty_struct_definition* ~ NEWLINE* ~ function_definition* ~ EOI }
+// file = { SOI ~ NEWLINE* ~ import_section* ~ NEWLINE* ~ EOI }
+
+file = { SOI ~ NEWLINE* ~ statement* ~ NEWLINE* ~ EOI }
+
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+WHITESPACE = _{ " " | "\t" ~ NEWLINE }
+
+
+/// Visibility
+
+visibility_public = { "public" }
+visibility_private = { "private" }
+visibility = { visibility_public | visibility_private }
+
+// /// Conditionals
+//
+// conditional_if = { "if" }
+// conditional_else = { "else" }
+//
+// conditional_for = { "for" }
+//
+// conditional = { conditional_if | conditional_else | conditional_for }
+
+/// Values
+
+value_boolean = { "true" | "false" }
+
+value_field = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) }
+
+value = { value_boolean | value_field }
+
+/// Variables
+
+// TODO: Include "import" and "conditional"
+
+protected_name = { visibility | value_boolean | "return" }
+
+// keyword = @{ "as" | "in" | "return" | "export" | "false" |
+//             "def" | "in" | "return" | "struct" | "true" }
+
+variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+
+/// Unary Operations
+
+operation_not = { "!" }
+
+operation_increment = { "++" }
+operation_decrement = { "--" }
+
+operation_unary = {
+    operation_not |
+    operation_increment | operation_decrement
+}
+
+/// Binary Operations
+
+operation_and = { "&&" }
+operation_or = { "||" }
+
+operation_eq = { "==" }
+operation_geq = { ">=" }
+operation_leq = { "<=" }
+operation_neq = { "!=" }
+
+operation_add = { "+" }
+operation_sub = { "-" }
+operation_mul = { "*" }
+operation_div = { "/" }
+operation_pow = { "**" }
+
+// operation_assign = { "=" }
+// operation_add_assign = { "+=" }
+// operation_sub_assign = { "-=" }
+// operation_mul_assign = { "*=" }
+// operation_div_assign = { "/=" }
+
+operation_binary = {
+    operation_and | operation_or |
+    operation_eq | operation_geq | operation_leq | operation_neq |
+    operation_add | operation_sub | operation_mul | operation_div | operation_pow
+}
+
+/// Expressions
+
+expression_unary = { operation_unary ~ (value | variable) }
+expression_binary = { (value | variable) ~ (operation_binary ~ (value | variable))* }
+
+expression = { expression_unary | expression_binary }
+
+/// Statements
+
+statement_assign = { variable ~ "=" ~ expression }
+statement_return = { "return" ~ expression }
+
+statement = { statement_assign | statement_return }
+
+// /// Helpers
+//
+// helper_range = { expression+ ~ ".." ~ expression+ } // Confirm that '+' is the correct repetition
