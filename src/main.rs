@@ -9,7 +9,6 @@ extern crate pest_ast;
 #[macro_use]
 extern crate lazy_static;
 
-
 use pest::Parser;
 use std::fs;
 
@@ -53,7 +52,65 @@ mod ast {
         ])
     }
 
-    fn binary_expression_rule<'ast>(
+    fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
+        Box::new(match pair.as_rule() {
+            Rule::expression_term => {
+                let clone = pair.clone();
+                let next = clone.into_inner().next().unwrap();
+                match next.as_rule() {
+                    Rule::expression_primitive => {
+                        let next = next.into_inner().next().unwrap();
+                        match next.as_rule() {
+                            Rule::value => Expression::Value(
+                                Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
+                            ),
+                            Rule::variable => Expression::Variable(
+                                Variable::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                            ),
+                            rule => unreachable!("`expression_primitive` should contain one of [`value`, `variable`], found {:#?}", rule)
+                        }
+                    }
+                    Rule::expression_not => {
+                        let span = next.as_span();
+                        let mut inner = next.into_inner();
+                        let operation = match inner.next().unwrap().as_rule() {
+                            Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                            rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
+                        };
+                        let expression = parse_term(inner.next().unwrap());
+                        Expression::Not(NotExpression { operation, expression, span })
+                    },
+                    Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
+
+                    // Rule::expression_increment => {
+                    //     let span = next.as_span();
+                    //     let mut inner = next.into_inner();
+                    //     let expression = parse_expression_term(inner.next().unwrap());
+                    //     let operation = match inner.next().unwrap().as_rule() {
+                    //         Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                    //         rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
+                    //     };
+                    //     Expression::Increment(IncrementExpression { operation, expression, span })
+                    // },
+                    // Rule::expression_decrement => {
+                    //     let span = next.as_span();
+                    //     let mut inner = next.into_inner();
+                    //     let expression = parse_expression_term(inner.next().unwrap());
+                    //     let operation = match inner.next().unwrap().as_rule() {
+                    //         Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                    //         rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
+                    //     };
+                    //     Expression::Decrement(DecrementExpression { operation, expression, span })
+                    // },
+
+                    rule => unreachable!("`term` should contain one of ['value', 'variable', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
+                }
+            }
+            rule => unreachable!("`parse_expression_term` should be invoked on `Rule::expression_term`, found {:#?}", rule),
+        })
+    }
+
+    fn binary_expression<'ast>(
         lhs: Box<Expression<'ast>>,
         pair: Pair<'ast, Rule>,
         rhs: Box<Expression<'ast>>,
@@ -77,57 +134,6 @@ mod ast {
             Rule::operation_div => Expression::binary(BinaryOperator::Div, lhs, rhs, span),
             Rule::operation_pow => Expression::binary(BinaryOperator::Pow, lhs, rhs, span),
             _ => unreachable!(),
-        })
-    }
-
-    fn parse_rule_term(pair: Pair<Rule>) -> Box<Expression> {
-        Box::new(match pair.as_rule() {
-            Rule::term => {
-                let clone = pair.clone();
-                let next = clone.into_inner().next().unwrap();
-                match next.as_rule() {
-                    Rule::value => Expression::Value(
-                        Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
-                    ),
-                    Rule::variable => Expression::Variable(
-                        Variable::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                    ),
-                    Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-
-                    Rule::expression_not => {
-                        let span = next.as_span();
-                        let mut inner = next.into_inner();
-                        let operation = match inner.next().unwrap().as_rule() {
-                            Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                            rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
-                        };
-                        let expression = parse_rule_term(inner.next().unwrap());
-                        Expression::Not(NotExpression { operation, expression, span })
-                    },
-                    Rule::expression_increment => {
-                        let span = next.as_span();
-                        let mut inner = next.into_inner();
-                        let expression = parse_rule_term(inner.next().unwrap());
-                        let operation = match inner.next().unwrap().as_rule() {
-                            Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                            rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
-                        };
-                        Expression::Increment(IncrementExpression { operation, expression, span })
-                    },
-                    Rule::expression_decrement => {
-                        let span = next.as_span();
-                        let mut inner = next.into_inner();
-                        let expression = parse_rule_term(inner.next().unwrap());
-                        let operation = match inner.next().unwrap().as_rule() {
-                            Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                            rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
-                        };
-                        Expression::Decrement(DecrementExpression { operation, expression, span })
-                    },
-                    rule => unreachable!("`term` should contain one of ['value', 'variable', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
-                }
-            }
-            rule => unreachable!("`parse_rule_term` should be invoked on `Rule::term`, found {:#?}", rule),
         })
     }
 
@@ -257,25 +263,25 @@ mod ast {
         pub span: Span<'ast>,
     }
 
-    #[derive(Clone, Debug, FromPest, PartialEq)]
-    #[pest_ast(rule(Rule::expression_increment))]
-    pub struct IncrementExpression<'ast> {
-        pub expression: Box<Expression<'ast>>,
-        pub operation: Increment<'ast>,
-        #[pest_ast(outer())]
-        pub span: Span<'ast>,
-    }
+    // #[derive(Clone, Debug, FromPest, PartialEq)]
+    // #[pest_ast(rule(Rule::expression_increment))]
+    // pub struct IncrementExpression<'ast> {
+    //     pub expression: Box<Expression<'ast>>,
+    //     pub operation: Increment<'ast>,
+    //     #[pest_ast(outer())]
+    //     pub span: Span<'ast>,
+    // }
+    //
+    // #[derive(Clone, Debug, FromPest, PartialEq)]
+    // #[pest_ast(rule(Rule::expression_decrement))]
+    // pub struct DecrementExpression<'ast> {
+    //     pub expression: Box<Expression<'ast>>,
+    //     pub operation: Decrement<'ast>,
+    //     #[pest_ast(outer())]
+    //     pub span: Span<'ast>,
+    // }
 
-    #[derive(Clone, Debug, FromPest, PartialEq)]
-    #[pest_ast(rule(Rule::expression_decrement))]
-    pub struct DecrementExpression<'ast> {
-        pub expression: Box<Expression<'ast>>,
-        pub operation: Decrement<'ast>,
-        #[pest_ast(outer())]
-        pub span: Span<'ast>,
-    }
-
-    #[derive(Debug, PartialEq, Clone)]
+    #[derive(Clone, Debug, PartialEq)]
     pub struct BinaryExpression<'ast> {
         pub operation: BinaryOperator,
         pub left: Box<Expression<'ast>>,
@@ -283,14 +289,15 @@ mod ast {
         pub span: Span<'ast>,
     }
 
-    #[derive(Debug, PartialEq, Clone)]
+    #[derive(Clone, Debug, PartialEq)]
     pub enum Expression<'ast> {
         Value(Value<'ast>),
         Variable(Variable<'ast>),
         Not(NotExpression<'ast>),
-        Increment(IncrementExpression<'ast>),
-        Decrement(DecrementExpression<'ast>),
         Binary(BinaryExpression<'ast>),
+
+        // Increment(IncrementExpression<'ast>),
+        // Decrement(DecrementExpression<'ast>),
     }
 
     impl<'ast> Expression<'ast> {
@@ -308,9 +315,10 @@ mod ast {
                 Expression::Value(expression) => &expression.span(),
                 Expression::Variable(expression) => &expression.span,
                 Expression::Not(expression) => &expression.span,
-                Expression::Increment(expression) => &expression.span,
-                Expression::Decrement(expression) => &expression.span,
                 Expression::Binary(expression) => &expression.span,
+
+                // Expression::Increment(expression) => &expression.span,
+                // Expression::Decrement(expression) => &expression.span,
             }
         }
     }
@@ -320,14 +328,13 @@ mod ast {
         type FatalError = Void;
 
         fn from_pest(pest: &mut Pairs<'ast, Rule>) -> Result<Self, ConversionError<Void>> {
-            let mut pairs = pest.clone();
-            println!("{:?}\n", pairs);
-            let pair = pairs.next().ok_or(::from_pest::ConversionError::NoMatch)?;
+            let mut clone = pest.clone();
+            let pair = clone.next().ok_or(::from_pest::ConversionError::NoMatch)?;
             match pair.as_rule() {
                 Rule::expression => {
                     // Transfer iterated state to pest.
-                    *pest = pairs;
-                    Ok(*PRECEDENCE_CLIMBER.climb(pair.into_inner(), parse_rule_term, binary_expression_rule))
+                    *pest = clone;
+                    Ok(*PRECEDENCE_CLIMBER.climb(pair.into_inner(), parse_term, binary_expression))
                 }
                 _ => Err(ConversionError::NoMatch),
             }
@@ -369,12 +376,31 @@ mod ast {
 
 fn main() {
     use crate::from_pest::FromPest;
+    use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+    use snarkos_models::gadgets::{r1cs::{ConstraintSystem, TestConstraintSystem, Fr}, utilities::{alloc::AllocGadget, boolean::Boolean}};
 
     let unparsed_file = fs::read_to_string("simple.program").expect("cannot read file");
     let mut file = LanguageParser::parse(Rule::file, &unparsed_file).expect("unsuccessful parse");
     let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
 
-    println!("{:?}", syntax_tree);
+    for statement in syntax_tree.statement {
+        match statement {
+            ast::Statement::Assign(statement) => {
+                println!("{:#?}", statement);
+            },
+            ast::Statement::Return(statement) => {
+
+            }
+        }
+    }
+
+    let mut cs = TestConstraintSystem::<Fr>::new();
+
+    Boolean::alloc(cs.ns(|| format!("boolean")), || Ok(true));
+
+
+    println!("\n\n number of constraints for input: {}", cs.num_constraints());
+
 
     // for token in file.into_inner() {
     //     match token.as_rule() {
@@ -406,8 +432,8 @@ fn main() {
     // println!("Sum of fields: {}", field_sum);
     // println!("Number of records: {}", record_count);
 
-    let successful_parse = LanguageParser::parse(Rule::value, "-273");
-    println!("{:?}", successful_parse);
+    // let successful_parse = LanguageParser::parse(Rule::value, "-273");
+    // println!("{:?}", successful_parse);
 
     // let unsuccessful_parse = CSVParser::parse(Rule::field, "this is not a number");
     // println!("{:?}", unsuccessful_parse);

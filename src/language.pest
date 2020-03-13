@@ -3,9 +3,6 @@
 
 file = { SOI ~ NEWLINE* ~ statement* ~ NEWLINE* ~ EOI }
 
-COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
-WHITESPACE = _{ " " | "\t" ~ NEWLINE }
-
 /// Visibility
 
 visibility_public = { "public" }
@@ -38,7 +35,7 @@ operation_mul = { "*" }
 operation_div = { "/" }
 operation_pow = { "**" }
 
-operation_binary = {
+operation_binary = _ {
     operation_and | operation_or |
     operation_eq | operation_neq |
     operation_geq | operation_gt | operation_leq | operation_lt |
@@ -73,15 +70,14 @@ variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHAN
 /// Expressions
 
 // Consider structs, conditionals, postfix, primary, inline array, array initializer, and unary
-term = { value | variable | ("(" ~ expression ~ ")")  }
+expression_primitive = { value | variable }
+expression_not = { operation_pre_not ~ expression_term }
+expression_term = { expression_primitive | expression_not | ("(" ~ expression ~ ")")  }
 
-expression_not = { operation_pre_not ~ term }
-expression_increment = { term ~ operation_post_increment }
-expression_decrement = { term ~ operation_post_decrement }
+expression = { expression_term ~ (operation_binary ~ expression_term)* }
 
-expression_binary = { term ~ (operation_binary ~ term)* }
-
-expression = { expression_not | expression_increment | expression_decrement | expression_binary }
+// expression_increment = { expression ~ operation_post_increment }
+// expression_decrement = { expression ~ operation_post_decrement }
 
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
@@ -90,7 +86,13 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 statement_assign = { variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
 
-statement = { statement_assign | statement_return }
+statement = { (statement_return | (statement_assign) ~ NEWLINE) ~ NEWLINE* }
+
+/// Utilities
+
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+WHITESPACE = _{ " " | "\t" ~ NEWLINE }
+
 
 // /// Conditionals
 //

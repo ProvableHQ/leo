@@ -10,3 +10,6 @@ lazy_static = "1.3.0"
 pest = "2.0"
 pest_derive = "2.0"
 pest-ast = "0.3.3"
+
+snarkos-gadgets = { path = "../snarkOS/gadgets" }
+snarkos-models = { path = "../snarkOS/models" }
