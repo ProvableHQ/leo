@@ -1,2 +1,1 @@
-x = 5 + 3
-y = x * (x * 2)
+return a + b

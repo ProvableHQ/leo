@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["howardwu <howardwu@berkeley.edu>"]
 edition = "2018"
 
+[lib]
+name = "language"
+path = "src/lib.rs"
+
+[[bin]]
+name = "snarkLang"
+path = "src/main.rs"
+
 [dependencies]
 from-pest = "0.3.1"
 lazy_static = "1.3.0"
