@@ -11,4 +11,6 @@ extern crate lazy_static;
 
 pub mod ast;
 
-pub mod program;
+pub mod aleo_program;
+
+pub mod zokrates_program;

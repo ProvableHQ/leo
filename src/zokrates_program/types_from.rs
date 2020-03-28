@@ -1,6 +1,12 @@
+//! Logic to convert from an abstract syntax tree (ast) representation to a typed zokrates_program.
+//!
+//! @file zokrates_program.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
 use crate::{
     ast,
-    program::{program, types, NodeValue},
+    zokrates_program::{program, types, NodeValue},
 };
 
 impl<'ast> From<ast::Boolean<'ast>> for types::ExpressionNode<'ast> {
@@ -169,10 +175,5 @@ impl<'ast> From<ast::File<'ast>> for program::Program<'ast> {
                 .map(|statement| types::StatementNode::from(statement.clone()))
                 .collect(),
         }
-        // for statement in file.statement {
-        //     // println!("statement {:?}", statement);
-        //     let node = program::StatementNode::from(statement);
-        //     println!("node {:?}", node);
-        // }
     }
 }

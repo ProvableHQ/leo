@@ -1,10 +1,14 @@
-use crate::program::{Expression, ExpressionList, Statement, StatementNode, Variable};
+//! A zokrates_program consists of nodes that keep track of position and wrap zokrates_program types.
+//!
+//! @file zokrates_program.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
+use crate::zokrates_program::{Expression, ExpressionList, Statement, StatementNode, Variable};
 
 use pest::Span;
 use std::fmt;
 use std::fmt::Formatter;
-
-// AST -> Program
 
 /// Position in input file
 #[derive(Clone, Copy)]
@@ -25,7 +29,7 @@ impl fmt::Debug for Position {
     }
 }
 
-/// Building blocks for a program
+/// Building blocks for a zokrates_program
 #[derive(Debug, Clone)]
 pub struct Node<T: fmt::Display> {
     start: Position,

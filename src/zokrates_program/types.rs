@@ -1,6 +1,11 @@
-use crate::program::Node;
+//! A zokrates_program type constrains data that an expression might take.
+//!
+//! @file zokrates_program.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
 
-// Program Nodes - Wrappers for different types in a program.
+use crate::zokrates_program::Node;
+
 pub type ExpressionNode<'ast> = Node<Expression<'ast>>;
 pub type ExpressionListNode<'ast> = Node<ExpressionList<'ast>>;
 pub type StatementNode<'ast> = Node<Statement<'ast>>;

@@ -1,4 +1,10 @@
-use crate::program::{Expression, ExpressionList, Statement, Variable};
+//! Format display functions for zokrates_program types.
+//!
+//! @file zokrates_program.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
+use crate::zokrates_program::{Expression, ExpressionList, Statement, Variable};
 
 use std::fmt;
 
