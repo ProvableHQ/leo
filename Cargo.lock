@@ -584,6 +584,10 @@ dependencies = [
  "pest",
  "pest-ast",
  "pest_derive",
+ "rand 0.7.3",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
  "snarkos-gadgets",
  "snarkos-models",
 ]

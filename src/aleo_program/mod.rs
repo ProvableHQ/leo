@@ -7,8 +7,8 @@
 pub mod types;
 pub use self::types::*;
 
-pub mod setup;
-pub use self::setup::*;
+pub mod constraints;
+pub use self::constraints::*;
 
 pub mod types_display;
 pub use self::types_display::*;

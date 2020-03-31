@@ -66,16 +66,11 @@ impl fmt::Display for Statement {
                 });
                 write!(f, "")
             }
-            _ => unimplemented!(), // Statement::Constraint(ref quadratic, ref linear) => {
-                                   //     let a = (quadratic.0).0[0].value.clone();
-                                   //     let b = (quadratic.1).0[0].value.clone();
-                                   //     let c = linear.0[0].value.clone();
-                                   //
-                                   //     write!(f, "constraint {} * {} = {}", a, b, c)
-                                   // }
+            _ => unimplemented!(),
         }
     }
 }
+
 impl fmt::Debug for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -85,27 +80,7 @@ impl fmt::Debug for Statement {
                 });
                 write!(f, "")
             }
-            _ => unimplemented!(), // Statement::Constraint(ref quadratic, ref linear) => {
-                                   //     let a = (quadratic.0).0[0].value.clone();
-                                   //     let b = (quadratic.1).0[0].value.clone();
-                                   //     let c = linear.0[0].value.clone();
-                                   //
-                                   //     write!(f, "constraint {} * {} = {}", a, b, c)
-                                   // }
+            _ => unimplemented!(),
         }
     }
 }
-
-// impl fmt::Debug for Statement {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         match *self {
-//             Statement::Constraint(ref quadratic, ref linear) => {
-//                 let a = (quadratic.0).0[0].value.clone();
-//                 let b = (quadratic.1).0[0].value.clone();
-//                 let c = linear.0[0].value.clone();
-//
-//                 write!(f, "constraint {} * {} = {}", a, b, c)
-//             }
-//         }
-//     }
-// }
