@@ -57,42 +57,42 @@ impl<F: Field> ConstraintSynthesizer<F> for Benchmark<F> {
 }
 
 fn main() {
-    let mut setup = Duration::new(0, 0);
-    let mut proving = Duration::new(0, 0);
-    let mut verifying = Duration::new(0, 0);
+    // let mut setup = Duration::new(0, 0);
+    // let mut proving = Duration::new(0, 0);
+    // let mut verifying = Duration::new(0, 0);
 
     let rng = &mut thread_rng();
 
-    let start = Instant::now();
+    // let start = Instant::now();
 
-    let params = {
+    let _params = {
         let c = Benchmark::<Fr>::new();
         generate_random_parameters::<Bls12_377, _, _>(c, rng).unwrap()
     };
-
-    let prepared_verifying_key = prepare_verifying_key(&params.vk);
-
-    setup += start.elapsed();
-
-    let start = Instant::now();
-    let proof = {
-        let c = Benchmark::new();
-        create_random_proof(c, &params, rng).unwrap()
-    };
-
-    proving += start.elapsed();
-
-    // let _inputs: Vec<_> = [1u32; 1].to_vec();
-
-    let start = Instant::now();
-
-    let _ = verify_proof(&prepared_verifying_key, &proof, &[]).unwrap();
-
-    verifying += start.elapsed();
-
-    println!("\n  Setup     time: {:?} seconds", setup.as_secs());
-    println!("  Proving   time: {:?} seconds", proving.as_secs());
-    println!("  Verifying time: {:?} seconds", verifying.as_secs());
+    //
+    // let prepared_verifying_key = prepare_verifying_key(&params.vk);
+    //
+    // setup += start.elapsed();
+    //
+    // let start = Instant::now();
+    // let proof = {
+    //     let c = Benchmark::new();
+    //     create_random_proof(c, &params, rng).unwrap()
+    // };
+    //
+    // proving += start.elapsed();
+    //
+    // // let _inputs: Vec<_> = [1u32; 1].to_vec();
+    //
+    // let start = Instant::now();
+    //
+    // let _ = verify_proof(&prepared_verifying_key, &proof, &[]).unwrap();
+    //
+    // verifying += start.elapsed();
+    //
+    // println!("\n  Setup     time: {:?} seconds", setup.as_secs());
+    // println!("  Proving   time: {:?} seconds", proving.as_secs());
+    // println!("  Verifying time: {:?} seconds", verifying.as_secs());
 
     // let mut cs = TestConstraintSystem::<Fr>::new();
     //

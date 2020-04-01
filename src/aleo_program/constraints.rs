@@ -25,16 +25,16 @@ fn bool_from_variable<F: Field, CS: ConstraintSystem<F>>(
 }
 
 fn u32_from_variable<F: Field, CS: ConstraintSystem<F>>(cs: &mut CS, variable: Variable) -> UInt32 {
-    // let argument = std::env::args()
-    //     .nth(1)
-    //     .unwrap_or("1".into())
-    //     .parse::<u32>()
-    //     .unwrap();
-    //
-    // println!(" argument passed to command line a = {:?}", argument);
+    let argument = std::env::args()
+        .nth(1)
+        .unwrap_or("1".into())
+        .parse::<u32>()
+        .unwrap();
 
-    let a = 1;
-    UInt32::alloc(cs.ns(|| variable.0), Some(a)).unwrap()
+    println!(" argument passed to command line a = {:?}", argument);
+
+    // let a = 1;
+    UInt32::alloc(cs.ns(|| variable.0), Some(argument)).unwrap()
 }
 
 fn get_bool_value<F: Field, CS: ConstraintSystem<F>>(
@@ -138,7 +138,64 @@ fn enforce_add<F: Field, CS: ConstraintSystem<F>>(
     let left = get_u32_value(cs, left);
     let right = get_u32_value(cs, right);
 
-    // let _r = UInt32::addmany(cs.ns(|| "addition"), &[left, right]).unwrap();
+    let r = left
+        .add(
+            cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
+        )
+        .unwrap();
+    println!("result {}", r.value.unwrap());
+}
+
+fn enforce_sub<F: Field, CS: ConstraintSystem<F>>(
+    cs: &mut CS,
+    left: FieldExpression,
+    right: FieldExpression,
+) {
+    let left = get_u32_value(cs, left);
+    let right = get_u32_value(cs, right);
+
+    let r = left
+        .sub(
+            cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
+        )
+        .unwrap();
+    println!("result {}", r.value.unwrap());
+}
+
+fn enforce_mul<F: Field, CS: ConstraintSystem<F>>(
+    cs: &mut CS,
+    left: FieldExpression,
+    right: FieldExpression,
+) {
+    let left = get_u32_value(cs, left);
+    let right = get_u32_value(cs, right);
+
+    let r = left
+        .mul(
+            cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
+        )
+        .unwrap();
+    println!("result {}", r.value.unwrap());
+}
+
+fn enforce_div<F: Field, CS: ConstraintSystem<F>>(
+    cs: &mut CS,
+    left: FieldExpression,
+    right: FieldExpression,
+) {
+    let left = get_u32_value(cs, left);
+    let right = get_u32_value(cs, right);
+
+    let r = left
+        .div(
+            cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
+        )
+        .unwrap();
+    println!("result {}", r.value.unwrap());
 }
 
 fn enforce_field_expression<F: Field, CS: ConstraintSystem<F>>(
@@ -148,6 +205,15 @@ fn enforce_field_expression<F: Field, CS: ConstraintSystem<F>>(
     match expression {
         FieldExpression::Add(left, right) => {
             enforce_add(cs, *left, *right);
+        }
+        FieldExpression::Sub(left, right) => {
+            enforce_sub(cs, *left, *right);
+        }
+        FieldExpression::Mul(left, right) => {
+            enforce_mul(cs, *left, *right);
+        }
+        FieldExpression::Div(left, right) => {
+            enforce_div(cs, *left, *right);
         }
         _ => unimplemented!(),
     }
