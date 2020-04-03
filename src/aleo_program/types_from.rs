@@ -220,16 +220,21 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
     }
 }
 
-// impl<'ast> From<ast::AssignStatement<'ast>> for types::StatementNode<'ast> {
-//     fn from(statement: ast::AssignStatement<'ast>) -> Self {
-//         types::Statement::Definition(
-//             types::VariableNode::from(statement.variable),
-//             types::ExpressionNode::from(statement.expression),
-//         )
-//         .span(statement.span)
-//     }
-// }
-//
+impl<'ast> From<ast::Variable<'ast>> for types::Variable {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Variable(variable.value)
+    }
+}
+
+impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
+    fn from(statement: ast::AssignStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Variable::from(statement.variable),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
 impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
     fn from(statement: ast::ReturnStatement<'ast>) -> Self {
         types::Statement::Return(
