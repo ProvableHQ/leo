@@ -7,7 +7,7 @@
 // id == 0 for field values
 // id < 0 for boolean values
 /// A variable in a constraint system.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variable(pub String);
 //
 // /// Linear combination of variables in a program. (a + b + c)

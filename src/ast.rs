@@ -139,7 +139,7 @@ fn binary_expression<'ast>(
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::file))]
 pub struct File<'ast> {
-    pub statement: Vec<Statement<'ast>>,
+    pub statements: Vec<Statement<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

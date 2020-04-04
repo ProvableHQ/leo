@@ -5,7 +5,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::BooleanExpression;
+use crate::aleo_program::{BooleanExpression, Statement};
 use crate::{aleo_program::types, ast};
 
 impl<'ast> From<ast::Field<'ast>> for types::FieldExpression {
@@ -35,6 +35,12 @@ impl<'ast> From<ast::Value<'ast>> for types::Expression {
                 types::Expression::FieldElement(types::FieldExpression::from(value))
             }
         }
+    }
+}
+
+impl<'ast> From<ast::Variable<'ast>> for types::Variable {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Variable(variable.value)
     }
 }
 
@@ -220,12 +226,6 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::Variable<'ast>> for types::Variable {
-    fn from(variable: ast::Variable<'ast>) -> Self {
-        types::Variable(variable.value)
-    }
-}
-
 impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
         types::Statement::Definition(
@@ -250,7 +250,7 @@ impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
 impl<'ast> From<ast::Statement<'ast>> for types::Statement {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
-            ast::Statement::Assign(_statement) => unimplemented!(),
+            ast::Statement::Assign(statement) => types::Statement::from(statement),
             ast::Statement::Return(statement) => types::Statement::from(statement),
         }
     }
@@ -258,8 +258,9 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
 
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
-        let statements = file
-            .statement
+        // 1. compile ast -> aleo program representation
+        let statements: Vec<Statement> = file
+            .statements
             .into_iter()
             .map(|statement| types::Statement::from(statement))
             .collect();

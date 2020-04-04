@@ -50,7 +50,7 @@ impl<F: Field> ConstraintSynthesizer<F> for Benchmark<F> {
         let program = aleo_program::Program::from(syntax_tree);
         println!(" compiled: {:#?}", program);
 
-        aleo_program::generate_constraints(cs, program);
+        aleo_program::ResolvedProgram::generate_constraints(cs, program);
 
         Ok(())
     }

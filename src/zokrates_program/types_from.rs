@@ -170,7 +170,7 @@ impl<'ast> From<ast::File<'ast>> for program::Program<'ast> {
     fn from(file: ast::File<'ast>) -> Self {
         program::Program {
             nodes: file
-                .statement
+                .statements
                 .iter()
                 .map(|statement| types::StatementNode::from(statement.clone()))
                 .collect(),
