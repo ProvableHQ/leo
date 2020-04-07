@@ -90,8 +90,8 @@ fn main() {
 
     verifying += start.elapsed();
 
-    println!("\n  Setup     time: {:?} seconds", setup.as_secs());
-    println!("  Proving   time: {:?} seconds", proving.as_secs());
+    println!("  Setup time    : {:?} seconds", setup.as_secs());
+    println!("  Proving time  : {:?} seconds", proving.as_secs());
     println!("  Verifying time: {:?} seconds", verifying.as_secs());
 
     // let mut cs = TestConstraintSystem::<Fr>::new();

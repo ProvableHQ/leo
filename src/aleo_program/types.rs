@@ -76,7 +76,7 @@ pub enum Expression {
 pub enum Statement {
     /// A statement that could be directly translated to a R1CS constraint a * b = c to be enforced
     // Constraint(QuadraticCombination, LinearCombination),
-    Declaration(Variable),
+    // Declaration(Variable),
     Definition(Variable, Expression),
     Return(Vec<Expression>),
 }

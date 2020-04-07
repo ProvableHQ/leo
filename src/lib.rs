@@ -3,7 +3,7 @@ extern crate pest;
 extern crate pest_derive;
 
 extern crate from_pest;
-#[macro_use]
+// #[macro_use]
 extern crate pest_ast;
 
 #[macro_use]

@@ -83,7 +83,6 @@ impl fmt::Debug for Statement {
             Statement::Definition(ref variable, ref statement) => {
                 write!(f, "{} = {}", variable, statement)
             }
-            _ => unimplemented!(),
         }
     }
 }

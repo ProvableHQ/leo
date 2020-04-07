@@ -10,6 +10,7 @@ use snarkos_models::gadgets::{
 };
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub enum ResolvedValue {
     Boolean(Boolean),
     FieldElement(UInt32),
@@ -176,6 +177,7 @@ impl ResolvedProgram {
         expression: BooleanExpression,
     ) -> Boolean {
         match expression {
+            BooleanExpression::Variable(variable) => self.bool_from_variable(cs, variable),
             BooleanExpression::Not(expression) => self.enforce_not(cs, *expression),
             BooleanExpression::Or(left, right) => self.enforce_or(cs, *left, *right),
             BooleanExpression::And(left, right) => self.enforce_and(cs, *left, *right),
@@ -282,6 +284,7 @@ impl ResolvedProgram {
         expression: FieldExpression,
     ) -> UInt32 {
         match expression {
+            FieldExpression::Variable(variable) => self.u32_from_variable(cs, variable),
             FieldExpression::Add(left, right) => self.enforce_add(cs, *left, *right),
             FieldExpression::Sub(left, right) => self.enforce_sub(cs, *left, *right),
             FieldExpression::Mul(left, right) => self.enforce_mul(cs, *left, *right),
@@ -305,7 +308,11 @@ impl ResolvedProgram {
                     Expression::Boolean(boolean_expression) => {
                         let res =
                             resolved_program.enforce_boolean_expression(cs, boolean_expression);
-                        println!("variable boolean result: {}", res.get_value().unwrap());
+                        println!(
+                            "variable boolean result: {} = {}",
+                            variable.0,
+                            res.get_value().unwrap()
+                        );
                         resolved_program.insert(variable, ResolvedValue::Boolean(res));
                     }
                     Expression::FieldElement(field_expression) => {
@@ -317,7 +324,50 @@ impl ResolvedProgram {
                         );
                         resolved_program.insert(variable, ResolvedValue::FieldElement(res));
                     }
-                    _ => unimplemented!(),
+                    Expression::Variable(unresolved_variable) => {
+                        if resolved_program
+                            .resolved_variables
+                            .contains_key(&unresolved_variable)
+                        {
+                            // Reassigning variable to another variable
+                            let already_assigned = resolved_program
+                                .resolved_variables
+                                .get_mut(&unresolved_variable)
+                                .unwrap()
+                                .clone();
+                            resolved_program.insert(variable, already_assigned);
+                        } else {
+                            // The type of the unassigned variable depends on what is passed in
+                            if std::env::args()
+                                .nth(1)
+                                .unwrap_or("true".into())
+                                .parse::<bool>()
+                                .is_ok()
+                            {
+                                let resolved_boolean =
+                                    resolved_program.bool_from_variable(cs, unresolved_variable);
+                                println!(
+                                    "variable boolean result: {} = {}",
+                                    variable.0,
+                                    resolved_boolean.get_value().unwrap()
+                                );
+                                resolved_program
+                                    .insert(variable, ResolvedValue::Boolean(resolved_boolean));
+                            } else {
+                                let resolved_field_element =
+                                    resolved_program.u32_from_variable(cs, unresolved_variable);
+                                println!(
+                                    " variable field result: {} = {}",
+                                    variable.0,
+                                    resolved_field_element.value.unwrap()
+                                );
+                                resolved_program.insert(
+                                    variable,
+                                    ResolvedValue::FieldElement(resolved_field_element),
+                                );
+                            }
+                        }
+                    }
                 },
                 Statement::Return(statements) => {
                     statements
@@ -333,10 +383,25 @@ impl ResolvedProgram {
                                     resolved_program.enforce_field_expression(cs, field_expression);
                                 println!("field result: {}\n", res.value.unwrap());
                             }
-                            _ => unimplemented!(),
+                            Expression::Variable(variable) => {
+                                match resolved_program
+                                    .resolved_variables
+                                    .get_mut(&variable)
+                                    .unwrap()
+                                    .clone()
+                                {
+                                    ResolvedValue::Boolean(boolean) => println!(
+                                        "variable result: {}\n",
+                                        boolean.get_value().unwrap()
+                                    ),
+                                    ResolvedValue::FieldElement(field_element) => println!(
+                                        "variable field result: {}\n",
+                                        field_element.value.unwrap()
+                                    ),
+                                }
+                            }
                         });
                 }
-                statement => unimplemented!("statement unimplemented: {}", statement),
             });
     }
 }
