@@ -2,7 +2,7 @@ use crate::aleo_program::{
     BooleanExpression, Expression, FieldExpression, Program, Statement, Variable,
 };
 
-use snarkos_models::curves::Field;
+use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
@@ -30,35 +30,36 @@ impl ResolvedProgram {
         self.resolved_variables.insert(variable, value);
     }
 
-    fn bool_from_variable<F: Field, CS: ConstraintSystem<F>>(
+    fn bool_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         variable: Variable,
     ) -> Boolean {
         if self.resolved_variables.contains_key(&variable) {
+            // TODO: return synthesis error: "assignment missing" here
             match self.resolved_variables.get(&variable).unwrap() {
                 ResolvedValue::Boolean(boolean) => boolean.clone(),
                 _ => panic!("expected a boolean, got field"),
-            };
-            Boolean::Constant(true)
+            }
         } else {
             let argument = std::env::args()
                 .nth(1)
                 .unwrap_or("true".into())
                 .parse::<bool>()
                 .unwrap();
-            println!(" argument passed to command line a = {:?}", argument);
+            println!(" argument passed to command line a = {:?}\n", argument);
             // let a = true;
-            Boolean::alloc_input(cs.ns(|| variable.0), || Ok(argument)).unwrap()
+            Boolean::alloc(cs.ns(|| variable.0), || Ok(argument)).unwrap()
         }
     }
 
-    fn u32_from_variable<F: Field, CS: ConstraintSystem<F>>(
+    fn u32_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         variable: Variable,
     ) -> UInt32 {
         if self.resolved_variables.contains_key(&variable) {
+            // TODO: return synthesis error: "assignment missing" here
             match self.resolved_variables.get(&variable).unwrap() {
                 ResolvedValue::FieldElement(field) => field.clone(),
                 _ => panic!("expected a field, got boolean"),
@@ -70,14 +71,14 @@ impl ResolvedProgram {
                 .parse::<u32>()
                 .unwrap();
 
-            println!(" argument passed to command line a = {:?}", argument);
+            println!(" argument passed to command line a = {:?}\n", argument);
 
             // let a = 1;
             UInt32::alloc(cs.ns(|| variable.0), Some(argument)).unwrap()
         }
     }
 
-    fn get_bool_value<F: Field, CS: ConstraintSystem<F>>(
+    fn get_bool_value<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         expression: BooleanExpression,
@@ -89,7 +90,7 @@ impl ResolvedProgram {
         }
     }
 
-    fn get_u32_value<F: Field, CS: ConstraintSystem<F>>(
+    fn get_u32_value<F: Field + PrimeField + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         expression: FieldExpression,
@@ -101,7 +102,17 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_or<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_not<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        expression: BooleanExpression,
+    ) -> Boolean {
+        let expression = self.get_bool_value(cs, expression);
+
+        expression.not()
+    }
+
+    fn enforce_or<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: BooleanExpression,
@@ -113,7 +124,7 @@ impl ResolvedProgram {
         Boolean::or(cs, &left, &right).unwrap()
     }
 
-    fn enforce_and<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_and<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: BooleanExpression,
@@ -125,7 +136,7 @@ impl ResolvedProgram {
         Boolean::and(cs, &left, &right).unwrap()
     }
 
-    fn enforce_bool_equality<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_bool_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: BooleanExpression,
@@ -140,7 +151,7 @@ impl ResolvedProgram {
         Boolean::Constant(true)
     }
 
-    fn enforce_field_equality<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_field_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -159,12 +170,13 @@ impl ResolvedProgram {
         Boolean::Constant(true)
     }
 
-    fn enforce_boolean_expression<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_boolean_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         expression: BooleanExpression,
     ) -> Boolean {
         match expression {
+            BooleanExpression::Not(expression) => self.enforce_not(cs, *expression),
             BooleanExpression::Or(left, right) => self.enforce_or(cs, *left, *right),
             BooleanExpression::And(left, right) => self.enforce_and(cs, *left, *right),
             BooleanExpression::BoolEq(left, right) => self.enforce_bool_equality(cs, *left, *right),
@@ -175,7 +187,7 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_add<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -184,23 +196,14 @@ impl ResolvedProgram {
         let left = self.get_u32_value(cs, left);
         let right = self.get_u32_value(cs, right);
 
-        println!("left: {:#?}", left.value.unwrap());
-        println!("right: {:#?}", right.value.unwrap());
-        // println!("expected: {:#?}", UInt32::alloc(cs.ns(|| format!("expected")), Some(3)));
-
-        let res = left
-            .add(
-                cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
-                &right,
-            )
-            .unwrap();
-
-        println!("result: {:#?}", res.bits.to_vec());
-
-        res
+        UInt32::addmany(
+            cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
+            &[left, right],
+        )
+        .unwrap()
     }
 
-    fn enforce_sub<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -216,7 +219,7 @@ impl ResolvedProgram {
         .unwrap()
     }
 
-    fn enforce_mul<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -225,9 +228,6 @@ impl ResolvedProgram {
         let left = self.get_u32_value(cs, left);
         let right = self.get_u32_value(cs, right);
 
-        println!("left: {}", left.value.unwrap());
-        println!("right: {}", right.value.unwrap());
-
         let res = left
             .mul(
                 cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
@@ -235,12 +235,10 @@ impl ResolvedProgram {
             )
             .unwrap();
 
-        println!("result: {}", res.value.unwrap());
-
         res
     }
 
-    fn enforce_div<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -256,7 +254,7 @@ impl ResolvedProgram {
         .unwrap()
     }
 
-    fn enforce_pow<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: FieldExpression,
@@ -278,12 +276,11 @@ impl ResolvedProgram {
         .unwrap()
     }
 
-    fn enforce_field_expression<F: Field, CS: ConstraintSystem<F>>(
+    fn enforce_field_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         expression: FieldExpression,
     ) -> UInt32 {
-        println!("enforcing: {}", expression);
         match expression {
             FieldExpression::Add(left, right) => self.enforce_add(cs, *left, *right),
             FieldExpression::Sub(left, right) => self.enforce_sub(cs, *left, *right),
@@ -294,7 +291,10 @@ impl ResolvedProgram {
         }
     }
 
-    pub fn generate_constraints<F: Field, CS: ConstraintSystem<F>>(cs: &mut CS, program: Program) {
+    pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        cs: &mut CS,
+        program: Program,
+    ) {
         let mut resolved_program = ResolvedProgram::new();
 
         program
@@ -305,7 +305,7 @@ impl ResolvedProgram {
                     Expression::Boolean(boolean_expression) => {
                         let res =
                             resolved_program.enforce_boolean_expression(cs, boolean_expression);
-                        // println!("variable boolean result: {}", res.get_value().unwrap());
+                        println!("variable boolean result: {}", res.get_value().unwrap());
                         resolved_program.insert(variable, ResolvedValue::Boolean(res));
                     }
                     Expression::FieldElement(field_expression) => {
@@ -326,13 +326,12 @@ impl ResolvedProgram {
                             Expression::Boolean(boolean_expression) => {
                                 let res = resolved_program
                                     .enforce_boolean_expression(cs, boolean_expression);
-                                println!("boolean result: {}", res.get_value().unwrap());
+                                println!("boolean result: {}\n", res.get_value().unwrap());
                             }
                             Expression::FieldElement(field_expression) => {
-                                println!("expression {:?}", field_expression);
                                 let res =
                                     resolved_program.enforce_field_expression(cs, field_expression);
-                                println!("field result: {}", res.value.unwrap());
+                                println!("field result: {}\n", res.value.unwrap());
                             }
                             _ => unimplemented!(),
                         });
