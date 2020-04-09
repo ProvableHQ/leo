@@ -340,7 +340,7 @@ impl ResolvedProgram {
                             // The type of the unassigned variable depends on what is passed in
                             if std::env::args()
                                 .nth(1)
-                                .unwrap_or("true".into())
+                                .expect("variable declaration not passed in")
                                 .parse::<bool>()
                                 .is_ok()
                             {

@@ -39,7 +39,7 @@ operation_binary = _ {
     operation_and | operation_or |
     operation_eq | operation_neq |
     operation_geq | operation_gt | operation_leq | operation_lt |
-    operation_add | operation_sub | operation_mul | operation_div | operation_pow
+    operation_add | operation_sub | operation_pow | operation_mul | operation_div
 }
 
 // operation_add_assign = { "+=" }

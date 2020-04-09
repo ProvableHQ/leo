@@ -1,2 +1,2 @@
-x = a
-return x
+x = 5 + a
+return x ** 2 * 2
