@@ -10,9 +10,6 @@ pub use self::types::*;
 pub mod constraints;
 pub use self::constraints::*;
 
-pub mod gadgets;
-pub use self::gadgets::*;
-
 pub mod types_display;
 pub use self::types_display::*;
 

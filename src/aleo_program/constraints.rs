@@ -178,12 +178,23 @@ impl ResolvedProgram {
     ) -> Boolean {
         match expression {
             BooleanExpression::Variable(variable) => self.bool_from_variable(cs, variable),
+            BooleanExpression::Value(value) => Boolean::Constant(value),
             BooleanExpression::Not(expression) => self.enforce_not(cs, *expression),
             BooleanExpression::Or(left, right) => self.enforce_or(cs, *left, *right),
             BooleanExpression::And(left, right) => self.enforce_and(cs, *left, *right),
             BooleanExpression::BoolEq(left, right) => self.enforce_bool_equality(cs, *left, *right),
             BooleanExpression::FieldEq(left, right) => {
                 self.enforce_field_equality(cs, *left, *right)
+            }
+            BooleanExpression::IfElse(first, second, third) => {
+                if self
+                    .enforce_boolean_expression(cs, *first)
+                    .eq(&Boolean::Constant(true))
+                {
+                    self.enforce_boolean_expression(cs, *second)
+                } else {
+                    self.enforce_boolean_expression(cs, *third)
+                }
             }
             _ => unimplemented!(),
         }
@@ -285,12 +296,22 @@ impl ResolvedProgram {
     ) -> UInt32 {
         match expression {
             FieldExpression::Variable(variable) => self.u32_from_variable(cs, variable),
+            FieldExpression::Number(number) => UInt32::constant(number),
             FieldExpression::Add(left, right) => self.enforce_add(cs, *left, *right),
             FieldExpression::Sub(left, right) => self.enforce_sub(cs, *left, *right),
             FieldExpression::Mul(left, right) => self.enforce_mul(cs, *left, *right),
             FieldExpression::Div(left, right) => self.enforce_div(cs, *left, *right),
             FieldExpression::Pow(left, right) => self.enforce_pow(cs, *left, *right),
-            _ => unimplemented!(),
+            FieldExpression::IfElse(first, second, third) => {
+                if self
+                    .enforce_boolean_expression(cs, *first)
+                    .eq(&Boolean::Constant(true))
+                {
+                    self.enforce_field_expression(cs, *second)
+                } else {
+                    self.enforce_field_expression(cs, *third)
+                }
+            }
         }
     }
 
@@ -309,7 +330,7 @@ impl ResolvedProgram {
                         let res =
                             resolved_program.enforce_boolean_expression(cs, boolean_expression);
                         println!(
-                            "variable boolean result: {} = {}",
+                            " variable boolean result: {} = {}",
                             variable.0,
                             res.get_value().unwrap()
                         );
@@ -376,12 +397,12 @@ impl ResolvedProgram {
                             Expression::Boolean(boolean_expression) => {
                                 let res = resolved_program
                                     .enforce_boolean_expression(cs, boolean_expression);
-                                println!("boolean result: {}\n", res.get_value().unwrap());
+                                println!("\n  Boolean result = {}", res.get_value().unwrap());
                             }
                             Expression::FieldElement(field_expression) => {
                                 let res =
                                     resolved_program.enforce_field_expression(cs, field_expression);
-                                println!("field result: {}\n", res.value.unwrap());
+                                println!("\n  Field result = {}", res.value.unwrap());
                             }
                             Expression::Variable(variable) => {
                                 match resolved_program
@@ -391,11 +412,11 @@ impl ResolvedProgram {
                                     .clone()
                                 {
                                     ResolvedValue::Boolean(boolean) => println!(
-                                        "variable result: {}\n",
+                                        "\n  Variable result = {}",
                                         boolean.get_value().unwrap()
                                     ),
                                     ResolvedValue::FieldElement(field_element) => println!(
-                                        "variable field result: {}\n",
+                                        "\n  Variable field result = {}",
                                         field_element.value.unwrap()
                                     ),
                                 }

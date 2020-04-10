@@ -72,12 +72,23 @@ variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHAN
 // Consider structs, conditionals, postfix, primary, inline array, array initializer, and unary
 expression_primitive = { value | variable }
 expression_not = { operation_pre_not ~ expression_term }
-expression_term = { expression_primitive | expression_not | ("(" ~ expression ~ ")")  }
+expression_term = { ("(" ~ expression ~ ")") | expression_conditional | expression_primitive | expression_not}
 
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
-
 // expression_increment = { expression ~ operation_post_increment }
 // expression_decrement = { expression ~ operation_post_decrement }
+
+// Conditionals
+
+expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ expression ~ "fi"}
+// conditional_if = { "if" }
+// conditional_else = { "else" }
+//
+// conditional_for = { "for" }
+//
+// conditional = { conditional_if | conditional_else | conditional_for }
+
+
 
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
@@ -92,16 +103,6 @@ statement = { (statement_return | (statement_assign) ~ NEWLINE) ~ NEWLINE* }
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ NEWLINE }
-
-
-// /// Conditionals
-//
-// conditional_if = { "if" }
-// conditional_else = { "else" }
-//
-// conditional_for = { "for" }
-//
-// conditional = { conditional_if | conditional_else | conditional_for }
 
 // /// Helpers
 //

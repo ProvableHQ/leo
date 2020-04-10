@@ -33,11 +33,13 @@ pub struct Variable(pub String);
 pub enum FieldExpression {
     Variable(Variable),
     Number(u32),
+    // Operators
     Add(Box<FieldExpression>, Box<FieldExpression>),
     Sub(Box<FieldExpression>, Box<FieldExpression>),
     Mul(Box<FieldExpression>, Box<FieldExpression>),
     Div(Box<FieldExpression>, Box<FieldExpression>),
     Pow(Box<FieldExpression>, Box<FieldExpression>),
+    // Conditionals
     IfElse(
         Box<BooleanExpression>,
         Box<FieldExpression>,
@@ -61,6 +63,12 @@ pub enum BooleanExpression {
     Gt(Box<FieldExpression>, Box<FieldExpression>),
     Leq(Box<FieldExpression>, Box<FieldExpression>),
     Lt(Box<FieldExpression>, Box<FieldExpression>),
+    // Conditionals
+    IfElse(
+        Box<BooleanExpression>,
+        Box<BooleanExpression>,
+        Box<BooleanExpression>,
+    ),
 }
 
 /// Expression that evaluates to a value

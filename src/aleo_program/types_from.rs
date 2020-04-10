@@ -5,7 +5,6 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::{BooleanExpression, Statement};
 use crate::{aleo_program::types, ast};
 
 impl<'ast> From<ast::Field<'ast>> for types::FieldExpression {
@@ -64,7 +63,7 @@ impl<'ast> From<ast::Variable<'ast>> for types::Expression {
 
 impl<'ast> From<ast::NotExpression<'ast>> for types::Expression {
     fn from(expression: ast::NotExpression<'ast>) -> Self {
-        types::Expression::Boolean(BooleanExpression::Not(Box::new(
+        types::Expression::Boolean(types::BooleanExpression::Not(Box::new(
             types::BooleanExpression::from(*expression.expression),
         )))
     }
@@ -119,7 +118,7 @@ impl<'ast> types::BooleanExpression {
                     Box::new(types::BooleanExpression::Variable(lhs)),
                     Box::new(rhs),
                 )
-            }
+            } //TODO: check case for two variables?
             // Field equality
             (types::Expression::FieldElement(lhs), types::Expression::FieldElement(rhs)) => {
                 types::BooleanExpression::FieldEq(Box::new(lhs), Box::new(rhs))
@@ -215,6 +214,69 @@ impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
     }
 }
 
+impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
+    fn from(expression: ast::TernaryExpression<'ast>) -> Self {
+        // Evaluate expressions to find out result type
+        let first = types::BooleanExpression::from(*expression.first);
+        let second = types::Expression::from(*expression.second);
+        let third = types::Expression::from(*expression.third);
+
+        match (second, third) {
+            // Boolean Result
+            (types::Expression::Boolean(second), types::Expression::Boolean(third)) => {
+                types::Expression::Boolean(types::BooleanExpression::IfElse(
+                    Box::new(first),
+                    Box::new(second),
+                    Box::new(third),
+                ))
+            }
+            (types::Expression::Boolean(second), types::Expression::Variable(third)) => {
+                types::Expression::Boolean(types::BooleanExpression::IfElse(
+                    Box::new(first),
+                    Box::new(second),
+                    Box::new(types::BooleanExpression::Variable(third)),
+                ))
+            }
+            (types::Expression::Variable(second), types::Expression::Boolean(third)) => {
+                types::Expression::Boolean(types::BooleanExpression::IfElse(
+                    Box::new(first),
+                    Box::new(types::BooleanExpression::Variable(second)),
+                    Box::new(third),
+                ))
+            }
+            // Field Result
+            (types::Expression::FieldElement(second), types::Expression::FieldElement(third)) => {
+                types::Expression::FieldElement(types::FieldExpression::IfElse(
+                    Box::new(first),
+                    Box::new(second),
+                    Box::new(third),
+                ))
+            }
+            (types::Expression::FieldElement(second), types::Expression::Variable(third)) => {
+                types::Expression::FieldElement(types::FieldExpression::IfElse(
+                    Box::new(first),
+                    Box::new(second),
+                    Box::new(types::FieldExpression::Variable(third)),
+                ))
+            }
+            (types::Expression::Variable(second), types::Expression::FieldElement(third)) => {
+                types::Expression::FieldElement(types::FieldExpression::IfElse(
+                    Box::new(first),
+                    Box::new(types::FieldExpression::Variable(second)),
+                    Box::new(third),
+                ))
+            }
+
+            (second, third) => unimplemented!(
+                "pattern if {} then {} else {} unimplemented",
+                first,
+                second,
+                third
+            ),
+        }
+    }
+}
+
 impl<'ast> From<ast::Expression<'ast>> for types::Expression {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match expression {
@@ -222,6 +284,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::Variable(variable) => types::Expression::from(variable),
             ast::Expression::Not(expression) => types::Expression::from(expression),
             ast::Expression::Binary(expression) => types::Expression::from(expression),
+            ast::Expression::Ternary(expression) => types::Expression::from(expression),
         }
     }
 }
@@ -259,7 +322,7 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
         // 1. compile ast -> aleo program representation
-        let statements: Vec<Statement> = file
+        let statements: Vec<types::Statement> = file
             .statements
             .into_iter()
             .map(|statement| types::Statement::from(statement))

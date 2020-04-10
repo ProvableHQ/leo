@@ -76,6 +76,12 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                     let expression = parse_term(inner.next().unwrap());
                     Expression::Not(NotExpression { operation, expression, span })
                 },
+                Rule::expression_conditional => {
+                    println!("conditional expression");
+                    Expression::Ternary(
+                        TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                    )
+                }
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
 
                 // Rule::expression_increment => {
@@ -315,6 +321,16 @@ pub struct BinaryExpression<'ast> {
     pub span: Span<'ast>,
 }
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::expression_conditional))]
+pub struct TernaryExpression<'ast> {
+    pub first: Box<Expression<'ast>>,
+    pub second: Box<Expression<'ast>>,
+    pub third: Box<Expression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 // #[derive(Clong, Debug, PartialEq)]
 // pub struct IdentifierExpression<'ast> {
 //     pub value: String,
@@ -327,6 +343,7 @@ pub enum Expression<'ast> {
     Variable(Variable<'ast>),
     Not(NotExpression<'ast>),
     Binary(BinaryExpression<'ast>),
+    Ternary(TernaryExpression<'ast>),
     // Increment(IncrementExpression<'ast>),
     // Decrement(DecrementExpression<'ast>),
 }
@@ -346,12 +363,27 @@ impl<'ast> Expression<'ast> {
         })
     }
 
+    pub fn ternary(
+        first: Box<Expression<'ast>>,
+        second: Box<Expression<'ast>>,
+        third: Box<Expression<'ast>>,
+        span: Span<'ast>,
+    ) -> Self {
+        Expression::Ternary(TernaryExpression {
+            first,
+            second,
+            third,
+            span,
+        })
+    }
+
     pub fn span(&self) -> &Span<'ast> {
         match self {
             Expression::Value(expression) => &expression.span(),
             Expression::Variable(expression) => &expression.span,
             Expression::Not(expression) => &expression.span,
             Expression::Binary(expression) => &expression.span,
+            Expression::Ternary(expression) => &expression.span,
             // Expression::Increment(expression) => &expression.span,
             // Expression::Decrement(expression) => &expression.span,
         }
@@ -367,6 +399,11 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::Binary(ref expression) => {
                 write!(f, "{} == {}", expression.left, expression.right)
             }
+            Expression::Ternary(ref expression) => write!(
+                f,
+                "if {} then {} else {} fi",
+                expression.first, expression.second, expression.third
+            ),
         }
     }
 }

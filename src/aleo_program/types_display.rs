@@ -24,7 +24,9 @@ impl<'ast> fmt::Display for FieldExpression {
             FieldExpression::Mul(ref lhs, ref rhs) => write!(f, "{} * {}", lhs, rhs),
             FieldExpression::Div(ref lhs, ref rhs) => write!(f, "{} / {}", lhs, rhs),
             FieldExpression::Pow(ref lhs, ref rhs) => write!(f, "{} ** {}", lhs, rhs),
-            FieldExpression::IfElse(ref _a, ref _b, ref _c) => unimplemented!(),
+            FieldExpression::IfElse(ref a, ref b, ref c) => {
+                write!(f, "if {} then {} else {} fi", a, b, c)
+            }
         }
     }
 }
@@ -44,6 +46,9 @@ impl<'ast> fmt::Display for BooleanExpression {
             BooleanExpression::Gt(ref lhs, ref rhs) => write!(f, "{} > {}", lhs, rhs),
             BooleanExpression::Leq(ref lhs, ref rhs) => write!(f, "{} <= {}", lhs, rhs),
             BooleanExpression::Lt(ref lhs, ref rhs) => write!(f, "{} < {}", lhs, rhs),
+            BooleanExpression::IfElse(ref a, ref b, ref c) => {
+                write!(f, "if {} then {} else {} fi", a, b, c)
+            }
         }
     }
 }

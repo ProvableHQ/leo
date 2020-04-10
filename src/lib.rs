@@ -13,4 +13,4 @@ pub mod ast;
 
 pub mod aleo_program;
 
-pub mod zokrates_program;
+// pub mod zokrates_program;
