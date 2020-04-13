@@ -56,6 +56,12 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
+                Rule::expression_inline_struct => {
+                    println!("struct inline");
+                    Expression::StructInline(
+                        StructInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                    )
+                },
                 Rule::expression_array_inline => {
                     println!("array inline");
                     Expression::ArrayInline(
@@ -162,15 +168,6 @@ fn binary_expression<'ast>(
     })
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::file))]
-pub struct File<'ast> {
-    pub statements: Vec<Statement<'ast>>,
-    pub eoi: EOI,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
 // Types
 
 #[derive(Debug, FromPest, PartialEq, Clone)]
@@ -187,14 +184,14 @@ pub struct FieldType<'ast> {
     pub span: Span<'ast>,
 }
 
-// #[derive(Debug, FromPest, PartialEq, Clone)]
-// #[pest_ast(rule(Rule::ty_struct))]
-// pub struct StructType<'ast> {
-//     pub id: IdentifierExpression<'ast>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-//
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_struct))]
+pub struct StructType<'ast> {
+    pub variable: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 #[derive(Debug, FromPest, PartialEq, Clone)]
 #[pest_ast(rule(Rule::ty_basic))]
 pub enum BasicType<'ast> {
@@ -202,12 +199,12 @@ pub enum BasicType<'ast> {
     Boolean(BooleanType<'ast>),
 }
 
-// #[derive(Debug, FromPest, PartialEq, Clone)]
-// #[pest_ast(rule(Rule::ty_basic_or_struct))]
-// pub enum BasicOrStructType<'ast> {
-//     Struct(StructType<'ast>),
-//     Basic(BasicType<'ast>),
-// }
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_basic_or_struct))]
+pub enum BasicOrStructType<'ast> {
+    Struct(StructType<'ast>),
+    Basic(BasicType<'ast>),
+}
 
 #[derive(Debug, FromPest, PartialEq, Clone)]
 #[pest_ast(rule(Rule::ty_array))]
@@ -221,9 +218,9 @@ pub struct ArrayType<'ast> {
 #[derive(Debug, FromPest, PartialEq, Clone)]
 #[pest_ast(rule(Rule::ty))]
 pub enum Type<'ast> {
-    // Basic(BasicType<'ast>),
+    Basic(BasicType<'ast>),
     Array(ArrayType<'ast>),
-    // Struct(StructType<'ast>),
+    Struct(StructType<'ast>),
 }
 
 // Visibility
@@ -475,6 +472,44 @@ pub struct ArrayInitializerExpression<'ast> {
     pub span: Span<'ast>,
 }
 
+// Structs
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::struct_field))]
+pub struct StructField<'ast> {
+    pub ty: Type<'ast>,
+    pub variable: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::struct_definition))]
+pub struct Struct<'ast> {
+    pub variable: Variable<'ast>,
+    pub fields: Vec<StructField<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::inline_struct_member))]
+pub struct InlineStructMember<'ast> {
+    pub variable: Variable<'ast>,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::expression_inline_struct))]
+pub struct StructInlineExpression<'ast> {
+    pub variable: Variable<'ast>,
+    pub members: Vec<InlineStructMember<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 // Expressions
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -533,6 +568,7 @@ pub enum Expression<'ast> {
     Ternary(TernaryExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
     ArrayInitializer(ArrayInitializerExpression<'ast>),
+    StructInline(StructInlineExpression<'ast>),
     Postfix(PostfixExpression<'ast>),
 }
 
@@ -576,6 +612,7 @@ impl<'ast> Expression<'ast> {
             Expression::Ternary(expression) => &expression.span,
             Expression::ArrayInline(expression) => &expression.span,
             Expression::ArrayInitializer(expression) => &expression.span,
+            Expression::StructInline(expression) => &expression.span,
             Expression::Postfix(expression) => &expression.span,
         }
     }
@@ -608,6 +645,9 @@ impl<'ast> fmt::Display for Expression<'ast> {
             }
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "{} = {}", expression.value, expression.expression)
+            }
+            Expression::StructInline(ref expression) => {
+                write!(f, "inline struct display not impl {}", expression.variable)
             }
             Expression::Postfix(ref expression) => {
                 write!(f, "Postfix display not impl {}", expression.variable)
@@ -703,6 +743,42 @@ impl<'ast> fmt::Display for Statement<'ast> {
             Statement::Return(ref statement) => write!(f, "{}", statement),
         }
     }
+}
+
+// Functions
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::parameter))]
+pub struct Parameter<'ast> {
+    pub visibility: Option<Visibility>,
+    pub ty: Type<'ast>,
+    pub variable: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::function_definition))]
+pub struct Function<'ast> {
+    pub variable: Variable<'ast>,
+    pub parameters: Vec<Parameter<'ast>>,
+    pub returns: Vec<Type<'ast>>,
+    pub statements: Vec<Statement<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+// File
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::file))]
+pub struct File<'ast> {
+    pub structs: Vec<Struct<'ast>>,
+    pub functions: Vec<Function<'ast>>,
+    pub statements: Vec<Statement<'ast>>,
+    pub eoi: EOI,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
 }
 
 // Utilities

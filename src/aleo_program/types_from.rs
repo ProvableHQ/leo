@@ -333,6 +333,12 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
         // 1. compile ast -> aleo program representation
+        file.structs
+            .into_iter()
+            .for_each(|struct_def| println!("{:#?}", struct_def));
+        file.functions
+            .into_iter()
+            .for_each(|function_def| println!("{:#?}", function_def));
         let statements: Vec<types::Statement> = file
             .statements
             .into_iter()
