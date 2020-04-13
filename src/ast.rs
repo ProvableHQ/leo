@@ -13,6 +13,7 @@ use pest::{
 };
 use pest_ast::FromPest;
 use std::fmt;
+use std::fmt::Formatter;
 
 #[derive(Parser)]
 #[grammar = "language.pest"]
@@ -54,6 +55,41 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let clone = pair.clone();
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
+                Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
+                Rule::expression_array_inline => {
+                    println!("array inline");
+                    Expression::ArrayInline(
+                        ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap()
+                    )
+                },
+                Rule::expression_array_initializer => {
+                    println!("array initializer");
+                    Expression::ArrayInitializer(
+                        ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap()
+                    )
+                },
+                Rule::expression_conditional => {
+                    println!("conditional expression");
+                    Expression::Ternary(
+                        TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                    )
+                },
+                Rule::expression_not => {
+                    let span = next.as_span();
+                    let mut inner = next.into_inner();
+                    let operation = match inner.next().unwrap().as_rule() {
+                        Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
+                    };
+                    let expression = parse_term(inner.next().unwrap());
+                    Expression::Not(NotExpression { operation, expression, span })
+                },
+                Rule::expression_postfix => {
+                    println!("postfix expression");
+                    Expression::Postfix(
+                        PostfixExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                    )
+                }
                 Rule::expression_primitive => {
                     let next = next.into_inner().next().unwrap();
                     match next.as_rule() {
@@ -65,25 +101,7 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                         ),
                         rule => unreachable!("`expression_primitive` should contain one of [`value`, `variable`], found {:#?}", rule)
                     }
-                }
-                Rule::expression_not => {
-                    let span = next.as_span();
-                    let mut inner = next.into_inner();
-                    let operation = match inner.next().unwrap().as_rule() {
-                        Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
-                    };
-                    let expression = parse_term(inner.next().unwrap());
-                    Expression::Not(NotExpression { operation, expression, span })
                 },
-                Rule::expression_conditional => {
-                    println!("conditional expression");
-                    Expression::Ternary(
-                        TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                }
-                Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-
                 // Rule::expression_increment => {
                 //     let span = next.as_span();
                 //     let mut inner = next.into_inner();
@@ -149,6 +167,61 @@ pub struct File<'ast> {
     pub eoi: EOI,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
+}
+
+// Types
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_bool))]
+pub struct BooleanType<'ast> {
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_field))]
+pub struct FieldType<'ast> {
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[pest_ast(rule(Rule::ty_struct))]
+// pub struct StructType<'ast> {
+//     pub id: IdentifierExpression<'ast>,
+//     #[pest_ast(outer())]
+//     pub span: Span<'ast>,
+// }
+//
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_basic))]
+pub enum BasicType<'ast> {
+    Field(FieldType<'ast>),
+    Boolean(BooleanType<'ast>),
+}
+
+// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[pest_ast(rule(Rule::ty_basic_or_struct))]
+// pub enum BasicOrStructType<'ast> {
+//     Struct(StructType<'ast>),
+//     Basic(BasicType<'ast>),
+// }
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty_array))]
+pub struct ArrayType<'ast> {
+    pub ty: BasicType<'ast>,
+    pub dimensions: Vec<Expression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::ty))]
+pub enum Type<'ast> {
+    // Basic(BasicType<'ast>),
+    Array(ArrayType<'ast>),
+    // Struct(StructType<'ast>),
 }
 
 // Visibility
@@ -284,6 +357,122 @@ impl<'ast> fmt::Display for Variable<'ast> {
     }
 }
 
+// Access
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::from_expression))]
+pub struct FromExpression<'ast>(pub Expression<'ast>);
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::to_expression))]
+pub struct ToExpression<'ast>(pub Expression<'ast>);
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::range))]
+pub struct Range<'ast> {
+    pub from: Option<FromExpression<'ast>>,
+    pub to: Option<ToExpression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::range_or_expression))]
+pub enum RangeOrExpression<'ast> {
+    Range(Range<'ast>),
+    Expression(Expression<'ast>),
+}
+
+// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[pest_ast(rule(Rule::call_access))]
+// pub struct CallAccess<'ast> {
+//     pub expressions: Vec<Expression<'ast>>,
+//     #[pest_ast(outer())]
+//     pub span: Span<'ast>,
+// }
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::access_array))]
+pub struct ArrayAccess<'ast> {
+    pub expression: RangeOrExpression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[pest_ast(rule(Rule::member_access))]
+// pub struct MemberAccess<'ast> {
+//     pub id: IdentifierExpression<'ast>,
+//     #[pest_ast(outer())]
+//     pub span: Span<'ast>,
+// }
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::access))]
+pub enum Access<'ast> {
+    // Call(CallAccess<'ast>),
+    Select(ArrayAccess<'ast>),
+    // Member(MemberAccess<'ast>),
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::expression_postfix))]
+pub struct PostfixExpression<'ast> {
+    pub variable: Variable<'ast>,
+    pub accesses: Vec<Access<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::spread))]
+pub struct Spread<'ast> {
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for Spread<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "...{}", self.expression)
+    }
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::spread_or_expression))]
+pub enum SpreadOrExpression<'ast> {
+    Spread(Spread<'ast>),
+    Expression(Expression<'ast>),
+}
+
+impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpreadOrExpression::Spread(ref spread) => write!(f, "{}", spread),
+            SpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
+        }
+    }
+}
+
+// Arrays
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::expression_array_inline))]
+pub struct ArrayInlineExpression<'ast> {
+    pub expressions: Vec<SpreadOrExpression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::expression_array_initializer))]
+pub struct ArrayInitializerExpression<'ast> {
+    pub expression: Box<Expression<'ast>>,
+    pub value: Value<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 // Expressions
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -331,12 +520,6 @@ pub struct TernaryExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-// #[derive(Clong, Debug, PartialEq)]
-// pub struct IdentifierExpression<'ast> {
-//     pub value: String,
-//     pub span: Span<'ast>,
-// }
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression<'ast> {
     Value(Value<'ast>),
@@ -344,8 +527,10 @@ pub enum Expression<'ast> {
     Not(NotExpression<'ast>),
     Binary(BinaryExpression<'ast>),
     Ternary(TernaryExpression<'ast>),
-    // Increment(IncrementExpression<'ast>),
-    // Decrement(DecrementExpression<'ast>),
+    ArrayInline(ArrayInlineExpression<'ast>),
+    ArrayInitializer(ArrayInitializerExpression<'ast>),
+    Postfix(PostfixExpression<'ast>), // Increment(IncrementExpression<'ast>),
+                                      // Decrement(DecrementExpression<'ast>)
 }
 
 impl<'ast> Expression<'ast> {
@@ -384,6 +569,9 @@ impl<'ast> Expression<'ast> {
             Expression::Not(expression) => &expression.span,
             Expression::Binary(expression) => &expression.span,
             Expression::Ternary(expression) => &expression.span,
+            Expression::ArrayInline(expression) => &expression.span,
+            Expression::ArrayInitializer(expression) => &expression.span,
+            Expression::Postfix(expression) => &expression.span,
             // Expression::Increment(expression) => &expression.span,
             // Expression::Decrement(expression) => &expression.span,
         }
@@ -404,6 +592,21 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 "if {} then {} else {} fi",
                 expression.first, expression.second, expression.third
             ),
+            Expression::ArrayInline(ref expression) => {
+                for (i, spread_or_expression) in expression.expressions.iter().enumerate() {
+                    write!(f, "{}", spread_or_expression)?;
+                    if i < expression.expressions.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "")
+            }
+            Expression::ArrayInitializer(ref expression) => {
+                write!(f, "{} = {}", expression.value, expression.expression)
+            }
+            Expression::Postfix(ref expression) => {
+                write!(f, "Postfix display not impl {}", expression.variable)
+            }
         }
     }
 }
@@ -463,17 +666,35 @@ impl<'ast> fmt::Display for ReturnStatement<'ast> {
     }
 }
 
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::statement_definition))]
+pub struct DefinitionStatement<'ast> {
+    pub ty: Type<'ast>,
+    pub variable: Variable<'ast>,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Assign(AssignStatement<'ast>),
+    Definition(DefinitionStatement<'ast>),
     Return(ReturnStatement<'ast>),
+}
+
+impl<'ast> fmt::Display for DefinitionStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.expression)
+    }
 }
 
 impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Assign(ref statement) => write!(f, "{}", statement),
+            Statement::Definition(ref statement) => write!(f, "{}", statement),
             Statement::Return(ref statement) => write!(f, "{}", statement),
         }
     }

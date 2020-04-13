@@ -47,13 +47,25 @@ operation_binary = _ {
 // operation_mul_assign = { "*=" }
 // operation_div_assign = { "/=" }
 
+/// Types
+
+ty_field = {"field"}
+ty_bool = {"bool"}
+ty_basic = { ty_field | ty_bool }
+ty_basic_or_struct = {ty_basic | ty_struct }
+ty_array = {ty_basic ~ ("[" ~ expression ~ "]")+ }
+// ty = {ty_array | ty_basic | ty_struct}
+ty = {ty_array}
+type_list = _{(ty ~ ("," ~ ty)*)?}
+
+/// Structs
+
+ty_struct = { variable }
+
 /// Values
 
 value_boolean = { "true" | "false" }
 value_field = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) }
-
-// TODO: Boolean array, field array
-
 value = { value_boolean | value_field }
 
 /// Variables
@@ -67,18 +79,26 @@ protected_name = { visibility | value_boolean | "return" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 
-/// Expressions
+/// Access
 
-// Consider structs, conditionals, postfix, primary, inline array, array initializer, and unary
-expression_primitive = { value | variable }
-expression_not = { operation_pre_not ~ expression_term }
-expression_term = { ("(" ~ expression ~ ")") | expression_conditional | expression_primitive | expression_not}
+from_expression = { expression }
+to_expression = { expression }
+range = { from_expression? ~ ".." ~ to_expression }
+range_or_expression = { range | expression }
+access_array = { "[" ~ range_or_expression ~ "]" }
+access = { access_array }
+expression_postfix = { variable ~ access }
 
-expression = { expression_term ~ (operation_binary ~ expression_term)* }
-// expression_increment = { expression ~ operation_post_increment }
-// expression_decrement = { expression ~ operation_post_decrement }
+spread = { "..." ~ expression }
+spread_or_expression = { spread | expression }
 
-// Conditionals
+/// Arrays
+
+inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
+expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
+expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
+
+/// Conditionals
 
 expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ expression ~ "fi"}
 // conditional_if = { "if" }
@@ -88,6 +108,17 @@ expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ ex
 //
 // conditional = { conditional_if | conditional_else | conditional_for }
 
+/// Expressions
+
+// Consider structs, conditionals, postfix, primary, inline array, array initializer, and unary
+expression_primitive = { value | variable }
+expression_not = { operation_pre_not ~ expression_term }
+expression_term = { ("(" ~ expression ~ ")") | expression_conditional | expression_postfix | expression_primitive | expression_not | expression_array_inline | expression_array_initializer}
+
+expression = { expression_term ~ (operation_binary ~ expression_term)* }
+// expression_increment = { expression ~ operation_post_increment }
+// expression_decrement = { expression ~ operation_post_decrement }
+
 
 
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
@@ -95,9 +126,10 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 /// Statements
 
 statement_assign = { variable ~ "=" ~ expression }
+statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
 
-statement = { (statement_return | (statement_assign) ~ NEWLINE) ~ NEWLINE* }
+statement = { (statement_return | (statement_assign | statement_definition) ~ NEWLINE) ~ NEWLINE* }
 
 /// Utilities
 

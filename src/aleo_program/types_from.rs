@@ -285,12 +285,22 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::Not(expression) => types::Expression::from(expression),
             ast::Expression::Binary(expression) => types::Expression::from(expression),
             ast::Expression::Ternary(expression) => types::Expression::from(expression),
+            _ => unimplemented!(),
         }
     }
 }
 
 impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Variable::from(statement.variable),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
+impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
+    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Variable::from(statement.variable),
             types::Expression::from(statement.expression),
@@ -314,6 +324,7 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
             ast::Statement::Assign(statement) => types::Statement::from(statement),
+            ast::Statement::Definition(statement) => types::Statement::from(statement),
             ast::Statement::Return(statement) => types::Statement::from(statement),
         }
     }
