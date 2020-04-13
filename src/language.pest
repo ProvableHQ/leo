@@ -12,9 +12,13 @@ visibility = { visibility_public | visibility_private }
 /// Unary Operations
 
 operation_pre_not = { "!" }
+expression_not = { operation_pre_not ~ expression_term }
 
 operation_post_increment = { "++" }
+expression_increment = { operation_post_increment ~ expression_term }
+
 operation_post_decrement = { "--" }
+expression_decrement = { operation_post_decrement ~ expression_term }
 
 /// Binary Operations
 
@@ -78,6 +82,7 @@ protected_name = { visibility | value_boolean | "return" }
 //             "def" | "in" | "return" | "struct" | "true" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+expression_primitive = { value | variable }
 
 /// Access
 
@@ -111,13 +116,20 @@ expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ ex
 /// Expressions
 
 // Consider structs, conditionals, postfix, primary, inline array, array initializer, and unary
-expression_primitive = { value | variable }
-expression_not = { operation_pre_not ~ expression_term }
-expression_term = { ("(" ~ expression ~ ")") | expression_conditional | expression_postfix | expression_primitive | expression_not | expression_array_inline | expression_array_initializer}
+expression_term = {
+    ("(" ~ expression ~ ")")
+    | expression_conditional
+    | expression_postfix
+    | expression_primitive
+    | expression_not
+    | expression_increment
+    | expression_decrement
+    | expression_array_inline
+    | expression_array_initializer
+}
 
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
-// expression_increment = { expression ~ operation_post_increment }
-// expression_decrement = { expression ~ operation_post_decrement }
+
 
 
 

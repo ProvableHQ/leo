@@ -84,6 +84,28 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                     let expression = parse_term(inner.next().unwrap());
                     Expression::Not(NotExpression { operation, expression, span })
                 },
+                Rule::expression_increment => {
+                    println!("expression increment");
+                    let span = next.as_span();
+                    let mut inner = next.into_inner();
+                    let expression = parse_term(inner.next().unwrap());
+                    let operation = match inner.next().unwrap().as_rule() {
+                        Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
+                    };
+                    Expression::Increment(IncrementExpression { operation, expression, span })
+                },
+                Rule::expression_decrement => {
+                    println!("expression decrement");
+                    let span = next.as_span();
+                    let mut inner = next.into_inner();
+                    let expression = parse_term(inner.next().unwrap());
+                    let operation = match inner.next().unwrap().as_rule() {
+                        Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
+                    };
+                    Expression::Decrement(DecrementExpression { operation, expression, span })
+                },
                 Rule::expression_postfix => {
                     println!("postfix expression");
                     Expression::Postfix(
@@ -102,26 +124,6 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                         rule => unreachable!("`expression_primitive` should contain one of [`value`, `variable`], found {:#?}", rule)
                     }
                 },
-                // Rule::expression_increment => {
-                //     let span = next.as_span();
-                //     let mut inner = next.into_inner();
-                //     let expression = parse_expression_term(inner.next().unwrap());
-                //     let operation = match inner.next().unwrap().as_rule() {
-                //         Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                //         rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
-                //     };
-                //     Expression::Increment(IncrementExpression { operation, expression, span })
-                // },
-                // Rule::expression_decrement => {
-                //     let span = next.as_span();
-                //     let mut inner = next.into_inner();
-                //     let expression = parse_expression_term(inner.next().unwrap());
-                //     let operation = match inner.next().unwrap().as_rule() {
-                //         Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                //         rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
-                //     };
-                //     Expression::Decrement(DecrementExpression { operation, expression, span })
-                // },
 
                 rule => unreachable!("`term` should contain one of ['value', 'variable', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
             }
@@ -484,23 +486,23 @@ pub struct NotExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::expression_increment))]
-// pub struct IncrementExpression<'ast> {
-//     pub expression: Box<Expression<'ast>>,
-//     pub operation: Increment<'ast>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-//
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::expression_decrement))]
-// pub struct DecrementExpression<'ast> {
-//     pub expression: Box<Expression<'ast>>,
-//     pub operation: Decrement<'ast>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::expression_increment))]
+pub struct IncrementExpression<'ast> {
+    pub expression: Box<Expression<'ast>>,
+    pub operation: Increment<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::expression_decrement))]
+pub struct DecrementExpression<'ast> {
+    pub expression: Box<Expression<'ast>>,
+    pub operation: Decrement<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpression<'ast> {
@@ -525,12 +527,13 @@ pub enum Expression<'ast> {
     Value(Value<'ast>),
     Variable(Variable<'ast>),
     Not(NotExpression<'ast>),
+    Increment(IncrementExpression<'ast>),
+    Decrement(DecrementExpression<'ast>),
     Binary(BinaryExpression<'ast>),
     Ternary(TernaryExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
     ArrayInitializer(ArrayInitializerExpression<'ast>),
-    Postfix(PostfixExpression<'ast>), // Increment(IncrementExpression<'ast>),
-                                      // Decrement(DecrementExpression<'ast>)
+    Postfix(PostfixExpression<'ast>),
 }
 
 impl<'ast> Expression<'ast> {
@@ -567,13 +570,13 @@ impl<'ast> Expression<'ast> {
             Expression::Value(expression) => &expression.span(),
             Expression::Variable(expression) => &expression.span,
             Expression::Not(expression) => &expression.span,
+            Expression::Increment(expression) => &expression.span,
+            Expression::Decrement(expression) => &expression.span,
             Expression::Binary(expression) => &expression.span,
             Expression::Ternary(expression) => &expression.span,
             Expression::ArrayInline(expression) => &expression.span,
             Expression::ArrayInitializer(expression) => &expression.span,
             Expression::Postfix(expression) => &expression.span,
-            // Expression::Increment(expression) => &expression.span,
-            // Expression::Decrement(expression) => &expression.span,
         }
     }
 }
@@ -583,7 +586,9 @@ impl<'ast> fmt::Display for Expression<'ast> {
         match *self {
             Expression::Value(ref expression) => write!(f, "{}", expression),
             Expression::Variable(ref expression) => write!(f, "{}", expression),
-            Expression::Not(ref expression) => write!(f, "{}", expression.expression),
+            Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
+            Expression::Increment(ref expression) => write!(f, "{}++", expression.expression),
+            Expression::Decrement(ref expression) => write!(f, "{}--", expression.expression),
             Expression::Binary(ref expression) => {
                 write!(f, "{} == {}", expression.left, expression.right)
             }
