@@ -1,6 +1,4 @@
-struct Bar {
-    field a
-}
-def foo() -> (field):
-    return 1
+for field i in 0..4 do
+    a = 1 + 1
+endfor
 return 1

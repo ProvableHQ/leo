@@ -135,7 +135,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Statements
 
-statement_expression = { expression }
+// statement_expression = { expression }
 statement_assign = { variable ~ "=" ~ expression }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
@@ -146,7 +146,7 @@ statement = {
     | (statement_iteration
       | statement_assign
       | statement_definition
-      | statement_expression
+//       | statement_expression
       ) ~ NEWLINE
     ) ~ NEWLINE*
 }

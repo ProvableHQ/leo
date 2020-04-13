@@ -223,6 +223,16 @@ pub enum Type<'ast> {
     Struct(StructType<'ast>),
 }
 
+impl<'ast> fmt::Display for Type<'ast> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match *self {
+            Type::Basic(ref _ty) => write!(f, "basic"),
+            Type::Array(ref _ty) => write!(f, "array"),
+            Type::Struct(ref _ty) => write!(f, "struct"),
+        }
+    }
+}
+
 // Visibility
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -685,10 +695,26 @@ pub struct AssignStatement<'ast> {
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for AssignStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.expression)
-    }
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_definition))]
+pub struct DefinitionStatement<'ast> {
+    pub ty: Type<'ast>,
+    pub variable: Variable<'ast>,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_iteration))]
+pub struct IterationStatement<'ast> {
+    pub ty: Type<'ast>,
+    pub index: Variable<'ast>,
+    pub from: Expression<'ast>,
+    pub to: Expression<'ast>,
+    pub statements: Vec<Statement<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
 }
 
 #[derive(Debug, FromPest, PartialEq, Clone)]
@@ -697,6 +723,37 @@ pub struct ReturnStatement<'ast> {
     pub expressions: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement))]
+pub enum Statement<'ast> {
+    Assign(AssignStatement<'ast>),
+    Definition(DefinitionStatement<'ast>),
+    Iteration(IterationStatement<'ast>),
+    Return(ReturnStatement<'ast>),
+}
+
+impl<'ast> fmt::Display for AssignStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} = {}", self.variable, self.expression)
+    }
+}
+
+impl<'ast> fmt::Display for DefinitionStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {} = {}", self.ty, self.variable, self.expression)
+    }
+}
+
+impl<'ast> fmt::Display for IterationStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "for {} {} in {}..{} do {:#?} endfor",
+            self.ty, self.index, self.from, self.to, self.statements
+        )
+    }
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -711,35 +768,12 @@ impl<'ast> fmt::Display for ReturnStatement<'ast> {
     }
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
-#[pest_ast(rule(Rule::statement_definition))]
-pub struct DefinitionStatement<'ast> {
-    pub ty: Type<'ast>,
-    pub variable: Variable<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::statement))]
-pub enum Statement<'ast> {
-    Assign(AssignStatement<'ast>),
-    Definition(DefinitionStatement<'ast>),
-    Return(ReturnStatement<'ast>),
-}
-
-impl<'ast> fmt::Display for DefinitionStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.expression)
-    }
-}
-
 impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Assign(ref statement) => write!(f, "{}", statement),
             Statement::Definition(ref statement) => write!(f, "{}", statement),
+            Statement::Iteration(ref statement) => write!(f, "{}", statement),
             Statement::Return(ref statement) => write!(f, "{}", statement),
         }
     }

@@ -320,12 +320,20 @@ impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
     }
 }
 
+impl<'ast> From<ast::IterationStatement<'ast>> for types::Statement {
+    fn from(statement: ast::IterationStatement<'ast>) -> Self {
+        println!("{:#?}", statement);
+        unimplemented!()
+    }
+}
+
 impl<'ast> From<ast::Statement<'ast>> for types::Statement {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
             ast::Statement::Assign(statement) => types::Statement::from(statement),
             ast::Statement::Definition(statement) => types::Statement::from(statement),
             ast::Statement::Return(statement) => types::Statement::from(statement),
+            ast::Statement::Iteration(statement) => types::Statement::from(statement),
         }
     }
 }
