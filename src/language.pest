@@ -54,7 +54,7 @@ ty_bool = {"bool"}
 ty_basic = { ty_field | ty_bool }
 ty_struct = { variable }
 ty_basic_or_struct = {ty_basic | ty_struct }
-ty_array = {ty_basic ~ ("[" ~ expression ~ "]")+ }
+ty_array = {ty_basic ~ ("[" ~ value ~ "]")+ }
 ty = {ty_array | ty_basic | ty_struct}
 type_list = _{(ty ~ ("," ~ ty)*)?}
 
@@ -140,8 +140,8 @@ statement_iteration = { "for" ~ ty ~ variable ~ "in" ~ expression ~ ".." ~ expre
 statement = {
     (statement_return
     | (statement_iteration
-      | statement_assign
       | statement_definition
+      | statement_assign
       ) ~ NEWLINE
     ) ~ NEWLINE*
 }

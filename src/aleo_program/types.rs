@@ -10,6 +10,17 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variable(pub String);
 
+/// Spread operator
+#[derive(Debug, Clone)]
+pub struct FieldSpread(pub FieldExpression);
+
+/// Spread or field expression enum
+#[derive(Debug, Clone)]
+pub enum FieldSpreadOrExpression {
+    Spread(FieldSpread),
+    FieldExpression(FieldExpression),
+}
+
 /// Expression that evaluates to a field value
 #[derive(Debug, Clone)]
 pub enum FieldExpression {
@@ -27,6 +38,19 @@ pub enum FieldExpression {
         Box<FieldExpression>,
         Box<FieldExpression>,
     ),
+    // Arrays
+    Array(Vec<Box<FieldSpreadOrExpression>>),
+}
+
+/// Spread operator
+#[derive(Debug, Clone)]
+pub struct BooleanSpread(pub BooleanExpression);
+
+/// Spread or field expression enum
+#[derive(Debug, Clone)]
+pub enum BooleanSpreadOrExpression {
+    Spread(BooleanSpread),
+    BooleanExpression(BooleanExpression),
 }
 
 /// Expression that evaluates to a boolean value
@@ -51,6 +75,8 @@ pub enum BooleanExpression {
         Box<BooleanExpression>,
         Box<BooleanExpression>,
     ),
+    // Arrays
+    Array(Vec<Box<BooleanSpreadOrExpression>>),
 }
 
 /// Expression that evaluates to a value

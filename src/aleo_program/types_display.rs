@@ -5,7 +5,8 @@
 //! @date 2020
 
 use crate::aleo_program::{
-    BooleanExpression, Expression, FieldExpression, Statement, Struct, StructField, Type, Variable,
+    BooleanExpression, Expression, FieldExpression, FieldSpread, FieldSpreadOrExpression,
+    Statement, Struct, StructField, Type, Variable,
 };
 
 use std::fmt;
@@ -13,6 +14,21 @@ use std::fmt;
 impl fmt::Display for Variable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+impl fmt::Display for FieldSpread {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "...{}", self.0)
+    }
+}
+
+impl fmt::Display for FieldSpreadOrExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FieldSpreadOrExpression::Spread(ref spread) => write!(f, "{}", spread),
+            FieldSpreadOrExpression::FieldExpression(ref expression) => write!(f, "{}", expression),
+        }
     }
 }
 
@@ -28,6 +44,16 @@ impl<'ast> fmt::Display for FieldExpression {
             FieldExpression::Pow(ref lhs, ref rhs) => write!(f, "{} ** {}", lhs, rhs),
             FieldExpression::IfElse(ref a, ref b, ref c) => {
                 write!(f, "if {} then {} else {} fi", a, b, c)
+            }
+            FieldExpression::Array(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e)?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
             }
         }
     }
@@ -51,6 +77,7 @@ impl<'ast> fmt::Display for BooleanExpression {
             BooleanExpression::IfElse(ref a, ref b, ref c) => {
                 write!(f, "if {} then {} else {} fi", a, b, c)
             }
+            _ => unimplemented!(),
         }
     }
 }

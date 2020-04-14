@@ -1,5 +1,6 @@
 use crate::aleo_program::{
-    BooleanExpression, Expression, FieldExpression, Function, Program, Statement, Struct, Variable,
+    BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
+    FieldSpreadOrExpression, Function, Program, Statement, Struct, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -9,13 +10,35 @@ use snarkos_models::gadgets::{
     utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
 };
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Clone)]
 pub enum ResolvedValue {
     Boolean(Boolean),
+    BooleanArray(Vec<Boolean>),
     FieldElement(UInt32),
+    FieldElementArray(Vec<UInt32>),
     Struct(Struct),
     Function(Function),
+}
+
+impl fmt::Display for ResolvedValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ResolvedValue::FieldElement(ref value) => write!(f, "{}", value.value.unwrap()),
+            ResolvedValue::FieldElementArray(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e.value.unwrap())?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
+            _ => unimplemented!("resolve values not finished"),
+        }
+    }
 }
 
 pub struct ResolvedProgram {
@@ -101,7 +124,10 @@ impl ResolvedProgram {
         match expression {
             FieldExpression::Variable(variable) => self.u32_from_variable(cs, variable),
             FieldExpression::Number(number) => UInt32::constant(number),
-            field => self.enforce_field_expression(cs, field),
+            field => match self.enforce_field_expression(cs, field) {
+                ResolvedValue::FieldElement(value) => value,
+                _ => unimplemented!("value not resolved"),
+            },
         }
     }
 
@@ -295,15 +321,29 @@ impl ResolvedProgram {
         &mut self,
         cs: &mut CS,
         expression: FieldExpression,
-    ) -> UInt32 {
+    ) -> ResolvedValue {
         match expression {
-            FieldExpression::Variable(variable) => self.u32_from_variable(cs, variable),
-            FieldExpression::Number(number) => UInt32::constant(number),
-            FieldExpression::Add(left, right) => self.enforce_add(cs, *left, *right),
-            FieldExpression::Sub(left, right) => self.enforce_sub(cs, *left, *right),
-            FieldExpression::Mul(left, right) => self.enforce_mul(cs, *left, *right),
-            FieldExpression::Div(left, right) => self.enforce_div(cs, *left, *right),
-            FieldExpression::Pow(left, right) => self.enforce_pow(cs, *left, *right),
+            FieldExpression::Variable(variable) => {
+                ResolvedValue::FieldElement(self.u32_from_variable(cs, variable))
+            }
+            FieldExpression::Number(number) => {
+                ResolvedValue::FieldElement(UInt32::constant(number))
+            }
+            FieldExpression::Add(left, right) => {
+                ResolvedValue::FieldElement(self.enforce_add(cs, *left, *right))
+            }
+            FieldExpression::Sub(left, right) => {
+                ResolvedValue::FieldElement(self.enforce_sub(cs, *left, *right))
+            }
+            FieldExpression::Mul(left, right) => {
+                ResolvedValue::FieldElement(self.enforce_mul(cs, *left, *right))
+            }
+            FieldExpression::Div(left, right) => {
+                ResolvedValue::FieldElement(self.enforce_div(cs, *left, *right))
+            }
+            FieldExpression::Pow(left, right) => {
+                ResolvedValue::FieldElement(self.enforce_pow(cs, *left, *right))
+            }
             FieldExpression::IfElse(first, second, third) => {
                 if self
                     .enforce_boolean_expression(cs, *first)
@@ -314,6 +354,23 @@ impl ResolvedProgram {
                     self.enforce_field_expression(cs, *third)
                 }
             }
+            FieldExpression::Array(array) => ResolvedValue::FieldElementArray(
+                array
+                    .into_iter()
+                    .map(|element| match *element {
+                        FieldSpreadOrExpression::Spread(spread) => {
+                            unimplemented!("spreads not enforced yet")
+                        }
+                        FieldSpreadOrExpression::FieldExpression(expression) => {
+                            let resolved = self.enforce_field_expression(cs, expression);
+                            match resolved {
+                                ResolvedValue::FieldElement(value) => value,
+                                _ => unimplemented!("cannot resolve field"),
+                            }
+                        }
+                    })
+                    .collect::<Vec<UInt32>>(),
+            ),
         }
     }
 
@@ -335,12 +392,8 @@ impl ResolvedProgram {
                 }
                 Expression::FieldElement(field_expression) => {
                     let res = self.enforce_field_expression(cs, field_expression);
-                    println!(
-                        " variable field result: {} = {}",
-                        variable.0,
-                        res.value.unwrap()
-                    );
-                    self.insert(variable, ResolvedValue::FieldElement(res));
+                    println!(" variable field result: {} = {}", variable.0, res);
+                    self.insert(variable, res);
                 }
                 Expression::Variable(unresolved_variable) => {
                     if self.resolved_variables.contains_key(&unresolved_variable) {
@@ -392,7 +445,7 @@ impl ResolvedProgram {
                         }
                         Expression::FieldElement(field_expression) => {
                             let res = self.enforce_field_expression(cs, field_expression);
-                            println!("\n  Field result = {}", res.value.unwrap());
+                            println!("\n  Field result = {}", res);
                         }
                         Expression::Variable(variable) => {
                             match self.resolved_variables.get_mut(&variable).unwrap().clone() {
@@ -435,18 +488,19 @@ impl ResolvedProgram {
                     .insert(variable, ResolvedValue::Function(function));
             });
 
-        let main = resolved_program
-            .resolved_variables
-            .get_mut(&Variable("main".into()))
-            .expect("main function not defined");
-        match main {
-            ResolvedValue::Function(function) => function
-                .statements
-                .clone()
-                .into_iter()
-                .for_each(|statement| resolved_program.enforce_statement(cs, statement)),
-            _ => unimplemented!("main must be a function"),
-        }
+        // let main = resolved_program
+        //     .resolved_variables
+        //     .get_mut(&Variable("main".into()))
+        //     .expect("main function not defined");
+        //
+        // match main {
+        //     ResolvedValue::Function(function) => function
+        //         .statements
+        //         .clone()
+        //         .into_iter()
+        //         .for_each(|statement| resolved_program.enforce_statement(cs, statement)),
+        //     _ => unimplemented!("main must be a function"),
+        // }
 
         program
             .statements

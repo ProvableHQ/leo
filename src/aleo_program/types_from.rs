@@ -286,6 +286,9 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::Not(expression) => types::Expression::from(expression),
             ast::Expression::Binary(expression) => types::Expression::from(expression),
             ast::Expression::Ternary(expression) => types::Expression::from(expression),
+            ast::Expression::ArrayInline(expression) => {
+                unimplemented!("unknown type for inline array expression")
+            }
             _ => unimplemented!(),
         }
     }
@@ -300,11 +303,120 @@ impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
     }
 }
 
+impl<'ast> From<ast::Spread<'ast>> for types::BooleanSpread {
+    fn from(spread: ast::Spread<'ast>) -> Self {
+        let boolean_expression = types::Expression::from(spread.expression);
+        match boolean_expression {
+            types::Expression::Boolean(expression) => types::BooleanSpread(expression),
+            _ => unimplemented!("cannot create boolean spread from field type"),
+        }
+    }
+}
+
+impl<'ast> From<ast::Spread<'ast>> for types::FieldSpread {
+    fn from(spread: ast::Spread<'ast>) -> Self {
+        let field_expression = types::Expression::from(spread.expression);
+        match field_expression {
+            types::Expression::FieldElement(expression) => types::FieldSpread(expression),
+            _ => unimplemented!("cannot create field spread from boolean type"),
+        }
+    }
+}
+
+impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::BooleanSpreadOrExpression {
+    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
+        match s_or_e {
+            ast::SpreadOrExpression::Spread(spread) => {
+                types::BooleanSpreadOrExpression::Spread(types::BooleanSpread::from(spread))
+            }
+            ast::SpreadOrExpression::Expression(expression) => {
+                let boolean_expression = types::Expression::from(expression);
+                match boolean_expression {
+                    types::Expression::Boolean(expression) => {
+                        types::BooleanSpreadOrExpression::BooleanExpression(expression)
+                    }
+                    _ => unimplemented!("cannot create boolean expression from field type"),
+                }
+            }
+        }
+    }
+}
+
+impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::FieldSpreadOrExpression {
+    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
+        match s_or_e {
+            ast::SpreadOrExpression::Spread(spread) => {
+                types::FieldSpreadOrExpression::Spread(types::FieldSpread::from(spread))
+            }
+            ast::SpreadOrExpression::Expression(expression) => {
+                let field_expression = types::Expression::from(expression);
+                match field_expression {
+                    types::Expression::FieldElement(expression) => {
+                        types::FieldSpreadOrExpression::FieldExpression(expression)
+                    }
+                    _ => unimplemented!("cannot create field expression from boolean type"),
+                }
+            }
+        }
+    }
+}
+
+impl<'ast> types::Expression {
+    fn from_basic(ty: ast::BasicType<'ast>, expression: ast::Expression<'ast>) -> Self {
+        unimplemented!("from basic not impl");
+    }
+
+    fn from_array(ty: ast::ArrayType<'ast>, expression: ast::Expression<'ast>) -> Self {
+        match ty.ty {
+            ast::BasicType::Boolean(_ty) => {
+                let elements: Vec<Box<types::BooleanSpreadOrExpression>> = match expression {
+                    ast::Expression::ArrayInline(array) => array
+                        .expressions
+                        .into_iter()
+                        .map(|s_or_e| Box::new(types::BooleanSpreadOrExpression::from(s_or_e)))
+                        .collect(),
+                    ast::Expression::ArrayInitializer(expression) => {
+                        unimplemented!("no array init yet")
+                    }
+                    _ => unimplemented!("expected array after array type"),
+                };
+                types::Expression::Boolean(types::BooleanExpression::Array(elements))
+            }
+            ast::BasicType::Field(_ty) => {
+                let elements: Vec<Box<types::FieldSpreadOrExpression>> = match expression {
+                    ast::Expression::ArrayInline(array) => array
+                        .expressions
+                        .into_iter()
+                        .map(|s_or_e| Box::new(types::FieldSpreadOrExpression::from(s_or_e)))
+                        .collect(),
+                    ast::Expression::ArrayInitializer(expression) => {
+                        unimplemented!("array init not yet")
+                    }
+                    _ => unimplemented!("expected array after array type"),
+                };
+                types::Expression::FieldElement(types::FieldExpression::Array(elements))
+            }
+        }
+    }
+
+    fn from_struct(ty: ast::StructType<'ast>, expression: ast::Expression<'ast>) -> Self {
+        unimplemented!("from struct not impl");
+    }
+
+    fn from_type(ty: ast::Type<'ast>, expression: ast::Expression<'ast>) -> Self {
+        match ty {
+            ast::Type::Basic(ty) => Self::from_basic(ty, expression),
+            ast::Type::Array(ty) => Self::from_array(ty, expression),
+            ast::Type::Struct(ty) => Self::from_struct(ty, expression),
+        }
+    }
+}
+
 impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Variable::from(statement.variable),
-            types::Expression::from(statement.expression),
+            types::Expression::from_type(statement.ty, statement.expression),
         )
     }
 }
@@ -333,8 +445,8 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
         match statement {
             ast::Statement::Assign(statement) => types::Statement::from(statement),
             ast::Statement::Definition(statement) => types::Statement::from(statement),
-            ast::Statement::Return(statement) => types::Statement::from(statement),
             ast::Statement::Iteration(statement) => types::Statement::from(statement),
+            ast::Statement::Return(statement) => types::Statement::from(statement),
         }
     }
 }
