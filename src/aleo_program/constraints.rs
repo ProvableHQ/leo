@@ -1,5 +1,5 @@
 use crate::aleo_program::{
-    BooleanExpression, Expression, FieldExpression, Program, Statement, Variable,
+    BooleanExpression, Expression, FieldExpression, Function, Program, Statement, Struct, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -14,6 +14,8 @@ use std::collections::HashMap;
 pub enum ResolvedValue {
     Boolean(Boolean),
     FieldElement(UInt32),
+    Struct(Struct),
+    Function(Function),
 }
 
 pub struct ResolvedProgram {
@@ -315,6 +317,101 @@ impl ResolvedProgram {
         }
     }
 
+    fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        statement: Statement,
+    ) {
+        match statement {
+            Statement::Definition(variable, expression) => match expression {
+                Expression::Boolean(boolean_expression) => {
+                    let res = self.enforce_boolean_expression(cs, boolean_expression);
+                    println!(
+                        " variable boolean result: {} = {}",
+                        variable.0,
+                        res.get_value().unwrap()
+                    );
+                    self.insert(variable, ResolvedValue::Boolean(res));
+                }
+                Expression::FieldElement(field_expression) => {
+                    let res = self.enforce_field_expression(cs, field_expression);
+                    println!(
+                        " variable field result: {} = {}",
+                        variable.0,
+                        res.value.unwrap()
+                    );
+                    self.insert(variable, ResolvedValue::FieldElement(res));
+                }
+                Expression::Variable(unresolved_variable) => {
+                    if self.resolved_variables.contains_key(&unresolved_variable) {
+                        // Reassigning variable to another variable
+                        let already_assigned = self
+                            .resolved_variables
+                            .get_mut(&unresolved_variable)
+                            .unwrap()
+                            .clone();
+                        self.insert(variable, already_assigned);
+                    } else {
+                        // The type of the unassigned variable depends on what is passed in
+                        if std::env::args()
+                            .nth(1)
+                            .expect("variable declaration not passed in")
+                            .parse::<bool>()
+                            .is_ok()
+                        {
+                            let resolved_boolean = self.bool_from_variable(cs, unresolved_variable);
+                            println!(
+                                "variable boolean result: {} = {}",
+                                variable.0,
+                                resolved_boolean.get_value().unwrap()
+                            );
+                            self.insert(variable, ResolvedValue::Boolean(resolved_boolean));
+                        } else {
+                            let resolved_field_element =
+                                self.u32_from_variable(cs, unresolved_variable);
+                            println!(
+                                " variable field result: {} = {}",
+                                variable.0,
+                                resolved_field_element.value.unwrap()
+                            );
+                            self.insert(
+                                variable,
+                                ResolvedValue::FieldElement(resolved_field_element),
+                            );
+                        }
+                    }
+                }
+            },
+            Statement::Return(statements) => {
+                statements
+                    .into_iter()
+                    .for_each(|expression| match expression {
+                        Expression::Boolean(boolean_expression) => {
+                            let res = self.enforce_boolean_expression(cs, boolean_expression);
+                            println!("\n  Boolean result = {}", res.get_value().unwrap());
+                        }
+                        Expression::FieldElement(field_expression) => {
+                            let res = self.enforce_field_expression(cs, field_expression);
+                            println!("\n  Field result = {}", res.value.unwrap());
+                        }
+                        Expression::Variable(variable) => {
+                            match self.resolved_variables.get_mut(&variable).unwrap().clone() {
+                                ResolvedValue::Boolean(boolean) => println!(
+                                    "\n  Variable result = {}",
+                                    boolean.get_value().unwrap()
+                                ),
+                                ResolvedValue::FieldElement(field_element) => println!(
+                                    "\n  Variable field result = {}",
+                                    field_element.value.unwrap()
+                                ),
+                                _ => {}
+                            }
+                        }
+                    });
+            }
+        };
+    }
+
     pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         program: Program,
@@ -322,108 +419,39 @@ impl ResolvedProgram {
         let mut resolved_program = ResolvedProgram::new();
 
         program
+            .structs
+            .into_iter()
+            .for_each(|(variable, struct_def)| {
+                resolved_program
+                    .resolved_variables
+                    .insert(variable, ResolvedValue::Struct(struct_def));
+            });
+        program
+            .functions
+            .into_iter()
+            .for_each(|(variable, function)| {
+                resolved_program
+                    .resolved_variables
+                    .insert(variable, ResolvedValue::Function(function));
+            });
+
+        let main = resolved_program
+            .resolved_variables
+            .get_mut(&Variable("main".into()))
+            .expect("main function not defined");
+        match main {
+            ResolvedValue::Function(function) => function
+                .statements
+                .clone()
+                .into_iter()
+                .for_each(|statement| resolved_program.enforce_statement(cs, statement)),
+            _ => unimplemented!("main must be a function"),
+        }
+
+        program
             .statements
             .into_iter()
-            .for_each(|statement| match statement {
-                Statement::Definition(variable, expression) => match expression {
-                    Expression::Boolean(boolean_expression) => {
-                        let res =
-                            resolved_program.enforce_boolean_expression(cs, boolean_expression);
-                        println!(
-                            " variable boolean result: {} = {}",
-                            variable.0,
-                            res.get_value().unwrap()
-                        );
-                        resolved_program.insert(variable, ResolvedValue::Boolean(res));
-                    }
-                    Expression::FieldElement(field_expression) => {
-                        let res = resolved_program.enforce_field_expression(cs, field_expression);
-                        println!(
-                            " variable field result: {} = {}",
-                            variable.0,
-                            res.value.unwrap()
-                        );
-                        resolved_program.insert(variable, ResolvedValue::FieldElement(res));
-                    }
-                    Expression::Variable(unresolved_variable) => {
-                        if resolved_program
-                            .resolved_variables
-                            .contains_key(&unresolved_variable)
-                        {
-                            // Reassigning variable to another variable
-                            let already_assigned = resolved_program
-                                .resolved_variables
-                                .get_mut(&unresolved_variable)
-                                .unwrap()
-                                .clone();
-                            resolved_program.insert(variable, already_assigned);
-                        } else {
-                            // The type of the unassigned variable depends on what is passed in
-                            if std::env::args()
-                                .nth(1)
-                                .expect("variable declaration not passed in")
-                                .parse::<bool>()
-                                .is_ok()
-                            {
-                                let resolved_boolean =
-                                    resolved_program.bool_from_variable(cs, unresolved_variable);
-                                println!(
-                                    "variable boolean result: {} = {}",
-                                    variable.0,
-                                    resolved_boolean.get_value().unwrap()
-                                );
-                                resolved_program
-                                    .insert(variable, ResolvedValue::Boolean(resolved_boolean));
-                            } else {
-                                let resolved_field_element =
-                                    resolved_program.u32_from_variable(cs, unresolved_variable);
-                                println!(
-                                    " variable field result: {} = {}",
-                                    variable.0,
-                                    resolved_field_element.value.unwrap()
-                                );
-                                resolved_program.insert(
-                                    variable,
-                                    ResolvedValue::FieldElement(resolved_field_element),
-                                );
-                            }
-                        }
-                    }
-                },
-                Statement::Return(statements) => {
-                    statements
-                        .into_iter()
-                        .for_each(|expression| match expression {
-                            Expression::Boolean(boolean_expression) => {
-                                let res = resolved_program
-                                    .enforce_boolean_expression(cs, boolean_expression);
-                                println!("\n  Boolean result = {}", res.get_value().unwrap());
-                            }
-                            Expression::FieldElement(field_expression) => {
-                                let res =
-                                    resolved_program.enforce_field_expression(cs, field_expression);
-                                println!("\n  Field result = {}", res.value.unwrap());
-                            }
-                            Expression::Variable(variable) => {
-                                match resolved_program
-                                    .resolved_variables
-                                    .get_mut(&variable)
-                                    .unwrap()
-                                    .clone()
-                                {
-                                    ResolvedValue::Boolean(boolean) => println!(
-                                        "\n  Variable result = {}",
-                                        boolean.get_value().unwrap()
-                                    ),
-                                    ResolvedValue::FieldElement(field_element) => println!(
-                                        "\n  Variable field result = {}",
-                                        field_element.value.unwrap()
-                                    ),
-                                }
-                            }
-                        });
-                }
-            });
+            .for_each(|statement| resolved_program.enforce_statement(cs, statement));
     }
 }
 

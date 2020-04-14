@@ -2,4 +2,6 @@ struct Foo {
     field a
     bool b
 }
-return 1
+def main() -> (field) :
+    a = 1 + 1
+    return a

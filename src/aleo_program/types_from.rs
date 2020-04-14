@@ -6,6 +6,7 @@
 //! @date 2020
 
 use crate::{aleo_program::types, ast};
+use std::collections::HashMap;
 
 impl<'ast> From<ast::Field<'ast>> for types::FieldExpression {
     fn from(field: ast::Field<'ast>) -> Self {
@@ -341,8 +342,8 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
 impl<'ast> From<ast::BasicType<'ast>> for types::Type {
     fn from(basic_type: ast::BasicType<'ast>) -> Self {
         match basic_type {
-            ast::BasicType::Field(ty) => types::Type::FieldElement,
-            ast::BasicType::Boolean(ty) => types::Type::Boolean,
+            ast::BasicType::Field(_ty) => types::Type::FieldElement,
+            ast::BasicType::Boolean(_ty) => types::Type::Boolean,
         }
     }
 }
@@ -396,20 +397,82 @@ impl<'ast> From<ast::Struct<'ast>> for types::Struct {
     }
 }
 
+impl From<ast::Visibility> for types::Visibility {
+    fn from(visibility: ast::Visibility) -> Self {
+        match visibility {
+            ast::Visibility::Private(_private) => types::Visibility::Private,
+            ast::Visibility::Public(_public) => types::Visibility::Public,
+        }
+    }
+}
+
+impl<'ast> From<ast::Parameter<'ast>> for types::Parameter {
+    fn from(parameter: ast::Parameter<'ast>) -> Self {
+        let ty = types::Type::from(parameter.ty);
+        let variable = types::Variable::from(parameter.variable);
+
+        if parameter.visibility.is_some() {
+            let visibility = Some(types::Visibility::from(parameter.visibility.unwrap()));
+            types::Parameter {
+                visibility,
+                ty,
+                variable,
+            }
+        } else {
+            types::Parameter {
+                visibility: None,
+                ty,
+                variable,
+            }
+        }
+    }
+}
+
+impl<'ast> From<ast::Function<'ast>> for types::Function {
+    fn from(function_definition: ast::Function<'ast>) -> Self {
+        let variable = types::Variable::from(function_definition.variable);
+        let parameters = function_definition
+            .parameters
+            .into_iter()
+            .map(|parameter| types::Parameter::from(parameter))
+            .collect();
+        let returns = function_definition
+            .returns
+            .into_iter()
+            .map(|return_type| types::Type::from(return_type))
+            .collect();
+        let statements = function_definition
+            .statements
+            .into_iter()
+            .map(|statement| types::Statement::from(statement))
+            .collect();
+
+        types::Function {
+            variable,
+            parameters,
+            returns,
+            statements,
+        }
+    }
+}
+
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
         // 1. compile ast -> aleo program representation
-        let structs = file
-            .structs
-            .into_iter()
-            .map(|struct_def| {
-                println!("{:#?}", struct_def);
-                types::Struct::from(struct_def)
-            })
-            .collect();
-        file.functions
-            .into_iter()
-            .for_each(|function_def| println!("{:#?}", function_def));
+        let mut structs = HashMap::new();
+        let mut functions = HashMap::new();
+
+        file.structs.into_iter().for_each(|struct_def| {
+            println!("{:#?}", struct_def);
+            let struct_definition = types::Struct::from(struct_def);
+            structs.insert(struct_definition.variable.clone(), struct_definition);
+        });
+        file.functions.into_iter().for_each(|function_def| {
+            println!("{:#?}", function_def);
+            let function_definition = types::Function::from(function_def);
+            functions.insert(function_definition.variable.clone(), function_definition);
+        });
+
         let statements: Vec<types::Statement> = file
             .statements
             .into_iter()
@@ -419,6 +482,7 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
         types::Program {
             id: "main".into(),
             structs,
+            functions,
             statements,
             arguments: vec![],
             returns: vec![],

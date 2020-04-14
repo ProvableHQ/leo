@@ -408,20 +408,20 @@ pub struct ArrayAccess<'ast> {
     pub span: Span<'ast>,
 }
 
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::member_access))]
-// pub struct MemberAccess<'ast> {
-//     pub id: IdentifierExpression<'ast>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::access_member))]
+pub struct MemberAccess<'ast> {
+    pub variable: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
     // Call(CallAccess<'ast>),
     Select(ArrayAccess<'ast>),
-    // Member(MemberAccess<'ast>),
+    Member(MemberAccess<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]

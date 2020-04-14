@@ -4,29 +4,11 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-// id == 0 for field values
-// id < 0 for boolean values
+use std::collections::HashMap;
+
 /// A variable in a constraint system.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variable(pub String);
-//
-// /// Linear combination of variables in a program. (a + b + c)
-// #[derive(Debug, Clone)]
-// pub struct LinearCombination (pub Vec<Variable>);
-//
-// impl LinearCombination {
-//     pub fn one() -> Self {
-//         LinearCombination(vec![Variable{ id: 0, value: "1".into() }])
-//     }
-//
-//     pub fn value(&self) -> String {
-//         self.0[0].value.clone()
-//     }
-// }
-//
-// /// Quadratic combination of variables in a program (a * b)
-// #[derive(Debug, Clone)]
-// pub struct QuadraticCombination (pub LinearCombination, pub LinearCombination);
 
 /// Expression that evaluates to a field value
 #[derive(Debug, Clone)]
@@ -109,11 +91,33 @@ pub struct Struct {
     pub fields: Vec<StructField>,
 }
 
+#[derive(Clone, Debug)]
+pub enum Visibility {
+    Public,
+    Private,
+}
+
+#[derive(Clone, Debug)]
+pub struct Parameter {
+    pub visibility: Option<Visibility>,
+    pub ty: Type,
+    pub variable: Variable,
+}
+
+#[derive(Clone, Debug)]
+pub struct Function {
+    pub variable: Variable,
+    pub parameters: Vec<Parameter>,
+    pub returns: Vec<Type>,
+    pub statements: Vec<Statement>,
+}
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
     pub id: String,
-    pub structs: Vec<Struct>,
+    pub structs: HashMap<Variable, Struct>,
+    pub functions: HashMap<Variable, Function>,
     pub statements: Vec<Statement>,
     pub arguments: Vec<Variable>,
     pub returns: Vec<Variable>,
