@@ -56,7 +56,6 @@ ty_struct = { variable }
 ty_basic_or_struct = {ty_basic | ty_struct }
 ty_array = {ty_basic ~ ("[" ~ expression ~ "]")+ }
 ty = {ty_array | ty_basic | ty_struct}
-// ty = {ty_array}
 type_list = _{(ty ~ ("," ~ ty)*)?}
 
 /// Values
@@ -87,7 +86,7 @@ access_array = { "[" ~ range_or_expression ~ "]" }
 access_call = { "(" ~ expression_tuple ~ ")" }
 access_member = { "." ~ variable }
 access = { access_array | access_call | access_member }
-expression_postfix = { variable ~ access+ }
+expression_postfix = { variable ~ access+ } // add ++ and -- operators
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
@@ -98,7 +97,6 @@ inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expre
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
 
-
 /// Structs
 
 struct_field = { ty ~ variable }
@@ -108,7 +106,6 @@ struct_definition = { "struct" ~ variable ~ "{" ~ NEWLINE* ~ struct_field_list ~
 inline_struct_member = { variable ~ ":" ~ expression }
 inline_struct_member_list = _{(inline_struct_member ~ ("," ~ NEWLINE* ~ inline_struct_member)*)? ~ ","? }
 expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_list ~ NEWLINE* ~ "}" }
-
 
 /// Conditionals
 
@@ -135,7 +132,6 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Statements
 
-// statement_expression = { expression }
 statement_assign = { variable ~ "=" ~ expression }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
@@ -146,7 +142,6 @@ statement = {
     | (statement_iteration
       | statement_assign
       | statement_definition
-//       | statement_expression
       ) ~ NEWLINE
     ) ~ NEWLINE*
 }

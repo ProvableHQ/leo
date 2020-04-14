@@ -4,7 +4,9 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::{BooleanExpression, Expression, FieldExpression, Statement, Variable};
+use crate::aleo_program::{
+    BooleanExpression, Expression, FieldExpression, Statement, Struct, StructField, Type, Variable,
+};
 
 use std::fmt;
 
@@ -89,5 +91,32 @@ impl fmt::Debug for Statement {
                 write!(f, "{} = {}", variable, statement)
             }
         }
+    }
+}
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Type::Boolean => write!(f, "bool"),
+            Type::FieldElement => write!(f, "field"),
+            Type::Struct(ref variable) => write!(f, "{}", variable),
+            Type::Array(ref array, ref count) => write!(f, "[{}; {}]", array, count),
+        }
+    }
+}
+
+impl fmt::Display for StructField {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} : {}", self.ty, self.variable)
+    }
+}
+
+impl fmt::Debug for Struct {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "struct {} {{ \n", self.variable)?;
+        for field in self.fields.iter() {
+            write!(f, "    {}\n", field)?;
+        }
+        write!(f, "}}")
     }
 }

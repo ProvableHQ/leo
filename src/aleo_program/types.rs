@@ -89,10 +89,31 @@ pub enum Statement {
     Return(Vec<Expression>),
 }
 
+#[derive(Clone, Debug)]
+pub enum Type {
+    FieldElement,
+    Boolean,
+    Array(Box<Type>, usize),
+    Struct(Variable),
+}
+
+#[derive(Clone)]
+pub struct StructField {
+    pub variable: Variable,
+    pub ty: Type,
+}
+
+#[derive(Clone)]
+pub struct Struct {
+    pub variable: Variable,
+    pub fields: Vec<StructField>,
+}
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
     pub id: String,
+    pub structs: Vec<Struct>,
     pub statements: Vec<Statement>,
     pub arguments: Vec<Variable>,
     pub returns: Vec<Variable>,
@@ -150,21 +171,21 @@ mod tests {
     //
     //     println!("{:#?}", program);
     // }
-    #[test]
-    fn test_basic_prog() {
-        // return 1 == 1
-        let prog = Program {
-            id: "main".into(),
-            statements: vec![Statement::Return(vec![Expression::Boolean(
-                BooleanExpression::FieldEq(
-                    Box::new(FieldExpression::Number(1)),
-                    Box::new(FieldExpression::Number(1)),
-                ),
-            )])],
-            arguments: vec![],
-            returns: vec![],
-        };
-
-        println!("{:#?}", prog);
-    }
+    // #[test]
+    // fn test_basic_prog() {
+    //     // return 1 == 1
+    //     let prog = Program {
+    //         id: "main".into(),
+    //         statements: vec![Statement::Return(vec![Expression::Boolean(
+    //             BooleanExpression::FieldEq(
+    //                 Box::new(FieldExpression::Number(1)),
+    //                 Box::new(FieldExpression::Number(1)),
+    //             ),
+    //         )])],
+    //         arguments: vec![],
+    //         returns: vec![],
+    //     };
+    //
+    //     println!("{:#?}", prog);
+    // }
 }

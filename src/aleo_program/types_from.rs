@@ -338,12 +338,75 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
     }
 }
 
+impl<'ast> From<ast::BasicType<'ast>> for types::Type {
+    fn from(basic_type: ast::BasicType<'ast>) -> Self {
+        match basic_type {
+            ast::BasicType::Field(ty) => types::Type::FieldElement,
+            ast::BasicType::Boolean(ty) => types::Type::Boolean,
+        }
+    }
+}
+
+impl<'ast> From<ast::ArrayType<'ast>> for types::Type {
+    fn from(array_type: ast::ArrayType<'ast>) -> Self {
+        let element_type = Box::new(types::Type::from(array_type.ty));
+        let count = match array_type.count {
+            ast::Value::Field(f) => f.value.parse::<usize>().expect("Unable to read array size"),
+            _ => unimplemented!("Array size should be an integer"),
+        };
+        types::Type::Array(element_type, count)
+    }
+}
+
+impl<'ast> From<ast::StructType<'ast>> for types::Type {
+    fn from(struct_type: ast::StructType<'ast>) -> Self {
+        types::Type::Struct(types::Variable::from(struct_type.variable))
+    }
+}
+
+impl<'ast> From<ast::Type<'ast>> for types::Type {
+    fn from(ty: ast::Type<'ast>) -> Self {
+        match ty {
+            ast::Type::Basic(ty) => types::Type::from(ty),
+            ast::Type::Array(ty) => types::Type::from(ty),
+            ast::Type::Struct(ty) => types::Type::from(ty),
+        }
+    }
+}
+
+impl<'ast> From<ast::StructField<'ast>> for types::StructField {
+    fn from(struct_field: ast::StructField<'ast>) -> Self {
+        types::StructField {
+            variable: types::Variable::from(struct_field.variable),
+            ty: types::Type::from(struct_field.ty),
+        }
+    }
+}
+
+impl<'ast> From<ast::Struct<'ast>> for types::Struct {
+    fn from(struct_definition: ast::Struct<'ast>) -> Self {
+        let variable = types::Variable::from(struct_definition.variable);
+        let fields = struct_definition
+            .fields
+            .into_iter()
+            .map(|struct_field| types::StructField::from(struct_field))
+            .collect();
+
+        types::Struct { variable, fields }
+    }
+}
+
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
         // 1. compile ast -> aleo program representation
-        file.structs
+        let structs = file
+            .structs
             .into_iter()
-            .for_each(|struct_def| println!("{:#?}", struct_def));
+            .map(|struct_def| {
+                println!("{:#?}", struct_def);
+                types::Struct::from(struct_def)
+            })
+            .collect();
         file.functions
             .into_iter()
             .for_each(|function_def| println!("{:#?}", function_def));
@@ -355,6 +418,7 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
 
         types::Program {
             id: "main".into(),
+            structs,
             statements,
             arguments: vec![],
             returns: vec![],

@@ -170,21 +170,21 @@ fn binary_expression<'ast>(
 
 // Types
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_bool))]
 pub struct BooleanType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_field))]
 pub struct FieldType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_struct))]
 pub struct StructType<'ast> {
     pub variable: Variable<'ast>,
@@ -192,30 +192,30 @@ pub struct StructType<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_basic))]
 pub enum BasicType<'ast> {
     Field(FieldType<'ast>),
     Boolean(BooleanType<'ast>),
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_basic_or_struct))]
 pub enum BasicOrStructType<'ast> {
     Struct(StructType<'ast>),
     Basic(BasicType<'ast>),
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty_array))]
 pub struct ArrayType<'ast> {
     pub ty: BasicType<'ast>,
-    pub dimensions: Vec<Expression<'ast>>,
+    pub count: Value<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::ty))]
 pub enum Type<'ast> {
     Basic(BasicType<'ast>),
@@ -275,7 +275,7 @@ pub struct Decrement<'ast> {
 
 // Binary Operations
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum BinaryOperator {
     Or,
     And,
@@ -368,15 +368,15 @@ impl<'ast> fmt::Display for Variable<'ast> {
 
 // Access
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::from_expression))]
 pub struct FromExpression<'ast>(pub Expression<'ast>);
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::to_expression))]
 pub struct ToExpression<'ast>(pub Expression<'ast>);
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::range))]
 pub struct Range<'ast> {
     pub from: Option<FromExpression<'ast>>,
@@ -385,14 +385,14 @@ pub struct Range<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::range_or_expression))]
 pub enum RangeOrExpression<'ast> {
     Range(Range<'ast>),
     Expression(Expression<'ast>),
 }
 
-// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[derive(Clone, Debug, FromPest, PartialEq)]
 // #[pest_ast(rule(Rule::call_access))]
 // pub struct CallAccess<'ast> {
 //     pub expressions: Vec<Expression<'ast>>,
@@ -400,7 +400,7 @@ pub enum RangeOrExpression<'ast> {
 //     pub span: Span<'ast>,
 // }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access_array))]
 pub struct ArrayAccess<'ast> {
     pub expression: RangeOrExpression<'ast>,
@@ -408,7 +408,7 @@ pub struct ArrayAccess<'ast> {
     pub span: Span<'ast>,
 }
 
-// #[derive(Debug, FromPest, PartialEq, Clone)]
+// #[derive(Clone, Debug, FromPest, PartialEq)]
 // #[pest_ast(rule(Rule::member_access))]
 // pub struct MemberAccess<'ast> {
 //     pub id: IdentifierExpression<'ast>,
@@ -416,7 +416,7 @@ pub struct ArrayAccess<'ast> {
 //     pub span: Span<'ast>,
 // }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
     // Call(CallAccess<'ast>),
@@ -424,7 +424,7 @@ pub enum Access<'ast> {
     // Member(MemberAccess<'ast>),
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_postfix))]
 pub struct PostfixExpression<'ast> {
     pub variable: Variable<'ast>,
@@ -433,7 +433,7 @@ pub struct PostfixExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::spread))]
 pub struct Spread<'ast> {
     pub expression: Expression<'ast>,
@@ -447,7 +447,7 @@ impl<'ast> fmt::Display for Spread<'ast> {
     }
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::spread_or_expression))]
 pub enum SpreadOrExpression<'ast> {
     Spread(Spread<'ast>),
@@ -465,7 +465,7 @@ impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
 
 // Arrays
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_array_inline))]
 pub struct ArrayInlineExpression<'ast> {
     pub expressions: Vec<SpreadOrExpression<'ast>>,
@@ -473,18 +473,18 @@ pub struct ArrayInlineExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_array_initializer))]
 pub struct ArrayInitializerExpression<'ast> {
     pub expression: Box<Expression<'ast>>,
-    pub value: Value<'ast>,
+    pub count: Value<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 // Structs
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::struct_field))]
 pub struct StructField<'ast> {
     pub ty: Type<'ast>,
@@ -493,7 +493,7 @@ pub struct StructField<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::struct_definition))]
 pub struct Struct<'ast> {
     pub variable: Variable<'ast>,
@@ -502,7 +502,7 @@ pub struct Struct<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::inline_struct_member))]
 pub struct InlineStructMember<'ast> {
     pub variable: Variable<'ast>,
@@ -511,7 +511,7 @@ pub struct InlineStructMember<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_inline_struct))]
 pub struct StructInlineExpression<'ast> {
     pub variable: Variable<'ast>,
@@ -654,7 +654,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 write!(f, "")
             }
             Expression::ArrayInitializer(ref expression) => {
-                write!(f, "{} = {}", expression.value, expression.expression)
+                write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
             Expression::StructInline(ref expression) => {
                 write!(f, "inline struct display not impl {}", expression.variable)
@@ -686,7 +686,7 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
 
 // Statements
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_assign))]
 pub struct AssignStatement<'ast> {
     pub variable: Variable<'ast>,
@@ -717,7 +717,7 @@ pub struct IterationStatement<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_return))]
 pub struct ReturnStatement<'ast> {
     pub expressions: Vec<Expression<'ast>>,
@@ -781,7 +781,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
 
 // Functions
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::parameter))]
 pub struct Parameter<'ast> {
     pub visibility: Option<Visibility>,
@@ -791,7 +791,7 @@ pub struct Parameter<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::function_definition))]
 pub struct Function<'ast> {
     pub variable: Variable<'ast>,
@@ -817,6 +817,6 @@ pub struct File<'ast> {
 
 // Utilities
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::EOI))]
 pub struct EOI;

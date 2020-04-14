@@ -1,4 +1,5 @@
-for field i in 0..4 do
-    a = 1 + 1
-endfor
+struct Foo {
+    field a
+    bool b
+}
 return 1
