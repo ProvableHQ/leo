@@ -114,6 +114,16 @@ impl<'ast> fmt::Display for Expression {
             Expression::Boolean(ref boolean_expression) => write!(f, "{}", boolean_expression),
             Expression::FieldElement(ref field_expression) => write!(f, "{}", field_expression),
             Expression::Variable(ref variable) => write!(f, "{}", variable),
+            Expression::Struct(ref var, ref members) => {
+                write!(f, "{} {{", var)?;
+                for (i, member) in members.iter().enumerate() {
+                    write!(f, "{}: {}", member.variable, member.expression)?;
+                    if i < members.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "}}")
+            }
         }
     }
 }

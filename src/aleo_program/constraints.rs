@@ -1,6 +1,6 @@
 use crate::aleo_program::{
     BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldSpreadOrExpression, Function, Program, Statement, Struct, Variable,
+    FieldSpreadOrExpression, Function, Program, Statement, Struct, StructMember, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -18,7 +18,8 @@ pub enum ResolvedValue {
     BooleanArray(Vec<Boolean>),
     FieldElement(UInt32),
     FieldElementArray(Vec<UInt32>),
-    Struct(Struct),
+    StructDefinition(Struct),
+    StructExpression(Variable, Vec<StructMember>),
     Function(Function),
 }
 
@@ -46,6 +47,16 @@ impl fmt::Display for ResolvedValue {
                     }
                 }
                 write!(f, "]")
+            }
+            ResolvedValue::StructExpression(ref variable, ref members) => {
+                write!(f, "{} {{", variable)?;
+                for (i, member) in members.iter().enumerate() {
+                    write!(f, "{}: {}", member.variable, member.expression)?;
+                    if i < members.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "}}")
             }
             _ => unimplemented!("resolve values not finished"),
         }
@@ -416,63 +427,154 @@ impl ResolvedProgram {
         }
     }
 
+    fn enforce_struct_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        variable: Variable,
+        members: Vec<StructMember>,
+    ) -> ResolvedValue {
+        if let Some(resolved_value) = self.resolved_variables.get_mut(&variable) {
+            match resolved_value {
+                ResolvedValue::StructDefinition(struct_definition) => {
+                    // for (field, member) in struct_definition.fields.iter().zip(members.into_iter()) {
+                    //     self.enforce_expression(cs, member.expression);
+                    // }
+
+                    struct_definition
+                        .fields
+                        .clone()
+                        .iter()
+                        .zip(members.clone().into_iter())
+                        .for_each(|(field, member)| {
+                            if field.variable != member.variable {
+                                unimplemented!("struct field variables do not match")
+                            }
+                            // Resolve and possibly enforce struct fields
+                            // do we need to store the results here?
+                            let _result = self.enforce_expression(cs, member.expression);
+                        });
+
+                    ResolvedValue::StructExpression(variable, members)
+                }
+                _ => unimplemented!("Inline struct type is not defined as a struct"),
+            }
+        } else {
+            unimplemented!("Struct must be declared before it is used in an inline expression")
+        }
+    }
+
+    fn enforce_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        expression: Expression,
+    ) -> ResolvedValue {
+        match expression {
+            Expression::Boolean(boolean_expression) => {
+                self.enforce_boolean_expression(cs, boolean_expression)
+            }
+            Expression::FieldElement(field_expression) => {
+                self.enforce_field_expression(cs, field_expression)
+            }
+            Expression::Variable(unresolved_variable) => {
+                if self.resolved_variables.contains_key(&unresolved_variable) {
+                    // Reassigning variable to another variable
+                    self.resolved_variables
+                        .get_mut(&unresolved_variable)
+                        .unwrap()
+                        .clone()
+                } else {
+                    // The type of the unassigned variable depends on what is passed in
+                    if std::env::args()
+                        .nth(1)
+                        .expect("variable declaration not passed in")
+                        .parse::<bool>()
+                        .is_ok()
+                    {
+                        ResolvedValue::Boolean(self.bool_from_variable(cs, unresolved_variable))
+                    } else {
+                        ResolvedValue::FieldElement(self.u32_from_variable(cs, unresolved_variable))
+                    }
+                }
+            }
+            Expression::Struct(struct_name, members) => {
+                self.enforce_struct_expression(cs, struct_name, members)
+            }
+        }
+    }
+
     fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         statement: Statement,
     ) {
         match statement {
-            Statement::Definition(variable, expression) => match expression {
-                Expression::Boolean(boolean_expression) => {
-                    let res = self.enforce_boolean_expression(cs, boolean_expression);
-                    println!(" variable boolean result: {} = {}", variable.0, res);
-                    self.insert(variable, res);
-                }
-                Expression::FieldElement(field_expression) => {
-                    let res = self.enforce_field_expression(cs, field_expression);
-                    println!(" variable field result: {} = {}", variable.0, res);
-                    self.insert(variable, res);
-                }
-                Expression::Variable(unresolved_variable) => {
-                    if self.resolved_variables.contains_key(&unresolved_variable) {
-                        // Reassigning variable to another variable
-                        let already_assigned = self
-                            .resolved_variables
-                            .get_mut(&unresolved_variable)
-                            .unwrap()
-                            .clone();
-                        self.insert(variable, already_assigned);
-                    } else {
-                        // The type of the unassigned variable depends on what is passed in
-                        if std::env::args()
-                            .nth(1)
-                            .expect("variable declaration not passed in")
-                            .parse::<bool>()
-                            .is_ok()
-                        {
-                            let resolved_boolean = self.bool_from_variable(cs, unresolved_variable);
-                            println!(
-                                "variable boolean result: {} = {}",
-                                variable.0,
-                                resolved_boolean.get_value().unwrap()
-                            );
-                            self.insert(variable, ResolvedValue::Boolean(resolved_boolean));
-                        } else {
-                            let resolved_field_element =
-                                self.u32_from_variable(cs, unresolved_variable);
-                            println!(
-                                " variable field result: {} = {}",
-                                variable.0,
-                                resolved_field_element.value.unwrap()
-                            );
-                            self.insert(
-                                variable,
-                                ResolvedValue::FieldElement(resolved_field_element),
-                            );
-                        }
-                    }
-                }
-            },
+            Statement::Definition(variable, expression) => {
+                let result = self.enforce_expression(cs, expression);
+                println!("  statement result: {} = {}", variable.0, result);
+                self.insert(variable, result);
+            }
+            //     Expression::Boolean(boolean_expression) => {
+            //         let res = self.enforce_boolean_expression(cs, boolean_expression);
+            //         println!(" variable boolean result: {} = {}", variable.0, res);
+            //         self.insert(variable, res);
+            //     }
+            //     Expression::FieldElement(field_expression) => {
+            //         let res = self.enforce_field_expression(cs, field_expression);
+            //         println!(" variable field result: {} = {}", variable.0, res);
+            //         self.insert(variable, res);
+            //     }
+            //     Expression::Variable(unresolved_variable) => {
+            //         if self.resolved_variables.contains_key(&unresolved_variable) {
+            //             // Reassigning variable to another variable
+            //             let already_assigned = self
+            //                 .resolved_variables
+            //                 .get_mut(&unresolved_variable)
+            //                 .unwrap()
+            //                 .clone();
+            //             self.insert(variable, already_assigned);
+            //         } else {
+            //             // The type of the unassigned variable depends on what is passed in
+            //             if std::env::args()
+            //                 .nth(1)
+            //                 .expect("variable declaration not passed in")
+            //                 .parse::<bool>()
+            //                 .is_ok()
+            //             {
+            //                 let resolved_boolean = self.bool_from_variable(cs, unresolved_variable);
+            //                 println!(
+            //                     "variable boolean result: {} = {}",
+            //                     variable.0,
+            //                     resolved_boolean.get_value().unwrap()
+            //                 );
+            //                 self.insert(variable, ResolvedValue::Boolean(resolved_boolean));
+            //             } else {
+            //                 let resolved_field_element =
+            //                     self.u32_from_variable(cs, unresolved_variable);
+            //                 println!(
+            //                     " variable field result: {} = {}",
+            //                     variable.0,
+            //                     resolved_field_element.value.unwrap()
+            //                 );
+            //                 self.insert(
+            //                     variable,
+            //                     ResolvedValue::FieldElement(resolved_field_element),
+            //                 );
+            //             }
+            //         }
+            //     }
+            //     Expression::Struct(struct_name, members) => {
+            //         let resolved_struct = self.enforce_struct_expression(cs, struct_name, members);
+            //         println!(
+            //             " inline struct declared: {} = {}",
+            //             variable.0,
+            //             resolved_struct
+            //         );
+            //         self.insert(
+            //             variable,
+            //             resolved_struct
+            //         );
+            //     }
+            // },
             Statement::Return(statements) => {
                 statements
                     .into_iter()
@@ -491,6 +593,9 @@ impl ResolvedProgram {
                                 self.resolved_variables.get_mut(&variable).unwrap().clone()
                             );
                         }
+                        Expression::Struct(_v, _m) => {
+                            unimplemented!("return struct not impl");
+                        }
                     });
             }
         };
@@ -508,7 +613,7 @@ impl ResolvedProgram {
             .for_each(|(variable, struct_def)| {
                 resolved_program
                     .resolved_variables
-                    .insert(variable, ResolvedValue::Struct(struct_def));
+                    .insert(variable, ResolvedValue::StructDefinition(struct_def));
             });
         program
             .functions

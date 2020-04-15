@@ -5,6 +5,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
+use crate::aleo_program::StructMember;
 use crate::{aleo_program::types, ast};
 use std::collections::HashMap;
 
@@ -79,6 +80,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::BooleanExpression {
                 "cannot compare field expression {} in boolean expression",
                 field_expression
             ),
+            types::Expression::Struct(_v, _m) => unimplemented!("no inline struct yet"),
         }
     }
 }
@@ -92,6 +94,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::FieldExpression {
                 "cannot compare boolean expression {} in field expression",
                 boolean_expression
             ),
+            types::Expression::Struct(_v, _m) => unimplemented!("no inline struct yet"),
         }
     }
 }
@@ -379,6 +382,15 @@ impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::FieldSpreadOrExpressio
     }
 }
 
+impl<'ast> From<ast::InlineStructMember<'ast>> for types::StructMember {
+    fn from(member: ast::InlineStructMember<'ast>) -> Self {
+        types::StructMember {
+            variable: types::Variable::from(member.variable),
+            expression: types::Expression::from(member.expression),
+        }
+    }
+}
+
 impl<'ast> types::Expression {
     fn from_basic(_ty: ast::BasicType<'ast>, _expression: ast::Expression<'ast>) -> Self {
         unimplemented!("from basic not impl");
@@ -435,8 +447,24 @@ impl<'ast> types::Expression {
         }
     }
 
-    fn from_struct(_ty: ast::StructType<'ast>, _expression: ast::Expression<'ast>) -> Self {
-        unimplemented!("from struct not impl");
+    fn from_struct(ty: ast::StructType<'ast>, expression: ast::Expression<'ast>) -> Self {
+        let declaration_struct = ty.variable.value;
+        match expression {
+            ast::Expression::StructInline(inline_struct) => {
+                if inline_struct.variable.value != declaration_struct {
+                    unimplemented!("Declared struct type must match inline struct type")
+                }
+                let variable = types::Variable::from(inline_struct.variable);
+                let members = inline_struct
+                    .members
+                    .into_iter()
+                    .map(|member| types::StructMember::from(member))
+                    .collect::<Vec<StructMember>>();
+
+                types::Expression::Struct(variable, members)
+            }
+            _ => unimplemented!("Struct declaration must be followed by inline struct"),
+        }
     }
 
     fn from_type(ty: ast::Type<'ast>, expression: ast::Expression<'ast>) -> Self {

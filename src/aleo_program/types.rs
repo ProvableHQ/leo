@@ -85,6 +85,7 @@ pub enum Expression {
     Boolean(BooleanExpression),
     FieldElement(FieldExpression),
     Variable(Variable),
+    Struct(Variable, Vec<StructMember>),
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
@@ -102,6 +103,18 @@ pub enum Type {
     Array(Box<Type>, usize),
     Struct(Variable),
 }
+
+#[derive(Clone, Debug)]
+pub struct StructMember {
+    pub variable: Variable,
+    pub expression: Expression,
+}
+
+// #[derive(Clone, Debug)]
+// pub struct StructExpression {
+//     pub variable: Variable,
+//     pub members: Vec<StructMember>
+// }
 
 #[derive(Clone)]
 pub struct StructField {
@@ -157,63 +170,4 @@ mod tests {
 
         println!("{:#?}", variable);
     }
-
-    // #[test]
-    // fn test_linear_combination() {
-    //     let variable_0 = Variable { id: 0, value: "1".into() };
-    //     let variable_1 = Variable { id: 0, value: "1".into() };
-    //     let linear_combination = LinearCombination(vec![variable_0, variable_1]);
-    //
-    //     println!("{:#?}", linear_combination);
-    // }
-
-    // #[test]
-    // fn test_statement_linear() {
-    //     let linear_combination = LinearCombination(vec![Variable { id: 0 }, Variable { id: 1 }]);
-    //     let statement_linear = Statement::Linear(linear_combination);
-    //
-    //     println!("{:#?}", statement_linear);
-    // }
-    //
-    // #[test]
-    // fn test_statement_quadratic() {
-    //     let linear_combination_0 = LinearCombination(vec![Variable { id: 0 }]);
-    //     let linear_combination_1 = LinearCombination(vec![Variable { id: 1 }]);
-    //     let statement_quadratic = Statement::Quadratic(linear_combination_0, linear_combination_1);
-    //
-    //     println!("{:#?}", statement_quadratic);
-    // }
-    //
-    // #[test]
-    // fn test_program() {
-    //     let variable_0 = Variable{ id: 0};
-    //     let linear_combination = LinearCombination(vec![variable_0.clone()]);
-    //     let statement_linear = Statement::Linear(linear_combination.clone());
-    //     let statement_quadratic = Statement::Quadratic(linear_combination.clone(), linear_combination);
-    //     let program = Program{
-    //         id: "main".into(),
-    //         statements: vec![statement_linear, statement_quadratic],
-    //         arguments: vec![variable_0.clone()],
-    //         returns: vec![variable_0.clone()]
-    //     };
-    //
-    //     println!("{:#?}", program);
-    // }
-    // #[test]
-    // fn test_basic_prog() {
-    //     // return 1 == 1
-    //     let prog = Program {
-    //         id: "main".into(),
-    //         statements: vec![Statement::Return(vec![Expression::Boolean(
-    //             BooleanExpression::FieldEq(
-    //                 Box::new(FieldExpression::Number(1)),
-    //                 Box::new(FieldExpression::Number(1)),
-    //             ),
-    //         )])],
-    //         arguments: vec![],
-    //         returns: vec![],
-    //     };
-    //
-    //     println!("{:#?}", prog);
-    // }
 }
