@@ -6,7 +6,8 @@
 
 use crate::aleo_program::{
     BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldSpread, FieldSpreadOrExpression, Statement, Struct, StructField, Type, Variable,
+    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Statement, Struct, StructField,
+    Type, Variable,
 };
 
 use std::fmt;
@@ -108,6 +109,22 @@ impl<'ast> fmt::Display for BooleanExpression {
     }
 }
 
+impl<'ast> fmt::Display for FieldRangeOrExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FieldRangeOrExpression::Range(ref from, ref to) => write!(
+                f,
+                "{}..{}",
+                from.as_ref()
+                    .map(|e| e.to_string())
+                    .unwrap_or("".to_string()),
+                to.as_ref().map(|e| e.to_string()).unwrap_or("".to_string())
+            ),
+            FieldRangeOrExpression::FieldExpression(ref e) => write!(f, "{}", e),
+        }
+    }
+}
+
 impl<'ast> fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -124,6 +141,8 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "}}")
             }
+            Expression::ArrayAccess(ref array, ref index) => write!(f, "{}[{}]", array, index),
+            _ => unimplemented!("can't display expression yet"),
         }
     }
 }

@@ -76,11 +76,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::BooleanExpression {
         match types::Expression::from(expression) {
             types::Expression::Boolean(boolean_expression) => boolean_expression,
             types::Expression::Variable(variable) => types::BooleanExpression::Variable(variable),
-            types::Expression::FieldElement(field_expression) => unimplemented!(
-                "cannot compare field expression {} in boolean expression",
-                field_expression
-            ),
-            types::Expression::Struct(_v, _m) => unimplemented!("no inline struct yet"),
+            _ => unimplemented!("expected boolean in boolean expression"),
         }
     }
 }
@@ -90,11 +86,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::FieldExpression {
         match types::Expression::from(expression) {
             types::Expression::FieldElement(field_expression) => field_expression,
             types::Expression::Variable(variable) => types::FieldExpression::Variable(variable),
-            types::Expression::Boolean(boolean_expression) => unimplemented!(
-                "cannot compare boolean expression {} in field expression",
-                boolean_expression
-            ),
-            types::Expression::Struct(_v, _m) => unimplemented!("no inline struct yet"),
+            _ => unimplemented!("expected field in field expression"),
         }
     }
 }
@@ -281,6 +273,71 @@ impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
     }
 }
 
+impl<'ast> From<ast::RangeOrExpression<'ast>> for types::FieldRangeOrExpression {
+    fn from(range_or_expression: ast::RangeOrExpression<'ast>) -> Self {
+        match range_or_expression {
+            ast::RangeOrExpression::Range(range) => {
+                let from = range
+                    .from
+                    .map(|from| match types::Expression::from(from.0) {
+                        types::Expression::FieldElement(field) => field,
+                        expression => {
+                            unimplemented!("Range bounds should be numbers, found {}", expression)
+                        }
+                    });
+                let to = range.to.map(|to| match types::Expression::from(to.0) {
+                    types::Expression::FieldElement(field) => field,
+                    expression => {
+                        unimplemented!("Range bounds should be numbers, found {}", expression)
+                    }
+                });
+
+                types::FieldRangeOrExpression::Range(from, to)
+            }
+            ast::RangeOrExpression::Expression(expression) => {
+                match types::Expression::from(expression) {
+                    types::Expression::FieldElement(field_expression) => {
+                        types::FieldRangeOrExpression::FieldExpression(field_expression)
+                    }
+                    // types::Expression::ArrayAccess(expression, field), // recursive array access
+                    expression => unimplemented!("expression must be field, found {}", expression),
+                }
+            }
+        }
+    }
+}
+
+impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
+    fn from(expression: ast::PostfixExpression<'ast>) -> Self {
+        let variable = types::Expression::Variable(types::Variable::from(expression.variable));
+
+        // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
+        // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
+
+        // we start with the id, and we fold the array of accesses by wrapping the current value
+        expression
+            .accesses
+            .into_iter()
+            .fold(variable, |acc, access| match access {
+                ast::Access::Call(a) => match acc {
+                    types::Expression::Variable(_) => {
+                        unimplemented!("function calls not implemented")
+                    }
+                    expression => {
+                        unimplemented!("only function names are callable, found \"{}\"", expression)
+                    }
+                },
+                ast::Access::Member(struct_member) => {
+                    unimplemented!("struct calls not implemented")
+                }
+                ast::Access::Select(array) => types::Expression::ArrayAccess(
+                    Box::new(acc),
+                    types::FieldRangeOrExpression::from(array.expression),
+                ),
+            })
+    }
+}
+
 impl<'ast> From<ast::Expression<'ast>> for types::Expression {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match expression {
@@ -295,6 +352,7 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::ArrayInitializer(_expression) => {
                 unimplemented!("unknown type for array initializer expression")
             }
+            ast::Expression::Postfix(expression) => types::Expression::from(expression),
             _ => unimplemented!(),
         }
     }

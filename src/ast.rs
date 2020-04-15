@@ -392,13 +392,13 @@ pub enum RangeOrExpression<'ast> {
     Expression(Expression<'ast>),
 }
 
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::call_access))]
-// pub struct CallAccess<'ast> {
-//     pub expressions: Vec<Expression<'ast>>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::access_call))]
+pub struct CallAccess<'ast> {
+    pub expressions: Vec<Expression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access_array))]
@@ -419,7 +419,7 @@ pub struct MemberAccess<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
-    // Call(CallAccess<'ast>),
+    Call(CallAccess<'ast>),
     Select(ArrayAccess<'ast>),
     Member(MemberAccess<'ast>),
 }

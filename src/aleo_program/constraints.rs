@@ -1,6 +1,7 @@
 use crate::aleo_program::{
     BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldSpreadOrExpression, Function, Program, Statement, Struct, StructMember, Type, Variable,
+    FieldRangeOrExpression, FieldSpreadOrExpression, Function, Program, Statement, Struct,
+    StructMember, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -463,6 +464,70 @@ impl ResolvedProgram {
         }
     }
 
+    fn enforce_index<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        index: FieldExpression,
+    ) -> usize {
+        match self.enforce_field_expression(cs, index) {
+            ResolvedValue::FieldElement(number) => number.value.unwrap() as usize,
+            value => unimplemented!("From index must resolve to a uint32, got {}", value),
+        }
+    }
+
+    fn enforce_array_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        array: Box<Expression>,
+        index: FieldRangeOrExpression,
+    ) -> ResolvedValue {
+        match self.enforce_expression(cs, *array) {
+            ResolvedValue::FieldElementArray(field_array) => {
+                match index {
+                    FieldRangeOrExpression::Range(from, to) => {
+                        let from_resolved = match from {
+                            Some(from_index) => self.enforce_index(cs, from_index),
+                            None => 0usize, // Array slice starts at index 0
+                        };
+                        let to_resolved = match to {
+                            Some(to_index) => self.enforce_index(cs, to_index),
+                            None => field_array.len(), // Array slice ends at array length
+                        };
+                        ResolvedValue::FieldElementArray(
+                            field_array[from_resolved..to_resolved].to_owned(),
+                        )
+                    }
+                    FieldRangeOrExpression::FieldExpression(index) => {
+                        let index_resolved = self.enforce_index(cs, index);
+                        ResolvedValue::FieldElement(field_array[index_resolved].to_owned())
+                    }
+                }
+            }
+            ResolvedValue::BooleanArray(bool_array) => {
+                match index {
+                    FieldRangeOrExpression::Range(from, to) => {
+                        let from_resolved = match from {
+                            Some(from_index) => self.enforce_index(cs, from_index),
+                            None => 0usize, // Array slice starts at index 0
+                        };
+                        let to_resolved = match to {
+                            Some(to_index) => self.enforce_index(cs, to_index),
+                            None => bool_array.len(), // Array slice ends at array length
+                        };
+                        ResolvedValue::BooleanArray(
+                            bool_array[from_resolved..to_resolved].to_owned(),
+                        )
+                    }
+                    FieldRangeOrExpression::FieldExpression(index) => {
+                        let index_resolved = self.enforce_index(cs, index);
+                        ResolvedValue::Boolean(bool_array[index_resolved].to_owned())
+                    }
+                }
+            }
+            value => unimplemented!("Cannot access element of untyped array"),
+        }
+    }
+
     fn enforce_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -499,6 +564,9 @@ impl ResolvedProgram {
             Expression::Struct(struct_name, members) => {
                 self.enforce_struct_expression(cs, struct_name, members)
             }
+            Expression::ArrayAccess(array, index) => {
+                self.enforce_array_access_expression(cs, array, index)
+            } // _ => unimplemented!("expression not enforced yet")
         }
     }
 
@@ -596,6 +664,7 @@ impl ResolvedProgram {
                         Expression::Struct(_v, _m) => {
                             unimplemented!("return struct not impl");
                         }
+                        _ => unimplemented!("expression can't be returned yet"),
                     });
             }
         };

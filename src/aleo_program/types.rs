@@ -21,6 +21,13 @@ pub enum FieldSpreadOrExpression {
     FieldExpression(FieldExpression),
 }
 
+/// Range or field expression enum
+#[derive(Debug, Clone)]
+pub enum FieldRangeOrExpression {
+    Range(Option<FieldExpression>, Option<FieldExpression>),
+    FieldExpression(FieldExpression),
+}
+
 /// Expression that evaluates to a field value
 #[derive(Debug, Clone)]
 pub enum FieldExpression {
@@ -85,7 +92,9 @@ pub enum Expression {
     Boolean(BooleanExpression),
     FieldElement(FieldExpression),
     Variable(Variable),
+    ArrayAccess(Box<Expression>, FieldRangeOrExpression),
     Struct(Variable, Vec<StructMember>),
+    // StructMemberAccess(Variable, Variable)// (struct name, struct member name)
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
@@ -98,8 +107,8 @@ pub enum Statement {
 
 #[derive(Clone, Debug)]
 pub enum Type {
-    FieldElement,
     Boolean,
+    FieldElement,
     Array(Box<Type>, usize),
     Struct(Variable),
 }

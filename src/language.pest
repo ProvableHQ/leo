@@ -86,7 +86,7 @@ access_array = { "[" ~ range_or_expression ~ "]" }
 access_call = { "(" ~ expression_tuple ~ ")" }
 access_member = { "." ~ variable }
 access = { access_array | access_call | access_member }
-expression_postfix = { variable ~ access+ } // add ++ and -- operators
+expression_postfix = { variable ~ access+ }
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
