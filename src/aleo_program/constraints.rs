@@ -25,6 +25,17 @@ pub enum ResolvedValue {
 impl fmt::Display for ResolvedValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            ResolvedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
+            ResolvedValue::BooleanArray(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e.get_value().unwrap())?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
             ResolvedValue::FieldElement(ref value) => write!(f, "{}", value.value.unwrap()),
             ResolvedValue::FieldElementArray(ref array) => {
                 write!(f, "[")?;
@@ -112,7 +123,10 @@ impl ResolvedProgram {
         match expression {
             BooleanExpression::Variable(variable) => self.bool_from_variable(cs, variable),
             BooleanExpression::Value(value) => Boolean::Constant(value),
-            expression => self.enforce_boolean_expression(cs, expression),
+            expression => match self.enforce_boolean_expression(cs, expression) {
+                ResolvedValue::Boolean(value) => value,
+                _ => unimplemented!("boolean expression did not resolve to boolean"),
+            },
         }
     }
 
@@ -126,7 +140,7 @@ impl ResolvedProgram {
             FieldExpression::Number(number) => UInt32::constant(number),
             field => match self.enforce_field_expression(cs, field) {
                 ResolvedValue::FieldElement(value) => value,
-                _ => unimplemented!("value not resolved"),
+                _ => unimplemented!("field expression did not resolve to field"),
             },
         }
     }
@@ -203,27 +217,54 @@ impl ResolvedProgram {
         &mut self,
         cs: &mut CS,
         expression: BooleanExpression,
-    ) -> Boolean {
+    ) -> ResolvedValue {
         match expression {
-            BooleanExpression::Variable(variable) => self.bool_from_variable(cs, variable),
-            BooleanExpression::Value(value) => Boolean::Constant(value),
-            BooleanExpression::Not(expression) => self.enforce_not(cs, *expression),
-            BooleanExpression::Or(left, right) => self.enforce_or(cs, *left, *right),
-            BooleanExpression::And(left, right) => self.enforce_and(cs, *left, *right),
-            BooleanExpression::BoolEq(left, right) => self.enforce_bool_equality(cs, *left, *right),
+            BooleanExpression::Variable(variable) => {
+                ResolvedValue::Boolean(self.bool_from_variable(cs, variable))
+            }
+            BooleanExpression::Value(value) => ResolvedValue::Boolean(Boolean::Constant(value)),
+            BooleanExpression::Not(expression) => {
+                ResolvedValue::Boolean(self.enforce_not(cs, *expression))
+            }
+            BooleanExpression::Or(left, right) => {
+                ResolvedValue::Boolean(self.enforce_or(cs, *left, *right))
+            }
+            BooleanExpression::And(left, right) => {
+                ResolvedValue::Boolean(self.enforce_and(cs, *left, *right))
+            }
+            BooleanExpression::BoolEq(left, right) => {
+                ResolvedValue::Boolean(self.enforce_bool_equality(cs, *left, *right))
+            }
             BooleanExpression::FieldEq(left, right) => {
-                self.enforce_field_equality(cs, *left, *right)
+                ResolvedValue::Boolean(self.enforce_field_equality(cs, *left, *right))
             }
             BooleanExpression::IfElse(first, second, third) => {
-                if self
-                    .enforce_boolean_expression(cs, *first)
-                    .eq(&Boolean::Constant(true))
-                {
+                let resolved_first = match self.enforce_boolean_expression(cs, *first) {
+                    ResolvedValue::Boolean(resolved) => resolved,
+                    _ => unimplemented!("if else conditional must resolve to boolean"),
+                };
+                if resolved_first.eq(&Boolean::Constant(true)) {
                     self.enforce_boolean_expression(cs, *second)
                 } else {
                     self.enforce_boolean_expression(cs, *third)
                 }
             }
+            BooleanExpression::Array(array) => ResolvedValue::BooleanArray(
+                array
+                    .into_iter()
+                    .map(|element| match *element {
+                        BooleanSpreadOrExpression::Spread(_spread) => {
+                            unimplemented!("spreads not enforced yet")
+                        }
+                        BooleanSpreadOrExpression::BooleanExpression(expression) => {
+                            match self.enforce_boolean_expression(cs, expression) {
+                                ResolvedValue::Boolean(value) => value,
+                                _ => unimplemented!("cannot resolve boolean"),
+                            }
+                        }
+                    })
+                    .collect::<Vec<Boolean>>(),
+            ),
             _ => unimplemented!(),
         }
     }
@@ -345,10 +386,12 @@ impl ResolvedProgram {
                 ResolvedValue::FieldElement(self.enforce_pow(cs, *left, *right))
             }
             FieldExpression::IfElse(first, second, third) => {
-                if self
-                    .enforce_boolean_expression(cs, *first)
-                    .eq(&Boolean::Constant(true))
-                {
+                let resolved_first = match self.enforce_boolean_expression(cs, *first) {
+                    ResolvedValue::Boolean(resolved) => resolved,
+                    _ => unimplemented!("if else conditional must resolve to boolean"),
+                };
+
+                if resolved_first.eq(&Boolean::Constant(true)) {
                     self.enforce_field_expression(cs, *second)
                 } else {
                     self.enforce_field_expression(cs, *third)
@@ -358,12 +401,11 @@ impl ResolvedProgram {
                 array
                     .into_iter()
                     .map(|element| match *element {
-                        FieldSpreadOrExpression::Spread(spread) => {
+                        FieldSpreadOrExpression::Spread(_spread) => {
                             unimplemented!("spreads not enforced yet")
                         }
                         FieldSpreadOrExpression::FieldExpression(expression) => {
-                            let resolved = self.enforce_field_expression(cs, expression);
-                            match resolved {
+                            match self.enforce_field_expression(cs, expression) {
                                 ResolvedValue::FieldElement(value) => value,
                                 _ => unimplemented!("cannot resolve field"),
                             }
@@ -383,12 +425,8 @@ impl ResolvedProgram {
             Statement::Definition(variable, expression) => match expression {
                 Expression::Boolean(boolean_expression) => {
                     let res = self.enforce_boolean_expression(cs, boolean_expression);
-                    println!(
-                        " variable boolean result: {} = {}",
-                        variable.0,
-                        res.get_value().unwrap()
-                    );
-                    self.insert(variable, ResolvedValue::Boolean(res));
+                    println!(" variable boolean result: {} = {}", variable.0, res);
+                    self.insert(variable, res);
                 }
                 Expression::FieldElement(field_expression) => {
                     let res = self.enforce_field_expression(cs, field_expression);
@@ -441,24 +479,17 @@ impl ResolvedProgram {
                     .for_each(|expression| match expression {
                         Expression::Boolean(boolean_expression) => {
                             let res = self.enforce_boolean_expression(cs, boolean_expression);
-                            println!("\n  Boolean result = {}", res.get_value().unwrap());
+                            println!("\n  Boolean result = {}", res);
                         }
                         Expression::FieldElement(field_expression) => {
                             let res = self.enforce_field_expression(cs, field_expression);
                             println!("\n  Field result = {}", res);
                         }
                         Expression::Variable(variable) => {
-                            match self.resolved_variables.get_mut(&variable).unwrap().clone() {
-                                ResolvedValue::Boolean(boolean) => println!(
-                                    "\n  Variable result = {}",
-                                    boolean.get_value().unwrap()
-                                ),
-                                ResolvedValue::FieldElement(field_element) => println!(
-                                    "\n  Variable field result = {}",
-                                    field_element.value.unwrap()
-                                ),
-                                _ => {}
-                            }
+                            println!(
+                                "\n  Return = {}",
+                                self.resolved_variables.get_mut(&variable).unwrap().clone()
+                            );
                         }
                     });
             }

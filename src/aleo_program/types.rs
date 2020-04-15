@@ -90,8 +90,6 @@ pub enum Expression {
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone)]
 pub enum Statement {
-    /// A statement that could be directly translated to a R1CS constraint a * b = c to be enforced
-    // Constraint(QuadraticCombination, LinearCombination),
     // Declaration(Variable),
     Definition(Variable, Expression),
     Return(Vec<Expression>),

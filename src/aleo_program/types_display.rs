@@ -5,8 +5,8 @@
 //! @date 2020
 
 use crate::aleo_program::{
-    BooleanExpression, Expression, FieldExpression, FieldSpread, FieldSpreadOrExpression,
-    Statement, Struct, StructField, Type, Variable,
+    BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
+    FieldSpread, FieldSpreadOrExpression, Statement, Struct, StructField, Type, Variable,
 };
 
 use std::fmt;
@@ -59,6 +59,23 @@ impl<'ast> fmt::Display for FieldExpression {
     }
 }
 
+impl fmt::Display for BooleanSpread {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "...{}", self.0)
+    }
+}
+
+impl fmt::Display for BooleanSpreadOrExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            BooleanSpreadOrExpression::Spread(ref spread) => write!(f, "{}", spread),
+            BooleanSpreadOrExpression::BooleanExpression(ref expression) => {
+                write!(f, "{}", expression)
+            }
+        }
+    }
+}
+
 impl<'ast> fmt::Display for BooleanExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -77,7 +94,16 @@ impl<'ast> fmt::Display for BooleanExpression {
             BooleanExpression::IfElse(ref a, ref b, ref c) => {
                 write!(f, "if {} then {} else {} fi", a, b, c)
             }
-            _ => unimplemented!(),
+            BooleanExpression::Array(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e)?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
         }
     }
 }

@@ -286,8 +286,11 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::Not(expression) => types::Expression::from(expression),
             ast::Expression::Binary(expression) => types::Expression::from(expression),
             ast::Expression::Ternary(expression) => types::Expression::from(expression),
-            ast::Expression::ArrayInline(expression) => {
+            ast::Expression::ArrayInline(_expression) => {
                 unimplemented!("unknown type for inline array expression")
+            }
+            ast::Expression::ArrayInitializer(_expression) => {
+                unimplemented!("unknown type for array initializer expression")
             }
             _ => unimplemented!(),
         }
@@ -313,12 +316,13 @@ impl<'ast> From<ast::Spread<'ast>> for types::BooleanSpread {
     }
 }
 
-impl<'ast> From<ast::Spread<'ast>> for types::FieldSpread {
-    fn from(spread: ast::Spread<'ast>) -> Self {
-        let field_expression = types::Expression::from(spread.expression);
-        match field_expression {
-            types::Expression::FieldElement(expression) => types::FieldSpread(expression),
-            _ => unimplemented!("cannot create field spread from boolean type"),
+impl<'ast> From<ast::Expression<'ast>> for types::BooleanSpreadOrExpression {
+    fn from(expression: ast::Expression<'ast>) -> Self {
+        match types::Expression::from(expression) {
+            types::Expression::Boolean(expression) => {
+                types::BooleanSpreadOrExpression::BooleanExpression(expression)
+            }
+            _ => unimplemented!("cannot create boolean expression from field type"),
         }
     }
 }
@@ -330,14 +334,34 @@ impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::BooleanSpreadOrExpress
                 types::BooleanSpreadOrExpression::Spread(types::BooleanSpread::from(spread))
             }
             ast::SpreadOrExpression::Expression(expression) => {
-                let boolean_expression = types::Expression::from(expression);
-                match boolean_expression {
+                match types::Expression::from(expression) {
                     types::Expression::Boolean(expression) => {
                         types::BooleanSpreadOrExpression::BooleanExpression(expression)
                     }
                     _ => unimplemented!("cannot create boolean expression from field type"),
                 }
             }
+        }
+    }
+}
+
+impl<'ast> From<ast::Spread<'ast>> for types::FieldSpread {
+    fn from(spread: ast::Spread<'ast>) -> Self {
+        let field_expression = types::Expression::from(spread.expression);
+        match field_expression {
+            types::Expression::FieldElement(expression) => types::FieldSpread(expression),
+            _ => unimplemented!("cannot create field spread from boolean type"),
+        }
+    }
+}
+
+impl<'ast> From<ast::Expression<'ast>> for types::FieldSpreadOrExpression {
+    fn from(expression: ast::Expression<'ast>) -> Self {
+        match types::Expression::from(expression) {
+            types::Expression::FieldElement(expression) => {
+                types::FieldSpreadOrExpression::FieldExpression(expression)
+            }
+            _ => unimplemented!("cannot create field expression from boolean type"),
         }
     }
 }
@@ -349,20 +373,14 @@ impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::FieldSpreadOrExpressio
                 types::FieldSpreadOrExpression::Spread(types::FieldSpread::from(spread))
             }
             ast::SpreadOrExpression::Expression(expression) => {
-                let field_expression = types::Expression::from(expression);
-                match field_expression {
-                    types::Expression::FieldElement(expression) => {
-                        types::FieldSpreadOrExpression::FieldExpression(expression)
-                    }
-                    _ => unimplemented!("cannot create field expression from boolean type"),
-                }
+                types::FieldSpreadOrExpression::from(expression)
             }
         }
     }
 }
 
 impl<'ast> types::Expression {
-    fn from_basic(ty: ast::BasicType<'ast>, expression: ast::Expression<'ast>) -> Self {
+    fn from_basic(_ty: ast::BasicType<'ast>, _expression: ast::Expression<'ast>) -> Self {
         unimplemented!("from basic not impl");
     }
 
@@ -375,8 +393,17 @@ impl<'ast> types::Expression {
                         .into_iter()
                         .map(|s_or_e| Box::new(types::BooleanSpreadOrExpression::from(s_or_e)))
                         .collect(),
-                    ast::Expression::ArrayInitializer(expression) => {
-                        unimplemented!("no array init yet")
+                    ast::Expression::ArrayInitializer(array) => {
+                        let count = match array.count {
+                            ast::Value::Field(f) => {
+                                f.value.parse::<usize>().expect("Unable to read array size")
+                            }
+                            _ => unimplemented!("Array size should be an integer"),
+                        };
+                        let expression =
+                            Box::new(types::BooleanSpreadOrExpression::from(*array.expression));
+
+                        vec![expression; count]
                     }
                     _ => unimplemented!("expected array after array type"),
                 };
@@ -389,8 +416,17 @@ impl<'ast> types::Expression {
                         .into_iter()
                         .map(|s_or_e| Box::new(types::FieldSpreadOrExpression::from(s_or_e)))
                         .collect(),
-                    ast::Expression::ArrayInitializer(expression) => {
-                        unimplemented!("array init not yet")
+                    ast::Expression::ArrayInitializer(array) => {
+                        let count = match array.count {
+                            ast::Value::Field(f) => {
+                                f.value.parse::<usize>().expect("Unable to read array size")
+                            }
+                            _ => unimplemented!("Array size should be an integer"),
+                        };
+                        let expression =
+                            Box::new(types::FieldSpreadOrExpression::from(*array.expression));
+
+                        vec![expression; count]
                     }
                     _ => unimplemented!("expected array after array type"),
                 };
@@ -399,7 +435,7 @@ impl<'ast> types::Expression {
         }
     }
 
-    fn from_struct(ty: ast::StructType<'ast>, expression: ast::Expression<'ast>) -> Self {
+    fn from_struct(_ty: ast::StructType<'ast>, _expression: ast::Expression<'ast>) -> Self {
         unimplemented!("from struct not impl");
     }
 
