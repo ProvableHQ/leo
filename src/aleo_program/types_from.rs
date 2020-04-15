@@ -327,9 +327,10 @@ impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
                         unimplemented!("only function names are callable, found \"{}\"", expression)
                     }
                 },
-                ast::Access::Member(struct_member) => {
-                    unimplemented!("struct calls not implemented")
-                }
+                ast::Access::Member(struct_member) => types::Expression::StructMemberAccess(
+                    Box::new(acc),
+                    types::Variable::from(struct_member.variable),
+                ),
                 ast::Access::Select(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     types::FieldRangeOrExpression::from(array.expression),
@@ -697,12 +698,12 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
         let mut functions = HashMap::new();
 
         file.structs.into_iter().for_each(|struct_def| {
-            println!("{:#?}", struct_def);
+            // println!("{:#?}", struct_def);
             let struct_definition = types::Struct::from(struct_def);
             structs.insert(struct_definition.variable.clone(), struct_definition);
         });
         file.functions.into_iter().for_each(|function_def| {
-            println!("{:#?}", function_def);
+            // println!("{:#?}", function_def);
             let function_definition = types::Function::from(function_def);
             functions.insert(function_definition.variable.clone(), function_definition);
         });

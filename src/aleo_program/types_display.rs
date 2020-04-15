@@ -142,7 +142,10 @@ impl<'ast> fmt::Display for Expression {
                 write!(f, "}}")
             }
             Expression::ArrayAccess(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            _ => unimplemented!("can't display expression yet"),
+            Expression::StructMemberAccess(ref struct_variable, ref member) => {
+                write!(f, "{}.{}", struct_variable, member)
+            }
+            // _ => unimplemented!("can't display expression yet"),
         }
     }
 }

@@ -94,7 +94,7 @@ pub enum Expression {
     Variable(Variable),
     ArrayAccess(Box<Expression>, FieldRangeOrExpression),
     Struct(Variable, Vec<StructMember>),
-    // StructMemberAccess(Variable, Variable)// (struct name, struct member name)
+    StructMemberAccess(Box<Expression>, Variable), // (struct name, struct member name)
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
