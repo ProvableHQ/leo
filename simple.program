@@ -1,9 +1,6 @@
-def test(field x) -> (field):
-  return 1
-
-def test2(bool b) -> (bool):
-  return b
-
-def main() -> (field):
-  a = test2(true)
-  return a
+struct Foo {
+    bool x
+}
+def main() -> (bool):
+    Foo f = Foo {x: true}
+    return f.x

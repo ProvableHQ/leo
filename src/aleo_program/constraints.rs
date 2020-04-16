@@ -634,21 +634,7 @@ impl ResolvedProgram {
         ResolvedValue::Return(
             statements
                 .into_iter()
-                .map(|expression| match expression {
-                    Expression::Boolean(boolean_expression) => {
-                        self.enforce_boolean_expression(cs, boolean_expression)
-                    }
-                    Expression::FieldElement(field_expression) => {
-                        self.enforce_field_expression(cs, field_expression)
-                    }
-                    Expression::Variable(variable) => {
-                        self.resolved_variables.get_mut(&variable).unwrap().clone()
-                    }
-                    Expression::Struct(_v, _m) => {
-                        unimplemented!("return struct not impl");
-                    }
-                    expr => unimplemented!("expression {} can't be returned yet", expr),
-                })
+                .map(|expression| self.enforce_expression(cs, expression))
                 .collect::<Vec<ResolvedValue>>(),
         )
     }

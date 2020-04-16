@@ -703,25 +703,29 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
         let mut functions = HashMap::new();
 
         file.structs.into_iter().for_each(|struct_def| {
-            let struct_definition = types::Struct::from(struct_def);
-            structs.insert(struct_definition.variable.clone(), struct_definition);
+            structs.insert(
+                types::Variable::from(struct_def.variable.clone()),
+                types::Struct::from(struct_def),
+            );
         });
         file.functions.into_iter().for_each(|function_def| {
-            let function_definition = types::Function::from(function_def);
-            functions.insert(function_definition.variable.clone(), function_definition);
+            functions.insert(
+                types::Variable::from(function_def.variable.clone()),
+                types::Function::from(function_def),
+            );
         });
 
-        let statements: Vec<types::Statement> = file
-            .statements
-            .into_iter()
-            .map(|statement| types::Statement::from(statement))
-            .collect();
+        // let statements: Vec<types::Statement> = file
+        //     .statements
+        //     .into_iter()
+        //     .map(|statement| types::Statement::from(statement))
+        //     .collect();
 
         types::Program {
             id: "main".into(),
             structs,
             functions,
-            statements,
+            // statements,
             arguments: vec![],
             returns: vec![],
         }

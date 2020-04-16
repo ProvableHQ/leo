@@ -165,7 +165,7 @@ pub struct Program {
     pub id: String,
     pub structs: HashMap<Variable, Struct>,
     pub functions: HashMap<Variable, Function>,
-    pub statements: Vec<Statement>,
+    // pub statements: Vec<Statement>,
     pub arguments: Vec<Variable>,
     pub returns: Vec<Variable>,
 }
