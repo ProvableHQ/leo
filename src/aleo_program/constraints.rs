@@ -70,34 +70,76 @@ impl fmt::Display for ResolvedValue {
                 }
                 write!(f, "]")
             }
-            _ => unimplemented!("display not impl for value"),
+            ResolvedValue::StructDefinition(ref _definition) => {
+                unimplemented!("cannot return struct definition in program")
+            }
+            ResolvedValue::Function(ref _function) => {
+                unimplemented!("cannot return function definition in program")
+            }
+            // _ => unimplemented!("display not impl for value"),
         }
     }
 }
 
 pub struct ResolvedProgram {
-    pub resolved_variables: HashMap<Variable, ResolvedValue>,
+    pub resolved_names: HashMap<String, ResolvedValue>,
+}
+
+pub fn new_scope(outer: String, inner: String) -> String {
+    format!("{}_{}", outer, inner)
+}
+
+pub fn new_scope_from_variable(outer: String, inner: &Variable) -> String {
+    new_scope(outer, inner.0.clone())
 }
 
 impl ResolvedProgram {
     fn new() -> Self {
         Self {
-            resolved_variables: HashMap::new(),
+            resolved_names: HashMap::new(),
         }
     }
 
-    fn insert(&mut self, variable: Variable, value: ResolvedValue) {
-        self.resolved_variables.insert(variable, value);
+    fn store(&mut self, name: String, value: ResolvedValue) {
+        self.resolved_names.insert(name, value);
+    }
+
+    fn store_variable(&mut self, variable: Variable, value: ResolvedValue) {
+        self.store(variable.0, value);
+    }
+
+    fn contains_name(&self, name: &String) -> bool {
+        self.resolved_names.contains_key(name)
+    }
+
+    fn contains_variable(&self, variable: &Variable) -> bool {
+        self.contains_name(&variable.0)
+    }
+
+    fn get(&self, name: &String) -> Option<&ResolvedValue> {
+        self.resolved_names.get(name)
+    }
+
+    fn get_mut(&mut self, name: &String) -> Option<&mut ResolvedValue> {
+        self.resolved_names.get_mut(name)
+    }
+
+    fn get_mut_variable(&mut self, variable: &Variable) -> Option<&mut ResolvedValue> {
+        self.get_mut(&variable.0)
     }
 
     fn bool_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         variable: Variable,
     ) -> Boolean {
-        if self.resolved_variables.contains_key(&variable) {
+        // Evaluate variable name in current function scope
+        let variable_name = new_scope_from_variable(scope, &variable);
+
+        if self.contains_name(&variable_name) {
             // TODO: return synthesis error: "assignment missing" here
-            match self.resolved_variables.get(&variable).unwrap() {
+            match self.get(&variable_name).unwrap() {
                 ResolvedValue::Boolean(boolean) => boolean.clone(),
                 _ => panic!("expected a boolean, got field"),
             }
@@ -116,11 +158,15 @@ impl ResolvedProgram {
     fn u32_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         variable: Variable,
     ) -> UInt32 {
-        if self.resolved_variables.contains_key(&variable) {
+        // Evaluate variable name in current function scope
+        let variable_name = new_scope_from_variable(scope, &variable);
+
+        if self.contains_name(&variable_name) {
             // TODO: return synthesis error: "assignment missing" here
-            match self.resolved_variables.get(&variable).unwrap() {
+            match self.get(&variable_name).unwrap() {
                 ResolvedValue::FieldElement(field) => field.clone(),
                 _ => panic!("expected a field, got boolean"),
             }
@@ -141,12 +187,13 @@ impl ResolvedProgram {
     fn get_bool_value<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: BooleanExpression,
     ) -> Boolean {
         match expression {
-            BooleanExpression::Variable(variable) => self.bool_from_variable(cs, variable),
+            BooleanExpression::Variable(variable) => self.bool_from_variable(cs, scope, variable),
             BooleanExpression::Value(value) => Boolean::Constant(value),
-            expression => match self.enforce_boolean_expression(cs, expression) {
+            expression => match self.enforce_boolean_expression(cs, scope, expression) {
                 ResolvedValue::Boolean(value) => value,
                 _ => unimplemented!("boolean expression did not resolve to boolean"),
             },
@@ -156,12 +203,13 @@ impl ResolvedProgram {
     fn get_u32_value<F: Field + PrimeField + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: FieldExpression,
     ) -> UInt32 {
         match expression {
-            FieldExpression::Variable(variable) => self.u32_from_variable(cs, variable),
+            FieldExpression::Variable(variable) => self.u32_from_variable(cs, scope, variable),
             FieldExpression::Number(number) => UInt32::constant(number),
-            field => match self.enforce_field_expression(cs, field) {
+            field => match self.enforce_field_expression(cs, scope, field) {
                 ResolvedValue::FieldElement(value) => value,
                 _ => unimplemented!("field expression did not resolve to field"),
             },
@@ -171,9 +219,10 @@ impl ResolvedProgram {
     fn enforce_not<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: BooleanExpression,
     ) -> Boolean {
-        let expression = self.get_bool_value(cs, expression);
+        let expression = self.get_bool_value(cs, scope, expression);
 
         expression.not()
     }
@@ -181,11 +230,12 @@ impl ResolvedProgram {
     fn enforce_or<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: BooleanExpression,
         right: BooleanExpression,
     ) -> Boolean {
-        let left = self.get_bool_value(cs, left);
-        let right = self.get_bool_value(cs, right);
+        let left = self.get_bool_value(cs, scope.clone(), left);
+        let right = self.get_bool_value(cs, scope.clone(), right);
 
         Boolean::or(cs, &left, &right).unwrap()
     }
@@ -193,11 +243,12 @@ impl ResolvedProgram {
     fn enforce_and<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: BooleanExpression,
         right: BooleanExpression,
     ) -> Boolean {
-        let left = self.get_bool_value(cs, left);
-        let right = self.get_bool_value(cs, right);
+        let left = self.get_bool_value(cs, scope.clone(), left);
+        let right = self.get_bool_value(cs, scope.clone(), right);
 
         Boolean::and(cs, &left, &right).unwrap()
     }
@@ -205,11 +256,12 @@ impl ResolvedProgram {
     fn enforce_bool_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: BooleanExpression,
         right: BooleanExpression,
     ) -> Boolean {
-        let left = self.get_bool_value(cs, left);
-        let right = self.get_bool_value(cs, right);
+        let left = self.get_bool_value(cs, scope.clone(), left);
+        let right = self.get_bool_value(cs, scope.clone(), right);
 
         left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)
             .unwrap();
@@ -220,11 +272,12 @@ impl ResolvedProgram {
     fn enforce_field_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> Boolean {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         left.conditional_enforce_equal(
             cs.ns(|| format!("enforce field equal")),
@@ -239,37 +292,39 @@ impl ResolvedProgram {
     fn enforce_boolean_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: BooleanExpression,
     ) -> ResolvedValue {
         match expression {
             BooleanExpression::Variable(variable) => {
-                ResolvedValue::Boolean(self.bool_from_variable(cs, variable))
+                ResolvedValue::Boolean(self.bool_from_variable(cs, scope, variable))
             }
             BooleanExpression::Value(value) => ResolvedValue::Boolean(Boolean::Constant(value)),
             BooleanExpression::Not(expression) => {
-                ResolvedValue::Boolean(self.enforce_not(cs, *expression))
+                ResolvedValue::Boolean(self.enforce_not(cs, scope, *expression))
             }
             BooleanExpression::Or(left, right) => {
-                ResolvedValue::Boolean(self.enforce_or(cs, *left, *right))
+                ResolvedValue::Boolean(self.enforce_or(cs, scope, *left, *right))
             }
             BooleanExpression::And(left, right) => {
-                ResolvedValue::Boolean(self.enforce_and(cs, *left, *right))
+                ResolvedValue::Boolean(self.enforce_and(cs, scope, *left, *right))
             }
             BooleanExpression::BoolEq(left, right) => {
-                ResolvedValue::Boolean(self.enforce_bool_equality(cs, *left, *right))
+                ResolvedValue::Boolean(self.enforce_bool_equality(cs, scope, *left, *right))
             }
             BooleanExpression::FieldEq(left, right) => {
-                ResolvedValue::Boolean(self.enforce_field_equality(cs, *left, *right))
+                ResolvedValue::Boolean(self.enforce_field_equality(cs, scope, *left, *right))
             }
             BooleanExpression::IfElse(first, second, third) => {
-                let resolved_first = match self.enforce_boolean_expression(cs, *first) {
-                    ResolvedValue::Boolean(resolved) => resolved,
-                    _ => unimplemented!("if else conditional must resolve to boolean"),
-                };
+                let resolved_first =
+                    match self.enforce_boolean_expression(cs, scope.clone(), *first) {
+                        ResolvedValue::Boolean(resolved) => resolved,
+                        _ => unimplemented!("if else conditional must resolve to boolean"),
+                    };
                 if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_boolean_expression(cs, *second)
+                    self.enforce_boolean_expression(cs, scope, *second)
                 } else {
-                    self.enforce_boolean_expression(cs, *third)
+                    self.enforce_boolean_expression(cs, scope, *third)
                 }
             }
             BooleanExpression::Array(array) => ResolvedValue::BooleanArray(
@@ -280,7 +335,7 @@ impl ResolvedProgram {
                             unimplemented!("spreads not enforced yet")
                         }
                         BooleanSpreadOrExpression::BooleanExpression(expression) => {
-                            match self.enforce_boolean_expression(cs, expression) {
+                            match self.enforce_boolean_expression(cs, scope.clone(), expression) {
                                 ResolvedValue::Boolean(value) => value,
                                 _ => unimplemented!("cannot resolve boolean"),
                             }
@@ -295,11 +350,12 @@ impl ResolvedProgram {
     fn enforce_add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> UInt32 {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         UInt32::addmany(
             cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
@@ -311,11 +367,12 @@ impl ResolvedProgram {
     fn enforce_sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> UInt32 {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         left.sub(
             cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
@@ -327,11 +384,12 @@ impl ResolvedProgram {
     fn enforce_mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> UInt32 {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         let res = left
             .mul(
@@ -346,11 +404,12 @@ impl ResolvedProgram {
     fn enforce_div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> UInt32 {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         left.div(
             cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
@@ -362,11 +421,12 @@ impl ResolvedProgram {
     fn enforce_pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         left: FieldExpression,
         right: FieldExpression,
     ) -> UInt32 {
-        let left = self.get_u32_value(cs, left);
-        let right = self.get_u32_value(cs, right);
+        let left = self.get_u32_value(cs, scope.clone(), left);
+        let right = self.get_u32_value(cs, scope.clone(), right);
 
         left.pow(
             cs.ns(|| {
@@ -384,40 +444,42 @@ impl ResolvedProgram {
     fn enforce_field_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: FieldExpression,
     ) -> ResolvedValue {
         match expression {
             FieldExpression::Variable(variable) => {
-                ResolvedValue::FieldElement(self.u32_from_variable(cs, variable))
+                ResolvedValue::FieldElement(self.u32_from_variable(cs, scope, variable))
             }
             FieldExpression::Number(number) => {
                 ResolvedValue::FieldElement(UInt32::constant(number))
             }
             FieldExpression::Add(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_add(cs, *left, *right))
+                ResolvedValue::FieldElement(self.enforce_add(cs, scope, *left, *right))
             }
             FieldExpression::Sub(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_sub(cs, *left, *right))
+                ResolvedValue::FieldElement(self.enforce_sub(cs, scope, *left, *right))
             }
             FieldExpression::Mul(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_mul(cs, *left, *right))
+                ResolvedValue::FieldElement(self.enforce_mul(cs, scope, *left, *right))
             }
             FieldExpression::Div(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_div(cs, *left, *right))
+                ResolvedValue::FieldElement(self.enforce_div(cs, scope, *left, *right))
             }
             FieldExpression::Pow(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_pow(cs, *left, *right))
+                ResolvedValue::FieldElement(self.enforce_pow(cs, scope, *left, *right))
             }
             FieldExpression::IfElse(first, second, third) => {
-                let resolved_first = match self.enforce_boolean_expression(cs, *first) {
-                    ResolvedValue::Boolean(resolved) => resolved,
-                    _ => unimplemented!("if else conditional must resolve to boolean"),
-                };
+                let resolved_first =
+                    match self.enforce_boolean_expression(cs, scope.clone(), *first) {
+                        ResolvedValue::Boolean(resolved) => resolved,
+                        _ => unimplemented!("if else conditional must resolve to boolean"),
+                    };
 
                 if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_field_expression(cs, *second)
+                    self.enforce_field_expression(cs, scope, *second)
                 } else {
-                    self.enforce_field_expression(cs, *third)
+                    self.enforce_field_expression(cs, scope, *third)
                 }
             }
             FieldExpression::Array(array) => ResolvedValue::FieldElementArray(
@@ -428,7 +490,7 @@ impl ResolvedProgram {
                             unimplemented!("spreads not enforced yet")
                         }
                         FieldSpreadOrExpression::FieldExpression(expression) => {
-                            match self.enforce_field_expression(cs, expression) {
+                            match self.enforce_field_expression(cs, scope.clone(), expression) {
                                 ResolvedValue::FieldElement(value) => value,
                                 _ => unimplemented!("cannot resolve field"),
                             }
@@ -442,10 +504,11 @@ impl ResolvedProgram {
     fn enforce_struct_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         variable: Variable,
         members: Vec<StructMember>,
     ) -> ResolvedValue {
-        if let Some(resolved_value) = self.resolved_variables.get_mut(&variable) {
+        if let Some(resolved_value) = self.get_mut_variable(&variable) {
             match resolved_value {
                 ResolvedValue::StructDefinition(struct_definition) => {
                     struct_definition
@@ -459,7 +522,8 @@ impl ResolvedProgram {
                             }
                             // Resolve and possibly enforce struct fields
                             // do we need to store the results here?
-                            let _result = self.enforce_expression(cs, member.expression);
+                            let _result =
+                                self.enforce_expression(cs, scope.clone(), member.expression);
                         });
 
                     ResolvedValue::StructExpression(variable, members)
@@ -474,9 +538,10 @@ impl ResolvedProgram {
     fn enforce_index<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         index: FieldExpression,
     ) -> usize {
-        match self.enforce_field_expression(cs, index) {
+        match self.enforce_field_expression(cs, scope.clone(), index) {
             ResolvedValue::FieldElement(number) => number.value.unwrap() as usize,
             value => unimplemented!("From index must resolve to a uint32, got {}", value),
         }
@@ -485,19 +550,20 @@ impl ResolvedProgram {
     fn enforce_array_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         array: Box<Expression>,
         index: FieldRangeOrExpression,
     ) -> ResolvedValue {
-        match self.enforce_expression(cs, *array) {
+        match self.enforce_expression(cs, scope.clone(), *array) {
             ResolvedValue::FieldElementArray(field_array) => {
                 match index {
                     FieldRangeOrExpression::Range(from, to) => {
                         let from_resolved = match from {
-                            Some(from_index) => self.enforce_index(cs, from_index),
+                            Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
                             None => 0usize, // Array slice starts at index 0
                         };
                         let to_resolved = match to {
-                            Some(to_index) => self.enforce_index(cs, to_index),
+                            Some(to_index) => self.enforce_index(cs, scope.clone(), to_index),
                             None => field_array.len(), // Array slice ends at array length
                         };
                         ResolvedValue::FieldElementArray(
@@ -505,7 +571,7 @@ impl ResolvedProgram {
                         )
                     }
                     FieldRangeOrExpression::FieldExpression(index) => {
-                        let index_resolved = self.enforce_index(cs, index);
+                        let index_resolved = self.enforce_index(cs, scope.clone(), index);
                         ResolvedValue::FieldElement(field_array[index_resolved].to_owned())
                     }
                 }
@@ -514,11 +580,11 @@ impl ResolvedProgram {
                 match index {
                     FieldRangeOrExpression::Range(from, to) => {
                         let from_resolved = match from {
-                            Some(from_index) => self.enforce_index(cs, from_index),
+                            Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
                             None => 0usize, // Array slice starts at index 0
                         };
                         let to_resolved = match to {
-                            Some(to_index) => self.enforce_index(cs, to_index),
+                            Some(to_index) => self.enforce_index(cs, scope.clone(), to_index),
                             None => bool_array.len(), // Array slice ends at array length
                         };
                         ResolvedValue::BooleanArray(
@@ -526,7 +592,7 @@ impl ResolvedProgram {
                         )
                     }
                     FieldRangeOrExpression::FieldExpression(index) => {
-                        let index_resolved = self.enforce_index(cs, index);
+                        let index_resolved = self.enforce_index(cs, scope.clone(), index);
                         ResolvedValue::Boolean(bool_array[index_resolved].to_owned())
                     }
                 }
@@ -538,16 +604,17 @@ impl ResolvedProgram {
     fn enforce_struct_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         struct_variable: Box<Expression>,
         struct_member: Variable,
     ) -> ResolvedValue {
-        match self.enforce_expression(cs, *struct_variable) {
+        match self.enforce_expression(cs, scope.clone(), *struct_variable) {
             ResolvedValue::StructExpression(_name, members) => {
                 let matched_member = members
                     .into_iter()
                     .find(|member| member.variable == struct_member);
                 match matched_member {
-                    Some(member) => self.enforce_expression(cs, member.expression),
+                    Some(member) => self.enforce_expression(cs, scope.clone(), member.expression),
                     None => unimplemented!("Cannot access struct member {}", struct_member.0),
                 }
             }
@@ -558,10 +625,11 @@ impl ResolvedProgram {
     fn enforce_function_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         function: Box<Expression>,
         arguments: Vec<Expression>,
     ) -> ResolvedValue {
-        match self.enforce_expression(cs, *function) {
+        match self.enforce_expression(cs, scope, *function) {
             ResolvedValue::Function(function) => self.enforce_function(cs, function, arguments),
             value => unimplemented!("Cannot call unknown function {}", value),
         }
@@ -570,22 +638,26 @@ impl ResolvedProgram {
     fn enforce_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         expression: Expression,
     ) -> ResolvedValue {
         match expression {
             Expression::Boolean(boolean_expression) => {
-                self.enforce_boolean_expression(cs, boolean_expression)
+                self.enforce_boolean_expression(cs, scope, boolean_expression)
             }
             Expression::FieldElement(field_expression) => {
-                self.enforce_field_expression(cs, field_expression)
+                self.enforce_field_expression(cs, scope, field_expression)
             }
             Expression::Variable(unresolved_variable) => {
-                if self.resolved_variables.contains_key(&unresolved_variable) {
+                let variable_name = new_scope_from_variable(scope, &unresolved_variable);
+
+                // Evaluate the variable name in the current function scope
+                if self.contains_name(&variable_name) {
                     // Reassigning variable to another variable
-                    self.resolved_variables
-                        .get_mut(&unresolved_variable)
-                        .unwrap()
-                        .clone()
+                    self.get_mut(&variable_name).unwrap().clone()
+                } else if self.contains_variable(&unresolved_variable) {
+                    // Check global scope (function and struct names)
+                    self.get_mut_variable(&unresolved_variable).unwrap().clone()
                 } else {
                     // The type of the unassigned variable depends on what is passed in
                     if std::env::args()
@@ -594,23 +666,31 @@ impl ResolvedProgram {
                         .parse::<bool>()
                         .is_ok()
                     {
-                        ResolvedValue::Boolean(self.bool_from_variable(cs, unresolved_variable))
+                        ResolvedValue::Boolean(self.bool_from_variable(
+                            cs,
+                            variable_name,
+                            unresolved_variable,
+                        ))
                     } else {
-                        ResolvedValue::FieldElement(self.u32_from_variable(cs, unresolved_variable))
+                        ResolvedValue::FieldElement(self.u32_from_variable(
+                            cs,
+                            variable_name,
+                            unresolved_variable,
+                        ))
                     }
                 }
             }
             Expression::Struct(struct_name, members) => {
-                self.enforce_struct_expression(cs, struct_name, members)
+                self.enforce_struct_expression(cs, scope, struct_name, members)
             }
             Expression::ArrayAccess(array, index) => {
-                self.enforce_array_access_expression(cs, array, index)
+                self.enforce_array_access_expression(cs, scope, array, index)
             }
             Expression::StructMemberAccess(struct_variable, struct_member) => {
-                self.enforce_struct_access_expression(cs, struct_variable, struct_member)
+                self.enforce_struct_access_expression(cs, scope, struct_variable, struct_member)
             }
             Expression::FunctionCall(function, arguments) => {
-                self.enforce_function_access_expression(cs, function, arguments)
+                self.enforce_function_access_expression(cs, scope, function, arguments)
             }
         }
     }
@@ -618,23 +698,29 @@ impl ResolvedProgram {
     fn enforce_definition_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        variable: Variable,
+        scope: String,
+        name: Variable,
         expression: Expression,
     ) {
-        let result = self.enforce_expression(cs, expression);
-        // println!("  statement result: {} = {}", variable.0, result);
-        self.insert(variable, result);
+        // Evaluate the expression in the current function scope
+        let result = self.enforce_expression(cs, scope.clone(), expression);
+
+        // Store the definition in the current scope
+        let definition_name = new_scope_from_variable(scope, &name);
+
+        self.store(definition_name, result);
     }
 
     fn enforce_return_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         statements: Vec<Expression>,
     ) -> ResolvedValue {
         ResolvedValue::Return(
             statements
                 .into_iter()
-                .map(|expression| self.enforce_expression(cs, expression))
+                .map(|expression| self.enforce_expression(cs, scope.clone(), expression))
                 .collect::<Vec<ResolvedValue>>(),
         )
     }
@@ -642,18 +728,19 @@ impl ResolvedProgram {
     fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         statement: Statement,
     ) {
         match statement {
             Statement::Definition(variable, expression) => {
-                self.enforce_definition_statement(cs, variable, expression);
+                self.enforce_definition_statement(cs, scope, variable, expression);
             }
             Statement::For(index, start, stop, statements) => {
-                self.enforce_for_statement(cs, index, start, stop, statements);
+                self.enforce_for_statement(cs, scope, index, start, stop, statements);
             }
             Statement::Return(statements) => {
                 // TODO: add support for early termination
-                let _res = self.enforce_return_statement(cs, statements);
+                let _res = self.enforce_return_statement(cs, scope, statements);
             }
         };
     }
@@ -661,18 +748,21 @@ impl ResolvedProgram {
     fn enforce_for_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
+        scope: String,
         index: Variable,
         start: FieldExpression,
         stop: FieldExpression,
         statements: Vec<Statement>,
     ) {
-        let start_index = self.enforce_index(cs, start);
-        let stop_index = self.enforce_index(cs, stop);
+        let start_index = self.enforce_index(cs, scope.clone(), start);
+        let stop_index = self.enforce_index(cs, scope.clone(), stop);
 
         for i in start_index..stop_index {
-            // Store index
-            self.resolved_variables.insert(
-                index.clone(),
+            // Store index in current function scope.
+            // For loop scope is not implemented.
+            let index_name = new_scope_from_variable(scope.clone(), &index);
+            self.store(
+                index_name,
                 ResolvedValue::FieldElement(UInt32::constant(i as u32)),
             );
 
@@ -680,7 +770,7 @@ impl ResolvedProgram {
             statements
                 .clone()
                 .into_iter()
-                .for_each(|statement| self.enforce_statement(cs, statement));
+                .for_each(|statement| self.enforce_statement(cs, scope.clone(), statement));
         }
     }
 
@@ -711,22 +801,22 @@ impl ResolvedProgram {
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::FieldElement => {
-                        match self.enforce_expression(cs, argument) {
+                        match self.enforce_expression(cs, function.name(), argument) {
                             ResolvedValue::FieldElement(field) => {
-                                // Store argument as variable with parameter name
-                                // TODO: this will not support multiple function calls or variables with same name as parameter
-                                self.resolved_variables.insert(
-                                    parameter.variable.clone(),
-                                    ResolvedValue::FieldElement(field),
-                                );
+                                // Store argument as variable with {function_name}_{parameter name}
+                                let variable_name =
+                                    new_scope_from_variable(function.name(), &parameter.variable);
+                                self.store(variable_name, ResolvedValue::FieldElement(field));
                             }
                             argument => unimplemented!("expected field argument got {}", argument),
                         }
                     }
-                    Type::Boolean => match self.enforce_expression(cs, argument) {
+                    Type::Boolean => match self.enforce_expression(cs, function.name(), argument) {
                         ResolvedValue::Boolean(bool) => {
-                            self.resolved_variables
-                                .insert(parameter.variable.clone(), ResolvedValue::Boolean(bool));
+                            // Store argument as variable with {function_name}_{parameter name}
+                            let variable_name =
+                                new_scope_from_variable(function.name(), &parameter.variable);
+                            self.store(variable_name, ResolvedValue::Boolean(bool));
                         }
                         argument => unimplemented!("expected boolean argument got {}", argument),
                     },
@@ -744,13 +834,13 @@ impl ResolvedProgram {
             .into_iter()
             .for_each(|statement| match statement {
                 Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(cs, variable, expression);
+                    self.enforce_definition_statement(cs, function.name(), variable, expression);
                 }
                 Statement::For(index, start, stop, statements) => {
-                    self.enforce_for_statement(cs, index, start, stop, statements);
+                    self.enforce_for_statement(cs, function.name(), index, start, stop, statements);
                 }
                 Statement::Return(expressions) => {
-                    return_values = self.enforce_return_statement(cs, expressions)
+                    return_values = self.enforce_return_statement(cs, function.name(), expressions)
                 }
             });
 
@@ -768,21 +858,17 @@ impl ResolvedProgram {
             .into_iter()
             .for_each(|(variable, struct_def)| {
                 resolved_program
-                    .resolved_variables
-                    .insert(variable, ResolvedValue::StructDefinition(struct_def));
+                    .store_variable(variable, ResolvedValue::StructDefinition(struct_def));
             });
         program
             .functions
             .into_iter()
             .for_each(|(function_name, function)| {
-                resolved_program
-                    .resolved_variables
-                    .insert(Variable(function_name.0), ResolvedValue::Function(function));
+                resolved_program.store(function_name.0, ResolvedValue::Function(function));
             });
 
         let main = resolved_program
-            .resolved_variables
-            .get(&Variable("main".into()))
+            .get(&"main".into())
             .expect("main function not defined");
 
         let result = match main.clone() {
@@ -792,20 +878,5 @@ impl ResolvedProgram {
             _ => unimplemented!("main must be a function"),
         };
         println!("\n  {}", result);
-
-        // program
-        //     .statements
-        //     .into_iter()
-        //     .for_each(|statement| resolved_program.enforce_statement(cs, statement));
     }
 }
-
-// impl Program {
-//     pub fn setup(&self) {
-//         self.statements
-//             .iter()
-//             .for_each(|statement| {
-//
-//             })
-//     }
-// }

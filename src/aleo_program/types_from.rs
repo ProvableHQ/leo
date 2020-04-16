@@ -730,12 +730,6 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
             );
         });
 
-        types::Program {
-            id: "main".into(),
-            structs,
-            functions,
-            arguments: vec![],
-            returns: vec![],
-        }
+        types::Program { structs, functions }
     }
 }

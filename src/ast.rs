@@ -812,7 +812,6 @@ pub struct Function<'ast> {
 pub struct File<'ast> {
     pub structs: Vec<Struct<'ast>>,
     pub functions: Vec<Function<'ast>>,
-    pub statements: Vec<Statement<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

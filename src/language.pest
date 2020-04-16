@@ -161,4 +161,4 @@ WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
 /// Abstract Syntax Tree File
 
-file = { SOI ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ statement* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }

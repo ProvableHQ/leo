@@ -158,15 +158,17 @@ pub struct Function {
     pub statements: Vec<Statement>,
 }
 
+impl Function {
+    pub fn name(&self) -> String {
+        self.function_name.0.clone()
+    }
+}
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub id: String,
     pub structs: HashMap<Variable, Struct>,
     pub functions: HashMap<FunctionName, Function>,
-    // pub statements: Vec<Statement>,
-    pub arguments: Vec<Variable>,
-    pub returns: Vec<Variable>,
 }
 
 #[cfg(test)]
