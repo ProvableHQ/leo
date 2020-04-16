@@ -103,6 +103,7 @@ pub enum Expression {
 pub enum Statement {
     // Declaration(Variable),
     Definition(Variable, Expression),
+    For(Variable, FieldExpression, FieldExpression, Vec<Statement>),
     Return(Vec<Expression>),
 }
 
@@ -119,12 +120,6 @@ pub struct StructMember {
     pub variable: Variable,
     pub expression: Expression,
 }
-
-// #[derive(Clone, Debug)]
-// pub struct StructExpression {
-//     pub variable: Variable,
-//     pub members: Vec<StructMember>
-// }
 
 #[derive(Clone)]
 pub struct StructField {

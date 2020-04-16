@@ -639,21 +639,50 @@ impl ResolvedProgram {
         )
     }
 
-    // fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-    //     &mut self,
-    //     cs: &mut CS,
-    //     statement: Statement,
-    // ) {
-    //     match statement {
-    //         Statement::Definition(variable, expression) => {
-    //             self.enforce_definition_statement(cs, variable, expression);
-    //         }
-    //         Statement::Return(statements) => {
-    //             let res = self.enforce_return_statement(cs, statements);
-    //
-    //         }
-    //     };
-    // }
+    fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        statement: Statement,
+    ) {
+        match statement {
+            Statement::Definition(variable, expression) => {
+                self.enforce_definition_statement(cs, variable, expression);
+            }
+            Statement::For(index, start, stop, statements) => {
+                self.enforce_for_statement(cs, index, start, stop, statements);
+            }
+            Statement::Return(statements) => {
+                // TODO: add support for early termination
+                let _res = self.enforce_return_statement(cs, statements);
+            }
+        };
+    }
+
+    fn enforce_for_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        index: Variable,
+        start: FieldExpression,
+        stop: FieldExpression,
+        statements: Vec<Statement>,
+    ) {
+        let start_index = self.enforce_index(cs, start);
+        let stop_index = self.enforce_index(cs, stop);
+
+        for i in start_index..stop_index {
+            // Store index
+            self.resolved_variables.insert(
+                index.clone(),
+                ResolvedValue::FieldElement(UInt32::constant(i as u32)),
+            );
+
+            // Evaluate statements
+            statements
+                .clone()
+                .into_iter()
+                .for_each(|statement| self.enforce_statement(cs, statement));
+        }
+    }
 
     fn enforce_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
@@ -715,7 +744,10 @@ impl ResolvedProgram {
             .into_iter()
             .for_each(|statement| match statement {
                 Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(cs, variable, expression)
+                    self.enforce_definition_statement(cs, variable, expression);
+                }
+                Statement::For(index, start, stop, statements) => {
+                    self.enforce_for_statement(cs, index, start, stop, statements);
                 }
                 Statement::Return(expressions) => {
                     return_values = self.enforce_return_statement(cs, expressions)

@@ -701,12 +701,11 @@ pub struct DefinitionStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::statement_iteration))]
-pub struct IterationStatement<'ast> {
-    pub ty: Type<'ast>,
+#[pest_ast(rule(Rule::statement_for))]
+pub struct ForStatement<'ast> {
     pub index: Variable<'ast>,
-    pub from: Expression<'ast>,
-    pub to: Expression<'ast>,
+    pub start: Expression<'ast>,
+    pub stop: Expression<'ast>,
     pub statements: Vec<Statement<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -725,7 +724,7 @@ pub struct ReturnStatement<'ast> {
 pub enum Statement<'ast> {
     Assign(AssignStatement<'ast>),
     Definition(DefinitionStatement<'ast>),
-    Iteration(IterationStatement<'ast>),
+    Iteration(ForStatement<'ast>),
     Return(ReturnStatement<'ast>),
 }
 
@@ -741,12 +740,12 @@ impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     }
 }
 
-impl<'ast> fmt::Display for IterationStatement<'ast> {
+impl<'ast> fmt::Display for ForStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "for {} {} in {}..{} do {:#?} endfor",
-            self.ty, self.index, self.from, self.to, self.statements
+            "for {} in {}..{} do {:#?} endfor",
+            self.index, self.start, self.stop, self.statements
         )
     }
 }

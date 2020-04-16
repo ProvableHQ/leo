@@ -6,8 +6,8 @@
 
 use crate::aleo_program::{
     BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, FunctionName, Parameter, Statement,
-    Struct, StructField, Type, Variable,
+    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, FunctionName,
+    Parameter, Statement, Struct, StructField, Type, Variable,
 };
 
 use std::fmt;
@@ -166,14 +166,21 @@ impl<'ast> fmt::Display for Expression {
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Statement::Definition(ref variable, ref statement) => {
+                write!(f, "{} = {}", variable, statement)
+            }
+            Statement::For(ref var, ref start, ref stop, ref list) => {
+                write!(f, "for {} in {}..{} do\n", var, start, stop)?;
+                for l in list {
+                    write!(f, "\t\t{}\n", l)?;
+                }
+                write!(f, "\tendfor")
+            }
             Statement::Return(ref statements) => {
                 statements.iter().for_each(|statement| {
                     write!(f, "return {}", statement).unwrap();
                 });
                 write!(f, "\n")
-            }
-            Statement::Definition(ref variable, ref statement) => {
-                write!(f, "{} = {}", variable, statement)
             }
         }
     }
@@ -182,14 +189,21 @@ impl fmt::Display for Statement {
 impl fmt::Debug for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Statement::Definition(ref variable, ref statement) => {
+                write!(f, "{} = {}", variable, statement)
+            }
+            Statement::For(ref var, ref start, ref stop, ref list) => {
+                write!(f, "for {:?} in {:?}..{:?} do\n", var, start, stop)?;
+                for l in list {
+                    write!(f, "\t\t{:?}\n", l)?;
+                }
+                write!(f, "\tendfor")
+            }
             Statement::Return(ref statements) => {
                 statements.iter().for_each(|statement| {
                     write!(f, "return {}", statement).unwrap();
                 });
                 write!(f, "\n")
-            }
-            Statement::Definition(ref variable, ref statement) => {
-                write!(f, "{} = {}", variable, statement)
             }
         }
     }

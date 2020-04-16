@@ -135,11 +135,11 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 statement_assign = { variable ~ "=" ~ expression }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
-statement_iteration = { "for" ~ ty ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
+statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
 
 statement = {
     (statement_return
-    | (statement_iteration
+    | (statement_for
       | statement_definition
       | statement_assign
       ) ~ NEWLINE

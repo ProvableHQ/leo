@@ -561,10 +561,18 @@ impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::IterationStatement<'ast>> for types::Statement {
-    fn from(statement: ast::IterationStatement<'ast>) -> Self {
-        println!("{:#?}", statement);
-        unimplemented!()
+impl<'ast> From<ast::ForStatement<'ast>> for types::Statement {
+    fn from(statement: ast::ForStatement<'ast>) -> Self {
+        types::Statement::For(
+            types::Variable::from(statement.index),
+            types::FieldExpression::from(statement.start),
+            types::FieldExpression::from(statement.stop),
+            statement
+                .statements
+                .into_iter()
+                .map(|statement| types::Statement::from(statement))
+                .collect(),
+        )
     }
 }
 
@@ -704,7 +712,8 @@ impl<'ast> From<ast::Function<'ast>> for types::Function {
 
 impl<'ast> From<ast::File<'ast>> for types::Program {
     fn from(file: ast::File<'ast>) -> Self {
-        // 1. compile ast -> aleo program representation
+        // Compiled ast -> aleo program representation
+
         let mut structs = HashMap::new();
         let mut functions = HashMap::new();
 
@@ -721,17 +730,10 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
             );
         });
 
-        // let statements: Vec<types::Statement> = file
-        //     .statements
-        //     .into_iter()
-        //     .map(|statement| types::Statement::from(statement))
-        //     .collect();
-
         types::Program {
             id: "main".into(),
             structs,
             functions,
-            // statements,
             arguments: vec![],
             returns: vec![],
         }
