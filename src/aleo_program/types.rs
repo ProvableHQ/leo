@@ -7,7 +7,7 @@
 use std::collections::HashMap;
 
 /// A variable in a constraint system.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Variable(pub String);
 
 /// Spread operator
@@ -92,9 +92,10 @@ pub enum Expression {
     Boolean(BooleanExpression),
     FieldElement(FieldExpression),
     Variable(Variable),
-    ArrayAccess(Box<Expression>, FieldRangeOrExpression),
     Struct(Variable, Vec<StructMember>),
+    ArrayAccess(Box<Expression>, FieldRangeOrExpression),
     StructMemberAccess(Box<Expression>, Variable), // (struct name, struct member name)
+    FunctionCall(Box<Expression>, Vec<Expression>),
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
@@ -143,14 +144,14 @@ pub enum Visibility {
     Private,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Parameter {
     pub visibility: Option<Visibility>,
     pub ty: Type,
     pub variable: Variable,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Function {
     pub variable: Variable,
     pub parameters: Vec<Parameter>,

@@ -6,13 +6,18 @@
 
 use crate::aleo_program::{
     BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Statement, Struct, StructField,
-    Type, Variable,
+    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, Parameter, Statement,
+    Struct, StructField, Type, Variable,
 };
 
 use std::fmt;
 
 impl fmt::Display for Variable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+impl fmt::Debug for Variable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -145,7 +150,16 @@ impl<'ast> fmt::Display for Expression {
             Expression::StructMemberAccess(ref struct_variable, ref member) => {
                 write!(f, "{}.{}", struct_variable, member)
             }
-            // _ => unimplemented!("can't display expression yet"),
+            Expression::FunctionCall(ref function, ref arguments) => {
+                write!(f, "{}(", function,)?;
+                for (i, param) in arguments.iter().enumerate() {
+                    write!(f, "{}", param)?;
+                    if i < arguments.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, ")")
+            } // _ => unimplemented!("can't display expression yet"),
         }
     }
 }
@@ -156,9 +170,11 @@ impl fmt::Display for Statement {
                 statements.iter().for_each(|statement| {
                     write!(f, "return {}", statement).unwrap();
                 });
-                write!(f, "")
+                write!(f, "\n")
             }
-            _ => unimplemented!(),
+            Statement::Definition(ref variable, ref statement) => {
+                write!(f, "{} = {}", variable, statement)
+            }
         }
     }
 }
@@ -170,7 +186,7 @@ impl fmt::Debug for Statement {
                 statements.iter().for_each(|statement| {
                     write!(f, "return {}", statement).unwrap();
                 });
-                write!(f, "")
+                write!(f, "\n")
             }
             Statement::Definition(ref variable, ref statement) => {
                 write!(f, "{} = {}", variable, statement)
@@ -203,5 +219,62 @@ impl fmt::Debug for Struct {
             write!(f, "    {}\n", field)?;
         }
         write!(f, "}}")
+    }
+}
+
+impl fmt::Display for Parameter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // let visibility = if self.private { "private " } else { "" };
+        write!(
+            f,
+            "{} {}",
+            // visibility,
+            self.ty,
+            self.variable
+        )
+    }
+}
+
+impl fmt::Debug for Parameter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Parameter(variable: {:?})", self.ty)
+    }
+}
+
+impl fmt::Display for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "({}):\n{}",
+            self.parameters
+                .iter()
+                .map(|x| format!("{}", x))
+                .collect::<Vec<_>>()
+                .join(","),
+            self.statements
+                .iter()
+                .map(|x| format!("\t{}", x))
+                .collect::<Vec<_>>()
+                .join("\n")
+        )
+    }
+}
+
+impl fmt::Debug for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "({}):\n{}",
+            self.parameters
+                .iter()
+                .map(|x| format!("{}", x))
+                .collect::<Vec<_>>()
+                .join(","),
+            self.statements
+                .iter()
+                .map(|x| format!("\t{}", x))
+                .collect::<Vec<_>>()
+                .join("\n")
+        )
     }
 }

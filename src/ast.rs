@@ -57,25 +57,21 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
                 Rule::expression_inline_struct => {
-                    println!("struct inline");
                     Expression::StructInline(
                         StructInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )
                 },
                 Rule::expression_array_inline => {
-                    println!("array inline");
                     Expression::ArrayInline(
                         ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap()
                     )
                 },
                 Rule::expression_array_initializer => {
-                    println!("array initializer");
                     Expression::ArrayInitializer(
                         ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap()
                     )
                 },
                 Rule::expression_conditional => {
-                    println!("conditional expression");
                     Expression::Ternary(
                         TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )
@@ -113,7 +109,6 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                     Expression::Decrement(DecrementExpression { operation, expression, span })
                 },
                 Rule::expression_postfix => {
-                    println!("postfix expression");
                     Expression::Postfix(
                         PostfixExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )

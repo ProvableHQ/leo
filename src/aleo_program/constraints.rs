@@ -22,6 +22,7 @@ pub enum ResolvedValue {
     StructDefinition(Struct),
     StructExpression(Variable, Vec<StructMember>),
     Function(Function),
+    Return(Vec<ResolvedValue>), // add Null for function returns
 }
 
 impl fmt::Display for ResolvedValue {
@@ -59,7 +60,17 @@ impl fmt::Display for ResolvedValue {
                 }
                 write!(f, "}}")
             }
-            _ => unimplemented!("resolve values not finished"),
+            ResolvedValue::Return(ref values) => {
+                write!(f, "Return values : [")?;
+                for (i, value) in values.iter().enumerate() {
+                    write!(f, "{}", value)?;
+                    if i < values.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
+            _ => unimplemented!("display not impl for value"),
         }
     }
 }
@@ -544,6 +555,18 @@ impl ResolvedProgram {
         }
     }
 
+    fn enforce_function_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        function: Box<Expression>,
+        arguments: Vec<Expression>,
+    ) -> ResolvedValue {
+        match self.enforce_expression(cs, *function) {
+            ResolvedValue::Function(function) => self.enforce_function(cs, function, arguments),
+            value => unimplemented!("Cannot call unknown function {}", value),
+        }
+    }
+
     fn enforce_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -586,45 +609,134 @@ impl ResolvedProgram {
             Expression::StructMemberAccess(struct_variable, struct_member) => {
                 self.enforce_struct_access_expression(cs, struct_variable, struct_member)
             }
+            Expression::FunctionCall(function, arguments) => {
+                self.enforce_function_access_expression(cs, function, arguments)
+            }
         }
     }
 
-    fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_definition_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        statement: Statement,
+        variable: Variable,
+        expression: Expression,
     ) {
-        match statement {
-            Statement::Definition(variable, expression) => {
-                let result = self.enforce_expression(cs, expression);
-                println!("  statement result: {} = {}", variable.0, result);
-                self.insert(variable, result);
-            }
-            Statement::Return(statements) => {
-                statements
-                    .into_iter()
-                    .for_each(|expression| match expression {
-                        Expression::Boolean(boolean_expression) => {
-                            let res = self.enforce_boolean_expression(cs, boolean_expression);
-                            println!("\n  Boolean result = {}", res);
+        let result = self.enforce_expression(cs, expression);
+        // println!("  statement result: {} = {}", variable.0, result);
+        self.insert(variable, result);
+    }
+
+    fn enforce_return_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        statements: Vec<Expression>,
+    ) -> ResolvedValue {
+        ResolvedValue::Return(
+            statements
+                .into_iter()
+                .map(|expression| match expression {
+                    Expression::Boolean(boolean_expression) => {
+                        self.enforce_boolean_expression(cs, boolean_expression)
+                    }
+                    Expression::FieldElement(field_expression) => {
+                        self.enforce_field_expression(cs, field_expression)
+                    }
+                    Expression::Variable(variable) => {
+                        self.resolved_variables.get_mut(&variable).unwrap().clone()
+                    }
+                    Expression::Struct(_v, _m) => {
+                        unimplemented!("return struct not impl");
+                    }
+                    expr => unimplemented!("expression {} can't be returned yet", expr),
+                })
+                .collect::<Vec<ResolvedValue>>(),
+        )
+    }
+
+    // fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    //     &mut self,
+    //     cs: &mut CS,
+    //     statement: Statement,
+    // ) {
+    //     match statement {
+    //         Statement::Definition(variable, expression) => {
+    //             self.enforce_definition_statement(cs, variable, expression);
+    //         }
+    //         Statement::Return(statements) => {
+    //             let res = self.enforce_return_statement(cs, statements);
+    //
+    //         }
+    //     };
+    // }
+
+    fn enforce_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        function: Function,
+        arguments: Vec<Expression>,
+    ) -> ResolvedValue {
+        // Make sure we are given the correct number of arguments
+        if function.parameters.len() != arguments.len() {
+            unimplemented!(
+                "function expected {} arguments, got {}",
+                function.parameters.len(),
+                arguments.len()
+            )
+        }
+
+        // Store arguments as variables in resolved program
+        function
+            .parameters
+            .clone()
+            .iter()
+            .zip(arguments.clone().into_iter())
+            .for_each(|(parameter, argument)| {
+                // Check visibility here
+
+                // Check that argument is correct type
+                match parameter.ty.clone() {
+                    Type::FieldElement => {
+                        match self.enforce_expression(cs, argument) {
+                            ResolvedValue::FieldElement(field) => {
+                                // Store argument as variable with parameter name
+                                // TODO: this will not support multiple function calls or variables with same name as parameter
+                                self.resolved_variables.insert(
+                                    parameter.variable.clone(),
+                                    ResolvedValue::FieldElement(field),
+                                );
+                            }
+                            argument => unimplemented!("expected field argument got {}", argument),
                         }
-                        Expression::FieldElement(field_expression) => {
-                            let res = self.enforce_field_expression(cs, field_expression);
-                            println!("\n  Field result = {}", res);
+                    }
+                    Type::Boolean => match self.enforce_expression(cs, argument) {
+                        ResolvedValue::Boolean(bool) => {
+                            self.resolved_variables
+                                .insert(parameter.variable.clone(), ResolvedValue::Boolean(bool));
                         }
-                        Expression::Variable(variable) => {
-                            println!(
-                                "\n  Return = {}",
-                                self.resolved_variables.get_mut(&variable).unwrap().clone()
-                            );
-                        }
-                        Expression::Struct(_v, _m) => {
-                            unimplemented!("return struct not impl");
-                        }
-                        _ => unimplemented!("expression can't be returned yet"),
-                    });
-            }
-        };
+                        argument => unimplemented!("expected boolean argument got {}", argument),
+                    },
+                    ty => unimplemented!("parameter type {} not matched yet", ty),
+                }
+            });
+
+        // Evaluate function statements
+
+        let mut return_values = ResolvedValue::Return(vec![]);
+
+        function
+            .statements
+            .clone()
+            .into_iter()
+            .for_each(|statement| match statement {
+                Statement::Definition(variable, expression) => {
+                    self.enforce_definition_statement(cs, variable, expression)
+                }
+                Statement::Return(expressions) => {
+                    return_values = self.enforce_return_statement(cs, expressions)
+                }
+            });
+
+        return_values
     }
 
     pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -650,24 +762,23 @@ impl ResolvedProgram {
                     .insert(variable, ResolvedValue::Function(function));
             });
 
-        // let main = resolved_program
-        //     .resolved_variables
-        //     .get_mut(&Variable("main".into()))
-        //     .expect("main function not defined");
-        //
-        // match main {
-        //     ResolvedValue::Function(function) => function
-        //         .statements
-        //         .clone()
-        //         .into_iter()
-        //         .for_each(|statement| resolved_program.enforce_statement(cs, statement)),
-        //     _ => unimplemented!("main must be a function"),
-        // }
+        let main = resolved_program
+            .resolved_variables
+            .get(&Variable("main".into()))
+            .expect("main function not defined");
 
-        program
-            .statements
-            .into_iter()
-            .for_each(|statement| resolved_program.enforce_statement(cs, statement));
+        let result = match main.clone() {
+            ResolvedValue::Function(function) => {
+                resolved_program.enforce_function(cs, function, vec![])
+            }
+            _ => unimplemented!("main must be a function"),
+        };
+        println!("\n  {}", result);
+
+        // program
+        //     .statements
+        //     .into_iter()
+        //     .for_each(|statement| resolved_program.enforce_statement(cs, statement));
     }
 }
 
