@@ -6,7 +6,7 @@
 
 use crate::aleo_program::{
     BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, Parameter, Statement,
+    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, FunctionName, Parameter, Statement,
     Struct, StructField, Type, Variable,
 };
 
@@ -238,6 +238,12 @@ impl fmt::Display for Parameter {
 impl fmt::Debug for Parameter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Parameter(variable: {:?})", self.ty)
+    }
+}
+
+impl fmt::Debug for FunctionName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

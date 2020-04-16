@@ -668,9 +668,15 @@ impl<'ast> From<ast::Parameter<'ast>> for types::Parameter {
     }
 }
 
+impl<'ast> From<ast::FunctionName<'ast>> for types::FunctionName {
+    fn from(name: ast::FunctionName<'ast>) -> Self {
+        types::FunctionName(name.value)
+    }
+}
+
 impl<'ast> From<ast::Function<'ast>> for types::Function {
     fn from(function_definition: ast::Function<'ast>) -> Self {
-        let variable = types::Variable::from(function_definition.variable);
+        let function_name = types::FunctionName::from(function_definition.function_name);
         let parameters = function_definition
             .parameters
             .into_iter()
@@ -688,7 +694,7 @@ impl<'ast> From<ast::Function<'ast>> for types::Function {
             .collect();
 
         types::Function {
-            variable,
+            function_name,
             parameters,
             returns,
             statements,
@@ -710,7 +716,7 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
         });
         file.functions.into_iter().for_each(|function_def| {
             functions.insert(
-                types::Variable::from(function_def.variable.clone()),
+                types::FunctionName::from(function_def.function_name.clone()),
                 types::Function::from(function_def),
             );
         });

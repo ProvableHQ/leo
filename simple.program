@@ -1,6 +1,9 @@
 struct Foo {
     bool x
 }
-def main() -> (bool):
-    Foo f = Foo {x: true}
-    return f.x
+def main() -> (field):
+  field[3] a = [1, 2, 3] 	 		     // initialize the array
+  field[4] b = [42; 4]
+  c = a[1..3] // helloo???
+  bool[3] d = [true, false, true]
+  return a[0]

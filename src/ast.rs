@@ -787,9 +787,18 @@ pub struct Parameter<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::function_name))]
+pub struct FunctionName<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub value: String,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::function_definition))]
 pub struct Function<'ast> {
-    pub variable: Variable<'ast>,
+    pub function_name: FunctionName<'ast>,
     pub parameters: Vec<Parameter<'ast>>,
     pub returns: Vec<Type<'ast>>,
     pub statements: Vec<Statement<'ast>>,

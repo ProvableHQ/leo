@@ -151,9 +151,13 @@ pub struct Parameter {
     pub variable: Variable,
 }
 
+/// The given name for a defined function in the program.
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct FunctionName(pub String);
+
 #[derive(Clone)]
 pub struct Function {
-    pub variable: Variable,
+    pub function_name: FunctionName,
     pub parameters: Vec<Parameter>,
     pub returns: Vec<Type>,
     pub statements: Vec<Statement>,
@@ -164,7 +168,7 @@ pub struct Function {
 pub struct Program {
     pub id: String,
     pub structs: HashMap<Variable, Struct>,
-    pub functions: HashMap<Variable, Function>,
+    pub functions: HashMap<FunctionName, Function>,
     // pub statements: Vec<Statement>,
     pub arguments: Vec<Variable>,
     pub returns: Vec<Variable>,

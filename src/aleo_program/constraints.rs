@@ -742,10 +742,10 @@ impl ResolvedProgram {
         program
             .functions
             .into_iter()
-            .for_each(|(variable, function)| {
+            .for_each(|(function_name, function)| {
                 resolved_program
                     .resolved_variables
-                    .insert(variable, ResolvedValue::Function(function));
+                    .insert(Variable(function_name.0), ResolvedValue::Function(function));
             });
 
         let main = resolved_program
