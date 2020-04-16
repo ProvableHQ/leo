@@ -155,7 +155,7 @@ function_definition = {"def" ~ variable ~ "(" ~ parameter_list ~ ")" ~ "->" ~ "(
 /// Utilities
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
-WHITESPACE = _{ " " | "\t" ~ NEWLINE }
+WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
 /// Abstract Syntax Tree File
 
