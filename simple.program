@@ -1,10 +1,4 @@
-struct Point {
-    field x
-    field y
-}
-
-def main() -> ():
-    Point p = Point { x: 1, y: 1 }
-    p.x = 2
-    p.y = 2
-    return p
+def main() -> (bool[4]):
+    bool[2] a = [true, true]
+    bool[4] x = [...a, ...a]
+    return x

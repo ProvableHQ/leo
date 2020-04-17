@@ -167,7 +167,7 @@ impl ResolvedProgram {
             // TODO: return synthesis error: "assignment missing" here
             match self.get(&variable_name).unwrap() {
                 ResolvedValue::FieldElement(field) => field.clone(),
-                _ => panic!("expected a field, got boolean"),
+                value => panic!("expected a field, got {}", value),
             }
         } else {
             let argument = std::env::args()
@@ -326,23 +326,44 @@ impl ResolvedProgram {
                     self.enforce_boolean_expression(cs, scope, *third)
                 }
             }
-            BooleanExpression::Array(array) => ResolvedValue::BooleanArray(
-                array
-                    .into_iter()
-                    .map(|element| match *element {
-                        BooleanSpreadOrExpression::Spread(_spread) => {
-                            unimplemented!("spreads not enforced yet")
-                        }
-                        BooleanSpreadOrExpression::BooleanExpression(expression) => {
-                            match self.enforce_boolean_expression(cs, scope.clone(), expression) {
-                                ResolvedValue::Boolean(value) => value,
-                                _ => unimplemented!("cannot resolve boolean"),
+            BooleanExpression::Array(array) => {
+                let mut result = vec![];
+                array.into_iter().for_each(|element| match *element {
+                    BooleanSpreadOrExpression::Spread(spread) => match spread.0 {
+                        BooleanExpression::Variable(variable) => {
+                            let array_name = new_scope_from_variable(scope.clone(), &variable);
+                            match self.get(&array_name) {
+                                Some(value) => match value {
+                                    ResolvedValue::BooleanArray(array) => {
+                                        result.extend(array.clone())
+                                    }
+                                    value => unimplemented!(
+                                        "spreads only implemented for arrays, got {}",
+                                        value
+                                    ),
+                                },
+                                None => unimplemented!(
+                                    "cannot copy elements from array that does not exist {}",
+                                    variable.0
+                                ),
                             }
                         }
-                    })
-                    .collect::<Vec<Boolean>>(),
-            ),
-            _ => unimplemented!(),
+                        value => {
+                            unimplemented!("spreads only implemented for arrays, got {}", value)
+                        }
+                    },
+                    BooleanSpreadOrExpression::BooleanExpression(expression) => {
+                        match self.enforce_boolean_expression(cs, scope.clone(), expression) {
+                            ResolvedValue::Boolean(value) => result.push(value),
+                            value => {
+                                unimplemented!("expected boolean for boolean array, got {}", value)
+                            }
+                        }
+                    }
+                });
+                ResolvedValue::BooleanArray(result)
+            }
+            expression => unimplemented!("boolean expression {}", expression),
         }
     }
 
@@ -481,22 +502,41 @@ impl ResolvedProgram {
                     self.enforce_field_expression(cs, scope, *third)
                 }
             }
-            FieldExpression::Array(array) => ResolvedValue::FieldElementArray(
-                array
-                    .into_iter()
-                    .map(|element| match *element {
-                        FieldSpreadOrExpression::Spread(_spread) => {
-                            unimplemented!("spreads not enforced yet")
-                        }
-                        FieldSpreadOrExpression::FieldExpression(expression) => {
-                            match self.enforce_field_expression(cs, scope.clone(), expression) {
-                                ResolvedValue::FieldElement(value) => value,
-                                _ => unimplemented!("cannot resolve field"),
+            FieldExpression::Array(array) => {
+                let mut result = vec![];
+                array.into_iter().for_each(|element| match *element {
+                    FieldSpreadOrExpression::Spread(spread) => match spread.0 {
+                        FieldExpression::Variable(variable) => {
+                            let array_name = new_scope_from_variable(scope.clone(), &variable);
+                            match self.get(&array_name) {
+                                Some(value) => match value {
+                                    ResolvedValue::FieldElementArray(array) => {
+                                        result.extend(array.clone())
+                                    }
+                                    value => unimplemented!(
+                                        "spreads only implemented for arrays, got {}",
+                                        value
+                                    ),
+                                },
+                                None => unimplemented!(
+                                    "cannot copy elements from array that does not exist {}",
+                                    variable.0
+                                ),
                             }
                         }
-                    })
-                    .collect::<Vec<UInt32>>(),
-            ),
+                        value => {
+                            unimplemented!("spreads only implemented for arrays, got {}", value)
+                        }
+                    },
+                    FieldSpreadOrExpression::FieldExpression(expression) => {
+                        match self.enforce_field_expression(cs, scope.clone(), expression) {
+                            ResolvedValue::FieldElement(value) => result.push(value),
+                            _ => unimplemented!("cannot resolve field"),
+                        }
+                    }
+                });
+                ResolvedValue::FieldElementArray(result)
+            }
         }
     }
 
@@ -703,14 +743,6 @@ impl ResolvedProgram {
             }
         }
     }
-
-    // fn modify_array<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-    //     &mut self,
-    //     cs: &mut CS,
-    //     scope: String,
-    //     assignee: Assignee,
-    //     expression: Expression,
-    // )
 
     fn enforce_definition_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         &mut self,

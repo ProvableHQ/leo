@@ -405,6 +405,9 @@ impl<'ast> From<ast::Spread<'ast>> for types::BooleanSpread {
         let boolean_expression = types::Expression::from(spread.expression);
         match boolean_expression {
             types::Expression::Boolean(expression) => types::BooleanSpread(expression),
+            types::Expression::Variable(variable) => {
+                types::BooleanSpread(types::BooleanExpression::Variable(variable))
+            }
             _ => unimplemented!("cannot create boolean spread from field type"),
         }
     }
@@ -441,10 +444,15 @@ impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::BooleanSpreadOrExpress
 
 impl<'ast> From<ast::Spread<'ast>> for types::FieldSpread {
     fn from(spread: ast::Spread<'ast>) -> Self {
-        let field_expression = types::Expression::from(spread.expression);
-        match field_expression {
+        match types::Expression::from(spread.expression) {
             types::Expression::FieldElement(expression) => types::FieldSpread(expression),
-            _ => unimplemented!("cannot create field spread from boolean type"),
+            types::Expression::Variable(variable) => {
+                types::FieldSpread(types::FieldExpression::Variable(variable))
+            }
+            expression => unimplemented!(
+                "cannot create field spread from boolean type {}",
+                expression
+            ),
         }
     }
 }
