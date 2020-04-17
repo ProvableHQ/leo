@@ -98,11 +98,18 @@ pub enum Expression {
     FunctionCall(Box<Expression>, Vec<Expression>),
 }
 
+#[derive(Debug, Clone)]
+pub enum Assignee {
+    Variable(Variable),
+    Array(Box<Assignee>, FieldRangeOrExpression),
+    StructMember(Box<Assignee>, Variable),
+}
+
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone)]
 pub enum Statement {
     // Declaration(Variable),
-    Definition(Variable, Expression),
+    Definition(Assignee, Expression),
     For(Variable, FieldExpression, FieldExpression, Vec<Statement>),
     Return(Vec<Expression>),
 }

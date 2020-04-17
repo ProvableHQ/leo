@@ -13,7 +13,6 @@ use pest::{
 };
 use pest_ast::FromPest;
 use std::fmt;
-use std::fmt::Formatter;
 
 #[derive(Parser)]
 #[grammar = "language.pest"]
@@ -219,7 +218,7 @@ pub enum Type<'ast> {
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::Basic(ref _ty) => write!(f, "basic"),
             Type::Array(ref _ty) => write!(f, "array"),
@@ -387,6 +386,28 @@ pub enum RangeOrExpression<'ast> {
     Expression(Expression<'ast>),
 }
 
+impl<'ast> fmt::Display for RangeOrExpression<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            RangeOrExpression::Expression(ref expression) => write!(f, "{}", expression),
+            RangeOrExpression::Range(ref range) => write!(
+                f,
+                "{}..{}",
+                range
+                    .from
+                    .as_ref()
+                    .map(|e| e.0.to_string())
+                    .unwrap_or("".to_string()),
+                range
+                    .to
+                    .as_ref()
+                    .map(|e| e.0.to_string())
+                    .unwrap_or("".to_string())
+            ),
+        }
+    }
+}
+
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access_call))]
 pub struct CallAccess<'ast> {
@@ -414,8 +435,8 @@ pub struct MemberAccess<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
+    Array(ArrayAccess<'ast>),
     Call(CallAccess<'ast>),
-    Select(ArrayAccess<'ast>),
     Member(MemberAccess<'ast>),
 }
 
@@ -426,6 +447,44 @@ pub struct PostfixExpression<'ast> {
     pub accesses: Vec<Access<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assignee_access))]
+pub enum AssigneeAccess<'ast> {
+    Array(ArrayAccess<'ast>),
+    Member(MemberAccess<'ast>),
+}
+
+impl<'ast> fmt::Display for AssigneeAccess<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AssigneeAccess::Array(ref array) => write!(f, "[{}]", array.expression),
+            AssigneeAccess::Member(ref member) => write!(f, ".{}", member.variable),
+        }
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assignee))]
+pub struct Assignee<'ast> {
+    pub variable: Variable<'ast>,
+    pub accesses: Vec<AssigneeAccess<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for Assignee<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.variable)?;
+        for (i, access) in self.accesses.iter().enumerate() {
+            write!(f, "{}", access)?;
+            if i < self.accesses.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, "")
+    }
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -684,7 +743,7 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_assign))]
 pub struct AssignStatement<'ast> {
-    pub variable: Variable<'ast>,
+    pub assignee: Assignee<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -730,7 +789,7 @@ pub enum Statement<'ast> {
 
 impl<'ast> fmt::Display for AssignStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} = {}", self.variable, self.expression)
+        write!(f, "{} = {}", self.assignee, self.expression)
     }
 }
 

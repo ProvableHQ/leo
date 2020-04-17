@@ -88,6 +88,9 @@ access_member = { "." ~ variable }
 access = { access_array | access_call | access_member }
 expression_postfix = { variable ~ access+ }
 
+assignee = { variable ~ assignee_access* }
+assignee_access = { access_array | access_member }
+
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
 
@@ -132,7 +135,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Statements
 
-statement_assign = { variable ~ "=" ~ expression }
+statement_assign = { assignee ~ "=" ~ expression }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
 statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}

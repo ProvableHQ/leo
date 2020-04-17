@@ -1,6 +1,10 @@
-struct Foo {
-    bool x
+struct Point {
+    field x
+    field y
 }
-def main() -> (bool):
-    Foo f = Foo {x: true}
-    return f.x
+
+def main() -> ():
+    Point p = Point { x: 1, y: 1 }
+    p.x = 2
+    p.y = 2
+    return p

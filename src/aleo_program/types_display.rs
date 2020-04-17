@@ -5,9 +5,9 @@
 //! @date 2020
 
 use crate::aleo_program::{
-    BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function, FunctionName,
-    Parameter, Statement, Struct, StructField, Type, Variable,
+    Assignee, BooleanExpression, BooleanSpread, BooleanSpreadOrExpression, Expression,
+    FieldExpression, FieldRangeOrExpression, FieldSpread, FieldSpreadOrExpression, Function,
+    FunctionName, Parameter, Statement, Struct, StructField, Type, Variable,
 };
 
 use std::fmt;
@@ -163,6 +163,19 @@ impl<'ast> fmt::Display for Expression {
         }
     }
 }
+
+impl fmt::Display for Assignee {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Assignee::Variable(ref variable) => write!(f, "{}", variable),
+            Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
+            Assignee::StructMember(ref struct_variable, ref member) => {
+                write!(f, "{}.{}", struct_variable, member)
+            }
+        }
+    }
+}
+
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {

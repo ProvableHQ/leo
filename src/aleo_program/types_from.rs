@@ -336,7 +336,7 @@ impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
                     Box::new(acc),
                     types::Variable::from(struct_member.variable),
                 ),
-                ast::Access::Select(array) => types::Expression::ArrayAccess(
+                ast::Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     types::FieldRangeOrExpression::from(array.expression),
                 ),
@@ -364,10 +364,37 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
     }
 }
 
+impl<'ast> From<ast::Variable<'ast>> for types::Assignee {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Assignee::Variable(types::Variable::from(variable))
+    }
+}
+
+impl<'ast> From<ast::Assignee<'ast>> for types::Assignee {
+    fn from(assignee: ast::Assignee<'ast>) -> Self {
+        let variable = types::Assignee::from(assignee.variable);
+
+        // we start with the id, and we fold the array of accesses by wrapping the current value
+        assignee
+            .accesses
+            .into_iter()
+            .fold(variable, |acc, access| match access {
+                ast::AssigneeAccess::Array(array) => types::Assignee::Array(
+                    Box::new(acc),
+                    types::FieldRangeOrExpression::from(array.expression),
+                ),
+                ast::AssigneeAccess::Member(struct_member) => types::Assignee::StructMember(
+                    Box::new(acc),
+                    types::Variable::from(struct_member.variable),
+                ),
+            })
+    }
+}
+
 impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Variable::from(statement.variable),
+            types::Assignee::from(statement.assignee),
             types::Expression::from(statement.expression),
         )
     }
@@ -543,7 +570,7 @@ impl<'ast> types::Expression {
 impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Variable::from(statement.variable),
+            types::Assignee::from(statement.variable),
             types::Expression::from_type(statement.ty, statement.expression),
         )
     }
