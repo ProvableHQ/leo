@@ -1,9 +1,4 @@
-from "./path/to/my/module" import MySymbol
-
-def foo() -> (field):
-    // return myGlobal <- not allowed
-    return 42
+from "./simple_import" import foo
 
 def main() -> (field):
-    myGlobal = 42
     return foo()

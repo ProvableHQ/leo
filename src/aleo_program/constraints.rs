@@ -1,9 +1,11 @@
 use crate::aleo_program::{
     Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpreadOrExpression, Function, Program, Statement, Struct,
+    FieldRangeOrExpression, FieldSpreadOrExpression, Function, Import, Program, Statement, Struct,
     StructMember, Type, Variable,
 };
+use crate::ast;
 
+use from_pest::FromPest;
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::gadgets::{
@@ -12,6 +14,7 @@ use snarkos_models::gadgets::{
 };
 use std::collections::HashMap;
 use std::fmt;
+use std::fs;
 
 #[derive(Clone)]
 pub enum ResolvedValue {
@@ -756,6 +759,8 @@ impl ResolvedProgram {
             Assignee::Variable(name) => {
                 // Store the variable in the current scope
                 let definition_name = new_scope_from_variable(scope.clone(), &name);
+
+                // Evaluate the rhs expression in the current function scope
                 let result = self.enforce_expression(cs, scope, expression);
 
                 self.store(definition_name, result);
@@ -958,25 +963,33 @@ impl ResolvedProgram {
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::FieldElement => {
-                        match self.enforce_expression(cs, function.name(), argument) {
+                        match self.enforce_expression(cs, function.get_name(), argument) {
                             ResolvedValue::FieldElement(field) => {
                                 // Store argument as variable with {function_name}_{parameter name}
-                                let variable_name =
-                                    new_scope_from_variable(function.name(), &parameter.variable);
+                                let variable_name = new_scope_from_variable(
+                                    function.get_name(),
+                                    &parameter.variable,
+                                );
                                 self.store(variable_name, ResolvedValue::FieldElement(field));
                             }
                             argument => unimplemented!("expected field argument got {}", argument),
                         }
                     }
-                    Type::Boolean => match self.enforce_expression(cs, function.name(), argument) {
-                        ResolvedValue::Boolean(bool) => {
-                            // Store argument as variable with {function_name}_{parameter name}
-                            let variable_name =
-                                new_scope_from_variable(function.name(), &parameter.variable);
-                            self.store(variable_name, ResolvedValue::Boolean(bool));
+                    Type::Boolean => {
+                        match self.enforce_expression(cs, function.get_name(), argument) {
+                            ResolvedValue::Boolean(bool) => {
+                                // Store argument as variable with {function_name}_{parameter name}
+                                let variable_name = new_scope_from_variable(
+                                    function.get_name(),
+                                    &parameter.variable,
+                                );
+                                self.store(variable_name, ResolvedValue::Boolean(bool));
+                            }
+                            argument => {
+                                unimplemented!("expected boolean argument got {}", argument)
+                            }
                         }
-                        argument => unimplemented!("expected boolean argument got {}", argument),
-                    },
+                    }
                     ty => unimplemented!("parameter type {} not matched yet", ty),
                 }
             });
@@ -991,17 +1004,79 @@ impl ResolvedProgram {
             .into_iter()
             .for_each(|statement| match statement {
                 Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(cs, function.name(), variable, expression);
+                    self.enforce_definition_statement(
+                        cs,
+                        function.get_name(),
+                        variable,
+                        expression,
+                    );
                 }
                 Statement::For(index, start, stop, statements) => {
-                    self.enforce_for_statement(cs, function.name(), index, start, stop, statements);
+                    self.enforce_for_statement(
+                        cs,
+                        function.get_name(),
+                        index,
+                        start,
+                        stop,
+                        statements,
+                    );
                 }
                 Statement::Return(expressions) => {
-                    return_values = self.enforce_return_statement(cs, function.name(), expressions)
+                    return_values =
+                        self.enforce_return_statement(cs, function.get_name(), expressions)
                 }
             });
 
         return_values
+    }
+
+    fn enforce_import<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        import: Import,
+    ) {
+        // println!("import: {}", import);
+
+        // Resolve program file path
+        let unparsed_file = fs::read_to_string(import.get_file()).expect("cannot read file");
+        let mut file = ast::parse(&unparsed_file).expect("unsuccessful parse");
+        // println!("successful import parse!");
+
+        // generate ast from file
+        let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
+
+        // generate aleo program from file
+        let program = Program::from(syntax_tree);
+        // println!(" compiled: {:#?}", program);
+
+        // recursively evaluate program statements TODO: in file scope
+        self.resolve_definitions(cs, program);
+
+        // store import under designated name
+        // self.store(name, value)
+    }
+
+    pub fn resolve_definitions<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        program: Program,
+    ) {
+        program
+            .imports
+            .into_iter()
+            .for_each(|import| self.enforce_import(cs, import));
+        program
+            .structs
+            .into_iter()
+            .for_each(|(variable, struct_def)| {
+                self.store_variable(variable, ResolvedValue::StructDefinition(struct_def));
+            });
+        program
+            .functions
+            .into_iter()
+            .for_each(|(function_name, function)| {
+                self.store(function_name.0, ResolvedValue::Function(function));
+            });
     }
 
     pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -1010,19 +1085,7 @@ impl ResolvedProgram {
     ) {
         let mut resolved_program = ResolvedProgram::new();
 
-        program
-            .structs
-            .into_iter()
-            .for_each(|(variable, struct_def)| {
-                resolved_program
-                    .store_variable(variable, ResolvedValue::StructDefinition(struct_def));
-            });
-        program
-            .functions
-            .into_iter()
-            .for_each(|(function_name, function)| {
-                resolved_program.store(function_name.0, ResolvedValue::Function(function));
-            });
+        resolved_program.resolve_definitions(cs, program);
 
         let main = resolved_program
             .get(&"main".into())

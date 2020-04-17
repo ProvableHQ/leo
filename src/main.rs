@@ -50,6 +50,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         let program = aleo_program::Program::from(syntax_tree);
         println!(" compiled: {:#?}", program);
 
+        let program = program.name("simple".into());
         aleo_program::ResolvedProgram::generate_constraints(cs, program);
 
         Ok(())

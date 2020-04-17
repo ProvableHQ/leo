@@ -44,6 +44,11 @@ impl<'ast> Import<'ast> {
     pub fn get_source(&self) -> &Path {
         &self.source
     }
+
+    pub fn get_file(&self) -> String {
+        let path = self.get_source().to_str().unwrap();
+        format!("{}.program", path)
+    }
 }
 
 impl<'ast> fmt::Display for Import<'ast> {
@@ -64,7 +69,7 @@ impl<'ast> fmt::Debug for Import<'ast> {
                 self.source.display(),
                 alias
             ),
-            None => write!(f, "import source: {})", self.source.display()),
+            None => write!(f, "import( source: {})", self.source.display()),
         }
     }
 }

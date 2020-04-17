@@ -1,5 +1,4 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a typed zokrates_program.
-//! We implement "unwrap" functions instead of the From trait to handle nested statements (flattening).
 //!
 //! @file zokrates_program.rs
 //! @author Collin Chin <collin@aleo.org>
@@ -793,6 +792,7 @@ impl<'ast> From<ast::File<'ast>> for types::Program<'ast> {
         });
 
         types::Program {
+            name: types::Variable("".into()),
             imports,
             structs,
             functions,

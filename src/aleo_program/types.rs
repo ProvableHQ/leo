@@ -167,7 +167,7 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn name(&self) -> String {
+    pub fn get_name(&self) -> String {
         self.function_name.0.clone()
     }
 }
@@ -175,9 +175,17 @@ impl Function {
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program<'ast> {
+    pub name: Variable,
     pub imports: Vec<Import<'ast>>,
     pub structs: HashMap<Variable, Struct>,
     pub functions: HashMap<FunctionName, Function>,
+}
+
+impl<'ast> Program<'ast> {
+    pub fn name(mut self, name: String) -> Self {
+        self.name = Variable(name);
+        self
+    }
 }
 
 #[cfg(test)]
