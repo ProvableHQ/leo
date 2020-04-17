@@ -5,9 +5,11 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::StructMember;
-use crate::{aleo_program::types, ast};
+use crate::aleo_program::{types, Import, PathString};
+use crate::ast;
+
 use std::collections::HashMap;
+use std::path::Path;
 
 impl<'ast> From<ast::Field<'ast>> for types::FieldExpression {
     fn from(field: ast::Field<'ast>) -> Self {
@@ -558,7 +560,7 @@ impl<'ast> types::Expression {
                     .members
                     .into_iter()
                     .map(|member| types::StructMember::from(member))
-                    .collect::<Vec<StructMember>>();
+                    .collect::<Vec<types::StructMember>>();
 
                 types::Expression::Struct(variable, members)
             }
@@ -745,9 +747,34 @@ impl<'ast> From<ast::Function<'ast>> for types::Function {
     }
 }
 
-impl<'ast> From<ast::File<'ast>> for types::Program {
+impl<'ast> From<ast::Variable<'ast>> for PathString<'ast> {
+    fn from(import: ast::Variable<'ast>) -> Self {
+        import.span.as_str()
+    }
+}
+
+impl<'ast> From<ast::Import<'ast>> for Import<'ast> {
+    fn from(import: ast::Import<'ast>) -> Self {
+        match import {
+            ast::Import::Main(import) => Import::new(None, Path::new(import.source.span.as_str()))
+                .alias(import.alias.map(|alias| PathString::from(alias))),
+            ast::Import::From(import) => Import::new(
+                Some(PathString::from(import.symbol)),
+                Path::new(import.source.span.as_str()),
+            )
+            .alias(import.alias.map(|alias| PathString::from(alias))),
+        }
+    }
+}
+
+impl<'ast> From<ast::File<'ast>> for types::Program<'ast> {
     fn from(file: ast::File<'ast>) -> Self {
         // Compiled ast -> aleo program representation
+        let imports = file
+            .imports
+            .into_iter()
+            .map(|import| Import::from(import))
+            .collect::<Vec<Import>>();
 
         let mut structs = HashMap::new();
         let mut functions = HashMap::new();
@@ -765,6 +792,10 @@ impl<'ast> From<ast::File<'ast>> for types::Program {
             );
         });
 
-        types::Program { structs, functions }
+        types::Program {
+            imports,
+            structs,
+            functions,
+        }
     }
 }

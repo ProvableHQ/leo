@@ -1,4 +1,9 @@
-def main() -> (bool[4]):
-    bool[2] a = [true, true]
-    bool[4] x = [...a, ...a]
-    return x
+from "./path/to/my/module" import MySymbol
+
+def foo() -> (field):
+    // return myGlobal <- not allowed
+    return 42
+
+def main() -> (field):
+    myGlobal = 42
+    return foo()

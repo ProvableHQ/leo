@@ -162,6 +162,13 @@ function_definition = {"def" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ "->"
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
+/// Imports
+
+import = { main_import | from_import }
+from_import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ variable ~ ("as" ~ variable)? ~ NEWLINE*}
+main_import = {"import" ~ "\"" ~ import_source ~ "\"" ~ ("as" ~ variable)? ~ NEWLINE+}
+import_source = @{(!"\"" ~ ANY)*}
+
 /// Abstract Syntax Tree File
 
-file = { SOI ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }

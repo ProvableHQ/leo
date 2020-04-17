@@ -4,6 +4,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
+use crate::aleo_program::Import;
 use std::collections::HashMap;
 
 /// A variable in a constraint system.
@@ -173,7 +174,8 @@ impl Function {
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
-pub struct Program {
+pub struct Program<'ast> {
+    pub imports: Vec<Import<'ast>>,
     pub structs: HashMap<Variable, Struct>,
     pub functions: HashMap<FunctionName, Function>,
 }
