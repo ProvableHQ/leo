@@ -1,145 +1,191 @@
-//! A zokrates_program consists of nodes that keep track of position and wrap zokrates_program types.
+//! A typed program in aleo consists of import, struct, and function definitions.
+//! Each defined type consists of typed statements and expressions.
 //!
 //! @file types.rs
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
 use crate::aleo_program::Import;
+
+use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
+use std::marker::PhantomData;
 
 /// A variable in a constraint system.
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Variable(pub String);
-
-/// Spread operator
-#[derive(Debug, Clone)]
-pub struct FieldSpread(pub FieldExpression);
-
-/// Spread or field expression enum
-#[derive(Debug, Clone)]
-pub enum FieldSpreadOrExpression {
-    Spread(FieldSpread),
-    FieldExpression(FieldExpression),
+pub struct Variable<F: Field + PrimeField> {
+    pub name: String,
+    pub(crate) _field: PhantomData<F>,
 }
 
-/// Range or field expression enum
+/// An integer type enum wrapping the integer value
 #[derive(Debug, Clone)]
-pub enum FieldRangeOrExpression {
-    Range(Option<FieldExpression>, Option<FieldExpression>),
-    FieldExpression(FieldExpression),
+pub enum Integer {
+    // U8(u8),
+    U32(u32),
+    // U64(u64),
 }
+
+/// Spread operator or u32 expression enum
+#[derive(Debug, Clone)]
+pub enum IntegerSpreadOrExpression<F: Field + PrimeField> {
+    Spread(IntegerExpression<F>),
+    Expression(IntegerExpression<F>),
+}
+
+/// Range or integer expression enum
+#[derive(Debug, Clone)]
+pub enum IntegerRangeOrExpression<F: Field + PrimeField> {
+    Range(Option<IntegerExpression<F>>, Option<IntegerExpression<F>>),
+    Expression(IntegerExpression<F>),
+}
+
+/// Expression that evaluates to a u32 value
+#[derive(Debug, Clone)]
+pub enum IntegerExpression<F: Field + PrimeField> {
+    Variable(Variable<F>),
+    Number(Integer),
+    // Operators
+    Add(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Sub(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Mul(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Div(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Pow(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    // Conditionals
+    IfElse(
+        Box<BooleanExpression<F>>,
+        Box<IntegerExpression<F>>,
+        Box<IntegerExpression<F>>,
+    ),
+    // Arrays
+    Array(Vec<Box<IntegerSpreadOrExpression<F>>>),
+}
+
+// /// Spread or field expression enum
+// #[derive(Debug, Clone)]
+// pub enum FieldSpreadOrExpression<F: Field + PrimeField> {
+//     Spread(FieldExpression<F>),
+//     Expression(FieldExpression<F>),
+// }
 
 /// Expression that evaluates to a field value
 #[derive(Debug, Clone)]
-pub enum FieldExpression {
-    Variable(Variable),
-    Number(u32),
-    // Operators
-    Add(Box<FieldExpression>, Box<FieldExpression>),
-    Sub(Box<FieldExpression>, Box<FieldExpression>),
-    Mul(Box<FieldExpression>, Box<FieldExpression>),
-    Div(Box<FieldExpression>, Box<FieldExpression>),
-    Pow(Box<FieldExpression>, Box<FieldExpression>),
-    // Conditionals
-    IfElse(
-        Box<BooleanExpression>,
-        Box<FieldExpression>,
-        Box<FieldExpression>,
-    ),
-    // Arrays
-    Array(Vec<Box<FieldSpreadOrExpression>>),
+pub enum FieldExpression<F: Field + PrimeField> {
+    Variable(Variable<F>),
+    Number(F),
+    // // Operators
+    // Add(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+    // Sub(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+    // Mul(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+    // Div(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+    // Pow(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+    // // Conditionals
+    // IfElse(
+    //     Box<BooleanExpression>,
+    //     Box<FieldExpression<F>>,
+    //     Box<FieldExpression<F>>,
+    // ),
+    // // Arrays
+    // Array(Vec<Box<FieldSpreadOrExpression<F>>>),
 }
-
-/// Spread operator
-#[derive(Debug, Clone)]
-pub struct BooleanSpread(pub BooleanExpression);
 
 /// Spread or field expression enum
 #[derive(Debug, Clone)]
-pub enum BooleanSpreadOrExpression {
-    Spread(BooleanSpread),
-    BooleanExpression(BooleanExpression),
+pub enum BooleanSpreadOrExpression<F: Field + PrimeField> {
+    Spread(BooleanExpression<F>),
+    Expression(BooleanExpression<F>),
 }
 
 /// Expression that evaluates to a boolean value
 #[derive(Debug, Clone)]
-pub enum BooleanExpression {
-    Variable(Variable),
+pub enum BooleanExpression<F: Field + PrimeField> {
+    Variable(Variable<F>),
     Value(bool),
     // Boolean operators
-    Not(Box<BooleanExpression>),
-    Or(Box<BooleanExpression>, Box<BooleanExpression>),
-    And(Box<BooleanExpression>, Box<BooleanExpression>),
-    BoolEq(Box<BooleanExpression>, Box<BooleanExpression>),
+    Not(Box<BooleanExpression<F>>),
+    Or(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
+    And(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
+    BoolEq(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
     // Field operators
-    FieldEq(Box<FieldExpression>, Box<FieldExpression>),
-    Geq(Box<FieldExpression>, Box<FieldExpression>),
-    Gt(Box<FieldExpression>, Box<FieldExpression>),
-    Leq(Box<FieldExpression>, Box<FieldExpression>),
-    Lt(Box<FieldExpression>, Box<FieldExpression>),
+    FieldEq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Geq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Gt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Leq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+    Lt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
     // Conditionals
     IfElse(
-        Box<BooleanExpression>,
-        Box<BooleanExpression>,
-        Box<BooleanExpression>,
+        Box<BooleanExpression<F>>,
+        Box<BooleanExpression<F>>,
+        Box<BooleanExpression<F>>,
     ),
     // Arrays
-    Array(Vec<Box<BooleanSpreadOrExpression>>),
+    Array(Vec<Box<BooleanSpreadOrExpression<F>>>),
 }
 
 /// Expression that evaluates to a value
 #[derive(Debug, Clone)]
-pub enum Expression {
-    Boolean(BooleanExpression),
-    FieldElement(FieldExpression),
-    Variable(Variable),
-    Struct(Variable, Vec<StructMember>),
-    ArrayAccess(Box<Expression>, FieldRangeOrExpression),
-    StructMemberAccess(Box<Expression>, Variable), // (struct name, struct member name)
-    FunctionCall(Box<Expression>, Vec<Expression>),
+pub enum Expression<F: Field + PrimeField> {
+    Integer(IntegerExpression<F>),
+    FieldElement(FieldExpression<F>),
+    Boolean(BooleanExpression<F>),
+    Variable(Variable<F>),
+    Struct(Variable<F>, Vec<StructMember<F>>),
+    ArrayAccess(Box<Expression<F>>, IntegerRangeOrExpression<F>),
+    StructMemberAccess(Box<Expression<F>>, Variable<F>), // (struct name, struct member name)
+    FunctionCall(Box<Expression<F>>, Vec<Expression<F>>),
 }
 
+/// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone)]
-pub enum Assignee {
-    Variable(Variable),
-    Array(Box<Assignee>, FieldRangeOrExpression),
-    StructMember(Box<Assignee>, Variable),
+pub enum Assignee<F: Field + PrimeField> {
+    Variable(Variable<F>),
+    Array(Box<Assignee<F>>, IntegerRangeOrExpression<F>),
+    StructMember(Box<Assignee<F>>, Variable<F>),
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone)]
-pub enum Statement {
+pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
-    Definition(Assignee, Expression),
-    For(Variable, FieldExpression, FieldExpression, Vec<Statement>),
-    Return(Vec<Expression>),
+    Definition(Assignee<F>, Expression<F>),
+    For(
+        Variable<F>,
+        IntegerExpression<F>,
+        IntegerExpression<F>,
+        Vec<Statement<F>>,
+    ),
+    Return(Vec<Expression<F>>),
 }
 
+/// Explicit type used for defining struct members and function parameters
 #[derive(Clone, Debug)]
-pub enum Type {
-    Boolean,
+pub enum Type<F: Field + PrimeField> {
+    U32,
     FieldElement,
-    Array(Box<Type>, usize),
-    Struct(Variable),
+    Boolean,
+    Array(Box<Type<F>>, usize),
+    Struct(Variable<F>),
 }
 
 #[derive(Clone, Debug)]
-pub struct StructMember {
-    pub variable: Variable,
-    pub expression: Expression,
+pub struct StructMember<F: Field + PrimeField> {
+    pub variable: Variable<F>,
+    pub expression: Expression<F>,
 }
 
 #[derive(Clone)]
-pub struct StructField {
-    pub variable: Variable,
-    pub ty: Type,
+pub struct StructField<F: Field + PrimeField> {
+    pub variable: Variable<F>,
+    pub ty: Type<F>,
 }
 
 #[derive(Clone)]
-pub struct Struct {
-    pub variable: Variable,
-    pub fields: Vec<StructField>,
+pub struct Struct<F: Field + PrimeField> {
+    pub variable: Variable<F>,
+    pub fields: Vec<StructField<F>>,
 }
+
+/// Function parameters
 
 #[derive(Clone, Debug)]
 pub enum Visibility {
@@ -148,10 +194,10 @@ pub enum Visibility {
 }
 
 #[derive(Clone)]
-pub struct Parameter {
+pub struct Parameter<F: Field + PrimeField> {
     pub visibility: Option<Visibility>,
-    pub ty: Type,
-    pub variable: Variable,
+    pub ty: Type<F>,
+    pub variable: Variable<F>,
 }
 
 /// The given name for a defined function in the program.
@@ -159,14 +205,14 @@ pub struct Parameter {
 pub struct FunctionName(pub String);
 
 #[derive(Clone)]
-pub struct Function {
+pub struct Function<F: Field + PrimeField> {
     pub function_name: FunctionName,
-    pub parameters: Vec<Parameter>,
-    pub returns: Vec<Type>,
-    pub statements: Vec<Statement>,
+    pub parameters: Vec<Parameter<F>>,
+    pub returns: Vec<Type<F>>,
+    pub statements: Vec<Statement<F>>,
 }
 
-impl Function {
+impl<F: Field + PrimeField> Function<F> {
     pub fn get_name(&self) -> String {
         self.function_name.0.clone()
     }
@@ -174,28 +220,19 @@ impl Function {
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
-pub struct Program<'ast> {
-    pub name: Variable,
+pub struct Program<'ast, F: Field + PrimeField> {
+    pub name: Variable<F>,
     pub imports: Vec<Import<'ast>>,
-    pub structs: HashMap<Variable, Struct>,
-    pub functions: HashMap<FunctionName, Function>,
+    pub structs: HashMap<Variable<F>, Struct<F>>,
+    pub functions: HashMap<FunctionName, Function<F>>,
 }
 
-impl<'ast> Program<'ast> {
+impl<'ast, F: Field + PrimeField> Program<'ast, F> {
     pub fn name(mut self, name: String) -> Self {
-        self.name = Variable(name);
+        self.name = Variable {
+            name,
+            _field: PhantomData::<F>,
+        };
         self
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_variable() {
-        let variable = Variable("1".into());
-
-        println!("{:#?}", variable);
     }
 }

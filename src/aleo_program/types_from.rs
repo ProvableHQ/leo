@@ -1,78 +1,170 @@
-//! Logic to convert from an abstract syntax tree (ast) representation to a typed zokrates_program.
+//! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
 //!
-//! @file zokrates_program.rs
+//! @file types_from.rs
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
 use crate::aleo_program::{types, Import, PathString};
 use crate::ast;
 
+use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
+use std::marker::PhantomData;
 use std::path::Path;
 
-impl<'ast> From<ast::Field<'ast>> for types::FieldExpression {
-    fn from(field: ast::Field<'ast>) -> Self {
-        let number = field.value.parse::<u32>().expect("unable to unwrap field");
-        types::FieldExpression::Number(number)
+/// pest ast -> types::Variable
+
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Variable<F> {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Variable {
+            name: variable.value,
+            _field: PhantomData::<F>,
+        }
     }
 }
 
-impl<'ast> From<ast::Boolean<'ast>> for types::BooleanExpression {
-    fn from(boolean: ast::Boolean<'ast>) -> Self {
-        let boolean = boolean
-            .value
-            .parse::<bool>()
-            .expect("unable to unwrap boolean");
-        types::BooleanExpression::Value(boolean)
+/// pest ast - types::Integer
+
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::IntegerExpression<F> {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::IntegerExpression::Variable(types::Variable::from(variable))
     }
 }
 
-impl<'ast> From<ast::Value<'ast>> for types::Expression {
-    fn from(value: ast::Value<'ast>) -> Self {
-        match value {
-            ast::Value::Boolean(value) => {
-                types::Expression::Boolean(types::BooleanExpression::from(value))
+impl<'ast, F: Field + PrimeField> From<ast::U32<'ast>> for types::IntegerExpression<F> {
+    fn from(field: ast::U32<'ast>) -> Self {
+        types::IntegerExpression::Number(types::Integer::U32(
+            field
+                .number
+                .value
+                .parse::<u32>()
+                .expect("unable to unwrap u32"),
+        ))
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::IntegerExpression<F> {
+    fn from(expression: ast::Expression<'ast>) -> Self {
+        match types::Expression::from(expression) {
+            types::Expression::Integer(integer_expression) => integer_expression,
+            types::Expression::Variable(variable) => types::IntegerExpression::Variable(variable),
+            _ => unimplemented!("expected field in field expression"),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>>
+    for types::IntegerSpreadOrExpression<F>
+{
+    fn from(expression: ast::Expression<'ast>) -> Self {
+        match types::Expression::from(expression) {
+            types::Expression::Integer(expression) => {
+                types::IntegerSpreadOrExpression::Expression(expression)
             }
-            ast::Value::Field(value) => {
-                types::Expression::FieldElement(types::FieldExpression::from(value))
+            _ => unimplemented!("cannot create field expression from boolean type"),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
+    for types::IntegerSpreadOrExpression<F>
+{
+    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
+        match s_or_e {
+            ast::SpreadOrExpression::Spread(spread) => {
+                types::IntegerSpreadOrExpression::from(spread.expression)
+            }
+            ast::SpreadOrExpression::Expression(expression) => {
+                types::IntegerSpreadOrExpression::from(expression)
             }
         }
     }
 }
 
-impl<'ast> From<ast::Variable<'ast>> for types::Variable {
+impl<'ast, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
+    for types::IntegerRangeOrExpression<F>
+{
+    fn from(range_or_expression: ast::RangeOrExpression<'ast>) -> Self {
+        match range_or_expression {
+            ast::RangeOrExpression::Range(range) => {
+                let from = range
+                    .from
+                    .map(|from| match types::Expression::from(from.0) {
+                        types::Expression::Integer(field) => field,
+                        expression => {
+                            unimplemented!("Range bounds should be numbers, found {}", expression)
+                        }
+                    });
+                let to = range.to.map(|to| match types::Expression::from(to.0) {
+                    types::Expression::Integer(field) => field,
+                    expression => {
+                        unimplemented!("Range bounds should be numbers, found {}", expression)
+                    }
+                });
+
+                types::IntegerRangeOrExpression::Range(from, to)
+            }
+            ast::RangeOrExpression::Expression(expression) => {
+                match types::Expression::from(expression) {
+                    types::Expression::Integer(field_expression) => {
+                        types::IntegerRangeOrExpression::Expression(field_expression)
+                    }
+                    // types::Expression::ArrayAccess(expression, field), // recursive array access
+                    expression => unimplemented!("expression must be field, found {}", expression),
+                }
+            }
+        }
+    }
+}
+
+/// pest ast -> types::Boolean
+
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>>
+    for types::BooleanSpreadOrExpression<F>
+{
+    fn from(expression: ast::Expression<'ast>) -> Self {
+        match types::Expression::from(expression) {
+            types::Expression::Boolean(expression) => {
+                types::BooleanSpreadOrExpression::Expression(expression)
+            }
+            _ => unimplemented!("cannot create boolean expression from field type"),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
+    for types::BooleanSpreadOrExpression<F>
+{
+    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
+        match s_or_e {
+            ast::SpreadOrExpression::Spread(spread) => {
+                types::BooleanSpreadOrExpression::from(spread.expression)
+            }
+            ast::SpreadOrExpression::Expression(expression) => {
+                types::BooleanSpreadOrExpression::from(expression)
+            }
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::BooleanExpression<F> {
     fn from(variable: ast::Variable<'ast>) -> Self {
-        types::Variable(variable.value)
+        types::BooleanExpression::Variable(types::Variable::from(variable))
     }
 }
 
-impl<'ast> From<ast::Variable<'ast>> for types::FieldExpression {
-    fn from(variable: ast::Variable<'ast>) -> Self {
-        types::FieldExpression::Variable(types::Variable(variable.value))
+impl<'ast, F: Field + PrimeField> From<ast::Boolean<'ast>> for types::BooleanExpression<F> {
+    fn from(boolean: ast::Boolean<'ast>) -> Self {
+        types::BooleanExpression::Value(
+            boolean
+                .value
+                .parse::<bool>()
+                .expect("unable to unwrap boolean"),
+        )
     }
 }
 
-impl<'ast> From<ast::Variable<'ast>> for types::BooleanExpression {
-    fn from(variable: ast::Variable<'ast>) -> Self {
-        types::BooleanExpression::Variable(types::Variable(variable.value))
-    }
-}
-
-impl<'ast> From<ast::Variable<'ast>> for types::Expression {
-    fn from(variable: ast::Variable<'ast>) -> Self {
-        types::Expression::Variable(types::Variable(variable.value))
-    }
-}
-
-impl<'ast> From<ast::NotExpression<'ast>> for types::Expression {
-    fn from(expression: ast::NotExpression<'ast>) -> Self {
-        types::Expression::Boolean(types::BooleanExpression::Not(Box::new(
-            types::BooleanExpression::from(*expression.expression),
-        )))
-    }
-}
-
-impl<'ast> From<ast::Expression<'ast>> for types::BooleanExpression {
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::BooleanExpression<F> {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match types::Expression::from(expression) {
             types::Expression::Boolean(boolean_expression) => boolean_expression,
@@ -82,17 +174,37 @@ impl<'ast> From<ast::Expression<'ast>> for types::BooleanExpression {
     }
 }
 
-impl<'ast> From<ast::Expression<'ast>> for types::FieldExpression {
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::FieldElement(field_expression) => field_expression,
-            types::Expression::Variable(variable) => types::FieldExpression::Variable(variable),
-            _ => unimplemented!("expected field in field expression"),
+/// pest ast -> types::Expression
+
+impl<'ast, F: Field + PrimeField> From<ast::Value<'ast>> for types::Expression<F> {
+    fn from(value: ast::Value<'ast>) -> Self {
+        match value {
+            ast::Value::U32(value) => {
+                types::Expression::Integer(types::IntegerExpression::from(value))
+            }
+            ast::Value::Field(_field) => unimplemented!("cannot declare field values yet"),
+            ast::Value::Boolean(value) => {
+                types::Expression::Boolean(types::BooleanExpression::from(value))
+            }
         }
     }
 }
 
-impl<'ast> types::BooleanExpression {
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Expression<F> {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Expression::Variable(types::Variable::from(variable))
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::NotExpression<'ast>> for types::Expression<F> {
+    fn from(expression: ast::NotExpression<'ast>) -> Self {
+        types::Expression::Boolean(types::BooleanExpression::Not(Box::new(
+            types::BooleanExpression::from(*expression.expression),
+        )))
+    }
+}
+
+impl<'ast, F: Field + PrimeField> types::BooleanExpression<F> {
     /// Find out which types we are comparing and output the corresponding expression.
     fn from_eq(expression: ast::BinaryExpression<'ast>) -> Self {
         let left = types::Expression::from(*expression.left);
@@ -117,18 +229,18 @@ impl<'ast> types::BooleanExpression {
                 )
             } //TODO: check case for two variables?
             // Field equality
-            (types::Expression::FieldElement(lhs), types::Expression::FieldElement(rhs)) => {
+            (types::Expression::Integer(lhs), types::Expression::Integer(rhs)) => {
                 types::BooleanExpression::FieldEq(Box::new(lhs), Box::new(rhs))
             }
-            (types::Expression::FieldElement(lhs), types::Expression::Variable(rhs)) => {
+            (types::Expression::Integer(lhs), types::Expression::Variable(rhs)) => {
                 types::BooleanExpression::FieldEq(
                     Box::new(lhs),
-                    Box::new(types::FieldExpression::Variable(rhs)),
+                    Box::new(types::IntegerExpression::Variable(rhs)),
                 )
             }
-            (types::Expression::Variable(lhs), types::Expression::FieldElement(rhs)) => {
+            (types::Expression::Variable(lhs), types::Expression::Integer(rhs)) => {
                 types::BooleanExpression::FieldEq(
-                    Box::new(types::FieldExpression::Variable(lhs)),
+                    Box::new(types::IntegerExpression::Variable(lhs)),
                     Box::new(rhs),
                 )
             }
@@ -142,7 +254,7 @@ impl<'ast> types::BooleanExpression {
     }
 }
 
-impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
+impl<'ast, F: Field + PrimeField> From<ast::BinaryExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::BinaryExpression<'ast>) -> Self {
         match expression.operation {
             // Boolean operations
@@ -161,57 +273,47 @@ impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
                 types::Expression::Boolean(types::BooleanExpression::from_neq(expression))
             }
             ast::BinaryOperator::Geq => types::Expression::Boolean(types::BooleanExpression::Geq(
-                Box::new(types::FieldExpression::from(*expression.left)),
-                Box::new(types::FieldExpression::from(*expression.right)),
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
             )),
             ast::BinaryOperator::Gt => types::Expression::Boolean(types::BooleanExpression::Gt(
-                Box::new(types::FieldExpression::from(*expression.left)),
-                Box::new(types::FieldExpression::from(*expression.right)),
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
             )),
             ast::BinaryOperator::Leq => types::Expression::Boolean(types::BooleanExpression::Leq(
-                Box::new(types::FieldExpression::from(*expression.left)),
-                Box::new(types::FieldExpression::from(*expression.right)),
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
             )),
             ast::BinaryOperator::Lt => types::Expression::Boolean(types::BooleanExpression::Lt(
-                Box::new(types::FieldExpression::from(*expression.left)),
-                Box::new(types::FieldExpression::from(*expression.right)),
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
             )),
             // Field operations
-            ast::BinaryOperator::Add => {
-                types::Expression::FieldElement(types::FieldExpression::Add(
-                    Box::new(types::FieldExpression::from(*expression.left)),
-                    Box::new(types::FieldExpression::from(*expression.right)),
-                ))
-            }
-            ast::BinaryOperator::Sub => {
-                types::Expression::FieldElement(types::FieldExpression::Sub(
-                    Box::new(types::FieldExpression::from(*expression.left)),
-                    Box::new(types::FieldExpression::from(*expression.right)),
-                ))
-            }
-            ast::BinaryOperator::Mul => {
-                types::Expression::FieldElement(types::FieldExpression::Mul(
-                    Box::new(types::FieldExpression::from(*expression.left)),
-                    Box::new(types::FieldExpression::from(*expression.right)),
-                ))
-            }
-            ast::BinaryOperator::Div => {
-                types::Expression::FieldElement(types::FieldExpression::Div(
-                    Box::new(types::FieldExpression::from(*expression.left)),
-                    Box::new(types::FieldExpression::from(*expression.right)),
-                ))
-            }
-            ast::BinaryOperator::Pow => {
-                types::Expression::FieldElement(types::FieldExpression::Pow(
-                    Box::new(types::FieldExpression::from(*expression.left)),
-                    Box::new(types::FieldExpression::from(*expression.right)),
-                ))
-            }
+            ast::BinaryOperator::Add => types::Expression::Integer(types::IntegerExpression::Add(
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
+            )),
+            ast::BinaryOperator::Sub => types::Expression::Integer(types::IntegerExpression::Sub(
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
+            )),
+            ast::BinaryOperator::Mul => types::Expression::Integer(types::IntegerExpression::Mul(
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
+            )),
+            ast::BinaryOperator::Div => types::Expression::Integer(types::IntegerExpression::Div(
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
+            )),
+            ast::BinaryOperator::Pow => types::Expression::Integer(types::IntegerExpression::Pow(
+                Box::new(types::IntegerExpression::from(*expression.left)),
+                Box::new(types::IntegerExpression::from(*expression.right)),
+            )),
         }
     }
 }
 
-impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
+impl<'ast, F: Field + PrimeField> From<ast::TernaryExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::TernaryExpression<'ast>) -> Self {
         // Evaluate expressions to find out result type
         let first = types::BooleanExpression::from(*expression.first);
@@ -242,24 +344,24 @@ impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
                 ))
             }
             // Field Result
-            (types::Expression::FieldElement(second), types::Expression::FieldElement(third)) => {
-                types::Expression::FieldElement(types::FieldExpression::IfElse(
+            (types::Expression::Integer(second), types::Expression::Integer(third)) => {
+                types::Expression::Integer(types::IntegerExpression::IfElse(
                     Box::new(first),
                     Box::new(second),
                     Box::new(third),
                 ))
             }
-            (types::Expression::FieldElement(second), types::Expression::Variable(third)) => {
-                types::Expression::FieldElement(types::FieldExpression::IfElse(
+            (types::Expression::Integer(second), types::Expression::Variable(third)) => {
+                types::Expression::Integer(types::IntegerExpression::IfElse(
                     Box::new(first),
                     Box::new(second),
-                    Box::new(types::FieldExpression::Variable(third)),
+                    Box::new(types::IntegerExpression::Variable(third)),
                 ))
             }
-            (types::Expression::Variable(second), types::Expression::FieldElement(third)) => {
-                types::Expression::FieldElement(types::FieldExpression::IfElse(
+            (types::Expression::Variable(second), types::Expression::Integer(third)) => {
+                types::Expression::Integer(types::IntegerExpression::IfElse(
                     Box::new(first),
-                    Box::new(types::FieldExpression::Variable(second)),
+                    Box::new(types::IntegerExpression::Variable(second)),
                     Box::new(third),
                 ))
             }
@@ -274,41 +376,7 @@ impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::RangeOrExpression<'ast>> for types::FieldRangeOrExpression {
-    fn from(range_or_expression: ast::RangeOrExpression<'ast>) -> Self {
-        match range_or_expression {
-            ast::RangeOrExpression::Range(range) => {
-                let from = range
-                    .from
-                    .map(|from| match types::Expression::from(from.0) {
-                        types::Expression::FieldElement(field) => field,
-                        expression => {
-                            unimplemented!("Range bounds should be numbers, found {}", expression)
-                        }
-                    });
-                let to = range.to.map(|to| match types::Expression::from(to.0) {
-                    types::Expression::FieldElement(field) => field,
-                    expression => {
-                        unimplemented!("Range bounds should be numbers, found {}", expression)
-                    }
-                });
-
-                types::FieldRangeOrExpression::Range(from, to)
-            }
-            ast::RangeOrExpression::Expression(expression) => {
-                match types::Expression::from(expression) {
-                    types::Expression::FieldElement(field_expression) => {
-                        types::FieldRangeOrExpression::FieldExpression(field_expression)
-                    }
-                    // types::Expression::ArrayAccess(expression, field), // recursive array access
-                    expression => unimplemented!("expression must be field, found {}", expression),
-                }
-            }
-        }
-    }
-}
-
-impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
+impl<'ast, F: Field + PrimeField> From<ast::PostfixExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::PostfixExpression<'ast>) -> Self {
         let variable = types::Expression::Variable(types::Variable::from(expression.variable));
 
@@ -339,13 +407,13 @@ impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
                 ),
                 ast::Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
-                    types::FieldRangeOrExpression::from(array.expression),
+                    types::IntegerRangeOrExpression::from(array.expression),
                 ),
             })
     }
 }
 
-impl<'ast> From<ast::Expression<'ast>> for types::Expression {
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Expression<F> {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match expression {
             ast::Expression::Value(value) => types::Expression::from(value),
@@ -359,147 +427,53 @@ impl<'ast> From<ast::Expression<'ast>> for types::Expression {
             ast::Expression::ArrayInitializer(_expression) => {
                 unimplemented!("unknown type for array initializer expression")
             }
+            ast::Expression::StructInline(_expression) => {
+                unimplemented!("unknown type for inline struct expression")
+            }
             ast::Expression::Postfix(expression) => types::Expression::from(expression),
             _ => unimplemented!(),
         }
     }
 }
 
-impl<'ast> From<ast::Variable<'ast>> for types::Assignee {
-    fn from(variable: ast::Variable<'ast>) -> Self {
-        types::Assignee::Variable(types::Variable::from(variable))
-    }
-}
-
-impl<'ast> From<ast::Assignee<'ast>> for types::Assignee {
-    fn from(assignee: ast::Assignee<'ast>) -> Self {
-        let variable = types::Assignee::from(assignee.variable);
-
-        // we start with the id, and we fold the array of accesses by wrapping the current value
-        assignee
-            .accesses
-            .into_iter()
-            .fold(variable, |acc, access| match access {
-                ast::AssigneeAccess::Array(array) => types::Assignee::Array(
-                    Box::new(acc),
-                    types::FieldRangeOrExpression::from(array.expression),
-                ),
-                ast::AssigneeAccess::Member(struct_member) => types::Assignee::StructMember(
-                    Box::new(acc),
-                    types::Variable::from(struct_member.variable),
-                ),
-            })
-    }
-}
-
-impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
-    fn from(statement: ast::AssignStatement<'ast>) -> Self {
-        types::Statement::Definition(
-            types::Assignee::from(statement.assignee),
-            types::Expression::from(statement.expression),
-        )
-    }
-}
-
-impl<'ast> From<ast::Spread<'ast>> for types::BooleanSpread {
-    fn from(spread: ast::Spread<'ast>) -> Self {
-        let boolean_expression = types::Expression::from(spread.expression);
-        match boolean_expression {
-            types::Expression::Boolean(expression) => types::BooleanSpread(expression),
-            types::Expression::Variable(variable) => {
-                types::BooleanSpread(types::BooleanExpression::Variable(variable))
-            }
-            _ => unimplemented!("cannot create boolean spread from field type"),
-        }
-    }
-}
-
-impl<'ast> From<ast::Expression<'ast>> for types::BooleanSpreadOrExpression {
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::Boolean(expression) => {
-                types::BooleanSpreadOrExpression::BooleanExpression(expression)
-            }
-            _ => unimplemented!("cannot create boolean expression from field type"),
-        }
-    }
-}
-
-impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::BooleanSpreadOrExpression {
-    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
-        match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
-                types::BooleanSpreadOrExpression::Spread(types::BooleanSpread::from(spread))
-            }
-            ast::SpreadOrExpression::Expression(expression) => {
-                match types::Expression::from(expression) {
-                    types::Expression::Boolean(expression) => {
-                        types::BooleanSpreadOrExpression::BooleanExpression(expression)
-                    }
-                    _ => unimplemented!("cannot create boolean expression from field type"),
-                }
-            }
-        }
-    }
-}
-
-impl<'ast> From<ast::Spread<'ast>> for types::FieldSpread {
-    fn from(spread: ast::Spread<'ast>) -> Self {
-        match types::Expression::from(spread.expression) {
-            types::Expression::FieldElement(expression) => types::FieldSpread(expression),
-            types::Expression::Variable(variable) => {
-                types::FieldSpread(types::FieldExpression::Variable(variable))
-            }
-            expression => unimplemented!(
-                "cannot create field spread from boolean type {}",
-                expression
-            ),
-        }
-    }
-}
-
-impl<'ast> From<ast::Expression<'ast>> for types::FieldSpreadOrExpression {
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::FieldElement(expression) => {
-                types::FieldSpreadOrExpression::FieldExpression(expression)
-            }
-            _ => unimplemented!("cannot create field expression from boolean type"),
-        }
-    }
-}
-
-impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::FieldSpreadOrExpression {
-    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
-        match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
-                types::FieldSpreadOrExpression::Spread(types::FieldSpread::from(spread))
-            }
-            ast::SpreadOrExpression::Expression(expression) => {
-                types::FieldSpreadOrExpression::from(expression)
-            }
-        }
-    }
-}
-
-impl<'ast> From<ast::InlineStructMember<'ast>> for types::StructMember {
-    fn from(member: ast::InlineStructMember<'ast>) -> Self {
-        types::StructMember {
-            variable: types::Variable::from(member.variable),
-            expression: types::Expression::from(member.expression),
-        }
-    }
-}
-
-impl<'ast> types::Expression {
+/// pest ast -> typed types::Expression
+/// For defined types (ex: u32[4]) we manually construct the expression instead of implementing the From trait.
+/// This saves us from having to resolve things at a later point in time.
+impl<'ast, F: Field + PrimeField> types::Expression<F> {
     fn from_basic(_ty: ast::BasicType<'ast>, _expression: ast::Expression<'ast>) -> Self {
         unimplemented!("from basic not impl");
     }
 
     fn from_array(ty: ast::ArrayType<'ast>, expression: ast::Expression<'ast>) -> Self {
         match ty.ty {
+            ast::BasicType::U32(_ty) => {
+                let elements: Vec<Box<types::IntegerSpreadOrExpression<F>>> = match expression {
+                    ast::Expression::ArrayInline(array) => array
+                        .expressions
+                        .into_iter()
+                        .map(|s_or_e| Box::new(types::IntegerSpreadOrExpression::from(s_or_e)))
+                        .collect(),
+                    ast::Expression::ArrayInitializer(array) => {
+                        let count = match array.count {
+                            ast::Value::U32(f) => f
+                                .number
+                                .value
+                                .parse::<usize>()
+                                .expect("Unable to read array size"),
+                            _ => unimplemented!("Array size should be an integer"),
+                        };
+                        let expression =
+                            Box::new(types::IntegerSpreadOrExpression::from(*array.expression));
+
+                        vec![expression; count]
+                    }
+                    _ => unimplemented!("expected array after array type"),
+                };
+                types::Expression::Integer(types::IntegerExpression::Array(elements))
+            }
+            ast::BasicType::Field(_ty) => unimplemented!("from array field basic types unimpl"),
             ast::BasicType::Boolean(_ty) => {
-                let elements: Vec<Box<types::BooleanSpreadOrExpression>> = match expression {
+                let elements: Vec<Box<types::BooleanSpreadOrExpression<F>>> = match expression {
                     ast::Expression::ArrayInline(array) => array
                         .expressions
                         .into_iter()
@@ -507,9 +481,11 @@ impl<'ast> types::Expression {
                         .collect(),
                     ast::Expression::ArrayInitializer(array) => {
                         let count = match array.count {
-                            ast::Value::Field(f) => {
-                                f.value.parse::<usize>().expect("Unable to read array size")
-                            }
+                            ast::Value::U32(f) => f
+                                .number
+                                .value
+                                .parse::<usize>()
+                                .expect("Unable to read array size"),
                             _ => unimplemented!("Array size should be an integer"),
                         };
                         let expression =
@@ -520,29 +496,6 @@ impl<'ast> types::Expression {
                     _ => unimplemented!("expected array after array type"),
                 };
                 types::Expression::Boolean(types::BooleanExpression::Array(elements))
-            }
-            ast::BasicType::Field(_ty) => {
-                let elements: Vec<Box<types::FieldSpreadOrExpression>> = match expression {
-                    ast::Expression::ArrayInline(array) => array
-                        .expressions
-                        .into_iter()
-                        .map(|s_or_e| Box::new(types::FieldSpreadOrExpression::from(s_or_e)))
-                        .collect(),
-                    ast::Expression::ArrayInitializer(array) => {
-                        let count = match array.count {
-                            ast::Value::Field(f) => {
-                                f.value.parse::<usize>().expect("Unable to read array size")
-                            }
-                            _ => unimplemented!("Array size should be an integer"),
-                        };
-                        let expression =
-                            Box::new(types::FieldSpreadOrExpression::from(*array.expression));
-
-                        vec![expression; count]
-                    }
-                    _ => unimplemented!("expected array after array type"),
-                };
-                types::Expression::FieldElement(types::FieldExpression::Array(elements))
             }
         }
     }
@@ -559,7 +512,7 @@ impl<'ast> types::Expression {
                     .members
                     .into_iter()
                     .map(|member| types::StructMember::from(member))
-                    .collect::<Vec<types::StructMember>>();
+                    .collect::<Vec<types::StructMember<F>>>();
 
                 types::Expression::Struct(variable, members)
             }
@@ -576,7 +529,47 @@ impl<'ast> types::Expression {
     }
 }
 
-impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
+/// pest ast -> types::Assignee
+
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Assignee<F> {
+    fn from(variable: ast::Variable<'ast>) -> Self {
+        types::Assignee::Variable(types::Variable::from(variable))
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::Assignee<'ast>> for types::Assignee<F> {
+    fn from(assignee: ast::Assignee<'ast>) -> Self {
+        let variable = types::Assignee::from(assignee.variable);
+
+        // we start with the id, and we fold the array of accesses by wrapping the current value
+        assignee
+            .accesses
+            .into_iter()
+            .fold(variable, |acc, access| match access {
+                ast::AssigneeAccess::Array(array) => types::Assignee::Array(
+                    Box::new(acc),
+                    types::IntegerRangeOrExpression::from(array.expression),
+                ),
+                ast::AssigneeAccess::Member(struct_member) => types::Assignee::StructMember(
+                    Box::new(acc),
+                    types::Variable::from(struct_member.variable),
+                ),
+            })
+    }
+}
+
+/// pest ast -> types::Statement
+
+impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::AssignStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Assignee::from(statement.assignee),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Assignee::from(statement.variable),
@@ -585,7 +578,7 @@ impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
+impl<'ast, F: Field + PrimeField> From<ast::ReturnStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ReturnStatement<'ast>) -> Self {
         types::Statement::Return(
             statement
@@ -597,12 +590,12 @@ impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::ForStatement<'ast>> for types::Statement {
+impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ForStatement<'ast>) -> Self {
         types::Statement::For(
             types::Variable::from(statement.index),
-            types::FieldExpression::from(statement.start),
-            types::FieldExpression::from(statement.stop),
+            types::IntegerExpression::from(statement.start),
+            types::IntegerExpression::from(statement.stop),
             statement
                 .statements
                 .into_iter()
@@ -612,7 +605,7 @@ impl<'ast> From<ast::ForStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::Statement<'ast>> for types::Statement {
+impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
             ast::Statement::Assign(statement) => types::Statement::from(statement),
@@ -623,33 +616,40 @@ impl<'ast> From<ast::Statement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::BasicType<'ast>> for types::Type {
+/// pest ast -> Explicit types::Type for defining struct members and function params
+
+impl<'ast, F: Field + PrimeField> From<ast::BasicType<'ast>> for types::Type<F> {
     fn from(basic_type: ast::BasicType<'ast>) -> Self {
         match basic_type {
-            ast::BasicType::Field(_ty) => types::Type::FieldElement,
+            ast::BasicType::U32(_ty) => types::Type::U32,
+            ast::BasicType::Field(_ty) => types::Type::U32,
             ast::BasicType::Boolean(_ty) => types::Type::Boolean,
         }
     }
 }
 
-impl<'ast> From<ast::ArrayType<'ast>> for types::Type {
+impl<'ast, F: Field + PrimeField> From<ast::ArrayType<'ast>> for types::Type<F> {
     fn from(array_type: ast::ArrayType<'ast>) -> Self {
         let element_type = Box::new(types::Type::from(array_type.ty));
         let count = match array_type.count {
-            ast::Value::Field(f) => f.value.parse::<usize>().expect("Unable to read array size"),
+            ast::Value::Field(f) => f
+                .number
+                .value
+                .parse::<usize>()
+                .expect("Unable to read array size"),
             _ => unimplemented!("Array size should be an integer"),
         };
         types::Type::Array(element_type, count)
     }
 }
 
-impl<'ast> From<ast::StructType<'ast>> for types::Type {
+impl<'ast, F: Field + PrimeField> From<ast::StructType<'ast>> for types::Type<F> {
     fn from(struct_type: ast::StructType<'ast>) -> Self {
         types::Type::Struct(types::Variable::from(struct_type.variable))
     }
 }
 
-impl<'ast> From<ast::Type<'ast>> for types::Type {
+impl<'ast, F: Field + PrimeField> From<ast::Type<'ast>> for types::Type<F> {
     fn from(ty: ast::Type<'ast>) -> Self {
         match ty {
             ast::Type::Basic(ty) => types::Type::from(ty),
@@ -659,7 +659,18 @@ impl<'ast> From<ast::Type<'ast>> for types::Type {
     }
 }
 
-impl<'ast> From<ast::StructField<'ast>> for types::StructField {
+/// pest ast -> types::Struct
+
+impl<'ast, F: Field + PrimeField> From<ast::InlineStructMember<'ast>> for types::StructMember<F> {
+    fn from(member: ast::InlineStructMember<'ast>) -> Self {
+        types::StructMember {
+            variable: types::Variable::from(member.variable),
+            expression: types::Expression::from(member.expression),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::StructField<'ast>> for types::StructField<F> {
     fn from(struct_field: ast::StructField<'ast>) -> Self {
         types::StructField {
             variable: types::Variable::from(struct_field.variable),
@@ -668,7 +679,7 @@ impl<'ast> From<ast::StructField<'ast>> for types::StructField {
     }
 }
 
-impl<'ast> From<ast::Struct<'ast>> for types::Struct {
+impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
     fn from(struct_definition: ast::Struct<'ast>) -> Self {
         let variable = types::Variable::from(struct_definition.variable);
         let fields = struct_definition
@@ -681,6 +692,8 @@ impl<'ast> From<ast::Struct<'ast>> for types::Struct {
     }
 }
 
+/// pest ast -> function types::Parameters
+
 impl From<ast::Visibility> for types::Visibility {
     fn from(visibility: ast::Visibility) -> Self {
         match visibility {
@@ -690,7 +703,7 @@ impl From<ast::Visibility> for types::Visibility {
     }
 }
 
-impl<'ast> From<ast::Parameter<'ast>> for types::Parameter {
+impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Parameter<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let ty = types::Type::from(parameter.ty);
         let variable = types::Variable::from(parameter.variable);
@@ -712,13 +725,15 @@ impl<'ast> From<ast::Parameter<'ast>> for types::Parameter {
     }
 }
 
+/// pest ast -> types::Function
+
 impl<'ast> From<ast::FunctionName<'ast>> for types::FunctionName {
     fn from(name: ast::FunctionName<'ast>) -> Self {
         types::FunctionName(name.value)
     }
 }
 
-impl<'ast> From<ast::Function<'ast>> for types::Function {
+impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<F> {
     fn from(function_definition: ast::Function<'ast>) -> Self {
         let function_name = types::FunctionName::from(function_definition.function_name);
         let parameters = function_definition
@@ -746,6 +761,8 @@ impl<'ast> From<ast::Function<'ast>> for types::Function {
     }
 }
 
+/// pest ast -> Import
+
 impl<'ast> From<ast::Variable<'ast>> for PathString<'ast> {
     fn from(import: ast::Variable<'ast>) -> Self {
         import.span.as_str()
@@ -766,7 +783,9 @@ impl<'ast> From<ast::Import<'ast>> for Import<'ast> {
     }
 }
 
-impl<'ast> From<ast::File<'ast>> for types::Program<'ast> {
+/// pest ast -> types::Program
+
+impl<'ast, F: Field + PrimeField> From<ast::File<'ast>> for types::Program<'ast, F> {
     fn from(file: ast::File<'ast>) -> Self {
         // Compiled ast -> aleo program representation
         let imports = file
@@ -792,7 +811,10 @@ impl<'ast> From<ast::File<'ast>> for types::Program<'ast> {
         });
 
         types::Program {
-            name: types::Variable("".into()),
+            name: types::Variable {
+                name: "".into(),
+                _field: PhantomData::<F>,
+            },
             imports,
             structs,
             functions,

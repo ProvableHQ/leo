@@ -1,3 +1,4 @@
-def foo() -> (field):
-    // return myGlobal <- not allowed
-    return 42
+struct Point {
+    u32 x
+    u32 y
+}

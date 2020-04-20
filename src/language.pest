@@ -48,10 +48,10 @@ operation_binary = _ {
 // operation_div_assign = { "/=" }
 
 /// Types
-
+ty_u32 = {"u32"}
 ty_field = {"field"}
 ty_bool = {"bool"}
-ty_basic = { ty_field | ty_bool }
+ty_basic = { ty_u32 | ty_field | ty_bool }
 ty_struct = { variable }
 ty_basic_or_struct = {ty_basic | ty_struct }
 ty_array = {ty_basic ~ ("[" ~ value ~ "]")+ }
@@ -59,10 +59,11 @@ ty = {ty_array | ty_basic | ty_struct}
 type_list = _{(ty ~ ("," ~ ty)*)?}
 
 /// Values
-
+value_number = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)}
+value_u32 = { value_number ~ ty_u32}
+value_field = { value_number ~ ty_field }
 value_boolean = { "true" | "false" }
-value_field = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) }
-value = { value_boolean | value_field }
+value = { value_u32 | value_field | value_boolean }
 
 /// Variables
 
@@ -88,8 +89,8 @@ access_member = { "." ~ variable }
 access = { access_array | access_call | access_member }
 expression_postfix = { variable ~ access+ }
 
-assignee = { variable ~ assignee_access* }
 assignee_access = { access_array | access_member }
+assignee = { variable ~ assignee_access* }
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }

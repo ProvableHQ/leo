@@ -47,7 +47,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
         // println!("{:#?}", syntax_tree);
 
-        let program = aleo_program::Program::from(syntax_tree);
+        let program = aleo_program::Program::<'_, F>::from(syntax_tree);
         println!(" compiled: {:#?}", program);
 
         let program = program.name("simple".into());

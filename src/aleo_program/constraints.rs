@@ -1,7 +1,7 @@
 use crate::aleo_program::{
-    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
-    FieldRangeOrExpression, FieldSpreadOrExpression, Function, Import, Program, Statement, Struct,
-    StructMember, Type, Variable,
+    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, Function, Import, Integer,
+    IntegerExpression, IntegerRangeOrExpression, IntegerSpreadOrExpression, Program, Statement,
+    Struct, StructMember, Type, Variable,
 };
 use crate::ast;
 
@@ -15,20 +15,21 @@ use snarkos_models::gadgets::{
 use std::collections::HashMap;
 use std::fmt;
 use std::fs;
+use std::marker::PhantomData;
 
 #[derive(Clone)]
-pub enum ResolvedValue {
+pub enum ResolvedValue<F: Field + PrimeField> {
     Boolean(Boolean),
     BooleanArray(Vec<Boolean>),
-    FieldElement(UInt32),
-    FieldElementArray(Vec<UInt32>),
-    StructDefinition(Struct),
-    StructExpression(Variable, Vec<StructMember>),
-    Function(Function),
-    Return(Vec<ResolvedValue>), // add Null for function returns
+    U32(UInt32),
+    U32Array(Vec<UInt32>),
+    StructDefinition(Struct<F>),
+    StructExpression(Variable<F>, Vec<StructMember<F>>),
+    Function(Function<F>),
+    Return(Vec<ResolvedValue<F>>), // add Null for function returns
 }
 
-impl fmt::Display for ResolvedValue {
+impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ResolvedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
@@ -42,8 +43,8 @@ impl fmt::Display for ResolvedValue {
                 }
                 write!(f, "]")
             }
-            ResolvedValue::FieldElement(ref value) => write!(f, "{}", value.value.unwrap()),
-            ResolvedValue::FieldElementArray(ref array) => {
+            ResolvedValue::U32(ref value) => write!(f, "{}", value.value.unwrap()),
+            ResolvedValue::U32Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
                     write!(f, "{}", e.value.unwrap())?;
@@ -83,59 +84,361 @@ impl fmt::Display for ResolvedValue {
     }
 }
 
-pub struct ResolvedProgram {
-    pub resolved_names: HashMap<String, ResolvedValue>,
+pub struct ResolvedProgram<F: Field + PrimeField, CS: ConstraintSystem<F>> {
+    pub resolved_names: HashMap<String, ResolvedValue<F>>,
+    pub _cs: PhantomData<CS>,
 }
 
 pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
 
-pub fn new_scope_from_variable(outer: String, inner: &Variable) -> String {
-    new_scope(outer, inner.0.clone())
+pub fn new_scope_from_variable<F: Field + PrimeField>(
+    outer: String,
+    inner: &Variable<F>,
+) -> String {
+    new_scope(outer, inner.name.clone())
 }
 
-impl ResolvedProgram {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn new() -> Self {
         Self {
             resolved_names: HashMap::new(),
+            _cs: PhantomData::<CS>,
         }
     }
 
-    fn store(&mut self, name: String, value: ResolvedValue) {
+    fn store(&mut self, name: String, value: ResolvedValue<F>) {
         self.resolved_names.insert(name, value);
     }
 
-    fn store_variable(&mut self, variable: Variable, value: ResolvedValue) {
-        self.store(variable.0, value);
+    fn store_variable(&mut self, variable: Variable<F>, value: ResolvedValue<F>) {
+        self.store(variable.name, value);
     }
 
     fn contains_name(&self, name: &String) -> bool {
         self.resolved_names.contains_key(name)
     }
 
-    fn contains_variable(&self, variable: &Variable) -> bool {
-        self.contains_name(&variable.0)
+    fn contains_variable(&self, variable: &Variable<F>) -> bool {
+        self.contains_name(&variable.name)
     }
 
-    fn get(&self, name: &String) -> Option<&ResolvedValue> {
+    fn get(&self, name: &String) -> Option<&ResolvedValue<F>> {
         self.resolved_names.get(name)
     }
 
-    fn get_mut(&mut self, name: &String) -> Option<&mut ResolvedValue> {
+    fn get_mut(&mut self, name: &String) -> Option<&mut ResolvedValue<F>> {
         self.resolved_names.get_mut(name)
     }
 
-    fn get_mut_variable(&mut self, variable: &Variable) -> Option<&mut ResolvedValue> {
-        self.get_mut(&variable.0)
+    fn get_mut_variable(&mut self, variable: &Variable<F>) -> Option<&mut ResolvedValue<F>> {
+        self.get_mut(&variable.name)
     }
 
-    fn bool_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    /// Constrain integers
+
+    fn integer_from_variable(
         &mut self,
         cs: &mut CS,
         scope: String,
-        variable: Variable,
+        variable: Variable<F>,
+    ) -> ResolvedValue<F> {
+        // Evaluate variable name in current function scope
+        let variable_name = new_scope_from_variable(scope, &variable);
+
+        if self.contains_name(&variable_name) {
+            // TODO: return synthesis error: "assignment missing" here
+            self.get(&variable_name).unwrap().clone()
+        } else {
+            // TODO: remove this after resolving arguments
+            let argument = std::env::args()
+                .nth(1)
+                .unwrap_or("1".into())
+                .parse::<u32>()
+                .unwrap();
+
+            println!(" argument passed to command line a = {:?}\n", argument);
+
+            // let a = 1;
+            ResolvedValue::U32(UInt32::alloc(cs.ns(|| variable.name), Some(argument)).unwrap())
+        }
+    }
+
+    fn get_integer_constant(integer: Integer) -> ResolvedValue<F> {
+        match integer {
+            Integer::U32(u32_value) => ResolvedValue::U32(UInt32::constant(u32_value)),
+        }
+    }
+
+    fn get_integer_value(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        expression: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        match expression {
+            IntegerExpression::Variable(variable) => {
+                self.integer_from_variable(cs, scope, variable)
+            }
+            IntegerExpression::Number(number) => Self::get_integer_constant(number),
+            field => self.enforce_integer_expression(cs, scope, field),
+        }
+    }
+
+    fn enforce_u32_equality(cs: &mut CS, left: UInt32, right: UInt32) -> Boolean {
+        left.conditional_enforce_equal(
+            cs.ns(|| format!("enforce field equal")),
+            &right,
+            &Boolean::Constant(true),
+        )
+        .unwrap();
+
+        Boolean::Constant(true)
+    }
+
+    fn enforce_integer_equality(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
     ) -> Boolean {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_equality(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("equality not impl between {} == {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_u32_add(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::U32(
+            UInt32::addmany(
+                cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
+                &[left, right],
+            )
+            .unwrap(),
+        )
+    }
+
+    fn enforce_add(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_add(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("add not impl between {} + {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_u32_sub(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::U32(
+            left.sub(
+                cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
+                &right,
+            )
+            .unwrap(),
+        )
+    }
+
+    fn enforce_sub(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_sub(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("add not impl between {} + {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_u32_mul(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::U32(
+            left.mul(
+                cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
+                &right,
+            )
+            .unwrap(),
+        )
+    }
+
+    fn enforce_mul(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_mul(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("add not impl between {} + {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_u32_div(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::U32(
+            left.div(
+                cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
+                &right,
+            )
+            .unwrap(),
+        )
+    }
+
+    fn enforce_div(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_div(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("add not impl between {} + {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_u32_pow(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::U32(
+            left.pow(
+                cs.ns(|| {
+                    format!(
+                        "enforce {} ** {}",
+                        left.value.unwrap(),
+                        right.value.unwrap()
+                    )
+                }),
+                &right,
+            )
+            .unwrap(),
+        )
+    }
+
+    fn enforce_pow(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: IntegerExpression<F>,
+        right: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_integer_value(cs, scope.clone(), left);
+        let right = self.get_integer_value(cs, scope.clone(), right);
+
+        match (left, right) {
+            (ResolvedValue::U32(left_u32), ResolvedValue::U32(right_u32)) => {
+                Self::enforce_u32_pow(cs, left_u32, right_u32)
+            }
+            (left_int, right_int) => {
+                unimplemented!("add not impl between {} + {}", left_int, right_int)
+            }
+        }
+    }
+
+    fn enforce_integer_expression(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        expression: IntegerExpression<F>,
+    ) -> ResolvedValue<F> {
+        match expression {
+            IntegerExpression::Variable(variable) => {
+                self.integer_from_variable(cs, scope, variable)
+            }
+            IntegerExpression::Number(number) => Self::get_integer_constant(number),
+            IntegerExpression::Add(left, right) => self.enforce_add(cs, scope, *left, *right),
+            IntegerExpression::Sub(left, right) => self.enforce_sub(cs, scope, *left, *right),
+            IntegerExpression::Mul(left, right) => self.enforce_mul(cs, scope, *left, *right),
+            IntegerExpression::Div(left, right) => self.enforce_div(cs, scope, *left, *right),
+            IntegerExpression::Pow(left, right) => self.enforce_pow(cs, scope, *left, *right),
+            IntegerExpression::IfElse(first, second, third) => {
+                let resolved_first =
+                    match self.enforce_boolean_expression(cs, scope.clone(), *first) {
+                        ResolvedValue::Boolean(resolved) => resolved,
+                        _ => unimplemented!("if else conditional must resolve to boolean"),
+                    };
+
+                if resolved_first.eq(&Boolean::Constant(true)) {
+                    self.enforce_integer_expression(cs, scope, *second)
+                } else {
+                    self.enforce_integer_expression(cs, scope, *third)
+                }
+            }
+            IntegerExpression::Array(array) => {
+                let mut result = vec![];
+                array.into_iter().for_each(|element| match *element {
+                    IntegerSpreadOrExpression::Spread(spread) => match spread {
+                        IntegerExpression::Variable(variable) => {
+                            let array_name = new_scope_from_variable(scope.clone(), &variable);
+                            match self.get(&array_name) {
+                                Some(value) => match value {
+                                    ResolvedValue::U32Array(array) => result.extend(array.clone()),
+                                    value => unimplemented!(
+                                        "spreads only implemented for arrays, got {}",
+                                        value
+                                    ),
+                                },
+                                None => unimplemented!(
+                                    "cannot copy elements from array that does not exist {}",
+                                    variable.name
+                                ),
+                            }
+                        }
+                        value => {
+                            unimplemented!("spreads only implemented for arrays, got {}", value)
+                        }
+                    },
+                    IntegerSpreadOrExpression::Expression(expression) => {
+                        match self.enforce_integer_expression(cs, scope.clone(), expression) {
+                            ResolvedValue::U32(value) => result.push(value),
+                            _ => unimplemented!("cannot resolve field"),
+                        }
+                    }
+                });
+                ResolvedValue::U32Array(result)
+            }
+        }
+    }
+
+    fn bool_from_variable(&mut self, cs: &mut CS, scope: String, variable: Variable<F>) -> Boolean {
         // Evaluate variable name in current function scope
         let variable_name = new_scope_from_variable(scope, &variable);
 
@@ -153,44 +456,15 @@ impl ResolvedProgram {
                 .unwrap();
             println!(" argument passed to command line a = {:?}\n", argument);
             // let a = true;
-            Boolean::alloc(cs.ns(|| variable.0), || Ok(argument)).unwrap()
+            Boolean::alloc(cs.ns(|| variable.name), || Ok(argument)).unwrap()
         }
     }
 
-    fn u32_from_variable<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn get_bool_value(
         &mut self,
         cs: &mut CS,
         scope: String,
-        variable: Variable,
-    ) -> UInt32 {
-        // Evaluate variable name in current function scope
-        let variable_name = new_scope_from_variable(scope, &variable);
-
-        if self.contains_name(&variable_name) {
-            // TODO: return synthesis error: "assignment missing" here
-            match self.get(&variable_name).unwrap() {
-                ResolvedValue::FieldElement(field) => field.clone(),
-                value => panic!("expected a field, got {}", value),
-            }
-        } else {
-            let argument = std::env::args()
-                .nth(1)
-                .unwrap_or("1".into())
-                .parse::<u32>()
-                .unwrap();
-
-            println!(" argument passed to command line a = {:?}\n", argument);
-
-            // let a = 1;
-            UInt32::alloc(cs.ns(|| variable.0), Some(argument)).unwrap()
-        }
-    }
-
-    fn get_bool_value<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        expression: BooleanExpression,
+        expression: BooleanExpression<F>,
     ) -> Boolean {
         match expression {
             BooleanExpression::Variable(variable) => self.bool_from_variable(cs, scope, variable),
@@ -202,39 +476,23 @@ impl ResolvedProgram {
         }
     }
 
-    fn get_u32_value<F: Field + PrimeField + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_not(
         &mut self,
         cs: &mut CS,
         scope: String,
-        expression: FieldExpression,
-    ) -> UInt32 {
-        match expression {
-            FieldExpression::Variable(variable) => self.u32_from_variable(cs, scope, variable),
-            FieldExpression::Number(number) => UInt32::constant(number),
-            field => match self.enforce_field_expression(cs, scope, field) {
-                ResolvedValue::FieldElement(value) => value,
-                _ => unimplemented!("field expression did not resolve to field"),
-            },
-        }
-    }
-
-    fn enforce_not<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        expression: BooleanExpression,
+        expression: BooleanExpression<F>,
     ) -> Boolean {
         let expression = self.get_bool_value(cs, scope, expression);
 
         expression.not()
     }
 
-    fn enforce_or<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_or(
         &mut self,
         cs: &mut CS,
         scope: String,
-        left: BooleanExpression,
-        right: BooleanExpression,
+        left: BooleanExpression<F>,
+        right: BooleanExpression<F>,
     ) -> Boolean {
         let left = self.get_bool_value(cs, scope.clone(), left);
         let right = self.get_bool_value(cs, scope.clone(), right);
@@ -242,12 +500,12 @@ impl ResolvedProgram {
         Boolean::or(cs, &left, &right).unwrap()
     }
 
-    fn enforce_and<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_and(
         &mut self,
         cs: &mut CS,
         scope: String,
-        left: BooleanExpression,
-        right: BooleanExpression,
+        left: BooleanExpression<F>,
+        right: BooleanExpression<F>,
     ) -> Boolean {
         let left = self.get_bool_value(cs, scope.clone(), left);
         let right = self.get_bool_value(cs, scope.clone(), right);
@@ -255,12 +513,12 @@ impl ResolvedProgram {
         Boolean::and(cs, &left, &right).unwrap()
     }
 
-    fn enforce_bool_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_bool_equality(
         &mut self,
         cs: &mut CS,
         scope: String,
-        left: BooleanExpression,
-        right: BooleanExpression,
+        left: BooleanExpression<F>,
+        right: BooleanExpression<F>,
     ) -> Boolean {
         let left = self.get_bool_value(cs, scope.clone(), left);
         let right = self.get_bool_value(cs, scope.clone(), right);
@@ -271,32 +529,12 @@ impl ResolvedProgram {
         Boolean::Constant(true)
     }
 
-    fn enforce_field_equality<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_boolean_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> Boolean {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        left.conditional_enforce_equal(
-            cs.ns(|| format!("enforce field equal")),
-            &right,
-            &Boolean::Constant(true),
-        )
-        .unwrap();
-
-        Boolean::Constant(true)
-    }
-
-    fn enforce_boolean_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        expression: BooleanExpression,
-    ) -> ResolvedValue {
+        expression: BooleanExpression<F>,
+    ) -> ResolvedValue<F> {
         match expression {
             BooleanExpression::Variable(variable) => {
                 ResolvedValue::Boolean(self.bool_from_variable(cs, scope, variable))
@@ -315,7 +553,7 @@ impl ResolvedProgram {
                 ResolvedValue::Boolean(self.enforce_bool_equality(cs, scope, *left, *right))
             }
             BooleanExpression::FieldEq(left, right) => {
-                ResolvedValue::Boolean(self.enforce_field_equality(cs, scope, *left, *right))
+                ResolvedValue::Boolean(self.enforce_integer_equality(cs, scope, *left, *right))
             }
             BooleanExpression::IfElse(first, second, third) => {
                 let resolved_first =
@@ -332,7 +570,7 @@ impl ResolvedProgram {
             BooleanExpression::Array(array) => {
                 let mut result = vec![];
                 array.into_iter().for_each(|element| match *element {
-                    BooleanSpreadOrExpression::Spread(spread) => match spread.0 {
+                    BooleanSpreadOrExpression::Spread(spread) => match spread {
                         BooleanExpression::Variable(variable) => {
                             let array_name = new_scope_from_variable(scope.clone(), &variable);
                             match self.get(&array_name) {
@@ -347,7 +585,7 @@ impl ResolvedProgram {
                                 },
                                 None => unimplemented!(
                                     "cannot copy elements from array that does not exist {}",
-                                    variable.0
+                                    variable.name
                                 ),
                             }
                         }
@@ -355,7 +593,7 @@ impl ResolvedProgram {
                             unimplemented!("spreads only implemented for arrays, got {}", value)
                         }
                     },
-                    BooleanSpreadOrExpression::BooleanExpression(expression) => {
+                    BooleanSpreadOrExpression::Expression(expression) => {
                         match self.enforce_boolean_expression(cs, scope.clone(), expression) {
                             ResolvedValue::Boolean(value) => result.push(value),
                             value => {
@@ -370,186 +608,13 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_struct_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> UInt32 {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        UInt32::addmany(
-            cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
-            &[left, right],
-        )
-        .unwrap()
-    }
-
-    fn enforce_sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> UInt32 {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        left.sub(
-            cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
-            &right,
-        )
-        .unwrap()
-    }
-
-    fn enforce_mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> UInt32 {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        let res = left
-            .mul(
-                cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
-                &right,
-            )
-            .unwrap();
-
-        res
-    }
-
-    fn enforce_div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> UInt32 {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        left.div(
-            cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
-            &right,
-        )
-        .unwrap()
-    }
-
-    fn enforce_pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        left: FieldExpression,
-        right: FieldExpression,
-    ) -> UInt32 {
-        let left = self.get_u32_value(cs, scope.clone(), left);
-        let right = self.get_u32_value(cs, scope.clone(), right);
-
-        left.pow(
-            cs.ns(|| {
-                format!(
-                    "enforce {} ** {}",
-                    left.value.unwrap(),
-                    right.value.unwrap()
-                )
-            }),
-            &right,
-        )
-        .unwrap()
-    }
-
-    fn enforce_field_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        expression: FieldExpression,
-    ) -> ResolvedValue {
-        match expression {
-            FieldExpression::Variable(variable) => {
-                ResolvedValue::FieldElement(self.u32_from_variable(cs, scope, variable))
-            }
-            FieldExpression::Number(number) => {
-                ResolvedValue::FieldElement(UInt32::constant(number))
-            }
-            FieldExpression::Add(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_add(cs, scope, *left, *right))
-            }
-            FieldExpression::Sub(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_sub(cs, scope, *left, *right))
-            }
-            FieldExpression::Mul(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_mul(cs, scope, *left, *right))
-            }
-            FieldExpression::Div(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_div(cs, scope, *left, *right))
-            }
-            FieldExpression::Pow(left, right) => {
-                ResolvedValue::FieldElement(self.enforce_pow(cs, scope, *left, *right))
-            }
-            FieldExpression::IfElse(first, second, third) => {
-                let resolved_first =
-                    match self.enforce_boolean_expression(cs, scope.clone(), *first) {
-                        ResolvedValue::Boolean(resolved) => resolved,
-                        _ => unimplemented!("if else conditional must resolve to boolean"),
-                    };
-
-                if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_field_expression(cs, scope, *second)
-                } else {
-                    self.enforce_field_expression(cs, scope, *third)
-                }
-            }
-            FieldExpression::Array(array) => {
-                let mut result = vec![];
-                array.into_iter().for_each(|element| match *element {
-                    FieldSpreadOrExpression::Spread(spread) => match spread.0 {
-                        FieldExpression::Variable(variable) => {
-                            let array_name = new_scope_from_variable(scope.clone(), &variable);
-                            match self.get(&array_name) {
-                                Some(value) => match value {
-                                    ResolvedValue::FieldElementArray(array) => {
-                                        result.extend(array.clone())
-                                    }
-                                    value => unimplemented!(
-                                        "spreads only implemented for arrays, got {}",
-                                        value
-                                    ),
-                                },
-                                None => unimplemented!(
-                                    "cannot copy elements from array that does not exist {}",
-                                    variable.0
-                                ),
-                            }
-                        }
-                        value => {
-                            unimplemented!("spreads only implemented for arrays, got {}", value)
-                        }
-                    },
-                    FieldSpreadOrExpression::FieldExpression(expression) => {
-                        match self.enforce_field_expression(cs, scope.clone(), expression) {
-                            ResolvedValue::FieldElement(value) => result.push(value),
-                            _ => unimplemented!("cannot resolve field"),
-                        }
-                    }
-                });
-                ResolvedValue::FieldElementArray(result)
-            }
-        }
-    }
-
-    fn enforce_struct_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        variable: Variable,
-        members: Vec<StructMember>,
-    ) -> ResolvedValue {
+        variable: Variable<F>,
+        members: Vec<StructMember<F>>,
+    ) -> ResolvedValue<F> {
         if let Some(resolved_value) = self.get_mut_variable(&variable) {
             match resolved_value {
                 ResolvedValue::StructDefinition(struct_definition) => {
@@ -577,29 +642,24 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_index<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        index: FieldExpression,
-    ) -> usize {
-        match self.enforce_field_expression(cs, scope.clone(), index) {
-            ResolvedValue::FieldElement(number) => number.value.unwrap() as usize,
+    fn enforce_index(&mut self, cs: &mut CS, scope: String, index: IntegerExpression<F>) -> usize {
+        match self.enforce_integer_expression(cs, scope.clone(), index) {
+            ResolvedValue::U32(number) => number.value.unwrap() as usize,
             value => unimplemented!("From index must resolve to a uint32, got {}", value),
         }
     }
 
-    fn enforce_array_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_array_access_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        array: Box<Expression>,
-        index: FieldRangeOrExpression,
-    ) -> ResolvedValue {
+        array: Box<Expression<F>>,
+        index: IntegerRangeOrExpression<F>,
+    ) -> ResolvedValue<F> {
         match self.enforce_expression(cs, scope.clone(), *array) {
-            ResolvedValue::FieldElementArray(field_array) => {
+            ResolvedValue::U32Array(field_array) => {
                 match index {
-                    FieldRangeOrExpression::Range(from, to) => {
+                    IntegerRangeOrExpression::Range(from, to) => {
                         let from_resolved = match from {
                             Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
                             None => 0usize, // Array slice starts at index 0
@@ -608,19 +668,17 @@ impl ResolvedProgram {
                             Some(to_index) => self.enforce_index(cs, scope.clone(), to_index),
                             None => field_array.len(), // Array slice ends at array length
                         };
-                        ResolvedValue::FieldElementArray(
-                            field_array[from_resolved..to_resolved].to_owned(),
-                        )
+                        ResolvedValue::U32Array(field_array[from_resolved..to_resolved].to_owned())
                     }
-                    FieldRangeOrExpression::FieldExpression(index) => {
+                    IntegerRangeOrExpression::Expression(index) => {
                         let index_resolved = self.enforce_index(cs, scope.clone(), index);
-                        ResolvedValue::FieldElement(field_array[index_resolved].to_owned())
+                        ResolvedValue::U32(field_array[index_resolved].to_owned())
                     }
                 }
             }
             ResolvedValue::BooleanArray(bool_array) => {
                 match index {
-                    FieldRangeOrExpression::Range(from, to) => {
+                    IntegerRangeOrExpression::Range(from, to) => {
                         let from_resolved = match from {
                             Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
                             None => 0usize, // Array slice starts at index 0
@@ -633,7 +691,7 @@ impl ResolvedProgram {
                             bool_array[from_resolved..to_resolved].to_owned(),
                         )
                     }
-                    FieldRangeOrExpression::FieldExpression(index) => {
+                    IntegerRangeOrExpression::Expression(index) => {
                         let index_resolved = self.enforce_index(cs, scope.clone(), index);
                         ResolvedValue::Boolean(bool_array[index_resolved].to_owned())
                     }
@@ -643,13 +701,13 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_struct_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_struct_access_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        struct_variable: Box<Expression>,
-        struct_member: Variable,
-    ) -> ResolvedValue {
+        struct_variable: Box<Expression<F>>,
+        struct_member: Variable<F>,
+    ) -> ResolvedValue<F> {
         match self.enforce_expression(cs, scope.clone(), *struct_variable) {
             ResolvedValue::StructExpression(_name, members) => {
                 let matched_member = members
@@ -657,38 +715,38 @@ impl ResolvedProgram {
                     .find(|member| member.variable == struct_member);
                 match matched_member {
                     Some(member) => self.enforce_expression(cs, scope.clone(), member.expression),
-                    None => unimplemented!("Cannot access struct member {}", struct_member.0),
+                    None => unimplemented!("Cannot access struct member {}", struct_member.name),
                 }
             }
             value => unimplemented!("Cannot access element of untyped struct {}", value),
         }
     }
 
-    fn enforce_function_access_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_function_access_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Box<Expression>,
-        arguments: Vec<Expression>,
-    ) -> ResolvedValue {
+        function: Box<Expression<F>>,
+        arguments: Vec<Expression<F>>,
+    ) -> ResolvedValue<F> {
         match self.enforce_expression(cs, scope, *function) {
             ResolvedValue::Function(function) => self.enforce_function(cs, function, arguments),
             value => unimplemented!("Cannot call unknown function {}", value),
         }
     }
 
-    fn enforce_expression<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_expression(
         &mut self,
         cs: &mut CS,
         scope: String,
-        expression: Expression,
-    ) -> ResolvedValue {
+        expression: Expression<F>,
+    ) -> ResolvedValue<F> {
         match expression {
             Expression::Boolean(boolean_expression) => {
                 self.enforce_boolean_expression(cs, scope, boolean_expression)
             }
-            Expression::FieldElement(field_expression) => {
-                self.enforce_field_expression(cs, scope, field_expression)
+            Expression::Integer(field_expression) => {
+                self.enforce_integer_expression(cs, scope, field_expression)
             }
             Expression::Variable(unresolved_variable) => {
                 let variable_name = new_scope_from_variable(scope, &unresolved_variable);
@@ -714,11 +772,7 @@ impl ResolvedProgram {
                             unresolved_variable,
                         ))
                     } else {
-                        ResolvedValue::FieldElement(self.u32_from_variable(
-                            cs,
-                            variable_name,
-                            unresolved_variable,
-                        ))
+                        self.integer_from_variable(cs, variable_name, unresolved_variable)
                     }
                 }
             }
@@ -734,10 +788,11 @@ impl ResolvedProgram {
             Expression::FunctionCall(function, arguments) => {
                 self.enforce_function_access_expression(cs, scope, function, arguments)
             }
+            expression => unimplemented!("expression not impl {}", expression),
         }
     }
 
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee) -> String {
+    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
         match assignee {
             Assignee::Variable(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
@@ -747,12 +802,12 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_definition_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_definition_statement(
         &mut self,
         cs: &mut CS,
         scope: String,
-        assignee: Assignee,
-        expression: Expression,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
     ) {
         // Create or modify the lhs variable in the current function scope
         match assignee {
@@ -774,16 +829,13 @@ impl ResolvedProgram {
 
                 // Resolve index so we know if we are assigning to a single value or a range of values
                 match index_expression {
-                    FieldRangeOrExpression::FieldExpression(index) => {
+                    IntegerRangeOrExpression::Expression(index) => {
                         let index = self.enforce_index(cs, scope.clone(), index);
 
                         // Modify the single value of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match (value, result) {
-                                (
-                                    ResolvedValue::FieldElementArray(old),
-                                    ResolvedValue::FieldElement(new),
-                                ) => {
+                                (ResolvedValue::U32Array(old), ResolvedValue::U32(new)) => {
                                     old[index] = new.to_owned();
                                 }
                                 (ResolvedValue::BooleanArray(old), ResolvedValue::Boolean(new)) => {
@@ -799,7 +851,7 @@ impl ResolvedProgram {
                             ),
                         }
                     }
-                    FieldRangeOrExpression::Range(from, to) => {
+                    IntegerRangeOrExpression::Range(from, to) => {
                         let from_index = match from {
                             Some(expression) => self.enforce_index(cs, scope.clone(), expression),
                             None => 0usize,
@@ -814,10 +866,7 @@ impl ResolvedProgram {
                         // Modify the range of values of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match (value, result) {
-                                (
-                                    ResolvedValue::FieldElementArray(old),
-                                    ResolvedValue::FieldElementArray(new),
-                                ) => {
+                                (ResolvedValue::U32Array(old), ResolvedValue::U32Array(new)) => {
                                     let to_index = to_index_option.unwrap_or(old.len());
                                     old.splice(from_index..to_index, new.iter().cloned());
                                 }
@@ -873,26 +922,21 @@ impl ResolvedProgram {
         };
     }
 
-    fn enforce_return_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_return_statement(
         &mut self,
         cs: &mut CS,
         scope: String,
-        statements: Vec<Expression>,
-    ) -> ResolvedValue {
+        statements: Vec<Expression<F>>,
+    ) -> ResolvedValue<F> {
         ResolvedValue::Return(
             statements
                 .into_iter()
                 .map(|expression| self.enforce_expression(cs, scope.clone(), expression))
-                .collect::<Vec<ResolvedValue>>(),
+                .collect::<Vec<ResolvedValue<F>>>(),
         )
     }
 
-    fn enforce_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        statement: Statement,
-    ) {
+    fn enforce_statement(&mut self, cs: &mut CS, scope: String, statement: Statement<F>) {
         match statement {
             Statement::Definition(variable, expression) => {
                 self.enforce_definition_statement(cs, scope, variable, expression);
@@ -907,14 +951,14 @@ impl ResolvedProgram {
         };
     }
 
-    fn enforce_for_statement<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_for_statement(
         &mut self,
         cs: &mut CS,
         scope: String,
-        index: Variable,
-        start: FieldExpression,
-        stop: FieldExpression,
-        statements: Vec<Statement>,
+        index: Variable<F>,
+        start: IntegerExpression<F>,
+        stop: IntegerExpression<F>,
+        statements: Vec<Statement<F>>,
     ) {
         let start_index = self.enforce_index(cs, scope.clone(), start);
         let stop_index = self.enforce_index(cs, scope.clone(), stop);
@@ -923,10 +967,7 @@ impl ResolvedProgram {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope_from_variable(scope.clone(), &index);
-            self.store(
-                index_name,
-                ResolvedValue::FieldElement(UInt32::constant(i as u32)),
-            );
+            self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
 
             // Evaluate statements
             statements
@@ -936,12 +977,12 @@ impl ResolvedProgram {
         }
     }
 
-    fn enforce_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    fn enforce_function(
         &mut self,
         cs: &mut CS,
-        function: Function,
-        arguments: Vec<Expression>,
-    ) -> ResolvedValue {
+        function: Function<F>,
+        arguments: Vec<Expression<F>>,
+    ) -> ResolvedValue<F> {
         // Make sure we are given the correct number of arguments
         if function.parameters.len() != arguments.len() {
             unimplemented!(
@@ -962,15 +1003,15 @@ impl ResolvedProgram {
 
                 // Check that argument is correct type
                 match parameter.ty.clone() {
-                    Type::FieldElement => {
+                    Type::U32 => {
                         match self.enforce_expression(cs, function.get_name(), argument) {
-                            ResolvedValue::FieldElement(field) => {
+                            ResolvedValue::U32(field) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
                                     function.get_name(),
                                     &parameter.variable,
                                 );
-                                self.store(variable_name, ResolvedValue::FieldElement(field));
+                                self.store(variable_name, ResolvedValue::U32(field));
                             }
                             argument => unimplemented!("expected field argument got {}", argument),
                         }
@@ -1030,11 +1071,7 @@ impl ResolvedProgram {
         return_values
     }
 
-    fn enforce_import<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        import: Import,
-    ) {
+    fn enforce_import(&mut self, cs: &mut CS, import: Import) {
         // println!("import: {}", import);
 
         // Resolve program file path
@@ -1056,11 +1093,7 @@ impl ResolvedProgram {
         // self.store(name, value)
     }
 
-    pub fn resolve_definitions<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        program: Program,
-    ) {
+    pub fn resolve_definitions(&mut self, cs: &mut CS, program: Program<F>) {
         program
             .imports
             .into_iter()
@@ -1079,10 +1112,7 @@ impl ResolvedProgram {
             });
     }
 
-    pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-        cs: &mut CS,
-        program: Program,
-    ) {
+    pub fn generate_constraints(cs: &mut CS, program: Program<F>) {
         let mut resolved_program = ResolvedProgram::new();
 
         resolved_program.resolve_definitions(cs, program);

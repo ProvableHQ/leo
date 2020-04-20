@@ -1,4 +1,5 @@
-from "./simple_import" import foo
+from "./simple_import" import Point
 
-def main() -> (field):
-    return foo()
+def main() -> (Point):
+    Point p = Point { x: 1u32, y: 2u32}
+    return p
