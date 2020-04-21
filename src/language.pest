@@ -49,7 +49,7 @@ operation_binary = _ {
 
 /// Types
 ty_u32 = {"u32"}
-ty_field = {"field"}
+ty_field = {"fe"}
 ty_bool = {"bool"}
 ty_basic = { ty_u32 | ty_field | ty_bool }
 ty_struct = { variable }

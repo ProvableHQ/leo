@@ -5,9 +5,10 @@
 //! @date 2020
 
 use crate::aleo_program::{
-    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, Function, FunctionName,
-    Integer, IntegerExpression, IntegerRangeOrExpression, IntegerSpreadOrExpression, Parameter,
-    Statement, Struct, StructField, Type, Variable,
+    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
+    FieldSpreadOrExpression, Function, FunctionName, Integer, IntegerExpression,
+    IntegerRangeOrExpression, IntegerSpreadOrExpression, Parameter, Statement, Struct, StructField,
+    Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -41,6 +42,22 @@ impl<F: Field + PrimeField> fmt::Display for IntegerSpreadOrExpression<F> {
     }
 }
 
+impl<'ast, F: Field + PrimeField> fmt::Display for IntegerRangeOrExpression<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            IntegerRangeOrExpression::Range(ref from, ref to) => write!(
+                f,
+                "{}..{}",
+                from.as_ref()
+                    .map(|e| e.to_string())
+                    .unwrap_or("".to_string()),
+                to.as_ref().map(|e| e.to_string()).unwrap_or("".to_string())
+            ),
+            IntegerRangeOrExpression::Expression(ref e) => write!(f, "{}", e),
+        }
+    }
+}
+
 impl<'ast, F: Field + PrimeField> fmt::Display for IntegerExpression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -68,6 +85,42 @@ impl<'ast, F: Field + PrimeField> fmt::Display for IntegerExpression<F> {
     }
 }
 
+impl<F: Field + PrimeField> fmt::Display for FieldSpreadOrExpression<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FieldSpreadOrExpression::Spread(ref spread) => write!(f, "...{}", spread),
+            FieldSpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> fmt::Display for FieldExpression<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FieldExpression::Variable(ref variable) => write!(f, "{}", variable),
+            FieldExpression::Number(ref number) => write!(f, "{}", number),
+            FieldExpression::Add(ref lhs, ref rhs) => write!(f, "{} + {}", lhs, rhs),
+            FieldExpression::Sub(ref lhs, ref rhs) => write!(f, "{} - {}", lhs, rhs),
+            FieldExpression::Mul(ref lhs, ref rhs) => write!(f, "{} * {}", lhs, rhs),
+            FieldExpression::Div(ref lhs, ref rhs) => write!(f, "{} / {}", lhs, rhs),
+            FieldExpression::Pow(ref lhs, ref rhs) => write!(f, "{} ** {}", lhs, rhs),
+            FieldExpression::IfElse(ref a, ref b, ref c) => {
+                write!(f, "if {} then {} else {} fi", a, b, c)
+            }
+            FieldExpression::Array(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e)?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            } // _ => unimplemented!("not all field expressions can be displayed")
+        }
+    }
+}
+
 impl<F: Field + PrimeField> fmt::Display for BooleanSpreadOrExpression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -86,6 +139,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for BooleanExpression<F> {
             BooleanExpression::Or(ref lhs, ref rhs) => write!(f, "{} || {}", lhs, rhs),
             BooleanExpression::And(ref lhs, ref rhs) => write!(f, "{} && {}", lhs, rhs),
             BooleanExpression::BoolEq(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
+            BooleanExpression::IntegerEq(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
             BooleanExpression::FieldEq(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
             // BooleanExpression::Neq(ref lhs, ref rhs) => write!(f, "{} != {}", lhs, rhs),
             BooleanExpression::Geq(ref lhs, ref rhs) => write!(f, "{} >= {}", lhs, rhs),
@@ -109,29 +163,11 @@ impl<'ast, F: Field + PrimeField> fmt::Display for BooleanExpression<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for IntegerRangeOrExpression<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            IntegerRangeOrExpression::Range(ref from, ref to) => write!(
-                f,
-                "{}..{}",
-                from.as_ref()
-                    .map(|e| e.to_string())
-                    .unwrap_or("".to_string()),
-                to.as_ref().map(|e| e.to_string()).unwrap_or("".to_string())
-            ),
-            IntegerRangeOrExpression::Expression(ref e) => write!(f, "{}", e),
-        }
-    }
-}
-
 impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Expression::Integer(ref integer_expression) => write!(f, "{}", integer_expression),
-            Expression::FieldElement(ref _field_expression) => {
-                unimplemented!("field elem not impl ")
-            }
+            Expression::FieldElement(ref field_expression) => write!(f, "{}", field_expression),
             Expression::Boolean(ref boolean_expression) => write!(f, "{}", boolean_expression),
             Expression::Variable(ref variable) => write!(f, "{}", variable),
             Expression::Struct(ref var, ref members) => {

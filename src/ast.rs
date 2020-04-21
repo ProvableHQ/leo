@@ -99,15 +99,15 @@ pub struct U32Type<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_bool))]
-pub struct BooleanType<'ast> {
+#[pest_ast(rule(Rule::ty_field))]
+pub struct FieldType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_field))]
-pub struct FieldType<'ast> {
+#[pest_ast(rule(Rule::ty_bool))]
+pub struct BooleanType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -197,7 +197,7 @@ impl<'ast> fmt::Display for U32<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub ty: U32Type<'ast>,
+    pub ty: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

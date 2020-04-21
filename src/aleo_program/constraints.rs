@@ -1,7 +1,8 @@
 use crate::aleo_program::{
-    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, Function, Import, Integer,
-    IntegerExpression, IntegerRangeOrExpression, IntegerSpreadOrExpression, Program, Statement,
-    Struct, StructMember, Type, Variable,
+    Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
+    FieldSpreadOrExpression, Function, Import, Integer, IntegerExpression,
+    IntegerRangeOrExpression, IntegerSpreadOrExpression, Program, Statement, Struct, StructMember,
+    Type, Variable,
 };
 use crate::ast;
 
@@ -16,13 +17,16 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 use std::marker::PhantomData;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Clone)]
 pub enum ResolvedValue<F: Field + PrimeField> {
-    Boolean(Boolean),
-    BooleanArray(Vec<Boolean>),
     U32(UInt32),
     U32Array(Vec<UInt32>),
+    FieldElement(F),
+    FieldElementArray(Vec<F>),
+    Boolean(Boolean),
+    BooleanArray(Vec<Boolean>),
     StructDefinition(Struct<F>),
     StructExpression(Variable<F>, Vec<StructMember<F>>),
     Function(Function<F>),
@@ -32,22 +36,33 @@ pub enum ResolvedValue<F: Field + PrimeField> {
 impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ResolvedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
-            ResolvedValue::BooleanArray(ref array) => {
+            ResolvedValue::U32(ref value) => write!(f, "{}", value.value.unwrap()),
+            ResolvedValue::U32Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
-                    write!(f, "{}", e.get_value().unwrap())?;
+                    write!(f, "{}", e.value.unwrap())?;
                     if i < array.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }
                 write!(f, "]")
             }
-            ResolvedValue::U32(ref value) => write!(f, "{}", value.value.unwrap()),
-            ResolvedValue::U32Array(ref array) => {
+            ResolvedValue::FieldElement(ref value) => write!(f, "{}", value),
+            ResolvedValue::FieldElementArray(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
-                    write!(f, "{}", e.value.unwrap())?;
+                    write!(f, "{}", e)?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
+            ResolvedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
+            ResolvedValue::BooleanArray(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e.get_value().unwrap())?;
                     if i < array.len() - 1 {
                         write!(f, ", ")?;
                     }
@@ -182,7 +197,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 self.integer_from_variable(cs, scope, variable)
             }
             IntegerExpression::Number(number) => Self::get_integer_constant(number),
-            field => self.enforce_integer_expression(cs, scope, field),
+            expression => self.enforce_integer_expression(cs, scope, expression),
         }
     }
 
@@ -227,7 +242,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_add(
+    fn enforce_integer_add(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -257,7 +272,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_sub(
+    fn enforce_integer_sub(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -287,7 +302,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_mul(
+    fn enforce_integer_mul(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -317,7 +332,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_div(
+    fn enforce_integer_div(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -353,7 +368,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_pow(
+    fn enforce_integer_pow(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -384,11 +399,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 self.integer_from_variable(cs, scope, variable)
             }
             IntegerExpression::Number(number) => Self::get_integer_constant(number),
-            IntegerExpression::Add(left, right) => self.enforce_add(cs, scope, *left, *right),
-            IntegerExpression::Sub(left, right) => self.enforce_sub(cs, scope, *left, *right),
-            IntegerExpression::Mul(left, right) => self.enforce_mul(cs, scope, *left, *right),
-            IntegerExpression::Div(left, right) => self.enforce_div(cs, scope, *left, *right),
-            IntegerExpression::Pow(left, right) => self.enforce_pow(cs, scope, *left, *right),
+            IntegerExpression::Add(left, right) => {
+                self.enforce_integer_add(cs, scope, *left, *right)
+            }
+            IntegerExpression::Sub(left, right) => {
+                self.enforce_integer_sub(cs, scope, *left, *right)
+            }
+            IntegerExpression::Mul(left, right) => {
+                self.enforce_integer_mul(cs, scope, *left, *right)
+            }
+            IntegerExpression::Div(left, right) => {
+                self.enforce_integer_div(cs, scope, *left, *right)
+            }
+            IntegerExpression::Pow(left, right) => {
+                self.enforce_integer_pow(cs, scope, *left, *right)
+            }
             IntegerExpression::IfElse(first, second, third) => {
                 let resolved_first =
                     match self.enforce_boolean_expression(cs, scope.clone(), *first) {
@@ -434,6 +459,190 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     }
                 });
                 ResolvedValue::U32Array(result)
+            }
+        }
+    }
+
+    /// Constrain field elements
+
+    fn field_from_variable(&mut self, _cs: &mut CS, scope: String, variable: Variable<F>) -> F {
+        // Evaluate variable name in current function scope
+        let variable_name = new_scope_from_variable(scope, &variable);
+
+        if self.contains_name(&variable_name) {
+            // TODO: return synthesis error: "assignment missing" here
+            match self.get(&variable_name).unwrap() {
+                ResolvedValue::FieldElement(field) => field.clone(),
+                value => unimplemented!("expected field element, got {}", value),
+            }
+        } else {
+            // TODO: remove this after resolving arguments
+            let argument = std::env::args()
+                .nth(1)
+                .unwrap_or("1".into())
+                .parse::<u32>()
+                .unwrap();
+
+            println!(" argument passed to command line a = {:?}\n", argument);
+
+            // let a = 1;
+            F::default()
+        }
+    }
+
+    fn get_field_value(&mut self, cs: &mut CS, scope: String, expression: FieldExpression<F>) -> F {
+        match expression {
+            FieldExpression::Variable(variable) => self.field_from_variable(cs, scope, variable),
+            FieldExpression::Number(element) => element,
+            expression => match self.enforce_field_expression(cs, scope, expression) {
+                ResolvedValue::FieldElement(element) => element,
+                value => unimplemented!("expected field element, got {}", value),
+            },
+        }
+    }
+
+    fn enforce_field_equality(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: FieldExpression<F>,
+        right: FieldExpression<F>,
+    ) -> Boolean {
+        let left = self.get_field_value(cs, scope.clone(), left);
+        let right = self.get_field_value(cs, scope.clone(), right);
+
+        Boolean::Constant(left.eq(&right))
+    }
+
+    fn enforce_field_add(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: FieldExpression<F>,
+        right: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_field_value(cs, scope.clone(), left);
+        let right = self.get_field_value(cs, scope.clone(), right);
+
+        ResolvedValue::FieldElement(left.add(&right))
+    }
+
+    fn enforce_field_sub(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: FieldExpression<F>,
+        right: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_field_value(cs, scope.clone(), left);
+        let right = self.get_field_value(cs, scope.clone(), right);
+
+        ResolvedValue::FieldElement(left.sub(&right))
+    }
+
+    fn enforce_field_mul(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: FieldExpression<F>,
+        right: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_field_value(cs, scope.clone(), left);
+        let right = self.get_field_value(cs, scope.clone(), right);
+
+        ResolvedValue::FieldElement(left.mul(&right))
+    }
+
+    fn enforce_field_div(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        left: FieldExpression<F>,
+        right: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        let left = self.get_field_value(cs, scope.clone(), left);
+        let right = self.get_field_value(cs, scope.clone(), right);
+
+        ResolvedValue::FieldElement(left.div(&right))
+    }
+
+    fn enforce_field_pow(
+        &mut self,
+        _cs: &mut CS,
+        _scope: String,
+        _left: FieldExpression<F>,
+        _right: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        unimplemented!("field element exponentiation not supported")
+        // let left = self.get_field_value(cs, scope.clone(), left);
+        // let right = self.get_field_value(cs, scope.clone(), right);
+        //
+        // ResolvedValue::FieldElement(left.pow(&right))
+    }
+
+    fn enforce_field_expression(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        expression: FieldExpression<F>,
+    ) -> ResolvedValue<F> {
+        match expression {
+            FieldExpression::Variable(variable) => {
+                ResolvedValue::FieldElement(self.field_from_variable(cs, scope, variable))
+            }
+            FieldExpression::Number(field) => ResolvedValue::FieldElement(field),
+            FieldExpression::Add(left, right) => self.enforce_field_add(cs, scope, *left, *right),
+            FieldExpression::Sub(left, right) => self.enforce_field_sub(cs, scope, *left, *right),
+            FieldExpression::Mul(left, right) => self.enforce_field_mul(cs, scope, *left, *right),
+            FieldExpression::Div(left, right) => self.enforce_field_div(cs, scope, *left, *right),
+            FieldExpression::Pow(left, right) => self.enforce_field_pow(cs, scope, *left, *right),
+            FieldExpression::IfElse(first, second, third) => {
+                let resolved_first =
+                    match self.enforce_boolean_expression(cs, scope.clone(), *first) {
+                        ResolvedValue::Boolean(resolved) => resolved,
+                        _ => unimplemented!("if else conditional must resolve to boolean"),
+                    };
+
+                if resolved_first.eq(&Boolean::Constant(true)) {
+                    self.enforce_field_expression(cs, scope, *second)
+                } else {
+                    self.enforce_field_expression(cs, scope, *third)
+                }
+            }
+            FieldExpression::Array(array) => {
+                let mut result = vec![];
+                array.into_iter().for_each(|element| match *element {
+                    FieldSpreadOrExpression::Spread(spread) => match spread {
+                        FieldExpression::Variable(variable) => {
+                            let array_name = new_scope_from_variable(scope.clone(), &variable);
+                            match self.get(&array_name) {
+                                Some(value) => match value {
+                                    ResolvedValue::FieldElementArray(array) => {
+                                        result.extend(array.clone())
+                                    }
+                                    value => unimplemented!(
+                                        "spreads only implemented for arrays, got {}",
+                                        value
+                                    ),
+                                },
+                                None => unimplemented!(
+                                    "cannot copy elements from array that does not exist {}",
+                                    variable.name
+                                ),
+                            }
+                        }
+                        value => {
+                            unimplemented!("spreads only implemented for arrays, got {}", value)
+                        }
+                    },
+                    FieldSpreadOrExpression::Expression(expression) => {
+                        match self.enforce_field_expression(cs, scope.clone(), expression) {
+                            ResolvedValue::FieldElement(value) => result.push(value),
+                            _ => unimplemented!("cannot resolve field"),
+                        }
+                    }
+                });
+                ResolvedValue::FieldElementArray(result)
             }
         }
     }
@@ -549,11 +758,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             BooleanExpression::And(left, right) => {
                 ResolvedValue::Boolean(self.enforce_and(cs, scope, *left, *right))
             }
-            BooleanExpression::BoolEq(left, right) => {
-                ResolvedValue::Boolean(self.enforce_bool_equality(cs, scope, *left, *right))
+            BooleanExpression::IntegerEq(left, right) => {
+                ResolvedValue::Boolean(self.enforce_integer_equality(cs, scope, *left, *right))
             }
             BooleanExpression::FieldEq(left, right) => {
-                ResolvedValue::Boolean(self.enforce_integer_equality(cs, scope, *left, *right))
+                ResolvedValue::Boolean(self.enforce_field_equality(cs, scope, *left, *right))
+            }
+            BooleanExpression::BoolEq(left, right) => {
+                ResolvedValue::Boolean(self.enforce_bool_equality(cs, scope, *left, *right))
             }
             BooleanExpression::IfElse(first, second, third) => {
                 let resolved_first =
@@ -745,8 +957,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             Expression::Boolean(boolean_expression) => {
                 self.enforce_boolean_expression(cs, scope, boolean_expression)
             }
-            Expression::Integer(field_expression) => {
-                self.enforce_integer_expression(cs, scope, field_expression)
+            Expression::Integer(integer_expression) => {
+                self.enforce_integer_expression(cs, scope, integer_expression)
+            }
+            Expression::FieldElement(field_expression) => {
+                self.enforce_field_expression(cs, scope, field_expression)
             }
             Expression::Variable(unresolved_variable) => {
                 let variable_name = new_scope_from_variable(scope, &unresolved_variable);
@@ -787,8 +1002,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             }
             Expression::FunctionCall(function, arguments) => {
                 self.enforce_function_access_expression(cs, scope, function, arguments)
-            }
-            expression => unimplemented!("expression not impl {}", expression),
+            } // expression => unimplemented!("expression not impl {}", expression),
         }
     }
 

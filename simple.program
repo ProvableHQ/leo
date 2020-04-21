@@ -1,5 +1,4 @@
-from "./simple_import" import Point
-
-def main() -> (Point):
-    Point p = Point { x: 1u32, y: 2u32}
-    return p
+def main() -> (fe[2u32]):
+    // initialize an integer array with field values
+    fe[2u32] a = [1fe, 2fe]
+    return a
