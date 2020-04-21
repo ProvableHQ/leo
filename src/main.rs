@@ -1,24 +1,22 @@
 use leo::*;
 
+use snarkos_algorithms::snark::{
+    create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
+};
+use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_errors::gadgets::SynthesisError;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem}
+};
+
 use from_pest::FromPest;
+use rand::thread_rng;
 use std::{
     fs,
     marker::PhantomData,
     time::{Duration, Instant},
 };
-
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem};
-
-use snarkos_algorithms::snark::{
-    create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
-};
-
-use rand::thread_rng;
-
-// use std::env;
 
 pub struct Benchmark<F: Field + PrimeField> {
     _engine: PhantomData<F>,
