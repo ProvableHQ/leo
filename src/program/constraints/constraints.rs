@@ -4,9 +4,9 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
+use crate::ast;
 use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::program::{Expression, Function, Import, Program, Statement, Type};
-use crate::ast;
 
 use from_pest::FromPest;
 use snarkos_models::curves::{Field, PrimeField};

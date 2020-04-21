@@ -38,7 +38,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         // Read in file as string
         let unparsed_file = fs::read_to_string("simple.leo").expect("cannot read file");
 
-        // Parse the file using langauge.pest
+        // Parse the file using leo.pest
         let mut file = ast::parse(&unparsed_file).expect("unsuccessful parse");
 
         // Build the abstract syntax tree
@@ -65,8 +65,8 @@ fn main() {
     let start = Instant::now();
 
     let params = {
-        let c = Benchmark::<Fr>::new();
-        generate_random_parameters::<Bls12_377, _, _>(c, rng).unwrap()
+        let circuit = Benchmark::<Fr>::new();
+        generate_random_parameters::<Bls12_377, _, _>(circuit, rng).unwrap()
     };
 
     let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&params.vk);
