@@ -1,4 +1,4 @@
-use language::*;
+use leo::*;
 
 use from_pest::FromPest;
 use std::{

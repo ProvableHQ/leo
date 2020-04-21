@@ -1,15 +1,15 @@
 [package]
-name = "language"
+name = "leo"
 version = "0.1.0"
-authors = ["howardwu <howardwu@berkeley.edu>"]
+authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
 [lib]
-name = "language"
+name = "leo"
 path = "src/lib.rs"
 
 [[bin]]
-name = "snarkLang"
+name = "leo"
 path = "src/main.rs"
 
 [dependencies]
