@@ -85,13 +85,16 @@ fn main() {
 
     let start = Instant::now();
 
-    let _ = verify_proof(&prepared_verifying_key, &proof, &[]).unwrap();
+    let is_success = verify_proof(&prepared_verifying_key, &proof, &[]).unwrap();
 
     verifying += start.elapsed();
 
-    println!("  Setup time    : {:?} seconds", setup.as_secs());
-    println!("  Proving time  : {:?} seconds", proving.as_secs());
-    println!("  Verifying time: {:?} seconds", verifying.as_secs());
+    println!(" ");
+    println!("  Setup time      : {:?} milliseconds", setup.as_millis());
+    println!("  Prover time     : {:?} milliseconds", proving.as_millis());
+    println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
+    println!("  Verifier output : {}", is_success);
+    println!(" ");
 
     // let mut cs = TestConstraintSystem::<Fr>::new();
     //
