@@ -38,7 +38,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
         // Read in file as string
-        let unparsed_file = fs::read_to_string("simple.program").expect("cannot read file");
+        let unparsed_file = fs::read_to_string("simple.leo").expect("cannot read file");
 
         // Parse the file using langauge.pest
         let mut file = ast::parse(&unparsed_file).expect("unsuccessful parse");
