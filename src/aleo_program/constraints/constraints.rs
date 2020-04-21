@@ -1,3 +1,9 @@
+//! Methods to enforce constraints a resolved aleo program.
+//!
+//! @file constraints.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
 use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::aleo_program::{Expression, Function, Import, Program, Statement, Type};
 use crate::ast;

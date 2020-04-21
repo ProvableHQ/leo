@@ -1,3 +1,9 @@
+//! Methods to enforce constraints on booleans in a resolved aleo program.
+//!
+//! @file boolean.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
 use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::aleo_program::{BooleanExpression, BooleanSpreadOrExpression, Variable};
 

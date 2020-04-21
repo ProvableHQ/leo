@@ -1,3 +1,9 @@
+//! The in memory stored value for a defined name in a resolved aleo program.
+//!
+//! @file resolved_value.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
 use crate::aleo_program::types::{Function, Struct, StructMember, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};

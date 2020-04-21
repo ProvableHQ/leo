@@ -1,3 +1,9 @@
+//! An in memory store to keep track of defined names when constraining an aleo program.
+//!
+//! @file resolved_program.rs
+//! @author Collin Chin <collin@aleo.org>
+//! @date 2020
+
 use crate::aleo_program::constraints::ResolvedValue;
 use crate::aleo_program::types::Variable;
 
