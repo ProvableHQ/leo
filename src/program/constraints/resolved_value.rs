@@ -4,7 +4,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::types::{Function, Struct, StructMember, Variable};
+use crate::program::types::{Function, Struct, StructMember, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};

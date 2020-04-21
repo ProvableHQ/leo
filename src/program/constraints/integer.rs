@@ -4,8 +4,8 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::aleo_program::{Integer, IntegerExpression, IntegerSpreadOrExpression, Variable};
+use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
+use crate::program::{Integer, IntegerExpression, IntegerSpreadOrExpression, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{

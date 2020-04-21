@@ -4,7 +4,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::{
+use crate::program::{
     Assignee, BooleanExpression, BooleanSpreadOrExpression, Expression, FieldExpression,
     FieldSpreadOrExpression, Function, FunctionName, Integer, IntegerExpression,
     IntegerRangeOrExpression, IntegerSpreadOrExpression, Parameter, Statement, Struct, StructField,
