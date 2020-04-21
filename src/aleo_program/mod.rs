@@ -1,6 +1,6 @@
-//! Module containing structs and types that make up a zokrates_program.
+//! Module containing structs and types that make up an aleo program.
 //!
-//! @file zokrates_program.rs
+//! @file aleo_program/mod.rs
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
