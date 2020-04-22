@@ -5,7 +5,9 @@
 //! @date 2020
 
 use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::aleo_program::{BooleanExpression, BooleanSpreadOrExpression, Variable};
+use crate::aleo_program::{
+    new_variable_from_variable, BooleanExpression, BooleanSpreadOrExpression, Parameter, Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{
@@ -14,6 +16,86 @@ use snarkos_models::gadgets::{
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+    pub(crate) fn bool_from_parameter(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        index: usize,
+        parameter: Parameter<F>,
+    ) -> Variable<F> {
+        // Get command line argument for each parameter in program
+        let argument = std::env::args()
+            .nth(index)
+            .expect(&format!(
+                "expected command line argument at index {}",
+                index
+            ))
+            .parse::<bool>()
+            .expect(&format!(
+                "expected main function parameter {} at index {}",
+                parameter, index
+            ));
+
+        // Check visibility of parameter
+        let name = parameter.variable.name.clone();
+        let number = if parameter.private {
+            Boolean::alloc(cs.ns(|| name), || Ok(argument)).unwrap()
+        } else {
+            Boolean::alloc_input(cs.ns(|| name), || Ok(argument)).unwrap()
+        };
+
+        let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+
+        // store each argument as variable in resolved program
+        self.store_variable(parameter_variable.clone(), ResolvedValue::Boolean(number));
+
+        parameter_variable
+    }
+
+
+    pub(crate) fn boolean_array_from_parameter(
+        &mut self,
+        _cs: &mut CS,
+        _scope: String,
+        _index: usize,
+        _parameter: Parameter<F>,
+    ) -> Variable<F> {
+        unimplemented!("Cannot enforce boolean array as parameter")
+        // // Get command line argument for each parameter in program
+        // let argument_array = std::env::args()
+        //     .nth(index)
+        //     .expect(&format!(
+        //         "expected command line argument at index {}",
+        //         index
+        //     ))
+        //     .parse::<Vec<bool>>()
+        //     .expect(&format!(
+        //         "expected main function parameter {} at index {}",
+        //         parameter, index
+        //     ));
+        //
+        // // Check visibility of parameter
+        // let mut array_value = vec![];
+        // let name = parameter.variable.name.clone();
+        // for argument in argument_array {
+        //     let number = if parameter.private {
+        //         Boolean::alloc(cs.ns(|| name), || Ok(argument)).unwrap()
+        //     } else {
+        //         Boolean::alloc_input(cs.ns(|| name), || Ok(argument)).unwrap()
+        //     };
+        //
+        //     array_value.push(number);
+        // }
+        //
+        //
+        // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+        //
+        // // store array as variable in resolved program
+        // self.store_variable(parameter_variable.clone(), ResolvedValue::BooleanArray(array_value));
+        //
+        // parameter_variable
+    }
+
     pub(crate) fn bool_from_variable(
         &mut self,
         cs: &mut CS,

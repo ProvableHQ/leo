@@ -28,6 +28,16 @@ pub fn new_scope_from_variable<F: Field + PrimeField>(
     new_scope(outer, inner.name.clone())
 }
 
+pub fn new_variable_from_variable<F: Field + PrimeField>(
+    outer: String,
+    inner: &Variable<F>,
+) -> Variable<F> {
+    Variable {
+        name: new_scope_from_variable(outer, inner),
+        _field: PhantomData::<F>,
+    }
+}
+
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub fn new() -> Self {
         Self {

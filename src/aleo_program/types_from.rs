@@ -804,7 +804,7 @@ impl<'ast, F: Field + PrimeField> From<ast::BasicType<'ast>> for types::Type<F> 
     fn from(basic_type: ast::BasicType<'ast>) -> Self {
         match basic_type {
             ast::BasicType::U32(_ty) => types::Type::U32,
-            ast::BasicType::Field(_ty) => types::Type::U32,
+            ast::BasicType::Field(_ty) => types::Type::FieldElement,
             ast::BasicType::Boolean(_ty) => types::Type::Boolean,
         }
     }
@@ -870,30 +870,25 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 
 /// pest ast -> function types::Parameters
 
-impl From<ast::Visibility> for types::Visibility {
-    fn from(visibility: ast::Visibility) -> Self {
-        match visibility {
-            ast::Visibility::Private(_private) => types::Visibility::Private,
-            ast::Visibility::Public(_public) => types::Visibility::Public,
-        }
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Parameter<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let ty = types::Type::from(parameter.ty);
+        println!("type {}", ty);
         let variable = types::Variable::from(parameter.variable);
 
         if parameter.visibility.is_some() {
-            let visibility = Some(types::Visibility::from(parameter.visibility.unwrap()));
+            let private = match parameter.visibility.unwrap() {
+                ast::Visibility::Private(_) => true,
+                ast::Visibility::Public(_) => false,
+            };
             types::Parameter {
-                visibility,
+                private,
                 ty,
                 variable,
             }
         } else {
             types::Parameter {
-                visibility: None,
+                private: true,
                 ty,
                 variable,
             }

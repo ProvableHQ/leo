@@ -36,8 +36,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .iter()
             .zip(arguments.clone().into_iter())
             .for_each(|(parameter, argument)| {
-                // Check visibility here
-
+                println!("argument: {}", argument);
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::U32 => {
@@ -50,7 +49,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                                 );
                                 self.store(variable_name, ResolvedValue::U32(number));
                             }
-                            argument => unimplemented!("expected field argument got {}", argument),
+                            argument => {
+                                unimplemented!("expected integer argument got {}", argument)
+                            }
                         }
                     }
                     Type::FieldElement => {
@@ -121,6 +122,36 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         return_values
     }
 
+    fn enforce_main_function(&mut self, cs: &mut CS, function: Function<F>) -> ResolvedValue<F> {
+        let mut arguments = vec![];
+
+        // Iterate over main function parameters
+        function
+            .parameters
+            .clone()
+            .into_iter()
+            .enumerate()
+            .for_each(|(i, parameter)| {
+                // append each variable to arguments vector
+                arguments.push(Expression::Variable(match parameter.ty {
+                    Type::U32 => self.integer_from_parameter(cs, function.get_name(), i + 1, parameter),
+                    Type::FieldElement => self.field_element_from_parameter(cs, function.get_name(), i + 1, parameter),
+                    Type::Boolean => self.bool_from_parameter(cs, function.get_name(), i + 1, parameter),
+                    Type::Array(ref ty, _length) => {
+                        match *ty.clone() {
+                            Type::U32 => self.integer_array_from_parameter(cs, function.get_name(), i + 1, parameter),
+                            Type::FieldElement => self.field_element_array_from_parameter(cs, function.get_name(), i + 1, parameter),
+                            Type::Boolean => self.boolean_array_from_parameter(cs, function.get_name(), i + 1, parameter),
+                            ty => unimplemented!("parameter type not implemented {}", ty)
+                        }
+                    }
+                    ty => unimplemented!("parameter type not implemented {}", ty),
+                }))
+            });
+
+        self.enforce_function(cs, function, arguments)
+    }
+
     fn enforce_import(&mut self, cs: &mut CS, import: Import) {
         // Resolve program file path
         let unparsed_file = fs::read_to_string(import.get_file()).expect("cannot read file");
@@ -169,7 +200,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
         let result = match main.clone() {
             ResolvedValue::Function(function) => {
-                resolved_program.enforce_function(cs, function, vec![])
+                resolved_program.enforce_main_function(cs, function)
             }
             _ => unimplemented!("main must be a function"),
         };

@@ -185,7 +185,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             unresolved_variable,
                         ))
                     } else {
-                        self.integer_from_variable(cs, variable_name, unresolved_variable)
+                        self.integer_from_variable(variable_name, unresolved_variable)
                     }
                 }
             }

@@ -5,43 +5,117 @@
 //! @date 2020
 
 use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::aleo_program::{FieldExpression, FieldSpreadOrExpression, Variable};
+use crate::aleo_program::{
+    new_variable_from_variable, FieldExpression, FieldSpreadOrExpression, Parameter, Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean};
 // use std::ops::{Add, Div, Mul, Neg, Sub};
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
-    /// Constrain field elements
+    pub(crate) fn field_element_from_parameter(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        index: usize,
+        parameter: Parameter<F>,
+    ) -> Variable<F> {
+        // Get command line argument for each parameter in program
+        let argument: F = std::env::args()
+            .nth(index)
+            .expect(&format!(
+                "expected command line argument at index {}",
+                index
+            ))
+            .parse::<F>()
+            .unwrap_or_default();
 
-    fn field_from_variable(&mut self, _cs: &mut CS, scope: String, variable: Variable<F>) -> F {
+        // Check visibility of parameter
+        let name = parameter.variable.name.clone();
+        if parameter.private {
+            cs.alloc(|| name, || Ok(argument.clone())).unwrap();
+        } else {
+            cs.alloc_input(|| name, || Ok(argument.clone())).unwrap();
+        }
+
+        let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+
+        // store each argument as variable in resolved program
+        self.store_variable(
+            parameter_variable.clone(),
+            ResolvedValue::FieldElement(argument),
+        );
+
+        parameter_variable
+    }
+
+    pub(crate) fn field_element_array_from_parameter(
+        &mut self,
+        _cs: &mut CS,
+        _scope: String,
+        _index: usize,
+        _parameter: Parameter<F>,
+    ) -> Variable<F> {
+        unimplemented!("Cannot enforce field element array as parameter")
+
+        // // Get command line argument for each parameter in program
+        // let argument_array = std::env::args()
+        //     .nth(index)
+        //     .expect(&format!(
+        //         "expected command line argument at index {}",
+        //         index
+        //     ))
+        //     .parse::<Vec<F>>()
+        //     .expect(&format!(
+        //         "expected main function parameter {} at index {}",
+        //         parameter, index
+        //     ));
+        //
+        // // Check visibility of parameter
+        // let mut array_value = vec![];
+        // let name = parameter.variable.name.clone();
+        // for argument in argument_array {
+        //     if parameter.private {
+        //         cs.alloc(|| name, || Ok(argument.clone())).unwrap();
+        //     } else {
+        //         cs.alloc_input(|| name, || Ok(argument.clone())).unwrap();
+        //     };
+        // }
+        //
+        //
+        // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+        //
+        // // store array as variable in resolved program
+        // self.store_variable(parameter_variable.clone(), ResolvedValue::FieldElementArray(argument_array));
+        //
+        // parameter_variable
+    }
+
+    fn field_element_from_variable(&mut self, scope: String, variable: Variable<F>) -> F {
         // Evaluate variable name in current function scope
         let variable_name = new_scope_from_variable(scope, &variable);
 
         if self.contains_name(&variable_name) {
             // TODO: return synthesis error: "assignment missing" here
-            match self.get(&variable_name).unwrap() {
-                ResolvedValue::FieldElement(field) => field.clone(),
-                value => unimplemented!("expected field element, got {}", value),
+            match self.get(&variable_name).unwrap().clone() {
+                ResolvedValue::FieldElement(fe) => fe,
+                value => unimplemented!(
+                    "expected field element for variable {}, got {}",
+                    variable_name,
+                    value
+                ),
             }
         } else {
-            // TODO: remove this after resolving arguments
-            let argument = std::env::args()
-                .nth(1)
-                .unwrap_or("1".into())
-                .parse::<u32>()
-                .unwrap();
-
-            println!(" argument passed to command line a = {:?}\n", argument);
-
-            // let a = 1;
-            F::default()
+            unimplemented!("cannot resolve variable {} in program", variable_name)
         }
     }
 
     fn get_field_value(&mut self, cs: &mut CS, scope: String, expression: FieldExpression<F>) -> F {
         match expression {
-            FieldExpression::Variable(variable) => self.field_from_variable(cs, scope, variable),
+            FieldExpression::Variable(variable) => {
+                self.field_element_from_variable(scope, variable)
+            }
             FieldExpression::Number(element) => element,
             expression => match self.enforce_field_expression(cs, scope, expression) {
                 ResolvedValue::FieldElement(element) => element,
@@ -137,7 +211,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     ) -> ResolvedValue<F> {
         match expression {
             FieldExpression::Variable(variable) => {
-                ResolvedValue::FieldElement(self.field_from_variable(cs, scope, variable))
+                ResolvedValue::FieldElement(self.field_element_from_variable(scope, variable))
             }
             FieldExpression::Number(field) => ResolvedValue::FieldElement(field),
             FieldExpression::Add(left, right) => self.enforce_field_add(cs, scope, *left, *right),

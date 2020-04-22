@@ -1,4 +1,2 @@
-def main() -> (fe[2u32]):
-    // initialize an field array with field values
-    fe[2u32] a = [1fe, 2fe]
+def main(a: private fe) -> (fe):
     return a

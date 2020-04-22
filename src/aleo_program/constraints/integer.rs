@@ -5,18 +5,99 @@
 //! @date 2020
 
 use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::aleo_program::{Integer, IntegerExpression, IntegerSpreadOrExpression, Variable};
+use crate::aleo_program::{
+    new_variable_from_variable, Integer, IntegerExpression, IntegerSpreadOrExpression, Parameter,
+    Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
-    utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
+    utilities::{ boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
-    pub(crate) fn integer_from_variable(
+    pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
+        scope: String,
+        index: usize,
+        parameter: Parameter<F>,
+    ) -> Variable<F> {
+        // Get command line argument for each parameter in program
+        let argument = std::env::args()
+            .nth(index)
+            .expect(&format!(
+                "expected command line argument at index {}",
+                index
+            ))
+            .parse::<u32>()
+            .expect(&format!(
+                "expected main function parameter {} at index {}",
+                parameter, index
+            ));
+
+        // Check visibility of parameter
+        let name = parameter.variable.name.clone();
+        let number = if parameter.private {
+            UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
+        } else {
+            UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
+        };
+
+        let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+
+        // store each argument as variable in resolved program
+        self.store_variable(parameter_variable.clone(), ResolvedValue::U32(number));
+
+        parameter_variable
+    }
+
+    pub(crate) fn integer_array_from_parameter(
+        &mut self,
+        _cs: &mut CS,
+        _scope: String,
+        _index: usize,
+        _parameter: Parameter<F>,
+    ) -> Variable<F> {
+        unimplemented!("Cannot enforce integer array as parameter")
+        // Get command line argument for each parameter in program
+        // let argument_array = std::env::args()
+        //     .nth(index)
+        //     .expect(&format!(
+        //         "expected command line argument at index {}",
+        //         index
+        //     ))
+        //     .parse::<Vec<u32>>()
+        //     .expect(&format!(
+        //         "expected main function parameter {} at index {}",
+        //         parameter, index
+        //     ));
+        //
+        // // Check visibility of parameter
+        // let mut array_value = vec![];
+        // let name = parameter.variable.name.clone();
+        // for argument in argument_array {
+        //     let number = if parameter.private {
+        //         UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
+        //     } else {
+        //         UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
+        //     };
+        //
+        //     array_value.push(number);
+        // }
+        //
+        //
+        // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+        //
+        // // store array as variable in resolved program
+        // self.store_variable(parameter_variable.clone(), ResolvedValue::U32Array(array_value));
+        //
+        // parameter_variable
+    }
+
+    pub(crate) fn integer_from_variable(
+        &mut self,
         scope: String,
         variable: Variable<F>,
     ) -> ResolvedValue<F> {
@@ -27,17 +108,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             // TODO: return synthesis error: "assignment missing" here
             self.get(&variable_name).unwrap().clone()
         } else {
-            // TODO: remove this after resolving arguments
-            let argument = std::env::args()
-                .nth(1)
-                .unwrap_or("1".into())
-                .parse::<u32>()
-                .unwrap();
-
-            println!(" argument passed to command line a = {:?}\n", argument);
-
-            // let a = 1;
-            ResolvedValue::U32(UInt32::alloc(cs.ns(|| variable.name), Some(argument)).unwrap())
+            unimplemented!("cannot resolve variable {} in program", variable_name)
         }
     }
 
@@ -54,9 +125,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         expression: IntegerExpression<F>,
     ) -> ResolvedValue<F> {
         match expression {
-            IntegerExpression::Variable(variable) => {
-                self.integer_from_variable(cs, scope, variable)
-            }
+            IntegerExpression::Variable(variable) => self.integer_from_variable(scope, variable),
             IntegerExpression::Number(number) => Self::get_integer_constant(number),
             expression => self.enforce_integer_expression(cs, scope, expression),
         }
@@ -256,9 +325,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         expression: IntegerExpression<F>,
     ) -> ResolvedValue<F> {
         match expression {
-            IntegerExpression::Variable(variable) => {
-                self.integer_from_variable(cs, scope, variable)
-            }
+            IntegerExpression::Variable(variable) => self.integer_from_variable(scope, variable),
             IntegerExpression::Number(number) => Self::get_integer_constant(number),
             IntegerExpression::Add(left, right) => {
                 self.enforce_integer_add(cs, scope, *left, *right)

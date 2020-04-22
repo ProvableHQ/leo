@@ -189,15 +189,9 @@ pub struct Struct<F: Field + PrimeField> {
 
 /// Function parameters
 
-#[derive(Clone, Debug)]
-pub enum Visibility {
-    Public,
-    Private,
-}
-
 #[derive(Clone)]
 pub struct Parameter<F: Field + PrimeField> {
-    pub visibility: Option<Visibility>,
+    pub private: bool,
     pub ty: Type<F>,
     pub variable: Variable<F>,
 }

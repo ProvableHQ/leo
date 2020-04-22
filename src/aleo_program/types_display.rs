@@ -259,8 +259,8 @@ impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
 impl<F: Field + PrimeField> fmt::Display for Type<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::FieldElement => unimplemented!("field type unimpl"),
-            Type::U32 => write!(f, "field"),
+            Type::U32 => write!(f, "u32"),
+            Type::FieldElement => write!(f, "fe"),
             Type::Boolean => write!(f, "bool"),
             Type::Struct(ref variable) => write!(f, "{}", variable),
             Type::Array(ref array, ref count) => write!(f, "[{}; {}]", array, count),
@@ -286,14 +286,8 @@ impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
 
 impl<F: Field + PrimeField> fmt::Display for Parameter<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // let visibility = if self.private { "private " } else { "" };
-        write!(
-            f,
-            "{} {}",
-            // visibility,
-            self.ty,
-            self.variable
-        )
+        let visibility = if self.private { "private" } else { "public" };
+        write!(f, "{}: {} {}", self.variable, visibility, self.ty,)
     }
 }
 
@@ -313,17 +307,22 @@ impl<F: Field + PrimeField> fmt::Display for Function<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "({}):\n{}",
+            "({}): ->({})\n{}",
             self.parameters
                 .iter()
                 .map(|x| format!("{}", x))
+                .collect::<Vec<_>>()
+                .join(","),
+            self.returns
+                .iter()
+                .map(|r| format!("{}", r))
                 .collect::<Vec<_>>()
                 .join(","),
             self.statements
                 .iter()
                 .map(|x| format!("\t{}", x))
                 .collect::<Vec<_>>()
-                .join("\n")
+                .join("\n"),
         )
     }
 }
@@ -332,17 +331,22 @@ impl<F: Field + PrimeField> fmt::Debug for Function<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "({}):\n{}",
+            "({}): -> ({})\n{}",
             self.parameters
                 .iter()
                 .map(|x| format!("{}", x))
+                .collect::<Vec<_>>()
+                .join(","),
+            self.returns
+                .iter()
+                .map(|r| format!("{}", r))
                 .collect::<Vec<_>>()
                 .join(","),
             self.statements
                 .iter()
                 .map(|x| format!("\t{}", x))
                 .collect::<Vec<_>>()
-                .join("\n")
+                .join("\n"),
         )
     }
 }

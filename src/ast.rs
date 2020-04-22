@@ -879,9 +879,9 @@ impl<'ast> fmt::Display for Statement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::parameter))]
 pub struct Parameter<'ast> {
+    pub variable: Variable<'ast>,
     pub visibility: Option<Visibility>,
     pub ty: Type<'ast>,
-    pub variable: Variable<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

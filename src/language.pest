@@ -152,7 +152,7 @@ statement = {
 
 /// Functions
 
-parameter = {visibility? ~ ty ~ variable}
+parameter = {variable ~ ":" ~ visibility? ~ ty}
 parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
 
 function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
