@@ -1,2 +1,5 @@
-def main(a: private fe) -> (fe):
-    return a
+from "./simple_import" import Point
+
+def main() -> (Point):
+    Point p = Point { x: 1, y: 2}
+    return p

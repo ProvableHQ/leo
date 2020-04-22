@@ -36,7 +36,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .iter()
             .zip(arguments.clone().into_iter())
             .for_each(|(parameter, argument)| {
-                println!("argument: {}", argument);
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::U32 => {
@@ -134,17 +133,36 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .for_each(|(i, parameter)| {
                 // append each variable to arguments vector
                 arguments.push(Expression::Variable(match parameter.ty {
-                    Type::U32 => self.integer_from_parameter(cs, function.get_name(), i + 1, parameter),
-                    Type::FieldElement => self.field_element_from_parameter(cs, function.get_name(), i + 1, parameter),
-                    Type::Boolean => self.bool_from_parameter(cs, function.get_name(), i + 1, parameter),
-                    Type::Array(ref ty, _length) => {
-                        match *ty.clone() {
-                            Type::U32 => self.integer_array_from_parameter(cs, function.get_name(), i + 1, parameter),
-                            Type::FieldElement => self.field_element_array_from_parameter(cs, function.get_name(), i + 1, parameter),
-                            Type::Boolean => self.boolean_array_from_parameter(cs, function.get_name(), i + 1, parameter),
-                            ty => unimplemented!("parameter type not implemented {}", ty)
-                        }
+                    Type::U32 => {
+                        self.integer_from_parameter(cs, function.get_name(), i + 1, parameter)
                     }
+                    Type::FieldElement => {
+                        self.field_element_from_parameter(cs, function.get_name(), i + 1, parameter)
+                    }
+                    Type::Boolean => {
+                        self.bool_from_parameter(cs, function.get_name(), i + 1, parameter)
+                    }
+                    Type::Array(ref ty, _length) => match *ty.clone() {
+                        Type::U32 => self.integer_array_from_parameter(
+                            cs,
+                            function.get_name(),
+                            i + 1,
+                            parameter,
+                        ),
+                        Type::FieldElement => self.field_element_array_from_parameter(
+                            cs,
+                            function.get_name(),
+                            i + 1,
+                            parameter,
+                        ),
+                        Type::Boolean => self.boolean_array_from_parameter(
+                            cs,
+                            function.get_name(),
+                            i + 1,
+                            parameter,
+                        ),
+                        ty => unimplemented!("parameter type not implemented {}", ty),
+                    },
                     ty => unimplemented!("parameter type not implemented {}", ty),
                 }))
             });

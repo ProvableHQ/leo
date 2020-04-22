@@ -52,7 +52,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         parameter_variable
     }
 
-
     pub(crate) fn boolean_array_from_parameter(
         &mut self,
         _cs: &mut CS,

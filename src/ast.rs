@@ -182,7 +182,7 @@ impl<'ast> fmt::Display for Number<'ast> {
 #[pest_ast(rule(Rule::value_u32))]
 pub struct U32<'ast> {
     pub number: Number<'ast>,
-    pub ty: U32Type<'ast>,
+    pub ty: Option<U32Type<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -226,9 +226,9 @@ impl<'ast> fmt::Display for Boolean<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value))]
 pub enum Value<'ast> {
-    U32(U32<'ast>),
     Field(Field<'ast>),
     Boolean(Boolean<'ast>),
+    U32(U32<'ast>),
 }
 
 impl<'ast> Value<'ast> {
@@ -438,7 +438,7 @@ pub struct ArrayInlineExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_array_initializer))]
 pub struct ArrayInitializerExpression<'ast> {
-    pub expression: Box<Expression<'ast>>,
+    pub expression: Box<SpreadOrExpression<'ast>>,
     pub count: Value<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

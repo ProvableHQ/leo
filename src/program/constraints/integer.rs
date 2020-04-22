@@ -5,7 +5,10 @@
 //! @date 2020
 
 use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::program::{Integer, IntegerExpression, IntegerSpreadOrExpression, Variable, Parameter, new_variable_from_variable};
+use crate::program::{
+    new_variable_from_variable, Integer, IntegerExpression, IntegerSpreadOrExpression, Parameter,
+    Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{

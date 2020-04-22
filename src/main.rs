@@ -7,7 +7,7 @@ use snarkos_curves::bls12_377::{Bls12_377, Fr};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem}
+    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
 use from_pest::FromPest;
@@ -92,7 +92,10 @@ fn main() {
     println!(" ");
     println!("  Setup time      : {:?} milliseconds", setup.as_millis());
     println!("  Prover time     : {:?} milliseconds", proving.as_millis());
-    println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
+    println!(
+        "  Verifier time   : {:?} milliseconds",
+        verifying.as_millis()
+    );
     println!("  Verifier output : {}", is_success);
     println!(" ");
 

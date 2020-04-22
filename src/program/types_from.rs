@@ -4,8 +4,8 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::program::{types, Import, PathString};
 use crate::ast;
+use crate::program::{types, Import, PathString};
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
@@ -53,29 +53,18 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Integer
     }
 }
 
-impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>>
-    for types::IntegerSpreadOrExpression<F>
-{
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::Integer(expression) => {
-                types::IntegerSpreadOrExpression::Expression(expression)
-            }
-            _ => unimplemented!("cannot create integer expression from boolean type"),
-        }
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
     for types::IntegerSpreadOrExpression<F>
 {
     fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
-                types::IntegerSpreadOrExpression::from(spread.expression)
-            }
+            ast::SpreadOrExpression::Spread(spread) => types::IntegerSpreadOrExpression::Spread(
+                types::IntegerExpression::from(spread.expression),
+            ),
             ast::SpreadOrExpression::Expression(expression) => {
-                types::IntegerSpreadOrExpression::from(expression)
+                types::IntegerSpreadOrExpression::Expression(types::IntegerExpression::from(
+                    expression,
+                ))
             }
         }
     }
@@ -136,20 +125,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::FieldEx
         match types::Expression::from(expression) {
             types::Expression::FieldElement(field_expression) => field_expression,
             types::Expression::Variable(variable) => types::FieldExpression::Variable(variable),
-            _ => unimplemented!("expected field in field expression"),
-        }
-    }
-}
-
-impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>>
-    for types::FieldSpreadOrExpression<F>
-{
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::FieldElement(expression) => {
-                types::FieldSpreadOrExpression::Expression(expression)
-            }
-            ty => unimplemented!("cannot create field expression from type {}", ty),
+            ty => unimplemented!("expected field in field expression, got {}", ty),
         }
     }
 }
@@ -159,11 +135,11 @@ impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
 {
     fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
-                types::FieldSpreadOrExpression::from(spread.expression)
-            }
+            ast::SpreadOrExpression::Spread(spread) => types::FieldSpreadOrExpression::Spread(
+                types::FieldExpression::from(spread.expression),
+            ),
             ast::SpreadOrExpression::Expression(expression) => {
-                types::FieldSpreadOrExpression::from(expression)
+                types::FieldSpreadOrExpression::Expression(types::FieldExpression::from(expression))
             }
         }
     }
@@ -198,29 +174,18 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Boolean
     }
 }
 
-impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>>
-    for types::BooleanSpreadOrExpression<F>
-{
-    fn from(expression: ast::Expression<'ast>) -> Self {
-        match types::Expression::from(expression) {
-            types::Expression::Boolean(expression) => {
-                types::BooleanSpreadOrExpression::Expression(expression)
-            }
-            _ => unimplemented!("cannot create boolean expression from field type"),
-        }
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
     for types::BooleanSpreadOrExpression<F>
 {
     fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
-                types::BooleanSpreadOrExpression::from(spread.expression)
-            }
+            ast::SpreadOrExpression::Spread(spread) => types::BooleanSpreadOrExpression::Spread(
+                types::BooleanExpression::from(spread.expression),
+            ),
             ast::SpreadOrExpression::Expression(expression) => {
-                types::BooleanSpreadOrExpression::from(expression)
+                types::BooleanSpreadOrExpression::Expression(types::BooleanExpression::from(
+                    expression,
+                ))
             }
         }
     }
@@ -330,11 +295,13 @@ impl<'ast, F: Field + PrimeField> types::Type<F> {
 
         match (left, right) {
             // Integer operation
-            (types::Expression::Integer(_), _) => types::Type::U32,
-            (_, types::Expression::Integer(_)) => types::Type::FieldElement,
+            (types::Expression::Integer(_), _) | (_, types::Expression::Integer(_)) => {
+                types::Type::U32
+            }
             // Field operation
-            (types::Expression::FieldElement(_), _) => types::Type::FieldElement,
-            (_, types::Expression::FieldElement(_)) => types::Type::FieldElement,
+            (types::Expression::FieldElement(_), _) | (_, types::Expression::FieldElement(_)) => {
+                types::Type::FieldElement
+            }
             // Unmatched: two array accesses, two variables
             (lhs, rhs) => unimplemented!(
                 "operand types {} and {} must match for binary expression",

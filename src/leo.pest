@@ -61,10 +61,10 @@ type_list = _{(ty ~ ("," ~ ty)*)?}
 /// Values
 
 value_number = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)}
-value_u32 = { value_number ~ ty_u32}
+value_u32 = { value_number ~ ty_u32? }
 value_field = { value_number ~ ty_field }
 value_boolean = { "true" | "false" }
-value = { value_u32 | value_field | value_boolean }
+value = { value_field | value_boolean | value_u32 }
 
 /// Variables
 
@@ -103,7 +103,7 @@ spread_or_expression = { spread | expression }
 
 inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
-expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
+expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" }
 
 /// Structs
 
