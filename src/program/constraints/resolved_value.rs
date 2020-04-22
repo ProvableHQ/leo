@@ -4,7 +4,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::program::types::{Function, Struct, StructMember, Variable};
+use crate::program::types::{Function, Struct, StructMember, Type, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};
@@ -22,6 +22,33 @@ pub enum ResolvedValue<F: Field + PrimeField> {
     StructExpression(Variable<F>, Vec<StructMember<F>>),
     Function(Function<F>),
     Return(Vec<ResolvedValue<F>>), // add Null for function returns
+}
+
+impl<F: Field + PrimeField> ResolvedValue<F> {
+    pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
+        match (self, ty) {
+            (ResolvedValue::U32(ref _a), Type::U32) => true,
+            (ResolvedValue::U32Array(ref arr), Type::Array(ref arr_type, ref len)) => {
+                (arr.len() == *len) & (**arr_type == Type::U32)
+            }
+            (ResolvedValue::FieldElement(ref _a), Type::FieldElement) => true,
+            (ResolvedValue::FieldElementArray(ref arr), Type::Array(ref arr_type, ref len)) => {
+                (arr.len() == *len) & (**arr_type == Type::FieldElement)
+            }
+            (ResolvedValue::Boolean(ref _a), Type::Boolean) => true,
+            (ResolvedValue::BooleanArray(ref arr), Type::Array(ref arr_type, ref len)) => {
+                (arr.len() == *len) & (**arr_type == Type::Boolean)
+            }
+            (ResolvedValue::Return(ref values), ty) => {
+                let mut res = true;
+                for value in values {
+                    res &= value.match_type(ty)
+                }
+                res
+            }
+            (_, _) => false,
+        }
+    }
 }
 
 impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {

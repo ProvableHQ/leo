@@ -1,5 +1,5 @@
-from "./simple_import" import Point
+def foo() -> (fe):
+    return 3fe
 
-def main() -> (Point):
-    Point p = Point { x: 1, y: 2}
-    return p
+def main() -> (fe):
+    return foo()

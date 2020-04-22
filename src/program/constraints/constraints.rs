@@ -113,8 +113,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     );
                 }
                 Statement::Return(expressions) => {
-                    return_values =
-                        self.enforce_return_statement(cs, function.get_name(), expressions)
+                    return_values = self.enforce_return_statement(
+                        cs,
+                        function.get_name(),
+                        expressions,
+                        function.returns.to_owned(),
+                    )
                 }
             });
 

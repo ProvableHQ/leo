@@ -160,7 +160,7 @@ pub enum Statement<F: Field + PrimeField> {
 }
 
 /// Explicit type used for defining struct members and function parameters
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Type<F: Field + PrimeField> {
     U32,
     FieldElement,

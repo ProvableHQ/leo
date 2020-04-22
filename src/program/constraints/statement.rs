@@ -6,7 +6,7 @@
 
 use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::program::{
-    Assignee, Expression, IntegerExpression, IntegerRangeOrExpression, Statement, Variable,
+    Assignee, Expression, IntegerExpression, IntegerRangeOrExpression, Statement, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -148,16 +148,31 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         scope: String,
         statements: Vec<Expression<F>>,
+        return_types: Vec<Type<F>>,
     ) -> ResolvedValue<F> {
         ResolvedValue::Return(
             statements
                 .into_iter()
-                .map(|expression| self.enforce_expression(cs, scope.clone(), expression))
+                .zip(return_types.into_iter())
+                .map(|(expression, ty)| {
+                    let result = self.enforce_expression(cs, scope.clone(), expression);
+                    if !result.match_type(&ty) {
+                        unimplemented!("expected return type {}, got {}", ty, result)
+                    } else {
+                        result
+                    }
+                })
                 .collect::<Vec<ResolvedValue<F>>>(),
         )
     }
 
-    fn enforce_statement(&mut self, cs: &mut CS, scope: String, statement: Statement<F>) {
+    fn enforce_statement(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        statement: Statement<F>,
+        return_types: Vec<Type<F>>,
+    ) {
         match statement {
             Statement::Definition(variable, expression) => {
                 self.enforce_definition_statement(cs, scope, variable, expression);
@@ -167,7 +182,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             }
             Statement::Return(statements) => {
                 // TODO: add support for early termination
-                let _res = self.enforce_return_statement(cs, scope, statements);
+                let _res = self.enforce_return_statement(cs, scope, statements, return_types);
             }
         };
     }
@@ -190,11 +205,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             let index_name = new_scope_from_variable(scope.clone(), &index);
             self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
 
-            // Evaluate statements
+            // Evaluate statements (for loop statements should not have a return type)
             statements
                 .clone()
                 .into_iter()
-                .for_each(|statement| self.enforce_statement(cs, scope.clone(), statement));
+                .for_each(|statement| self.enforce_statement(cs, scope.clone(), statement, vec![]));
         }
     }
 }
