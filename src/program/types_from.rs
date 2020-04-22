@@ -4,7 +4,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::{types, Import, PathString};
+use crate::program::{types, Import, PathString};
 use crate::ast;
 
 use snarkos_models::curves::{Field, PrimeField};

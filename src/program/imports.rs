@@ -47,7 +47,7 @@ impl<'ast> Import<'ast> {
 
     pub fn get_file(&self) -> String {
         let path = self.get_source().to_str().unwrap();
-        format!("{}.program", path)
+        format!("{}.leo", path)
     }
 }
 

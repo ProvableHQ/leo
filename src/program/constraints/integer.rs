@@ -4,16 +4,13 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::aleo_program::{
-    new_variable_from_variable, Integer, IntegerExpression, IntegerSpreadOrExpression, Parameter,
-    Variable,
-};
+use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
+use crate::program::{Integer, IntegerExpression, IntegerSpreadOrExpression, Variable, Parameter, new_variable_from_variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
-    utilities::{ boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
+    utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {

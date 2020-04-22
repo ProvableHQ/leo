@@ -1,27 +1,27 @@
 [package]
-name = "language"
+name = "leo"
 version = "0.1.0"
-authors = ["howardwu <howardwu@berkeley.edu>"]
+authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
 [lib]
-name = "language"
+name = "leo"
 path = "src/lib.rs"
 
 [[bin]]
-name = "snarkLang"
+name = "leo"
 path = "src/main.rs"
 
 [dependencies]
-from-pest = "0.3.1"
-lazy_static = "1.3.0"
-pest = "2.0"
-pest_derive = "2.0"
-pest-ast = "0.3.3"
-rand = { version = "0.7" }
+snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
+snarkos-curves = { path = "../snarkOS/curves", version = "0.8.0" }
+snarkos-errors = { path = "../snarkOS/errors", version = "0.8.0" }
+snarkos-gadgets = { path = "../snarkOS/gadgets", version = "0.8.0" }
+snarkos-models = { path = "../snarkOS/models", version = "0.8.0" }
 
-snarkos-algorithms = { path = "../snarkOS/algorithms" }
-snarkos-curves = { path = "../snarkOS/curves" }
-snarkos-errors = { path = "../snarkOS/errors" }
-snarkos-gadgets = { path = "../snarkOS/gadgets" }
-snarkos-models = { path = "../snarkOS/models" }
+from-pest = { version = "0.3.1" }
+lazy_static = { version = "1.3.0" }
+pest = { version = "2.0" }
+pest-ast = { version = "0.3.3" }
+pest_derive = { version = "2.0" }
+rand = { version = "0.7" }

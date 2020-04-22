@@ -1,4 +1,4 @@
-//! Abstract syntax tree (ast) representation from language.pest.
+//! Abstract syntax tree (ast) representation from leo.pest.
 //!
 //! @file zokrates_program.rs
 //! @author Howard Wu <howard@aleo.org>
@@ -15,7 +15,7 @@ use pest_ast::FromPest;
 use std::fmt;
 
 #[derive(Parser)]
-#[grammar = "language.pest"]
+#[grammar = "leo.pest"]
 pub struct LanguageParser;
 
 pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {

@@ -4,8 +4,8 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::constraints::ResolvedValue;
-use crate::aleo_program::types::Variable;
+use crate::program::constraints::ResolvedValue;
+use crate::program::types::Variable;
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;

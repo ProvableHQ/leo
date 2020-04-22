@@ -5,7 +5,7 @@
 //! @author Collin Chin <collin@aleo.org>
 //! @date 2020
 
-use crate::aleo_program::Import;
+use crate::program::Import;
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
