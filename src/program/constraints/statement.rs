@@ -5,9 +5,7 @@
 //! @date 2020
 
 use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::program::{
-    Assignee, Expression, IntegerExpression, IntegerRangeOrExpression, Statement, Type, Variable,
-};
+use crate::program::{Assignee, Expression, Integer, RangeOrExpression, Statement, Type, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{r1cs::ConstraintSystem, utilities::uint32::UInt32};
@@ -50,17 +48,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
                 // Resolve index so we know if we are assigning to a single value or a range of values
                 match index_expression {
-                    IntegerRangeOrExpression::Expression(index) => {
+                    RangeOrExpression::Expression(index) => {
                         let index = self.enforce_index(cs, scope.clone(), index);
 
                         // Modify the single value of the array in place
                         match self.get_mut(&expected_array_name) {
-                            Some(value) => match (value, result) {
-                                (ResolvedValue::U32Array(old), ResolvedValue::U32(new)) => {
-                                    old[index] = new.to_owned();
-                                }
-                                (ResolvedValue::BooleanArray(old), ResolvedValue::Boolean(new)) => {
-                                    old[index] = new.to_owned();
+                            Some(value) => match value {
+                                ResolvedValue::Array(old) => {
+                                    old[index] = result.to_owned();
                                 }
                                 _ => {
                                     unimplemented!("Cannot assign single index to array of values ")
@@ -72,29 +67,20 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             ),
                         }
                     }
-                    IntegerRangeOrExpression::Range(from, to) => {
+                    RangeOrExpression::Range(from, to) => {
                         let from_index = match from {
-                            Some(expression) => self.enforce_index(cs, scope.clone(), expression),
+                            Some(integer) => integer.to_usize(),
                             None => 0usize,
                         };
                         let to_index_option = match to {
-                            Some(expression) => {
-                                Some(self.enforce_index(cs, scope.clone(), expression))
-                            }
+                            Some(integer) => Some(integer.to_usize()),
                             None => None,
                         };
 
                         // Modify the range of values of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match (value, result) {
-                                (ResolvedValue::U32Array(old), ResolvedValue::U32Array(new)) => {
-                                    let to_index = to_index_option.unwrap_or(old.len());
-                                    old.splice(from_index..to_index, new.iter().cloned());
-                                }
-                                (
-                                    ResolvedValue::BooleanArray(old),
-                                    ResolvedValue::BooleanArray(new),
-                                ) => {
+                                (ResolvedValue::Array(old), ResolvedValue::Array(new)) => {
                                     let to_index = to_index_option.unwrap_or(old.len());
                                     old.splice(from_index..to_index, new.iter().cloned());
                                 }
@@ -192,14 +178,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         scope: String,
         index: Variable<F>,
-        start: IntegerExpression<F>,
-        stop: IntegerExpression<F>,
+        start: Integer,
+        stop: Integer,
         statements: Vec<Statement<F>>,
     ) {
-        let start_index = self.enforce_index(cs, scope.clone(), start);
-        let stop_index = self.enforce_index(cs, scope.clone(), stop);
-
-        for i in start_index..stop_index {
+        for i in start.to_usize()..stop.to_usize() {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope_from_variable(scope.clone(), &index);

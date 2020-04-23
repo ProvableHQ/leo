@@ -1,5 +1,6 @@
-def foo() -> (fe):
-    return 3fe
-
 def main() -> (fe):
-    return foo()
+  a = 1fe
+  for i in 0..4 do
+      a = a + 1fe
+  endfor
+  return a

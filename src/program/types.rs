@@ -26,122 +26,80 @@ pub enum Integer {
     // U64(u64),
 }
 
-/// Spread operator or u32 expression enum
-#[derive(Debug, Clone)]
-pub enum IntegerSpreadOrExpression<F: Field + PrimeField> {
-    Spread(IntegerExpression<F>),
-    Expression(IntegerExpression<F>),
+impl Integer {
+    pub fn to_usize(&self) -> usize {
+        match *self {
+            // U8(u8)
+            Integer::U32(num) => num as usize, // U64(u64)
+        }
+    }
 }
 
-/// Range or integer expression enum
+/// Range or expression enum
 #[derive(Debug, Clone)]
-pub enum IntegerRangeOrExpression<F: Field + PrimeField> {
-    Range(Option<IntegerExpression<F>>, Option<IntegerExpression<F>>),
-    Expression(IntegerExpression<F>),
+pub enum RangeOrExpression<F: Field + PrimeField> {
+    Range(Option<Integer>, Option<Integer>),
+    Expression(Expression<F>),
 }
 
-/// Expression that evaluates to a u32 value
+/// Spread or expression
 #[derive(Debug, Clone)]
-pub enum IntegerExpression<F: Field + PrimeField> {
-    Variable(Variable<F>),
-    Number(Integer),
-    // Operators
-    Add(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Sub(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Mul(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Div(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Pow(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    // Conditionals
-    IfElse(
-        Box<BooleanExpression<F>>,
-        Box<IntegerExpression<F>>,
-        Box<IntegerExpression<F>>,
-    ),
-    // Arrays
-    Array(Vec<Box<IntegerSpreadOrExpression<F>>>),
-}
-
-/// Spread or field expression enum
-#[derive(Debug, Clone)]
-pub enum FieldSpreadOrExpression<F: Field + PrimeField> {
-    Spread(FieldExpression<F>),
-    Expression(FieldExpression<F>),
-}
-
-/// Expression that evaluates to a field value
-#[derive(Debug, Clone)]
-pub enum FieldExpression<F: Field + PrimeField> {
-    Variable(Variable<F>),
-    Number(F),
-    // Operators
-    Add(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    Sub(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    Mul(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    Div(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    Pow(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    // Conditionals
-    IfElse(
-        Box<BooleanExpression<F>>,
-        Box<FieldExpression<F>>,
-        Box<FieldExpression<F>>,
-    ),
-    // Arrays
-    Array(Vec<Box<FieldSpreadOrExpression<F>>>),
-}
-
-/// Spread or field expression enum
-#[derive(Debug, Clone)]
-pub enum BooleanSpreadOrExpression<F: Field + PrimeField> {
-    Spread(BooleanExpression<F>),
-    Expression(BooleanExpression<F>),
-}
-
-/// Expression that evaluates to a boolean value
-#[derive(Debug, Clone)]
-pub enum BooleanExpression<F: Field + PrimeField> {
-    Variable(Variable<F>),
-    Value(bool),
-    // Boolean operators
-    Not(Box<BooleanExpression<F>>),
-    Or(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
-    And(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
-    BoolEq(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
-    // Integer operators
-    IntegerEq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Geq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Gt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Leq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    Lt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
-    // Field operators
-    FieldEq(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
-    // Conditionals
-    IfElse(
-        Box<BooleanExpression<F>>,
-        Box<BooleanExpression<F>>,
-        Box<BooleanExpression<F>>,
-    ),
-    // Arrays
-    Array(Vec<Box<BooleanSpreadOrExpression<F>>>),
+pub enum SpreadOrExpression<F: Field + PrimeField> {
+    Spread(Expression<F>),
+    Expression(Expression<F>),
 }
 
 /// Expression that evaluates to a value
 #[derive(Debug, Clone)]
 pub enum Expression<F: Field + PrimeField> {
-    Integer(IntegerExpression<F>),
-    FieldElement(FieldExpression<F>),
-    Boolean(BooleanExpression<F>),
+    // Variable
     Variable(Variable<F>),
+
+    // Values
+    Integer(Integer),
+    FieldElement(F),
+    Boolean(bool),
+
+    // Number operations
+    Add(Box<Expression<F>>, Box<Expression<F>>),
+    Sub(Box<Expression<F>>, Box<Expression<F>>),
+    Mul(Box<Expression<F>>, Box<Expression<F>>),
+    Div(Box<Expression<F>>, Box<Expression<F>>),
+    Pow(Box<Expression<F>>, Box<Expression<F>>),
+
+    // Boolean operations
+    Not(Box<Expression<F>>),
+    Or(Box<Expression<F>>, Box<Expression<F>>),
+    And(Box<Expression<F>>, Box<Expression<F>>),
+    Eq(Box<Expression<F>>, Box<Expression<F>>),
+    Geq(Box<Expression<F>>, Box<Expression<F>>),
+    Gt(Box<Expression<F>>, Box<Expression<F>>),
+    Leq(Box<Expression<F>>, Box<Expression<F>>),
+    Lt(Box<Expression<F>>, Box<Expression<F>>),
+
+    // Conditionals
+    IfElse(Box<Expression<F>>, Box<Expression<F>>, Box<Expression<F>>),
+
+    // Arrays
+    Array(Vec<Box<SpreadOrExpression<F>>>),
+    ArrayAccess(Box<Expression<F>>, Box<RangeOrExpression<F>>),
+
+    // Structs
     Struct(Variable<F>, Vec<StructMember<F>>),
-    ArrayAccess(Box<Expression<F>>, IntegerRangeOrExpression<F>),
     StructMemberAccess(Box<Expression<F>>, Variable<F>), // (struct name, struct member name)
+
+    // Functions
     FunctionCall(Box<Expression<F>>, Vec<Expression<F>>),
+    // IntegerExp(IntegerExpression<F>),
+    // FieldElementExp(FieldExpression<F>),
+    // BooleanExp(BooleanExpression<F>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone)]
 pub enum Assignee<F: Field + PrimeField> {
     Variable(Variable<F>),
-    Array(Box<Assignee<F>>, IntegerRangeOrExpression<F>),
+    Array(Box<Assignee<F>>, RangeOrExpression<F>),
     StructMember(Box<Assignee<F>>, Variable<F>),
 }
 
@@ -150,12 +108,7 @@ pub enum Assignee<F: Field + PrimeField> {
 pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
     Definition(Assignee<F>, Expression<F>),
-    For(
-        Variable<F>,
-        IntegerExpression<F>,
-        IntegerExpression<F>,
-        Vec<Statement<F>>,
-    ),
+    For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
     Return(Vec<Expression<F>>),
 }
 
@@ -232,3 +185,95 @@ impl<'ast, F: Field + PrimeField> Program<'ast, F> {
         self
     }
 }
+
+// /// Spread operator or u32 expression enum
+// #[derive(Debug, Clone)]
+// pub enum IntegerSpreadOrExpression<F: Field + PrimeField> {
+//     Spread(IntegerExpression<F>),
+//     Expression(IntegerExpression<F>),
+// }
+
+// Expression that evaluates to a u32 value
+// #[derive(Debug, Clone)]
+// pub enum IntegerExpression<F: Field + PrimeField> {
+//     Variable(Variable<F>),
+//     Number(Integer),
+// Operators
+// Add(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Sub(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Mul(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Div(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Pow(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Conditionals
+// IfElse(
+//     Box<BooleanExpression<F>>,
+//     Box<IntegerExpression<F>>,
+//     Box<IntegerExpression<F>>,
+// ),
+// Arrays
+// Array(Vec<Box<IntegerSpreadOrExpression<F>>>),
+// // Unresolved
+// Unresolved(Box<Expression<F>>) // placeholder for array/struct access, function calls
+// }
+
+// /// Spread or field expression enum
+// #[derive(Debug, Clone)]
+// pub enum FieldSpreadOrExpression<F: Field + PrimeField> {
+//     Spread(FieldExpression<F>),
+//     Expression(FieldExpression<F>),
+// }
+
+// /// Expression that evaluates to a field value
+// #[derive(Debug, Clone)]
+// pub enum FieldExpression<F: Field + PrimeField> {
+//     Variable(Variable<F>),
+//     Number(F),
+// Operators
+// Add(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Sub(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Mul(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Div(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Pow(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Conditionals
+// IfElse(
+//     Box<BooleanExpression<F>>,
+//     Box<FieldExpression<F>>,
+//     Box<FieldExpression<F>>,
+// ),
+// Arrays
+// Array(Vec<Box<FieldSpreadOrExpression<F>>>),
+// }
+
+// /// Spread or field expression enum
+// #[derive(Debug, Clone)]
+// pub enum BooleanSpreadOrExpression<F: Field + PrimeField> {
+//     Spread(BooleanExpression<F>),
+//     Expression(BooleanExpression<F>),
+// }
+
+// Expression that evaluates to a boolean value
+// #[derive(Debug, Clone)]
+// pub enum BooleanExpression<F: Field + PrimeField> {
+//     Variable(Variable<F>),
+//     Value(bool),
+// Boolean operators
+// Or(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
+// And(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
+// BoolEq(Box<BooleanExpression<F>>, Box<BooleanExpression<F>>),
+// // Integer operators
+// IntegerEq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Geq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Gt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Leq(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// Lt(Box<IntegerExpression<F>>, Box<IntegerExpression<F>>),
+// // Field operators
+// FieldEq(Box<FieldExpression<F>>, Box<FieldExpression<F>>),
+// Conditionals
+// IfElse(
+//     Box<BooleanExpression<F>>,
+//     Box<BooleanExpression<F>>,
+//     Box<BooleanExpression<F>>,
+// ),
+// Arrays
+// Array(Vec<Box<BooleanSpreadOrExpression<F>>>),
+// }
