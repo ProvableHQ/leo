@@ -28,7 +28,7 @@ impl<F: Field + PrimeField> ResolvedValue<F> {
             (ResolvedValue::U32(ref _a), Type::U32) => true,
             (ResolvedValue::FieldElement(ref _a), Type::FieldElement) => true,
             (ResolvedValue::Boolean(ref _a), Type::Boolean) => true,
-            (ResolvedValue::Array(ref _arr), Type::Array(ref _ty, ref _len)) => true, // todo: add array types
+            (ResolvedValue::Array(ref arr), Type::Array(ref _ty, ref len)) => arr.len() == *len, // todo: add array types
             (
                 ResolvedValue::StructExpression(ref actual_name, ref _members),
                 Type::Struct(ref expected_name),

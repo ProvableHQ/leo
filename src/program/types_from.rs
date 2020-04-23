@@ -269,7 +269,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Express
                 unimplemented!("unknown type for inline struct expression")
             }
             ast::Expression::Postfix(expression) => types::Expression::from(expression),
-            _ => unimplemented!(),
+            // _ => unimplemented!(),
         }
     }
 }

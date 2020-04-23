@@ -9,11 +9,11 @@ visibility = { visibility_public | visibility_private }
 operation_pre_not = { "!" }
 expression_not = { operation_pre_not ~ expression_term }
 
-operation_post_increment = { "++" }
-expression_increment = { operation_post_increment ~ expression_term }
-
-operation_post_decrement = { "--" }
-expression_decrement = { operation_post_decrement ~ expression_term }
+// operation_post_increment = { "++" }
+// expression_increment = { operation_post_increment ~ expression_term }
+//
+// operation_post_decrement = { "--" }
+// expression_decrement = { operation_post_decrement ~ expression_term }
 
 /// Binary Operations
 
@@ -128,8 +128,8 @@ expression_term = {
     | expression_postfix
     | expression_primitive
     | expression_not
-    | expression_increment
-    | expression_decrement
+//     | expression_increment
+//     | expression_decrement
     | expression_array_inline
     | expression_array_initializer
 }
@@ -159,7 +159,7 @@ parameter = {variable ~ ":" ~ visibility? ~ ty}
 parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
 
 function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-function_definition = {"def" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ "->" ~ "(" ~ type_list ~ ")" ~ ":" ~ NEWLINE* ~ statement* }
+function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ "->" ~ "(" ~ type_list ~ ")" ~ "{" ~ NEWLINE* ~ statement* ~ "}"}
 
 /// Utilities
 

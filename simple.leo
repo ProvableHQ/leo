@@ -1,6 +1,4 @@
-def main() -> (fe):
-  a = 1fe
-  for i in 0..4 do
-      a = a + 1fe
-  endfor
-  return a
+function main() -> (u32) {
+    a = 1 + 1
+    return a
+}

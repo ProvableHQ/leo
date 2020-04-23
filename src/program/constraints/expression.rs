@@ -398,8 +398,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             // Functions
             Expression::FunctionCall(function, arguments) => {
                 self.enforce_function_access_expression(cs, scope, function, arguments)
-            }
-            _ => unimplemented!(),
+            } // _ => unimplemented!(),
         }
     }
 }
