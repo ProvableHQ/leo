@@ -29,15 +29,6 @@ impl<F: Field + PrimeField> ResolvedValue<F> {
             (ResolvedValue::FieldElement(ref _a), Type::FieldElement) => true,
             (ResolvedValue::Boolean(ref _a), Type::Boolean) => true,
             (ResolvedValue::Array(ref _arr), Type::Array(ref _ty, ref _len)) => true, // todo: add array types
-            // (ResolvedValue::U32Array(ref arr), Type::Array(ref arr_type, ref len)) => {
-            //     (arr.len() == *len) & (**arr_type == Type::U32)
-            // }
-            // (ResolvedValue::FieldElementArray(ref arr), Type::Array(ref arr_type, ref len)) => {
-            //     (arr.len() == *len) & (**arr_type == Type::FieldElement)
-            // }
-            // (ResolvedValue::BooleanArray(ref arr), Type::Array(ref arr_type, ref len)) => {
-            //     (arr.len() == *len) & (**arr_type == Type::Boolean)
-            // }
             (
                 ResolvedValue::StructExpression(ref actual_name, ref _members),
                 Type::Struct(ref expected_name),
@@ -70,36 +61,6 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 }
                 write!(f, "]")
             }
-            // ResolvedValue::U32Array(ref array) => {
-            //     write!(f, "[")?;
-            //     for (i, e) in array.iter().enumerate() {
-            //         write!(f, "{}", e.value.unwrap())?;
-            //         if i < array.len() - 1 {
-            //             write!(f, ", ")?;
-            //         }
-            //     }
-            //     write!(f, "]")
-            // }
-            // ResolvedValue::FieldElementArray(ref array) => {
-            //     write!(f, "[")?;
-            //     for (i, e) in array.iter().enumerate() {
-            //         write!(f, "{}", e)?;
-            //         if i < array.len() - 1 {
-            //             write!(f, ", ")?;
-            //         }
-            //     }
-            //     write!(f, "]")
-            // }
-            // ResolvedValue::BooleanArray(ref array) => {
-            //     write!(f, "[")?;
-            //     for (i, e) in array.iter().enumerate() {
-            //         write!(f, "{}", e.get_value().unwrap())?;
-            //         if i < array.len() - 1 {
-            //             write!(f, ", ")?;
-            //         }
-            //     }
-            //     write!(f, "]")
-            // }
             ResolvedValue::StructExpression(ref variable, ref members) => {
                 write!(f, "{} {{", variable)?;
                 for (i, member) in members.iter().enumerate() {

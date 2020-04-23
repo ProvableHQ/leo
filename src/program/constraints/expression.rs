@@ -211,46 +211,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     }
                 }
             }
-            // ResolvedValue::U32Array(field_array) => {
-            //     match index {
-            //         RangeOrExpression::Range(from, to) => {
-            //             let from_resolved = match from {
-            //                 Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
-            //                 None => 0usize, // Array slice starts at index 0
-            //             };
-            //             let to_resolved = match to {
-            //                 Some(to_index) => self.enforce_index(cs, scope.clone(), to_index),
-            //                 None => field_array.len(), // Array slice ends at array length
-            //             };
-            //             ResolvedValue::U32Array(field_array[from_resolved..to_resolved].to_owned())
-            //         }
-            //         RangeOrExpression::Expression(index) => {
-            //             let index_resolved = self.enforce_index(cs, scope.clone(), index);
-            //             ResolvedValue::U32(field_array[index_resolved].to_owned())
-            //         }
-            //     }
-            // }
-            // ResolvedValue::BooleanArray(bool_array) => {
-            //     match index {
-            //         RangeOrExpression::Range(from, to) => {
-            //             let from_resolved = match from {
-            //                 Some(from_index) => self.enforce_index(cs, scope.clone(), from_index),
-            //                 None => 0usize, // Array slice starts at index 0
-            //             };
-            //             let to_resolved = match to {
-            //                 Some(to_index) => self.enforce_index(cs, scope.clone(), to_index),
-            //                 None => bool_array.len(), // Array slice ends at array length
-            //             };
-            //             ResolvedValue::BooleanArray(
-            //                 bool_array[from_resolved..to_resolved].to_owned(),
-            //             )
-            //         }
-            //         RangeOrExpression::Expression(index) => {
-            //             let index_resolved = self.enforce_index(cs, scope.clone(), index);
-            //             ResolvedValue::Boolean(bool_array[index_resolved].to_owned())
-            //         }
-            //     }
-            // }
             value => unimplemented!("Cannot access element of untyped array {}", value),
         }
     }
@@ -439,15 +399,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             Expression::FunctionCall(function, arguments) => {
                 self.enforce_function_access_expression(cs, scope, function, arguments)
             }
-            // Expression::BooleanExp(boolean_expression) => {
-            //     self.enforce_boolean_expression(cs, scope, boolean_expression)
-            // }
-            // Expression::IntegerExp(integer_expression) => {
-            //     self.enforce_integer_expression(cs, scope, integer_expression)
-            // }
-            // Expression::FieldElementExp(field_expression) => {
-            //     self.enforce_field_expression(cs, scope, field_expression)
-            // }
             _ => unimplemented!(),
         }
     }
