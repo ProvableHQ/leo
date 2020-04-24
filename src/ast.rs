@@ -881,11 +881,11 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, id) in self.assignees.iter().enumerate() {
             write!(f, "{}", id)?;
-            if i < ids.len() - 1 {
+            if i < self.assignees.len() - 1 {
                 write!(f, ", ")?;
             }
         }
-        write!(f, " = {}", self.function_id)
+        write!(f, " = {}", self.function_name)
     }
 }
 

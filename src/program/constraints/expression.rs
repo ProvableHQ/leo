@@ -5,7 +5,9 @@
 //! @date 2020
 
 use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::program::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable};
+use crate::program::{
+    Expression, RangeOrExpression, ResolvedStructMember, SpreadOrExpression, StructMember, Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
@@ -225,22 +227,24 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         if let Some(resolved_value) = self.get_mut_variable(&variable) {
             match resolved_value {
                 ResolvedValue::StructDefinition(struct_definition) => {
-                    struct_definition
+                    let resolved_members = struct_definition
                         .fields
                         .clone()
                         .iter()
                         .zip(members.clone().into_iter())
-                        .for_each(|(field, member)| {
+                        .map(|(field, member)| {
                             if field.variable != member.variable {
                                 unimplemented!("struct field variables do not match")
                             }
-                            // Resolve and possibly enforce struct fields
-                            // do we need to store the results here?
-                            let _result =
+                            // Resolve and enforce struct fields
+                            let member_value =
                                 self.enforce_expression(cs, scope.clone(), member.expression);
-                        });
 
-                    ResolvedValue::StructExpression(variable, members)
+                            ResolvedStructMember(member.variable, member_value)
+                        })
+                        .collect();
+
+                    ResolvedValue::StructExpression(variable, resolved_members)
                 }
                 _ => unimplemented!("Inline struct type is not defined as a struct"),
             }
@@ -258,11 +262,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     ) -> ResolvedValue<F> {
         match self.enforce_expression(cs, scope.clone(), *struct_variable) {
             ResolvedValue::StructExpression(_name, members) => {
-                let matched_member = members
-                    .into_iter()
-                    .find(|member| member.variable == struct_member);
+                let matched_member = members.into_iter().find(|member| member.0 == struct_member);
                 match matched_member {
-                    Some(member) => self.enforce_expression(cs, scope.clone(), member.expression),
+                    Some(member) => member.1,
                     None => unimplemented!("Cannot access struct member {}", struct_member.name),
                 }
             }
@@ -273,13 +275,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_function_access_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
-        function: Box<Expression<F>>,
+        function: &Variable<F>,
         arguments: Vec<Expression<F>>,
     ) -> ResolvedValue<F> {
-        match self.enforce_expression(cs, scope, *function) {
-            ResolvedValue::Function(function) => self.enforce_function(cs, function, arguments),
-            value => unimplemented!("Cannot call unknown function {}", value),
+        match self.get_mut_variable(function) {
+            Some(value) => match value.clone() {
+                ResolvedValue::Function(function) => {
+                    self.enforce_function(cs, function.to_owned(), arguments)
+                }
+                value => unimplemented!("Cannot make function call to {}", value),
+            },
+            None => unimplemented!("Cannot call unknown function {}", function),
         }
     }
 
@@ -397,7 +403,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
             // Functions
             Expression::FunctionCall(function, arguments) => {
-                self.enforce_function_access_expression(cs, scope, function, arguments)
+                self.enforce_function_access_expression(cs, &function, arguments)
             } // _ => unimplemented!(),
         }
     }

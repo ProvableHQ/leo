@@ -94,14 +94,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .clone()
             .into_iter()
             .for_each(|statement| match statement {
-                Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(
+                Statement::Return(expressions) => {
+                    return_values = self.enforce_return_statement(
                         cs,
                         function.get_name(),
-                        variable,
-                        expression,
-                    );
+                        expressions,
+                        function.returns.to_owned(),
+                    )
                 }
+                Statement::MultipleDefinition(assignees, function_call) => self
+                    .enforce_multiple_definition_statement(
+                        cs,
+                        function.get_name(),
+                        assignees,
+                        function_call,
+                    ),
                 Statement::For(index, start, stop, statements) => {
                     self.enforce_for_statement(
                         cs,
@@ -112,13 +119,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         statements,
                     );
                 }
-                Statement::Return(expressions) => {
-                    return_values = self.enforce_return_statement(
+                Statement::Definition(variable, expression) => {
+                    self.enforce_definition_statement(
                         cs,
                         function.get_name(),
-                        expressions,
-                        function.returns.to_owned(),
-                    )
+                        variable,
+                        expression,
+                    );
                 }
             });
 
