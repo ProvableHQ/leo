@@ -1,10 +1,6 @@
 //! Format display functions for zokrates_program types.
-//!
-//! @file zokrates_program.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::{
+use crate::{
     Assignee, Expression, Function, FunctionName, Integer, Parameter, RangeOrExpression,
     SpreadOrExpression, Statement, Struct, StructField, Type, Variable,
 };

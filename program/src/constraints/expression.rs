@@ -1,11 +1,7 @@
 //! Methods to enforce constraints on expressions in a resolved aleo program.
-//!
-//! @file expression.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::program::{
+use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
+use crate::{
     Expression, RangeOrExpression, ResolvedStructMember, SpreadOrExpression, StructMember, Variable,
 };
 

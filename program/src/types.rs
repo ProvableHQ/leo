@@ -1,11 +1,7 @@
 //! A typed program in aleo consists of import, struct, and function definitions.
 //! Each defined type consists of typed statements and expressions.
-//!
-//! @file types.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::Import;
+use crate::Import;
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;

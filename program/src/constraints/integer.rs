@@ -1,11 +1,7 @@
 //! Methods to enforce constraints on integers in a resolved aleo program.
-//!
-//! @file integer.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::constraints::{ResolvedProgram, ResolvedValue};
-use crate::program::{new_variable_from_variable, Integer, Parameter, Variable};
+use crate::constraints::{ResolvedProgram, ResolvedValue};
+use crate::{new_variable_from_variable, Integer, Parameter, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{

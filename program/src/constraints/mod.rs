@@ -1,8 +1,4 @@
 //! Module containing methods to enforce constraints in an aleo program
-//!
-//! @file constraints/mod.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
 pub mod boolean;
 pub use boolean::*;
