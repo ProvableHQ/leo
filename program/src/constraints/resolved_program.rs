@@ -1,11 +1,7 @@
 //! An in memory store to keep track of defined names when constraining an aleo program.
-//!
-//! @file resolved_program.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::constraints::ResolvedValue;
-use crate::program::types::Variable;
+use crate::constraints::ResolvedValue;
+use crate::types::Variable;
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;

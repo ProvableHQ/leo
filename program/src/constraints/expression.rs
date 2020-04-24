@@ -1,11 +1,7 @@
 //! Methods to enforce constraints on expressions in a resolved aleo program.
-//!
-//! @file expression.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
-use crate::program::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::program::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable};
+use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
+use crate::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;

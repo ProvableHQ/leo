@@ -1,8 +1,12 @@
-//! Module containing structs and types that make up an aleo program.
-//!
-//! @file aleo_program/mod.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
+//! Module containing structs and types that make up an Leo program.
+
+extern crate from_pest;
+#[macro_use] extern crate lazy_static;
+extern crate pest;
+extern crate pest_ast;
+#[macro_use] extern crate pest_derive;
+
+pub mod ast;
 
 pub mod constraints;
 pub use self::constraints::*;

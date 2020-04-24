@@ -605,6 +605,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-benchmark"
+version = "0.1.0"
+dependencies = [
+ "from-pest",
+ "lazy_static",
+ "leo-program",
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "rand 0.7.3",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+]
+
+[[package]]
+name = "leo-program"
+version = "0.1.0"
+dependencies = [
+ "from-pest",
+ "lazy_static",
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "rand 0.7.3",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"

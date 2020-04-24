@@ -1,4 +1,4 @@
-use leo::*;
+use leo_program::{self, ast};
 
 use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
@@ -45,11 +45,11 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
         // println!("{:#?}", syntax_tree);
 
-        let program = program::Program::<'_, F>::from(syntax_tree);
+        let program = leo_program::Program::<'_, F>::from(syntax_tree);
         println!(" compiled: {:#?}", program);
 
         let program = program.name("simple".into());
-        program::ResolvedProgram::generate_constraints(cs, program);
+        leo_program::ResolvedProgram::generate_constraints(cs, program);
 
         Ok(())
     }

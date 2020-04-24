@@ -1,11 +1,7 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
-//!
-//! @file types_from.rs
-//! @author Collin Chin <collin@aleo.org>
-//! @date 2020
 
 use crate::ast;
-use crate::program::{types, Import, PathString};
+use crate::{types, Import, PathString};
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;

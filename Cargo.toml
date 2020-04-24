@@ -6,11 +6,14 @@ edition = "2018"
 
 [lib]
 name = "leo"
-path = "src/lib.rs"
+path = "program/src/lib.rs"
 
 [[bin]]
 name = "leo"
-path = "src/main.rs"
+path = "benchmark/src/main.rs"
+
+[workspace]
+members = [ "benchmark", "program" ]
 
 [dependencies]
 snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
