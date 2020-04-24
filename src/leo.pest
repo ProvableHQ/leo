@@ -1,0 +1,178 @@
+/// Visibility
+
+visibility_public = { "public" }
+visibility_private = { "private" }
+visibility = { visibility_public | visibility_private }
+
+/// Unary Operations
+
+operation_pre_not = { "!" }
+expression_not = { operation_pre_not ~ expression_term }
+
+// operation_post_increment = { "++" }
+// expression_increment = { operation_post_increment ~ expression_term }
+//
+// operation_post_decrement = { "--" }
+// expression_decrement = { operation_post_decrement ~ expression_term }
+
+/// Binary Operations
+
+operation_and = { "&&" }
+operation_or = { "||" }
+
+operation_eq = { "==" }
+operation_neq = { "!=" }
+
+operation_geq = { ">=" }
+operation_gt = { ">" }
+operation_leq = { "<=" }
+operation_lt = { "<" }
+
+operation_add = { "+" }
+operation_sub = { "-" }
+operation_mul = { "*" }
+operation_div = { "/" }
+operation_pow = { "**" }
+
+operation_binary = _ {
+    operation_and | operation_or |
+    operation_eq | operation_neq |
+    operation_geq | operation_gt | operation_leq | operation_lt |
+    operation_add | operation_sub | operation_pow | operation_mul | operation_div
+}
+
+// operation_add_assign = { "+=" }
+// operation_sub_assign = { "-=" }
+// operation_mul_assign = { "*=" }
+// operation_div_assign = { "/=" }
+
+/// Types
+
+ty_u32 = {"u32"}
+ty_field = {"fe"}
+ty_bool = {"bool"}
+ty_basic = { ty_u32 | ty_field | ty_bool }
+ty_struct = { variable }
+ty_basic_or_struct = {ty_basic | ty_struct }
+ty_array = {ty_basic ~ ("[" ~ value ~ "]")+ }
+ty = {ty_array | ty_basic | ty_struct}
+type_list = _{(ty ~ ("," ~ ty)*)?}
+
+/// Values
+
+value_number = @{ "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)}
+value_u32 = { value_number ~ ty_u32? }
+value_field = { value_number ~ ty_field }
+value_boolean = { "true" | "false" }
+value = { value_field | value_boolean | value_u32 }
+
+/// Variables
+
+// TODO: Include "import" and "conditional"
+
+protected_name = { visibility | value_boolean | "return" }
+
+// keyword = @{ "as" | "in" | "return" | "export" | "false" |
+//             "def" | "in" | "return" | "struct" | "true" }
+
+variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+expression_primitive = { value | variable }
+
+/// Access
+
+from_expression = { expression }
+to_expression = { expression }
+
+range = { from_expression? ~ ".." ~ to_expression }
+range_or_expression = { range | expression }
+
+access_array = { "[" ~ range_or_expression ~ "]" }
+access_call = { "(" ~ expression_tuple ~ ")" }
+access_member = { "." ~ variable }
+access = { access_array | access_call | access_member }
+
+expression_postfix = { variable ~ access+ }
+
+assignee_access = { access_array | access_member }
+assignee = { variable ~ assignee_access* }
+
+spread = { "..." ~ expression }
+spread_or_expression = { spread | expression }
+
+/// Arrays
+
+inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
+expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
+expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" }
+
+/// Structs
+
+struct_field = { ty ~ variable }
+struct_field_list = _{(struct_field ~ (NEWLINE+ ~ struct_field)*)? }
+struct_definition = { "struct" ~ variable ~ "{" ~ NEWLINE* ~ struct_field_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
+
+inline_struct_member = { variable ~ ":" ~ expression }
+inline_struct_member_list = _{(inline_struct_member ~ ("," ~ NEWLINE* ~ inline_struct_member)*)? ~ ","? }
+expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_list ~ NEWLINE* ~ "}" }
+
+/// Conditionals
+
+expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ expression ~ "fi"}
+
+/// Expressions
+
+expression_term = {
+    ("(" ~ expression ~ ")")
+    | expression_inline_struct
+    | expression_conditional
+    | expression_postfix
+    | expression_primitive
+    | expression_not
+//     | expression_increment
+//     | expression_decrement
+    | expression_array_inline
+    | expression_array_initializer
+}
+
+expression = { expression_term ~ (operation_binary ~ expression_term)* }
+expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
+
+/// Statements
+
+statement_assign = { assignee ~ "=" ~ expression }
+statement_definition = { ty ~ variable ~ "=" ~ expression }
+statement_return = { "return" ~ expression_tuple }
+statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
+
+statement = {
+    (statement_return
+    | (statement_for
+      | statement_definition
+      | statement_assign
+      ) ~ NEWLINE
+    ) ~ NEWLINE*
+}
+
+/// Functions
+
+parameter = {variable ~ ":" ~ visibility? ~ ty}
+parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
+
+function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ "->" ~ "(" ~ type_list ~ ")" ~ "{" ~ NEWLINE* ~ statement* ~ "}"}
+
+/// Utilities
+
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
+
+/// Imports
+
+import = { main_import | from_import }
+from_import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ variable ~ ("as" ~ variable)? ~ NEWLINE*}
+main_import = {"import" ~ "\"" ~ import_source ~ "\"" ~ ("as" ~ variable)? ~ NEWLINE+}
+import_source = @{(!"\"" ~ ANY)*}
+
+/// Program File
+
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }

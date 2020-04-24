@@ -576,19 +576,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "language"
-version = "0.1.0"
-dependencies = [
- "from-pest",
- "lazy_static",
- "pest",
- "pest-ast",
- "pest_derive",
- "snarkos-gadgets",
- "snarkos-models",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -599,6 +586,23 @@ name = "lazycell"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
+
+[[package]]
+name = "leo"
+version = "0.1.0"
+dependencies = [
+ "from-pest",
+ "lazy_static",
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "rand 0.7.3",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+]
 
 [[package]]
 name = "libc"
