@@ -17,7 +17,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    fn enforce_definition(
+    fn store_assignment(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -117,7 +117,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    pub(crate) fn enforce_definition_statement(
+    pub(crate) fn enforce_assign_statement(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -126,7 +126,24 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     ) {
         let result_value = &mut self.enforce_expression(cs, scope.clone(), expression);
 
-        self.enforce_definition(cs, scope, assignee, result_value);
+        self.store_assignment(cs, scope, assignee, result_value);
+    }
+
+    pub(crate) fn enforce_definition_statement(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        ty: Type<F>,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
+    ) {
+        let result_value = &mut self.enforce_expression(cs, scope.clone(), expression);
+
+        if result_value.match_type(&ty) {
+            self.store_assignment(cs, scope, assignee, result_value);
+        } else {
+            unimplemented!("incompatible types {} = {}", assignee, result_value)
+        }
     }
 
     pub(crate) fn enforce_multiple_definition_statement(
@@ -149,7 +166,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .into_iter()
             .zip(return_values.into_iter())
             .for_each(|(assignee, mut return_value)| {
-                self.enforce_definition(cs, scope.clone(), assignee, &mut return_value);
+                self.store_assignment(cs, scope.clone(), assignee, &mut return_value);
             });
     }
 
@@ -188,14 +205,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 // TODO: add support for early termination
                 let _res = self.enforce_return_statement(cs, scope, statements, return_types);
             }
-            Statement::For(index, start, stop, statements) => {
-                self.enforce_for_statement(cs, scope, index, start, stop, statements);
+            Statement::Assign(variable, expression) => {
+                self.enforce_assign_statement(cs, scope, variable, expression);
+            }
+            Statement::Definition(ty, assignee, expression) => {
+                self.enforce_definition_statement(cs, scope, ty, assignee, expression);
             }
             Statement::MultipleDefinition(assignees, function) => {
                 self.enforce_multiple_definition_statement(cs, scope, assignees, function);
             }
-            Statement::Definition(variable, expression) => {
-                self.enforce_definition_statement(cs, scope, variable, expression);
+            Statement::For(index, start, stop, statements) => {
+                self.enforce_for_statement(cs, scope, index, start, stop, statements);
             }
         };
     }

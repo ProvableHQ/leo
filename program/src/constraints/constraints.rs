@@ -1,4 +1,4 @@
-//! Methods to enforce constraints a resolved aleo program.
+//! Methods to enforce constraints and construct a resolved aleo program.
 
 use crate::ast;
 use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
@@ -98,13 +98,26 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         function.returns.to_owned(),
                     )
                 }
-                Statement::MultipleDefinition(assignees, function_call) => self
-                    .enforce_multiple_definition_statement(
+                Statement::Assign(variable, expression) => {
+                    self.enforce_assign_statement(cs, function.get_name(), variable, expression);
+                }
+                Statement::Definition(ty, assignee, expression) => {
+                    self.enforce_definition_statement(
+                        cs,
+                        function.get_name(),
+                        ty,
+                        assignee,
+                        expression,
+                    );
+                }
+                Statement::MultipleDefinition(assignees, function_call) => {
+                    self.enforce_multiple_definition_statement(
                         cs,
                         function.get_name(),
                         assignees,
                         function_call,
-                    ),
+                    );
+                }
                 Statement::For(index, start, stop, statements) => {
                     self.enforce_for_statement(
                         cs,
@@ -113,14 +126,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         start,
                         stop,
                         statements,
-                    );
-                }
-                Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(
-                        cs,
-                        function.get_name(),
-                        variable,
-                        expression,
                     );
                 }
             });
@@ -140,9 +145,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .for_each(|(i, parameter)| {
                 // append each variable to arguments vector
                 arguments.push(Expression::Variable(match parameter.ty {
-                    Type::U32 => {
-                        self.integer_from_parameter(cs, function.get_name(), i + 1, parameter)
-                    }
+                    Type::U32 => self.u32_from_parameter(cs, function.get_name(), i + 1, parameter),
                     Type::FieldElement => {
                         self.field_element_from_parameter(cs, function.get_name(), i + 1, parameter)
                     }
@@ -150,12 +153,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         self.bool_from_parameter(cs, function.get_name(), i + 1, parameter)
                     }
                     Type::Array(ref ty, _length) => match *ty.clone() {
-                        Type::U32 => self.integer_array_from_parameter(
-                            cs,
-                            function.get_name(),
-                            i + 1,
-                            parameter,
-                        ),
+                        Type::U32 => {
+                            self.u32_array_from_parameter(cs, function.get_name(), i + 1, parameter)
+                        }
                         Type::FieldElement => self.field_element_array_from_parameter(
                             cs,
                             function.get_name(),

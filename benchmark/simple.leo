@@ -1,10 +1,8 @@
-function test() -> (u32, u32) {
-    return 4, 4
-}
+function main() -> (u32[3]) {
+    a = [1, 2]
+    c = 3
+    u32[3] b = [...a, c]
 
-function main() -> (u32, u32) {
-    a, b = test()
-
-    return a, b
+    return b
 }
 

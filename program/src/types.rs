@@ -97,17 +97,7 @@ pub enum Assignee<F: Field + PrimeField> {
     StructMember(Box<Assignee<F>>, Variable<F>),
 }
 
-/// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone)]
-pub enum Statement<F: Field + PrimeField> {
-    // Declaration(Variable),
-    Return(Vec<Expression<F>>),
-    Definition(Assignee<F>, Expression<F>),
-    For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
-    MultipleDefinition(Vec<Assignee<F>>, Expression<F>),
-}
-
-/// Explicit type used for defining struct members and function parameters
+/// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq)]
 pub enum Type<F: Field + PrimeField> {
     U32,
@@ -115,6 +105,17 @@ pub enum Type<F: Field + PrimeField> {
     Boolean,
     Array(Box<Type<F>>, usize),
     Struct(Variable<F>),
+}
+
+/// Program statement that defines some action (or expression) to be carried out.
+#[derive(Clone)]
+pub enum Statement<F: Field + PrimeField> {
+    // Declaration(Variable),
+    Return(Vec<Expression<F>>),
+    Assign(Assignee<F>, Expression<F>),
+    Definition(Type<F>, Assignee<F>, Expression<F>),
+    MultipleDefinition(Vec<Assignee<F>>, Expression<F>),
+    For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
 }
 
 #[derive(Clone, Debug)]
