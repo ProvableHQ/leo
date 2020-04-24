@@ -1,6 +1,6 @@
 //! The in memory stored value for a defined name in a resolved aleo program.
 
-use crate::types::{Function, Struct, StructMember, Type, Variable};
+use crate::types::{Function, Struct, Type, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};
@@ -13,10 +13,13 @@ pub enum ResolvedValue<F: Field + PrimeField> {
     Boolean(Boolean),
     Array(Vec<ResolvedValue<F>>),
     StructDefinition(Struct<F>),
-    StructExpression(Variable<F>, Vec<StructMember<F>>),
+    StructExpression(Variable<F>, Vec<ResolvedStructMember<F>>),
     Function(Function<F>),
     Return(Vec<ResolvedValue<F>>), // add Null for function returns
 }
+
+#[derive(Clone)]
+pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
 
 impl<F: Field + PrimeField> ResolvedValue<F> {
     pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
@@ -60,7 +63,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
             ResolvedValue::StructExpression(ref variable, ref members) => {
                 write!(f, "{} {{", variable)?;
                 for (i, member) in members.iter().enumerate() {
-                    write!(f, "{}: {}", member.variable, member.expression)?;
+                    write!(f, "{}: {}", member.0, member.1)?;
                     if i < members.len() - 1 {
                         write!(f, ", ")?;
                     }

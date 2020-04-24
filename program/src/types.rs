@@ -86,7 +86,7 @@ pub enum Expression<F: Field + PrimeField> {
     StructMemberAccess(Box<Expression<F>>, Variable<F>), // (struct name, struct member name)
 
     // Functions
-    FunctionCall(Box<Expression<F>>, Vec<Expression<F>>),
+    FunctionCall(Variable<F>, Vec<Expression<F>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
@@ -101,9 +101,10 @@ pub enum Assignee<F: Field + PrimeField> {
 #[derive(Clone)]
 pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
+    Return(Vec<Expression<F>>),
     Definition(Assignee<F>, Expression<F>),
     For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
-    Return(Vec<Expression<F>>),
+    MultipleDefinition(Vec<Assignee<F>>, Expression<F>),
 }
 
 /// Explicit type used for defining struct members and function parameters

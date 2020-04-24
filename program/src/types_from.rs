@@ -205,8 +205,8 @@ impl<'ast, F: Field + PrimeField> From<ast::PostfixExpression<'ast>> for types::
             .into_iter()
             .fold(variable, |acc, access| match access {
                 ast::Access::Call(function) => match acc {
-                    types::Expression::Variable(_) => types::Expression::FunctionCall(
-                        Box::new(acc),
+                    types::Expression::Variable(variable) => types::Expression::FunctionCall(
+                        variable,
                         function
                             .expressions
                             .into_iter()
@@ -345,24 +345,6 @@ impl<'ast, F: Field + PrimeField> From<ast::Assignee<'ast>> for types::Assignee<
 
 /// pest ast -> types::Statement
 
-impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
-    fn from(statement: ast::AssignStatement<'ast>) -> Self {
-        types::Statement::Definition(
-            types::Assignee::from(statement.assignee),
-            types::Expression::from(statement.expression),
-        )
-    }
-}
-
-impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
-    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
-        types::Statement::Definition(
-            types::Assignee::from(statement.variable),
-            types::Expression::from_type(statement.ty, statement.expression),
-        )
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::ReturnStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ReturnStatement<'ast>) -> Self {
         types::Statement::Return(
@@ -399,13 +381,56 @@ impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::State
     }
 }
 
+impl<'ast, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
+    for types::Statement<F>
+{
+    fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
+        let assignees = statement
+            .assignees
+            .into_iter()
+            .map(|i| types::Assignee::Variable(types::Variable::from(i.id)))
+            .collect();
+
+        types::Statement::MultipleDefinition(
+            assignees,
+            types::Expression::FunctionCall(
+                types::Variable::from(statement.function_name),
+                statement
+                    .arguments
+                    .into_iter()
+                    .map(|e| types::Expression::from(e))
+                    .collect(),
+            ),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::AssignStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Assignee::from(statement.assignee),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Assignee::from(statement.variable),
+            types::Expression::from_type(statement.ty, statement.expression),
+        )
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
+            ast::Statement::Return(statement) => types::Statement::from(statement),
+            ast::Statement::Iteration(statement) => types::Statement::from(statement),
+            ast::Statement::MultipleAssignment(statement) => types::Statement::from(statement),
             ast::Statement::Assign(statement) => types::Statement::from(statement),
             ast::Statement::Definition(statement) => types::Statement::from(statement),
-            ast::Statement::Iteration(statement) => types::Statement::from(statement),
-            ast::Statement::Return(statement) => types::Statement::from(statement),
         }
     }
 }
