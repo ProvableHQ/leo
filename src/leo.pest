@@ -76,6 +76,8 @@ protected_name = { visibility | value_boolean | "return" }
 //             "def" | "in" | "return" | "struct" | "true" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+optionally_typed_variable = { (variable) | (ty ~ variable) }
+optionally_typed_variable_tuple = _{ optionally_typed_variable ~ ("," ~ optionally_typed_variable)* }
 expression_primitive = { value | variable }
 
 /// Access
@@ -139,14 +141,16 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Statements
 
-statement_assign = { assignee ~ "=" ~ expression }
-statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_return = { "return" ~ expression_tuple }
 statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
+statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
+statement_definition = { ty ~ variable ~ "=" ~ expression }
+statement_assign = { assignee ~ "=" ~ expression }
 
 statement = {
     (statement_return
     | (statement_for
+      | statement_multiple_assignment
       | statement_definition
       | statement_assign
       ) ~ NEWLINE
