@@ -13,7 +13,7 @@ name = "leo"
 path = "benchmark/src/main.rs"
 
 [workspace]
-members = [ "benchmark", "program" ]
+members = [ "benchmark", "compiler", "program" ]
 
 [dependencies]
 snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
