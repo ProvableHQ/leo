@@ -7,4 +7,5 @@ pub mod cli_types;
 pub mod commands;
 pub mod directories;
 pub mod errors;
+pub mod files;
 pub mod manifest;

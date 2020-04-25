@@ -1,6 +1,7 @@
 use crate::{cli::*, cli_types::*};
 use crate::directories::SourceDirectory;
 use crate::errors::{CLIError, InitError};
+use crate::files::MainFile;
 use crate::manifest::Manifest;
 
 use clap::ArgMatches;
@@ -52,11 +53,10 @@ impl CLI for InitCommand {
         // Create the source directory
         SourceDirectory::create(&path)?;
 
-        // if !MainFile::exists_at(&path) {
-        //     MainFile::new(&package_name)
-        //         .write_to(&path)
-        //         .map_err(Error::MainFile)?;
-        // }
+        // Create the main file in the source directory
+        if !MainFile::exists_at(&path) {
+            MainFile::new(&package_name).write_to(&path)?;
+        }
 
         Ok(())
     }

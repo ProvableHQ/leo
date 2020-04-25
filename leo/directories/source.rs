@@ -3,7 +3,7 @@ use crate::errors::SourceDirectoryError;
 use std::fs;
 use std::path::PathBuf;
 
-pub(self) static DIRECTORY_NAME_DEFAULT: &str = "src/";
+pub(crate) static DIRECTORY_NAME_DEFAULT: &str = "src/";
 
 static SOURCE_FILE_EXTENSION_DEFAULT: &str = "leo";
 
