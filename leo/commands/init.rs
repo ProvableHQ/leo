@@ -1,5 +1,5 @@
 use crate::{cli::*, cli_types::*};
-use crate::directories::SourceDirectory;
+use crate::directories::{InputsDirectory, SourceDirectory};
 use crate::errors::{CLIError, InitError};
 use crate::files::MainFile;
 use crate::manifest::Manifest;
@@ -52,6 +52,9 @@ impl CLI for InitCommand {
 
         // Create the source directory
         SourceDirectory::create(&path)?;
+
+        // Create the inputs directory
+        InputsDirectory::create(&path)?;
 
         // Create the main file in the source directory
         if !MainFile::exists_at(&path) {

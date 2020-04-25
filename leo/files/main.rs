@@ -1,6 +1,6 @@
 //! The `main.leo` file.
 
-use crate::directories::source::DIRECTORY_NAME_DEFAULT;
+use crate::directories::source::SOURCE_DIRECTORY_NAME;
 use crate::errors::MainFileError;
 
 use serde::Deserialize;
@@ -23,8 +23,8 @@ impl MainFile {
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(DIRECTORY_NAME_DEFAULT) {
-                path.push(PathBuf::from(DIRECTORY_NAME_DEFAULT));
+            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
+                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(FILE_NAME_DEFAULT));
         }
@@ -34,8 +34,8 @@ impl MainFile {
     pub fn write_to(self, path: &PathBuf) -> Result<(), MainFileError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(DIRECTORY_NAME_DEFAULT) {
-                path.push(PathBuf::from(DIRECTORY_NAME_DEFAULT));
+            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
+                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(FILE_NAME_DEFAULT));
         }
