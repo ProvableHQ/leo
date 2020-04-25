@@ -129,7 +129,8 @@ fn main() -> Result<(), CLIError> {
             AppSettings::DisableVersion,
             AppSettings::SubcommandRequiredElseHelp,
         ])
-        .subcommands(vec![
+        .subcommands(vec![ // TODO (howardwu): Print subcommands in non-alphabetical order, instead print as ordered here.
+            NewCommand::new(),
             InitCommand::new(),
             RunCommand::new(),
         ])
@@ -138,6 +139,7 @@ fn main() -> Result<(), CLIError> {
 
 
     match arguments.subcommand() {
+        ("new", Some(arguments)) => NewCommand::output(NewCommand::parse(arguments)?),
         ("init", Some(arguments)) => InitCommand::output(InitCommand::parse(arguments)?),
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         _ => unreachable!(),

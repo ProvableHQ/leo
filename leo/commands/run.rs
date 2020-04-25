@@ -19,7 +19,8 @@ impl CLI for RunCommand {
     type Options = ();
 
     const NAME: NameType = "run";
-    const ABOUT: AboutType = "Run a program with inputs (include -h for more options)";
+    const ABOUT: AboutType = "Run a program with inputs";
+    const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];

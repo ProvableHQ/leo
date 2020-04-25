@@ -14,7 +14,8 @@ impl CLI for InitCommand {
     type Options = Option<String>;
 
     const NAME: NameType = "init";
-    const ABOUT: AboutType = "Creates a new Leo package (include -h for more options)";
+    const ABOUT: AboutType = "Creates a new Leo package in an existing directory";
+    const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
@@ -48,6 +49,8 @@ impl CLI for InitCommand {
         if Manifest::exists_at(&path) {
             return Err(InitError::PackageAlreadyExists(path.as_os_str().to_owned()).into());
         }
+
+        // Create the manifest file
         Manifest::new(&package_name).write_to(&path)?;
 
         // Create the source directory

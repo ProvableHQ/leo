@@ -8,12 +8,20 @@ pub trait CLI {
 
     const NAME: NameType;
     const ABOUT: AboutType;
+    const ARGUMENTS: &'static [ArgumentType];
     const FLAGS: &'static [FlagType];
     const OPTIONS: &'static [OptionType];
     const SUBCOMMANDS: &'static [SubCommandType];
 
     #[cfg_attr(tarpaulin, skip)]
     fn new<'a, 'b>() -> App<'a, 'b> {
+        let arguments = &Self::ARGUMENTS
+            .iter()
+            .map(|a| Arg::with_name(a.0)
+                .help(a.1)
+                .required(a.2)
+                .index(a.3))
+            .collect::<Vec<Arg<'static, 'static>>>();
         let flags = &Self::FLAGS
             .iter()
             .map(|a| Arg::from_usage(a).global(true))
@@ -55,6 +63,7 @@ pub trait CLI {
                 AppSettings::DisableHelpSubcommand,
                 AppSettings::DisableVersion,
             ])
+            .args(arguments)
             .args(flags)
             .args(options)
             .subcommands(subcommands)
