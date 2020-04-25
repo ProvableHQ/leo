@@ -1,0 +1,63 @@
+use crate::{cli::*, cli_types::*};
+use crate::directories::SourceDirectory;
+use crate::errors::{CLIError, InitError};
+use crate::manifest::Manifest;
+
+use clap::ArgMatches;
+use std::env::current_dir;
+
+#[derive(Debug)]
+pub struct InitCommand;
+
+impl CLI for InitCommand {
+    type Options = Option<String>;
+
+    const NAME: NameType = "init";
+    const ABOUT: AboutType = "Creates a new Leo package (include -h for more options)";
+    const FLAGS: &'static [FlagType] = &[];
+    const OPTIONS: &'static [OptionType] = &[];
+    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+
+    #[cfg_attr(tarpaulin, skip)]
+    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(None)
+    }
+
+    #[cfg_attr(tarpaulin, skip)]
+    fn output(options: Self::Options) -> Result<(), CLIError> {
+        let name = options;
+        let path = current_dir()?;
+
+        // Derive the package name
+        let package_name = match name {
+            Some(name) => name,
+            None => path
+                .file_stem()
+                .ok_or_else(|| InitError::ProjectNameInvalid(path.as_os_str().to_owned()))?
+                .to_string_lossy()
+                .to_string(),
+        };
+
+        // Verify the directory exists
+        if !path.exists() {
+            return Err(InitError::DirectoryDoesNotExist(path.as_os_str().to_owned()).into());
+        }
+
+        // Verify a manifest file does not already exist
+        if Manifest::exists_at(&path) {
+            return Err(InitError::PackageAlreadyExists(path.as_os_str().to_owned()).into());
+        }
+        Manifest::new(&package_name).write_to(&path)?;
+
+        // Create the source directory
+        SourceDirectory::create(&path)?;
+
+        // if !MainFile::exists_at(&path) {
+        //     MainFile::new(&package_name)
+        //         .write_to(&path)
+        //         .map_err(Error::MainFile)?;
+        // }
+
+        Ok(())
+    }
+}

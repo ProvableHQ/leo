@@ -110,7 +110,7 @@
 //     //
 // }
 
-use leo::commands::{cli::*, InitCommand};
+use leo::{cli::*, commands::*};
 use leo::errors::CLIError;
 
 use clap::{App, AppSettings};
@@ -135,9 +135,9 @@ fn main() -> Result<(), CLIError> {
 
 
     match arguments.subcommand() {
-        // ("init", Some(arguments)) => {
-        //     NewCommand::().output(NewCommand::parse(arguments)?)
-        // },
+        ("init", Some(arguments)) => {
+            InitCommand::output(InitCommand::parse(arguments)?)
+        },
         _ => unreachable!(),
     }
 }

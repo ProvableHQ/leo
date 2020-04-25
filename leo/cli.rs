@@ -1,4 +1,4 @@
-use crate::commands::cli_types::*;
+use crate::cli_types::*;
 use crate::errors::CLIError;
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
@@ -64,5 +64,5 @@ pub trait CLI {
     fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError>;
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(&mut self, options: Self::Options) -> Result<(), CLIError>;
+    fn output(options: Self::Options) -> Result<(), CLIError>;
 }

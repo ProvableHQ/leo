@@ -1,2 +1,2 @@
-pub mod new;
-pub use self::new::*;
+pub mod init;
+pub use self::init::*;

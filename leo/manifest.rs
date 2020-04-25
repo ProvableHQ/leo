@@ -1,6 +1,5 @@
 use crate::errors::ManifestError;
 
-use failure::Fail;
 use serde::Deserialize;
 use std::convert::TryFrom;
 use std::fs::File;

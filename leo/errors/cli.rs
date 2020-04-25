@@ -1,4 +1,4 @@
-use crate::errors::{ManifestError, NewError};
+use crate::errors::{ManifestError, InitError, SourceDirectoryError};
 
 #[derive(Debug, Fail)]
 pub enum CLIError {
@@ -9,7 +9,10 @@ pub enum CLIError {
     ManifestError(ManifestError),
 
     #[fail(display = "{}", _0)]
-    NewError(NewError),
+    InitError(InitError),
+
+    #[fail(display = "{}", _0)]
+    SourceDirectoryError(SourceDirectoryError),
 }
 
 impl From<ManifestError> for CLIError {
@@ -18,14 +21,26 @@ impl From<ManifestError> for CLIError {
     }
 }
 
-impl From<NewError> for CLIError {
-    fn from(error: NewError) -> Self {
-        CLIError::NewError(error)
+impl From<InitError> for CLIError {
+    fn from(error: InitError) -> Self {
+        CLIError::InitError(error)
+    }
+}
+
+impl From<SourceDirectoryError> for CLIError {
+    fn from(error: SourceDirectoryError) -> Self {
+        CLIError::SourceDirectoryError(error)
     }
 }
 
 impl From<serde_json::error::Error> for CLIError {
     fn from(error: serde_json::error::Error) -> Self {
-        CLIError::Crate("serde_json", format!("{:?}", error))
+        CLIError::Crate("serde_json", format!("{}", error))
+    }
+}
+
+impl From<std::io::Error> for CLIError {
+    fn from(error: std::io::Error) -> Self {
+        CLIError::Crate("std::io", format!("{}", error))
     }
 }
