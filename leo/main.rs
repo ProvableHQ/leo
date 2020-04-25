@@ -23,7 +23,7 @@
 // }
 //
 // impl<F: Field + PrimeField> Benchmark<F> {
-//     pub fn new() -> Self {
+//     pub fn init() -> Self {
 //         Self {
 //             _engine: PhantomData,
 //         }
@@ -56,16 +56,16 @@
 // }
 //
 // fn main() {
-//     let mut setup = Duration::new(0, 0);
-//     let mut proving = Duration::new(0, 0);
-//     let mut verifying = Duration::new(0, 0);
+//     let mut setup = Duration::init(0, 0);
+//     let mut proving = Duration::init(0, 0);
+//     let mut verifying = Duration::init(0, 0);
 //
 //     let rng = &mut thread_rng();
 //
 //     let start = Instant::now();
 //
 //     let params = {
-//         let circuit = Benchmark::<Fr>::new();
+//         let circuit = Benchmark::<Fr>::init();
 //         generate_random_parameters::<Bls12_377, _, _>(circuit, rng).unwrap()
 //     };
 //
@@ -75,7 +75,7 @@
 //
 //     let start = Instant::now();
 //     let proof = {
-//         let c = Benchmark::new();
+//         let c = Benchmark::init();
 //         create_random_proof(c, &params, rng).unwrap()
 //     };
 //
@@ -99,7 +99,7 @@
 //     println!("  Verifier output : {}", is_success);
 //     println!(" ");
 //
-//     // let mut cs = TestConstraintSystem::<Fr>::new();
+//     // let mut cs = TestConstraintSystem::<Fr>::init();
 //     //
 //     // println!("\n satisfied: {:?}", cs.is_satisfied());
 //     //
@@ -110,7 +110,7 @@
 //     //
 // }
 
-use leo::commands::{cli::*, NewCommand};
+use leo::commands::{cli::*, InitCommand};
 use leo::errors::CLIError;
 
 use clap::{App, AppSettings};
@@ -128,14 +128,14 @@ fn main() -> Result<(), CLIError> {
             AppSettings::SubcommandRequiredElseHelp,
         ])
         .subcommands(vec![
-            NewCommand::new(),
+            InitCommand::new(),
         ])
         .set_term_width(0)
         .get_matches();
 
 
     match arguments.subcommand() {
-        // ("new", Some(arguments)) => {
+        // ("init", Some(arguments)) => {
         //     NewCommand::().output(NewCommand::parse(arguments)?)
         // },
         _ => unreachable!(),

@@ -13,15 +13,15 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-pub struct NewCommand {
+pub struct InitCommand {
     #[structopt(parse(from_os_str))]
     path: PathBuf,
 }
 
-impl CLI for NewCommand {
+impl CLI for InitCommand {
     type Options = ();
 
-    const NAME: NameType = "new";
+    const NAME: NameType = "init";
     const ABOUT: AboutType = "Creates a new Leo package (include -h for more options)";
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
