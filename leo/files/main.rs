@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-pub static FILE_NAME_DEFAULT: &str = "main.leo";
+pub static MAIN_FILE_NAME: &str = "main.leo";
 
 #[derive(Deserialize)]
 pub struct MainFile {
@@ -26,7 +26,7 @@ impl MainFile {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(FILE_NAME_DEFAULT));
+            path.push(PathBuf::from(MAIN_FILE_NAME));
         }
         path.exists()
     }
@@ -37,7 +37,7 @@ impl MainFile {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(FILE_NAME_DEFAULT));
+            path.push(PathBuf::from(MAIN_FILE_NAME));
         }
 
         let mut file = File::create(&path)?;

@@ -110,13 +110,15 @@
 //     //
 // }
 
-use leo::{cli::*, commands::*};
+use leo::{cli::*, commands::*, logger};
 use leo::errors::CLIError;
 
 use clap::{App, AppSettings};
 
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
+    logger::init_logger("leo", 3);
+
     let arguments = App::new("leo")
         .version("v0.1.0")
         .about("Leo compiler and package manager")
@@ -129,15 +131,15 @@ fn main() -> Result<(), CLIError> {
         ])
         .subcommands(vec![
             InitCommand::new(),
+            RunCommand::new(),
         ])
         .set_term_width(0)
         .get_matches();
 
 
     match arguments.subcommand() {
-        ("init", Some(arguments)) => {
-            InitCommand::output(InitCommand::parse(arguments)?)
-        },
+        ("init", Some(arguments)) => InitCommand::output(InitCommand::parse(arguments)?),
+        ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         _ => unreachable!(),
     }
 }

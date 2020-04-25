@@ -1,4 +1,4 @@
-use crate::errors::{InitError, InputsDirectoryError, MainFileError, ManifestError, SourceDirectoryError};
+use crate::errors::{InitError, InputsDirectoryError, MainFileError, ManifestError, OutputsDirectoryError, RunError, SourceDirectoryError};
 
 #[derive(Debug, Fail)]
 pub enum CLIError {
@@ -17,6 +17,12 @@ pub enum CLIError {
 
     #[fail(display = "{}", _0)]
     ManifestError(ManifestError),
+
+    #[fail(display = "{}", _0)]
+    OutputsDirectoryError(OutputsDirectoryError),
+
+    #[fail(display = "{}", _0)]
+    RunError(RunError),
 
     #[fail(display = "{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
@@ -44,6 +50,18 @@ impl From<MainFileError> for CLIError {
 impl From<ManifestError> for CLIError {
     fn from(error: ManifestError) -> Self {
         CLIError::ManifestError(error)
+    }
+}
+
+impl From<OutputsDirectoryError> for CLIError {
+    fn from(error: OutputsDirectoryError) -> Self {
+        CLIError::OutputsDirectoryError(error)
+    }
+}
+
+impl From<RunError> for CLIError {
+    fn from(error: RunError) -> Self {
+        CLIError::RunError(error)
     }
 }
 

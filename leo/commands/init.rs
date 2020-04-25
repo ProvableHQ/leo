@@ -56,8 +56,9 @@ impl CLI for InitCommand {
         // Create the inputs directory
         InputsDirectory::create(&path)?;
 
-        // Create the main file in the source directory
+        // Verify the main file does not exist
         if !MainFile::exists_at(&path) {
+            // Create the main file in the source directory
             MainFile::new(&package_name).write_to(&path)?;
         }
 
