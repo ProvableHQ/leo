@@ -40,9 +40,8 @@ impl MainFile {
             path.push(PathBuf::from(FILE_NAME_DEFAULT));
         }
 
-        let mut file = File::create(&path).map_err(MainFileError::Creating)?;
-        file.write_all(self.template().as_bytes())
-            .map_err(MainFileError::Writing)
+        let mut file = File::create(&path)?;
+        Ok(file.write_all(self.template().as_bytes())?)
     }
 
     fn template(&self) -> String {

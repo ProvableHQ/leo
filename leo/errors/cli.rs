@@ -2,6 +2,7 @@ use crate::errors::{InitError, MainFileError, ManifestError, SourceDirectoryErro
 
 #[derive(Debug, Fail)]
 pub enum CLIError {
+
     #[fail(display = "{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -16,6 +17,7 @@ pub enum CLIError {
 
     #[fail(display = "{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
+
 }
 
 impl From<InitError> for CLIError {
