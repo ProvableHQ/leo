@@ -167,12 +167,16 @@ impl<F: Field + PrimeField> Function<F> {
 #[derive(Debug, Clone)]
 pub struct Program<'ast, F: Field + PrimeField> {
     pub name: Variable<F>,
-    pub imports: Vec<Import<'ast>>,
+    pub imports: Vec<Import<'ast, F>>,
     pub structs: HashMap<Variable<F>, Struct<F>>,
     pub functions: HashMap<FunctionName, Function<F>>,
 }
 
 impl<'ast, F: Field + PrimeField> Program<'ast, F> {
+    pub fn get_name(&self) -> String {
+        self.name.name.clone()
+    }
+
     pub fn name(mut self, name: String) -> Self {
         self.name = Variable {
             name,

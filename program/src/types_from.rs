@@ -1,7 +1,7 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
 
 use crate::ast;
-use crate::{types, Import, PathString};
+use crate::{types, Import, ImportSymbol};
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
@@ -491,7 +491,6 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Parameter<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let ty = types::Type::from(parameter.ty);
-        println!("type {}", ty);
         let variable = types::Variable::from(parameter.variable);
 
         if parameter.visibility.is_some() {
@@ -552,22 +551,24 @@ impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<
 
 /// pest ast -> Import
 
-impl<'ast> From<ast::Variable<'ast>> for PathString<'ast> {
-    fn from(import: ast::Variable<'ast>) -> Self {
-        import.span.as_str()
+impl<'ast, F: Field + PrimeField> From<ast::ImportSymbol<'ast>> for ImportSymbol<F> {
+    fn from(symbol: ast::ImportSymbol<'ast>) -> Self {
+        ImportSymbol {
+            symbol: types::Variable::from(symbol.value),
+            alias: symbol.alias.map(|alias| types::Variable::from(alias)),
+        }
     }
 }
 
-impl<'ast> From<ast::Import<'ast>> for Import<'ast> {
+impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<'ast, F> {
     fn from(import: ast::Import<'ast>) -> Self {
-        match import {
-            ast::Import::Main(import) => Import::new(None, Path::new(import.source.span.as_str()))
-                .alias(import.alias.map(|alias| PathString::from(alias))),
-            ast::Import::From(import) => Import::new(
-                Some(PathString::from(import.symbol)),
-                Path::new(import.source.span.as_str()),
-            )
-            .alias(import.alias.map(|alias| PathString::from(alias))),
+        Import {
+            source: Path::new(import.source.span.as_str()),
+            symbols: import
+                .symbols
+                .into_iter()
+                .map(|symbol| ImportSymbol::from(symbol))
+                .collect(),
         }
     }
 }
@@ -581,7 +582,7 @@ impl<'ast, F: Field + PrimeField> From<ast::File<'ast>> for types::Program<'ast,
             .imports
             .into_iter()
             .map(|import| Import::from(import))
-            .collect::<Vec<Import>>();
+            .collect::<Vec<Import<'ast, F>>>();
 
         let mut structs = HashMap::new();
         let mut functions = HashMap::new();

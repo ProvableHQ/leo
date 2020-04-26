@@ -1,8 +1,10 @@
-function main() -> (u32[3]) {
-    a = [1, 2]
-    c = 3
-    u32[3] b = [...a, c]
-
-    return b
+from "./simple_import" import {
+    Point as Foo,
+    test
 }
 
+function main(a: private u32) -> (u32) {
+  b = a + test()
+  Foo c = Foo { x: 1, y: 2 }
+  return b
+}
