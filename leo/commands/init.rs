@@ -12,6 +12,7 @@ pub struct InitCommand;
 
 impl CLI for InitCommand {
     type Options = Option<String>;
+    type Output = ();
 
     const NAME: NameType = "init";
     const ABOUT: AboutType = "Creates a new Leo package in an existing directory";
@@ -26,7 +27,7 @@ impl CLI for InitCommand {
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<(), CLIError> {
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let name = options;
         let path = current_dir()?;
 

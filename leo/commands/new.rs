@@ -13,6 +13,7 @@ pub struct NewCommand;
 
 impl CLI for NewCommand {
     type Options = Option<String>;
+    type Output = ();
 
     const NAME: NameType = "new";
     const ABOUT: AboutType = "Creates a new Leo package";
@@ -33,7 +34,7 @@ impl CLI for NewCommand {
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<(), CLIError> {
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let mut path = current_dir()?;
 
         // Derive the package name

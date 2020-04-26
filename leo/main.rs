@@ -27,12 +27,20 @@ fn main() -> Result<(), CLIError> {
         .set_term_width(0)
         .get_matches();
 
-
     match arguments.subcommand() {
-        ("new", Some(arguments)) => NewCommand::output(NewCommand::parse(arguments)?),
-        ("init", Some(arguments)) => InitCommand::output(InitCommand::parse(arguments)?),
-        ("build", Some(arguments)) => BuildCommand::output(BuildCommand::parse(arguments)?),
-        ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
+        ("new", Some(arguments)) => {
+            NewCommand::output(NewCommand::parse(arguments)?)
+        },
+        ("init", Some(arguments)) => {
+            InitCommand::output(InitCommand::parse(arguments)?)
+        },
+        ("build", Some(arguments)) => {
+            BuildCommand::output(BuildCommand::parse(arguments)?)?;
+            Ok(())
+        },
+        ("run", Some(arguments)) => {
+            RunCommand::output(RunCommand::parse(arguments)?)
+        },
         _ => unreachable!(),
     }
 }

@@ -5,6 +5,7 @@ use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 pub trait CLI {
     type Options;
+    type Output;
 
     const NAME: NameType;
     const ABOUT: AboutType;
@@ -73,5 +74,5 @@ pub trait CLI {
     fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError>;
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<(), CLIError>;
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError>;
 }

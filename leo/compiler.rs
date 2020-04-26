@@ -13,6 +13,7 @@ use std::{
     path::PathBuf,
 };
 
+#[derive(Clone)]
 pub struct Compiler<F: Field + PrimeField> {
     main_file_path: PathBuf,
     _engine: PhantomData<F>,

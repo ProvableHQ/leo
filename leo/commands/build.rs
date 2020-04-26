@@ -16,6 +16,7 @@ pub struct BuildCommand;
 
 impl CLI for BuildCommand {
     type Options = ();
+    type Output = Compiler<Fr>;
 
     const NAME: NameType = "build";
     const ABOUT: AboutType = "Compile the current package";
@@ -30,7 +31,7 @@ impl CLI for BuildCommand {
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<(), CLIError> {
+    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         let path = current_dir()?;
         let _manifest = Manifest::try_from(&path)?;
 
@@ -56,8 +57,8 @@ impl CLI for BuildCommand {
         log::info!("Compiling program located in {:?}", main_file_path);
 
         // Compile from the main file path
-        let _circuit = Compiler::<Fr>::init(main_file_path);
+        let circuit = Compiler::<Fr>::init(main_file_path);
 
-        Ok(())
+        Ok(circuit)
     }
 }
