@@ -54,7 +54,7 @@ impl CLI for RunCommand {
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILE_NAME);
 
-        log::debug!("Compiling program located in {:?}", main_file_path);
+        log::info!("Compiling program located in {:?}", main_file_path);
 
         fn run(main_file_path: PathBuf) {
 

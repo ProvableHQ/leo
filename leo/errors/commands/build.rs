@@ -3,7 +3,7 @@ use crate::errors::ManifestError;
 use std::ffi::OsString;
 
 #[derive(Debug, Fail)]
-pub enum RunError {
+pub enum BuildError {
 
     #[fail(display = "main file {:?} does not exist", _0)]
     MainFileDoesNotExist(OsString),
@@ -13,8 +13,8 @@ pub enum RunError {
 
 }
 
-impl From<ManifestError> for RunError {
+impl From<ManifestError> for BuildError {
     fn from(error: ManifestError) -> Self {
-        RunError::ManifestError(error)
+        BuildError::ManifestError(error)
     }
 }

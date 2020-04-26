@@ -21,6 +21,7 @@ fn main() -> Result<(), CLIError> {
         .subcommands(vec![
             NewCommand::new(),
             InitCommand::new(),
+            BuildCommand::new(),
             RunCommand::new(),
         ])
         .set_term_width(0)
@@ -30,6 +31,7 @@ fn main() -> Result<(), CLIError> {
     match arguments.subcommand() {
         ("new", Some(arguments)) => NewCommand::output(NewCommand::parse(arguments)?),
         ("init", Some(arguments)) => InitCommand::output(InitCommand::parse(arguments)?),
+        ("build", Some(arguments)) => BuildCommand::output(BuildCommand::parse(arguments)?),
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         _ => unreachable!(),
     }

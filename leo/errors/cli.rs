@@ -3,6 +3,9 @@ use crate::errors::*;
 #[derive(Debug, Fail)]
 pub enum CLIError {
 
+    #[fail(display = "{}", _0)]
+    BuildError(BuildError),
+
     #[fail(display = "{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -30,6 +33,12 @@ pub enum CLIError {
     #[fail(display = "{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
 
+}
+
+impl From<BuildError> for CLIError {
+    fn from(error: BuildError) -> Self {
+        CLIError::BuildError(error)
+    }
 }
 
 impl From<InitError> for CLIError {
