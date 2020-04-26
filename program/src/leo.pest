@@ -155,7 +155,7 @@ statement = {
       | statement_multiple_assignment
       | statement_definition
       | statement_assign
-      ) ~ NEWLINE
+      ) ~ LINE_END
     ) ~ NEWLINE*
 }
 
@@ -171,6 +171,7 @@ function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
+LINE_END = _{";" ~ NEWLINE*}
 
 /// Imports
 
@@ -178,7 +179,7 @@ import_source = @{(!"\"" ~ ANY)*}
 import_symbol = { variable ~ ("as" ~ variable)? }
 import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
-import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}")) ~ NEWLINE*}
+import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}")) ~ LINE_END}
 // import = { main_import | from_import }
 // main_import = {"import" ~ "\"" ~ import_source ~ "\"" ~ ("as" ~ variable)? ~ NEWLINE+}
 
