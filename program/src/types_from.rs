@@ -1,7 +1,7 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
 
 use crate::ast;
-use crate::{types, Import, PathString};
+use crate::{types, Import, ImportSymbol};
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
@@ -192,6 +192,50 @@ impl<'ast, F: Field + PrimeField> From<ast::TernaryExpression<'ast>> for types::
     }
 }
 
+impl<'ast, F: Field + PrimeField> From<ast::ArrayInlineExpression<'ast>> for types::Expression<F> {
+    fn from(array: ast::ArrayInlineExpression<'ast>) -> Self {
+        types::Expression::Array(
+            array
+                .expressions
+                .into_iter()
+                .map(|s_or_e| Box::new(types::SpreadOrExpression::from(s_or_e)))
+                .collect(),
+        )
+    }
+}
+impl<'ast, F: Field + PrimeField> From<ast::ArrayInitializerExpression<'ast>>
+    for types::Expression<F>
+{
+    fn from(array: ast::ArrayInitializerExpression<'ast>) -> Self {
+        let count = types::Expression::<F>::get_count(array.count);
+        let expression = Box::new(types::SpreadOrExpression::from(*array.expression));
+
+        types::Expression::Array(vec![expression; count])
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::InlineStructMember<'ast>> for types::StructMember<F> {
+    fn from(member: ast::InlineStructMember<'ast>) -> Self {
+        types::StructMember {
+            variable: types::Variable::from(member.variable),
+            expression: types::Expression::from(member.expression),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::StructInlineExpression<'ast>> for types::Expression<F> {
+    fn from(expression: ast::StructInlineExpression<'ast>) -> Self {
+        let variable = types::Variable::from(expression.variable);
+        let members = expression
+            .members
+            .into_iter()
+            .map(|member| types::StructMember::from(member))
+            .collect::<Vec<types::StructMember<F>>>();
+
+        types::Expression::Struct(variable, members)
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::PostfixExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::PostfixExpression<'ast>) -> Self {
         let variable = types::Expression::Variable(types::Variable::from(expression.variable));
@@ -229,28 +273,6 @@ impl<'ast, F: Field + PrimeField> From<ast::PostfixExpression<'ast>> for types::
     }
 }
 
-impl<'ast, F: Field + PrimeField> From<ast::ArrayInlineExpression<'ast>> for types::Expression<F> {
-    fn from(array: ast::ArrayInlineExpression<'ast>) -> Self {
-        types::Expression::Array(
-            array
-                .expressions
-                .into_iter()
-                .map(|s_or_e| Box::new(types::SpreadOrExpression::from(s_or_e)))
-                .collect(),
-        )
-    }
-}
-impl<'ast, F: Field + PrimeField> From<ast::ArrayInitializerExpression<'ast>>
-    for types::Expression<F>
-{
-    fn from(array: ast::ArrayInitializerExpression<'ast>) -> Self {
-        let count = types::Expression::<F>::get_count(array.count);
-        let expression = Box::new(types::SpreadOrExpression::from(*array.expression));
-
-        types::Expression::Array(vec![expression; count])
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Expression<F> {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match expression {
@@ -261,18 +283,13 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Express
             ast::Expression::Ternary(expression) => types::Expression::from(expression),
             ast::Expression::ArrayInline(expression) => types::Expression::from(expression),
             ast::Expression::ArrayInitializer(expression) => types::Expression::from(expression),
-            ast::Expression::StructInline(_expression) => {
-                unimplemented!("unknown type for inline struct expression")
-            }
+            ast::Expression::StructInline(expression) => types::Expression::from(expression),
             ast::Expression::Postfix(expression) => types::Expression::from(expression),
             // _ => unimplemented!(),
         }
     }
 }
 
-/// pest ast -> typed types::Expression
-/// For defined types (ex: u32[4]) we manually construct the expression instead of implementing the From trait.
-/// This saves us from having to resolve things at a later point in time.
 impl<'ast, F: Field + PrimeField> types::Expression<F> {
     fn get_count(count: ast::Value<'ast>) -> usize {
         match count {
@@ -282,34 +299,6 @@ impl<'ast, F: Field + PrimeField> types::Expression<F> {
                 .parse::<usize>()
                 .expect("Unable to read array size"),
             size => unimplemented!("Array size should be an integer {}", size),
-        }
-    }
-
-    fn from_struct(ty: ast::StructType<'ast>, expression: ast::Expression<'ast>) -> Self {
-        let declaration_struct = ty.variable.value;
-        match expression {
-            ast::Expression::StructInline(inline_struct) => {
-                if inline_struct.variable.value != declaration_struct {
-                    unimplemented!("Declared struct type must match inline struct type")
-                }
-                let variable = types::Variable::from(inline_struct.variable);
-                let members = inline_struct
-                    .members
-                    .into_iter()
-                    .map(|member| types::StructMember::from(member))
-                    .collect::<Vec<types::StructMember<F>>>();
-
-                types::Expression::Struct(variable, members)
-            }
-            _ => unimplemented!("Struct declaration must be followed by inline struct"),
-        }
-    }
-
-    fn from_type(ty: ast::Type<'ast>, expression: ast::Expression<'ast>) -> Self {
-        match ty {
-            ast::Type::Basic(_ty) => Self::from(expression),
-            ast::Type::Array(_ty) => Self::from(expression),
-            ast::Type::Struct(ty) => Self::from_struct(ty, expression),
         }
     }
 }
@@ -407,7 +396,7 @@ impl<'ast, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
 
 impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
-        types::Statement::Definition(
+        types::Statement::Assign(
             types::Assignee::from(statement.assignee),
             types::Expression::from(statement.expression),
         )
@@ -417,8 +406,9 @@ impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::St
 impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
+            types::Type::from(statement.ty),
             types::Assignee::from(statement.variable),
-            types::Expression::from_type(statement.ty, statement.expression),
+            types::Expression::from(statement.expression),
         )
     }
 }
@@ -474,15 +464,6 @@ impl<'ast, F: Field + PrimeField> From<ast::Type<'ast>> for types::Type<F> {
 
 /// pest ast -> types::Struct
 
-impl<'ast, F: Field + PrimeField> From<ast::InlineStructMember<'ast>> for types::StructMember<F> {
-    fn from(member: ast::InlineStructMember<'ast>) -> Self {
-        types::StructMember {
-            variable: types::Variable::from(member.variable),
-            expression: types::Expression::from(member.expression),
-        }
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::StructField<'ast>> for types::StructField<F> {
     fn from(struct_field: ast::StructField<'ast>) -> Self {
         types::StructField {
@@ -510,7 +491,6 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Parameter<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let ty = types::Type::from(parameter.ty);
-        println!("type {}", ty);
         let variable = types::Variable::from(parameter.variable);
 
         if parameter.visibility.is_some() {
@@ -571,22 +551,24 @@ impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<
 
 /// pest ast -> Import
 
-impl<'ast> From<ast::Variable<'ast>> for PathString<'ast> {
-    fn from(import: ast::Variable<'ast>) -> Self {
-        import.span.as_str()
+impl<'ast, F: Field + PrimeField> From<ast::ImportSymbol<'ast>> for ImportSymbol<F> {
+    fn from(symbol: ast::ImportSymbol<'ast>) -> Self {
+        ImportSymbol {
+            symbol: types::Variable::from(symbol.value),
+            alias: symbol.alias.map(|alias| types::Variable::from(alias)),
+        }
     }
 }
 
-impl<'ast> From<ast::Import<'ast>> for Import<'ast> {
+impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<'ast, F> {
     fn from(import: ast::Import<'ast>) -> Self {
-        match import {
-            ast::Import::Main(import) => Import::new(None, Path::new(import.source.span.as_str()))
-                .alias(import.alias.map(|alias| PathString::from(alias))),
-            ast::Import::From(import) => Import::new(
-                Some(PathString::from(import.symbol)),
-                Path::new(import.source.span.as_str()),
-            )
-            .alias(import.alias.map(|alias| PathString::from(alias))),
+        Import {
+            source: Path::new(import.source.span.as_str()),
+            symbols: import
+                .symbols
+                .into_iter()
+                .map(|symbol| ImportSymbol::from(symbol))
+                .collect(),
         }
     }
 }
@@ -600,7 +582,7 @@ impl<'ast, F: Field + PrimeField> From<ast::File<'ast>> for types::Program<'ast,
             .imports
             .into_iter()
             .map(|import| Import::from(import))
-            .collect::<Vec<Import>>();
+            .collect::<Vec<Import<'ast, F>>>();
 
         let mut structs = HashMap::new();
         let mut functions = HashMap::new();

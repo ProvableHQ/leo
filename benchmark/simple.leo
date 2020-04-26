@@ -1,10 +1,4 @@
-function test() -> (u32, u32) {
-    return 4, 4
+function main(a: private u32) -> (u32) {
+  b = a + 5;
+  return a
 }
-
-function main() -> (u32, u32) {
-    a, b = test()
-
-    return a, b
-}
-

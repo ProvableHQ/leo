@@ -1,7 +1,9 @@
-//! Methods to enforce constraints a resolved aleo program.
+//! Methods to enforce constraints and construct a resolved aleo program.
 
 use crate::ast;
-use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
+use crate::constraints::{
+    new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram, ResolvedValue,
+};
 use crate::{Expression, Function, Import, Program, Statement, Type};
 
 use from_pest::FromPest;
@@ -13,9 +15,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn enforce_function(
         &mut self,
         cs: &mut CS,
+        scope: String,
         function: Function<F>,
         arguments: Vec<Expression<F>>,
     ) -> ResolvedValue<F> {
+        let function_name = new_scope(scope.clone(), function.get_name());
+
         // Make sure we are given the correct number of arguments
         if function.parameters.len() != arguments.len() {
             unimplemented!(
@@ -35,11 +40,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::U32 => {
-                        match self.enforce_expression(cs, function.get_name(), argument) {
+                        match self.enforce_expression(
+                            cs,
+                            scope.clone(),
+                            function_name.clone(),
+                            argument,
+                        ) {
                             ResolvedValue::U32(number) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
-                                    function.get_name(),
+                                    function_name.clone(),
                                     &parameter.variable,
                                 );
                                 self.store(variable_name, ResolvedValue::U32(number));
@@ -50,11 +60,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         }
                     }
                     Type::FieldElement => {
-                        match self.enforce_expression(cs, function.get_name(), argument) {
+                        match self.enforce_expression(
+                            cs,
+                            scope.clone(),
+                            function_name.clone(),
+                            argument,
+                        ) {
                             ResolvedValue::FieldElement(field) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
-                                    function.get_name(),
+                                    function_name.clone(),
                                     &parameter.variable,
                                 );
                                 self.store(variable_name, ResolvedValue::FieldElement(field));
@@ -63,11 +78,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         }
                     }
                     Type::Boolean => {
-                        match self.enforce_expression(cs, function.get_name(), argument) {
+                        match self.enforce_expression(
+                            cs,
+                            scope.clone(),
+                            function_name.clone(),
+                            argument,
+                        ) {
                             ResolvedValue::Boolean(bool) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
-                                    function.get_name(),
+                                    function_name.clone(),
                                     &parameter.variable,
                                 );
                                 self.store(variable_name, ResolvedValue::Boolean(bool));
@@ -93,34 +113,49 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 Statement::Return(expressions) => {
                     return_values = self.enforce_return_statement(
                         cs,
-                        function.get_name(),
+                        scope.clone(),
+                        function_name.clone(),
                         expressions,
                         function.returns.to_owned(),
-                    )
+                    );
                 }
-                Statement::MultipleDefinition(assignees, function_call) => self
-                    .enforce_multiple_definition_statement(
+                Statement::Assign(variable, expression) => {
+                    self.enforce_assign_statement(
                         cs,
-                        function.get_name(),
+                        scope.clone(),
+                        function_name.clone(),
+                        variable,
+                        expression,
+                    );
+                }
+                Statement::Definition(ty, assignee, expression) => {
+                    self.enforce_definition_statement(
+                        cs,
+                        scope.clone(),
+                        function_name.clone(),
+                        ty,
+                        assignee,
+                        expression,
+                    );
+                }
+                Statement::MultipleDefinition(assignees, function_call) => {
+                    self.enforce_multiple_definition_statement(
+                        cs,
+                        scope.clone(),
+                        function_name.clone(),
                         assignees,
                         function_call,
-                    ),
+                    );
+                }
                 Statement::For(index, start, stop, statements) => {
                     self.enforce_for_statement(
                         cs,
-                        function.get_name(),
+                        scope.clone(),
+                        function_name.clone(),
                         index,
                         start,
                         stop,
                         statements,
-                    );
-                }
-                Statement::Definition(variable, expression) => {
-                    self.enforce_definition_statement(
-                        cs,
-                        function.get_name(),
-                        variable,
-                        expression,
                     );
                 }
             });
@@ -128,7 +163,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         return_values
     }
 
-    fn enforce_main_function(&mut self, cs: &mut CS, function: Function<F>) -> ResolvedValue<F> {
+    fn enforce_main_function(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        function: Function<F>,
+    ) -> ResolvedValue<F> {
+        let function_name = new_scope(scope.clone(), function.get_name());
         let mut arguments = vec![];
 
         // Iterate over main function parameters
@@ -141,30 +182,33 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 // append each variable to arguments vector
                 arguments.push(Expression::Variable(match parameter.ty {
                     Type::U32 => {
-                        self.integer_from_parameter(cs, function.get_name(), i + 1, parameter)
+                        self.u32_from_parameter(cs, function_name.clone(), i + 1, parameter)
                     }
-                    Type::FieldElement => {
-                        self.field_element_from_parameter(cs, function.get_name(), i + 1, parameter)
-                    }
+                    Type::FieldElement => self.field_element_from_parameter(
+                        cs,
+                        function_name.clone(),
+                        i + 1,
+                        parameter,
+                    ),
                     Type::Boolean => {
-                        self.bool_from_parameter(cs, function.get_name(), i + 1, parameter)
+                        self.bool_from_parameter(cs, function_name.clone(), i + 1, parameter)
                     }
                     Type::Array(ref ty, _length) => match *ty.clone() {
-                        Type::U32 => self.integer_array_from_parameter(
+                        Type::U32 => self.u32_array_from_parameter(
                             cs,
-                            function.get_name(),
+                            function_name.clone(),
                             i + 1,
                             parameter,
                         ),
                         Type::FieldElement => self.field_element_array_from_parameter(
                             cs,
-                            function.get_name(),
+                            function_name.clone(),
                             i + 1,
                             parameter,
                         ),
                         Type::Boolean => self.boolean_array_from_parameter(
                             cs,
-                            function.get_name(),
+                            function_name.clone(),
                             i + 1,
                             parameter,
                         ),
@@ -174,58 +218,138 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 }))
             });
 
-        self.enforce_function(cs, function, arguments)
+        self.enforce_function(cs, scope, function, arguments)
     }
 
-    fn enforce_import(&mut self, cs: &mut CS, import: Import) {
+    fn enforce_import(&mut self, cs: &mut CS, scope: String, import: Import<F>) {
         // Resolve program file path
-        let unparsed_file = fs::read_to_string(import.get_file()).expect("cannot read file");
-        let mut file = ast::parse(&unparsed_file).expect("unsuccessful parse");
+        let unparsed_file = fs::read_to_string(import.get_file())
+            .expect(&format!("cannot parse import {}", import.get_file()));
+        let mut file = ast::parse(&unparsed_file)
+            .expect(&format!("cannot parse import {}", import.get_file()));
 
         // generate ast from file
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
 
         // generate aleo program from file
-        let program = Program::from(syntax_tree);
+        let mut program = Program::from(syntax_tree);
 
-        // recursively evaluate program statements TODO: in file scope
-        self.resolve_definitions(cs, program);
+        // Use same namespace as calling function for imported symbols
+        program = program.name(scope);
 
-        // store import under designated name
-        // self.store(name, value)
+        // * -> import all imports, structs, functions in the current scope
+        if import.is_star() {
+            // recursively evaluate program statements
+            self.resolve_definitions(cs, program);
+        } else {
+            let program_name = program.name.clone();
+
+            // match each import symbol to a symbol in the imported file
+            import.symbols.into_iter().for_each(|symbol| {
+                // see if the imported symbol is a struct
+                let matched_struct = program
+                    .structs
+                    .clone()
+                    .into_iter()
+                    .find(|(struct_name, _struct_def)| symbol.symbol == *struct_name);
+
+                match matched_struct {
+                    Some((_struct_name, struct_def)) => {
+                        // take the alias if it is present
+                        let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
+                        let resolved_struct_name =
+                            new_variable_from_variables(&program_name.clone(), &resolved_name);
+
+                        // store imported struct under resolved name
+                        self.store_variable(
+                            resolved_struct_name,
+                            ResolvedValue::StructDefinition(struct_def),
+                        );
+                    }
+                    None => {
+                        // see if the imported symbol is a function
+                        let matched_function = program.functions.clone().into_iter().find(
+                            |(function_name, _function)| symbol.symbol.name == *function_name.0,
+                        );
+
+                        match matched_function {
+                            Some((_function_name, function)) => {
+                                // take the alias if it is present
+                                let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
+                                let resolved_function_name = new_variable_from_variables(
+                                    &program_name.clone(),
+                                    &resolved_name,
+                                );
+
+                                // store imported function under resolved name
+                                self.store_variable(
+                                    resolved_function_name,
+                                    ResolvedValue::Function(function),
+                                )
+                            }
+                            None => unimplemented!(
+                                "cannot find imported symbol {} in imported file {}",
+                                symbol,
+                                program_name.clone()
+                            ),
+                        }
+                    }
+                }
+            });
+
+            // evaluate all import statements in imported file
+            program.imports.into_iter().for_each(|nested_import| {
+                self.enforce_import(cs, program_name.name.clone(), nested_import)
+            });
+        }
     }
 
     pub fn resolve_definitions(&mut self, cs: &mut CS, program: Program<F>) {
+        let program_name = program.name.clone();
+
+        // evaluate and store all imports
         program
             .imports
             .into_iter()
-            .for_each(|import| self.enforce_import(cs, import));
+            .for_each(|import| self.enforce_import(cs, program_name.name.clone(), import));
+
+        // evaluate and store all struct definitions
         program
             .structs
             .into_iter()
             .for_each(|(variable, struct_def)| {
-                self.store_variable(variable, ResolvedValue::StructDefinition(struct_def));
+                let resolved_struct_name =
+                    new_variable_from_variables(&program_name.clone(), &variable);
+                self.store_variable(
+                    resolved_struct_name,
+                    ResolvedValue::StructDefinition(struct_def),
+                );
             });
+
+        // evaluate and store all function definitions
         program
             .functions
             .into_iter()
             .for_each(|(function_name, function)| {
-                self.store(function_name.0, ResolvedValue::Function(function));
+                let resolved_function_name = new_scope(program_name.name.clone(), function_name.0);
+                self.store(resolved_function_name, ResolvedValue::Function(function));
             });
     }
 
     pub fn generate_constraints(cs: &mut CS, program: Program<F>) {
         let mut resolved_program = ResolvedProgram::new();
+        let program_name = program.get_name();
+        let main_function_name = new_scope(program_name.clone(), "main".into());
 
         resolved_program.resolve_definitions(cs, program);
 
         let main = resolved_program
-            .get(&"main".into())
+            .get(&main_function_name)
             .expect("main function not defined");
 
         let result = match main.clone() {
             ResolvedValue::Function(function) => {
-                resolved_program.enforce_main_function(cs, function)
+                resolved_program.enforce_main_function(cs, program_name, function)
             }
             _ => unimplemented!("main must be a function"),
         };

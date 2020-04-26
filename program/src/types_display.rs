@@ -151,6 +151,12 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
                 }
                 write!(f, "\n")
             }
+            Statement::Assign(ref variable, ref statement) => {
+                write!(f, "{} = {};", variable, statement)
+            }
+            Statement::Definition(ref ty, ref assignee, ref statement) => {
+                write!(f, "{} {} = {};", ty, assignee, statement)
+            }
             Statement::MultipleDefinition(ref assignees, ref function) => {
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;
@@ -158,17 +164,14 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
                         write!(f, ", ")?;
                     }
                 }
-                write!(f, " = {}", function)
+                write!(f, " = {};", function)
             }
             Statement::For(ref var, ref start, ref stop, ref list) => {
                 write!(f, "for {} in {}..{} do\n", var, start, stop)?;
                 for l in list {
                     write!(f, "\t\t{}\n", l)?;
                 }
-                write!(f, "\tendfor")
-            }
-            Statement::Definition(ref variable, ref statement) => {
-                write!(f, "{} = {}", variable, statement)
+                write!(f, "\tendfor;")
             }
         }
     }
@@ -187,6 +190,12 @@ impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
                 }
                 write!(f, "\n")
             }
+            Statement::Assign(ref variable, ref statement) => {
+                write!(f, "{} = {};", variable, statement)
+            }
+            Statement::Definition(ref ty, ref assignee, ref statement) => {
+                write!(f, "{} {} = {};", ty, assignee, statement)
+            }
             Statement::MultipleDefinition(ref assignees, ref function) => {
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;
@@ -194,17 +203,14 @@ impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
                         write!(f, ", ")?;
                     }
                 }
-                write!(f, " = {}()", function)
+                write!(f, " = {}();", function)
             }
             Statement::For(ref var, ref start, ref stop, ref list) => {
                 write!(f, "for {:?} in {:?}..{:?} do\n", var, start, stop)?;
                 for l in list {
                     write!(f, "\t\t{:?}\n", l)?;
                 }
-                write!(f, "\tendfor")
-            }
-            Statement::Definition(ref variable, ref statement) => {
-                write!(f, "{} = {}", variable, statement)
+                write!(f, "\tendfor;")
             }
         }
     }
