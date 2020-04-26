@@ -9,3 +9,6 @@ pub use self::new::*;
 
 pub mod run;
 pub use self::run::*;
+
+pub mod setup;
+pub use self::setup::*;
