@@ -37,10 +37,10 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
 
         // Build the abstract syntax tree
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
-        // println!("{:#?}", syntax_tree);
+        log::debug!("{:#?}", syntax_tree);
 
         let program = leo_program::Program::<'_, F>::from(syntax_tree);
-        println!(" compiled: {:#?}", program);
+        log::info!(" compiled: {:#?}", program);
 
         let program = program.name("simple".into());
         leo_program::ResolvedProgram::generate_constraints(cs, program);

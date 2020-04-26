@@ -117,7 +117,7 @@ use clap::{App, AppSettings};
 
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
-    logger::init_logger("leo", 3);
+    logger::init_logger("leo", 1);
 
     let arguments = App::new("leo")
         .version("v0.1.0")
