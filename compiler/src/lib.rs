@@ -10,6 +10,8 @@ extern crate pest_derive;
 
 pub mod ast;
 
+pub mod compiler;
+
 pub mod constraints;
 pub use self::constraints::*;
 

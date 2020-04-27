@@ -1,9 +1,9 @@
 use crate::{cli::*, cli_types::*};
-use crate::compiler::Compiler;
 use crate::directories::{OutputsDirectory, source::SOURCE_DIRECTORY_NAME};
 use crate::errors::{CLIError, BuildError};
 use crate::files::{MainFile, MAIN_FILE_NAME};
 use crate::manifest::Manifest;
+use leo_compiler::compiler::Compiler;
 
 use snarkos_curves::bls12_377::Fr;
 

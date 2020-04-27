@@ -1,7 +1,7 @@
 use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
-use crate::compiler::Compiler;
 use crate::errors::CLIError;
+use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::{generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey};
 use snarkos_curves::bls12_377::{Bls12_377, Fr};

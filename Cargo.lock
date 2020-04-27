@@ -651,6 +651,7 @@ version = "0.1.0"
 dependencies = [
  "from-pest",
  "lazy_static",
+ "log",
  "pest",
  "pest-ast",
  "pest_derive",
