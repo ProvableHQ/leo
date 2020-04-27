@@ -616,7 +616,7 @@ dependencies = [
  "env_logger",
  "failure",
  "from-pest",
- "leo-program",
+ "leo-compiler",
  "log",
  "rand 0.7.3",
  "rand_core 0.5.1",
@@ -636,7 +636,7 @@ name = "leo-benchmark"
 version = "0.1.0"
 dependencies = [
  "from-pest",
- "leo-program",
+ "leo-compiler",
  "rand 0.7.3",
  "snarkos-algorithms",
  "snarkos-curves",
@@ -646,7 +646,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-program"
+name = "leo-compiler"
 version = "0.1.0"
 dependencies = [
  "from-pest",

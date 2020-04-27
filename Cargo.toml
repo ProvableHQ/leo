@@ -13,10 +13,10 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "benchmark", "program" ]
+members = [ "benchmark", "compiler" ]
 
 [dependencies]
-leo-program = { path = "./program", version = "0.1.0" }
+leo-compiler = { path = "compiler", version = "0.1.0" }
 
 snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
 snarkos-curves = { path = "../snarkOS/curves", version = "0.8.0" }

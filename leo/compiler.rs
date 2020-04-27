@@ -1,4 +1,4 @@
-use leo_program::{self, ast};
+use leo_compiler::{self, ast};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -40,11 +40,11 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
         log::debug!("{:#?}", syntax_tree);
 
-        let program = leo_program::Program::<'_, F>::from(syntax_tree);
+        let program = leo_compiler::Program::<'_, F>::from(syntax_tree);
         log::info!(" compiled: {:#?}", program);
 
         let program = program.name("simple".into());
-        leo_program::ResolvedProgram::generate_constraints(cs, program);
+        leo_compiler::ResolvedProgram::generate_constraints(cs, program);
 
         Ok(())
     }
