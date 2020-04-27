@@ -105,21 +105,18 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
         let mut return_values = ResolvedValue::Return(vec![]);
 
-        function
-            .statements
-            .clone()
-            .into_iter()
-            .for_each(|statement| {
-                if let Some(returned) = self.enforce_statement(
-                    cs,
-                    scope.clone(),
-                    function_name.clone(),
-                    statement,
-                    function.returns.clone(),
-                ) {
-                    return_values = returned;
-                }
-            });
+        for statement in function.statements.iter() {
+            if let Some(returned) = self.enforce_statement(
+                cs,
+                scope.clone(),
+                function_name.clone(),
+                statement.clone(),
+                function.returns.clone(),
+            ) {
+                return_values = returned;
+                break;
+            }
+        }
 
         return_values
     }

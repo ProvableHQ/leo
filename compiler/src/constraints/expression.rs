@@ -27,7 +27,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             // Check global scope (function and struct names)
             self.get_mut_variable(&unresolved_variable).unwrap().clone()
         } else {
-            unimplemented!("variable declaration {} not found", variable_name)
+            unimplemented!("variable declaration \"{}\" not found", unresolved_variable)
         }
     }
 

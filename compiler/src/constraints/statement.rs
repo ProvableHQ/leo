@@ -232,15 +232,40 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
+    fn iterate_or_early_return(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
+    ) -> Option<ResolvedValue<F>> {
+        let mut res = None;
+        // Evaluate statements and possibly return early
+        for statement in statements.iter() {
+            if let Some(early_return) = self.enforce_statement(
+                cs,
+                file_scope.clone(),
+                function_scope.clone(),
+                statement.clone(),
+                return_types.clone(),
+            ) {
+                res = Some(early_return);
+                break;
+            }
+        }
+
+        res
+    }
+
     fn enforce_conditional_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
         statement: ConditionalStatement<F>,
+        return_types: Vec<Type<F>>,
     ) -> Option<ResolvedValue<F>> {
-        let mut res = None;
-
         let condition = match self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -252,50 +277,34 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         };
 
         if condition.eq(&Boolean::Constant(true)) {
-            statement
-                .statements
-                .clone()
-                .into_iter()
-                .for_each(|statement| {
-                    if let Some(early_return) = self.enforce_statement(
-                        cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
-                        statement,
-                        vec![],
-                    ) {
-                        res = Some(early_return)
-                    }
-                });
+            self.iterate_or_early_return(
+                cs,
+                file_scope,
+                function_scope,
+                statement.statements,
+                return_types,
+            )
         } else {
-            if let Some(next) = statement.next {
-                match next {
-                    ConditionalNestedOrEnd::Nested(nested) => {
-                        res = self.enforce_conditional_statement(
-                            cs,
-                            file_scope,
-                            function_scope,
-                            *nested,
-                        )
-                    }
-                    ConditionalNestedOrEnd::End(statements) => {
-                        statements.into_iter().for_each(|statement| {
-                            if let Some(early_return) = self.enforce_statement(
-                                cs,
-                                file_scope.clone(),
-                                function_scope.clone(),
-                                statement,
-                                vec![],
-                            ) {
-                                res = Some(early_return)
-                            }
-                        })
-                    }
-                }
+            match statement.next {
+                Some(next) => match next {
+                    ConditionalNestedOrEnd::Nested(nested) => self.enforce_conditional_statement(
+                        cs,
+                        file_scope,
+                        function_scope,
+                        *nested,
+                        return_types,
+                    ),
+                    ConditionalNestedOrEnd::End(statements) => self.iterate_or_early_return(
+                        cs,
+                        file_scope,
+                        function_scope,
+                        statements,
+                        return_types,
+                    ),
+                },
+                None => None,
             }
         }
-
-        res
     }
 
     fn enforce_for_statement(
@@ -307,6 +316,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         start: Integer,
         stop: Integer,
         statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
     ) -> Option<ResolvedValue<F>> {
         let mut res = None;
 
@@ -316,17 +326,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             let index_name = new_scope_from_variable(function_scope.clone(), &index);
             self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
 
-            // Evaluate statements (for loop statements should not have a return type)
-            statements.clone().into_iter().for_each(|statement| {
-                // TODO: handle for loop early termination here
-                res = self.enforce_statement(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    statement,
-                    vec![],
-                );
-            });
+            // Evaluate statements and possibly return early
+            if let Some(early_return) = self.iterate_or_early_return(
+                cs,
+                file_scope.clone(),
+                function_scope.clone(),
+                statements.clone(),
+                return_types.clone(),
+            ) {
+                res = Some(early_return);
+                break;
+            }
         }
 
         res
@@ -375,9 +385,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 );
             }
             Statement::Conditional(statement) => {
-                if let Some(early_return) =
-                    self.enforce_conditional_statement(cs, file_scope, function_scope, statement)
-                {
+                if let Some(early_return) = self.enforce_conditional_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    statement,
+                    return_types,
+                ) {
                     res = Some(early_return)
                 }
             }
@@ -390,6 +404,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     start,
                     stop,
                     statements,
+                    return_types,
                 ) {
                     res = Some(early_return)
                 }
