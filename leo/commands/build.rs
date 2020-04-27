@@ -1,8 +1,8 @@
-use crate::{cli::*, cli_types::*};
-use crate::directories::{OutputsDirectory, source::SOURCE_DIRECTORY_NAME};
-use crate::errors::{CLIError, BuildError};
+use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
+use crate::errors::{BuildError, CLIError};
 use crate::files::{MainFile, MAIN_FILE_NAME};
 use crate::manifest::Manifest;
+use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_curves::bls12_377::Fr;
@@ -43,7 +43,9 @@ impl CLI for BuildCommand {
 
         // Verify the main file exists
         if !MainFile::exists_at(&package_path) {
-            return Err(BuildError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into());
+            return Err(
+                BuildError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into(),
+            );
         }
 
         // Create the outputs directory

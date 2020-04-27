@@ -107,14 +107,28 @@ pub enum Type<F: Field + PrimeField> {
     Struct(Variable<F>),
 }
 
+#[derive(Clone)]
+pub enum ConditionalNestedOrEnd<F: Field + PrimeField> {
+    Nested(Box<ConditionalStatement<F>>),
+    End(Vec<Statement<F>>),
+}
+
+#[derive(Clone)]
+pub struct ConditionalStatement<F: Field + PrimeField> {
+    pub condition: Expression<F>,
+    pub statements: Vec<Statement<F>>,
+    pub next: Option<ConditionalNestedOrEnd<F>>,
+}
+
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone)]
 pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
     Return(Vec<Expression<F>>),
-    Assign(Assignee<F>, Expression<F>),
     Definition(Type<F>, Assignee<F>, Expression<F>),
-    MultipleDefinition(Vec<Assignee<F>>, Expression<F>),
+    Assign(Assignee<F>, Expression<F>),
+    MultipleAssign(Vec<Assignee<F>>, Expression<F>),
+    Conditional(ConditionalStatement<F>),
     For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
 }
 

@@ -346,6 +346,86 @@ impl<'ast, F: Field + PrimeField> From<ast::ReturnStatement<'ast>> for types::St
     }
 }
 
+impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
+        types::Statement::Definition(
+            types::Type::from(statement.ty),
+            types::Assignee::from(statement.variable),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::AssignStatement<'ast>) -> Self {
+        types::Statement::Assign(
+            types::Assignee::from(statement.assignee),
+            types::Expression::from(statement.expression),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
+    for types::Statement<F>
+{
+    fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
+        let assignees = statement
+            .assignees
+            .into_iter()
+            .map(|i| types::Assignee::Variable(types::Variable::from(i.id)))
+            .collect();
+
+        types::Statement::MultipleAssign(
+            assignees,
+            types::Expression::FunctionCall(
+                types::Variable::from(statement.function_name),
+                statement
+                    .arguments
+                    .into_iter()
+                    .map(|e| types::Expression::from(e))
+                    .collect(),
+            ),
+        )
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::ConditionalNestedOrEnd<'ast>>
+    for types::ConditionalNestedOrEnd<F>
+{
+    fn from(statement: ast::ConditionalNestedOrEnd<'ast>) -> Self {
+        match statement {
+            ast::ConditionalNestedOrEnd::Nested(nested) => types::ConditionalNestedOrEnd::Nested(
+                Box::new(types::ConditionalStatement::from(*nested)),
+            ),
+            ast::ConditionalNestedOrEnd::End(statements) => types::ConditionalNestedOrEnd::End(
+                statements
+                    .into_iter()
+                    .map(|statement| types::Statement::from(statement))
+                    .collect(),
+            ),
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::ConditionalStatement<'ast>>
+    for types::ConditionalStatement<F>
+{
+    fn from(statement: ast::ConditionalStatement<'ast>) -> Self {
+        types::ConditionalStatement {
+            condition: types::Expression::from(statement.condition),
+            statements: statement
+                .statements
+                .into_iter()
+                .map(|statement| types::Statement::from(statement))
+                .collect(),
+            next: statement
+                .next
+                .map(|n_or_e| Some(types::ConditionalNestedOrEnd::from(n_or_e)))
+                .unwrap_or(None),
+        }
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ForStatement<'ast>) -> Self {
         let from = match types::Expression::<F>::from(statement.start) {
@@ -370,57 +450,17 @@ impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::State
     }
 }
 
-impl<'ast, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
-    for types::Statement<F>
-{
-    fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
-        let assignees = statement
-            .assignees
-            .into_iter()
-            .map(|i| types::Assignee::Variable(types::Variable::from(i.id)))
-            .collect();
-
-        types::Statement::MultipleDefinition(
-            assignees,
-            types::Expression::FunctionCall(
-                types::Variable::from(statement.function_name),
-                statement
-                    .arguments
-                    .into_iter()
-                    .map(|e| types::Expression::from(e))
-                    .collect(),
-            ),
-        )
-    }
-}
-
-impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
-    fn from(statement: ast::AssignStatement<'ast>) -> Self {
-        types::Statement::Assign(
-            types::Assignee::from(statement.assignee),
-            types::Expression::from(statement.expression),
-        )
-    }
-}
-
-impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
-    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
-        types::Statement::Definition(
-            types::Type::from(statement.ty),
-            types::Assignee::from(statement.variable),
-            types::Expression::from(statement.expression),
-        )
-    }
-}
-
 impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
             ast::Statement::Return(statement) => types::Statement::from(statement),
-            ast::Statement::Iteration(statement) => types::Statement::from(statement),
-            ast::Statement::MultipleAssignment(statement) => types::Statement::from(statement),
-            ast::Statement::Assign(statement) => types::Statement::from(statement),
             ast::Statement::Definition(statement) => types::Statement::from(statement),
+            ast::Statement::Assign(statement) => types::Statement::from(statement),
+            ast::Statement::MultipleAssignment(statement) => types::Statement::from(statement),
+            ast::Statement::Conditional(statement) => {
+                types::Statement::Conditional(types::ConditionalStatement::from(statement))
+            }
+            ast::Statement::Iteration(statement) => types::Statement::from(statement),
         }
     }
 }

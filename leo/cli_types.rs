@@ -21,4 +21,9 @@ pub type OptionType = (
     &'static [&'static str],
 );
 
-pub type SubCommandType = (NameType, AboutType, &'static [OptionType], &'static [AppSettings]);
+pub type SubCommandType = (
+    NameType,
+    AboutType,
+    &'static [OptionType],
+    &'static [AppSettings],
+);

@@ -5,7 +5,6 @@ use std::io;
 
 #[derive(Debug, Fail)]
 pub enum NewError {
-
     #[fail(display = "root directory {:?} creating: {}", _0, _1)]
     CreatingRootDirectory(OsString, io::Error),
 
@@ -20,7 +19,6 @@ pub enum NewError {
 
     #[fail(display = "package name is missing - {:?}", _0)]
     ProjectNameInvalid(OsString),
-
 }
 
 impl From<ManifestError> for NewError {

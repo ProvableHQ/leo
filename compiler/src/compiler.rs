@@ -7,11 +7,7 @@ use snarkos_models::{
 };
 
 use from_pest::FromPest;
-use std::{
-    fs,
-    marker::PhantomData,
-    path::PathBuf,
-};
+use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
 pub struct Compiler<F: Field + PrimeField> {
@@ -21,7 +17,10 @@ pub struct Compiler<F: Field + PrimeField> {
 
 impl<F: Field + PrimeField> Compiler<F> {
     pub fn init(main_file_path: PathBuf) -> Self {
-        Self { main_file_path, _engine: PhantomData }
+        Self {
+            main_file_path,
+            _engine: PhantomData,
+        }
     }
 }
 

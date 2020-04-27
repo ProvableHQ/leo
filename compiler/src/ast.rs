@@ -618,7 +618,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
             }
             Expression::Ternary(ref expression) => write!(
                 f,
-                "if {} then {} else {} fi",
+                "if {} ? {} : {}",
                 expression.first, expression.second, expression.third
             ),
             Expression::ArrayInline(ref expression) => {
@@ -806,6 +806,23 @@ pub struct ReturnStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::conditional_nested_or_end))]
+pub enum ConditionalNestedOrEnd<'ast> {
+    Nested(Box<ConditionalStatement<'ast>>),
+    End(Vec<Statement<'ast>>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_conditional))]
+pub struct ConditionalStatement<'ast> {
+    pub condition: Expression<'ast>,
+    pub statements: Vec<Statement<'ast>>,
+    pub next: Option<ConditionalNestedOrEnd<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_for))]
 pub struct ForStatement<'ast> {
     pub index: Variable<'ast>,
@@ -849,10 +866,11 @@ pub struct AssignStatement<'ast> {
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Return(ReturnStatement<'ast>),
-    Iteration(ForStatement<'ast>),
-    MultipleAssignment(MultipleAssignmentStatement<'ast>),
     Definition(DefinitionStatement<'ast>),
     Assign(AssignStatement<'ast>),
+    MultipleAssignment(MultipleAssignmentStatement<'ast>),
+    Conditional(ConditionalStatement<'ast>),
+    Iteration(ForStatement<'ast>),
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -864,6 +882,34 @@ impl<'ast> fmt::Display for ReturnStatement<'ast> {
             }
         }
         write!(f, "")
+    }
+}
+
+impl<'ast> fmt::Display for ConditionalNestedOrEnd<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
+            ConditionalNestedOrEnd::End(ref statements) => {
+                write!(f, "else {{\n")?;
+                for statement in statements.iter() {
+                    write!(f, "\t{}\n", statement)?;
+                }
+                write!(f, "}}")
+            }
+        }
+    }
+}
+
+impl<'ast> fmt::Display for ConditionalStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "if ({}) {{\n", self.condition)?;
+        for statement in self.statements.iter() {
+            write!(f, "\t{}\n", statement)?;
+        }
+        self.next
+            .as_ref()
+            .map(|n_or_e| write!(f, "}} {}", n_or_e))
+            .unwrap_or(write!(f, "}}"))
     }
 }
 
@@ -891,13 +937,13 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} = {}", self.ty, self.variable, self.expression)
+        write!(f, "{} {} = {};", self.ty, self.variable, self.expression)
     }
 }
 
 impl<'ast> fmt::Display for AssignStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} = {}", self.assignee, self.expression)
+        write!(f, "{} = {};", self.assignee, self.expression)
     }
 }
 
@@ -905,10 +951,11 @@ impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref statement) => write!(f, "{}", statement),
-            Statement::Iteration(ref statement) => write!(f, "{}", statement),
-            Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
-            Statement::Assign(ref statement) => write!(f, "{}", statement),
             Statement::Definition(ref statement) => write!(f, "{}", statement),
+            Statement::Assign(ref statement) => write!(f, "{}", statement),
+            Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
+            Statement::Conditional(ref statement) => write!(f, "{}", statement),
+            Statement::Iteration(ref statement) => write!(f, "{}", statement),
         }
     }
 }

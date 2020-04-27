@@ -2,7 +2,6 @@ use std::{ffi::OsString, fs::FileType, io};
 
 #[derive(Debug, Fail)]
 pub enum InputsDirectoryError {
-
     #[fail(display = "creating: {}", _0)]
     Creating(io::Error),
 
@@ -23,5 +22,4 @@ pub enum InputsDirectoryError {
 
     #[fail(display = "reading: {}", _0)]
     Reading(io::Error),
-
 }

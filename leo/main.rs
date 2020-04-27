@@ -1,5 +1,5 @@
-use leo::{cli::*, commands::*, logger};
 use leo::errors::CLIError;
+use leo::{cli::*, commands::*, logger};
 
 use clap::{App, AppSettings};
 
@@ -34,11 +34,11 @@ fn main() -> Result<(), CLIError> {
         ("build", Some(arguments)) => {
             BuildCommand::output(BuildCommand::parse(arguments)?)?;
             Ok(())
-        },
+        }
         ("setup", Some(arguments)) => {
             SetupCommand::output(SetupCommand::parse(arguments)?)?;
             Ok(())
-        },
+        }
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         _ => unreachable!(),
     }

@@ -1,10 +1,15 @@
 //! Methods to enforce constraints on statements in a resolved aleo program.
 
 use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::{Assignee, Expression, Integer, RangeOrExpression, Statement, Type, Variable};
+use crate::{
+    Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer, RangeOrExpression,
+    Statement, Type, Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{r1cs::ConstraintSystem, utilities::uint32::UInt32};
+use snarkos_models::gadgets::{
+    r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32,
+};
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
@@ -124,7 +129,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    pub(crate) fn enforce_assign_statement(
+    fn enforce_assign_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -142,7 +147,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
     }
 
-    pub(crate) fn enforce_definition_statement(
+    fn enforce_definition_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -165,7 +170,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    pub(crate) fn enforce_multiple_definition_statement(
+    fn enforce_multiple_definition_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -198,16 +203,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             });
     }
 
-    pub(crate) fn enforce_return_statement(
+    fn enforce_return_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statements: Vec<Expression<F>>,
+        expressions: Vec<Expression<F>>,
         return_types: Vec<Type<F>>,
     ) -> ResolvedValue<F> {
         ResolvedValue::Return(
-            statements
+            expressions
                 .into_iter()
                 .zip(return_types.into_iter())
                 .map(|(expression, ty)| {
@@ -227,27 +232,125 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         )
     }
 
-    fn enforce_statement(
+    fn enforce_conditional_statement(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        statement: ConditionalStatement<F>,
+    ) -> Option<ResolvedValue<F>> {
+        let mut res = None;
+
+        let condition = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            statement.condition.clone(),
+        ) {
+            ResolvedValue::Boolean(resolved) => resolved,
+            value => unimplemented!("if else conditional must resolve to boolean, got {}", value),
+        };
+
+        if condition.eq(&Boolean::Constant(true)) {
+            statement
+                .statements
+                .clone()
+                .into_iter()
+                .for_each(|statement| {
+                    if let Some(early_return) = self.enforce_statement(
+                        cs,
+                        file_scope.clone(),
+                        function_scope.clone(),
+                        statement,
+                        vec![],
+                    ) {
+                        res = Some(early_return)
+                    }
+                });
+        } else {
+            if let Some(next) = statement.next {
+                match next {
+                    ConditionalNestedOrEnd::Nested(nested) => {
+                        res = self.enforce_conditional_statement(
+                            cs,
+                            file_scope,
+                            function_scope,
+                            *nested,
+                        )
+                    }
+                    ConditionalNestedOrEnd::End(statements) => {
+                        statements.into_iter().for_each(|statement| {
+                            if let Some(early_return) = self.enforce_statement(
+                                cs,
+                                file_scope.clone(),
+                                function_scope.clone(),
+                                statement,
+                                vec![],
+                            ) {
+                                res = Some(early_return)
+                            }
+                        })
+                    }
+                }
+            }
+        }
+
+        res
+    }
+
+    fn enforce_for_statement(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        index: Variable<F>,
+        start: Integer,
+        stop: Integer,
+        statements: Vec<Statement<F>>,
+    ) -> Option<ResolvedValue<F>> {
+        let mut res = None;
+
+        for i in start.to_usize()..stop.to_usize() {
+            // Store index in current function scope.
+            // For loop scope is not implemented.
+            let index_name = new_scope_from_variable(function_scope.clone(), &index);
+            self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
+
+            // Evaluate statements (for loop statements should not have a return type)
+            statements.clone().into_iter().for_each(|statement| {
+                // TODO: handle for loop early termination here
+                res = self.enforce_statement(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    statement,
+                    vec![],
+                );
+            });
+        }
+
+        res
+    }
+
+    pub(crate) fn enforce_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
         statement: Statement<F>,
         return_types: Vec<Type<F>>,
-    ) {
+    ) -> Option<ResolvedValue<F>> {
+        let mut res = None;
         match statement {
-            Statement::Return(statements) => {
+            Statement::Return(expressions) => {
                 // TODO: add support for early termination
-                let _res = self.enforce_return_statement(
+                res = Some(self.enforce_return_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    statements,
+                    expressions,
                     return_types,
-                );
-            }
-            Statement::Assign(variable, expression) => {
-                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression);
+                ));
             }
             Statement::Definition(ty, assignee, expression) => {
                 self.enforce_definition_statement(
@@ -259,7 +362,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     expression,
                 );
             }
-            Statement::MultipleDefinition(assignees, function) => {
+            Statement::Assign(variable, expression) => {
+                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression);
+            }
+            Statement::MultipleAssign(assignees, function) => {
                 self.enforce_multiple_definition_statement(
                     cs,
                     file_scope,
@@ -268,8 +374,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     function,
                 );
             }
+            Statement::Conditional(statement) => {
+                if let Some(early_return) =
+                    self.enforce_conditional_statement(cs, file_scope, function_scope, statement)
+                {
+                    res = Some(early_return)
+                }
+            }
             Statement::For(index, start, stop, statements) => {
-                self.enforce_for_statement(
+                if let Some(early_return) = self.enforce_for_statement(
                     cs,
                     file_scope,
                     function_scope,
@@ -277,37 +390,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     start,
                     stop,
                     statements,
-                );
+                ) {
+                    res = Some(early_return)
+                }
             }
         };
-    }
 
-    pub(crate) fn enforce_for_statement(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        index: Variable<F>,
-        start: Integer,
-        stop: Integer,
-        statements: Vec<Statement<F>>,
-    ) {
-        for i in start.to_usize()..stop.to_usize() {
-            // Store index in current function scope.
-            // For loop scope is not implemented.
-            let index_name = new_scope_from_variable(function_scope.clone(), &index);
-            self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
-
-            // Evaluate statements (for loop statements should not have a return type)
-            statements.clone().into_iter().for_each(|statement| {
-                self.enforce_statement(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    statement,
-                    vec![],
-                )
-            });
-        }
+        res
     }
 }

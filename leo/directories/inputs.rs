@@ -32,9 +32,9 @@ impl InputsDirectory {
             let file_path = file_entry.path();
 
             // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|error| InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
+            let file_type = file_entry.file_type().map_err(|error| {
+                InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error)
+            })?;
             if !file_type.is_file() {
                 return Err(InputsDirectoryError::InvalidFileType(
                     file_path.as_os_str().to_owned(),
@@ -43,9 +43,9 @@ impl InputsDirectory {
             }
 
             // Verify that the file has the default file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| InputsDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
+            let file_extension = file_path.extension().ok_or_else(|| {
+                InputsDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned())
+            })?;
             if file_extension != INPUTS_FILE_EXTENSION {
                 return Err(InputsDirectoryError::InvalidFileExtension(
                     file_path.as_os_str().to_owned(),

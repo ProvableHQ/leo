@@ -1,6 +1,6 @@
-use crate::{cli::*, cli_types::*};
 use crate::commands::SetupCommand;
 use crate::errors::CLIError;
+use crate::{cli::*, cli_types::*};
 
 use snarkos_algorithms::snark::{create_random_proof, verify_proof};
 

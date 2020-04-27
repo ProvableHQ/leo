@@ -1,9 +1,11 @@
-use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
 use crate::errors::CLIError;
+use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
-use snarkos_algorithms::snark::{generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey};
+use snarkos_algorithms::snark::{
+    generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey,
+};
 use snarkos_curves::bls12_377::{Bls12_377, Fr};
 
 use clap::ArgMatches;
@@ -15,7 +17,11 @@ pub struct SetupCommand;
 
 impl CLI for SetupCommand {
     type Options = ();
-    type Output = (Compiler<Fr>, Parameters<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
+    type Output = (
+        Compiler<Fr>,
+        Parameters<Bls12_377>,
+        PreparedVerifyingKey<Bls12_377>,
+    );
 
     const NAME: NameType = "setup";
     const ABOUT: AboutType = "Run a program setup";
@@ -36,7 +42,8 @@ impl CLI for SetupCommand {
         let start = Instant::now();
 
         let rng = &mut thread_rng();
-        let parameters = generate_random_parameters::<Bls12_377, _, _>(circuit.clone(), rng).unwrap();
+        let parameters =
+            generate_random_parameters::<Bls12_377, _, _>(circuit.clone(), rng).unwrap();
         let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
 
         let finish = start.elapsed();

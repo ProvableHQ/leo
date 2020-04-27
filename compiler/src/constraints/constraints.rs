@@ -4,7 +4,7 @@ use crate::ast;
 use crate::constraints::{
     new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram, ResolvedValue,
 };
-use crate::{Expression, Function, Import, Program, Statement, Type};
+use crate::{Expression, Function, Import, Program, Type};
 
 use from_pest::FromPest;
 use snarkos_models::curves::{Field, PrimeField};
@@ -109,54 +109,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .statements
             .clone()
             .into_iter()
-            .for_each(|statement| match statement {
-                Statement::Return(expressions) => {
-                    return_values = self.enforce_return_statement(
-                        cs,
-                        scope.clone(),
-                        function_name.clone(),
-                        expressions,
-                        function.returns.to_owned(),
-                    );
-                }
-                Statement::Assign(variable, expression) => {
-                    self.enforce_assign_statement(
-                        cs,
-                        scope.clone(),
-                        function_name.clone(),
-                        variable,
-                        expression,
-                    );
-                }
-                Statement::Definition(ty, assignee, expression) => {
-                    self.enforce_definition_statement(
-                        cs,
-                        scope.clone(),
-                        function_name.clone(),
-                        ty,
-                        assignee,
-                        expression,
-                    );
-                }
-                Statement::MultipleDefinition(assignees, function_call) => {
-                    self.enforce_multiple_definition_statement(
-                        cs,
-                        scope.clone(),
-                        function_name.clone(),
-                        assignees,
-                        function_call,
-                    );
-                }
-                Statement::For(index, start, stop, statements) => {
-                    self.enforce_for_statement(
-                        cs,
-                        scope.clone(),
-                        function_name.clone(),
-                        index,
-                        start,
-                        stop,
-                        statements,
-                    );
+            .for_each(|statement| {
+                if let Some(returned) = self.enforce_statement(
+                    cs,
+                    scope.clone(),
+                    function_name.clone(),
+                    statement,
+                    function.returns.clone(),
+                ) {
+                    return_values = returned;
                 }
             });
 

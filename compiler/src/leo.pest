@@ -121,7 +121,7 @@ expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_li
 
 /// Conditionals
 
-expression_conditional = { "if" ~ expression ~ "then" ~ expression ~ "else" ~ expression ~ "fi"}
+expression_conditional = { "if" ~ expression ~ "?" ~ expression ~ ":" ~ expression}
 
 /// Expressions
 
@@ -142,15 +142,18 @@ expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Statements
-
+// statement_one_or_more = { (statement ~ NEWLINE*)* }
 statement_return = { "return" ~ expression_tuple }
-statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
-statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_assign = { assignee ~ "=" ~ expression }
+statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
+statement_conditional = {"if" ~ "(" ~ expression ~ ")" ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
+conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
 
 statement = {
     (statement_return
+    | statement_conditional
     | (statement_for
       | statement_multiple_assignment
       | statement_definition

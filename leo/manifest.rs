@@ -44,8 +44,8 @@ impl Manifest {
             path.push(PathBuf::from(FILE_NAME_DEFAULT));
         }
 
-        let mut file =
-            File::create(&path).map_err(|error| ManifestError::Creating(FILE_NAME_DEFAULT, error))?;
+        let mut file = File::create(&path)
+            .map_err(|error| ManifestError::Creating(FILE_NAME_DEFAULT, error))?;
         file.write_all(self.template().as_bytes())
             .map_err(|error| ManifestError::Writing(FILE_NAME_DEFAULT, error))
     }
@@ -81,6 +81,7 @@ impl TryFrom<&PathBuf> for Manifest {
         file.read_to_string(&mut buffer)
             .map_err(|error| ManifestError::Reading(FILE_NAME_DEFAULT, error))?;
 
-        Ok(toml::from_str(&buffer).map_err(|error| ManifestError::Parsing(FILE_NAME_DEFAULT, error))?)
+        Ok(toml::from_str(&buffer)
+            .map_err(|error| ManifestError::Parsing(FILE_NAME_DEFAULT, error))?)
     }
 }
