@@ -10,7 +10,7 @@ use snarkos_models::gadgets::{
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
-    pub(crate) fn integer_from_parameter(
+    pub(crate) fn u32_from_parameter(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         parameter_variable
     }
 
-    pub(crate) fn integer_array_from_parameter(
+    pub(crate) fn u32_array_from_parameter(
         &mut self,
         _cs: &mut CS,
         _scope: String,

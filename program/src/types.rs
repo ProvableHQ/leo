@@ -86,7 +86,7 @@ pub enum Expression<F: Field + PrimeField> {
     StructMemberAccess(Box<Expression<F>>, Variable<F>), // (struct name, struct member name)
 
     // Functions
-    FunctionCall(Box<Expression<F>>, Vec<Expression<F>>),
+    FunctionCall(Variable<F>, Vec<Expression<F>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
@@ -97,16 +97,7 @@ pub enum Assignee<F: Field + PrimeField> {
     StructMember(Box<Assignee<F>>, Variable<F>),
 }
 
-/// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone)]
-pub enum Statement<F: Field + PrimeField> {
-    // Declaration(Variable),
-    Definition(Assignee<F>, Expression<F>),
-    For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
-    Return(Vec<Expression<F>>),
-}
-
-/// Explicit type used for defining struct members and function parameters
+/// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq)]
 pub enum Type<F: Field + PrimeField> {
     U32,
@@ -114,6 +105,17 @@ pub enum Type<F: Field + PrimeField> {
     Boolean,
     Array(Box<Type<F>>, usize),
     Struct(Variable<F>),
+}
+
+/// Program statement that defines some action (or expression) to be carried out.
+#[derive(Clone)]
+pub enum Statement<F: Field + PrimeField> {
+    // Declaration(Variable),
+    Return(Vec<Expression<F>>),
+    Assign(Assignee<F>, Expression<F>),
+    Definition(Type<F>, Assignee<F>, Expression<F>),
+    MultipleDefinition(Vec<Assignee<F>>, Expression<F>),
+    For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
 }
 
 #[derive(Clone, Debug)]
@@ -165,12 +167,16 @@ impl<F: Field + PrimeField> Function<F> {
 #[derive(Debug, Clone)]
 pub struct Program<'ast, F: Field + PrimeField> {
     pub name: Variable<F>,
-    pub imports: Vec<Import<'ast>>,
+    pub imports: Vec<Import<'ast, F>>,
     pub structs: HashMap<Variable<F>, Struct<F>>,
     pub functions: HashMap<FunctionName, Function<F>>,
 }
 
 impl<'ast, F: Field + PrimeField> Program<'ast, F> {
+    pub fn get_name(&self) -> String {
+        self.name.name.clone()
+    }
+
     pub fn name(mut self, name: String) -> Self {
         self.name = Variable {
             name,

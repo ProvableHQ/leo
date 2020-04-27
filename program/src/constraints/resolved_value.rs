@@ -1,6 +1,6 @@
 //! The in memory stored value for a defined name in a resolved aleo program.
 
-use crate::types::{Function, Struct, StructMember, Type, Variable};
+use crate::types::{Function, Struct, Type, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};
@@ -13,10 +13,13 @@ pub enum ResolvedValue<F: Field + PrimeField> {
     Boolean(Boolean),
     Array(Vec<ResolvedValue<F>>),
     StructDefinition(Struct<F>),
-    StructExpression(Variable<F>, Vec<StructMember<F>>),
+    StructExpression(Variable<F>, Vec<ResolvedStructMember<F>>),
     Function(Function<F>),
     Return(Vec<ResolvedValue<F>>), // add Null for function returns
 }
+
+#[derive(Clone)]
+pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
 
 impl<F: Field + PrimeField> ResolvedValue<F> {
     pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
@@ -24,7 +27,15 @@ impl<F: Field + PrimeField> ResolvedValue<F> {
             (ResolvedValue::U32(ref _a), Type::U32) => true,
             (ResolvedValue::FieldElement(ref _a), Type::FieldElement) => true,
             (ResolvedValue::Boolean(ref _a), Type::Boolean) => true,
-            (ResolvedValue::Array(ref arr), Type::Array(ref _ty, ref len)) => arr.len() == *len, // todo: add array types
+            (ResolvedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
+                // check array lengths are equal
+                let mut res = arr.len() == *len;
+                // check each value in array matches
+                for value in arr {
+                    res &= value.match_type(ty)
+                }
+                res
+            }
             (
                 ResolvedValue::StructExpression(ref actual_name, ref _members),
                 Type::Struct(ref expected_name),
@@ -60,7 +71,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
             ResolvedValue::StructExpression(ref variable, ref members) => {
                 write!(f, "{} {{", variable)?;
                 for (i, member) in members.iter().enumerate() {
-                    write!(f, "{}: {}", member.variable, member.expression)?;
+                    write!(f, "{}: {}", member.0, member.1)?;
                     if i < members.len() - 1 {
                         write!(f, ", ")?;
                     }

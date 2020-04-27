@@ -268,6 +268,21 @@ impl<'ast> fmt::Display for Variable<'ast> {
     }
 }
 
+#[derive(Debug, FromPest, PartialEq, Clone)]
+#[pest_ast(rule(Rule::optionally_typed_variable))]
+pub struct OptionallyTypedVariable<'ast> {
+    pub ty: Option<Type<'ast>>,
+    pub id: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for OptionallyTypedVariable<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.id)
+    }
+}
+
 // Access
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -783,25 +798,6 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
 // Statements
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::statement_assign))]
-pub struct AssignStatement<'ast> {
-    pub assignee: Assignee<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::statement_definition))]
-pub struct DefinitionStatement<'ast> {
-    pub ty: Type<'ast>,
-    pub variable: Variable<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_return))]
 pub struct ReturnStatement<'ast> {
     pub expressions: Vec<Expression<'ast>>,
@@ -821,24 +817,42 @@ pub struct ForStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_multiple_assignment))]
+pub struct MultipleAssignmentStatement<'ast> {
+    pub assignees: Vec<OptionallyTypedVariable<'ast>>,
+    pub function_name: Variable<'ast>,
+    pub arguments: Vec<Expression<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_definition))]
+pub struct DefinitionStatement<'ast> {
+    pub ty: Type<'ast>,
+    pub variable: Variable<'ast>,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_assign))]
+pub struct AssignStatement<'ast> {
+    pub assignee: Assignee<'ast>,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
-    Assign(AssignStatement<'ast>),
-    Definition(DefinitionStatement<'ast>),
     Return(ReturnStatement<'ast>),
     Iteration(ForStatement<'ast>),
-}
-
-impl<'ast> fmt::Display for AssignStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} = {}", self.assignee, self.expression)
-    }
-}
-
-impl<'ast> fmt::Display for DefinitionStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} = {}", self.ty, self.variable, self.expression)
-    }
+    MultipleAssignment(MultipleAssignmentStatement<'ast>),
+    Definition(DefinitionStatement<'ast>),
+    Assign(AssignStatement<'ast>),
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -863,13 +877,38 @@ impl<'ast> fmt::Display for ForStatement<'ast> {
     }
 }
 
+impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, id) in self.assignees.iter().enumerate() {
+            write!(f, "{}", id)?;
+            if i < self.assignees.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, " = {}", self.function_name)
+    }
+}
+
+impl<'ast> fmt::Display for DefinitionStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {} = {}", self.ty, self.variable, self.expression)
+    }
+}
+
+impl<'ast> fmt::Display for AssignStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} = {}", self.assignee, self.expression)
+    }
+}
+
 impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Statement::Assign(ref statement) => write!(f, "{}", statement),
-            Statement::Definition(ref statement) => write!(f, "{}", statement),
             Statement::Return(ref statement) => write!(f, "{}", statement),
             Statement::Iteration(ref statement) => write!(f, "{}", statement),
+            Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
+            Statement::Assign(ref statement) => write!(f, "{}", statement),
+            Statement::Definition(ref statement) => write!(f, "{}", statement),
         }
     }
 }
@@ -924,19 +963,9 @@ pub struct ImportSource<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::main_import))]
-pub struct MainImport<'ast> {
-    pub source: ImportSource<'ast>,
-    pub alias: Option<Variable<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::from_import))]
-pub struct FromImport<'ast> {
-    pub source: ImportSource<'ast>,
-    pub symbol: Variable<'ast>,
+#[pest_ast(rule(Rule::import_symbol))]
+pub struct ImportSymbol<'ast> {
+    pub value: Variable<'ast>,
     pub alias: Option<Variable<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -944,9 +973,11 @@ pub struct FromImport<'ast> {
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::import))]
-pub enum Import<'ast> {
-    Main(MainImport<'ast>),
-    From(FromImport<'ast>),
+pub struct Import<'ast> {
+    pub source: ImportSource<'ast>,
+    pub symbols: Vec<ImportSymbol<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
 }
 
 // File

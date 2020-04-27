@@ -17,41 +17,40 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    pub(crate) fn enforce_definition_statement(
+    fn store_assignment(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         assignee: Assignee<F>,
-        expression: Expression<F>,
+        return_value: &mut ResolvedValue<F>,
     ) {
-        // Create or modify the lhs variable in the current function scope
         match assignee {
             Assignee::Variable(name) => {
                 // Store the variable in the current scope
-                let definition_name = new_scope_from_variable(scope.clone(), &name);
+                let definition_name = new_scope_from_variable(function_scope.clone(), &name);
 
-                // Evaluate the rhs expression in the current function scope
-                let result = self.enforce_expression(cs, scope, expression);
-
-                self.store(definition_name, result);
+                self.store(definition_name, return_value.to_owned());
             }
             Assignee::Array(array, index_expression) => {
-                // Evaluate the rhs expression in the current function scope
-                let result = &mut self.enforce_expression(cs, scope.clone(), expression);
-
                 // Check that array exists
-                let expected_array_name = self.resolve_assignee(scope.clone(), *array);
+                let expected_array_name = self.resolve_assignee(function_scope.clone(), *array);
 
                 // Resolve index so we know if we are assigning to a single value or a range of values
                 match index_expression {
                     RangeOrExpression::Expression(index) => {
-                        let index = self.enforce_index(cs, scope.clone(), index);
+                        let index = self.enforce_index(
+                            cs,
+                            file_scope.clone(),
+                            function_scope.clone(),
+                            index,
+                        );
 
                         // Modify the single value of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match value {
                                 ResolvedValue::Array(old) => {
-                                    old[index] = result.to_owned();
+                                    old[index] = return_value.to_owned();
                                 }
                                 _ => {
                                     unimplemented!("Cannot assign single index to array of values ")
@@ -75,7 +74,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
                         // Modify the range of values of the array in place
                         match self.get_mut(&expected_array_name) {
-                            Some(value) => match (value, result) {
+                            Some(value) => match (value, return_value) {
                                 (ResolvedValue::Array(old), ResolvedValue::Array(new)) => {
                                     let to_index = to_index_option.unwrap_or(old.len());
                                     old.splice(from_index..to_index, new.iter().cloned());
@@ -94,17 +93,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             }
             Assignee::StructMember(struct_variable, struct_member) => {
                 // Check that struct exists
-                let expected_struct_name = self.resolve_assignee(scope.clone(), *struct_variable);
+                let expected_struct_name =
+                    self.resolve_assignee(function_scope.clone(), *struct_variable);
 
                 match self.get_mut(&expected_struct_name) {
                     Some(value) => match value {
                         ResolvedValue::StructExpression(_variable, members) => {
                             // Modify the struct member in place
-                            let matched_member = members
-                                .into_iter()
-                                .find(|member| member.variable == struct_member);
+                            let matched_member =
+                                members.into_iter().find(|member| member.0 == struct_member);
                             match matched_member {
-                                Some(mut member) => member.expression = expression,
+                                Some(mut member) => member.1 = return_value.to_owned(),
                                 None => unimplemented!(
                                     "struct member {} does not exist in {}",
                                     struct_member,
@@ -122,13 +121,88 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     }
                 }
             }
-        };
+        }
+    }
+
+    pub(crate) fn enforce_assign_statement(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
+    ) {
+        let result_value = &mut self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expression,
+        );
+
+        self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+    }
+
+    pub(crate) fn enforce_definition_statement(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        ty: Type<F>,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
+    ) {
+        let result_value = &mut self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expression,
+        );
+
+        if result_value.match_type(&ty) {
+            self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+        } else {
+            unimplemented!("incompatible types {} = {}", assignee, result_value)
+        }
+    }
+
+    pub(crate) fn enforce_multiple_definition_statement(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        assignees: Vec<Assignee<F>>,
+        function: Expression<F>,
+    ) {
+        // Expect return values from function
+        let return_values =
+            match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), function)
+            {
+                ResolvedValue::Return(values) => values,
+                value => unimplemented!(
+                    "multiple assignment only implemented for functions, got {}",
+                    value
+                ),
+            };
+
+        assignees
+            .into_iter()
+            .zip(return_values.into_iter())
+            .for_each(|(assignee, mut return_value)| {
+                self.store_assignment(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    assignee,
+                    &mut return_value,
+                );
+            });
     }
 
     pub(crate) fn enforce_return_statement(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         statements: Vec<Expression<F>>,
         return_types: Vec<Type<F>>,
     ) -> ResolvedValue<F> {
@@ -137,7 +211,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 .into_iter()
                 .zip(return_types.into_iter())
                 .map(|(expression, ty)| {
-                    let result = self.enforce_expression(cs, scope.clone(), expression);
+                    let result = self.enforce_expression(
+                        cs,
+                        file_scope.clone(),
+                        function_scope.clone(),
+                        expression,
+                    );
                     if !result.match_type(&ty) {
                         unimplemented!("expected return type {}, got {}", ty, result)
                     } else {
@@ -151,20 +230,54 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_statement(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         statement: Statement<F>,
         return_types: Vec<Type<F>>,
     ) {
         match statement {
-            Statement::Definition(variable, expression) => {
-                self.enforce_definition_statement(cs, scope, variable, expression);
-            }
-            Statement::For(index, start, stop, statements) => {
-                self.enforce_for_statement(cs, scope, index, start, stop, statements);
-            }
             Statement::Return(statements) => {
                 // TODO: add support for early termination
-                let _res = self.enforce_return_statement(cs, scope, statements, return_types);
+                let _res = self.enforce_return_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    statements,
+                    return_types,
+                );
+            }
+            Statement::Assign(variable, expression) => {
+                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression);
+            }
+            Statement::Definition(ty, assignee, expression) => {
+                self.enforce_definition_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    ty,
+                    assignee,
+                    expression,
+                );
+            }
+            Statement::MultipleDefinition(assignees, function) => {
+                self.enforce_multiple_definition_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    assignees,
+                    function,
+                );
+            }
+            Statement::For(index, start, stop, statements) => {
+                self.enforce_for_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    index,
+                    start,
+                    stop,
+                    statements,
+                );
             }
         };
     }
@@ -172,7 +285,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn enforce_for_statement(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         index: Variable<F>,
         start: Integer,
         stop: Integer,
@@ -181,14 +295,19 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         for i in start.to_usize()..stop.to_usize() {
             // Store index in current function scope.
             // For loop scope is not implemented.
-            let index_name = new_scope_from_variable(scope.clone(), &index);
+            let index_name = new_scope_from_variable(function_scope.clone(), &index);
             self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
 
             // Evaluate statements (for loop statements should not have a return type)
-            statements
-                .clone()
-                .into_iter()
-                .for_each(|statement| self.enforce_statement(cs, scope.clone(), statement, vec![]));
+            statements.clone().into_iter().for_each(|statement| {
+                self.enforce_statement(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    statement,
+                    vec![],
+                )
+            });
         }
     }
 }

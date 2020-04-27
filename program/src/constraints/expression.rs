@@ -1,7 +1,10 @@
 //! Methods to enforce constraints on expressions in a resolved aleo program.
 
 use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
-use crate::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable};
+use crate::{
+    new_variable_from_variable, Expression, RangeOrExpression, ResolvedStructMember,
+    SpreadOrExpression, StructMember, Variable,
+};
 
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
@@ -138,14 +141,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_array_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         array: Vec<Box<SpreadOrExpression<F>>>,
     ) -> ResolvedValue<F> {
         let mut result = vec![];
         array.into_iter().for_each(|element| match *element {
             SpreadOrExpression::Spread(spread) => match spread {
                 Expression::Variable(variable) => {
-                    let array_name = new_scope_from_variable(scope.clone(), &variable);
+                    let array_name = new_scope_from_variable(function_scope.clone(), &variable);
                     match self.get(&array_name) {
                         Some(value) => match value {
                             ResolvedValue::Array(array) => result.extend(array.clone()),
@@ -162,7 +166,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 value => unimplemented!("spreads only implemented for arrays, got {}", value),
             },
             SpreadOrExpression::Expression(expression) => {
-                result.push(self.enforce_expression(cs, scope.clone(), expression));
+                result.push(self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    expression,
+                ));
             }
         });
         ResolvedValue::Array(result)
@@ -171,10 +180,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn enforce_index(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         index: Expression<F>,
     ) -> usize {
-        match self.enforce_expression(cs, scope.clone(), index) {
+        match self.enforce_expression(cs, file_scope, function_scope, index) {
             ResolvedValue::U32(number) => number.value.unwrap() as usize,
             value => unimplemented!("From index must resolve to an integer, got {}", value),
         }
@@ -183,11 +193,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_array_access_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         array: Box<Expression<F>>,
         index: RangeOrExpression<F>,
     ) -> ResolvedValue<F> {
-        match self.enforce_expression(cs, scope.clone(), *array) {
+        match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *array) {
             ResolvedValue::Array(array) => {
                 match index {
                     RangeOrExpression::Range(from, to) => {
@@ -202,7 +213,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         ResolvedValue::Array(array[from_resolved..to_resolved].to_owned())
                     }
                     RangeOrExpression::Expression(index) => {
-                        let index_resolved = self.enforce_index(cs, scope.clone(), index);
+                        let index_resolved =
+                            self.enforce_index(cs, file_scope, function_scope, index);
                         array[index_resolved].to_owned()
                     }
                 }
@@ -214,51 +226,62 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_struct_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         variable: Variable<F>,
         members: Vec<StructMember<F>>,
     ) -> ResolvedValue<F> {
-        if let Some(resolved_value) = self.get_mut_variable(&variable) {
+        let struct_name = new_variable_from_variable(file_scope.clone(), &variable);
+
+        if let Some(resolved_value) = self.get_mut_variable(&struct_name) {
             match resolved_value {
                 ResolvedValue::StructDefinition(struct_definition) => {
-                    struct_definition
+                    let resolved_members = struct_definition
                         .fields
                         .clone()
                         .iter()
                         .zip(members.clone().into_iter())
-                        .for_each(|(field, member)| {
+                        .map(|(field, member)| {
                             if field.variable != member.variable {
                                 unimplemented!("struct field variables do not match")
                             }
-                            // Resolve and possibly enforce struct fields
-                            // do we need to store the results here?
-                            let _result =
-                                self.enforce_expression(cs, scope.clone(), member.expression);
-                        });
+                            // Resolve and enforce struct fields
+                            let member_value = self.enforce_expression(
+                                cs,
+                                file_scope.clone(),
+                                function_scope.clone(),
+                                member.expression,
+                            );
 
-                    ResolvedValue::StructExpression(variable, members)
+                            ResolvedStructMember(member.variable, member_value)
+                        })
+                        .collect();
+
+                    ResolvedValue::StructExpression(variable, resolved_members)
                 }
                 _ => unimplemented!("Inline struct type is not defined as a struct"),
             }
         } else {
-            unimplemented!("Struct must be declared before it is used in an inline expression")
+            unimplemented!(
+                "Struct {} must be declared before it is used in an inline expression",
+                struct_name
+            )
         }
     }
 
     fn enforce_struct_access_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         struct_variable: Box<Expression<F>>,
         struct_member: Variable<F>,
     ) -> ResolvedValue<F> {
-        match self.enforce_expression(cs, scope.clone(), *struct_variable) {
+        match self.enforce_expression(cs, file_scope, function_scope, *struct_variable) {
             ResolvedValue::StructExpression(_name, members) => {
-                let matched_member = members
-                    .into_iter()
-                    .find(|member| member.variable == struct_member);
+                let matched_member = members.into_iter().find(|member| member.0 == struct_member);
                 match matched_member {
-                    Some(member) => self.enforce_expression(cs, scope.clone(), member.expression),
+                    Some(member) => member.1,
                     None => unimplemented!("Cannot access struct member {}", struct_member.name),
                 }
             }
@@ -266,29 +289,52 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    fn enforce_function_access_expression(
+    fn enforce_function_call_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
-        function: Box<Expression<F>>,
+        file_scope: String,
+        function: Variable<F>,
         arguments: Vec<Expression<F>>,
     ) -> ResolvedValue<F> {
-        match self.enforce_expression(cs, scope, *function) {
-            ResolvedValue::Function(function) => self.enforce_function(cs, function, arguments),
-            value => unimplemented!("Cannot call unknown function {}", value),
+        let function_name = new_variable_from_variable(file_scope.clone(), &function);
+        match self.get_mut_variable(&function_name) {
+            Some(value) => match value.clone() {
+                ResolvedValue::Function(function) => {
+                    // this function call is inline so we unwrap the return value
+                    match self.enforce_function(cs, file_scope, function, arguments) {
+                        ResolvedValue::Return(return_values) => {
+                            if return_values.len() == 0 {
+                                ResolvedValue::Return(vec![])
+                            } else if return_values.len() == 1 {
+                                return_values[0].clone()
+                            } else {
+                                unimplemented!("function {} returns multiple values but is used in an expression that expects one", function_name)
+                            }
+                        }
+                        value => unimplemented!(
+                            "function {} has no return value {}",
+                            function_name,
+                            value
+                        ),
+                    }
+                }
+                value => unimplemented!("Cannot make function call to {}", value),
+            },
+            None => unimplemented!("Cannot call unknown function {}", function_name),
         }
     }
 
     pub(crate) fn enforce_expression(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        file_scope: String,
+        function_scope: String,
         expression: Expression<F>,
     ) -> ResolvedValue<F> {
         match expression {
             // Variables
             Expression::Variable(unresolved_variable) => {
-                self.enforce_variable(scope, unresolved_variable)
+                self.enforce_variable(function_scope, unresolved_variable)
             }
 
             // Values
@@ -298,55 +344,74 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
             // Binary operations
             Expression::Add(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_add_expression(cs, resolved_left, resolved_right)
             }
             Expression::Sub(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_sub_expression(cs, resolved_left, resolved_right)
             }
             Expression::Mul(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_mul_expression(cs, resolved_left, resolved_right)
             }
             Expression::Div(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_div_expression(cs, resolved_left, resolved_right)
             }
             Expression::Pow(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_pow_expression(cs, resolved_left, resolved_right)
             }
 
             // Boolean operations
-            Expression::Not(expression) => {
-                Self::enforce_not(self.enforce_expression(cs, scope, *expression))
-            }
+            Expression::Not(expression) => Self::enforce_not(self.enforce_expression(
+                cs,
+                file_scope,
+                function_scope,
+                *expression,
+            )),
             Expression::Or(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_or(cs, resolved_left, resolved_right)
             }
             Expression::And(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_and(cs, resolved_left, resolved_right)
             }
             Expression::Eq(left, right) => {
-                let resolved_left = self.enforce_expression(cs, scope.clone(), *left);
-                let resolved_right = self.enforce_expression(cs, scope.clone(), *right);
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
                 self.enforce_eq_expression(cs, resolved_left, resolved_right)
             }
@@ -365,35 +430,47 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
             // Conditionals
             Expression::IfElse(first, second, third) => {
-                let resolved_first = match self.enforce_expression(cs, scope.clone(), *first) {
+                let resolved_first = match self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *first,
+                ) {
                     ResolvedValue::Boolean(resolved) => resolved,
                     _ => unimplemented!("if else conditional must resolve to boolean"),
                 };
 
                 if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_expression(cs, scope, *second)
+                    self.enforce_expression(cs, file_scope, function_scope, *second)
                 } else {
-                    self.enforce_expression(cs, scope, *third)
+                    self.enforce_expression(cs, file_scope, function_scope, *third)
                 }
             }
 
             // Arrays
-            Expression::Array(array) => self.enforce_array_expression(cs, scope, array),
+            Expression::Array(array) => {
+                self.enforce_array_expression(cs, file_scope, function_scope, array)
+            }
             Expression::ArrayAccess(array, index) => {
-                self.enforce_array_access_expression(cs, scope, array, *index)
+                self.enforce_array_access_expression(cs, file_scope, function_scope, array, *index)
             }
 
             // Structs
             Expression::Struct(struct_name, members) => {
-                self.enforce_struct_expression(cs, scope, struct_name, members)
+                self.enforce_struct_expression(cs, file_scope, function_scope, struct_name, members)
             }
-            Expression::StructMemberAccess(struct_variable, struct_member) => {
-                self.enforce_struct_access_expression(cs, scope, struct_variable, struct_member)
-            }
+            Expression::StructMemberAccess(struct_variable, struct_member) => self
+                .enforce_struct_access_expression(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    struct_variable,
+                    struct_member,
+                ),
 
             // Functions
             Expression::FunctionCall(function, arguments) => {
-                self.enforce_function_access_expression(cs, scope, function, arguments)
+                self.enforce_function_call_expression(cs, file_scope, function, arguments)
             } // _ => unimplemented!(),
         }
     }
