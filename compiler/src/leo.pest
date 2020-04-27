@@ -149,13 +149,13 @@ statement_assign = { assignee ~ "=" ~ expression }
 statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ "(" ~ expression ~ ")" ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
 conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
-statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "do" ~ NEWLINE* ~ statement* ~ "endfor"}
+statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 statement = {
     (statement_return
     | statement_conditional
-    | (statement_for
-      | statement_multiple_assignment
+    | statement_for
+      | (statement_multiple_assignment
       | statement_definition
       | statement_assign
       ) ~ LINE_END

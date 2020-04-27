@@ -197,11 +197,11 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
             }
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::For(ref var, ref start, ref stop, ref list) => {
-                write!(f, "for {} in {}..{} do\n", var, start, stop)?;
+                write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
                 for l in list {
                     write!(f, "\t\t{}\n", l)?;
                 }
-                write!(f, "\tendfor;")
+                write!(f, "\t}}")
             }
         }
     }

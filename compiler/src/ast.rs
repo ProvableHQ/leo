@@ -890,11 +890,7 @@ impl<'ast> fmt::Display for ConditionalNestedOrEnd<'ast> {
         match *self {
             ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
             ConditionalNestedOrEnd::End(ref statements) => {
-                write!(f, "else {{\n")?;
-                for statement in statements.iter() {
-                    write!(f, "\t{}\n", statement)?;
-                }
-                write!(f, "}}")
+                write!(f, "else {{\n \t{:#?}\n }}", statements)
             }
         }
     }
@@ -903,9 +899,7 @@ impl<'ast> fmt::Display for ConditionalNestedOrEnd<'ast> {
 impl<'ast> fmt::Display for ConditionalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if ({}) {{\n", self.condition)?;
-        for statement in self.statements.iter() {
-            write!(f, "\t{}\n", statement)?;
-        }
+        write!(f, "\t{:#?}\n", self.statements)?;
         self.next
             .as_ref()
             .map(|n_or_e| write!(f, "}} {}", n_or_e))
@@ -917,7 +911,7 @@ impl<'ast> fmt::Display for ForStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "for {} in {}..{} do {:#?} endfor",
+            "for {} in {}..{} {{ {:#?} }}",
             self.index, self.start, self.stop, self.statements
         )
     }
