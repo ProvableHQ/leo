@@ -303,12 +303,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     // this function call is inline so we unwrap the return value
                     match self.enforce_function(cs, file_scope, function, arguments) {
                         ResolvedValue::Return(return_values) => {
-                            if return_values.len() == 0 {
-                                ResolvedValue::Return(vec![])
-                            } else if return_values.len() == 1 {
+                            if return_values.len() == 1 {
                                 return_values[0].clone()
                             } else {
-                                unimplemented!("function {} returns multiple values but is used in an expression that expects one", function_name)
+                                ResolvedValue::Return(return_values)
                             }
                         }
                         value => unimplemented!(

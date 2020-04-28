@@ -1,11 +1,9 @@
-function main(a: private bool) -> (u32) {
-  b = 0;
-  for i in 0..4 {
-    if (a) {
-        return 9
-    } else {
-      b = b + i;
-    }
-  }
-  return b
+function test() -> (u32, u32[2]) {
+  return 1, [2, 3]
+}
+
+function main() -> (u32[3]) {
+  a, b = test();
+  // a, u32[2] b = test() <- explicit type also works
+  return [a, ...b]
 }
