@@ -44,11 +44,11 @@ operation_add_assign = { "+=" }
 operation_sub_assign = { "-=" }
 operation_mul_assign = { "*=" }
 operation_div_assign = { "/=" }
+operation_pow_assign = { "**=" }
 
 operation_assign = {
-    assign
-    | operation_add_assign | operation_sub_assign
-    | operation_mul_assign | operation_div_assign
+    assign | operation_add_assign | operation_sub_assign |
+    operation_mul_assign | operation_div_assign | operation_pow_assign
 }
 
 /// Types

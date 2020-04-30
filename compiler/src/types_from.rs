@@ -420,6 +420,13 @@ impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::St
                             Box::new(types::Expression::from(statement.expression)),
                         ),
                     ),
+                    ast::OperationAssign::PowAssign(ref _assign) => types::Statement::Assign(
+                        types::Assignee::from(statement.assignee),
+                        types::Expression::Pow(
+                            Box::new(converted),
+                            Box::new(types::Expression::from(statement.expression)),
+                        ),
+                    ),
                     ast::OperationAssign::Assign(ref _assign) => {
                         unimplemented!("cannot assign twice to assign statement")
                     }

@@ -89,6 +89,41 @@ pub enum BinaryOperator {
     Pow,
 }
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assign))]
+pub struct Assign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_add_assign))]
+pub struct AddAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_sub_assign))]
+pub struct SubAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_mul_assign))]
+pub struct MulAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_div_assign))]
+pub struct DivAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_pow_assign))]
+pub struct PowAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_assign))]
+pub enum OperationAssign {
+    Assign(Assign),
+    AddAssign(AddAssign),
+    SubAssign(SubAssign),
+    MulAssign(MulAssign),
+    DivAssign(DivAssign),
+    PowAssign(PowAssign),
+}
+
 // Types
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -849,36 +884,6 @@ pub struct DefinitionStatement<'ast> {
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::assign))]
-pub struct Assign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_add_assign))]
-pub struct AddAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_sub_assign))]
-pub struct SubAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_mul_assign))]
-pub struct MulAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_div_assign))]
-pub struct DivAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_assign))]
-pub enum OperationAssign {
-    Assign(Assign),
-    AddAssign(AddAssign),
-    SubAssign(SubAssign),
-    MulAssign(MulAssign),
-    DivAssign(DivAssign),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
