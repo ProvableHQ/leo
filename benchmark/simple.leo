@@ -1,7 +1,5 @@
-function main() -> (fe) {
-  if (4fe >= 4fe) {
-    return 5fe
-  } else {
-    return 2fe
-  }
+function main() -> () {
+  assert_eq(45, 45);
+
+  return
 }

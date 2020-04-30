@@ -203,6 +203,9 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
                 }
                 write!(f, "\t}}")
             }
+            Statement::AssertEq(ref left, ref right) => {
+                write!(f, "assert_eq({}, {});", left, right)
+            }
         }
     }
 }
@@ -242,6 +245,9 @@ impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
                     write!(f, "\t\t{}\n", l)?;
                 }
                 write!(f, "\tendfor;")
+            }
+            Statement::AssertEq(ref left, ref right) => {
+                write!(f, "assert_eq({}, {});", left, right)
             }
         }
     }

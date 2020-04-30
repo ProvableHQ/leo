@@ -897,6 +897,21 @@ pub struct AssignStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assert_eq))]
+pub struct AssertEq<'ast> {
+    pub left: Expression<'ast>,
+    pub right: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_assert))]
+pub enum AssertStatement<'ast> {
+    AssertEq(AssertEq<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Return(ReturnStatement<'ast>),
@@ -905,6 +920,7 @@ pub enum Statement<'ast> {
     MultipleAssignment(MultipleAssignmentStatement<'ast>),
     Conditional(ConditionalStatement<'ast>),
     Iteration(ForStatement<'ast>),
+    Assert(AssertStatement<'ast>),
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -975,6 +991,16 @@ impl<'ast> fmt::Display for AssignStatement<'ast> {
     }
 }
 
+impl<'ast> fmt::Display for AssertStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AssertStatement::AssertEq(ref assert) => {
+                write!(f, "assert_eq({}, {});", assert.left, assert.right)
+            }
+        }
+    }
+}
+
 impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -984,6 +1010,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
             Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::Iteration(ref statement) => write!(f, "{}", statement),
+            Statement::Assert(ref statement) => write!(f, "{}", statement),
         }
     }
 }

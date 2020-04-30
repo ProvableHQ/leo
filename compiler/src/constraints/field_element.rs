@@ -108,7 +108,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         ResolvedValue::Boolean(Boolean::Constant(fe1.lt(&fe2)))
     }
 
-    pub(crate) fn enforce_field_eq(&mut self, cs: &mut CS, fe1: F, fe2: F) -> ResolvedValue<F> {
+    pub(crate) fn enforce_field_eq(&mut self, cs: &mut CS, fe1: F, fe2: F) {
         let mut lc = LinearCombination::zero();
 
         // add (fe1 * 1) and subtract (fe2 * 1) from the linear combination
@@ -116,9 +116,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
         // enforce that the linear combination is zero
         cs.enforce(|| "field equality", |lc| lc, |lc| lc, |_| lc);
-
-        // return success
-        ResolvedValue::Boolean(Boolean::constant(true))
     }
 
     pub(crate) fn enforce_field_add(&mut self, fe1: F, fe2: F) -> ResolvedValue<F> {

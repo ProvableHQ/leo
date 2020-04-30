@@ -201,27 +201,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    /// Enforce Boolean operations, returns true on success
-    fn enforce_eq_expression(
-        &mut self,
-        cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) -> ResolvedValue<F> {
-        match (left, right) {
-            (ResolvedValue::Boolean(bool1), ResolvedValue::Boolean(bool2)) => {
-                self.enforce_boolean_eq(cs, bool1, bool2)
-            }
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_eq(cs, num1, num2)
-            }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_eq(cs, fe1, fe2)
-            }
-            (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
-        }
-    }
-
     /// Enforce array expressions
     fn enforce_array_expression(
         &mut self,

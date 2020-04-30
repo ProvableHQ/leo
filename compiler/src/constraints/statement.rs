@@ -342,6 +342,26 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         res
     }
 
+    fn enforce_assert_eq_statement(
+        &mut self,
+        cs: &mut CS,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) {
+        match (left, right) {
+            (ResolvedValue::Boolean(bool1), ResolvedValue::Boolean(bool2)) => {
+                self.enforce_boolean_eq(cs, bool1, bool2)
+            }
+            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
+                Self::enforce_u32_eq(cs, num1, num2)
+            }
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                self.enforce_field_eq(cs, fe1, fe2)
+            }
+            (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
+        }
+    }
+
     pub(crate) fn enforce_statement(
         &mut self,
         cs: &mut CS,
@@ -408,6 +428,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 ) {
                     res = Some(early_return)
                 }
+            }
+            Statement::AssertEq(left, right) => {
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), right);
+
+                self.enforce_assert_eq_statement(cs, resolved_left, resolved_right);
             }
         };
 

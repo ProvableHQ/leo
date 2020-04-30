@@ -521,6 +521,17 @@ impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::State
     }
 }
 
+impl<'ast, F: Field + PrimeField> From<ast::AssertStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::AssertStatement<'ast>) -> Self {
+        match statement {
+            ast::AssertStatement::AssertEq(assert_eq) => types::Statement::AssertEq(
+                types::Expression::from(assert_eq.left),
+                types::Expression::from(assert_eq.right),
+            ),
+        }
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
@@ -532,6 +543,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statemen
                 types::Statement::Conditional(types::ConditionalStatement::from(statement))
             }
             ast::Statement::Iteration(statement) => types::Statement::from(statement),
+            ast::Statement::Assert(statement) => types::Statement::from(statement),
         }
     }
 }

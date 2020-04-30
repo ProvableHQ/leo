@@ -99,15 +99,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         ResolvedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 
-    pub(crate) fn enforce_u32_eq(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
+    pub(crate) fn enforce_u32_eq(cs: &mut CS, left: UInt32, right: UInt32) {
         left.conditional_enforce_equal(
             cs.ns(|| format!("enforce field equal")),
             &right,
             &Boolean::Constant(true),
         )
         .unwrap();
-
-        ResolvedValue::Boolean(Boolean::Constant(true))
     }
 
     pub(crate) fn enforce_u32_add(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {

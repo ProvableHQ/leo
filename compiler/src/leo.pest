@@ -150,21 +150,32 @@ expression_term = {
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
+/// Asserts
+
+assert_eq = {"assert_eq" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")"}
+// assert_true = {"assert"}
+
+/// Conditionals
+conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
+
 /// Statements
-// statement_one_or_more = { (statement ~ NEWLINE*)* }
 statement_return = { "return" ~ expression_tuple }
 statement_definition = { ty ~ variable ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
 statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ "(" ~ expression ~ ")" ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
-conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_assert = {
+    assert_eq
+//     | assert_true |
+}
 
 statement = {
     (statement_return
     | statement_conditional
     | statement_for
       | (statement_multiple_assignment
+      | statement_assert
       | statement_definition
       | statement_assign
       ) ~ LINE_END

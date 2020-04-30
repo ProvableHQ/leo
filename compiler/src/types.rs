@@ -130,6 +130,7 @@ pub enum Statement<F: Field + PrimeField> {
     MultipleAssign(Vec<Assignee<F>>, Expression<F>),
     Conditional(ConditionalStatement<F>),
     For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
+    AssertEq(Expression<F>, Expression<F>),
 }
 
 #[derive(Clone, Debug)]
