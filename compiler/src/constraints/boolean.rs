@@ -136,6 +136,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
+    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(left.eq(&right)))
+    }
+
     pub(crate) fn enforce_boolean_eq(
         &mut self,
         cs: &mut CS,

@@ -1,5 +1,4 @@
-function main() -> (u32) {
-  a = 2;
-  a **= 3;
+function main() -> (fe) {
+  a = 2fe ** 3;
   return a
 }

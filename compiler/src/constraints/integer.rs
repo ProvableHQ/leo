@@ -95,6 +95,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
+    pub(crate) fn u32_eq(left: UInt32, right: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(left.eq(&right)))
+    }
+
     pub(crate) fn enforce_u32_eq(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
         left.conditional_enforce_equal(
             cs.ns(|| format!("enforce field equal")),

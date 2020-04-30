@@ -96,7 +96,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
                 self.enforce_field_div(fe1, fe2)
             }
-            (val1, val2) => unimplemented!("cannot multiply {} * {}", val1, val2),
+            (val1, val2) => unimplemented!("cannot divide {} / {}", val1, val2),
         }
     }
     fn enforce_pow_expression(
@@ -109,14 +109,35 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
                 Self::enforce_u32_pow(cs, num1, num2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_pow(fe1, fe2)
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::U32(num2)) => {
+                self.enforce_field_pow(fe1, num2)
             }
-            (val1, val2) => unimplemented!("cannot multiply {} * {}", val1, val2),
+            (_, ResolvedValue::FieldElement(num2)) => {
+                unimplemented!("exponent power must be an integer, got field {}", num2)
+            }
+            (val1, val2) => unimplemented!("cannot enforce exponentiation {} * {}", val1, val2),
         }
     }
 
-    /// Enforce Boolean operations
+    /// Evaluate Boolean operations
+    fn evaluate_eq_expression(
+        &mut self,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) -> ResolvedValue<F> {
+        match (left, right) {
+            (ResolvedValue::Boolean(bool1), ResolvedValue::Boolean(bool2)) => {
+                Self::boolean_eq(bool1, bool2)
+            }
+            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => Self::u32_eq(num1, num2),
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                Self::field_eq(fe1, fe2)
+            }
+            (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
+        }
+    }
+
+    /// Enforce Boolean operations, returns true on success
     fn enforce_eq_expression(
         &mut self,
         cs: &mut CS,
@@ -411,7 +432,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 let resolved_right =
                     self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
 
-                self.enforce_eq_expression(cs, resolved_left, resolved_right)
+                self.evaluate_eq_expression(resolved_left, resolved_right)
             }
             Expression::Geq(left, right) => {
                 unimplemented!("expression {} >= {} unimplemented", left, right)

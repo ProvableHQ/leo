@@ -4,6 +4,7 @@ use crate::constraints::{ResolvedProgram, ResolvedValue};
 use crate::{new_variable_from_variable, Parameter, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::gadgets::utilities::uint32::UInt32;
 use snarkos_models::gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean};
 // use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -86,8 +87,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn enforce_field_eq(&mut self, fe1: F, fe2: F) -> ResolvedValue<F> {
+    pub(crate) fn field_eq(fe1: F, fe2: F) -> ResolvedValue<F> {
         ResolvedValue::Boolean(Boolean::Constant(fe1.eq(&fe2)))
+    }
+    pub(crate) fn enforce_field_eq(&mut self, _fe1: F, _fe2: F) -> ResolvedValue<F> {
+        unimplemented!("field equality enforcement not implemented")
     }
 
     pub(crate) fn enforce_field_add(&mut self, fe1: F, fe2: F) -> ResolvedValue<F> {
@@ -106,9 +110,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         ResolvedValue::FieldElement(fe1.div(&fe2))
     }
 
-    pub(crate) fn enforce_field_pow(&mut self, _fe1: F, _fe2: F) -> ResolvedValue<F> {
-        unimplemented!("field element exponentiation not supported")
-
-        // ResolvedValue::FieldElement(fe1.pow(&fe2))
+    pub(crate) fn enforce_field_pow(&mut self, fe1: F, num: UInt32) -> ResolvedValue<F> {
+        ResolvedValue::FieldElement(fe1.pow(&[num.value.unwrap() as u64]))
     }
 }
