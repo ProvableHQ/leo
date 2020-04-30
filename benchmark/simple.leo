@@ -1,4 +1,7 @@
 function main() -> (fe) {
-  a = 2fe ** 3;
-  return a
+  if (4fe >= 4fe) {
+    return 5fe
+  } else {
+    return 2fe
+  }
 }

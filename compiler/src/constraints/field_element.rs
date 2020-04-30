@@ -4,6 +4,7 @@ use crate::constraints::{ResolvedProgram, ResolvedValue};
 use crate::{new_variable_from_variable, Parameter, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::gadgets::r1cs::LinearCombination;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 use snarkos_models::gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean};
 // use std::ops::{Add, Div, Mul, Neg, Sub};
@@ -90,8 +91,34 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn field_eq(fe1: F, fe2: F) -> ResolvedValue<F> {
         ResolvedValue::Boolean(Boolean::Constant(fe1.eq(&fe2)))
     }
-    pub(crate) fn enforce_field_eq(&mut self, _fe1: F, _fe2: F) -> ResolvedValue<F> {
-        unimplemented!("field equality enforcement not implemented")
+
+    pub(crate) fn field_geq(fe1: F, fe2: F) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(fe1.ge(&fe2)))
+    }
+
+    pub(crate) fn field_gt(fe1: F, fe2: F) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(fe1.gt(&fe2)))
+    }
+
+    pub(crate) fn field_leq(fe1: F, fe2: F) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(fe1.le(&fe2)))
+    }
+
+    pub(crate) fn field_lt(fe1: F, fe2: F) -> ResolvedValue<F> {
+        ResolvedValue::Boolean(Boolean::Constant(fe1.lt(&fe2)))
+    }
+
+    pub(crate) fn enforce_field_eq(&mut self, cs: &mut CS, fe1: F, fe2: F) -> ResolvedValue<F> {
+        let mut lc = LinearCombination::zero();
+
+        // add (fe1 * 1) and subtract (fe2 * 1) from the linear combination
+        lc = lc + (fe1, CS::one()) - (fe2, CS::one());
+
+        // enforce that the linear combination is zero
+        cs.enforce(|| "field equality", |lc| lc, |lc| lc, |_| lc);
+
+        // return success
+        ResolvedValue::Boolean(Boolean::constant(true))
     }
 
     pub(crate) fn enforce_field_add(&mut self, fe1: F, fe2: F) -> ResolvedValue<F> {

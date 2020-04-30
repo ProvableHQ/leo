@@ -133,7 +133,71 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
                 Self::field_eq(fe1, fe2)
             }
-            (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
+            (val1, val2) => unimplemented!("cannot evaluate {} == {}", val1, val2),
+        }
+    }
+
+    fn evaluate_geq_expression(
+        &mut self,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) -> ResolvedValue<F> {
+        match (left, right) {
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                Self::field_geq(fe1, fe2)
+            }
+            (val1, val2) => unimplemented!(
+                "cannot evaluate {} >= {}, values must be fields",
+                val1,
+                val2
+            ),
+        }
+    }
+
+    fn evaluate_gt_expression(
+        &mut self,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) -> ResolvedValue<F> {
+        match (left, right) {
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                Self::field_gt(fe1, fe2)
+            }
+            (val1, val2) => {
+                unimplemented!("cannot evaluate {} > {}, values must be fields", val1, val2)
+            }
+        }
+    }
+
+    fn evaluate_leq_expression(
+        &mut self,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) -> ResolvedValue<F> {
+        match (left, right) {
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                Self::field_leq(fe1, fe2)
+            }
+            (val1, val2) => unimplemented!(
+                "cannot evaluate {} <= {}, values must be fields",
+                val1,
+                val2
+            ),
+        }
+    }
+
+    fn evaluate_lt_expression(
+        &mut self,
+        left: ResolvedValue<F>,
+        right: ResolvedValue<F>,
+    ) -> ResolvedValue<F> {
+        match (left, right) {
+            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
+                Self::field_lt(fe1, fe2)
+            }
+            (val1, val2) => {
+                unimplemented!("cannot evaluate {} < {}, values must be fields", val1, val2)
+            }
         }
     }
 
@@ -152,7 +216,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 Self::enforce_u32_eq(cs, num1, num2)
             }
             (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_eq(fe1, fe2)
+                self.enforce_field_eq(cs, fe1, fe2)
             }
             (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
         }
@@ -404,7 +468,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             }
 
             // Boolean operations
-            Expression::Not(expression) => Self::enforce_not(self.enforce_expression(
+            Expression::Not(expression) => Self::evaluate_not(self.enforce_expression(
                 cs,
                 file_scope,
                 function_scope,
@@ -435,16 +499,36 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 self.evaluate_eq_expression(resolved_left, resolved_right)
             }
             Expression::Geq(left, right) => {
-                unimplemented!("expression {} >= {} unimplemented", left, right)
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+
+                self.evaluate_geq_expression(resolved_left, resolved_right)
             }
             Expression::Gt(left, right) => {
-                unimplemented!("expression {} > {} unimplemented", left, right)
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+
+                self.evaluate_gt_expression(resolved_left, resolved_right)
             }
             Expression::Leq(left, right) => {
-                unimplemented!("expression {} <= {} unimplemented", left, right)
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+
+                self.evaluate_leq_expression(resolved_left, resolved_right)
             }
             Expression::Lt(left, right) => {
-                unimplemented!("expression {} < {} unimplemented", left, right)
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+
+                self.evaluate_lt_expression(resolved_left, resolved_right)
             }
 
             // Conditionals

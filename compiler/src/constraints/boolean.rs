@@ -93,7 +93,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         ResolvedValue::Boolean(Boolean::Constant(bool))
     }
 
-    pub(crate) fn enforce_not(value: ResolvedValue<F>) -> ResolvedValue<F> {
+    pub(crate) fn evaluate_not(value: ResolvedValue<F>) -> ResolvedValue<F> {
         match value {
             ResolvedValue::Boolean(boolean) => ResolvedValue::Boolean(boolean.not()),
             value => unimplemented!("cannot enforce not on non-boolean value {}", value),

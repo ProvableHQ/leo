@@ -32,10 +32,14 @@ operation_mul = { "*" }
 operation_div = { "/" }
 operation_pow = { "**" }
 
-operation_binary = _{
-    operation_and | operation_or |
+operation_compare = _{
     operation_eq | operation_neq |
-    operation_geq | operation_gt | operation_leq | operation_lt |
+    operation_geq | operation_gt |
+    operation_leq | operation_lt
+}
+
+operation_binary = _{
+    operation_compare | operation_and | operation_or |
     operation_add | operation_sub | operation_pow | operation_mul | operation_div
 }
 
