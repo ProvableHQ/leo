@@ -512,7 +512,6 @@ pub struct NotExpression<'ast> {
 // #[pest_ast(rule(Rule::expression_increment))]
 // pub struct IncrementExpression<'ast> {
 //     pub expression: Box<Expression<'ast>>,
-//     pub operation: Increment<'ast>,
 //     #[pest_ast(outer())]
 //     pub span: Span<'ast>,
 // }
@@ -521,7 +520,6 @@ pub struct NotExpression<'ast> {
 // #[pest_ast(rule(Rule::expression_decrement))]
 // pub struct DecrementExpression<'ast> {
 //     pub expression: Box<Expression<'ast>>,
-//     pub operation: Decrement<'ast>,
 //     #[pest_ast(outer())]
 //     pub span: Span<'ast>,
 // }
@@ -700,25 +698,25 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 },
                 // Rule::expression_increment => {
                 //     println!("expression increment");
-                //     // let span = next.as_span();
-                //     // let mut inner = next.into_inner();
-                //     // let expression = parse_term(inner.next().unwrap());
+                //     let span = next.as_span();
+                //     let mut inner = next.into_inner();
+                //     let expression = parse_term(inner.next().unwrap());
                 //     // let operation = match inner.next().unwrap().as_rule() {
                 //     //     Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                 //     //     rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
                 //     // };
-                //     // Expression::Increment(IncrementExpression { operation, expression, span })
+                //     Expression::Increment(IncrementExpression { expression, span })
                 // },
                 // Rule::expression_decrement => {
                 //     println!("expression decrement");
-                //     // let span = next.as_span();
-                //     // let mut inner = next.into_inner();
-                //     // let expression = parse_term(inner.next().unwrap());
+                //     let span = next.as_span();
+                //     let mut inner = next.into_inner();
+                //     let expression = parse_term(inner.next().unwrap());
                 //     // let operation = match inner.next().unwrap().as_rule() {
                 //     //     Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                 //     //     rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
                 //     // };
-                //     // Expression::Decrement(DecrementExpression { operation, expression, span })
+                //     Expression::Decrement(DecrementExpression { expression, span })
                 // },
                 Rule::expression_postfix => {
                     Expression::Postfix(
@@ -854,9 +852,40 @@ pub struct DefinitionStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assign))]
+pub struct Assign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_add_assign))]
+pub struct AddAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_sub_assign))]
+pub struct SubAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_mul_assign))]
+pub struct MulAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_div_assign))]
+pub struct DivAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_assign))]
+pub enum OperationAssign {
+    Assign(Assign),
+    AddAssign(AddAssign),
+    SubAssign(SubAssign),
+    MulAssign(MulAssign),
+    DivAssign(DivAssign),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_assign))]
 pub struct AssignStatement<'ast> {
     pub assignee: Assignee<'ast>,
+    pub assign: OperationAssign,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

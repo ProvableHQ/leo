@@ -1,9 +1,5 @@
-function test() -> (u32, u32[2]) {
-  return 1, [2, 3]
-}
-
-function main() -> (u32[3]) {
-  a, b = test();
-  // a, u32[2] b = test() <- explicit type also works
-  return [a, ...b]
+function main() -> (u32) {
+  a = 2;
+  a /= 3;
+  return a
 }

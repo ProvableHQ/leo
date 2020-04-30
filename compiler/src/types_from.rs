@@ -303,6 +303,30 @@ impl<'ast, F: Field + PrimeField> types::Expression<F> {
     }
 }
 
+// ast::Assignee -> types::Expression for operator assign statements
+impl<'ast, F: Field + PrimeField> From<ast::Assignee<'ast>> for types::Expression<F> {
+    fn from(assignee: ast::Assignee<'ast>) -> Self {
+        let variable = types::Expression::Variable(types::Variable::from(assignee.variable));
+
+        // we start with the id, and we fold the array of accesses by wrapping the current value
+        assignee
+            .accesses
+            .into_iter()
+            .fold(variable, |acc, access| match access {
+                ast::AssigneeAccess::Member(struct_member) => {
+                    types::Expression::StructMemberAccess(
+                        Box::new(acc),
+                        types::Variable::from(struct_member.variable),
+                    )
+                }
+                ast::AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
+                    Box::new(acc),
+                    Box::new(types::RangeOrExpression::from(array.expression)),
+                ),
+            })
+    }
+}
+
 /// pest ast -> types::Assignee
 
 impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Assignee<F> {
@@ -358,10 +382,50 @@ impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types
 
 impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
-        types::Statement::Assign(
-            types::Assignee::from(statement.assignee),
-            types::Expression::from(statement.expression),
-        )
+        match statement.assign {
+            ast::OperationAssign::Assign(ref _assign) => types::Statement::Assign(
+                types::Assignee::from(statement.assignee),
+                types::Expression::from(statement.expression),
+            ),
+            operation_assign => {
+                // convert assignee into postfix expression
+                let converted = types::Expression::from(statement.assignee.clone());
+
+                match operation_assign {
+                    ast::OperationAssign::AddAssign(ref _assign) => types::Statement::Assign(
+                        types::Assignee::from(statement.assignee),
+                        types::Expression::Add(
+                            Box::new(converted),
+                            Box::new(types::Expression::from(statement.expression)),
+                        ),
+                    ),
+                    ast::OperationAssign::SubAssign(ref _assign) => types::Statement::Assign(
+                        types::Assignee::from(statement.assignee),
+                        types::Expression::Sub(
+                            Box::new(converted),
+                            Box::new(types::Expression::from(statement.expression)),
+                        ),
+                    ),
+                    ast::OperationAssign::MulAssign(ref _assign) => types::Statement::Assign(
+                        types::Assignee::from(statement.assignee),
+                        types::Expression::Mul(
+                            Box::new(converted),
+                            Box::new(types::Expression::from(statement.expression)),
+                        ),
+                    ),
+                    ast::OperationAssign::DivAssign(ref _assign) => types::Statement::Assign(
+                        types::Assignee::from(statement.assignee),
+                        types::Expression::Div(
+                            Box::new(converted),
+                            Box::new(types::Expression::from(statement.expression)),
+                        ),
+                    ),
+                    ast::OperationAssign::Assign(ref _assign) => {
+                        unimplemented!("cannot assign twice to assign statement")
+                    }
+                }
+            }
+        }
     }
 }
 

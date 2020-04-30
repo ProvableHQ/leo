@@ -79,7 +79,7 @@ pub enum Expression<F: Field + PrimeField> {
 
     // Arrays
     Array(Vec<Box<SpreadOrExpression<F>>>),
-    ArrayAccess(Box<Expression<F>>, Box<RangeOrExpression<F>>),
+    ArrayAccess(Box<Expression<F>>, Box<RangeOrExpression<F>>), // (array name, range)
 
     // Structs
     Struct(Variable<F>, Vec<StructMember<F>>),
