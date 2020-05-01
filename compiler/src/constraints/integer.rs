@@ -4,6 +4,7 @@ use crate::constraints::{ResolvedProgram, ResolvedValue};
 use crate::{new_variable_from_variable, Integer, Parameter, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
     utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
@@ -100,12 +101,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     }
 
     pub(crate) fn enforce_u32_eq(cs: &mut CS, left: UInt32, right: UInt32) {
-        left.conditional_enforce_equal(
-            cs.ns(|| format!("enforce field equal")),
-            &right,
-            &Boolean::Constant(true),
-        )
-        .unwrap();
+        left.enforce_equal(cs.ns(|| format!("enforce u32 equal")), &right)
+            .unwrap();
     }
 
     pub(crate) fn enforce_u32_add(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
