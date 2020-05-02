@@ -7,7 +7,7 @@ use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
-    utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
+    utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
@@ -34,9 +34,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // Check visibility of parameter
         let name = parameter.variable.name.clone();
         let number = if parameter.private {
-            UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
+            UInt32::alloc(cs.ns(|| name), || Ok(argument)).unwrap()
         } else {
-            UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
+            UInt32::alloc_input(cs.ns(|| name), || Ok(argument)).unwrap()
         };
 
         let parameter_variable = new_variable_from_variable(scope, &parameter.variable);

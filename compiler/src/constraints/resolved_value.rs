@@ -6,7 +6,10 @@ use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
+
+#[derive(Clone, PartialEq, Eq)]
 pub enum ResolvedValue<F: Field + PrimeField> {
     U32(UInt32),
     FieldElement(F),
@@ -17,9 +20,6 @@ pub enum ResolvedValue<F: Field + PrimeField> {
     Function(Function<F>),
     Return(Vec<ResolvedValue<F>>), // add Null for function returns
 }
-
-#[derive(Clone)]
-pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
 
 impl<F: Field + PrimeField> ResolvedValue<F> {
     pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
@@ -95,5 +95,11 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 unimplemented!("cannot return function definition in program")
             } // _ => unimplemented!("display not impl for value"),
         }
+    }
+}
+
+impl<F: Field + PrimeField> fmt::Debug for ResolvedValue<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }

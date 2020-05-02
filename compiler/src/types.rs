@@ -15,7 +15,7 @@ pub struct Variable<F: Field + PrimeField> {
 }
 
 /// An integer type enum wrapping the integer value
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Integer {
     // U8(u8),
     U32(u32),
@@ -33,21 +33,21 @@ impl Integer {
 }
 
 /// Range or expression enum
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RangeOrExpression<F: Field + PrimeField> {
     Range(Option<Integer>, Option<Integer>),
     Expression(Expression<F>),
 }
 
 /// Spread or expression
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SpreadOrExpression<F: Field + PrimeField> {
     Spread(Expression<F>),
     Expression(Expression<F>),
 }
 
 /// Expression that evaluates to a value
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression<F: Field + PrimeField> {
     // Variable
     Variable(Variable<F>),
@@ -90,7 +90,7 @@ pub enum Expression<F: Field + PrimeField> {
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Assignee<F: Field + PrimeField> {
     Variable(Variable<F>),
     Array(Box<Assignee<F>>, RangeOrExpression<F>),
@@ -98,7 +98,7 @@ pub enum Assignee<F: Field + PrimeField> {
 }
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Type<F: Field + PrimeField> {
     U32,
     FieldElement,
@@ -107,13 +107,13 @@ pub enum Type<F: Field + PrimeField> {
     Struct(Variable<F>),
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum ConditionalNestedOrEnd<F: Field + PrimeField> {
     Nested(Box<ConditionalStatement<F>>),
     End(Vec<Statement<F>>),
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct ConditionalStatement<F: Field + PrimeField> {
     pub condition: Expression<F>,
     pub statements: Vec<Statement<F>>,
@@ -121,7 +121,7 @@ pub struct ConditionalStatement<F: Field + PrimeField> {
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
     Return(Vec<Expression<F>>),
@@ -133,19 +133,19 @@ pub enum Statement<F: Field + PrimeField> {
     AssertEq(Expression<F>, Expression<F>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct StructMember<F: Field + PrimeField> {
     pub variable: Variable<F>,
     pub expression: Expression<F>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct StructField<F: Field + PrimeField> {
     pub variable: Variable<F>,
     pub ty: Type<F>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Struct<F: Field + PrimeField> {
     pub variable: Variable<F>,
     pub fields: Vec<StructField<F>>,
@@ -153,7 +153,7 @@ pub struct Struct<F: Field + PrimeField> {
 
 /// Function parameters
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Parameter<F: Field + PrimeField> {
     pub private: bool,
     pub ty: Type<F>,
@@ -164,7 +164,7 @@ pub struct Parameter<F: Field + PrimeField> {
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct FunctionName(pub String);
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Function<F: Field + PrimeField> {
     pub function_name: FunctionName,
     pub parameters: Vec<Parameter<F>>,

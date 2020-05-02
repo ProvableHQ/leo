@@ -38,6 +38,10 @@ impl Manifest {
         path.exists()
     }
 
+    pub fn get_package_name(&self) -> String {
+        self.package.name.clone()
+    }
+
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
         let mut path = path.to_owned();
         if path.is_dir() {

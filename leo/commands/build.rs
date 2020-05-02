@@ -33,7 +33,10 @@ impl CLI for BuildCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         let path = current_dir()?;
-        let _manifest = Manifest::try_from(&path)?;
+
+        // Get the package name
+        let manifest = Manifest::try_from(&path)?;
+        let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
@@ -59,7 +62,7 @@ impl CLI for BuildCommand {
         log::info!("Compiling program located in {:?}", main_file_path);
 
         // Compile from the main file path
-        let circuit = Compiler::<Fr>::init(main_file_path);
+        let circuit = Compiler::<Fr>::init(package_name, main_file_path);
 
         Ok(circuit)
     }

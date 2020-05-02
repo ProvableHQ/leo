@@ -1,4 +1,5 @@
-use crate::{ast, Program, ResolvedProgram};
+use crate::{ast, Program, ResolvedProgram, ResolvedValue};
+use crate::errors::CompilerError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -11,16 +12,39 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
 pub struct Compiler<F: Field + PrimeField> {
+    package_name: String,
     main_file_path: PathBuf,
+    output: Option<ResolvedValue<F>>,
     _engine: PhantomData<F>,
 }
 
 impl<F: Field + PrimeField> Compiler<F> {
-    pub fn init(main_file_path: PathBuf) -> Self {
+    pub fn init(package_name: String, main_file_path: PathBuf) -> Self {
         Self {
+            package_name,
             main_file_path,
+            output: None,
             _engine: PhantomData,
         }
+    }
+
+    pub fn evaluate_program<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<ResolvedValue<F>, CompilerError> {
+        // Read in the main file as string
+        let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+
+        // Parse the file using leo.pest
+        let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
+
+        // Build the abstract syntax tree
+        let syntax_tree = ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
+        log::debug!("{:#?}", syntax_tree);
+
+        // Build program from abstract syntax tree
+        let package_name = self.package_name.clone();
+        let program = Program::<'_, F>::from(syntax_tree).name(package_name);
+        log::info!("Compiled -\n{:#?}", program);
+
+        Ok(ResolvedProgram::generate_constraints(cs, program))
     }
 }
 
@@ -29,22 +53,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path).expect("cannot read file");
-
-        // Parse the file using leo.pest
-        let mut file = ast::parse(&unparsed_file).expect("unsuccessful parse");
-
-        // Build the abstract syntax tree
-        let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
-        log::debug!("{:#?}", syntax_tree);
-
-        let program = Program::<'_, F>::from(syntax_tree);
-        log::info!(" compiled: {:#?}", program);
-
-        let program = program.name("simple".into());
-        ResolvedProgram::generate_constraints(cs, program);
-
+        self.evaluate_program(cs);
         Ok(())
     }
 }

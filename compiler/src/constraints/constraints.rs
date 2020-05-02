@@ -294,7 +294,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             });
     }
 
-    pub fn generate_constraints(cs: &mut CS, program: Program<F>) {
+    pub fn generate_constraints(cs: &mut CS, program: Program<F>) -> ResolvedValue<F> {
         let mut resolved_program = ResolvedProgram::new();
         let program_name = program.get_name();
         let main_function_name = new_scope(program_name.clone(), "main".into());
@@ -305,12 +305,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .get(&main_function_name)
             .expect("main function not defined");
 
-        let result = match main.clone() {
+        match main.clone() {
             ResolvedValue::Function(function) => {
-                resolved_program.enforce_main_function(cs, program_name, function)
+                let result = resolved_program.enforce_main_function(cs, program_name, function);
+                log::info!("{}", result);
+                result
             }
             _ => unimplemented!("main must be a function"),
-        };
-        println!("\n  {}", result);
+        }
     }
 }
