@@ -1,6 +1,6 @@
 //! The `main.leo` file.
 
-use crate::directories::inputs::INPUTS_DIRECTORY_NAME;
+use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
 use crate::errors::VerificationKeyFileError;
 
 use serde::Deserialize;
@@ -25,8 +25,8 @@ impl VerificationKeyFile {
     pub fn exists_at(self, path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
         }
@@ -36,8 +36,8 @@ impl VerificationKeyFile {
     pub fn write_to(self, path: &PathBuf, verification_key: &[u8]) -> Result<(), VerificationKeyFileError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
         }
