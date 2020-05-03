@@ -40,6 +40,7 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
+        // Start the timer
         let start = Instant::now();
 
         let rng = &mut thread_rng();
@@ -51,6 +52,8 @@ impl CLI for ProveCommand {
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
+
+        log::info!("Completed program proving");
 
         Ok(program_proof)
     }

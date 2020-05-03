@@ -308,7 +308,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         match main.clone() {
             ResolvedValue::Function(function) => {
                 let result = resolved_program.enforce_main_function(cs, program_name, function);
-                log::info!("{}", result);
+                log::debug!("{}", result);
                 result
             }
             _ => unimplemented!("main must be a function"),

@@ -1,6 +1,6 @@
 use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
-use crate::errors::CLIError;
+use crate::errors::{CLIError, VerificationKeyFileError};
 use crate::files::{ProvingKeyFile, VerificationKeyFile};
 use crate::manifest::Manifest;
 use leo_compiler::compiler::Compiler;
@@ -42,30 +42,66 @@ impl CLI for SetupCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let program = BuildCommand::output(options)?;
+        let (program, checksum_differs) = BuildCommand::output(options)?;
 
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        let start = Instant::now();
+        // Check if a proving key and verification key already exists
+        let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
+            && VerificationKeyFile::new(&package_name).exists_at(&path);
 
-        let rng = &mut thread_rng();
-        let parameters =
-            generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
+        // If keys do not exist or the checksum differs, run the program setup
+        if !keys_exist || checksum_differs {
+            // Start the timer
+            let start = Instant::now();
+
+            // Run the program setup operation
+            let rng = &mut thread_rng();
+            let parameters =
+                generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
+            let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
+
+            // End the timer
+            log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+
+            // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
+            // Write the proving key file to the outputs directory
+            let mut proving_key = vec![];
+            parameters.write(&mut proving_key)?;
+            ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+
+            // Write the proving key file to the outputs directory
+            let mut verification_key = vec![];
+            prepared_verifying_key.write(&mut verification_key)?;
+            VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
+        }
+
+        // Read the proving key file from the outputs directory
+        let proving_key = ProvingKeyFile::new(&package_name).read_from(&path)?;
+        let parameters = Parameters::<Bls12_377>::read(proving_key.as_slice(), true)?;
+
+        // Read the proving key file from the outputs directory
         let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
+        {
+            // Load the stored verification key from the outputs directory
+            let stored_vk = VerificationKeyFile::new(&package_name).read_from(&path)?;
 
-        log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+            // Convert the prepared_verifying_key to a buffer
+            let mut verification_key = vec![];
+            prepared_verifying_key.write(&mut verification_key)?;
 
-        // Write the proving key file to the outputs directory
-        let mut proving_key = vec![];
-        parameters.write(&mut proving_key)?;
-        ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+            // Check that the constructed prepared verification key matches the stored verification key
+            let compare: Vec<(u8, u8)> = verification_key.into_iter().zip(stored_vk.into_iter()).collect();
+            for (a, b) in compare {
+                if a != b {
+                    return Err(VerificationKeyFileError::IncorrectVerificationKey.into())
+                }
+            }
+        }
 
-        // Write the proving key file to the outputs directory
-        let mut verification_key = vec![];
-        prepared_verifying_key.write(&mut verification_key)?;
-        VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
+        log::info!("Completed program setup");
 
         Ok((program, parameters, prepared_verifying_key))
     }

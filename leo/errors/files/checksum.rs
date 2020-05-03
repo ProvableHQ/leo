@@ -2,7 +2,7 @@ use std::io;
 use std::path::PathBuf;
 
 #[derive(Debug, Fail)]
-pub enum ProofFileError {
+pub enum ChecksumFileError {
     #[fail(display = "{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -16,8 +16,8 @@ pub enum ProofFileError {
     Writing(io::Error),
 }
 
-impl From<std::io::Error> for ProofFileError {
+impl From<std::io::Error> for ChecksumFileError {
     fn from(error: std::io::Error) -> Self {
-        ProofFileError::Crate("std::io", format!("{}", error))
+        ChecksumFileError::Crate("std::io", format!("{}", error))
     }
 }

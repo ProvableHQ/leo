@@ -1,10 +1,10 @@
-//! The `main.leo` file.
+//! The verification key file.
 
 use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
 use crate::errors::VerificationKeyFileError;
 
 use serde::Deserialize;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -22,31 +22,38 @@ impl VerificationKeyFile {
         }
     }
 
-    pub fn exists_at(self, path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
-            }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
-        }
+    pub fn exists_at(&self, path: &PathBuf) -> bool {
+        let path = self.setup_file_path(path);
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf, verification_key: &[u8]) -> Result<(), VerificationKeyFileError> {
-        let mut path = path.to_owned();
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
-            }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
-        }
+    /// Reads the verification key from the given file path if it exists.
+    pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, VerificationKeyFileError> {
+        let path = self.setup_file_path(path);
+
+        Ok(fs::read(&path).map_err(|_| VerificationKeyFileError::FileReadError(path.clone()))?)
+    }
+
+    /// Writes the given verification key to a file.
+    pub fn write_to(&self, path: &PathBuf, verification_key: &[u8]) -> Result<(), VerificationKeyFileError> {
+        let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
         file.write_all(verification_key)?;
 
-        log::info!("Verification key stored in {:?}", path);
+        log::info!("Verification key stored to {:?}", path);
 
         Ok(())
+    }
+
+    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+        let mut path = path.to_owned();
+        if path.is_dir() {
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+            }
+            path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
+        }
+        path
     }
 }

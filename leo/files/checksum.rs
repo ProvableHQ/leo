@@ -1,21 +1,21 @@
-//! The proof file.
+//! The build checksum file.
 
 use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::ProofFileError;
+use crate::errors::ChecksumFileError;
 
 use serde::Deserialize;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 
-pub static PROOF_FILE_EXTENSION: &str = ".leo.proof";
+pub static CHECKSUM_FILE_EXTENSION: &str = ".leo.checksum";
 
 #[derive(Deserialize)]
-pub struct ProofFile {
+pub struct ChecksumFile {
     pub package_name: String,
 }
 
-impl ProofFile {
+impl ChecksumFile {
     pub fn new(package_name: &str) -> Self {
         Self {
             package_name: package_name.to_string(),
@@ -27,22 +27,21 @@ impl ProofFile {
         path.exists()
     }
 
-    /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, ProofFileError> {
+    /// Reads the checksum from the given file path if it exists.
+    pub fn read_from(&self, path: &PathBuf) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
-        Ok(proof)
+        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.clone()))?)
     }
 
-    /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &PathBuf, proof: &[u8]) -> Result<(), ProofFileError> {
+    /// Writes the given checksum to a file.
+    pub fn write_to(&self, path: &PathBuf, checksum: String) -> Result<(), ChecksumFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
-        file.write_all(proof)?;
+        file.write_all(checksum.as_bytes())?;
 
-        log::info!("Proof stored to {:?}", path);
+        log::info!("Checksum stored to {:?}", path);
 
         Ok(())
     }
@@ -53,7 +52,7 @@ impl ProofFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!("{}{}", self.package_name, CHECKSUM_FILE_EXTENSION)));
         }
         path
     }

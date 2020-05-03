@@ -1,4 +1,5 @@
 use std::io;
+use std::path::PathBuf;
 
 #[derive(Debug, Fail)]
 pub enum ProvingKeyFileError {
@@ -7,6 +8,9 @@ pub enum ProvingKeyFileError {
 
     #[fail(display = "creating: {}", _0)]
     Creating(io::Error),
+
+    #[fail(display = "Cannot read from the provided file path - {:?}", _0)]
+    FileReadError(PathBuf),
 
     #[fail(display = "writing: {}", _0)]
     Writing(io::Error),

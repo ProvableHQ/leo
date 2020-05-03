@@ -1,3 +1,6 @@
+pub mod checksum;
+pub use self::checksum::*;
+
 pub mod main;
 pub use self::main::*;
 

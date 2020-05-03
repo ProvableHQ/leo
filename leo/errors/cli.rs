@@ -9,6 +9,9 @@ pub enum CLIError {
     Crate(&'static str, String),
 
     #[fail(display = "{}", _0)]
+    ChecksumFileError(ChecksumFileError),
+
+    #[fail(display = "{}", _0)]
     InitError(InitError),
 
     #[fail(display = "{}", _0)]
@@ -45,6 +48,12 @@ pub enum CLIError {
 impl From<BuildError> for CLIError {
     fn from(error: BuildError) -> Self {
         CLIError::BuildError(error)
+    }
+}
+
+impl From<ChecksumFileError> for CLIError {
+    fn from(error: ChecksumFileError) -> Self {
+        CLIError::ChecksumFileError(error)
     }
 }
 
@@ -111,6 +120,12 @@ impl From<SourceDirectoryError> for CLIError {
 impl From<VerificationKeyFileError> for CLIError {
     fn from(error: VerificationKeyFileError) -> Self {
         CLIError::VerificationKeyFileError(error)
+    }
+}
+
+impl From<leo_compiler::errors::CompilerError> for CLIError {
+    fn from(error: leo_compiler::errors::CompilerError) -> Self {
+        CLIError::Crate("leo_compiler", format!("{}", error))
     }
 }
 
