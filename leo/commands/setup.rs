@@ -1,7 +1,7 @@
 use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
 use crate::errors::CLIError;
-use crate::files::ProvingKeyFile;
+use crate::files::{ProvingKeyFile, VerificationKeyFile};
 use crate::manifest::Manifest;
 use leo_compiler::compiler::Compiler;
 
@@ -9,6 +9,7 @@ use snarkos_algorithms::snark::{
     generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey,
 };
 use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_utilities::bytes::ToBytes;
 
 use clap::ArgMatches;
 use rand::thread_rng;
@@ -60,6 +61,11 @@ impl CLI for SetupCommand {
         let mut proving_key = vec![];
         parameters.write(&mut proving_key);
         ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+
+        // Write the proving key file to the inputs directory
+        let mut verification_key = vec![];
+        prepared_verifying_key.write(&mut verification_key);
+        VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
 
         Ok((program, parameters, prepared_verifying_key))
     }

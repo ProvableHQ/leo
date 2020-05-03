@@ -397,6 +397,7 @@ dependencies = [
  "snarkos-errors",
  "snarkos-gadgets",
  "snarkos-models",
+ "snarkos-utilities",
  "structopt",
  "toml",
 ]

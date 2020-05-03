@@ -27,10 +27,16 @@ pub enum CLIError {
     OutputsDirectoryError(OutputsDirectoryError),
 
     #[fail(display = "{}", _0)]
+    ProvingKeyFileError(ProvingKeyFileError),
+
+    #[fail(display = "{}", _0)]
     RunError(RunError),
 
     #[fail(display = "{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
+
+    #[fail(display = "{}", _0)]
+    VerificationKeyFileError(VerificationKeyFileError),
 }
 
 impl From<BuildError> for CLIError {
@@ -75,6 +81,12 @@ impl From<OutputsDirectoryError> for CLIError {
     }
 }
 
+impl From<ProvingKeyFileError> for CLIError {
+    fn from(error: ProvingKeyFileError) -> Self {
+        CLIError::ProvingKeyFileError(error)
+    }
+}
+
 impl From<RunError> for CLIError {
     fn from(error: RunError) -> Self {
         CLIError::RunError(error)
@@ -84,6 +96,12 @@ impl From<RunError> for CLIError {
 impl From<SourceDirectoryError> for CLIError {
     fn from(error: SourceDirectoryError) -> Self {
         CLIError::SourceDirectoryError(error)
+    }
+}
+
+impl From<VerificationKeyFileError> for CLIError {
+    fn from(error: VerificationKeyFileError) -> Self {
+        CLIError::VerificationKeyFileError(error)
     }
 }
 
