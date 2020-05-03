@@ -160,9 +160,9 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { ty ~ variable ~ "=" ~ expression }
+statement_definition = { "let" ~ variable ~ (":" ~ ty)? ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
-statement_multiple_assignment = { optionally_typed_variable_tuple ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
+statement_multiple_assignment = { "let" ~ "(" ~ optionally_typed_variable_tuple ~ ")" ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ "(" ~ expression ~ ")" ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
 statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 statement_assert = {

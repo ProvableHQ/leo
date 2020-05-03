@@ -7,7 +7,7 @@ use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::gadgets::{
     r1cs::ConstraintSystem,
-    utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, uint32::UInt32},
+    utilities::{alloc::AllocGadget, boolean::Boolean, uint32::UInt32},
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {

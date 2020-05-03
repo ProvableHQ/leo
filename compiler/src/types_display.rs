@@ -180,20 +180,22 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
                 }
                 write!(f, "\n")
             }
-            Statement::Definition(ref ty, ref assignee, ref statement) => {
-                write!(f, "{} {} = {};", ty, assignee, statement)
-            }
+            Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
+                Some(ref ty) => write!(f, "let {} : {} = {};", assignee, ty, expression),
+                None => write!(f, "let {} = {};", assignee, expression),
+            },
             Statement::Assign(ref variable, ref statement) => {
                 write!(f, "{} = {};", variable, statement)
             }
             Statement::MultipleAssign(ref assignees, ref function) => {
+                write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;
                     if i < assignees.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }
-                write!(f, " = {};", function)
+                write!(f, ") = {};", function)
             }
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::For(ref var, ref start, ref stop, ref list) => {
@@ -223,20 +225,22 @@ impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
                 }
                 write!(f, "\n")
             }
-            Statement::Definition(ref ty, ref assignee, ref statement) => {
-                write!(f, "{} {} = {};", ty, assignee, statement)
-            }
+            Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
+                Some(ref ty) => write!(f, "let {} : {} = {};", assignee, ty, expression),
+                None => write!(f, "let {} = {};", assignee, expression),
+            },
             Statement::Assign(ref variable, ref statement) => {
                 write!(f, "{} = {};", variable, statement)
             }
             Statement::MultipleAssign(ref assignees, ref function) => {
+                write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;
                     if i < assignees.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }
-                write!(f, " = {};", function)
+                write!(f, ") = {};", function)
             }
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::For(ref var, ref start, ref stop, ref list) => {

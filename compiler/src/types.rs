@@ -125,7 +125,7 @@ pub struct ConditionalStatement<F: Field + PrimeField> {
 pub enum Statement<F: Field + PrimeField> {
     // Declaration(Variable),
     Return(Vec<Expression<F>>),
-    Definition(Type<F>, Assignee<F>, Expression<F>),
+    Definition(Assignee<F>, Option<Type<F>>, Expression<F>),
     Assign(Assignee<F>, Expression<F>),
     MultipleAssign(Vec<Assignee<F>>, Expression<F>),
     Conditional(ConditionalStatement<F>),

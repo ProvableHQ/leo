@@ -879,8 +879,8 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
-    pub ty: Type<'ast>,
     pub variable: Variable<'ast>,
+    pub ty: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -981,7 +981,10 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} = {};", self.ty, self.variable, self.expression)
+        match self.ty {
+            Some(ref ty) => write!(f, "let {} : {} = {};", self.variable, ty, self.expression),
+            None => write!(f, "let {} = {}", self.variable, self.expression),
+        }
     }
 }
 

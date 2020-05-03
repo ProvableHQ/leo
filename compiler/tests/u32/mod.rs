@@ -2,9 +2,9 @@ use leo_compiler::{compiler::Compiler, ResolvedValue};
 
 use snarkos_curves::bls12_377::Fr;
 
-use std::env::current_dir;
 use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, TestConstraintSystem};
 use snarkos_models::gadgets::utilities::uint32::UInt32;
+use std::env::current_dir;
 
 const DIRECTORY_NAME: &str = "tests/u32/";
 
@@ -38,7 +38,10 @@ fn test_zero() {
     assert!(cs.is_satisfied());
 
     let output = output.unwrap();
-    assert_eq!(ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]), output);
+    assert_eq!(
+        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]),
+        output
+    );
     println!("{}", output);
 }
 
@@ -50,7 +53,10 @@ fn test_one() {
     assert!(cs.is_satisfied());
 
     let output = output.unwrap();
-    assert_eq!(ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(1))]), output);
+    assert_eq!(
+        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(1))]),
+        output
+    );
     println!("{}", output);
 }
 
@@ -62,7 +68,10 @@ fn test_1_plus_1() {
     assert!(cs.is_satisfied());
 
     let output = output.unwrap();
-    assert_eq!(ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(2))]), output);
+    assert_eq!(
+        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(2))]),
+        output
+    );
     println!("{}", output);
 }
 
@@ -74,7 +83,10 @@ fn test_1_minus_1() {
     assert!(cs.is_satisfied());
 
     let output = output.unwrap();
-    assert_eq!(ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]), output);
+    assert_eq!(
+        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]),
+        output
+    );
     println!("{}", output);
 }
 

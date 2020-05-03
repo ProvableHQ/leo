@@ -137,14 +137,22 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         assignee: Assignee<F>,
         expression: Expression<F>,
     ) {
-        let result_value = &mut self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expression,
-        );
+        // Check that assignee exists
+        let name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
-        self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+        match self.get(&name) {
+            Some(_assignee) => {
+                let result_value = &mut self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    expression,
+                );
+
+                self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+            }
+            None => unimplemented!("cannot assign to uninitialized variable {}", assignee),
+        }
     }
 
     fn enforce_definition_statement(
@@ -152,8 +160,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        ty: Type<F>,
         assignee: Assignee<F>,
+        ty: Option<Type<F>>,
         expression: Expression<F>,
     ) {
         let result_value = &mut self.enforce_expression(
@@ -163,10 +171,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             expression,
         );
 
-        if result_value.match_type(&ty) {
-            self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
-        } else {
-            unimplemented!("incompatible types {} = {}", assignee, result_value)
+        match ty {
+            // Explicit type
+            Some(ty) => {
+                if result_value.match_type(&ty) {
+                    self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+                } else {
+                    unimplemented!("incompatible types {} = {}", assignee, result_value)
+                }
+            }
+            // Implicit type
+            None => self.store_assignment(cs, file_scope, function_scope, assignee, result_value),
         }
     }
 
@@ -382,13 +397,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     return_types,
                 ));
             }
-            Statement::Definition(ty, assignee, expression) => {
+            Statement::Definition(assignee, ty, expression) => {
                 self.enforce_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    ty,
                     assignee,
+                    ty,
                     expression,
                 );
             }

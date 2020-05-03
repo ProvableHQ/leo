@@ -1,5 +1,5 @@
-use crate::{ast, Program, ResolvedProgram, ResolvedValue};
 use crate::errors::CompilerError;
+use crate::{ast, Program, ResolvedProgram, ResolvedValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -28,15 +28,20 @@ impl<F: Field + PrimeField> Compiler<F> {
         }
     }
 
-    pub fn evaluate_program<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<ResolvedValue<F>, CompilerError> {
+    pub fn evaluate_program<CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+    ) -> Result<ResolvedValue<F>, CompilerError> {
         // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+        let unparsed_file = fs::read_to_string(&self.main_file_path)
+            .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
 
         // Parse the file using leo.pest
         let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
 
         // Build the abstract syntax tree
-        let syntax_tree = ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
+        let syntax_tree =
+            ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
         log::debug!("{:#?}", syntax_tree);
 
         // Build program from abstract syntax tree

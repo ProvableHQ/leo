@@ -373,8 +373,8 @@ impl<'ast, F: Field + PrimeField> From<ast::ReturnStatement<'ast>> for types::St
 impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Type::from(statement.ty),
             types::Assignee::from(statement.variable),
+            statement.ty.map(|ty| types::Type::<F>::from(ty)),
             types::Expression::from(statement.expression),
         )
     }

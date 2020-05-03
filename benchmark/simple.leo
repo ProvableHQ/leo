@@ -1,7 +1,9 @@
-function main() -> () {
-  assert_eq(45, 45);
-  assert_eq(2fe, 2fe);
-  assert_eq(true, true);
+function test() -> (u32, u32[2]) {
+    return 1, [2, 3]
+}
 
-  return
+function main() -> (u32[3]) {
+    let (a, b) = test();
+    // a, u32[2] b = test() <- explicit type also works
+    return [a, ...b]
 }
