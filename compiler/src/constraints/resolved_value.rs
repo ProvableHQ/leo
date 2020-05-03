@@ -79,7 +79,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 write!(f, "}}")
             }
             ResolvedValue::Return(ref values) => {
-                write!(f, "Return values : [")?;
+                write!(f, "Program output: [")?;
                 for (i, value) in values.iter().enumerate() {
                     write!(f, "{}", value)?;
                     if i < values.len() - 1 {

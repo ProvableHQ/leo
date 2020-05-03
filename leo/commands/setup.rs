@@ -1,6 +1,8 @@
+use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
 use crate::errors::CLIError;
-use crate::{cli::*, cli_types::*};
+use crate::files::ProvingKeyFile;
+use crate::manifest::Manifest;
 use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::{
@@ -10,6 +12,8 @@ use snarkos_curves::bls12_377::{Bls12_377, Fr};
 
 use clap::ArgMatches;
 use rand::thread_rng;
+use std::convert::TryFrom;
+use std::env::current_dir;
 use std::time::Instant;
 
 #[derive(Debug)]
@@ -37,21 +41,26 @@ impl CLI for SetupCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let circuit = BuildCommand::output(options)?;
+        let program = BuildCommand::output(options)?;
+
+        // Get the package name
+        let path = current_dir()?;
+        let package_name = Manifest::try_from(&path)?.get_package_name();
 
         let start = Instant::now();
 
         let rng = &mut thread_rng();
         let parameters =
-            generate_random_parameters::<Bls12_377, _, _>(circuit.clone(), rng).unwrap();
+            generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
         let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
 
-        let finish = start.elapsed();
+        log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
 
-        println!(" ");
-        println!("  Setup time      : {:?} milliseconds", finish.as_millis());
-        println!(" ");
+        // Write the proving key file to the inputs directory
+        let mut proving_key = vec![];
+        parameters.write(&mut proving_key);
+        ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
 
-        Ok((circuit, parameters, prepared_verifying_key))
+        Ok((program, parameters, prepared_verifying_key))
     }
 }

@@ -29,7 +29,7 @@ impl CLI for RunCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (circuit, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+        let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
 
         let rng = &mut thread_rng();
 
@@ -37,7 +37,7 @@ impl CLI for RunCommand {
         let mut verifying = Duration::new(0, 0);
 
         let start = Instant::now();
-        let proof = create_random_proof(circuit, &parameters, rng).unwrap();
+        let proof = create_random_proof(program, &parameters, rng).unwrap();
 
         proving += start.elapsed();
 

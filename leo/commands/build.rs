@@ -1,8 +1,8 @@
+use crate::{cli::*, cli_types::*};
 use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
 use crate::errors::{BuildError, CLIError};
 use crate::files::{MainFile, MAIN_FILE_NAME};
 use crate::manifest::Manifest;
-use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_curves::bls12_377::Fr;
@@ -62,8 +62,8 @@ impl CLI for BuildCommand {
         log::info!("Compiling program located in {:?}", main_file_path);
 
         // Compile from the main file path
-        let circuit = Compiler::<Fr>::init(package_name, main_file_path);
+        let program = Compiler::<Fr>::init(package_name, main_file_path);
 
-        Ok(circuit)
+        Ok(program)
     }
 }

@@ -42,7 +42,7 @@ impl<F: Field + PrimeField> Compiler<F> {
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
         let program = Program::<'_, F>::from(syntax_tree).name(package_name);
-        log::info!("Compiled -\n{:#?}", program);
+        log::info!("Compilation complete:\n{:#?}", program);
 
         Ok(ResolvedProgram::generate_constraints(cs, program))
     }
