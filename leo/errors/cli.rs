@@ -27,6 +27,9 @@ pub enum CLIError {
     OutputsDirectoryError(OutputsDirectoryError),
 
     #[fail(display = "{}", _0)]
+    ProofFileError(ProofFileError),
+
+    #[fail(display = "{}", _0)]
     ProvingKeyFileError(ProvingKeyFileError),
 
     #[fail(display = "{}", _0)]
@@ -78,6 +81,12 @@ impl From<NewError> for CLIError {
 impl From<OutputsDirectoryError> for CLIError {
     fn from(error: OutputsDirectoryError) -> Self {
         CLIError::OutputsDirectoryError(error)
+    }
+}
+
+impl From<ProofFileError> for CLIError {
+    fn from(error: ProofFileError) -> Self {
+        CLIError::ProofFileError(error)
     }
 }
 

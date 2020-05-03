@@ -23,6 +23,7 @@ fn main() -> Result<(), CLIError> {
             InitCommand::new(),
             BuildCommand::new(),
             SetupCommand::new(),
+            ProveCommand::new(),
             RunCommand::new(),
         ])
         .set_term_width(0)
@@ -37,6 +38,10 @@ fn main() -> Result<(), CLIError> {
         }
         ("setup", Some(arguments)) => {
             SetupCommand::output(SetupCommand::parse(arguments)?)?;
+            Ok(())
+        }
+        ("prove", Some(arguments)) => {
+            ProveCommand::output(ProveCommand::parse(arguments)?)?;
             Ok(())
         }
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),

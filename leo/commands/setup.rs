@@ -59,12 +59,12 @@ impl CLI for SetupCommand {
 
         // Write the proving key file to the inputs directory
         let mut proving_key = vec![];
-        parameters.write(&mut proving_key);
+        parameters.write(&mut proving_key)?;
         ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
 
         // Write the proving key file to the inputs directory
         let mut verification_key = vec![];
-        prepared_verifying_key.write(&mut verification_key);
+        prepared_verifying_key.write(&mut verification_key)?;
         VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
 
         Ok((program, parameters, prepared_verifying_key))

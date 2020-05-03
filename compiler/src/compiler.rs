@@ -53,7 +53,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        self.evaluate_program(cs);
+        self.evaluate_program(cs).expect("error compiling program");
         Ok(())
     }
 }
