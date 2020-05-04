@@ -1,20 +1,20 @@
 # The Leo Language
-* All code examples can be copied and pasted into simple.program directly and executed with cargo run
+* All code examples can be copied and pasted into `main.leo` directly and executed with cargo run
 * Programs should be formatted:
     1. Import definitions
-    2. Stuct definitions
+    2. Struct definitions
     3. Function definitions
 
 ### Integers:
 Currently, all integers are parsed as u32.
 You can choose to explicitly add the type or let the compiler interpret implicitly.
 ```rust
-function main() -> (u32) {
-    a = 1u32 + 1u32
-    b = 1 - 1
-    c = 2 * 2
-    d = 4 / 2
-    e = 2 ** 3
+function main() -> u32 {
+    let a : u32 = 1u32 + 1u32; // explicit type
+    let b = 1 - 1; // implicit type
+    let c = 2 * 2;
+    let d = 4 / 2;
+    let e = 2 ** 3;
     return a
 }
 ```
@@ -22,23 +22,37 @@ function main() -> (u32) {
 ### Field Elements:
 Field elements must have the type added explicitly.
 ```rust
-function main() -> (fe) {
-    f = 21888242871839275222246405745257275088548364400416034343698204186575808495617fe
-    a = 1fe + 1fe
-    b = 1fe - 1fe
-    c = 2fe * 2fe
-    d = 4fe / 2fe
+function main() -> fe {
+    let f : fe = 21888242871839275222246405745257275088548364400416034343698204186575808495617fe;
+    let a = 1fe + 1fe;
+    let b = 1fe - 1fe;
+    let c = 2fe * 2fe;
+    let d = 4fe / 2fe;
     return a
+}
+```
+
+### Operator Assignment Statements:
+```rust
+function main() -> u32 {
+  let a = 10;
+  a += 5;
+  a -= 10;
+  a *= 5;
+  a /= 5;
+  a **= 2;
+
+  return a
 }
 ```
 
 
 ### Booleans:
 ```rust
-function main() -> (bool) {
-    a = true || false
-    b = false && false
-    c = 1 == 1
+function main() -> bool {
+    let a : bool = true || false;
+    let b = false && false;
+    let c = 1 == 1;
     return a
 }
 ```
@@ -47,27 +61,27 @@ function main() -> (bool) {
 Leo supports static arrays with fixed length.
 Array type must be explicitly stated
 ```rust
-function main() -> (u32[2]) {
+function main() -> u32[2] {
     // initialize an integer array with integer values
-    u32[3] a = [1, 2, 3]
+    let a : u32[3] = [1, 2, 3];
 
     // set a member to a value
-    a[2] = 4
+    a[2] = 4;
 
     // initialize an array of 4 values all equal to 42
-    u32[4] b = [42; 4]
+    let b = [42; 4];
 
     // initialize an array of 5 values copying all elements of b using a spread
-    u32[5] c = [1, ...b]
+    let c = [1, ...b];
 
     // initialize an array copying a slice from `c`
-    d = c[1..3]
+    let d = c[1..3];
 
     // initialize a field array
-    fe[2] e = [5fe; 2]
+    let e = [5fe; 2];
 
     // initialize a boolean array
-    bool[3] f = [true, false || true, true]
+    let f = [true, false || true, true];
 
     // return an array
     return d
@@ -79,7 +93,7 @@ struct Point {
     u32 x
     u32 y
 }
-function main() -> (u32) {
+function main() -> u32 {
     Point p = Point {x: 1, y: 0}
     return p.x
 }
@@ -88,45 +102,75 @@ function main() -> (u32) {
 struct Foo {
     bool x
 }
-function main() -> (Foo) {
-    Foo f = Foo {x: true}
-    f.x = false
+function main() -> Foo {
+    let f = Foo {x: true};
+    f.x = false;
     return f
 }
 ```
 
-### Conditionals:
+### Assert Equals:
+This will enforce that the two values are equal in the constraint system.
+
 ```rust
-function main() -> (u32) {
-  y = if 3==3 then 1 else 5 fi
+function main() {
+  assert_eq(45, 45);
+  
+  assert_eq(2fe, 2fe);
+  
+  assert_eq(true, true);
+}
+```
+
+### Conditionals:
+
+#### If Else Ternary Expression
+```rust
+function main() -> u32 {
+  let y = if 3==3 ? 1 : 5;
   return y
 }
 ```
+#### If Else Conditional Statement
 ```rust
-function main() -> (fe) {
-  a = 1fe
-  for i in 0..4 do
-      a = a + 1fe
-  endfor
+function main(a: private bool, b: private bool) -> u32 {
+  let res = 0;
+  if (a) {
+    res = 1;
+  } else if (b) {
+    res = 2;
+  } else {
+    res = 3;
+  }
+  return res
+}
+```
+#### For loop
+```rust
+function main() -> fe {
+  let a = 1fe;
+  for i in 0..4 {
+    a = a + 1fe;
+  }
   return a
 }
 ```
 
 ### Functions:
 ```rust
-function test1(a : u32) -> (u32) {
-    return a + 1
+function test1(a : u32) -> u32 {
+  return a + 1
 }
 
-function test2(b: fe) -> (fe) {
-    return b * 2fe
+function test2(b: fe) -> fe {
+  return b * 2fe
 }
 
-function test3(c: bool) -> (bool) {
+function test3(c: bool) -> bool {
   return c && true
 }
 
-function main() -> (u32) {
+function main() -> u32 {
   return test1(5)
 }
 ```
@@ -134,61 +178,131 @@ function main() -> (u32) {
 
 #### Function Scope:
 ```rust
-function foo() -> (field) {
-    // return myGlobal <- not allowed
-    return 42fe
+function foo() -> field {
+  // return myGlobal <- not allowed
+  return 42fe
 }
 
-function main() -> (field) {
-    myGlobal = 42fe
-    return foo()
+function main() -> field {
+  let myGlobal = 42fe;
+  return foo()
 }
 ```
 
-### Parameters:
+#### Multiple returns:
+Functions can return tuples whose types are specified in the function signature.
+```rust
+function test() -> (u32, u32[2]) {
+    return 1, [2, 3]
+}
+
+function main() -> u32[3] {
+    let (a, b) = test();
+    // a, u32[2] b = test() <- explicit type also works
+    return [a, ...b]
+}
+```
+
+#### Parameters:
 Main function arguments are allocated as public or private variables in the program's constaint system.
 ```rust
-function main(a: private fe) -> (fe) {
+function main(a: private fe) -> fe {
   return a
 }
 ```
 ```rust
-function main(a: public fe) -> (fe) {
+function main(a: public fe) -> fe {
   return a
+}
+```
+Function parameters are passed by value.
+```rust
+function test(a: u32) {
+    a = 0;
+}
+
+function main() -> u32 {
+    let a = 1;
+    test(a);
+
+    return a // <- returns 1
 }
 ```
 
 ### Imports:
-Note that there can only be one main function across all imported files.
+Both struct and function imports are supported.
+
+import all: `*`
+import alias: `symbol as alias`
+
 /simple_import.leo
 ```rust
 struct Point {
     u32 x
     u32 y
 }
+
+function test() -> (u32, u32[2]) {
+    return 1, [2, 3]
+}
 ```
 
 /simple.leo
 ```rust
-from "./simple_import" import Point
+from "./simple_import" import {
+    Point as Foo,
+    test
+};
 
-function main() -> (Point) {
-    Point p = Point { x: 1, y: 2}
-    return p
+// from "./simple_import" import * 
+
+function main() -> (u32[3]) {
+    let (a, b) = test();
+    let p = Foo { x: 1, y: 2};
+    return [a, ...b]
 }
 ```
 
-Default exports are not currently supported.
-There should only be one main function across all files.
+
 
 # Leo CLI
 
 ## Develop
 
+### `leo new`
+
+To setup a new package, run:
+```
+leo new {$NAME}
+```
+This will create a new directory with a given package name. The new package will have a directory structure as follows:
+```
+- inputs # Your program inputs
+- outputs # Your program outputs
+- src
+    - lib.leo # Your program library
+    - main.leo # Your program
+- tests
+    - tests.leo # Your program tests
+- Leo.toml # Your program manifest
+```
+
+### `leo init`
+
+To initialize an existing directory, run:
+```
+leo init
+```
+This will initialize the current directory with the same package directory setup.
+
+### `leo build`
+
 To compile your program and verify that it builds properly, run:
 ```
 leo build
 ```
+
+### `leo test`
 
 To execute unit tests on your program, run:
 ```
@@ -196,6 +310,8 @@ leo test
 ```
 
 ## Run
+
+### `leo setup`
 
 To perform the program setup, producing a proving key and verification key, run:
 ```
@@ -208,6 +324,8 @@ Leo uses cryptographic randomness from your machine to perform the setup. The pr
 {$LIBRARY}/target/{$PROGRAM}.leo.vk
 ```
 
+### `leo prove`
+
 To execute the program and produce an execution proof, run:
 ```
 leo prove
@@ -219,6 +337,8 @@ Once again, Leo uses cryptographic randomness from your machine to produce the p
 ```
 {$LIBRARY}/target/{$PROGRAM}.leo.proof
 ```
+
+### `leo verify`
 
 To verify the program proof, run:
 ```
@@ -252,7 +372,7 @@ If your gadget name has already been taken, `leo publish` will fail.
 
 ## Deploy
 
-To deploy your program to the blockchain, run:
+To deploy your program to Aleo, run:
 ```
 leo deploy
 ```
