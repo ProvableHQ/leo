@@ -8,7 +8,7 @@ use snarkos_models::{
 };
 
 use from_pest::FromPest;
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
@@ -31,7 +31,8 @@ impl<F: Field + PrimeField> Compiler<F> {
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
         // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+        let unparsed_file = fs::read_to_string(&self.main_file_path)
+            .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
 
         // Hash the file contents
         let mut hasher = Sha256::new();
@@ -55,7 +56,10 @@ impl<F: Field + PrimeField> Compiler<F> {
     //     Ok(syntax_tree)
     // }
 
-    pub fn evaluate_program<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<ResolvedValue<F>, CompilerError> {
+    pub fn evaluate_program<CS: ConstraintSystem<F>>(
+        &self,
+        cs: &mut CS,
+    ) -> Result<ResolvedValue<F>, CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
             .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;

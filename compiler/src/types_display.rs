@@ -88,6 +88,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
                 write!(f, "if {} then {} else {} fi", first, second, third)
             }
 
+            // Arrays
             Expression::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
@@ -100,6 +101,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
             }
             Expression::ArrayAccess(ref array, ref index) => write!(f, "{}[{}]", array, index),
 
+            // Structs
             Expression::Struct(ref var, ref members) => {
                 write!(f, "{} {{", var)?;
                 for (i, member) in members.iter().enumerate() {
@@ -113,6 +115,8 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
             Expression::StructMemberAccess(ref struct_variable, ref member) => {
                 write!(f, "{}.{}", struct_variable, member)
             }
+
+            // Function calls
             Expression::FunctionCall(ref function, ref arguments) => {
                 write!(f, "{}(", function,)?;
                 for (i, param) in arguments.iter().enumerate() {
@@ -122,7 +126,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
                     }
                 }
                 write!(f, ")")
-            } // _ => unimplemented!("can't display expression yet"),
+            }
         }
     }
 }
@@ -171,14 +175,14 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref statements) => {
-                write!(f, "return ")?;
+                write!(f, "return (")?;
                 for (i, value) in statements.iter().enumerate() {
                     write!(f, "{}", value)?;
                     if i < statements.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }
-                write!(f, "\n")
+                write!(f, ")\n")
             }
             Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
                 Some(ref ty) => write!(f, "let {} : {} = {};", assignee, ty, expression),
@@ -212,51 +216,6 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Debug for Statement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Statement::Return(ref statements) => {
-                write!(f, "return ")?;
-                for (i, value) in statements.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < statements.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "\n")
-            }
-            Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
-                Some(ref ty) => write!(f, "let {} : {} = {};", assignee, ty, expression),
-                None => write!(f, "let {} = {};", assignee, expression),
-            },
-            Statement::Assign(ref variable, ref statement) => {
-                write!(f, "{} = {};", variable, statement)
-            }
-            Statement::MultipleAssign(ref assignees, ref function) => {
-                write!(f, "let (")?;
-                for (i, id) in assignees.iter().enumerate() {
-                    write!(f, "{}", id)?;
-                    if i < assignees.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ") = {};", function)
-            }
-            Statement::Conditional(ref statement) => write!(f, "{}", statement),
-            Statement::For(ref var, ref start, ref stop, ref list) => {
-                write!(f, "for {} in {}..{} do\n", var, start, stop)?;
-                for l in list {
-                    write!(f, "\t\t{}\n", l)?;
-                }
-                write!(f, "\tendfor;")
-            }
-            Statement::AssertEq(ref left, ref right) => {
-                write!(f, "assert_eq({}, {});", left, right)
-            }
-        }
-    }
-}
-
 impl<F: Field + PrimeField> fmt::Display for Type<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -275,13 +234,25 @@ impl<F: Field + PrimeField> fmt::Display for StructField<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl<F: Field + PrimeField> Struct<F> {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "struct {} {{ \n", self.variable)?;
         for field in self.fields.iter() {
             write!(f, "    {}\n", field)?;
         }
         write!(f, "}}")
+    }
+}
+
+// impl<F: Field + PrimeField> fmt::Display for Struct<F> {// uncomment when we no longer print out Program
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         self.format(f)
+//     }
+// }
+
+impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
     }
 }
 
@@ -292,62 +263,63 @@ impl<F: Field + PrimeField> fmt::Display for Parameter<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Debug for Parameter<F> {
+impl FunctionName {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl fmt::Display for FunctionName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Parameter(variable: {:?})", self.ty)
+        self.format(f)
     }
 }
 
 impl fmt::Debug for FunctionName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+        self.format(f)
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for Function<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({}): ->({})\n{}",
-            self.parameters
-                .iter()
-                .map(|x| format!("{}", x))
-                .collect::<Vec<_>>()
-                .join(","),
-            self.returns
-                .iter()
-                .map(|r| format!("{}", r))
-                .collect::<Vec<_>>()
-                .join(","),
-            self.statements
-                .iter()
-                .map(|x| format!("\t{}", x))
-                .collect::<Vec<_>>()
-                .join("\n"),
-        )
+impl<F: Field + PrimeField> Function<F> {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "function {}", self.function_name)?;
+        let parameters = self
+            .parameters
+            .iter()
+            .map(|x| format!("{}", x))
+            .collect::<Vec<_>>()
+            .join(",");
+        let returns = self
+            .returns
+            .iter()
+            .map(|r| format!("{}", r))
+            .collect::<Vec<_>>()
+            .join(",");
+        let statements = self
+            .statements
+            .iter()
+            .map(|s| format!("\t{}\n", s))
+            .collect::<Vec<_>>()
+            .join("");
+        if self.returns.len() == 0 {
+            write!(f, "({}) {{\n{}}}", parameters, statements,)
+        } else if self.returns.len() == 1 {
+            write!(f, "({}) -> {} {{\n{}}}", parameters, returns, statements,)
+        } else {
+            write!(f, "({}) -> ({}) {{\n{}}}", parameters, returns, statements,)
+        }
     }
 }
+
+// impl<F: Field + PrimeField> fmt::Display for Function<F> {// uncomment when we no longer print out Program
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         self.format(f)
+//     }
+// }
 
 impl<F: Field + PrimeField> fmt::Debug for Function<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({}): -> ({})\n{}",
-            self.parameters
-                .iter()
-                .map(|x| format!("{}", x))
-                .collect::<Vec<_>>()
-                .join(","),
-            self.returns
-                .iter()
-                .map(|r| format!("{}", r))
-                .collect::<Vec<_>>()
-                .join(","),
-            self.statements
-                .iter()
-                .map(|x| format!("\t{}", x))
-                .collect::<Vec<_>>()
-                .join("\n"),
-        )
+        self.format(f)
     }
 }
