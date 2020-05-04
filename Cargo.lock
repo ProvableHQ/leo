@@ -716,6 +716,7 @@ dependencies = [
  "snarkos-errors",
  "snarkos-gadgets",
  "snarkos-models",
+ "snarkos-utilities",
  "structopt",
  "toml",
 ]
@@ -740,12 +741,14 @@ version = "0.1.0"
 dependencies = [
  "failure",
  "from-pest",
+ "hex",
  "lazy_static",
  "log",
  "pest",
  "pest-ast",
  "pest_derive",
  "rand 0.7.3",
+ "sha2",
  "snarkos-algorithms",
  "snarkos-curves",
  "snarkos-errors",

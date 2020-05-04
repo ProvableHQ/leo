@@ -14,6 +14,17 @@ fn level_string(level: log::Level) -> colored::ColoredString {
     }
 }
 
+#[allow(dead_code)]
+fn colored_string(level: log::Level, message: &str) -> colored::ColoredString {
+    match level {
+        log::Level::Error => message.bold().red(),
+        log::Level::Warn => message.bold().yellow(),
+        log::Level::Info => message.bold().blue(),
+        log::Level::Debug => message.bold().magenta(),
+        log::Level::Trace => message.bold(),
+    }
+}
+
 /// Initialize logger with custom format and verbosity.
 ///
 /// # Arguments
@@ -35,9 +46,9 @@ pub fn init_logger(app_name: &'static str, verbosity: usize) {
 
             writeln!(
                 buf,
-                "[{:>5} {:>5}] {}",
+                "{:>5}{:>5}  {}",
                 level_string(record.level()),
-                app_name,
+                colored_string(record.level(), app_name),
                 record.args().to_string().replace("\n", &padding)
             )
         })
