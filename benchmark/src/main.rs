@@ -49,7 +49,10 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         println!(" compiled: {:#?}", program);
 
         let program = program.name("simple".into());
-        leo_compiler::ResolvedProgram::generate_constraints(cs, program);
+        println!(
+            "Result: {}",
+            leo_compiler::ResolvedProgram::generate_constraints(cs, program)
+        );
 
         Ok(())
     }

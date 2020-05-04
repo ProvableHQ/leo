@@ -532,6 +532,12 @@ impl<'ast, F: Field + PrimeField> From<ast::AssertStatement<'ast>> for types::St
     }
 }
 
+impl<'ast, F: Field + PrimeField> From<ast::ExpressionStatement<'ast>> for types::Statement<F> {
+    fn from(statement: ast::ExpressionStatement<'ast>) -> Self {
+        types::Statement::Expression(types::Expression::from(statement.expression))
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
@@ -544,6 +550,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statemen
             }
             ast::Statement::Iteration(statement) => types::Statement::from(statement),
             ast::Statement::Assert(statement) => types::Statement::from(statement),
+            ast::Statement::Expression(statement) => types::Statement::from(statement),
         }
     }
 }

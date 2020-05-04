@@ -53,6 +53,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     }
 
     pub(crate) fn store(&mut self, name: String, value: ResolvedValue<F>) {
+        // println!("inserting: {}", name);
+        // println!("value: {}\n", value);
         self.resolved_names.insert(name, value);
     }
 

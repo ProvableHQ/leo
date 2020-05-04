@@ -131,6 +131,7 @@ pub enum Statement<F: Field + PrimeField> {
     Conditional(ConditionalStatement<F>),
     For(Variable<F>, Integer, Integer, Vec<Statement<F>>),
     AssertEq(Expression<F>, Expression<F>),
+    Expression(Expression<F>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -1,10 +1,14 @@
 //! Methods to enforce constraints and construct a resolved aleo program.
 
-use crate::ast;
-use crate::constraints::{
-    new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram, ResolvedValue,
+use crate::{
+    ast,
+    constraints::{
+        new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram,
+        ResolvedValue,
+    },
+    types::{Expression, Function, Program, Type},
+    Import,
 };
-use crate::{Expression, Function, Import, Program, Type};
 
 use from_pest::FromPest;
 use snarkos_models::curves::{Field, PrimeField};
@@ -12,10 +16,25 @@ use snarkos_models::gadgets::r1cs::ConstraintSystem;
 use std::fs;
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+    fn enforce_argument(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        caller_scope: String,
+        function_name: String,
+        argument: Expression<F>,
+    ) -> ResolvedValue<F> {
+        match argument {
+            Expression::Variable(variable) => self.enforce_variable(caller_scope, variable),
+            expression => self.enforce_expression(cs, scope, function_name, expression),
+        }
+    }
+
     pub(crate) fn enforce_function(
         &mut self,
         cs: &mut CS,
         scope: String,
+        caller_scope: String,
         function: Function<F>,
         arguments: Vec<Expression<F>>,
     ) -> ResolvedValue<F> {
@@ -30,7 +49,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             )
         }
 
-        // Store arguments as variables in resolved program
+        // Store argument values as new variables in resolved program
         function
             .parameters
             .clone()
@@ -40,9 +59,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 // Check that argument is correct type
                 match parameter.ty.clone() {
                     Type::U32 => {
-                        match self.enforce_expression(
+                        match self.enforce_argument(
                             cs,
                             scope.clone(),
+                            caller_scope.clone(),
                             function_name.clone(),
                             argument,
                         ) {
@@ -60,9 +80,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         }
                     }
                     Type::FieldElement => {
-                        match self.enforce_expression(
+                        match self.enforce_argument(
                             cs,
                             scope.clone(),
+                            caller_scope.clone(),
                             function_name.clone(),
                             argument,
                         ) {
@@ -78,9 +99,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         }
                     }
                     Type::Boolean => {
-                        match self.enforce_expression(
+                        match self.enforce_argument(
                             cs,
                             scope.clone(),
+                            caller_scope.clone(),
                             function_name.clone(),
                             argument,
                         ) {
@@ -176,7 +198,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 }))
             });
 
-        self.enforce_function(cs, scope, function, arguments)
+        self.enforce_function(cs, scope, function_name, function, arguments)
     }
 
     fn enforce_import(&mut self, cs: &mut CS, scope: String, import: Import<F>) {

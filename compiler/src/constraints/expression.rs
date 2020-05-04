@@ -12,7 +12,7 @@ use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     /// Enforce a variable expression by getting the resolved value
-    fn enforce_variable(
+    pub(crate) fn enforce_variable(
         &mut self,
         scope: String,
         unresolved_variable: Variable<F>,
@@ -27,6 +27,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             // Check global scope (function and struct names)
             self.get_mut_variable(&unresolved_variable).unwrap().clone()
         } else {
+            println!("searched for {}", variable_name);
             unimplemented!("variable declaration \"{}\" not found", unresolved_variable)
         }
     }
@@ -357,6 +358,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         &mut self,
         cs: &mut CS,
         file_scope: String,
+        function_scope: String,
         function: Variable<F>,
         arguments: Vec<Expression<F>>,
     ) -> ResolvedValue<F> {
@@ -365,7 +367,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             Some(value) => match value.clone() {
                 ResolvedValue::Function(function) => {
                     // this function call is inline so we unwrap the return value
-                    match self.enforce_function(cs, file_scope, function, arguments) {
+                    match self.enforce_function(cs, file_scope, function_scope, function, arguments)
+                    {
                         ResolvedValue::Return(return_values) => {
                             if return_values.len() == 1 {
                                 return_values[0].clone()
@@ -551,9 +554,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 ),
 
             // Functions
-            Expression::FunctionCall(function, arguments) => {
-                self.enforce_function_call_expression(cs, file_scope, function, arguments)
-            } // _ => unimplemented!(),
+            Expression::FunctionCall(function, arguments) => self.enforce_function_call_expression(
+                cs,
+                file_scope,
+                function_scope,
+                function,
+                arguments,
+            ), // _ => unimplemented!(),
         }
     }
 }

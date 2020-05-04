@@ -226,6 +226,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         expressions: Vec<Expression<F>>,
         return_types: Vec<Type<F>>,
     ) -> ResolvedValue<F> {
+        // Make sure we return the correct number of values
+        if return_types.len() != expressions.len() {
+            unimplemented!(
+                "function expected {} return values, got {} values",
+                return_types.len(),
+                expressions.len(),
+            )
+        }
+
         ResolvedValue::Return(
             expressions
                 .into_iter()
@@ -388,7 +397,6 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {
-                // TODO: add support for early termination
                 res = Some(self.enforce_return_statement(
                     cs,
                     file_scope,
@@ -451,6 +459,19 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), right);
 
                 self.enforce_assert_eq_statement(cs, resolved_left, resolved_right);
+            }
+            Statement::Expression(expression) => {
+                match self.enforce_expression(cs, file_scope, function_scope, expression.clone()) {
+                    ResolvedValue::Return(values) => {
+                        if !values.is_empty() {
+                            unimplemented!("function return values not assigned {:#?}", values)
+                        }
+                    }
+                    _ => unimplemented!(
+                        "expected assignment of return values for expression {}",
+                        expression
+                    ),
+                }
             }
         };
 

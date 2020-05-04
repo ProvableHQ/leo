@@ -91,9 +91,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
             ResolvedValue::StructDefinition(ref _definition) => {
                 unimplemented!("cannot return struct definition in program")
             }
-            ResolvedValue::Function(ref _function) => {
-                unimplemented!("cannot return function definition in program")
-            } // _ => unimplemented!("display not impl for value"),
+            ResolvedValue::Function(ref function) => write!(f, "{}();", function.function_name), // _ => unimplemented!("display not impl for value"),
         }
     }
 }

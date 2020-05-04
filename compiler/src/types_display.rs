@@ -212,6 +212,7 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
             Statement::AssertEq(ref left, ref right) => {
                 write!(f, "assert_eq({}, {});", left, right)
             }
+            Statement::Expression(ref expression) => write!(f, "{};", expression),
         }
     }
 }

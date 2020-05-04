@@ -912,6 +912,14 @@ pub enum AssertStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_expression))]
+pub struct ExpressionStatement<'ast> {
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Return(ReturnStatement<'ast>),
@@ -921,6 +929,7 @@ pub enum Statement<'ast> {
     Conditional(ConditionalStatement<'ast>),
     Iteration(ForStatement<'ast>),
     Assert(AssertStatement<'ast>),
+    Expression(ExpressionStatement<'ast>),
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -1014,6 +1023,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::Iteration(ref statement) => write!(f, "{}", statement),
             Statement::Assert(ref statement) => write!(f, "{}", statement),
+            Statement::Expression(ref statement) => write!(f, "{}", statement.expression),
         }
     }
 }

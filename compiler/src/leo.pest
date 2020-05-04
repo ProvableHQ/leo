@@ -169,6 +169,7 @@ statement_assert = {
     assert_eq
 //     | assert_true |
 }
+statement_expression = { expression }
 
 statement = {
     (statement_return
@@ -178,6 +179,7 @@ statement = {
       | statement_assert
       | statement_definition
       | statement_assign
+      | statement_expression
       ) ~ LINE_END
     ) ~ NEWLINE*
 }
