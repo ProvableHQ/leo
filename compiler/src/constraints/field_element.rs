@@ -1,13 +1,17 @@
-//! Methods to enforce constraints on field elements in a resolved aleo program.
+//! Methods to enforce constraints on field elements in a resolved Leo program.
 
-use crate::constraints::{ResolvedProgram, ResolvedValue};
-use crate::{new_variable_from_variable, FieldElement, ParameterModel, ParameterValue, Variable};
+use crate::{
+    constraints::{new_variable_from_variable, FieldElement, ResolvedProgram, ResolvedValue},
+    types::{ParameterModel, ParameterValue, Variable},
+};
 
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
-    utilities::uint32::UInt32,
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{
+        r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
+        utilities::uint32::UInt32,
+    },
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {

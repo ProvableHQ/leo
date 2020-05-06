@@ -1,4 +1,4 @@
-//! A typed program in aleo consists of import, struct, and function definitions.
+//! A typed Leo program consists of import, struct, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;

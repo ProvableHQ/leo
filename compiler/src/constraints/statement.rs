@@ -1,14 +1,16 @@
-//! Methods to enforce constraints on statements in a resolved aleo program.
+//! Methods to enforce constraints on statements in a resolved Leo program.
 
-use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::{
-    Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer, RangeOrExpression,
-    Statement, Type, Variable,
+    constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue},
+    types::{
+        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer,
+        RangeOrExpression, Statement, Type, Variable,
+    },
 };
 
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32,
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {

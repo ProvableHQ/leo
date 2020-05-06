@@ -1,4 +1,4 @@
-//! Format display functions for zokrates_program types.
+//! Format display functions for Leo types.
 
 use crate::{
     Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Function, FunctionName,

@@ -1,4 +1,4 @@
-//! Module containing structs and types that make up an Leo program.
+//! Module containing structs and types that make up a Leo program.
 
 #[macro_use]
 extern crate failure;

@@ -1,6 +1,7 @@
-use leo_compiler::errors::CompilerError;
-use leo_compiler::{self, ast, ParameterValue, Program};
+use leo_compiler::{self, ast, errors::CompilerError, ParameterValue, Program};
 
+use from_pest::FromPest;
+use rand::thread_rng;
 use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
@@ -10,9 +11,6 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
-
-use from_pest::FromPest;
-use rand::thread_rng;
 use std::{
     fs,
     marker::PhantomData,

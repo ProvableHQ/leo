@@ -1,3 +1,5 @@
+//! The Import type for a Leo program.
+
 use crate::Variable;
 
 use snarkos_models::curves::{Field, PrimeField};

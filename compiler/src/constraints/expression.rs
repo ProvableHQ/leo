@@ -1,14 +1,17 @@
-//! Methods to enforce constraints on expressions in a resolved aleo program.
+//! Methods to enforce constraints on expressions in a resolved Leo program.
 
-use crate::constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue};
 use crate::{
-    new_variable_from_variable, Expression, RangeOrExpression, ResolvedStructMember,
-    SpreadOrExpression, StructMember, Variable,
+    constraints::{
+        new_scope_from_variable, new_variable_from_variable, ResolvedProgram, ResolvedStructMember,
+        ResolvedValue,
+    },
+    types::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable},
 };
 
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
-use snarkos_models::gadgets::utilities::boolean::Boolean;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+};
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     /// Enforce a variable expression by getting the resolved value

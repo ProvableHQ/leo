@@ -1,10 +1,10 @@
-//! Module containing methods to enforce constraints in an aleo program
+//! Module containing methods to enforce constraints in an Leo program
 
 pub mod boolean;
 pub use boolean::*;
 
-pub mod constraints;
-pub use constraints::*;
+pub mod main_function;
+pub use main_function::*;
 
 pub mod expression;
 pub use expression::*;

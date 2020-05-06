@@ -1,8 +1,4 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
-//!
-//! @file zokrates_program.rs
-//! @author Howard Wu <howard@aleo.org>
-//! @date 2020
 
 use from_pest::{ConversionError, FromPest, Void};
 use pest::{

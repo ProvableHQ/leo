@@ -1,5 +1,6 @@
-use crate::errors::CompilerError;
-use crate::{ast, ParameterValue, Program, ResolvedProgram, ResolvedValue};
+//! Compiles a Leo program from a file path.
+
+use crate::{ast, errors::CompilerError, ParameterValue, Program, ResolvedProgram, ResolvedValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

@@ -1,11 +1,9 @@
-//! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
+//! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
 
-use crate::{ast, FunctionName};
-use crate::{types, Import, ImportSymbol};
+use crate::{ast, types, Import, ImportSymbol};
 
 use snarkos_models::curves::{Field, PrimeField};
-use std::collections::HashMap;
-use std::marker::PhantomData;
+use std::{collections::HashMap, marker::PhantomData};
 
 /// pest ast -> types::Variable
 
@@ -730,7 +728,7 @@ impl<'ast, F: Field + PrimeField> types::Program<F> {
             );
         });
 
-        if let Some(main_function) = functions.get(&FunctionName("main".into())) {
+        if let Some(main_function) = functions.get(&types::FunctionName("main".into())) {
             num_parameters = main_function.parameters.len();
         }
 

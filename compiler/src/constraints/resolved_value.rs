@@ -1,10 +1,12 @@
-//! The in memory stored value for a defined name in a resolved aleo program.
+//! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::types::{Function, Struct, Type, Variable};
 
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::Variable as R1CSVariable, utilities::boolean::Boolean, utilities::uint32::UInt32,
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{
+        r1cs::Variable as R1CSVariable, utilities::boolean::Boolean, utilities::uint32::UInt32,
+    },
 };
 use std::fmt;
 

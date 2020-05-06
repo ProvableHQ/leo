@@ -1,14 +1,17 @@
-//! Methods to enforce constraints on integers in a resolved aleo program.
+//! Methods to enforce constraints on integers in a resolved Leo program.
 
-use crate::constraints::{ResolvedProgram, ResolvedValue};
-use crate::{new_variable_from_variable, Integer, ParameterModel, ParameterValue, Variable};
+use crate::{
+    constraints::{new_variable_from_variable, ResolvedProgram, ResolvedValue},
+    types::{Integer, ParameterModel, ParameterValue, Variable},
+};
 
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::utilities::eq::EqGadget;
-use snarkos_models::gadgets::{
-    r1cs::ConstraintSystem,
-    utilities::{alloc::AllocGadget, boolean::Boolean, uint32::UInt32},
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget, uint32::UInt32},
+    },
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {

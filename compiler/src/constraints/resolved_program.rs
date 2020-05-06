@@ -1,12 +1,12 @@
-//! An in memory store to keep track of defined names when constraining an aleo program.
+//! An in memory store to keep track of defined names when constraining a Leo program.
 
-use crate::constraints::ResolvedValue;
-use crate::types::Variable;
+use crate::{constraints::ResolvedValue, types::Variable};
 
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
-use std::collections::HashMap;
-use std::marker::PhantomData;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::r1cs::ConstraintSystem,
+};
+use std::{collections::HashMap, marker::PhantomData};
 
 pub struct ResolvedProgram<F: Field + PrimeField, CS: ConstraintSystem<F>> {
     pub resolved_names: HashMap<String, ResolvedValue<F>>,

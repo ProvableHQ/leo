@@ -1,4 +1,5 @@
-//! Methods to enforce constraints and construct a resolved aleo program.
+//! Methods to enforce the main function with arguments in
+//! a resolved Leo program.
 
 use crate::{
     ast,
@@ -6,13 +7,15 @@ use crate::{
         new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram,
         ResolvedValue,
     },
-    types::{Expression, Function, Program, Type},
-    Import, ParameterValue,
+    types::{Expression, Function, ParameterValue, Program, Type},
+    Import,
 };
 
 use from_pest::FromPest;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::r1cs::ConstraintSystem,
+};
 use std::fs;
 use std::path::Path;
 
