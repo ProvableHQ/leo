@@ -300,6 +300,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             value => unimplemented!("if else conditional must resolve to boolean, got {}", value),
         };
 
+        // use gadget impl
         if condition.eq(&Boolean::Constant(true)) {
             self.iterate_or_early_return(
                 cs,
@@ -373,16 +374,18 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) {
         match (left, right) {
-            (ResolvedValue::Boolean(bool1), ResolvedValue::Boolean(bool2)) => {
-                self.enforce_boolean_eq(cs, bool1, bool2)
+            (ResolvedValue::Boolean(bool_1), ResolvedValue::Boolean(bool_2)) => {
+                self.enforce_boolean_eq(cs, bool_1, bool_2)
             }
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_eq(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_eq(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_eq(cs, fe1, fe2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+                self.enforce_field_eq(cs, fe_1, fe_2)
             }
-            (val1, val2) => unimplemented!("cannot enforce equality between {} == {}", val1, val2),
+            (val_1, val_2) => {
+                unimplemented!("cannot enforce equality between {} == {}", val_1, val_2)
+            }
         }
     }
 

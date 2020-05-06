@@ -7,13 +7,14 @@ use crate::{
         ResolvedValue,
     },
     types::{Expression, Function, Program, Type},
-    Import,
+    Import, ParameterValue,
 };
 
 use from_pest::FromPest;
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 use std::fs;
+use std::path::Path;
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_argument(
@@ -87,13 +88,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             function_name.clone(),
                             argument,
                         ) {
-                            ResolvedValue::FieldElement(field) => {
+                            ResolvedValue::FieldElement(fe) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
                                     function_name.clone(),
                                     &parameter.variable,
                                 );
-                                self.store(variable_name, ResolvedValue::FieldElement(field));
+                                self.store(variable_name, ResolvedValue::FieldElement(fe));
                             }
                             argument => unimplemented!("expected field argument got {}", argument),
                         }
@@ -148,49 +149,58 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         scope: String,
         function: Function<F>,
+        parameters: Vec<Option<ParameterValue<F>>>,
     ) -> ResolvedValue<F> {
         let function_name = new_scope(scope.clone(), function.get_name());
         let mut arguments = vec![];
+
+        // todo: check parameters length for each
 
         // Iterate over main function parameters
         function
             .parameters
             .clone()
             .into_iter()
-            .enumerate()
-            .for_each(|(i, parameter)| {
+            .zip(parameters.into_iter())
+            .for_each(|(parameter_model, parameter_value)| {
                 // append each variable to arguments vector
-                arguments.push(Expression::Variable(match parameter.ty {
-                    Type::U32 => {
-                        self.u32_from_parameter(cs, function_name.clone(), i + 1, parameter)
-                    }
+                arguments.push(Expression::Variable(match parameter_model.ty {
+                    Type::U32 => self.u32_from_parameter(
+                        cs,
+                        function_name.clone(),
+                        parameter_model,
+                        parameter_value,
+                    ),
                     Type::FieldElement => self.field_element_from_parameter(
                         cs,
                         function_name.clone(),
-                        i + 1,
-                        parameter,
+                        parameter_model,
+                        parameter_value,
                     ),
-                    Type::Boolean => {
-                        self.bool_from_parameter(cs, function_name.clone(), i + 1, parameter)
-                    }
+                    Type::Boolean => self.bool_from_parameter(
+                        cs,
+                        function_name.clone(),
+                        parameter_model,
+                        parameter_value,
+                    ),
                     Type::Array(ref ty, _length) => match *ty.clone() {
                         Type::U32 => self.u32_array_from_parameter(
                             cs,
                             function_name.clone(),
-                            i + 1,
-                            parameter,
+                            parameter_model,
+                            parameter_value,
                         ),
                         Type::FieldElement => self.field_element_array_from_parameter(
                             cs,
                             function_name.clone(),
-                            i + 1,
-                            parameter,
+                            parameter_model,
+                            parameter_value,
                         ),
                         Type::Boolean => self.boolean_array_from_parameter(
                             cs,
                             function_name.clone(),
-                            i + 1,
-                            parameter,
+                            parameter_model,
+                            parameter_value,
                         ),
                         ty => unimplemented!("parameter type not implemented {}", ty),
                     },
@@ -203,16 +213,19 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
     fn enforce_import(&mut self, cs: &mut CS, scope: String, import: Import<F>) {
         // Resolve program file path
-        let unparsed_file = fs::read_to_string(import.get_file())
-            .expect(&format!("cannot parse import {}", import.get_file()));
-        let mut file = ast::parse(&unparsed_file)
-            .expect(&format!("cannot parse import {}", import.get_file()));
+        let unparsed_file = fs::read_to_string(Path::new(&import.path_string_full())).expect(
+            &format!("cannot parse import {}", import.path_string_full()),
+        );
+        let mut file = ast::parse(&unparsed_file).expect(&format!(
+            "cannot parse import {}",
+            import.path_string_full()
+        ));
 
         // generate ast from file
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
 
         // generate aleo program from file
-        let mut program = Program::from(syntax_tree);
+        let mut program = Program::from(syntax_tree, import.path_string.clone());
 
         // Use same namespace as calling function for imported symbols
         program = program.name(scope);
@@ -316,7 +329,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             });
     }
 
-    pub fn generate_constraints(cs: &mut CS, program: Program<F>) -> ResolvedValue<F> {
+    pub fn generate_constraints(
+        cs: &mut CS,
+        program: Program<F>,
+        parameters: Vec<Option<ParameterValue<F>>>,
+    ) -> ResolvedValue<F> {
         let mut resolved_program = ResolvedProgram::new();
         let program_name = program.get_name();
         let main_function_name = new_scope(program_name.clone(), "main".into());
@@ -329,7 +346,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
         match main.clone() {
             ResolvedValue::Function(function) => {
-                let result = resolved_program.enforce_main_function(cs, program_name, function);
+                let result =
+                    resolved_program.enforce_main_function(cs, program_name, function, parameters);
                 log::debug!("{}", result);
                 result
             }

@@ -3,16 +3,39 @@
 use crate::types::{Function, Struct, Type, Variable};
 
 use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{utilities::boolean::Boolean, utilities::uint32::UInt32};
+use snarkos_models::gadgets::{
+    r1cs::Variable as R1CSVariable, utilities::boolean::Boolean, utilities::uint32::UInt32,
+};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
 
 #[derive(Clone, PartialEq, Eq)]
+pub enum FieldElement<F: Field + PrimeField> {
+    Constant(F),
+    Allocated(Option<F>, R1CSVariable),
+}
+
+impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FieldElement::Constant(ref constant) => write!(f, "{}", constant),
+            FieldElement::Allocated(ref option, ref _r1cs_var) => {
+                if option.is_some() {
+                    write!(f, "{}", option.unwrap())
+                } else {
+                    write!(f, "allocated fe")
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq)]
 pub enum ResolvedValue<F: Field + PrimeField> {
     U32(UInt32),
-    FieldElement(F),
+    FieldElement(FieldElement<F>),
     Boolean(Boolean),
     Array(Vec<ResolvedValue<F>>),
     StructDefinition(Struct<F>),
@@ -24,9 +47,9 @@ pub enum ResolvedValue<F: Field + PrimeField> {
 impl<F: Field + PrimeField> ResolvedValue<F> {
     pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
         match (self, ty) {
-            (ResolvedValue::U32(ref _a), Type::U32) => true,
-            (ResolvedValue::FieldElement(ref _a), Type::FieldElement) => true,
-            (ResolvedValue::Boolean(ref _a), Type::Boolean) => true,
+            (ResolvedValue::U32(ref _i), Type::U32) => true,
+            (ResolvedValue::FieldElement(ref _f), Type::FieldElement) => true,
+            (ResolvedValue::Boolean(ref _b), Type::Boolean) => true,
             (ResolvedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
                 // check array lengths are equal
                 let mut res = arr.len() == *len;

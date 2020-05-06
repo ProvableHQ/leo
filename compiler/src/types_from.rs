@@ -1,12 +1,11 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a typed aleo program.
 
-use crate::ast;
+use crate::{ast, FunctionName};
 use crate::{types, Import, ImportSymbol};
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::collections::HashMap;
 use std::marker::PhantomData;
-use std::path::Path;
 
 /// pest ast -> types::Variable
 
@@ -618,7 +617,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 
 /// pest ast -> function types::Parameters
 
-impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Parameter<F> {
+impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::ParameterModel<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let ty = types::Type::from(parameter.ty);
         let variable = types::Variable::from(parameter.variable);
@@ -628,13 +627,13 @@ impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Paramete
                 ast::Visibility::Private(_) => true,
                 ast::Visibility::Public(_) => false,
             };
-            types::Parameter {
+            types::ParameterModel {
                 private,
                 ty,
                 variable,
             }
         } else {
-            types::Parameter {
+            types::ParameterModel {
                 private: true,
                 ty,
                 variable,
@@ -657,7 +656,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<
         let parameters = function_definition
             .parameters
             .into_iter()
-            .map(|parameter| types::Parameter::from(parameter))
+            .map(|parameter| types::ParameterModel::from(parameter))
             .collect();
         let returns = function_definition
             .returns
@@ -690,10 +689,10 @@ impl<'ast, F: Field + PrimeField> From<ast::ImportSymbol<'ast>> for ImportSymbol
     }
 }
 
-impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<'ast, F> {
+impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<F> {
     fn from(import: ast::Import<'ast>) -> Self {
         Import {
-            source: Path::new(import.source.span.as_str()),
+            path_string: import.source.value,
             symbols: import
                 .symbols
                 .into_iter()
@@ -705,17 +704,18 @@ impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<'ast, F> {
 
 /// pest ast -> types::Program
 
-impl<'ast, F: Field + PrimeField> From<ast::File<'ast>> for types::Program<'ast, F> {
-    fn from(file: ast::File<'ast>) -> Self {
+impl<'ast, F: Field + PrimeField> types::Program<F> {
+    pub fn from(file: ast::File<'ast>, name: String) -> Self {
         // Compiled ast -> aleo program representation
         let imports = file
             .imports
             .into_iter()
             .map(|import| Import::from(import))
-            .collect::<Vec<Import<'ast, F>>>();
+            .collect::<Vec<Import<F>>>();
 
         let mut structs = HashMap::new();
         let mut functions = HashMap::new();
+        let mut num_parameters = 0usize;
 
         file.structs.into_iter().for_each(|struct_def| {
             structs.insert(
@@ -730,11 +730,16 @@ impl<'ast, F: Field + PrimeField> From<ast::File<'ast>> for types::Program<'ast,
             );
         });
 
+        if let Some(main_function) = functions.get(&FunctionName("main".into())) {
+            num_parameters = main_function.parameters.len();
+        }
+
         types::Program {
             name: types::Variable {
-                name: "".into(),
+                name,
                 _field: PhantomData::<F>,
             },
+            num_parameters,
             imports,
             structs,
             functions,

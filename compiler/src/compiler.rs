@@ -1,5 +1,5 @@
 use crate::errors::CompilerError;
-use crate::{ast, Program, ResolvedProgram, ResolvedValue};
+use crate::{ast, ParameterValue, Program, ResolvedProgram, ResolvedValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -15,6 +15,8 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 pub struct Compiler<F: Field + PrimeField> {
     package_name: String,
     main_file_path: PathBuf,
+    program: Program<F>,
+    parameters: Vec<Option<ParameterValue<F>>>,
     output: Option<ResolvedValue<F>>,
     _engine: PhantomData<F>,
 }
@@ -24,6 +26,8 @@ impl<F: Field + PrimeField> Compiler<F> {
         Self {
             package_name,
             main_file_path,
+            program: Program::new(),
+            parameters: vec![],
             output: None,
             _engine: PhantomData,
         }
@@ -56,10 +60,7 @@ impl<F: Field + PrimeField> Compiler<F> {
     //     Ok(syntax_tree)
     // }
 
-    pub fn evaluate_program<CS: ConstraintSystem<F>>(
-        &self,
-        cs: &mut CS,
-    ) -> Result<ResolvedValue<F>, CompilerError> {
+    pub fn evaluate_program<CS: ConstraintSystem<F>>(&mut self) -> Result<(), CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
             .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
@@ -74,10 +75,13 @@ impl<F: Field + PrimeField> Compiler<F> {
 
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
-        let program = Program::<'_, F>::from(syntax_tree).name(package_name);
-        log::debug!("Compilation complete\n{:#?}", program);
 
-        Ok(ResolvedProgram::generate_constraints(cs, program))
+        self.program = Program::<F>::from(syntax_tree, package_name);
+        self.parameters = vec![None; self.program.num_parameters];
+
+        log::debug!("Compilation complete\n{:#?}", self.program);
+
+        Ok(())
     }
 }
 
@@ -86,7 +90,10 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        self.evaluate_program(cs).expect("error compiling program");
+        let _res = ResolvedProgram::generate_constraints(cs, self.program, self.parameters);
+
+        // Write results to file or something
+
         Ok(())
     }
 }

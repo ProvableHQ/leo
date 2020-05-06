@@ -155,10 +155,17 @@ pub struct Struct<F: Field + PrimeField> {
 /// Function parameters
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Parameter<F: Field + PrimeField> {
+pub struct ParameterModel<F: Field + PrimeField> {
     pub private: bool,
     pub ty: Type<F>,
     pub variable: Variable<F>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+pub enum ParameterValue<F: Field + PrimeField> {
+    Integer(usize),
+    Field(F),
+    Boolean(bool),
 }
 
 /// The given name for a defined function in the program.
@@ -168,7 +175,7 @@ pub struct FunctionName(pub String);
 #[derive(Clone, PartialEq, Eq)]
 pub struct Function<F: Field + PrimeField> {
     pub function_name: FunctionName,
-    pub parameters: Vec<Parameter<F>>,
+    pub parameters: Vec<ParameterModel<F>>,
     pub returns: Vec<Type<F>>,
     pub statements: Vec<Statement<F>>,
 }
@@ -181,14 +188,28 @@ impl<F: Field + PrimeField> Function<F> {
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
-pub struct Program<'ast, F: Field + PrimeField> {
+pub struct Program<F: Field + PrimeField> {
     pub name: Variable<F>,
-    pub imports: Vec<Import<'ast, F>>,
+    pub num_parameters: usize,
+    pub imports: Vec<Import<F>>,
     pub structs: HashMap<Variable<F>, Struct<F>>,
     pub functions: HashMap<FunctionName, Function<F>>,
 }
 
-impl<'ast, F: Field + PrimeField> Program<'ast, F> {
+impl<'ast, F: Field + PrimeField> Program<F> {
+    pub fn new() -> Self {
+        Self {
+            name: Variable {
+                name: "".into(),
+                _field: PhantomData::<F>,
+            },
+            num_parameters: 0,
+            imports: vec![],
+            structs: HashMap::new(),
+            functions: HashMap::new(),
+        }
+    }
+
     pub fn get_name(&self) -> String {
         self.name.name.clone()
     }

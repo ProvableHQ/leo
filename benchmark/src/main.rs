@@ -1,4 +1,5 @@
-use leo_compiler::{self, ast};
+use leo_compiler::errors::CompilerError;
+use leo_compiler::{self, ast, ParameterValue, Program};
 
 use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
@@ -18,23 +19,23 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[derive(Clone)]
 pub struct Benchmark<F: Field + PrimeField> {
+    program: Program<F>,
+    parameters: Vec<Option<ParameterValue<F>>>,
     _engine: PhantomData<F>,
 }
 
 impl<F: Field + PrimeField> Benchmark<F> {
     pub fn new() -> Self {
         Self {
+            program: Program::new(),
+            parameters: vec![],
             _engine: PhantomData,
         }
     }
-}
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
-    fn generate_constraints<CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-    ) -> Result<(), SynthesisError> {
+    pub fn evaluate_program(&mut self) -> Result<(), CompilerError> {
         // Read in file as string
         let unparsed_file = fs::read_to_string("simple.leo").expect("cannot read file");
 
@@ -45,14 +46,26 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
         // println!("{:#?}", syntax_tree);
 
-        let program = leo_compiler::Program::<'_, F>::from(syntax_tree);
-        println!(" compiled: {:#?}", program);
+        // Build a leo program from the syntax tree
+        self.program = Program::<F>::from(syntax_tree, "simple".into());
+        self.parameters = vec![None; self.program.num_parameters];
 
-        let program = program.name("simple".into());
-        println!(
-            "Result: {}",
-            leo_compiler::ResolvedProgram::generate_constraints(cs, program)
-        );
+        println!(" compiled: {:#?}\n", self.program);
+
+        Ok(())
+    }
+}
+
+impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+    ) -> Result<(), SynthesisError> {
+        let _res =
+            leo_compiler::ResolvedProgram::generate_constraints(cs, self.program, self.parameters);
+        println!(" Result: {}", _res);
+
+        // Write results to file or something
 
         Ok(())
     }
@@ -67,27 +80,33 @@ fn main() {
 
     let start = Instant::now();
 
-    let params = {
-        let circuit = Benchmark::<Fr>::new();
-        generate_random_parameters::<Bls12_377, _, _>(circuit, rng).unwrap()
-    };
+    // Load and compile program
+    let mut program = Benchmark::<Fr>::new();
+    program.evaluate_program().unwrap();
+
+    // Generate proof parameters
+    let params = { generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap() };
 
     let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&params.vk);
 
     setup += start.elapsed();
 
     let start = Instant::now();
-    let proof = {
-        let c = Benchmark::new();
-        create_random_proof(c, &params, rng).unwrap()
-    };
+
+    // Set main function arguments in compiled program
+    let argument = Some(ParameterValue::Field(Fr::one()));
+    program.parameters = vec![argument];
+
+    // Generate proof
+    let proof = create_random_proof(program, &params, rng).unwrap();
 
     proving += start.elapsed();
 
-    // let _inputs: Vec<_> = [1u32; 1].to_vec();
-
     let start = Instant::now();
 
+    // let public_input = Fr::one();
+
+    // Verify proof
     let is_success = verify_proof(&prepared_verifying_key, &proof, &[]).unwrap();
 
     verifying += start.elapsed();

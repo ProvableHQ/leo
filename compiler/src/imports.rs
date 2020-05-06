@@ -2,10 +2,6 @@ use crate::Variable;
 
 use snarkos_models::curves::{Field, PrimeField};
 use std::fmt;
-use std::path::Path;
-
-type ImportPath<'ast> = &'ast Path;
-// pub(crate) type Variable<'ast = &'ast str;
 
 #[derive(Clone)]
 pub struct ImportSymbol<F: Field + PrimeField> {
@@ -14,27 +10,42 @@ pub struct ImportSymbol<F: Field + PrimeField> {
 }
 
 #[derive(Clone)]
-pub struct Import<'ast, F: Field + PrimeField> {
-    pub(crate) source: ImportPath<'ast>,
-    pub(crate) symbols: Vec<ImportSymbol<F>>,
+pub struct Import<F: Field + PrimeField> {
+    pub path_string: String,
+    pub symbols: Vec<ImportSymbol<F>>,
 }
 
-impl<'ast, F: Field + PrimeField> Import<'ast, F> {
-    pub fn new(source: ImportPath<'ast>, symbols: Vec<ImportSymbol<F>>) -> Import<'ast, F> {
-        Import { source, symbols }
+impl<F: Field + PrimeField> Import<F> {
+    pub fn new(source: String, symbols: Vec<ImportSymbol<F>>) -> Import<F> {
+        Import {
+            path_string: source,
+            symbols,
+        }
     }
 
-    pub fn get_source(&self) -> &Path {
-        &self.source
+    pub fn path_string_full(&self) -> String {
+        format!("{}.leo", self.path_string)
     }
 
-    pub fn get_file(&self) -> String {
-        let path = self.get_source().to_str().unwrap();
-        format!("{}.leo", path)
-    }
-
+    // from "./import" import *;
     pub fn is_star(&self) -> bool {
         self.symbols.is_empty()
+    }
+
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "from {} import ", self.path_string)?;
+        if self.symbols.is_empty() {
+            write!(f, "*")
+        } else {
+            write!(f, "{{\n")?;
+            for (i, symbol) in self.symbols.iter().enumerate() {
+                write!(f, "{}", symbol)?;
+                if i < self.symbols.len() - 1 {
+                    write!(f, ",\n")?;
+                }
+            }
+            write!(f, "\n}}")
+        }
     }
 }
 
@@ -48,38 +59,14 @@ impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for Import<'ast, F> {
+impl<'ast, F: Field + PrimeField> fmt::Display for Import<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "from {} import ", self.source.display())?;
-        if self.symbols.is_empty() {
-            write!(f, "*")
-        } else {
-            write!(f, "{{\n")?;
-            for (i, symbol) in self.symbols.iter().enumerate() {
-                write!(f, "{}", symbol)?;
-                if i < self.symbols.len() - 1 {
-                    write!(f, ",\n")?;
-                }
-            }
-            write!(f, "\n}}")
-        }
+        self.format(f)
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Debug for Import<'ast, F> {
+impl<'ast, F: Field + PrimeField> fmt::Debug for Import<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "from {} import ", self.source.display())?;
-        if self.symbols.is_empty() {
-            write!(f, "*")
-        } else {
-            write!(f, "{{\n")?;
-            for (i, symbol) in self.symbols.iter().enumerate() {
-                write!(f, "{}", symbol)?;
-                if i < self.symbols.len() - 1 {
-                    write!(f, ",\n")?;
-                }
-            }
-            write!(f, "\n}}")
-        }
+        self.format(f)
     }
 }

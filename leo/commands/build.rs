@@ -1,8 +1,8 @@
-use crate::{cli::*, cli_types::*};
 use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
 use crate::errors::{BuildError, CLIError};
-use crate::files::{MainFile, MAIN_FILE_NAME, ChecksumFile};
+use crate::files::{ChecksumFile, MainFile, MAIN_FILE_NAME};
 use crate::manifest::Manifest;
+use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::KeypairAssembly;
@@ -61,7 +61,7 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<Fr>::init(package_name.clone(), main_file_path.clone());
+        let mut program = Compiler::<Fr>::init(package_name.clone(), main_file_path.clone());
         let checksum = program.checksum()?;
 
         // If a checksum file exists, check if it differs from the new checksum
@@ -80,15 +80,15 @@ impl CLI for BuildCommand {
             checksum_file.write_to(&path, checksum)?;
 
             // Generate the program on the constraint system and verify correctness
-            let mut cs = KeypairAssembly::<Bls12_377> {
-                num_inputs: 0,
-                num_aux: 0,
-                num_constraints: 0,
-                at: vec![],
-                bt: vec![],
-                ct: vec![],
-            };
-            program.evaluate_program(&mut cs)?;
+            // let mut cs = KeypairAssembly::<Bls12_377> {
+            //     num_inputs: 0,
+            //     num_aux: 0,
+            //     num_constraints: 0,
+            //     at: vec![],
+            //     bt: vec![],
+            //     ct: vec![],
+            // };
+            program.evaluate_program::<KeypairAssembly::<Bls12_377>>()?;
         }
 
         log::info!("Compiled program in {:?}", main_file_path);

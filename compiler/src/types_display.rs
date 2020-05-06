@@ -2,8 +2,8 @@
 
 use crate::{
     Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Function, FunctionName,
-    Integer, Parameter, RangeOrExpression, SpreadOrExpression, Statement, Struct, StructField,
-    Type, Variable,
+    Integer, ParameterModel, ParameterValue, RangeOrExpression, SpreadOrExpression, Statement,
+    Struct, StructField, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -185,7 +185,7 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
                 write!(f, ")\n")
             }
             Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
-                Some(ref ty) => write!(f, "let {} : {} = {};", assignee, ty, expression),
+                Some(ref ty) => write!(f, "let {}: {} = {};", assignee, ty, expression),
                 None => write!(f, "let {} = {};", assignee, expression),
             },
             Statement::Assign(ref variable, ref statement) => {
@@ -257,10 +257,20 @@ impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for Parameter<F> {
+impl<F: Field + PrimeField> fmt::Display for ParameterModel<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let visibility = if self.private { "private" } else { "public" };
         write!(f, "{}: {} {}", self.variable, visibility, self.ty,)
+    }
+}
+
+impl<F: Field + PrimeField> fmt::Display for ParameterValue<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ParameterValue::Integer(ref integer) => write!(f, "{}", integer),
+            ParameterValue::Field(ref field) => write!(f, "{}", field),
+            ParameterValue::Boolean(ref bool) => write!(f, "{}", bool),
+        }
     }
 }
 

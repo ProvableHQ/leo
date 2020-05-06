@@ -40,13 +40,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_add(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_add(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_add(fe1, fe2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+                self.enforce_field_add(cs, fe_1, fe_2)
             }
-            (val1, val2) => unimplemented!("cannot add {} + {}", val1, val2),
+            (val_1, val_2) => unimplemented!("cannot add {} + {}", val_1, val_2),
         }
     }
 
@@ -57,13 +57,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_sub(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_sub(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_sub(fe1, fe2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+                self.enforce_field_sub(cs, fe_1, fe_2)
             }
-            (val1, val2) => unimplemented!("cannot subtract {} - {}", val1, val2),
+            (val_1, val_2) => unimplemented!("cannot subtract {} - {}", val_1, val_2),
         }
     }
 
@@ -74,13 +74,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_mul(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_mul(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_mul(fe1, fe2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+                self.enforce_field_mul(cs, fe_1, fe_2)
             }
-            (val1, val2) => unimplemented!("cannot multiply {} * {}", val1, val2),
+            (val_1, val_2) => unimplemented!("cannot multiply {} * {}", val_1, val_2),
         }
     }
 
@@ -91,13 +91,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_div(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_div(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                self.enforce_field_div(fe1, fe2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+                self.enforce_field_div(cs, fe_1, fe_2)
             }
-            (val1, val2) => unimplemented!("cannot divide {} / {}", val1, val2),
+            (val_1, val_2) => unimplemented!("cannot divide {} / {}", val_1, val_2),
         }
     }
     fn enforce_pow_expression(
@@ -107,16 +107,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => {
-                Self::enforce_u32_pow(cs, num1, num2)
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
+                Self::enforce_u32_pow(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::U32(num2)) => {
-                self.enforce_field_pow(fe1, num2)
+            (ResolvedValue::FieldElement(fe_1), ResolvedValue::U32(num_2)) => {
+                self.enforce_field_pow(cs, fe_1, num_2)
             }
-            (_, ResolvedValue::FieldElement(num2)) => {
-                unimplemented!("exponent power must be an integer, got field {}", num2)
+            (_, ResolvedValue::FieldElement(num_2)) => {
+                unimplemented!("exponent power must be an integer, got field {}", num_2)
             }
-            (val1, val2) => unimplemented!("cannot enforce exponentiation {} * {}", val1, val2),
+            (val_1, val_2) => unimplemented!("cannot enforce exponentiation {} * {}", val_1, val_2),
         }
     }
 
@@ -127,14 +127,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::Boolean(bool1), ResolvedValue::Boolean(bool2)) => {
-                Self::boolean_eq(bool1, bool2)
+            (ResolvedValue::Boolean(bool_1), ResolvedValue::Boolean(bool_2)) => {
+                Self::boolean_eq(bool_1, bool_2)
             }
-            (ResolvedValue::U32(num1), ResolvedValue::U32(num2)) => Self::u32_eq(num1, num2),
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                Self::field_eq(fe1, fe2)
-            }
-            (val1, val2) => unimplemented!("cannot evaluate {} == {}", val1, val2),
+            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => Self::u32_eq(num_1, num_2),
+            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            //     Self::field_eq(fe_1, fe_2)
+            // }
+            (val_1, val_2) => unimplemented!("cannot evaluate {} == {}", val_1, val_2),
         }
     }
 
@@ -144,13 +144,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                Self::field_geq(fe1, fe2)
-            }
-            (val1, val2) => unimplemented!(
+            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            //     Self::field_geq(fe_1, fe_2)
+            // }
+            (val_1, val_2) => unimplemented!(
                 "cannot evaluate {} >= {}, values must be fields",
-                val1,
-                val2
+                val_1,
+                val_2
             ),
         }
     }
@@ -161,12 +161,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                Self::field_gt(fe1, fe2)
-            }
-            (val1, val2) => {
-                unimplemented!("cannot evaluate {} > {}, values must be fields", val1, val2)
-            }
+            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            //     Self::field_gt(fe_1, fe_2)
+            // }
+            (val_1, val_2) => unimplemented!(
+                "cannot evaluate {} > {}, values must be fields",
+                val_1,
+                val_2
+            ),
         }
     }
 
@@ -176,13 +178,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                Self::field_leq(fe1, fe2)
-            }
-            (val1, val2) => unimplemented!(
+            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            //     Self::field_leq(fe_1, fe_2)
+            // }
+            (val_1, val_2) => unimplemented!(
                 "cannot evaluate {} <= {}, values must be fields",
-                val1,
-                val2
+                val_1,
+                val_2
             ),
         }
     }
@@ -193,12 +195,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         right: ResolvedValue<F>,
     ) -> ResolvedValue<F> {
         match (left, right) {
-            (ResolvedValue::FieldElement(fe1), ResolvedValue::FieldElement(fe2)) => {
-                Self::field_lt(fe1, fe2)
-            }
-            (val1, val2) => {
-                unimplemented!("cannot evaluate {} < {}, values must be fields", val1, val2)
-            }
+            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            //     Self::field_lt(fe_1, fe_2)
+            // }
+            (val_1, val_2) => unimplemented!(
+                "cannot evaluate {} < {}, values must be fields",
+                val_1,
+                val_2
+            ),
         }
     }
 
@@ -404,7 +408,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
             // Values
             Expression::Integer(integer) => Self::get_integer_constant(integer),
-            Expression::FieldElement(fe) => ResolvedValue::FieldElement(fe),
+            Expression::FieldElement(fe) => Self::get_field_element_constant(fe),
             Expression::Boolean(bool) => Self::get_boolean_constant(bool),
 
             // Binary operations

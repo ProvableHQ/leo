@@ -1,10 +1,5 @@
-function test(a: u32) {
-    a = 5;
-}
+function main(a: private fe) {
+    let b = a + 1fe;
 
-function main() -> u32 {
-    let a = 1;
-    test(a);
-
-    return a
+    assert_eq(b, 2fe);
 }
