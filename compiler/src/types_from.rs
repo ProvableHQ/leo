@@ -373,7 +373,7 @@ impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Assignee::from(statement.variable),
-            statement.ty.map(|ty| types::Type::<F>::from(ty)),
+            statement._type.map(|_type| types::Type::<F>::from(_type)),
             types::Expression::from(statement.expression),
         )
     }
@@ -568,7 +568,7 @@ impl<'ast, F: Field + PrimeField> From<ast::BasicType<'ast>> for types::Type<F> 
 
 impl<'ast, F: Field + PrimeField> From<ast::ArrayType<'ast>> for types::Type<F> {
     fn from(array_type: ast::ArrayType<'ast>) -> Self {
-        let element_type = Box::new(types::Type::from(array_type.ty));
+        let element_type = Box::new(types::Type::from(array_type._type));
         let count = types::Expression::<F>::get_count(array_type.count);
 
         types::Type::Array(element_type, count)
@@ -582,11 +582,11 @@ impl<'ast, F: Field + PrimeField> From<ast::StructType<'ast>> for types::Type<F>
 }
 
 impl<'ast, F: Field + PrimeField> From<ast::Type<'ast>> for types::Type<F> {
-    fn from(ty: ast::Type<'ast>) -> Self {
-        match ty {
-            ast::Type::Basic(ty) => types::Type::from(ty),
-            ast::Type::Array(ty) => types::Type::from(ty),
-            ast::Type::Struct(ty) => types::Type::from(ty),
+    fn from(_type: ast::Type<'ast>) -> Self {
+        match _type {
+            ast::Type::Basic(_type) => types::Type::from(_type),
+            ast::Type::Array(_type) => types::Type::from(_type),
+            ast::Type::Struct(_type) => types::Type::from(_type),
         }
     }
 }
@@ -597,7 +597,7 @@ impl<'ast, F: Field + PrimeField> From<ast::StructField<'ast>> for types::Struct
     fn from(struct_field: ast::StructField<'ast>) -> Self {
         types::StructField {
             variable: types::Variable::from(struct_field.variable),
-            ty: types::Type::from(struct_field.ty),
+            _type: types::Type::from(struct_field._type),
         }
     }
 }
@@ -619,7 +619,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 
 impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::ParameterModel<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
-        let ty = types::Type::from(parameter.ty);
+        let _type = types::Type::from(parameter._type);
         let variable = types::Variable::from(parameter.variable);
 
         if parameter.visibility.is_some() {
@@ -629,13 +629,13 @@ impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Paramete
             };
             types::ParameterModel {
                 private,
-                ty,
+                _type,
                 variable,
             }
         } else {
             types::ParameterModel {
                 private: true,
-                ty,
+                _type,
                 variable,
             }
         }

@@ -58,7 +58,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .zip(arguments.clone().into_iter())
             .for_each(|(parameter, argument)| {
                 // Check that argument is correct type
-                match parameter.ty.clone() {
+                match parameter._type.clone() {
                     Type::U32 => {
                         match self.enforce_argument(
                             cs,
@@ -164,7 +164,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .zip(parameters.into_iter())
             .for_each(|(parameter_model, parameter_value)| {
                 // append each variable to arguments vector
-                arguments.push(Expression::Variable(match parameter_model.ty {
+                arguments.push(Expression::Variable(match parameter_model._type {
                     Type::U32 => self.u32_from_parameter(
                         cs,
                         function_name.clone(),

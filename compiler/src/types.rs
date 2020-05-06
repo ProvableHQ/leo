@@ -143,7 +143,7 @@ pub struct StructMember<F: Field + PrimeField> {
 #[derive(Clone, PartialEq, Eq)]
 pub struct StructField<F: Field + PrimeField> {
     pub variable: Variable<F>,
-    pub ty: Type<F>,
+    pub _type: Type<F>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -157,7 +157,7 @@ pub struct Struct<F: Field + PrimeField> {
 #[derive(Clone, PartialEq, Eq)]
 pub struct ParameterModel<F: Field + PrimeField> {
     pub private: bool,
-    pub ty: Type<F>,
+    pub _type: Type<F>,
     pub variable: Variable<F>,
 }
 

@@ -127,28 +127,28 @@ pub enum OperationAssign {
 // Types
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_u32))]
+#[pest_ast(rule(Rule::type_u32))]
 pub struct U32Type<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_field))]
+#[pest_ast(rule(Rule::type_field))]
 pub struct FieldType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_bool))]
+#[pest_ast(rule(Rule::type_bool))]
 pub struct BooleanType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_struct))]
+#[pest_ast(rule(Rule::type_struct))]
 pub struct StructType<'ast> {
     pub variable: Variable<'ast>,
     #[pest_ast(outer())]
@@ -156,7 +156,7 @@ pub struct StructType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_basic))]
+#[pest_ast(rule(Rule::type_basic))]
 pub enum BasicType<'ast> {
     U32(U32Type<'ast>),
     Field(FieldType<'ast>),
@@ -164,23 +164,23 @@ pub enum BasicType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_basic_or_struct))]
+#[pest_ast(rule(Rule::type_basic_or_struct))]
 pub enum BasicOrStructType<'ast> {
     Struct(StructType<'ast>),
     Basic(BasicType<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_array))]
+#[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub ty: BasicType<'ast>,
+    pub _type: BasicType<'ast>,
     pub count: Value<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty))]
+#[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
     Basic(BasicType<'ast>),
     Array(ArrayType<'ast>),
@@ -190,9 +190,9 @@ pub enum Type<'ast> {
 impl<'ast> fmt::Display for Type<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::Basic(ref _ty) => write!(f, "basic"),
-            Type::Array(ref _ty) => write!(f, "array"),
-            Type::Struct(ref _ty) => write!(f, "struct"),
+            Type::Basic(ref _type) => write!(f, "basic"),
+            Type::Array(ref _type) => write!(f, "array"),
+            Type::Struct(ref _type) => write!(f, "struct"),
         }
     }
 }
@@ -217,7 +217,7 @@ impl<'ast> fmt::Display for Number<'ast> {
 #[pest_ast(rule(Rule::value_u32))]
 pub struct U32<'ast> {
     pub number: Number<'ast>,
-    pub ty: Option<U32Type<'ast>>,
+    pub _type: Option<U32Type<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -232,7 +232,7 @@ impl<'ast> fmt::Display for U32<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub ty: FieldType<'ast>,
+    pub _type: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -306,7 +306,7 @@ impl<'ast> fmt::Display for Variable<'ast> {
 #[derive(Debug, FromPest, PartialEq, Clone)]
 #[pest_ast(rule(Rule::optionally_typed_variable))]
 pub struct OptionallyTypedVariable<'ast> {
-    pub ty: Option<Type<'ast>>,
+    pub _type: Option<Type<'ast>>,
     pub id: Variable<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -499,8 +499,8 @@ pub struct ArrayInitializerExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::struct_field))]
 pub struct StructField<'ast> {
-    pub ty: Type<'ast>,
     pub variable: Variable<'ast>,
+    pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -880,7 +880,7 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
     pub variable: Variable<'ast>,
-    pub ty: Option<Type<'ast>>,
+    pub _type: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -990,8 +990,12 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.ty {
-            Some(ref ty) => write!(f, "let {} : {} = {};", self.variable, ty, self.expression),
+        match self._type {
+            Some(ref _type) => write!(
+                f,
+                "let {} : {} = {};",
+                self.variable, _type, self.expression
+            ),
             None => write!(f, "let {} = {}", self.variable, self.expression),
         }
     }
@@ -1035,7 +1039,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
 pub struct Parameter<'ast> {
     pub variable: Variable<'ast>,
     pub visibility: Option<Visibility>,
-    pub ty: Type<'ast>,
+    pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

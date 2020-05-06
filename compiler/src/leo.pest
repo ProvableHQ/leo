@@ -1,4 +1,4 @@
-/// Visibility
+/// Visibili_type
 
 visibility_public = { "public" }
 visibility_private = { "private" }
@@ -55,23 +55,23 @@ operation_assign = {
     operation_mul_assign | operation_div_assign | operation_pow_assign
 }
 
-/// Types
+/// types
 
-ty_u32 = {"u32"}
-ty_field = {"fe"}
-ty_bool = {"bool"}
-ty_basic = { ty_u32 | ty_field | ty_bool }
-ty_struct = { variable }
-ty_basic_or_struct = {ty_basic | ty_struct }
-ty_array = {ty_basic ~ ("[" ~ value ~ "]")+ }
-ty = {ty_array | ty_basic | ty_struct}
-type_list = _{(ty ~ ("," ~ ty)*)?}
+type_u32 = {"u32"}
+type_field = {"fe"}
+type_bool = {"bool"}
+type_basic = { type_u32 | type_field | type_bool }
+type_struct = { variable }
+type_basic_or_struct = {type_basic | type_struct }
+type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
+_type = {type_array | type_basic | type_struct}
+type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values
 
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
-value_u32 = { value_number ~ ty_u32? }
-value_field = { value_number ~ ty_field }
+value_u32 = { value_number ~ type_u32? }
+value_field = { value_number ~ type_field }
 value_boolean = { "true" | "false" }
 value = { value_field | value_boolean | value_u32 }
 
@@ -79,14 +79,14 @@ value = { value_field | value_boolean | value_u32 }
 
 // TODO: Include "import" and "conditional"
 
-protected_name = { visibility | value_boolean | "return" }
+protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
 // keyword = @{ "as" | "in" | "return" | "export" | "false" |
 //             "def" | "in" | "return" | "struct" | "true" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 
-optionally_typed_variable = { (ty ~ variable) | (variable)}
+optionally_typed_variable = { (_type ~ variable) | (variable)}
 optionally_typed_variable_tuple = _{ optionally_typed_variable ~ ("," ~ optionally_typed_variable)* }
 
 expression_primitive = { value | variable }
@@ -120,7 +120,7 @@ expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" 
 
 /// Structs
 
-struct_field = { ty ~ variable }
+struct_field = { variable ~ ":" ~ _type }
 struct_field_list = _{(struct_field ~ (NEWLINE+ ~ struct_field)*)? }
 struct_definition = { "struct" ~ variable ~ "{" ~ NEWLINE* ~ struct_field_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
@@ -160,7 +160,7 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ (":" ~ ty)? ~ "=" ~ expression }
+statement_definition = { "let" ~ variable ~ (":" ~ _type)? ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
 statement_multiple_assignment = { "let" ~ "(" ~ optionally_typed_variable_tuple ~ ")" ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ "(" ~ expression ~ ")" ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
@@ -186,11 +186,11 @@ statement = {
 
 /// Functions
 
-parameter = {variable ~ ":" ~ visibility? ~ ty}
+parameter = {variable ~ ":" ~ visibility? ~ _type}
 parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
 
 function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ ("->" ~ (ty | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 /// Utilities
 

@@ -231,7 +231,7 @@ impl<F: Field + PrimeField> fmt::Display for Type<F> {
 
 impl<F: Field + PrimeField> fmt::Display for StructField<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} : {}", self.ty, self.variable)
+        write!(f, "{}: {}", self.variable, self._type)
     }
 }
 
@@ -260,7 +260,7 @@ impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
 impl<F: Field + PrimeField> fmt::Display for ParameterModel<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let visibility = if self.private { "private" } else { "public" };
-        write!(f, "{}: {} {}", self.variable, visibility, self.ty,)
+        write!(f, "{}: {} {}", self.variable, visibility, self._type,)
     }
 }
 
