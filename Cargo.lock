@@ -481,6 +481,7 @@ dependencies = [
  "failure",
  "from-pest",
  "leo-compiler",
+ "leo-inputs",
  "log",
  "rand",
  "rand_core",
@@ -524,6 +525,22 @@ dependencies = [
  "pest_derive",
  "rand",
  "sha2",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+]
+
+[[package]]
+name = "leo-inputs"
+version = "0.1.0"
+dependencies = [
+ "from-pest",
+ "leo-compiler",
+ "pest",
+ "pest-ast",
+ "pest_derive",
  "snarkos-algorithms",
  "snarkos-curves",
  "snarkos-errors",

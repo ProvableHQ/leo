@@ -6,19 +6,19 @@ visibility = { visibility_public | visibility_private }
 
 /// Types
 
-ty_u32 = {"u32"}
-ty_field = {"fe"}
-ty_bool = {"bool"}
-ty_basic = { ty_u32 | ty_field | ty_bool }
-ty_struct = { variable }
-ty_array = {ty_basic ~ ("[" ~ value ~ "]")+ }
-ty = { ty_array | ty_basic | ty_struct }
+type_u32 = {"u32"}
+type_field = {"fe"}
+type_bool = {"bool"}
+type_basic = { type_u32 | type_field | type_bool }
+type_struct = { variable }
+type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
+_type = { type_array | type_basic | type_struct }
 
 /// Values
 
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
-value_u32 = { value_number ~ ty_u32? }
-value_field = { value_number ~ ty_field }
+value_u32 = { value_number ~ type_u32? }
+value_field = { value_number ~ type_field }
 value_boolean = { "true" | "false" }
 value = { value_field | value_boolean | value_u32 }
 
@@ -29,38 +29,39 @@ variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHAN
 
 /// Arrays
 
-inline_array_inner = _{(expression_term ~ ("," ~ NEWLINE* ~ expression_term)*)?}
+inline_array_inner = _{(expression ~ ("," ~ NEWLINE* ~ expression)*)?}
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
-expression_array_initializer = { "[" ~ expression_term ~ ";" ~ value ~ "]" }
+expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
 
 /// Structs
 
-inline_struct_member = { variable ~ ":" ~ expression_term }
+inline_struct_member = { variable ~ ":" ~ expression }
 inline_struct_member_list = _{(inline_struct_member ~ ("," ~ NEWLINE* ~ inline_struct_member)*)? ~ ","? }
 expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_list ~ NEWLINE* ~ "}" }
 
 /// Expressions
 
-expression_primitive = { value | variable }
-expression_term = {
+expression = {
     expression_inline_struct
-    | expression_primitive
     | expression_array_inline
     | expression_array_initializer
+    | value
+    | variable
 }
 
 /// Functions
 
-parameter = { variable ~ ":" ~ visibility? ~ ty }
+parameter = { variable ~ ":" ~ visibility? ~ _type }
 
 function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 
 /// Section
 
 header = { "[" ~ function_name ~ "]" }
-assignment = { parameter ~ "=" ~ expression_term  }
+assignment = { parameter ~ "=" ~ expression  }
+// assignment = { parameter ~ "="  }
 
-section = { header ~ NEWLINE+ ~ assignment* ~ NEWLINE* }
+section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
 
 /// Utilities
 
