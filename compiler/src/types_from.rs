@@ -29,8 +29,17 @@ impl<'ast> types::Integer {
             ast::IntegerType::U8Type(_u8) => {
                 types::Integer::U8(number.value.parse::<u8>().expect("unable to parse u8"))
             }
+            ast::IntegerType::U16Type(_u16) => {
+                types::Integer::U16(number.value.parse::<u16>().expect("unable to parse u16"))
+            }
             ast::IntegerType::U32Type(_u32) => {
                 types::Integer::U32(number.value.parse::<u32>().expect("unable to parse u32"))
+            }
+            ast::IntegerType::U64Type(_u64) => {
+                types::Integer::U64(number.value.parse::<u64>().expect("unable to parse u64"))
+            }
+            ast::IntegerType::U128Type(_u128) => {
+                types::Integer::U128(number.value.parse::<u128>().expect("unable to parse u128"))
             }
         }
     }
@@ -299,7 +308,6 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Express
             ast::Expression::ArrayInitializer(expression) => types::Expression::from(expression),
             ast::Expression::StructInline(expression) => types::Expression::from(expression),
             ast::Expression::Postfix(expression) => types::Expression::from(expression),
-            // _ => unimplemented!(),
         }
     }
 }
@@ -575,7 +583,10 @@ impl From<ast::IntegerType> for types::IntegerType {
     fn from(integer_type: ast::IntegerType) -> Self {
         match integer_type {
             ast::IntegerType::U8Type(_type) => types::IntegerType::U8,
+            ast::IntegerType::U16Type(_type) => types::IntegerType::U16,
             ast::IntegerType::U32Type(_type) => types::IntegerType::U32,
+            ast::IntegerType::U64Type(_type) => types::IntegerType::U64,
+            ast::IntegerType::U128Type(_type) => types::IntegerType::U128,
         }
     }
 }

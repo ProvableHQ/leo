@@ -57,10 +57,16 @@ operation_assign = {
 
 /// types
 type_u8 = {"u8"}
+type_u16 = {"u16"}
 type_u32 = {"u32"}
+type_u64 = {"u64"}
+type_u128 = {"u128"}
 type_integer = {
     type_u8
+    | type_u16
     | type_u32
+    | type_u64
+    | type_u128
 }
 
 type_field = {"fe"}

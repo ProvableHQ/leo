@@ -23,8 +23,11 @@ impl<F: Field + PrimeField> fmt::Debug for Variable<F> {
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Integer::U8(ref num) => write!(f, "{}", num),
-            Integer::U32(ref num) => write!(f, "{}", num),
+            Integer::U8(ref num) => write!(f, "{}u8", num),
+            Integer::U16(ref num) => write!(f, "{}u16", num),
+            Integer::U32(ref num) => write!(f, "{}u32", num),
+            Integer::U64(ref num) => write!(f, "{}u64", num),
+            Integer::U128(ref num) => write!(f, "{}u128", num),
         }
     }
 }
@@ -222,7 +225,10 @@ impl fmt::Display for IntegerType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             IntegerType::U8 => write!(f, "u8"),
+            IntegerType::U16 => write!(f, "u16"),
             IntegerType::U32 => write!(f, "u32"),
+            IntegerType::U64 => write!(f, "u64"),
+            IntegerType::U128 => write!(f, "u128"),
         }
     }
 }

@@ -14,12 +14,14 @@ pub struct Variable<F: Field + PrimeField> {
     pub(crate) _field: PhantomData<F>,
 }
 
-/// An integer type enum wrapping the integer value
+/// An integer type enum wrapping the integer value. Used only in expressions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Integer {
     U8(u8),
+    U16(u16),
     U32(u32),
-    // U64(u64),
+    U64(u64),
+    U128(u128),
 }
 
 impl Integer {
@@ -27,6 +29,9 @@ impl Integer {
         match *self {
             Integer::U8(num) => num as usize,
             Integer::U32(num) => num as usize,
+            Integer::U16(num) => num as usize,
+            Integer::U64(num) => num as usize,
+            Integer::U128(num) => num as usize,
             // U64(u64)
         }
     }
@@ -101,7 +106,10 @@ pub enum Assignee<F: Field + PrimeField> {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum IntegerType {
     U8,
+    U16,
     U32,
+    U64,
+    U128,
 }
 
 /// Explicit type used for defining a variable or expression type
