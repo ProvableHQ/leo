@@ -4,8 +4,8 @@
 use crate::{
     ast,
     constraints::{
-        new_scope, new_scope_from_variable, new_variable_from_variables, ResolvedProgram,
-        ResolvedValue,
+        new_scope, new_scope_from_variable, new_variable_from_variables, ConstrainedProgram,
+        ConstrainedValue,
     },
     types::{Expression, Function, ParameterValue, Program, Type},
     Import,
@@ -19,7 +19,7 @@ use snarkos_models::{
 use std::fs;
 use std::path::Path;
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     fn enforce_argument(
         &mut self,
         cs: &mut CS,
@@ -27,7 +27,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         caller_scope: String,
         function_name: String,
         argument: Expression<F>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         match argument {
             Expression::Variable(variable) => self.enforce_variable(caller_scope, variable),
             expression => self.enforce_expression(cs, scope, function_name, expression),
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         caller_scope: String,
         function: Function<F>,
         arguments: Vec<Expression<F>>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of arguments
@@ -62,7 +62,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .for_each(|(parameter, argument)| {
                 // Check that argument is correct type
                 match parameter._type.clone() {
-                    Type::U32 => {
+                    Type::IntegerType(integer_type) => {
                         match self.enforce_argument(
                             cs,
                             scope.clone(),
@@ -70,13 +70,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             function_name.clone(),
                             argument,
                         ) {
-                            ResolvedValue::U32(number) => {
+                            ConstrainedValue::Integer(number) => {
+                                number.expect_type(&integer_type);
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
                                     function_name.clone(),
                                     &parameter.variable,
                                 );
-                                self.store(variable_name, ResolvedValue::U32(number));
+                                self.store(variable_name, ConstrainedValue::Integer(number));
                             }
                             argument => {
                                 unimplemented!("expected integer argument got {}", argument)
@@ -91,13 +92,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             function_name.clone(),
                             argument,
                         ) {
-                            ResolvedValue::FieldElement(fe) => {
+                            ConstrainedValue::FieldElement(fe) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
                                     function_name.clone(),
                                     &parameter.variable,
                                 );
-                                self.store(variable_name, ResolvedValue::FieldElement(fe));
+                                self.store(variable_name, ConstrainedValue::FieldElement(fe));
                             }
                             argument => unimplemented!("expected field argument got {}", argument),
                         }
@@ -110,13 +111,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                             function_name.clone(),
                             argument,
                         ) {
-                            ResolvedValue::Boolean(bool) => {
+                            ConstrainedValue::Boolean(bool) => {
                                 // Store argument as variable with {function_name}_{parameter name}
                                 let variable_name = new_scope_from_variable(
                                     function_name.clone(),
                                     &parameter.variable,
                                 );
-                                self.store(variable_name, ResolvedValue::Boolean(bool));
+                                self.store(variable_name, ConstrainedValue::Boolean(bool));
                             }
                             argument => {
                                 unimplemented!("expected boolean argument got {}", argument)
@@ -129,7 +130,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
         // Evaluate function statements
 
-        let mut return_values = ResolvedValue::Return(vec![]);
+        let mut return_values = ConstrainedValue::Return(vec![]);
 
         for statement in function.statements.iter() {
             if let Some(returned) = self.enforce_statement(
@@ -153,7 +154,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         scope: String,
         function: Function<F>,
         parameters: Vec<Option<ParameterValue<F>>>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         let function_name = new_scope(scope.clone(), function.get_name());
         let mut arguments = vec![];
 
@@ -168,7 +169,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .for_each(|(parameter_model, parameter_value)| {
                 // append each variable to arguments vector
                 arguments.push(Expression::Variable(match parameter_model._type {
-                    Type::U32 => self.u32_from_parameter(
+                    Type::IntegerType(ref _integer_type) => self.integer_from_parameter(
                         cs,
                         function_name.clone(),
                         parameter_model,
@@ -187,7 +188,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         parameter_value,
                     ),
                     Type::Array(ref ty, _length) => match *ty.clone() {
-                        Type::U32 => self.u32_array_from_parameter(
+                        Type::IntegerType(_type) => self.integer_array_from_parameter(
                             cs,
                             function_name.clone(),
                             parameter_model,
@@ -259,7 +260,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         // store imported struct under resolved name
                         self.store_variable(
                             resolved_struct_name,
-                            ResolvedValue::StructDefinition(struct_def),
+                            ConstrainedValue::StructDefinition(struct_def),
                         );
                     }
                     None => {
@@ -280,7 +281,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                                 // store imported function under resolved name
                                 self.store_variable(
                                     resolved_function_name,
-                                    ResolvedValue::Function(function),
+                                    ConstrainedValue::Function(function),
                                 )
                             }
                             None => unimplemented!(
@@ -318,7 +319,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     new_variable_from_variables(&program_name.clone(), &variable);
                 self.store_variable(
                     resolved_struct_name,
-                    ResolvedValue::StructDefinition(struct_def),
+                    ConstrainedValue::StructDefinition(struct_def),
                 );
             });
 
@@ -328,7 +329,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .into_iter()
             .for_each(|(function_name, function)| {
                 let resolved_function_name = new_scope(program_name.name.clone(), function_name.0);
-                self.store(resolved_function_name, ResolvedValue::Function(function));
+                self.store(resolved_function_name, ConstrainedValue::Function(function));
             });
     }
 
@@ -336,8 +337,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         program: Program<F>,
         parameters: Vec<Option<ParameterValue<F>>>,
-    ) -> ResolvedValue<F> {
-        let mut resolved_program = ResolvedProgram::new();
+    ) -> ConstrainedValue<F> {
+        let mut resolved_program = ConstrainedProgram::new();
         let program_name = program.get_name();
         let main_function_name = new_scope(program_name.clone(), "main".into());
 
@@ -348,7 +349,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             .expect("main function not defined");
 
         match main.clone() {
-            ResolvedValue::Function(function) => {
+            ConstrainedValue::Function(function) => {
                 let result =
                     resolved_program.enforce_main_function(cs, program_name, function, parameters);
                 log::debug!("{}", result);

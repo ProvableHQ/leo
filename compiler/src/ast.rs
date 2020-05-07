@@ -123,10 +123,18 @@ pub enum OperationAssign {
 // Types
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u8))]
+pub struct U8Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_u32))]
-pub struct U32Type<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
+pub struct U32Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_integer))]
+pub enum IntegerType {
+    U8Type(U8Type),
+    U32Type(U32Type),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -154,7 +162,7 @@ pub struct StructType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_basic))]
 pub enum BasicType<'ast> {
-    U32(U32Type<'ast>),
+    Integer(IntegerType),
     Field(FieldType<'ast>),
     Boolean(BooleanType<'ast>),
 }
@@ -210,15 +218,15 @@ impl<'ast> fmt::Display for Number<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_u32))]
-pub struct U32<'ast> {
+#[pest_ast(rule(Rule::value_integer))]
+pub struct Integer<'ast> {
     pub number: Number<'ast>,
-    pub _type: Option<U32Type<'ast>>,
+    pub _type: Option<IntegerType>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for U32<'ast> {
+impl<'ast> fmt::Display for Integer<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.number)
     }
@@ -257,15 +265,15 @@ impl<'ast> fmt::Display for Boolean<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value))]
 pub enum Value<'ast> {
+    Integer(Integer<'ast>),
     Field(Field<'ast>),
     Boolean(Boolean<'ast>),
-    U32(U32<'ast>),
 }
 
 impl<'ast> Value<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
-            Value::U32(value) => &value.span,
+            Value::Integer(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Boolean(value) => &value.span,
         }
@@ -275,7 +283,7 @@ impl<'ast> Value<'ast> {
 impl<'ast> fmt::Display for Value<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Value::U32(ref value) => write!(f, "{}", value),
+            Value::Integer(ref value) => write!(f, "{}", value),
             Value::Field(ref value) => write!(f, "{}", value),
             Value::Boolean(ref value) => write!(f, "{}", value),
         }

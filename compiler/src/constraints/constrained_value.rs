@@ -1,17 +1,18 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
-use crate::types::{Function, Struct, Type, Variable};
+use crate::{
+    constraints::ConstrainedInteger,
+    types::{Function, Struct, Type, Variable},
+};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::Variable as R1CSVariable, utilities::boolean::Boolean, utilities::uint32::UInt32,
-    },
+    gadgets::{r1cs::Variable as R1CSVariable, utilities::boolean::Boolean},
 };
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ResolvedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ResolvedValue<F>);
+pub struct ConstrainedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ConstrainedValue<F>);
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum FieldElement<F: Field + PrimeField> {
@@ -35,55 +36,60 @@ impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ResolvedValue<F: Field + PrimeField> {
-    U32(UInt32),
+pub enum ConstrainedValue<F: Field + PrimeField> {
+    Integer(ConstrainedInteger),
     FieldElement(FieldElement<F>),
     Boolean(Boolean),
-    Array(Vec<ResolvedValue<F>>),
+    Array(Vec<ConstrainedValue<F>>),
     StructDefinition(Struct<F>),
-    StructExpression(Variable<F>, Vec<ResolvedStructMember<F>>),
+    StructExpression(Variable<F>, Vec<ConstrainedStructMember<F>>),
     Function(Function<F>),
-    Return(Vec<ResolvedValue<F>>), // add Null for function returns
+    Return(Vec<ConstrainedValue<F>>), // add Null for function returns
 }
 
-impl<F: Field + PrimeField> ResolvedValue<F> {
-    pub(crate) fn match_type(&self, ty: &Type<F>) -> bool {
-        match (self, ty) {
-            (ResolvedValue::U32(ref _i), Type::U32) => true,
-            (ResolvedValue::FieldElement(ref _f), Type::FieldElement) => true,
-            (ResolvedValue::Boolean(ref _b), Type::Boolean) => true,
-            (ResolvedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
+impl<F: Field + PrimeField> ConstrainedValue<F> {
+    pub(crate) fn expect_type(&self, _type: &Type<F>) {
+        match (self, _type) {
+            (ConstrainedValue::Integer(ref integer), Type::IntegerType(ref _type)) => {
+                integer.expect_type(_type)
+            }
+            (ConstrainedValue::FieldElement(ref _f), Type::FieldElement) => {}
+            (ConstrainedValue::Boolean(ref _b), Type::Boolean) => {}
+            (ConstrainedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
                 // check array lengths are equal
-                let mut res = arr.len() == *len;
+                if arr.len() != *len {
+                    unimplemented!("array length {} != {}", arr.len(), *len)
+                }
                 // check each value in array matches
                 for value in arr {
-                    res &= value.match_type(ty)
+                    value.expect_type(ty)
                 }
-                res
             }
             (
-                ResolvedValue::StructExpression(ref actual_name, ref _members),
+                ConstrainedValue::StructExpression(ref actual_name, ref _members),
                 Type::Struct(ref expected_name),
-            ) => actual_name == expected_name,
-            (ResolvedValue::Return(ref values), ty) => {
-                let mut res = true;
-                for value in values {
-                    res &= value.match_type(ty)
+            ) => {
+                if expected_name != actual_name {
+                    unimplemented!("expected struct name {} got {}", expected_name, actual_name)
                 }
-                res
             }
-            (_, _) => false,
+            (ConstrainedValue::Return(ref values), ty) => {
+                for value in values {
+                    value.expect_type(ty)
+                }
+            }
+            (value, _type) => unimplemented!("expected type {}, got {}", _type, value),
         }
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
+impl<F: Field + PrimeField> fmt::Display for ConstrainedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ResolvedValue::U32(ref value) => write!(f, "{}", value.value.unwrap()),
-            ResolvedValue::FieldElement(ref value) => write!(f, "{}", value),
-            ResolvedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
-            ResolvedValue::Array(ref array) => {
+            ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
+            ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
+            ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
                     write!(f, "{}", e)?;
@@ -93,7 +99,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 }
                 write!(f, "]")
             }
-            ResolvedValue::StructExpression(ref variable, ref members) => {
+            ConstrainedValue::StructExpression(ref variable, ref members) => {
                 write!(f, "{} {{", variable)?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
@@ -103,7 +109,7 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 }
                 write!(f, "}}")
             }
-            ResolvedValue::Return(ref values) => {
+            ConstrainedValue::Return(ref values) => {
                 write!(f, "Program output: [")?;
                 for (i, value) in values.iter().enumerate() {
                     write!(f, "{}", value)?;
@@ -113,15 +119,15 @@ impl<F: Field + PrimeField> fmt::Display for ResolvedValue<F> {
                 }
                 write!(f, "]")
             }
-            ResolvedValue::StructDefinition(ref _definition) => {
+            ConstrainedValue::StructDefinition(ref _definition) => {
                 unimplemented!("cannot return struct definition in program")
             }
-            ResolvedValue::Function(ref function) => write!(f, "{}();", function.function_name),
+            ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),
         }
     }
 }
 
-impl<F: Field + PrimeField> fmt::Debug for ResolvedValue<F> {
+impl<F: Field + PrimeField> fmt::Debug for ConstrainedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

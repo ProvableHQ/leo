@@ -1,15 +1,6 @@
-struct Foo {
-  x: u32
-  y: u32
-}
+function main() {
+    let a = 1u8 + 2u8;
+    let b = 2u32 + 4;
 
-function main(a: private fe) {
-    let b = a + 1fe;
-    assert_eq(b, 2fe);
-
-    let c = Foo {
-        x: 4,
-        y: 5,
-    };
-
+    assert_eq(b, 6);
 }

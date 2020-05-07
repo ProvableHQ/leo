@@ -17,7 +17,7 @@ pub struct Variable<F: Field + PrimeField> {
 /// An integer type enum wrapping the integer value
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Integer {
-    // U8(u8),
+    U8(u8),
     U32(u32),
     // U64(u64),
 }
@@ -25,7 +25,7 @@ pub enum Integer {
 impl Integer {
     pub fn to_usize(&self) -> usize {
         match *self {
-            // U8(u8)
+            Integer::U8(num) => num as usize,
             Integer::U32(num) => num as usize,
             // U64(u64)
         }
@@ -97,10 +97,17 @@ pub enum Assignee<F: Field + PrimeField> {
     StructMember(Box<Assignee<F>>, Variable<F>),
 }
 
+/// Explicit integer type
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum IntegerType {
+    U8,
+    U32,
+}
+
 /// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Type<F: Field + PrimeField> {
-    U32,
+    IntegerType(IntegerType),
     FieldElement,
     Boolean,
     Array(Box<Type<F>>, usize),

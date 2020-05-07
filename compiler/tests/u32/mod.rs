@@ -1,4 +1,4 @@
-use leo_compiler::{compiler::Compiler, ResolvedValue};
+use leo_compiler::{compiler::Compiler, ConstrainedValue};
 
 use snarkos_curves::bls12_377::Fr;
 
@@ -39,7 +39,7 @@ fn test_zero() {
 
     let output = output.unwrap();
     assert_eq!(
-        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(0))]),
         output
     );
     println!("{}", output);
@@ -54,7 +54,7 @@ fn test_one() {
 
     let output = output.unwrap();
     assert_eq!(
-        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(1))]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(1))]),
         output
     );
     println!("{}", output);
@@ -69,7 +69,7 @@ fn test_1_plus_1() {
 
     let output = output.unwrap();
     assert_eq!(
-        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(2))]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(2))]),
         output
     );
     println!("{}", output);
@@ -84,7 +84,7 @@ fn test_1_minus_1() {
 
     let output = output.unwrap();
     assert_eq!(
-        ResolvedValue::<Fr>::Return(vec![ResolvedValue::<Fr>::U32(UInt32::constant(0))]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(0))]),
         output
     );
     println!("{}", output);

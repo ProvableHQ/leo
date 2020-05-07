@@ -1,7 +1,7 @@
 //! Methods to enforce constraints on booleans in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, ResolvedProgram, ResolvedValue},
+    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
     types::{ParameterModel, ParameterValue, Variable},
 };
 
@@ -14,7 +14,7 @@ use snarkos_models::{
     },
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn bool_from_parameter(
         &mut self,
         cs: &mut CS,
@@ -45,7 +45,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
 
         // store each argument as variable in resolved program
-        self.store_variable(parameter_variable.clone(), ResolvedValue::Boolean(number));
+        self.store_variable(
+            parameter_variable.clone(),
+            ConstrainedValue::Boolean(number),
+        );
 
         parameter_variable
     }
@@ -80,13 +83,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn get_boolean_constant(bool: bool) -> ResolvedValue<F> {
-        ResolvedValue::Boolean(Boolean::Constant(bool))
+    pub(crate) fn get_boolean_constant(bool: bool) -> ConstrainedValue<F> {
+        ConstrainedValue::Boolean(Boolean::Constant(bool))
     }
 
-    pub(crate) fn evaluate_not(value: ResolvedValue<F>) -> ResolvedValue<F> {
+    pub(crate) fn evaluate_not(value: ConstrainedValue<F>) -> ConstrainedValue<F> {
         match value {
-            ResolvedValue::Boolean(boolean) => ResolvedValue::Boolean(boolean.not()),
+            ConstrainedValue::Boolean(boolean) => ConstrainedValue::Boolean(boolean.not()),
             value => unimplemented!("cannot enforce not on non-boolean value {}", value),
         }
     }
@@ -94,12 +97,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn enforce_or(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) -> ResolvedValue<F> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> ConstrainedValue<F> {
         match (left, right) {
-            (ResolvedValue::Boolean(left_bool), ResolvedValue::Boolean(right_bool)) => {
-                ResolvedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool).unwrap())
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
+                ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool).unwrap())
             }
             (left_value, right_value) => unimplemented!(
                 "cannot enforce or on non-boolean values {} || {}",
@@ -112,12 +115,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     pub(crate) fn enforce_and(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) -> ResolvedValue<F> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> ConstrainedValue<F> {
         match (left, right) {
-            (ResolvedValue::Boolean(left_bool), ResolvedValue::Boolean(right_bool)) => {
-                ResolvedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool).unwrap())
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
+                ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool).unwrap())
             }
             (left_value, right_value) => unimplemented!(
                 "cannot enforce and on non-boolean values {} && {}",
@@ -127,8 +130,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         }
     }
 
-    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ResolvedValue<F> {
-        ResolvedValue::Boolean(Boolean::Constant(left.eq(&right)))
+    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ConstrainedValue<F> {
+        ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 
     pub(crate) fn enforce_boolean_eq(&mut self, cs: &mut CS, left: Boolean, right: Boolean) {

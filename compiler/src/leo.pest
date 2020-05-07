@@ -56,11 +56,16 @@ operation_assign = {
 }
 
 /// types
-
+type_u8 = {"u8"}
 type_u32 = {"u32"}
+type_integer = {
+    type_u8
+    | type_u32
+}
+
 type_field = {"fe"}
 type_bool = {"bool"}
-type_basic = { type_u32 | type_field | type_bool }
+type_basic = { type_integer | type_field | type_bool }
 type_struct = { variable }
 type_basic_or_struct = {type_basic | type_struct }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
@@ -70,10 +75,10 @@ type_list = _{(_type ~ ("," ~ _type)*)?}
 /// Values
 
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
-value_u32 = { value_number ~ type_u32? }
+value_integer = { value_number ~ type_integer? }
 value_field = { value_number ~ type_field }
 value_boolean = { "true" | "false" }
-value = { value_field | value_boolean | value_u32 }
+value = { value_field | value_boolean | value_integer }
 
 /// Variables
 

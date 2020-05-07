@@ -1,11 +1,12 @@
 //! Methods to enforce constraints on statements in a resolved Leo program.
 
 use crate::{
-    constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue},
+    constraints::{new_scope_from_variable, ConstrainedProgram, ConstrainedValue},
     types::{
         Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer,
         RangeOrExpression, Statement, Type, Variable,
     },
+    ConstrainedInteger,
 };
 
 use snarkos_models::{
@@ -13,7 +14,7 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
         match assignee {
             Assignee::Variable(name) => new_scope_from_variable(scope, &name),
@@ -30,7 +31,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         file_scope: String,
         function_scope: String,
         assignee: Assignee<F>,
-        return_value: &mut ResolvedValue<F>,
+        return_value: &mut ConstrainedValue<F>,
     ) {
         match assignee {
             Assignee::Variable(name) => {
@@ -56,7 +57,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         // Modify the single value of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match value {
-                                ResolvedValue::Array(old) => {
+                                ConstrainedValue::Array(old) => {
                                     old[index] = return_value.to_owned();
                                 }
                                 _ => {
@@ -82,7 +83,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         // Modify the range of values of the array in place
                         match self.get_mut(&expected_array_name) {
                             Some(value) => match (value, return_value) {
-                                (ResolvedValue::Array(old), ResolvedValue::Array(new)) => {
+                                (ConstrainedValue::Array(old), ConstrainedValue::Array(new)) => {
                                     let to_index = to_index_option.unwrap_or(old.len());
                                     old.splice(from_index..to_index, new.iter().cloned());
                                 }
@@ -105,7 +106,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
 
                 match self.get_mut(&expected_struct_name) {
                     Some(value) => match value {
-                        ResolvedValue::StructExpression(_variable, members) => {
+                        ConstrainedValue::StructExpression(_variable, members) => {
                             // Modify the struct member in place
                             let matched_member =
                                 members.into_iter().find(|member| member.0 == struct_member);
@@ -176,11 +177,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         match ty {
             // Explicit type
             Some(ty) => {
-                if result_value.match_type(&ty) {
-                    self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
-                } else {
-                    unimplemented!("incompatible types {} = {}", assignee, result_value)
-                }
+                result_value.expect_type(&ty);
+                self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
             }
             // Implicit type
             None => self.store_assignment(cs, file_scope, function_scope, assignee, result_value),
@@ -199,7 +197,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         let return_values =
             match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), function)
             {
-                ResolvedValue::Return(values) => values,
+                ConstrainedValue::Return(values) => values,
                 value => unimplemented!(
                     "multiple assignment only implemented for functions, got {}",
                     value
@@ -227,7 +225,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         function_scope: String,
         expressions: Vec<Expression<F>>,
         return_types: Vec<Type<F>>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         // Make sure we return the correct number of values
         if return_types.len() != expressions.len() {
             unimplemented!(
@@ -237,7 +235,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             )
         }
 
-        ResolvedValue::Return(
+        ConstrainedValue::Return(
             expressions
                 .into_iter()
                 .zip(return_types.into_iter())
@@ -248,13 +246,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         function_scope.clone(),
                         expression,
                     );
-                    if !result.match_type(&ty) {
-                        unimplemented!("expected return type {}, got {}", ty, result)
-                    } else {
-                        result
-                    }
+                    result.expect_type(&ty);
+                    result
                 })
-                .collect::<Vec<ResolvedValue<F>>>(),
+                .collect::<Vec<ConstrainedValue<F>>>(),
         )
     }
 
@@ -265,7 +260,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         function_scope: String,
         statements: Vec<Statement<F>>,
         return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+    ) -> Option<ConstrainedValue<F>> {
         let mut res = None;
         // Evaluate statements and possibly return early
         for statement in statements.iter() {
@@ -291,14 +286,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         function_scope: String,
         statement: ConditionalStatement<F>,
         return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+    ) -> Option<ConstrainedValue<F>> {
         let condition = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
             statement.condition.clone(),
         ) {
-            ResolvedValue::Boolean(resolved) => resolved,
+            ConstrainedValue::Boolean(resolved) => resolved,
             value => unimplemented!("if else conditional must resolve to boolean, got {}", value),
         };
 
@@ -344,14 +339,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         stop: Integer,
         statements: Vec<Statement<F>>,
         return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+    ) -> Option<ConstrainedValue<F>> {
         let mut res = None;
 
         for i in start.to_usize()..stop.to_usize() {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope_from_variable(function_scope.clone(), &index);
-            self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
+            self.store(
+                index_name,
+                ConstrainedValue::Integer(ConstrainedInteger::U32(UInt32::constant(i as u32))),
+            );
 
             // Evaluate statements and possibly return early
             if let Some(early_return) = self.iterate_or_early_return(
@@ -372,17 +370,17 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
     fn enforce_assert_eq_statement(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
     ) {
         match (left, right) {
-            (ResolvedValue::Boolean(bool_1), ResolvedValue::Boolean(bool_2)) => {
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 self.enforce_boolean_eq(cs, bool_1, bool_2)
             }
-            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
-                Self::enforce_u32_eq(cs, num_1, num_2)
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                Self::enforce_integer_eq(cs, num_1, num_2)
             }
-            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_eq(cs, fe_1, fe_2)
             }
             (val_1, val_2) => {
@@ -398,7 +396,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         function_scope: String,
         statement: Statement<F>,
         return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+    ) -> Option<ConstrainedValue<F>> {
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {
@@ -467,7 +465,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
             }
             Statement::Expression(expression) => {
                 match self.enforce_expression(cs, file_scope, function_scope, expression.clone()) {
-                    ResolvedValue::Return(values) => {
+                    ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
                             unimplemented!("function return values not assigned {:#?}", values)
                         }

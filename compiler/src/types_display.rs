@@ -2,8 +2,8 @@
 
 use crate::{
     Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Function, FunctionName,
-    Integer, ParameterModel, ParameterValue, RangeOrExpression, SpreadOrExpression, Statement,
-    Struct, StructField, Type, Variable,
+    Integer, IntegerType, ParameterModel, ParameterValue, RangeOrExpression, SpreadOrExpression,
+    Statement, Struct, StructField, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -23,6 +23,7 @@ impl<F: Field + PrimeField> fmt::Debug for Variable<F> {
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Integer::U8(ref num) => write!(f, "{}", num),
             Integer::U32(ref num) => write!(f, "{}", num),
         }
     }
@@ -217,10 +218,19 @@ impl<F: Field + PrimeField> fmt::Display for Statement<F> {
     }
 }
 
+impl fmt::Display for IntegerType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            IntegerType::U8 => write!(f, "u8"),
+            IntegerType::U32 => write!(f, "u32"),
+        }
+    }
+}
+
 impl<F: Field + PrimeField> fmt::Display for Type<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::U32 => write!(f, "u32"),
+            Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::FieldElement => write!(f, "fe"),
             Type::Boolean => write!(f, "bool"),
             Type::Struct(ref variable) => write!(f, "{}", variable),

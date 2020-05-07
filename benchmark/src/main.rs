@@ -60,7 +60,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
         let _res =
-            leo_compiler::ResolvedProgram::generate_constraints(cs, self.program, self.parameters);
+            leo_compiler::ConstrainedProgram::generate_constraints(cs, self.program, self.parameters);
         println!(" Result: {}", _res);
 
         // Write results to file or something
@@ -92,8 +92,8 @@ fn main() {
     let start = Instant::now();
 
     // Set main function arguments in compiled program
-    let argument = Some(ParameterValue::Field(Fr::one()));
-    program.parameters = vec![argument];
+    // let argument = Some(ParameterValue::Field(Fr::one()));
+    // program.parameters = vec![argument];
 
     // Generate proof
     let proof = create_random_proof(program, &params, rng).unwrap();

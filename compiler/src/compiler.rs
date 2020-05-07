@@ -1,6 +1,8 @@
 //! Compiles a Leo program from a file path.
 
-use crate::{ast, errors::CompilerError, ParameterValue, Program, ResolvedProgram, ResolvedValue};
+use crate::{
+    ast, errors::CompilerError, ConstrainedProgram, ConstrainedValue, ParameterValue, Program,
+};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -18,7 +20,7 @@ pub struct Compiler<F: Field + PrimeField> {
     main_file_path: PathBuf,
     program: Program<F>,
     parameters: Vec<Option<ParameterValue<F>>>,
-    output: Option<ResolvedValue<F>>,
+    output: Option<ConstrainedValue<F>>,
     _engine: PhantomData<F>,
 }
 
@@ -91,7 +93,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = ResolvedProgram::generate_constraints(cs, self.program, self.parameters);
+        let _res = ConstrainedProgram::generate_constraints(cs, self.program, self.parameters);
 
         // Write results to file or something
 

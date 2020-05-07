@@ -15,11 +15,11 @@ pub use integer::*;
 pub mod field_element;
 pub use field_element::*;
 
-pub mod resolved_program;
-pub use resolved_program::*;
+pub mod constrained_program;
+pub use constrained_program::*;
 
-pub mod resolved_value;
-pub use resolved_value::*;
+pub mod constrained_value;
+pub use constrained_value::*;
 
 pub mod statement;
 pub use statement::*;

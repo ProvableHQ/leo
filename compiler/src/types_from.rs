@@ -23,15 +23,32 @@ impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Expressio
 }
 /// pest ast - types::Integer
 
-impl<'ast, F: Field + PrimeField> From<ast::U32<'ast>> for types::Expression<F> {
-    fn from(field: ast::U32<'ast>) -> Self {
-        types::Expression::Integer(types::Integer::U32(
-            field
-                .number
-                .value
-                .parse::<u32>()
-                .expect("unable to parse u32"),
-        ))
+impl<'ast> types::Integer {
+    pub(crate) fn from(number: ast::Number<'ast>, _type: ast::IntegerType) -> Self {
+        match _type {
+            ast::IntegerType::U8Type(_u8) => {
+                types::Integer::U8(number.value.parse::<u8>().expect("unable to parse u8"))
+            }
+            ast::IntegerType::U32Type(_u32) => {
+                types::Integer::U32(number.value.parse::<u32>().expect("unable to parse u32"))
+            }
+        }
+    }
+}
+
+impl<'ast, F: Field + PrimeField> From<ast::Integer<'ast>> for types::Expression<F> {
+    fn from(field: ast::Integer<'ast>) -> Self {
+        types::Expression::Integer(match field._type {
+            Some(_type) => types::Integer::from(field.number, _type),
+            // default integer type is u32
+            None => types::Integer::U32(
+                field
+                    .number
+                    .value
+                    .parse::<u32>()
+                    .expect("unable to parse u32"),
+            ),
+        })
     }
 }
 
@@ -91,7 +108,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Boolean<'ast>> for types::Expression
 impl<'ast, F: Field + PrimeField> From<ast::Value<'ast>> for types::Expression<F> {
     fn from(value: ast::Value<'ast>) -> Self {
         match value {
-            ast::Value::U32(num) => types::Expression::from(num),
+            ast::Value::Integer(num) => types::Expression::from(num),
             ast::Value::Field(fe) => types::Expression::from(fe),
             ast::Value::Boolean(bool) => types::Expression::from(bool),
         }
@@ -290,7 +307,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Express
 impl<'ast, F: Field + PrimeField> types::Expression<F> {
     fn get_count(count: ast::Value<'ast>) -> usize {
         match count {
-            ast::Value::U32(f) => f
+            ast::Value::Integer(f) => f
                 .number
                 .value
                 .parse::<usize>()
@@ -554,10 +571,19 @@ impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statemen
 
 /// pest ast -> Explicit types::Type for defining struct members and function params
 
+impl From<ast::IntegerType> for types::IntegerType {
+    fn from(integer_type: ast::IntegerType) -> Self {
+        match integer_type {
+            ast::IntegerType::U8Type(_type) => types::IntegerType::U8,
+            ast::IntegerType::U32Type(_type) => types::IntegerType::U32,
+        }
+    }
+}
+
 impl<'ast, F: Field + PrimeField> From<ast::BasicType<'ast>> for types::Type<F> {
     fn from(basic_type: ast::BasicType<'ast>) -> Self {
         match basic_type {
-            ast::BasicType::U32(_ty) => types::Type::U32,
+            ast::BasicType::Integer(ty) => types::Type::IntegerType(types::IntegerType::from(ty)),
             ast::BasicType::Field(_ty) => types::Type::FieldElement,
             ast::BasicType::Boolean(_ty) => types::Type::Boolean,
         }

@@ -1,20 +1,18 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, FieldElement, ResolvedProgram, ResolvedValue},
+    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue, FieldElement},
     types::{ParameterModel, ParameterValue, Variable},
+    ConstrainedInteger,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
-        utilities::uint32::UInt32,
-    },
+    gadgets::r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn field_element_from_parameter(
         &mut self,
         cs: &mut CS,
@@ -49,7 +47,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // Store parameter as variable in resolved program
         self.store_variable(
             parameter_variable.clone(),
-            ResolvedValue::FieldElement(FieldElement::Allocated(field_option, field_value)),
+            ConstrainedValue::FieldElement(FieldElement::Allocated(field_option, field_value)),
         );
 
         parameter_variable
@@ -83,8 +81,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn get_field_element_constant(fe: F) -> ResolvedValue<F> {
-        ResolvedValue::FieldElement(FieldElement::Constant(fe))
+    pub(crate) fn get_field_element_constant(fe: F) -> ConstrainedValue<F> {
+        ConstrainedValue::FieldElement(FieldElement::Constant(fe))
     }
 
     // pub(crate) fn field_eq(fe1: F, fe2: F) -> ResolvedValue<F> {
@@ -156,11 +154,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ResolvedValue::FieldElement(FieldElement::Constant(
+                ConstrainedValue::FieldElement(FieldElement::Constant(
                     fe_1_constant.add(&fe_2_constant),
                 ))
             }
@@ -184,7 +182,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sum_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
             }
             (
                 FieldElement::Constant(fe_1_constant),
@@ -205,7 +203,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sum_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
             }
             (
                 FieldElement::Allocated(fe_1_value, fe_1_variable),
@@ -229,7 +227,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sum_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
             }
         }
     }
@@ -239,11 +237,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ResolvedValue::FieldElement(FieldElement::Constant(
+                ConstrainedValue::FieldElement(FieldElement::Constant(
                     fe_1_constant.sub(&fe_2_constant),
                 ))
             }
@@ -267,7 +265,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sub_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
             }
             (
                 FieldElement::Constant(fe_1_constant),
@@ -288,7 +286,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sub_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
             }
             (
                 FieldElement::Allocated(fe_1_value, fe_1_variable),
@@ -312,7 +310,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + sub_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
             }
         }
     }
@@ -322,11 +320,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ResolvedValue::FieldElement(FieldElement::Constant(
+                ConstrainedValue::FieldElement(FieldElement::Constant(
                     fe_1_constant.mul(&fe_2_constant),
                 ))
             }
@@ -350,7 +348,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + mul_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
             }
             (
                 FieldElement::Constant(fe_1_constant),
@@ -371,7 +369,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + mul_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
             }
             (
                 FieldElement::Allocated(fe_1_value, fe_1_variable),
@@ -395,7 +393,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + mul_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
             }
         }
     }
@@ -405,11 +403,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> ResolvedValue<F> {
+    ) -> ConstrainedValue<F> {
         match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ResolvedValue::FieldElement(FieldElement::Constant(
+                ConstrainedValue::FieldElement(FieldElement::Constant(
                     fe_1_constant.div(&fe_2_constant),
                 ))
             }
@@ -434,7 +432,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + div_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
             }
             (
                 FieldElement::Constant(fe_1_constant),
@@ -462,7 +460,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + div_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
             }
             (
                 FieldElement::Allocated(fe_1_value, fe_1_variable),
@@ -493,7 +491,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     |lc| lc + div_variable.clone(),
                 );
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
             }
         }
     }
@@ -502,16 +500,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         &mut self,
         cs: &mut CS,
         fe_1: FieldElement<F>,
-        num: UInt32,
-    ) -> ResolvedValue<F> {
+        num: ConstrainedInteger,
+    ) -> ConstrainedValue<F> {
         match fe_1 {
             // if both constants, then return a constant result
-            FieldElement::Constant(fe_1_constant) => ResolvedValue::FieldElement(
-                FieldElement::Constant(fe_1_constant.pow(&[num.value.unwrap() as u64])),
+            FieldElement::Constant(fe_1_constant) => ConstrainedValue::FieldElement(
+                FieldElement::Constant(fe_1_constant.pow(&[num.get_value() as u64])),
             ),
             // else, return an allocated result
             FieldElement::Allocated(fe_1_value, _fe_1_variable) => {
-                let pow_value: Option<F> = fe_1_value.map(|v| v.pow(&[num.value.unwrap() as u64]));
+                let pow_value: Option<F> = fe_1_value.map(|v| v.pow(&[num.get_value() as u64]));
                 let pow_variable: R1CSVariable = cs
                     .alloc(
                         || "field exponentiation",
@@ -525,7 +523,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 //     |lc| lc + (fe_2_inverse_value, CS::one()),
                 //     |lc| lc + pow_variable.clone());
 
-                ResolvedValue::FieldElement(FieldElement::Allocated(pow_value, pow_variable))
+                ConstrainedValue::FieldElement(FieldElement::Allocated(pow_value, pow_variable))
             }
         }
     }

@@ -1,8 +1,9 @@
-//! Methods to enforce constraints on integers in a resolved Leo program.
+//! Methods to enforce constraints on uint32s in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, ResolvedProgram, ResolvedValue},
-    types::{Integer, ParameterModel, ParameterValue, Variable},
+    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
+    types::{ParameterModel, ParameterValue, Variable},
+    ConstrainedInteger,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -10,11 +11,11 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget, uint32::UInt32},
+        utilities::{alloc::AllocGadget, eq::EqGadget, uint32::UInt32},
     },
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn u32_from_parameter(
         &mut self,
         cs: &mut CS,
@@ -45,7 +46,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
 
         // store each argument as variable in resolved program
-        self.store_variable(parameter_variable.clone(), ResolvedValue::U32(integer));
+        self.store_variable(
+            parameter_variable.clone(),
+            ConstrainedValue::Integer(ConstrainedInteger::U32(integer)),
+        );
 
         parameter_variable
     }
@@ -80,72 +84,52 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn get_integer_constant(integer: Integer) -> ResolvedValue<F> {
-        match integer {
-            Integer::U32(u32_value) => ResolvedValue::U32(UInt32::constant(u32_value)),
-        }
-    }
-
-    pub(crate) fn u32_eq(left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::Boolean(Boolean::Constant(left.eq(&right)))
-    }
-
     pub(crate) fn enforce_u32_eq(cs: &mut CS, left: UInt32, right: UInt32) {
         left.enforce_equal(cs.ns(|| format!("enforce u32 equal")), &right)
             .unwrap();
     }
 
-    pub(crate) fn enforce_u32_add(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::U32(
-            UInt32::addmany(
-                cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
-                &[left, right],
-            )
-            .unwrap(),
+    pub(crate) fn enforce_u32_add(cs: &mut CS, left: UInt32, right: UInt32) -> UInt32 {
+        UInt32::addmany(
+            cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
+            &[left, right],
         )
+        .unwrap()
     }
 
-    pub(crate) fn enforce_u32_sub(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::U32(
-            left.sub(
-                cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
-                &right,
-            )
-            .unwrap(),
+    pub(crate) fn enforce_u32_sub(cs: &mut CS, left: UInt32, right: UInt32) -> UInt32 {
+        left.sub(
+            cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
         )
+        .unwrap()
     }
 
-    pub(crate) fn enforce_u32_mul(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::U32(
-            left.mul(
-                cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
-                &right,
-            )
-            .unwrap(),
+    pub(crate) fn enforce_u32_mul(cs: &mut CS, left: UInt32, right: UInt32) -> UInt32 {
+        left.mul(
+            cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
         )
+        .unwrap()
     }
-    pub(crate) fn enforce_u32_div(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::U32(
-            left.div(
-                cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
-                &right,
-            )
-            .unwrap(),
+    pub(crate) fn enforce_u32_div(cs: &mut CS, left: UInt32, right: UInt32) -> UInt32 {
+        left.div(
+            cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
+            &right,
         )
+        .unwrap()
     }
-    pub(crate) fn enforce_u32_pow(cs: &mut CS, left: UInt32, right: UInt32) -> ResolvedValue<F> {
-        ResolvedValue::U32(
-            left.pow(
-                cs.ns(|| {
-                    format!(
-                        "enforce {} ** {}",
-                        left.value.unwrap(),
-                        right.value.unwrap()
-                    )
-                }),
-                &right,
-            )
-            .unwrap(),
+    pub(crate) fn enforce_u32_pow(cs: &mut CS, left: UInt32, right: UInt32) -> UInt32 {
+        left.pow(
+            cs.ns(|| {
+                format!(
+                    "enforce {} ** {}",
+                    left.value.unwrap(),
+                    right.value.unwrap()
+                )
+            }),
+            &right,
         )
+        .unwrap()
     }
 }
