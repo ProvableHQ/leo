@@ -10,7 +10,7 @@ Currently, all integers are parsed as u32.
 You can choose to explicitly add the type or let the compiler interpret implicitly.
 ```rust
 function main() -> u32 {
-    let a : u32 = 1u32 + 1u32; // explicit type
+    let a: u32 = 1u32 + 1u32; // explicit type
     let b = 1 - 1; // implicit type
     let c = 2 * 2;
     let d = 4 / 2;
@@ -23,7 +23,7 @@ function main() -> u32 {
 Field elements must have the type added explicitly.
 ```rust
 function main() -> fe {
-    let f : fe = 21888242871839275222246405745257275088548364400416034343698204186575808495617fe;
+    let f: fe = 21888242871839275222246405745257275088548364400416034343698204186575808495617fe;
     let a = 1fe + 1fe;
     let b = 1fe - 1fe;
     let c = 2fe * 2fe;
@@ -50,7 +50,7 @@ function main() -> u32 {
 ### Booleans:
 ```rust
 function main() -> bool {
-    let a : bool = true || false;
+    let a: bool = true || false;
     let b = false && false;
     let c = 1 == 1;
     return a
@@ -63,7 +63,7 @@ Array type must be explicitly stated
 ```rust
 function main() -> u32[2] {
     // initialize an integer array with integer values
-    let a : u32[3] = [1, 2, 3];
+    let a: u32[3] = [1, 2, 3];
 
     // set a member to a value
     a[2] = 4;
@@ -90,8 +90,8 @@ function main() -> u32[2] {
 ### Structs:
 ```rust
 struct Point {
-    u32 x
-    u32 y
+    x: u32
+    y: u32
 }
 function main() -> u32 {
     Point p = Point {x: 1, y: 0}
@@ -100,7 +100,7 @@ function main() -> u32 {
 ```
 ```rust
 struct Foo {
-    bool x
+    x: bool
 }
 function main() -> Foo {
     let f = Foo {x: true};
@@ -198,13 +198,13 @@ function test() -> (u32, u32[2]) {
 
 function main() -> u32[3] {
     let (a, b) = test();
-    // a, u32[2] b = test() <- explicit type also works
+    // (a, u32[2] b) = test() <- explicit type also works
     return [a, ...b]
 }
 ```
 
-#### Parameters:
-Main function arguments are allocated as public or private variables in the program's constaint system.
+#### Main function inputs:
+Main function inputs are allocated as public or private variables in the program's constaint system.
 ```rust
 function main(a: private fe) -> fe {
   return a
@@ -215,7 +215,7 @@ function main(a: public fe) -> fe {
   return a
 }
 ```
-Function parameters are passed by value.
+Function inputs are passed by value.
 ```rust
 function test(a: u32) {
     a = 0;
@@ -238,8 +238,8 @@ import alias: `symbol as alias`
 /simple_import.leo
 ```rust
 struct Point {
-    u32 x
-    u32 y
+    x: u32
+    y: u32
 }
 
 function test() -> (u32, u32[2]) {
@@ -257,8 +257,10 @@ from "./simple_import" import {
 // from "./simple_import" import * 
 
 function main() -> (u32[3]) {
-    let (a, b) = test();
     let p = Foo { x: 1, y: 2};
+
+    let (a, b) = test();
+
     return [a, ...b]
 }
 ```
