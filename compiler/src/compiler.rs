@@ -1,7 +1,10 @@
 //! Compiles a Leo program from a file path.
 
 use crate::{
-    ast, errors::CompilerError, ConstrainedProgram, ConstrainedValue, ParameterValue, Program,
+    ast,
+    constraints::{generate_constraints, ConstrainedValue},
+    errors::CompilerError,
+    InputValue, Program,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -19,7 +22,7 @@ pub struct Compiler<F: Field + PrimeField> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program<F>,
-    parameters: Vec<Option<ParameterValue<F>>>,
+    program_inputs: Vec<Option<InputValue<F>>>,
     output: Option<ConstrainedValue<F>>,
     _engine: PhantomData<F>,
 }
@@ -30,7 +33,7 @@ impl<F: Field + PrimeField> Compiler<F> {
             package_name,
             main_file_path,
             program: Program::new(),
-            parameters: vec![],
+            program_inputs: vec![],
             output: None,
             _engine: PhantomData,
         }
@@ -80,7 +83,7 @@ impl<F: Field + PrimeField> Compiler<F> {
         let package_name = self.package_name.clone();
 
         self.program = Program::<F>::from(syntax_tree, package_name);
-        self.parameters = vec![None; self.program.num_parameters];
+        self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Compilation complete\n{:#?}", self.program);
 
@@ -93,7 +96,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = ConstrainedProgram::generate_constraints(cs, self.program, self.parameters);
+        let _res = generate_constraints(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

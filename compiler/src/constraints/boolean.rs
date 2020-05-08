@@ -2,7 +2,8 @@
 
 use crate::{
     constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
-    types::{ParameterModel, ParameterValue, Variable},
+    errors::BooleanError,
+    types::{InputModel, InputValue, Variable},
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -19,27 +20,31 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         cs: &mut CS,
         scope: String,
-        parameter_model: ParameterModel<F>,
-        parameter_value: Option<ParameterValue<F>>,
-    ) -> Variable<F> {
+        parameter_model: InputModel<F>,
+        parameter_value: Option<InputValue<F>>,
+    ) -> Result<Variable<F>, BooleanError> {
         // Check that the parameter value is the correct type
-        let bool_value = parameter_value.map(|parameter| match parameter {
-            ParameterValue::Boolean(b) => b,
-            value => unimplemented!("expected boolean parameter, got {}", value),
-        });
+        let bool_value = match parameter_value {
+            Some(parameter) => {
+                if let InputValue::Boolean(bool) = parameter {
+                    Some(bool)
+                } else {
+                    return Err(BooleanError::InvalidBoolean(parameter.to_string()));
+                }
+            }
+            None => None,
+        };
 
         // Check visibility of parameter
         let name = parameter_model.variable.name.clone();
         let number = if parameter_model.private {
             Boolean::alloc(cs.ns(|| name), || {
                 bool_value.ok_or(SynthesisError::AssignmentMissing)
-            })
-            .unwrap()
+            })?
         } else {
             Boolean::alloc_input(cs.ns(|| name), || {
                 bool_value.ok_or(SynthesisError::AssignmentMissing)
-            })
-            .unwrap()
+            })?
         };
 
         let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
@@ -50,16 +55,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             ConstrainedValue::Boolean(number),
         );
 
-        parameter_variable
+        Ok(parameter_variable)
     }
 
     pub(crate) fn boolean_array_from_parameter(
         &mut self,
         _cs: &mut CS,
         _scope: String,
-        _parameter_model: ParameterModel<F>,
-        _parameter_value: Option<ParameterValue<F>>,
-    ) -> Variable<F> {
+        _parameter_model: InputModel<F>,
+        _parameter_value: Option<InputValue<F>>,
+    ) -> Result<Variable<F>, BooleanError> {
         unimplemented!("Cannot enforce boolean array as parameter")
         // // Check visibility of parameter
         // let mut array_value = vec![];
@@ -83,14 +88,16 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn get_boolean_constant(bool: bool) -> ConstrainedValue<F> {
-        ConstrainedValue::Boolean(Boolean::Constant(bool))
+    pub(crate) fn get_boolean_constant(bool: Boolean) -> ConstrainedValue<F> {
+        ConstrainedValue::Boolean(bool)
     }
 
-    pub(crate) fn evaluate_not(value: ConstrainedValue<F>) -> ConstrainedValue<F> {
+    pub(crate) fn evaluate_not(
+        value: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match value {
-            ConstrainedValue::Boolean(boolean) => ConstrainedValue::Boolean(boolean.not()),
-            value => unimplemented!("cannot enforce not on non-boolean value {}", value),
+            ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
+            value => Err(BooleanError::CannotEvaluate(format!("!{}", value))),
         }
     }
 
@@ -99,16 +106,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match (left, right) {
-            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
-                ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool).unwrap())
-            }
-            (left_value, right_value) => unimplemented!(
-                "cannot enforce or on non-boolean values {} || {}",
-                left_value,
-                right_value
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
+                ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?),
             ),
+            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
+                "{} || {}",
+                left_value, right_value
+            ))),
         }
     }
 
@@ -117,16 +123,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match (left, right) {
-            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
-                ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool).unwrap())
-            }
-            (left_value, right_value) => unimplemented!(
-                "cannot enforce and on non-boolean values {} && {}",
-                left_value,
-                right_value
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
+                ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?),
             ),
+            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
+                "{} && {}",
+                left_value, right_value
+            ))),
         }
     }
 
@@ -134,8 +139,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 
-    pub(crate) fn enforce_boolean_eq(&mut self, cs: &mut CS, left: Boolean, right: Boolean) {
-        left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)
-            .unwrap();
+    pub(crate) fn enforce_boolean_eq(
+        &mut self,
+        cs: &mut CS,
+        left: Boolean,
+        right: Boolean,
+    ) -> Result<(), BooleanError> {
+        Ok(left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)?)
     }
 }

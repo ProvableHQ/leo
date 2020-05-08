@@ -1,9 +1,9 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Function, FunctionName,
-    Integer, IntegerType, ParameterModel, ParameterValue, RangeOrExpression, SpreadOrExpression,
-    Statement, Struct, StructField, Type, Variable,
+    Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, FieldElement, Function,
+    FunctionName, InputModel, InputValue, Integer, IntegerType, RangeOrExpression,
+    SpreadOrExpression, Statement, Struct, StructField, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -22,13 +22,34 @@ impl<F: Field + PrimeField> fmt::Debug for Variable<F> {
 
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}", self.to_usize(), self.get_type())
+    }
+}
+
+impl<F: Field + PrimeField> FieldElement<F> {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Integer::U8(ref num) => write!(f, "{}u8", num),
-            Integer::U16(ref num) => write!(f, "{}u16", num),
-            Integer::U32(ref num) => write!(f, "{}u32", num),
-            Integer::U64(ref num) => write!(f, "{}u64", num),
-            Integer::U128(ref num) => write!(f, "{}u128", num),
+            FieldElement::Constant(ref constant) => write!(f, "{}", constant),
+            FieldElement::Allocated(ref option, ref _r1cs_var) => {
+                if option.is_some() {
+                    write!(f, "{}", option.unwrap())
+                } else {
+                    write!(f, "allocated fe")
+                }
+            }
         }
+    }
+}
+
+impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
     }
 }
 
@@ -68,7 +89,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
             Expression::FieldElement(ref fe) => write!(f, "{}", fe),
-            Expression::Boolean(ref bool) => write!(f, "{}", bool),
+            Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
 
             // Number operations
             Expression::Add(ref left, ref right) => write!(f, "{} + {}", left, right),
@@ -273,19 +294,19 @@ impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ParameterModel<F> {
+impl<F: Field + PrimeField> fmt::Display for InputModel<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let visibility = if self.private { "private" } else { "public" };
         write!(f, "{}: {} {}", self.variable, visibility, self._type,)
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ParameterValue<F> {
+impl<F: Field + PrimeField> fmt::Display for InputValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ParameterValue::Integer(ref integer) => write!(f, "{}", integer),
-            ParameterValue::Field(ref field) => write!(f, "{}", field),
-            ParameterValue::Boolean(ref bool) => write!(f, "{}", bool),
+            InputValue::Integer(ref integer) => write!(f, "{}", integer),
+            InputValue::Field(ref field) => write!(f, "{}", field),
+            InputValue::Boolean(ref bool) => write!(f, "{}", bool),
         }
     }
 }
@@ -312,7 +333,7 @@ impl<F: Field + PrimeField> Function<F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.function_name)?;
         let parameters = self
-            .parameters
+            .inputs
             .iter()
             .map(|x| format!("{}", x))
             .collect::<Vec<_>>()

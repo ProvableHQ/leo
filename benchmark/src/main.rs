@@ -1,4 +1,4 @@
-use leo_compiler::{self, ast, errors::CompilerError, ParameterValue, Program};
+use leo_compiler::{self, ast, errors::CompilerError, InputValue, Program};
 
 use from_pest::FromPest;
 use rand::thread_rng;
@@ -20,7 +20,7 @@ use std::{
 #[derive(Clone)]
 pub struct Benchmark<F: Field + PrimeField> {
     program: Program<F>,
-    parameters: Vec<Option<ParameterValue<F>>>,
+    parameters: Vec<Option<InputValue<F>>>,
     _engine: PhantomData<F>,
 }
 
@@ -60,7 +60,7 @@ impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
         let _res =
-            leo_compiler::ConstrainedProgram::generate_constraints(cs, self.program, self.parameters);
+            leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something

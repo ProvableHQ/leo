@@ -1,13 +1,14 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{
-    constraints::ConstrainedInteger,
-    types::{Function, Struct, Type, Variable},
+    errors::ValueError,
+    types::{FieldElement, Function, Struct, Type, Variable},
+    Integer,
 };
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::Variable as R1CSVariable, utilities::boolean::Boolean},
+    gadgets::utilities::boolean::Boolean,
 };
 use std::fmt;
 
@@ -15,29 +16,8 @@ use std::fmt;
 pub struct ConstrainedStructMember<F: Field + PrimeField>(pub Variable<F>, pub ConstrainedValue<F>);
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum FieldElement<F: Field + PrimeField> {
-    Constant(F),
-    Allocated(Option<F>, R1CSVariable),
-}
-
-impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            FieldElement::Constant(ref constant) => write!(f, "{}", constant),
-            FieldElement::Allocated(ref option, ref _r1cs_var) => {
-                if option.is_some() {
-                    write!(f, "{}", option.unwrap())
-                } else {
-                    write!(f, "allocated fe")
-                }
-            }
-        }
-    }
-}
-
-#[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField> {
-    Integer(ConstrainedInteger),
+    Integer(Integer),
     FieldElement(FieldElement<F>),
     Boolean(Boolean),
     Array(Vec<ConstrainedValue<F>>),
@@ -48,21 +28,24 @@ pub enum ConstrainedValue<F: Field + PrimeField> {
 }
 
 impl<F: Field + PrimeField> ConstrainedValue<F> {
-    pub(crate) fn expect_type(&self, _type: &Type<F>) {
+    pub(crate) fn expect_type(&self, _type: &Type<F>) -> Result<(), ValueError> {
         match (self, _type) {
             (ConstrainedValue::Integer(ref integer), Type::IntegerType(ref _type)) => {
-                integer.expect_type(_type)
+                integer.expect_type(_type)?;
             }
             (ConstrainedValue::FieldElement(ref _f), Type::FieldElement) => {}
             (ConstrainedValue::Boolean(ref _b), Type::Boolean) => {}
             (ConstrainedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
                 // check array lengths are equal
                 if arr.len() != *len {
-                    unimplemented!("array length {} != {}", arr.len(), *len)
+                    return Err(ValueError::ArrayLength(format!(
+                        "Expected array {:?} to be length {}",
+                        arr, len
+                    )));
                 }
                 // check each value in array matches
                 for value in arr {
-                    value.expect_type(ty)
+                    value.expect_type(ty)?;
                 }
             }
             (
@@ -70,16 +53,26 @@ impl<F: Field + PrimeField> ConstrainedValue<F> {
                 Type::Struct(ref expected_name),
             ) => {
                 if expected_name != actual_name {
-                    unimplemented!("expected struct name {} got {}", expected_name, actual_name)
+                    return Err(ValueError::StructName(format!(
+                        "Expected struct name {} got {}",
+                        expected_name, actual_name
+                    )));
                 }
             }
             (ConstrainedValue::Return(ref values), ty) => {
                 for value in values {
-                    value.expect_type(ty)
+                    value.expect_type(ty)?;
                 }
             }
-            (value, _type) => unimplemented!("expected type {}, got {}", _type, value),
+            (value, _type) => {
+                return Err(ValueError::TypeError(format!(
+                    "expected type {}, got {}",
+                    _type, value
+                )))
+            }
         }
+
+        Ok(())
     }
 }
 

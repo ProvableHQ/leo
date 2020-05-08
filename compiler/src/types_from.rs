@@ -3,6 +3,10 @@
 use crate::{ast, types, Import, ImportSymbol};
 
 use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::gadgets::utilities::{
+    boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
+    uint8::UInt8,
+};
 use std::{collections::HashMap, marker::PhantomData};
 
 /// pest ast -> types::Variable
@@ -26,21 +30,21 @@ impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Expressio
 impl<'ast> types::Integer {
     pub(crate) fn from(number: ast::Number<'ast>, _type: ast::IntegerType) -> Self {
         match _type {
-            ast::IntegerType::U8Type(_u8) => {
-                types::Integer::U8(number.value.parse::<u8>().expect("unable to parse u8"))
-            }
-            ast::IntegerType::U16Type(_u16) => {
-                types::Integer::U16(number.value.parse::<u16>().expect("unable to parse u16"))
-            }
-            ast::IntegerType::U32Type(_u32) => {
-                types::Integer::U32(number.value.parse::<u32>().expect("unable to parse u32"))
-            }
-            ast::IntegerType::U64Type(_u64) => {
-                types::Integer::U64(number.value.parse::<u64>().expect("unable to parse u64"))
-            }
-            ast::IntegerType::U128Type(_u128) => {
-                types::Integer::U128(number.value.parse::<u128>().expect("unable to parse u128"))
-            }
+            ast::IntegerType::U8Type(_u8) => types::Integer::U8(UInt8::constant(
+                number.value.parse::<u8>().expect("unable to parse u8"),
+            )),
+            ast::IntegerType::U16Type(_u16) => types::Integer::U16(UInt16::constant(
+                number.value.parse::<u16>().expect("unable to parse u16"),
+            )),
+            ast::IntegerType::U32Type(_u32) => types::Integer::U32(UInt32::constant(
+                number.value.parse::<u32>().expect("unable to parse u32"),
+            )),
+            ast::IntegerType::U64Type(_u64) => types::Integer::U64(UInt64::constant(
+                number.value.parse::<u64>().expect("unable to parse u64"),
+            )),
+            ast::IntegerType::U128Type(_u128) => types::Integer::U128(UInt128::constant(
+                number.value.parse::<u128>().expect("unable to parse u128"),
+            )),
         }
     }
 }
@@ -50,13 +54,13 @@ impl<'ast, F: Field + PrimeField> From<ast::Integer<'ast>> for types::Expression
         types::Expression::Integer(match field._type {
             Some(_type) => types::Integer::from(field.number, _type),
             // default integer type is u32
-            None => types::Integer::U32(
+            None => types::Integer::U32(UInt32::constant(
                 field
                     .number
                     .value
                     .parse::<u32>()
                     .expect("unable to parse u32"),
-            ),
+            )),
         })
     }
 }
@@ -78,7 +82,7 @@ impl<'ast, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
                 let to = range.to.map(|to| match types::Expression::<F>::from(to.0) {
                     types::Expression::Integer(number) => number,
                     expression => {
-                        unimplemented!("Range bounds should be intgers, found {}", expression)
+                        unimplemented!("Range bounds should be integers, found {}", expression)
                     }
                 });
 
@@ -95,7 +99,9 @@ impl<'ast, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
 
 impl<'ast, F: Field + PrimeField> From<ast::Field<'ast>> for types::Expression<F> {
     fn from(field: ast::Field<'ast>) -> Self {
-        types::Expression::FieldElement(F::from_str(&field.number.value).unwrap_or_default())
+        types::Expression::FieldElement(types::FieldElement::Constant(
+            F::from_str(&field.number.value).unwrap_or_default(),
+        ))
     }
 }
 
@@ -103,12 +109,12 @@ impl<'ast, F: Field + PrimeField> From<ast::Field<'ast>> for types::Expression<F
 
 impl<'ast, F: Field + PrimeField> From<ast::Boolean<'ast>> for types::Expression<F> {
     fn from(boolean: ast::Boolean<'ast>) -> Self {
-        types::Expression::Boolean(
+        types::Expression::Boolean(Boolean::Constant(
             boolean
                 .value
                 .parse::<bool>()
                 .expect("unable to parse boolean"),
-        )
+        ))
     }
 }
 
@@ -652,7 +658,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Struct<'ast>> for types::Struct<F> {
 
 /// pest ast -> function types::Parameters
 
-impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::ParameterModel<F> {
+impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::InputModel<F> {
     fn from(parameter: ast::Parameter<'ast>) -> Self {
         let _type = types::Type::from(parameter._type);
         let variable = types::Variable::from(parameter.variable);
@@ -662,13 +668,13 @@ impl<'ast, F: Field + PrimeField> From<ast::Parameter<'ast>> for types::Paramete
                 ast::Visibility::Private(_) => true,
                 ast::Visibility::Public(_) => false,
             };
-            types::ParameterModel {
+            types::InputModel {
                 private,
                 _type,
                 variable,
             }
         } else {
-            types::ParameterModel {
+            types::InputModel {
                 private: true,
                 _type,
                 variable,
@@ -691,7 +697,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<
         let parameters = function_definition
             .parameters
             .into_iter()
-            .map(|parameter| types::ParameterModel::from(parameter))
+            .map(|parameter| types::InputModel::from(parameter))
             .collect();
         let returns = function_definition
             .returns
@@ -706,7 +712,7 @@ impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<
 
         types::Function {
             function_name,
-            parameters,
+            inputs: parameters,
             returns,
             statements,
         }
@@ -766,7 +772,7 @@ impl<'ast, F: Field + PrimeField> types::Program<F> {
         });
 
         if let Some(main_function) = functions.get(&types::FunctionName("main".into())) {
-            num_parameters = main_function.parameters.len();
+            num_parameters = main_function.inputs.len();
         }
 
         types::Program {

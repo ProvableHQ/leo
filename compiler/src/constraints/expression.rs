@@ -5,6 +5,7 @@ use crate::{
         new_scope_from_variable, new_variable_from_variable, ConstrainedProgram,
         ConstrainedStructMember, ConstrainedValue,
     },
+    errors::ExpressionError,
     types::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable},
 };
 
@@ -19,19 +20,20 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         scope: String,
         unresolved_variable: Variable<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         // Evaluate the variable name in the current function scope
         let variable_name = new_scope_from_variable(scope, &unresolved_variable);
 
         if self.contains_name(&variable_name) {
             // Reassigning variable to another variable
-            self.get_mut(&variable_name).unwrap().clone()
+            Ok(self.get_mut(&variable_name).unwrap().clone())
         } else if self.contains_variable(&unresolved_variable) {
             // Check global scope (function and struct names)
-            self.get_mut_variable(&unresolved_variable).unwrap().clone()
+            Ok(self.get_mut_variable(&unresolved_variable).unwrap().clone())
         } else {
-            println!("searched for {}", variable_name);
-            unimplemented!("variable declaration \"{}\" not found", unresolved_variable)
+            Err(ExpressionError::UndefinedVariable(
+                unresolved_variable.to_string(),
+            ))
         }
     }
 
@@ -41,16 +43,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_add(cs, num_1, num_2)
+                Self::enforce_integer_add(cs, num_1, num_2)?
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_add(cs, fe_1, fe_2)
+                self.enforce_field_add(cs, fe_1, fe_2)?
             }
-            (val_1, val_2) => unimplemented!("cannot add {} + {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} + {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
 
     fn enforce_sub_expression(
@@ -58,16 +65,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_sub(cs, num_1, num_2)
+                Self::enforce_integer_sub(cs, num_1, num_2)?
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_sub(cs, fe_1, fe_2)
+                self.enforce_field_sub(cs, fe_1, fe_2)?
             }
-            (val_1, val_2) => unimplemented!("cannot subtract {} - {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} - {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
 
     fn enforce_mul_expression(
@@ -75,16 +87,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_mul(cs, num_1, num_2)
+                Self::enforce_integer_mul(cs, num_1, num_2)?
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_mul(cs, fe_1, fe_2)
+                self.enforce_field_mul(cs, fe_1, fe_2)?
             }
-            (val_1, val_2) => unimplemented!("cannot multiply {} * {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} * {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
 
     fn enforce_div_expression(
@@ -92,35 +109,45 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_div(cs, num_1, num_2)
+                Self::enforce_integer_div(cs, num_1, num_2)?
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_div(cs, fe_1, fe_2)
+                self.enforce_field_div(cs, fe_1, fe_2)?
             }
-            (val_1, val_2) => unimplemented!("cannot divide {} / {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} / {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
     fn enforce_pow_expression(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_pow(cs, num_1, num_2)
+                Self::enforce_integer_pow(cs, num_1, num_2)?
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::Integer(num_2)) => {
-                self.enforce_field_pow(cs, fe_1, num_2)
+                self.enforce_field_pow(cs, fe_1, num_2)?
             }
             (_, ConstrainedValue::FieldElement(num_2)) => {
-                unimplemented!("exponent power must be an integer, got field {}", num_2)
+                return Err(ExpressionError::InvalidExponent(num_2.to_string()))
             }
-            (val_1, val_2) => unimplemented!("cannot enforce exponentiation {} * {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} * {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
 
     /// Evaluate Boolean operations
@@ -128,35 +155,39 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
-        match (left, right) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        Ok(match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Self::boolean_eq(bool_1, bool_2)
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::evaluate_integer_eq(num_1, num_2)
+                Self::evaluate_integer_eq(num_1, num_2)?
             }
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_eq(fe_1, fe_2)
             // }
-            (val_1, val_2) => unimplemented!("cannot evaluate {} == {}", val_1, val_2),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::IncompatibleTypes(format!(
+                    "{} == {}",
+                    val_1, val_2,
+                )))
+            }
+        })
     }
 
     fn evaluate_geq_expression(
         &mut self,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_geq(fe_1, fe_2)
             // }
-            (val_1, val_2) => unimplemented!(
-                "cannot evaluate {} >= {}, values must be fields",
-                val_1,
-                val_2
-            ),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
+                "{} >= {}, values must be fields",
+                val_1, val_2
+            ))),
         }
     }
 
@@ -164,16 +195,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_gt(fe_1, fe_2)
             // }
-            (val_1, val_2) => unimplemented!(
-                "cannot evaluate {} > {}, values must be fields",
-                val_1,
-                val_2
-            ),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
+                "{} > {}, values must be fields",
+                val_1, val_2
+            ))),
         }
     }
 
@@ -181,16 +211,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_leq(fe_1, fe_2)
             // }
-            (val_1, val_2) => unimplemented!(
-                "cannot evaluate {} <= {}, values must be fields",
-                val_1,
-                val_2
-            ),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
+                "{} <= {}, values must be fields",
+                val_1, val_2
+            ))),
         }
     }
 
@@ -198,16 +227,15 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         &mut self,
         left: ConstrainedValue<F>,
         right: ConstrainedValue<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_lt(fe_1, fe_2)
             // }
-            (val_1, val_2) => unimplemented!(
-                "cannot evaluate {} < {}, values must be fields",
-                val_1,
-                val_2
-            ),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
+                "{} < {}, values must be fields",
+                val_1, val_2,
+            ))),
         }
     }
 
@@ -218,37 +246,36 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         file_scope: String,
         function_scope: String,
         array: Vec<Box<SpreadOrExpression<F>>>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let mut result = vec![];
-        array.into_iter().for_each(|element| match *element {
-            SpreadOrExpression::Spread(spread) => match spread {
-                Expression::Variable(variable) => {
-                    let array_name = new_scope_from_variable(function_scope.clone(), &variable);
-                    match self.get(&array_name) {
-                        Some(value) => match value {
-                            ConstrainedValue::Array(array) => result.extend(array.clone()),
-                            value => {
-                                unimplemented!("spreads only implemented for arrays, got {}", value)
-                            }
-                        },
-                        None => unimplemented!(
-                            "cannot copy elements from array that does not exist {}",
-                            variable.name
-                        ),
+        for element in array.into_iter() {
+            match *element {
+                SpreadOrExpression::Spread(spread) => match spread {
+                    Expression::Variable(variable) => {
+                        let array_name = new_scope_from_variable(function_scope.clone(), &variable);
+                        match self.get(&array_name) {
+                            Some(value) => match value {
+                                ConstrainedValue::Array(array) => result.extend(array.clone()),
+                                value => {
+                                    return Err(ExpressionError::InvalidSpread(value.to_string()));
+                                }
+                            },
+                            None => return Err(ExpressionError::UndefinedArray(variable.name)),
+                        }
                     }
+                    value => return Err(ExpressionError::InvalidSpread(value.to_string())),
+                },
+                SpreadOrExpression::Expression(expression) => {
+                    result.push(self.enforce_expression(
+                        cs,
+                        file_scope.clone(),
+                        function_scope.clone(),
+                        expression,
+                    )?);
                 }
-                value => unimplemented!("spreads only implemented for arrays, got {}", value),
-            },
-            SpreadOrExpression::Expression(expression) => {
-                result.push(self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expression,
-                ));
             }
-        });
-        ConstrainedValue::Array(result)
+        }
+        Ok(ConstrainedValue::Array(result))
     }
 
     pub(crate) fn enforce_index(
@@ -257,10 +284,10 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         file_scope: String,
         function_scope: String,
         index: Expression<F>,
-    ) -> usize {
-        match self.enforce_expression(cs, file_scope, function_scope, index) {
-            ConstrainedValue::Integer(number) => number.get_value() as usize,
-            value => unimplemented!("From index must resolve to an integer, got {}", value),
+    ) -> Result<usize, ExpressionError> {
+        match self.enforce_expression(cs, file_scope, function_scope, index)? {
+            ConstrainedValue::Integer(number) => Ok(number.to_usize()),
+            value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
     }
 
@@ -271,8 +298,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         function_scope: String,
         array: Box<Expression<F>>,
         index: RangeOrExpression<F>,
-    ) -> ConstrainedValue<F> {
-        match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *array) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *array)? {
             ConstrainedValue::Array(array) => {
                 match index {
                     RangeOrExpression::Range(from, to) => {
@@ -284,16 +311,18 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                             Some(to_index) => to_index.to_usize(),
                             None => array.len(), // Array slice ends at array length
                         };
-                        ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned())
+                        Ok(ConstrainedValue::Array(
+                            array[from_resolved..to_resolved].to_owned(),
+                        ))
                     }
                     RangeOrExpression::Expression(index) => {
                         let index_resolved =
-                            self.enforce_index(cs, file_scope, function_scope, index);
-                        array[index_resolved].to_owned()
+                            self.enforce_index(cs, file_scope, function_scope, index)?;
+                        Ok(array[index_resolved].to_owned())
                     }
                 }
             }
-            value => unimplemented!("Cannot access element of untyped array {}", value),
+            value => Err(ExpressionError::InvalidArrayAccess(value.to_string())),
         }
     }
 
@@ -304,42 +333,42 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         function_scope: String,
         variable: Variable<F>,
         members: Vec<StructMember<F>>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let struct_name = new_variable_from_variable(file_scope.clone(), &variable);
 
-        if let Some(resolved_value) = self.get_mut_variable(&struct_name) {
-            match resolved_value {
-                ConstrainedValue::StructDefinition(struct_definition) => {
-                    let resolved_members = struct_definition
-                        .fields
-                        .clone()
-                        .iter()
-                        .zip(members.clone().into_iter())
-                        .map(|(field, member)| {
-                            if field.variable != member.variable {
-                                unimplemented!("struct field variables do not match")
-                            }
-                            // Resolve and enforce struct fields
-                            let member_value = self.enforce_expression(
-                                cs,
-                                file_scope.clone(),
-                                function_scope.clone(),
-                                member.expression,
-                            );
-
-                            ConstrainedStructMember(member.variable, member_value)
-                        })
-                        .collect();
-
-                    ConstrainedValue::StructExpression(variable, resolved_members)
+        if let Some(ConstrainedValue::StructDefinition(struct_definition)) =
+            self.get_mut_variable(&struct_name)
+        {
+            let mut resolved_members = vec![];
+            for (field, member) in struct_definition
+                .fields
+                .clone()
+                .into_iter()
+                .zip(members.clone().into_iter())
+            {
+                if field.variable != member.variable {
+                    return Err(ExpressionError::InvalidStructField(
+                        field.variable.name,
+                        member.variable.name,
+                    ));
                 }
-                _ => unimplemented!("Inline struct type is not defined as a struct"),
+                // Resolve and enforce struct fields
+                let member_value = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    member.expression,
+                )?;
+
+                resolved_members.push(ConstrainedStructMember(member.variable, member_value))
             }
+
+            Ok(ConstrainedValue::StructExpression(
+                variable,
+                resolved_members,
+            ))
         } else {
-            unimplemented!(
-                "Struct {} must be declared before it is used in an inline expression",
-                struct_name
-            )
+            Err(ExpressionError::UndefinedStruct(variable.to_string()))
         }
     }
 
@@ -350,16 +379,18 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         function_scope: String,
         struct_variable: Box<Expression<F>>,
         struct_member: Variable<F>,
-    ) -> ConstrainedValue<F> {
-        match self.enforce_expression(cs, file_scope, function_scope, *struct_variable) {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
+        match self.enforce_expression(cs, file_scope, function_scope, *struct_variable)? {
             ConstrainedValue::StructExpression(_name, members) => {
                 let matched_member = members.into_iter().find(|member| member.0 == struct_member);
                 match matched_member {
-                    Some(member) => member.1,
-                    None => unimplemented!("Cannot access struct member {}", struct_member.name),
+                    Some(member) => Ok(member.1),
+                    None => Err(ExpressionError::UndefinedStructField(
+                        struct_member.to_string(),
+                    )),
                 }
             }
-            value => unimplemented!("Cannot access element of untyped struct {}", value),
+            value => Err(ExpressionError::InvalidStructAccess(value.to_string())),
         }
     }
 
@@ -370,31 +401,23 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         function_scope: String,
         function: Variable<F>,
         arguments: Vec<Expression<F>>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let function_name = new_variable_from_variable(file_scope.clone(), &function);
-        match self.get_mut_variable(&function_name) {
-            Some(value) => match value.clone() {
-                ConstrainedValue::Function(function) => {
-                    // this function call is inline so we unwrap the return value
-                    match self.enforce_function(cs, file_scope, function_scope, function, arguments)
-                    {
-                        ConstrainedValue::Return(return_values) => {
-                            if return_values.len() == 1 {
-                                return_values[0].clone()
-                            } else {
-                                ConstrainedValue::Return(return_values)
-                            }
-                        }
-                        value => unimplemented!(
-                            "function {} has no return value {}",
-                            function_name,
-                            value
-                        ),
-                    }
+        let function_call = match self.get(&function_name.to_string()) {
+            Some(ConstrainedValue::Function(function)) => function.clone(),
+            _ => return Err(ExpressionError::UndefinedFunction(function.to_string())),
+        };
+
+        match self.enforce_function(cs, file_scope, function_scope, function_call, arguments) {
+            Ok(ConstrainedValue::Return(return_values)) => {
+                if return_values.len() == 1 {
+                    Ok(return_values[0].clone())
+                } else {
+                    Ok(ConstrainedValue::Return(return_values))
                 }
-                value => unimplemented!("Cannot make function call to {}", value),
-            },
-            None => unimplemented!("Cannot call unknown function {}", function_name),
+            }
+            Ok(_) => Err(ExpressionError::FunctionDidNotReturn(function.to_string())),
+            Err(error) => Err(ExpressionError::from(Box::new(error))),
         }
     }
 
@@ -404,7 +427,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         file_scope: String,
         function_scope: String,
         expression: Expression<F>,
-    ) -> ConstrainedValue<F> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match expression {
             // Variables
             Expression::Variable(unresolved_variable) => {
@@ -412,114 +435,162 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             }
 
             // Values
-            Expression::Integer(integer) => Self::get_integer_constant(integer),
-            Expression::FieldElement(fe) => Self::get_field_element_constant(fe),
-            Expression::Boolean(bool) => Self::get_boolean_constant(bool),
+            Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
+            Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
+            Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
 
             // Binary operations
             Expression::Add(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
                 self.enforce_add_expression(cs, resolved_left, resolved_right)
             }
             Expression::Sub(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
                 self.enforce_sub_expression(cs, resolved_left, resolved_right)
             }
             Expression::Mul(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
                 self.enforce_mul_expression(cs, resolved_left, resolved_right)
             }
             Expression::Div(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
                 self.enforce_div_expression(cs, resolved_left, resolved_right)
             }
             Expression::Pow(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
                 self.enforce_pow_expression(cs, resolved_left, resolved_right)
             }
 
             // Boolean operations
-            Expression::Not(expression) => Self::evaluate_not(self.enforce_expression(
+            Expression::Not(expression) => Ok(Self::evaluate_not(self.enforce_expression(
                 cs,
                 file_scope,
                 function_scope,
                 *expression,
-            )),
+            )?)?),
             Expression::Or(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.enforce_or(cs, resolved_left, resolved_right)
+                Ok(self.enforce_or(cs, resolved_left, resolved_right)?)
             }
             Expression::And(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.enforce_and(cs, resolved_left, resolved_right)
+                Ok(self.enforce_and(cs, resolved_left, resolved_right)?)
             }
             Expression::Eq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.evaluate_eq_expression(resolved_left, resolved_right)
+                Ok(self.evaluate_eq_expression(resolved_left, resolved_right)?)
             }
             Expression::Geq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.evaluate_geq_expression(resolved_left, resolved_right)
+                Ok(self.evaluate_geq_expression(resolved_left, resolved_right)?)
             }
             Expression::Gt(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.evaluate_gt_expression(resolved_left, resolved_right)
+                Ok(self.evaluate_gt_expression(resolved_left, resolved_right)?)
             }
             Expression::Leq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.evaluate_leq_expression(resolved_left, resolved_right)
+                Ok(self.evaluate_leq_expression(resolved_left, resolved_right)?)
             }
             Expression::Lt(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *right);
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    *right,
+                )?;
 
-                self.evaluate_lt_expression(resolved_left, resolved_right)
+                Ok(self.evaluate_lt_expression(resolved_left, resolved_right)?)
             }
 
             // Conditionals
@@ -529,9 +600,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                     file_scope.clone(),
                     function_scope.clone(),
                     *first,
-                ) {
+                )? {
                     ConstrainedValue::Boolean(resolved) => resolved,
-                    _ => unimplemented!("if else conditional must resolve to boolean"),
+                    value => return Err(ExpressionError::IfElseConditional(value.to_string())),
                 };
 
                 if resolved_first.eq(&Boolean::Constant(true)) {
@@ -569,7 +640,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                 function_scope,
                 function,
                 arguments,
-            ), // _ => unimplemented!(),
+            ),
         }
     }
 }

@@ -1,9 +1,16 @@
 //! A typed Leo program consists of import, struct, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::Import;
+use crate::{errors::IntegerError, Import};
 
 use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::gadgets::{
+    r1cs::Variable as R1CSVariable,
+    utilities::{
+        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
+        uint8::UInt8,
+    },
+};
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
@@ -17,24 +24,52 @@ pub struct Variable<F: Field + PrimeField> {
 /// An integer type enum wrapping the integer value. Used only in expressions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Integer {
-    U8(u8),
-    U16(u16),
-    U32(u32),
-    U64(u64),
-    U128(u128),
+    U8(UInt8),
+    U16(UInt16),
+    U32(UInt32),
+    U64(UInt64),
+    U128(UInt128),
 }
 
 impl Integer {
     pub fn to_usize(&self) -> usize {
-        match *self {
-            Integer::U8(num) => num as usize,
-            Integer::U32(num) => num as usize,
-            Integer::U16(num) => num as usize,
-            Integer::U64(num) => num as usize,
-            Integer::U128(num) => num as usize,
-            // U64(u64)
+        match self {
+            Integer::U8(u8) => u8.value.unwrap() as usize,
+            Integer::U16(u16) => u16.value.unwrap() as usize,
+            Integer::U32(u32) => u32.value.unwrap() as usize,
+            Integer::U64(u64) => u64.value.unwrap() as usize,
+            Integer::U128(u128) => u128.value.unwrap() as usize,
         }
     }
+
+    pub(crate) fn get_type(&self) -> IntegerType {
+        match self {
+            Integer::U8(_u8) => IntegerType::U8,
+            Integer::U16(_u16) => IntegerType::U16,
+            Integer::U32(_u32) => IntegerType::U32,
+            Integer::U64(_u64) => IntegerType::U64,
+            Integer::U128(_u128) => IntegerType::U128,
+        }
+    }
+
+    pub(crate) fn expect_type(&self, integer_type: &IntegerType) -> Result<(), IntegerError> {
+        if self.get_type() != *integer_type {
+            unimplemented!(
+                "expected integer type {}, got {}",
+                self.get_type(),
+                integer_type
+            )
+        }
+
+        Ok(())
+    }
+}
+
+/// A constant or allocated element in the field
+#[derive(Clone, PartialEq, Eq)]
+pub enum FieldElement<F: Field + PrimeField> {
+    Constant(F),
+    Allocated(Option<F>, R1CSVariable),
 }
 
 /// Range or expression enum
@@ -59,8 +94,8 @@ pub enum Expression<F: Field + PrimeField> {
 
     // Values
     Integer(Integer),
-    FieldElement(F),
-    Boolean(bool),
+    FieldElement(FieldElement<F>),
+    Boolean(Boolean),
 
     // Number operations
     Add(Box<Expression<F>>, Box<Expression<F>>),
@@ -170,14 +205,14 @@ pub struct Struct<F: Field + PrimeField> {
 /// Function parameters
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ParameterModel<F: Field + PrimeField> {
+pub struct InputModel<F: Field + PrimeField> {
     pub private: bool,
     pub _type: Type<F>,
     pub variable: Variable<F>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ParameterValue<F: Field + PrimeField> {
+pub enum InputValue<F: Field + PrimeField> {
     Integer(usize),
     Field(F),
     Boolean(bool),
@@ -190,7 +225,7 @@ pub struct FunctionName(pub String);
 #[derive(Clone, PartialEq, Eq)]
 pub struct Function<F: Field + PrimeField> {
     pub function_name: FunctionName,
-    pub parameters: Vec<ParameterModel<F>>,
+    pub inputs: Vec<InputModel<F>>,
     pub returns: Vec<Type<F>>,
     pub statements: Vec<Statement<F>>,
 }
