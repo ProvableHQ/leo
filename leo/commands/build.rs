@@ -88,8 +88,8 @@ impl CLI for BuildCommand {
             //     bt: vec![],
             //     ct: vec![],
             // };
-            program.evaluate_program::<KeypairAssembly::<Bls12_377>>()?;
         }
+        program.evaluate_program::<KeypairAssembly::<Bls12_377>>()?;
 
         log::info!("Compiled program in {:?}", main_file_path);
 
