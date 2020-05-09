@@ -1,8 +1,8 @@
-use crate::{cli::*, cli_types::*};
 use crate::directories::{InputsDirectory, SourceDirectory};
 use crate::errors::{CLIError, InitError};
 use crate::files::MainFile;
 use crate::manifest::Manifest;
+use crate::{cli::*, cli_types::*};
 
 use clap::ArgMatches;
 use std::env::current_dir;

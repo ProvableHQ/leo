@@ -17,7 +17,9 @@ pub struct MainFile {
 
 impl MainFile {
     pub fn new(package_name: &str) -> Self {
-        Self { package_name: package_name.to_string() }
+        Self {
+            package_name: package_name.to_string(),
+        }
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
@@ -48,7 +50,7 @@ impl MainFile {
         format!(
             r#"// The '{}' main function.
 function main() -> (u32) {{
-    a = 1 + 1
+    a = 1 + 1;
     return a
 }}
 "#,

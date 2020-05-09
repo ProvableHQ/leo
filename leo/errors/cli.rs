@@ -2,12 +2,14 @@ use crate::errors::*;
 
 #[derive(Debug, Fail)]
 pub enum CLIError {
-
     #[fail(display = "{}", _0)]
     BuildError(BuildError),
 
     #[fail(display = "{}: {}", _0, _1)]
     Crate(&'static str, String),
+
+    #[fail(display = "{}", _0)]
+    ChecksumFileError(ChecksumFileError),
 
     #[fail(display = "{}", _0)]
     InitError(InitError),
@@ -28,16 +30,30 @@ pub enum CLIError {
     OutputsDirectoryError(OutputsDirectoryError),
 
     #[fail(display = "{}", _0)]
+    ProofFileError(ProofFileError),
+
+    #[fail(display = "{}", _0)]
+    ProvingKeyFileError(ProvingKeyFileError),
+
+    #[fail(display = "{}", _0)]
     RunError(RunError),
 
     #[fail(display = "{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
 
+    #[fail(display = "{}", _0)]
+    VerificationKeyFileError(VerificationKeyFileError),
 }
 
 impl From<BuildError> for CLIError {
     fn from(error: BuildError) -> Self {
         CLIError::BuildError(error)
+    }
+}
+
+impl From<ChecksumFileError> for CLIError {
+    fn from(error: ChecksumFileError) -> Self {
+        CLIError::ChecksumFileError(error)
     }
 }
 
@@ -77,6 +93,18 @@ impl From<OutputsDirectoryError> for CLIError {
     }
 }
 
+impl From<ProofFileError> for CLIError {
+    fn from(error: ProofFileError) -> Self {
+        CLIError::ProofFileError(error)
+    }
+}
+
+impl From<ProvingKeyFileError> for CLIError {
+    fn from(error: ProvingKeyFileError) -> Self {
+        CLIError::ProvingKeyFileError(error)
+    }
+}
+
 impl From<RunError> for CLIError {
     fn from(error: RunError) -> Self {
         CLIError::RunError(error)
@@ -86,6 +114,18 @@ impl From<RunError> for CLIError {
 impl From<SourceDirectoryError> for CLIError {
     fn from(error: SourceDirectoryError) -> Self {
         CLIError::SourceDirectoryError(error)
+    }
+}
+
+impl From<VerificationKeyFileError> for CLIError {
+    fn from(error: VerificationKeyFileError) -> Self {
+        CLIError::VerificationKeyFileError(error)
+    }
+}
+
+impl From<leo_compiler::errors::CompilerError> for CLIError {
+    fn from(error: leo_compiler::errors::CompilerError) -> Self {
+        CLIError::Crate("leo_compiler", format!("{}", error))
     }
 }
 

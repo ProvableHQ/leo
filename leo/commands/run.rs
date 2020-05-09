@@ -1,11 +1,10 @@
-use crate::{cli::*, cli_types::*};
-use crate::commands::SetupCommand;
+use crate::commands::{SetupCommand, ProveCommand};
 use crate::errors::CLIError;
+use crate::{cli::*, cli_types::*};
 
-use snarkos_algorithms::snark::{create_random_proof, verify_proof};
+use snarkos_algorithms::snark::verify_proof;
 
 use clap::ArgMatches;
-use rand::thread_rng;
 use std::time::{Duration, Instant};
 
 #[derive(Debug)]
@@ -29,17 +28,10 @@ impl CLI for RunCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (circuit, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+        let (_program, _parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+        let proof = ProveCommand::output(options)?;
 
-        let rng = &mut thread_rng();
-
-        let mut proving = Duration::new(0, 0);
         let mut verifying = Duration::new(0, 0);
-
-        let start = Instant::now();
-        let proof = create_random_proof(circuit, &parameters, rng).unwrap();
-
-        proving += start.elapsed();
 
         // let _inputs: Vec<_> = [1u32; 1].to_vec();
 
@@ -50,7 +42,6 @@ impl CLI for RunCommand {
         verifying += start.elapsed();
 
         println!(" ");
-        println!("  Prover time     : {:?} milliseconds", proving.as_millis());
         println!(
             "  Verifier time   : {:?} milliseconds",
             verifying.as_millis()

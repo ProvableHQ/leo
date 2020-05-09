@@ -18,10 +18,7 @@ pub trait CLI {
     fn new<'a, 'b>() -> App<'a, 'b> {
         let arguments = &Self::ARGUMENTS
             .iter()
-            .map(|a| Arg::with_name(a.0)
-                .help(a.1)
-                .required(a.2)
-                .index(a.3))
+            .map(|a| Arg::with_name(a.0).help(a.1).required(a.2).index(a.3))
             .collect::<Vec<Arg<'static, 'static>>>();
         let flags = &Self::FLAGS
             .iter()
@@ -34,7 +31,9 @@ pub trait CLI {
                     .conflicts_with_all(a.1)
                     .possible_values(a.2)
                     .requires_all(a.3),
-                false => Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
+                false => Arg::from_usage(a.0)
+                    .conflicts_with_all(a.1)
+                    .requires_all(a.3),
             })
             .collect::<Vec<Arg<'static, 'static>>>();
         let subcommands = Self::SUBCOMMANDS
@@ -49,7 +48,9 @@ pub trait CLI {
                                     .conflicts_with_all(a.1)
                                     .possible_values(a.2)
                                     .requires_all(a.3),
-                                false => Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
+                                false => Arg::from_usage(a.0)
+                                    .conflicts_with_all(a.1)
+                                    .requires_all(a.3),
                             })
                             .collect::<Vec<Arg<'static, 'static>>>(),
                     )

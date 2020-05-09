@@ -1,8 +1,4 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
-//!
-//! @file zokrates_program.rs
-//! @author Howard Wu <howard@aleo.org>
-//! @date 2020
 
 use from_pest::{ConversionError, FromPest, Void};
 use pest::{
@@ -89,31 +85,89 @@ pub enum BinaryOperator {
     Pow,
 }
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assign))]
+pub struct Assign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_add_assign))]
+pub struct AddAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_sub_assign))]
+pub struct SubAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_mul_assign))]
+pub struct MulAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_div_assign))]
+pub struct DivAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_pow_assign))]
+pub struct PowAssign {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_assign))]
+pub enum OperationAssign {
+    Assign(Assign),
+    AddAssign(AddAssign),
+    SubAssign(SubAssign),
+    MulAssign(MulAssign),
+    DivAssign(DivAssign),
+    PowAssign(PowAssign),
+}
+
 // Types
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_u32))]
-pub struct U32Type<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
+#[pest_ast(rule(Rule::type_u8))]
+pub struct U8Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u16))]
+pub struct U16Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u32))]
+pub struct U32Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u64))]
+pub struct U64Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u128))]
+pub struct U128Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_integer))]
+pub enum IntegerType {
+    U8Type(U8Type),
+    U16Type(U16Type),
+    U32Type(U32Type),
+    U64Type(U64Type),
+    U128Type(U128Type),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_field))]
+#[pest_ast(rule(Rule::type_field))]
 pub struct FieldType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_bool))]
+#[pest_ast(rule(Rule::type_bool))]
 pub struct BooleanType<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_struct))]
+#[pest_ast(rule(Rule::type_struct))]
 pub struct StructType<'ast> {
     pub variable: Variable<'ast>,
     #[pest_ast(outer())]
@@ -121,31 +175,31 @@ pub struct StructType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_basic))]
+#[pest_ast(rule(Rule::type_basic))]
 pub enum BasicType<'ast> {
-    U32(U32Type<'ast>),
+    Integer(IntegerType),
     Field(FieldType<'ast>),
     Boolean(BooleanType<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_basic_or_struct))]
+#[pest_ast(rule(Rule::type_basic_or_struct))]
 pub enum BasicOrStructType<'ast> {
     Struct(StructType<'ast>),
     Basic(BasicType<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty_array))]
+#[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub ty: BasicType<'ast>,
+    pub _type: BasicType<'ast>,
     pub count: Value<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::ty))]
+#[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
     Basic(BasicType<'ast>),
     Array(ArrayType<'ast>),
@@ -155,9 +209,9 @@ pub enum Type<'ast> {
 impl<'ast> fmt::Display for Type<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::Basic(ref _ty) => write!(f, "basic"),
-            Type::Array(ref _ty) => write!(f, "array"),
-            Type::Struct(ref _ty) => write!(f, "struct"),
+            Type::Basic(ref _type) => write!(f, "basic"),
+            Type::Array(ref _type) => write!(f, "array"),
+            Type::Struct(ref _type) => write!(f, "struct"),
         }
     }
 }
@@ -179,15 +233,15 @@ impl<'ast> fmt::Display for Number<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_u32))]
-pub struct U32<'ast> {
+#[pest_ast(rule(Rule::value_integer))]
+pub struct Integer<'ast> {
     pub number: Number<'ast>,
-    pub ty: Option<U32Type<'ast>>,
+    pub _type: Option<IntegerType>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for U32<'ast> {
+impl<'ast> fmt::Display for Integer<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.number)
     }
@@ -197,7 +251,7 @@ impl<'ast> fmt::Display for U32<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub ty: FieldType<'ast>,
+    pub _type: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -226,15 +280,15 @@ impl<'ast> fmt::Display for Boolean<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value))]
 pub enum Value<'ast> {
+    Integer(Integer<'ast>),
     Field(Field<'ast>),
     Boolean(Boolean<'ast>),
-    U32(U32<'ast>),
 }
 
 impl<'ast> Value<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
-            Value::U32(value) => &value.span,
+            Value::Integer(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Boolean(value) => &value.span,
         }
@@ -244,7 +298,7 @@ impl<'ast> Value<'ast> {
 impl<'ast> fmt::Display for Value<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Value::U32(ref value) => write!(f, "{}", value),
+            Value::Integer(ref value) => write!(f, "{}", value),
             Value::Field(ref value) => write!(f, "{}", value),
             Value::Boolean(ref value) => write!(f, "{}", value),
         }
@@ -271,7 +325,7 @@ impl<'ast> fmt::Display for Variable<'ast> {
 #[derive(Debug, FromPest, PartialEq, Clone)]
 #[pest_ast(rule(Rule::optionally_typed_variable))]
 pub struct OptionallyTypedVariable<'ast> {
-    pub ty: Option<Type<'ast>>,
+    pub _type: Option<Type<'ast>>,
     pub id: Variable<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -464,8 +518,8 @@ pub struct ArrayInitializerExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::struct_field))]
 pub struct StructField<'ast> {
-    pub ty: Type<'ast>,
     pub variable: Variable<'ast>,
+    pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -512,7 +566,6 @@ pub struct NotExpression<'ast> {
 // #[pest_ast(rule(Rule::expression_increment))]
 // pub struct IncrementExpression<'ast> {
 //     pub expression: Box<Expression<'ast>>,
-//     pub operation: Increment<'ast>,
 //     #[pest_ast(outer())]
 //     pub span: Span<'ast>,
 // }
@@ -521,7 +574,6 @@ pub struct NotExpression<'ast> {
 // #[pest_ast(rule(Rule::expression_decrement))]
 // pub struct DecrementExpression<'ast> {
 //     pub expression: Box<Expression<'ast>>,
-//     pub operation: Decrement<'ast>,
 //     #[pest_ast(outer())]
 //     pub span: Span<'ast>,
 // }
@@ -618,7 +670,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
             }
             Expression::Ternary(ref expression) => write!(
                 f,
-                "if {} then {} else {} fi",
+                "if {} ? {} : {}",
                 expression.first, expression.second, expression.third
             ),
             Expression::ArrayInline(ref expression) => {
@@ -700,25 +752,25 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 },
                 // Rule::expression_increment => {
                 //     println!("expression increment");
-                //     // let span = next.as_span();
-                //     // let mut inner = next.into_inner();
-                //     // let expression = parse_term(inner.next().unwrap());
+                //     let span = next.as_span();
+                //     let mut inner = next.into_inner();
+                //     let expression = parse_term(inner.next().unwrap());
                 //     // let operation = match inner.next().unwrap().as_rule() {
                 //     //     Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                 //     //     rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
                 //     // };
-                //     // Expression::Increment(IncrementExpression { operation, expression, span })
+                //     Expression::Increment(IncrementExpression { expression, span })
                 // },
                 // Rule::expression_decrement => {
                 //     println!("expression decrement");
-                //     // let span = next.as_span();
-                //     // let mut inner = next.into_inner();
-                //     // let expression = parse_term(inner.next().unwrap());
+                //     let span = next.as_span();
+                //     let mut inner = next.into_inner();
+                //     let expression = parse_term(inner.next().unwrap());
                 //     // let operation = match inner.next().unwrap().as_rule() {
                 //     //     Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                 //     //     rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
                 //     // };
-                //     // Expression::Decrement(DecrementExpression { operation, expression, span })
+                //     Expression::Decrement(DecrementExpression { expression, span })
                 // },
                 Rule::expression_postfix => {
                     Expression::Postfix(
@@ -806,6 +858,23 @@ pub struct ReturnStatement<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::conditional_nested_or_end))]
+pub enum ConditionalNestedOrEnd<'ast> {
+    Nested(Box<ConditionalStatement<'ast>>),
+    End(Vec<Statement<'ast>>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_conditional))]
+pub struct ConditionalStatement<'ast> {
+    pub condition: Expression<'ast>,
+    pub statements: Vec<Statement<'ast>>,
+    pub next: Option<ConditionalNestedOrEnd<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_for))]
 pub struct ForStatement<'ast> {
     pub index: Variable<'ast>,
@@ -829,8 +898,8 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
-    pub ty: Type<'ast>,
     pub variable: Variable<'ast>,
+    pub _type: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -840,6 +909,30 @@ pub struct DefinitionStatement<'ast> {
 #[pest_ast(rule(Rule::statement_assign))]
 pub struct AssignStatement<'ast> {
     pub assignee: Assignee<'ast>,
+    pub assign: OperationAssign,
+    pub expression: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assert_eq))]
+pub struct AssertEq<'ast> {
+    pub left: Expression<'ast>,
+    pub right: Expression<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_assert))]
+pub enum AssertStatement<'ast> {
+    AssertEq(AssertEq<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::statement_expression))]
+pub struct ExpressionStatement<'ast> {
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -849,10 +942,13 @@ pub struct AssignStatement<'ast> {
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Return(ReturnStatement<'ast>),
-    Iteration(ForStatement<'ast>),
-    MultipleAssignment(MultipleAssignmentStatement<'ast>),
     Definition(DefinitionStatement<'ast>),
     Assign(AssignStatement<'ast>),
+    MultipleAssignment(MultipleAssignmentStatement<'ast>),
+    Conditional(ConditionalStatement<'ast>),
+    Iteration(ForStatement<'ast>),
+    Assert(AssertStatement<'ast>),
+    Expression(ExpressionStatement<'ast>),
 }
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
@@ -867,11 +963,33 @@ impl<'ast> fmt::Display for ReturnStatement<'ast> {
     }
 }
 
+impl<'ast> fmt::Display for ConditionalNestedOrEnd<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
+            ConditionalNestedOrEnd::End(ref statements) => {
+                write!(f, "else {{\n \t{:#?}\n }}", statements)
+            }
+        }
+    }
+}
+
+impl<'ast> fmt::Display for ConditionalStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "if ({}) {{\n", self.condition)?;
+        write!(f, "\t{:#?}\n", self.statements)?;
+        self.next
+            .as_ref()
+            .map(|n_or_e| write!(f, "}} {}", n_or_e))
+            .unwrap_or(write!(f, "}}"))
+    }
+}
+
 impl<'ast> fmt::Display for ForStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "for {} in {}..{} do {:#?} endfor",
+            "for {} in {}..{} {{ {:#?} }}",
             self.index, self.start, self.stop, self.statements
         )
     }
@@ -891,13 +1009,30 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} = {}", self.ty, self.variable, self.expression)
+        match self._type {
+            Some(ref _type) => write!(
+                f,
+                "let {} : {} = {};",
+                self.variable, _type, self.expression
+            ),
+            None => write!(f, "let {} = {}", self.variable, self.expression),
+        }
     }
 }
 
 impl<'ast> fmt::Display for AssignStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} = {}", self.assignee, self.expression)
+        write!(f, "{} = {};", self.assignee, self.expression)
+    }
+}
+
+impl<'ast> fmt::Display for AssertStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AssertStatement::AssertEq(ref assert) => {
+                write!(f, "assert_eq({}, {});", assert.left, assert.right)
+            }
+        }
     }
 }
 
@@ -905,10 +1040,13 @@ impl<'ast> fmt::Display for Statement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref statement) => write!(f, "{}", statement),
-            Statement::Iteration(ref statement) => write!(f, "{}", statement),
-            Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
-            Statement::Assign(ref statement) => write!(f, "{}", statement),
             Statement::Definition(ref statement) => write!(f, "{}", statement),
+            Statement::Assign(ref statement) => write!(f, "{}", statement),
+            Statement::MultipleAssignment(ref statement) => write!(f, "{}", statement),
+            Statement::Conditional(ref statement) => write!(f, "{}", statement),
+            Statement::Iteration(ref statement) => write!(f, "{}", statement),
+            Statement::Assert(ref statement) => write!(f, "{}", statement),
+            Statement::Expression(ref statement) => write!(f, "{}", statement.expression),
         }
     }
 }
@@ -920,7 +1058,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
 pub struct Parameter<'ast> {
     pub variable: Variable<'ast>,
     pub visibility: Option<Visibility>,
-    pub ty: Type<'ast>,
+    pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

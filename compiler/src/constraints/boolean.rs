@@ -1,78 +1,77 @@
-//! Methods to enforce constraints on booleans in a resolved aleo program.
+//! Methods to enforce constraints on booleans in a resolved Leo program.
 
-use crate::constraints::{ResolvedProgram, ResolvedValue};
-use crate::{new_variable_from_variable, Parameter, Variable};
-
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::ConstraintSystem,
-    utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget},
+use crate::{
+    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
+    errors::BooleanError,
+    types::{InputModel, InputValue, Variable},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
+use snarkos_errors::gadgets::SynthesisError;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget},
+    },
+};
+
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn bool_from_parameter(
         &mut self,
         cs: &mut CS,
         scope: String,
-        index: usize,
-        parameter: Parameter<F>,
-    ) -> Variable<F> {
-        // Get command line argument for each parameter in program
-        let argument = std::env::args()
-            .nth(index)
-            .expect(&format!(
-                "expected command line argument at index {}",
-                index
-            ))
-            .parse::<bool>()
-            .expect(&format!(
-                "expected main function parameter {} at index {}",
-                parameter, index
-            ));
-
-        // Check visibility of parameter
-        let name = parameter.variable.name.clone();
-        let number = if parameter.private {
-            Boolean::alloc(cs.ns(|| name), || Ok(argument)).unwrap()
-        } else {
-            Boolean::alloc_input(cs.ns(|| name), || Ok(argument)).unwrap()
+        parameter_model: InputModel<F>,
+        parameter_value: Option<InputValue<F>>,
+    ) -> Result<Variable<F>, BooleanError> {
+        // Check that the parameter value is the correct type
+        let bool_value = match parameter_value {
+            Some(parameter) => {
+                if let InputValue::Boolean(bool) = parameter {
+                    Some(bool)
+                } else {
+                    return Err(BooleanError::InvalidBoolean(parameter.to_string()));
+                }
+            }
+            None => None,
         };
 
-        let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
+        // Check visibility of parameter
+        let name = parameter_model.variable.name.clone();
+        let number = if parameter_model.private {
+            Boolean::alloc(cs.ns(|| name), || {
+                bool_value.ok_or(SynthesisError::AssignmentMissing)
+            })?
+        } else {
+            Boolean::alloc_input(cs.ns(|| name), || {
+                bool_value.ok_or(SynthesisError::AssignmentMissing)
+            })?
+        };
+
+        let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
 
         // store each argument as variable in resolved program
-        self.store_variable(parameter_variable.clone(), ResolvedValue::Boolean(number));
+        self.store_variable(
+            parameter_variable.clone(),
+            ConstrainedValue::Boolean(number),
+        );
 
-        parameter_variable
+        Ok(parameter_variable)
     }
 
     pub(crate) fn boolean_array_from_parameter(
         &mut self,
         _cs: &mut CS,
         _scope: String,
-        _index: usize,
-        _parameter: Parameter<F>,
-    ) -> Variable<F> {
+        _parameter_model: InputModel<F>,
+        _parameter_value: Option<InputValue<F>>,
+    ) -> Result<Variable<F>, BooleanError> {
         unimplemented!("Cannot enforce boolean array as parameter")
-        // // Get command line argument for each parameter in program
-        // let argument_array = std::env::args()
-        //     .nth(index)
-        //     .expect(&format!(
-        //         "expected command line argument at index {}",
-        //         index
-        //     ))
-        //     .parse::<Vec<bool>>()
-        //     .expect(&format!(
-        //         "expected main function parameter {} at index {}",
-        //         parameter, index
-        //     ));
-        //
         // // Check visibility of parameter
         // let mut array_value = vec![];
         // let name = parameter.variable.name.clone();
         // for argument in argument_array {
         //     let number = if parameter.private {
-        //         Boolean::alloc(cs.ns(|| name), || Ok(argument)).unwrap()
+        //         Boolean::alloc(cs.ns(|| name), ||bool_value.ok_or(SynthesisError::AssignmentMissing).unwrap()
         //     } else {
         //         Boolean::alloc_input(cs.ns(|| name), || Ok(argument)).unwrap()
         //     };
@@ -89,51 +88,55 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         // parameter_variable
     }
 
-    pub(crate) fn get_boolean_constant(bool: bool) -> ResolvedValue<F> {
-        ResolvedValue::Boolean(Boolean::Constant(bool))
+    pub(crate) fn get_boolean_constant(bool: Boolean) -> ConstrainedValue<F> {
+        ConstrainedValue::Boolean(bool)
     }
 
-    pub(crate) fn enforce_not(value: ResolvedValue<F>) -> ResolvedValue<F> {
+    pub(crate) fn evaluate_not(
+        value: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match value {
-            ResolvedValue::Boolean(boolean) => ResolvedValue::Boolean(boolean.not()),
-            value => unimplemented!("cannot enforce not on non-boolean value {}", value),
+            ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
+            value => Err(BooleanError::CannotEvaluate(format!("!{}", value))),
         }
     }
 
     pub(crate) fn enforce_or(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) -> ResolvedValue<F> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match (left, right) {
-            (ResolvedValue::Boolean(left_bool), ResolvedValue::Boolean(right_bool)) => {
-                ResolvedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool).unwrap())
-            }
-            (left_value, right_value) => unimplemented!(
-                "cannot enforce or on non-boolean values {} || {}",
-                left_value,
-                right_value
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
+                ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?),
             ),
+            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
+                "{} || {}",
+                left_value, right_value
+            ))),
         }
     }
 
     pub(crate) fn enforce_and(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) -> ResolvedValue<F> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, BooleanError> {
         match (left, right) {
-            (ResolvedValue::Boolean(left_bool), ResolvedValue::Boolean(right_bool)) => {
-                ResolvedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool).unwrap())
-            }
-            (left_value, right_value) => unimplemented!(
-                "cannot enforce and on non-boolean values {} && {}",
-                left_value,
-                right_value
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
+                ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?),
             ),
+            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
+                "{} && {}",
+                left_value, right_value
+            ))),
         }
+    }
+
+    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ConstrainedValue<F> {
+        ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 
     pub(crate) fn enforce_boolean_eq(
@@ -141,10 +144,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         left: Boolean,
         right: Boolean,
-    ) -> ResolvedValue<F> {
-        left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)
-            .unwrap();
-
-        ResolvedValue::Boolean(Boolean::Constant(true))
+    ) -> Result<(), BooleanError> {
+        Ok(left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)?)
     }
 }

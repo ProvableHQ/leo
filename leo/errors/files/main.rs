@@ -2,7 +2,6 @@ use std::io;
 
 #[derive(Debug, Fail)]
 pub enum MainFileError {
-
     #[fail(display = "{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -11,7 +10,6 @@ pub enum MainFileError {
 
     #[fail(display = "writing: {}", _0)]
     Writing(io::Error),
-
 }
 
 impl From<std::io::Error> for MainFileError {

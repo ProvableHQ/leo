@@ -7,6 +7,9 @@ pub use self::init::*;
 pub mod new;
 pub use self::new::*;
 
+pub mod prove;
+pub use self::prove::*;
+
 pub mod run;
 pub use self::run::*;
 

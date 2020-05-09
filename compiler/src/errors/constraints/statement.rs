@@ -1,0 +1,88 @@
+use crate::errors::{BooleanError, ExpressionError, FieldElementError, IntegerError, ValueError};
+
+#[derive(Debug, Error)]
+pub enum StatementError {
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
+
+    #[error("Attempted to assign to unknown variable {}", _0)]
+    UndefinedVariable(String),
+
+    #[error("{}", _0)]
+    ExpressionError(ExpressionError),
+
+    #[error("{}", _0)]
+    IntegerError(IntegerError),
+
+    #[error("{}", _0)]
+    FieldElementError(FieldElementError),
+
+    #[error("{}", _0)]
+    BooleanError(BooleanError),
+
+    #[error("{}", _0)]
+    ValueError(ValueError),
+
+    #[error("Cannot assign single index to array of values")]
+    ArrayAssignIndex,
+
+    #[error("Cannot assign range of array values to single value")]
+    ArrayAssignRange,
+
+    #[error("Cannot assign to unknown array {}", _0)]
+    UndefinedArray(String),
+
+    #[error("Attempted to assign to unknown struct {}", _0)]
+    UndefinedStruct(String),
+
+    #[error("Attempted to assign to unknown struct field {}", _0)]
+    UndefinedStructField(String),
+
+    #[error("Function return statement expected {} return values, got {}", _0, _1)]
+    InvalidNumberOfReturns(usize, usize),
+
+    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
+    IfElseConditional(String),
+
+    #[error("Cannot assert equality between {} == {}", _0, _1)]
+    AssertEq(String, String),
+
+    #[error("Expected assignment of return values for expression {}", _0)]
+    Unassigned(String),
+}
+
+impl From<std::io::Error> for StatementError {
+    fn from(error: std::io::Error) -> Self {
+        StatementError::Crate("std::io", format!("{}", error))
+    }
+}
+
+impl From<ExpressionError> for StatementError {
+    fn from(error: ExpressionError) -> Self {
+        StatementError::ExpressionError(error)
+    }
+}
+
+impl From<IntegerError> for StatementError {
+    fn from(error: IntegerError) -> Self {
+        StatementError::IntegerError(error)
+    }
+}
+
+impl From<FieldElementError> for StatementError {
+    fn from(error: FieldElementError) -> Self {
+        StatementError::FieldElementError(error)
+    }
+}
+
+impl From<BooleanError> for StatementError {
+    fn from(error: BooleanError) -> Self {
+        StatementError::BooleanError(error)
+    }
+}
+
+impl From<ValueError> for StatementError {
+    fn from(error: ValueError) -> Self {
+        StatementError::ValueError(error)
+    }
+}
