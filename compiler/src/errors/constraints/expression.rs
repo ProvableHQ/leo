@@ -1,4 +1,4 @@
-use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError};
+use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError, ValueError};
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -12,6 +12,9 @@ pub enum ExpressionError {
     // Types
     #[error("{}", _0)]
     IncompatibleTypes(String),
+
+    #[error("{}", _0)]
+    ValueError(ValueError),
 
     #[error("{}", _0)]
     IntegerError(IntegerError),
@@ -78,6 +81,12 @@ pub enum ExpressionError {
 impl From<std::io::Error> for ExpressionError {
     fn from(error: std::io::Error) -> Self {
         ExpressionError::Crate("std::io", format!("{}", error))
+    }
+}
+
+impl From<ValueError> for ExpressionError {
+    fn from(error: ValueError) -> Self {
+        ExpressionError::ValueError(error)
     }
 }
 

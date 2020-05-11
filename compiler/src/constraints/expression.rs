@@ -360,6 +360,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                     member.expression,
                 )?;
 
+                // Check member types
+                member_value.expect_type(&field._type)?;
+
                 resolved_members.push(ConstrainedStructMember(member.variable, member_value))
             }
 
