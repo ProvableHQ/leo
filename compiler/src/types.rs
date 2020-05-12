@@ -3,6 +3,7 @@
 
 use crate::{errors::IntegerError, Import};
 
+use crate::errors::ValueError;
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::Variable as R1CSVariable,
@@ -19,6 +20,15 @@ use std::marker::PhantomData;
 pub struct Variable<F: Field + PrimeField> {
     pub name: String,
     pub(crate) _field: PhantomData<F>,
+}
+
+impl<F: Field + PrimeField> Variable<F> {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            _field: PhantomData::<F>,
+        }
+    }
 }
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
@@ -211,11 +221,21 @@ pub struct InputModel<F: Field + PrimeField> {
     pub variable: Variable<F>,
 }
 
+impl<F: Field + PrimeField> InputModel<F> {
+    pub fn inner_type(&self) -> Result<Type<F>, ValueError> {
+        match self._type {
+            Type::Array(ref _type, _length) => Ok(*_type.clone()),
+            ref _type => Err(ValueError::ArrayModel(_type.to_string())),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue<F: Field + PrimeField> {
     Integer(usize),
     Field(F),
     Boolean(bool),
+    Array(Vec<InputValue<F>>),
 }
 
 /// The given name for a defined function in the program.

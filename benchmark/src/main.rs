@@ -92,8 +92,13 @@ fn main() {
     let start = Instant::now();
 
     // Set main function arguments in compiled program
-    // let argument = Some(ParameterValue::Field(Fr::one()));
-    // program.parameters = vec![argument];
+    // let argument = Some(InputValue::Field(Fr::one()));
+
+    let bool_true = InputValue::Boolean(true);
+    let array = InputValue::Array(vec![bool_true.clone(), bool_true.clone(), bool_true.clone()]);
+    let argument = Some(array);
+
+    program.parameters = vec![argument];
 
     // Generate proof
     let proof = create_random_proof(program, &params, rng).unwrap();

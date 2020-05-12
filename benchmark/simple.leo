@@ -1,17 +1,20 @@
-struct Foo {
-    b: u32
+// Basic Pedersen hash function
+// 1 window x 3 bits
+
+struct PedersenCRHParameters {
+  bases: fe[3]
 }
 
-function main() {
-    let a = 1u8 + 1u8;
-    let c = 1u16 + 1u16;
-    let b = 1u32 + 1;
-    let d = 1u64 + 1u64;
-    let e = 1u128 + 1u128;
-    let f = true && false;
-    let g = 5fe + 10fe;
-    let h: u32[2] = [1, 2];
+function main(bits: private bool[3]) -> fe {
+  let params = PedersenCRHParameters { bases: [1fe, 1fe, 1fe] };
 
-    let i = Foo { b: 5 };
-    let j = [1, 4, 5];
+  let res = 0fe;
+
+  for bit in 0..3 {
+    //if (bits[bit]) {
+      res += params.bases[bit];
+    //}
+  }
+
+  return res
 }

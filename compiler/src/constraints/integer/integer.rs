@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, InputValue, Integer, Type, Variable},
+    types::{InputModel, InputValue, Integer, Type},
     IntegerType,
 };
 
@@ -41,23 +41,22 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
-        scope: String,
-        parameter_model: InputModel<F>,
-        parameter_value: Option<InputValue<F>>,
-    ) -> Result<Variable<F>, IntegerError> {
-        let integer_type = match &parameter_model._type {
+        integer_model: InputModel<F>,
+        integer_value: Option<InputValue<F>>,
+    ) -> Result<ConstrainedValue<F>, IntegerError> {
+        let integer_type = match &integer_model._type {
             Type::IntegerType(integer_type) => integer_type,
             _type => return Err(IntegerError::InvalidType(_type.to_string())),
         };
 
         // Check that the parameter value is the correct type
-        let integer_option = match parameter_value {
+        let integer_option = match integer_value {
             Some(parameter) => {
                 if let InputValue::Integer(integer) = parameter {
                     Some(integer)
                 } else {
                     return Err(IntegerError::InvalidInteger(
-                        parameter_model._type.to_string(),
+                        integer_model._type.to_string(),
                         parameter.to_string(),
                     ));
                 }
@@ -66,44 +65,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         };
 
         match integer_type {
-            IntegerType::U8 => self.u8_from_parameter(cs, scope, parameter_model, integer_option),
-            IntegerType::U16 => self.u16_from_parameter(cs, scope, parameter_model, integer_option),
-            IntegerType::U32 => self.u32_from_parameter(cs, scope, parameter_model, integer_option),
-            IntegerType::U64 => self.u64_from_parameter(cs, scope, parameter_model, integer_option),
-            IntegerType::U128 => {
-                self.u128_from_parameter(cs, scope, parameter_model, integer_option)
-            }
+            IntegerType::U8 => self.u8_from_input(cs, integer_model, integer_option),
+            IntegerType::U16 => self.u16_from_input(cs, integer_model, integer_option),
+            IntegerType::U32 => self.u32_from_input(cs, integer_model, integer_option),
+            IntegerType::U64 => self.u64_from_input(cs, integer_model, integer_option),
+            IntegerType::U128 => self.u128_from_integer(cs, integer_model, integer_option),
         }
-    }
-
-    pub(crate) fn integer_array_from_parameter(
-        &mut self,
-        _cs: &mut CS,
-        _scope: String,
-        _parameter_model: InputModel<F>,
-        _parameter_value: Option<InputValue<F>>,
-    ) -> Result<Variable<F>, IntegerError> {
-        unimplemented!("Cannot enforce integer array as parameter")
-        // // Check visibility of parameter
-        // let mut array_value = vec![];
-        // let name = parameter.variable.name.clone();
-        // for argument in argument_array {
-        //     let number = if parameter.private {
-        //         UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
-        //     } else {
-        //         UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
-        //     };
-        //
-        //     array_value.push(number);
-        // }
-        //
-        //
-        // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
-        //
-        // // store array as variable in resolved program
-        // self.store_variable(parameter_variable.clone(), ResolvedValue::U32Array(array_value));
-        //
-        // parameter_variable
     }
 
     pub(crate) fn enforce_integer_eq(

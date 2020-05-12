@@ -6,6 +6,9 @@ pub enum ValueError {
     #[error("{}", _0)]
     ArrayLength(String),
 
+    #[error("Expected type array, got {}", _0)]
+    ArrayModel(String),
+
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 

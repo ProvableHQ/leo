@@ -7,7 +7,9 @@ use crate::{
         ConstrainedValue,
     },
     errors::{FunctionError, ImportError},
+    new_variable_from_variable,
     types::{Expression, Function, InputValue, Program, Type},
+    InputModel, Variable,
 };
 
 use snarkos_models::{
@@ -49,90 +51,29 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     ) -> Result<ConstrainedValue<F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
-        // Make sure we are given the correct number of arguments
+        // Make sure we are given the correct number of inputs
         Self::check_inputs_length(function.inputs.len(), inputs.len())?;
 
-        // Store argument values as new variables in resolved program
+        // Store input values as new variables in resolved program
         for (input_model, input_expression) in
             function.inputs.clone().iter().zip(inputs.into_iter())
         {
-            // Check that argument is correct type
-            match input_model._type.clone() {
-                Type::IntegerType(integer_type) => {
-                    match self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        input_expression,
-                    )? {
-                        ConstrainedValue::Integer(number) => {
-                            number.expect_type(&integer_type)?;
-                            // Store argument as variable with {function_name}_{parameter name}
-                            let variable_name = new_scope_from_variable(
-                                function_name.clone(),
-                                &input_model.variable,
-                            );
-                            self.store(variable_name, ConstrainedValue::Integer(number));
-                        }
-                        argument => {
-                            return Err(FunctionError::InvalidInput(
-                                integer_type.to_string(),
-                                argument.to_string(),
-                            ))
-                        }
-                    }
-                }
-                Type::FieldElement => {
-                    match self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        input_expression,
-                    )? {
-                        ConstrainedValue::FieldElement(fe) => {
-                            // Store argument as variable with {function_name}_{parameter name}
-                            let variable_name = new_scope_from_variable(
-                                function_name.clone(),
-                                &input_model.variable,
-                            );
-                            self.store(variable_name, ConstrainedValue::FieldElement(fe));
-                        }
-                        argument => {
-                            return Err(FunctionError::InvalidInput(
-                                Type::<F>::FieldElement.to_string(),
-                                argument.to_string(),
-                            ))
-                        }
-                    }
-                }
-                Type::Boolean => {
-                    match self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        input_expression,
-                    )? {
-                        ConstrainedValue::Boolean(bool) => {
-                            // Store argument as variable with {function_name}_{parameter name}
-                            let variable_name = new_scope_from_variable(
-                                function_name.clone(),
-                                &input_model.variable,
-                            );
-                            self.store(variable_name, ConstrainedValue::Boolean(bool));
-                        }
-                        argument => {
-                            return Err(FunctionError::InvalidInput(
-                                Type::<F>::Boolean.to_string(),
-                                argument.to_string(),
-                            ))
-                        }
-                    }
-                }
-                ty => return Err(FunctionError::UndefinedInput(ty.to_string())),
-            }
+            // First evaluate input expression
+            let input_value = self.enforce_input(
+                cs,
+                scope.clone(),
+                caller_scope.clone(),
+                function_name.clone(),
+                input_expression,
+            )?;
+
+            // Check that input is correct type
+            input_value.expect_type(&input_model._type)?;
+
+            // Store input as variable with {function_name}_{input_name}
+            let variable_name =
+                new_scope_from_variable(function_name.clone(), &input_model.variable);
+            self.store(variable_name, input_value);
         }
 
         // Evaluate function statements
@@ -155,6 +96,87 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         Ok(return_values)
     }
 
+    fn allocate_array(
+        &mut self,
+        cs: &mut CS,
+        input_model: InputModel<F>,
+        input_value: Option<InputValue<F>>,
+        expected_length: usize,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
+        let mut array_value = vec![];
+        let array_input_type = input_model.inner_type()?;
+
+        match input_value {
+            Some(InputValue::Array(arr)) => {
+                Self::check_inputs_length(expected_length, arr.len())?;
+
+                for (i, value) in arr.into_iter().enumerate() {
+                    let array_input_model = InputModel {
+                        private: input_model.private.clone(),
+                        _type: array_input_type.clone(),
+                        variable: new_variable_from_variables(
+                            &input_model.variable,
+                            &Variable::new(i.to_string()),
+                        ),
+                    };
+
+                    array_value.push(self.allocate_main_function_input(
+                        cs,
+                        array_input_model,
+                        Some(value),
+                    )?)
+                }
+            }
+            None => {
+                // Allocate all parameter values
+                for i in 0..expected_length {
+                    let array_input_model = InputModel {
+                        private: input_model.private.clone(),
+                        _type: array_input_type.clone(),
+                        variable: new_variable_from_variables(
+                            &input_model.variable,
+                            &Variable::new(i.to_string()),
+                        ),
+                    };
+
+                    array_value.push(self.allocate_main_function_input(
+                        cs,
+                        array_input_model,
+                        None,
+                    )?);
+                }
+            }
+            _ => {
+                return Err(FunctionError::InvalidArray(
+                    input_value.unwrap().to_string(),
+                ))
+            }
+        }
+
+        Ok(ConstrainedValue::Array(array_value))
+    }
+
+    fn allocate_main_function_input(
+        &mut self,
+        cs: &mut CS,
+        input_model: InputModel<F>,
+        input_value: Option<InputValue<F>>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
+        match input_model._type {
+            Type::IntegerType(ref _integer_type) => {
+                Ok(self.integer_from_parameter(cs, input_model, input_value)?)
+            }
+            Type::FieldElement => {
+                Ok(self.field_element_from_input(cs, input_model, input_value)?)
+            }
+            Type::Boolean => Ok(self.bool_from_input(cs, input_model, input_value)?),
+            Type::Array(ref _type, length) => {
+                self.allocate_array(cs, input_model, input_value, length)
+            }
+            _ => unimplemented!("main function input not implemented for type"),
+        }
+    }
+
     pub(crate) fn enforce_main_function(
         &mut self,
         cs: &mut CS,
@@ -164,7 +186,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     ) -> Result<ConstrainedValue<F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
-        // Make sure we are given the correct number of arguments
+        // Make sure we are given the correct number of inputs
         Self::check_inputs_length(function.inputs.len(), inputs.len())?;
 
         // Iterate over main function inputs and allocate new passed-by variable values
@@ -172,46 +194,11 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         for (input_model, input_value) in
             function.inputs.clone().into_iter().zip(inputs.into_iter())
         {
-            // append each variable to inputs vector
-            let variable = match input_model._type {
-                Type::IntegerType(ref _integer_type) => self.integer_from_parameter(
-                    cs,
-                    function_name.clone(),
-                    input_model,
-                    input_value,
-                )?,
-                Type::FieldElement => self.field_element_from_parameter(
-                    cs,
-                    function_name.clone(),
-                    input_model,
-                    input_value,
-                )?,
-                Type::Boolean => {
-                    self.bool_from_parameter(cs, function_name.clone(), input_model, input_value)?
-                }
-                Type::Array(ref ty, _length) => match *ty.clone() {
-                    Type::IntegerType(_type) => self.integer_array_from_parameter(
-                        cs,
-                        function_name.clone(),
-                        input_model,
-                        input_value,
-                    )?,
-                    Type::FieldElement => self.field_element_array_from_parameter(
-                        cs,
-                        function_name.clone(),
-                        input_model,
-                        input_value,
-                    )?,
-                    Type::Boolean => self.boolean_array_from_parameter(
-                        cs,
-                        function_name.clone(),
-                        input_model,
-                        input_value,
-                    )?,
-                    _type => return Err(FunctionError::UndefinedInput(_type.to_string())),
-                },
-                _type => return Err(FunctionError::UndefinedInput(_type.to_string())),
-            };
+            let variable = new_variable_from_variable(scope.clone(), &input_model.variable);
+            let value = self.allocate_main_function_input(cs, input_model, input_value)?;
+
+            // store a new variable for every allocated main function input
+            self.store_variable(variable.clone(), value);
 
             input_variables.push(Expression::Variable(variable));
         }

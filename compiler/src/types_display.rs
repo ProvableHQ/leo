@@ -261,7 +261,7 @@ impl<F: Field + PrimeField> fmt::Display for Type<F> {
             Type::FieldElement => write!(f, "fe"),
             Type::Boolean => write!(f, "bool"),
             Type::Struct(ref variable) => write!(f, "{}", variable),
-            Type::Array(ref array, ref count) => write!(f, "[{}; {}]", array, count),
+            Type::Array(ref array, ref count) => write!(f, "{}[{}]", array, count),
         }
     }
 }
@@ -307,6 +307,16 @@ impl<F: Field + PrimeField> fmt::Display for InputValue<F> {
             InputValue::Integer(ref integer) => write!(f, "{}", integer),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Boolean(ref bool) => write!(f, "{}", bool),
+            InputValue::Array(ref array) => {
+                write!(f, "[")?;
+                for (i, e) in array.iter().enumerate() {
+                    write!(f, "{}", e)?;
+                    if i < array.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, "]")
+            }
         }
     }
 }

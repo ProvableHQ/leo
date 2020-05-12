@@ -1,9 +1,9 @@
 //! Methods to enforce constraints on uint128s in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
+    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, Integer, Variable},
+    types::{InputModel, Integer},
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -16,20 +16,19 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
-    pub(crate) fn u128_from_parameter(
+    pub(crate) fn u128_from_integer(
         &mut self,
         cs: &mut CS,
-        scope: String,
         parameter_model: InputModel<F>,
         integer_option: Option<usize>,
-    ) -> Result<Variable<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<F>, IntegerError> {
         // Type cast to u128 in rust.
         // If this fails should we return our own error?
         let u128_option = integer_option.map(|integer| integer as u128);
 
         // Check visibility of parameter
         let name = parameter_model.variable.name.clone();
-        let integer = if parameter_model.private {
+        let integer_value = if parameter_model.private {
             UInt128::alloc(cs.ns(|| name), || {
                 u128_option.ok_or(SynthesisError::AssignmentMissing)
             })?
@@ -39,46 +38,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             })?
         };
 
-        let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
-
-        // store each argument as variable in resolved program
-        self.store_variable(
-            parameter_variable.clone(),
-            ConstrainedValue::Integer(Integer::U128(integer)),
-        );
-
-        Ok(parameter_variable)
+        Ok(ConstrainedValue::Integer(Integer::U128(integer_value)))
     }
-
-    // pub(crate) fn u128_array_from_parameter(
-    //     &mut self,
-    //     _cs: &mut CS,
-    //     _scope: String,
-    //     _parameter_model: ParameterModel<F>,
-    //     _parameter_value: Option<ParameterValue<F>>,
-    // ) -> Result<Variable<F>, IntegerError> {
-    //     unimplemented!("Cannot enforce integer array as parameter")
-    //     // // Check visibility of parameter
-    //     // let mut array_value = vec![];
-    //     // let name = parameter.variable.name.clone();
-    //     // for argument in argument_array {
-    //     //     let number = if parameter.private {
-    //     //         UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
-    //     //     } else {
-    //     //         UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
-    //     //     };
-    //     //
-    //     //     array_value.push(number);
-    //     // }
-    //     //
-    //     //
-    //     // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
-    //     //
-    //     // // store array as variable in resolved program
-    //     // self.store_variable(parameter_variable.clone(), ResolvedValue::U32Array(array_value));
-    //     //
-    //     // parameter_variable
-    // }
 
     pub(crate) fn enforce_u128_eq(
         cs: &mut CS,

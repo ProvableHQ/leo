@@ -1,9 +1,9 @@
 //! Methods to enforce constraints on uint8s in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
+    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, Integer, Variable},
+    types::{InputModel, Integer},
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -16,13 +16,12 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
-    pub(crate) fn u8_from_parameter(
+    pub(crate) fn u8_from_input(
         &mut self,
         cs: &mut CS,
-        scope: String,
         parameter_model: InputModel<F>,
         integer_option: Option<usize>,
-    ) -> Result<Variable<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<F>, IntegerError> {
         // Type cast to u8 in rust.
         // If this fails should we return our own error?
         let u8_option = integer_option.map(|integer| integer as u8);
@@ -39,46 +38,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             })?
         };
 
-        let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
-
-        // store each argument as variable in resolved program
-        self.store_variable(
-            parameter_variable.clone(),
-            ConstrainedValue::Integer(Integer::U8(integer_value)),
-        );
-
-        Ok(parameter_variable)
+        Ok(ConstrainedValue::Integer(Integer::U8(integer_value)))
     }
-
-    // pub(crate) fn u8_array_from_parameter(
-    //     &mut self,
-    //     _cs: &mut CS,
-    //     _scope: String,
-    //     _parameter_model: ParameterModel<F>,
-    //     _parameter_value: Option<ParameterValue<F>>,
-    // ) -> Result<Variable<F>, IntegerError> {
-    //     unimplemented!("Cannot enforce integer array as parameter")
-    //     // // Check visibility of parameter
-    //     // let mut array_value = vec![];
-    //     // let name = parameter.variable.name.clone();
-    //     // for argument in argument_array {
-    //     //     let number = if parameter.private {
-    //     //         UInt32::alloc(cs.ns(|| name), Some(argument)).unwrap()
-    //     //     } else {
-    //     //         UInt32::alloc_input(cs.ns(|| name), Some(argument)).unwrap()
-    //     //     };
-    //     //
-    //     //     array_value.push(number);
-    //     // }
-    //     //
-    //     //
-    //     // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
-    //     //
-    //     // // store array as variable in resolved program
-    //     // self.store_variable(parameter_variable.clone(), ResolvedValue::U32Array(array_value));
-    //     //
-    //     // parameter_variable
-    // }
 
     pub(crate) fn enforce_u8_eq(
         cs: &mut CS,
