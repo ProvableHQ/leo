@@ -99,23 +99,27 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     fn allocate_array(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<F>,
+        array_name: Variable<F>,
+        array_private: bool,
+        array_type: Type<F>,
+        array_dimensions: Vec<usize>,
         input_value: Option<InputValue<F>>,
-        expected_length: usize,
     ) -> Result<ConstrainedValue<F>, FunctionError> {
+        let expected_length = array_dimensions[0];
         let mut array_value = vec![];
-        let array_input_type = input_model.inner_type()?;
 
         match input_value {
             Some(InputValue::Array(arr)) => {
+                // Check the dimension of the array
                 Self::check_inputs_length(expected_length, arr.len())?;
 
+                // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let array_input_model = InputModel {
-                        private: input_model.private.clone(),
-                        _type: array_input_type.clone(),
+                        private: array_private,
+                        _type: array_type.next_dimension(&array_dimensions),
                         variable: new_variable_from_variables(
-                            &input_model.variable,
+                            &array_name,
                             &Variable::new(i.to_string()),
                         ),
                     };
@@ -128,13 +132,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                 }
             }
             None => {
-                // Allocate all parameter values
+                // Allocate all row values as none
                 for i in 0..expected_length {
                     let array_input_model = InputModel {
-                        private: input_model.private.clone(),
-                        _type: array_input_type.clone(),
+                        private: array_private,
+                        _type: array_type.next_dimension(&array_dimensions),
                         variable: new_variable_from_variables(
-                            &input_model.variable,
+                            &array_name,
                             &Variable::new(i.to_string()),
                         ),
                     };
@@ -170,9 +174,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
                 Ok(self.field_element_from_input(cs, input_model, input_value)?)
             }
             Type::Boolean => Ok(self.bool_from_input(cs, input_model, input_value)?),
-            Type::Array(ref _type, length) => {
-                self.allocate_array(cs, input_model, input_value, length)
-            }
+            Type::Array(_type, dimensions) => self.allocate_array(
+                cs,
+                input_model.variable,
+                input_model.private,
+                *_type,
+                dimensions,
+                input_value,
+            ),
             _ => unimplemented!("main function input not implemented for type"),
         }
     }

@@ -163,8 +163,23 @@ pub enum Type<F: Field + PrimeField> {
     IntegerType(IntegerType),
     FieldElement,
     Boolean,
-    Array(Box<Type<F>>, usize),
+    Array(Box<Type<F>>, Vec<usize>),
     Struct(Variable<F>),
+}
+
+impl<F: Field + PrimeField> Type<F> {
+    pub fn next_dimension(&self, dimensions: &Vec<usize>) -> Self {
+        let _type = self.clone();
+
+        if dimensions.len() > 1 {
+            let mut next = vec![];
+            next.extend_from_slice(&dimensions[1..]);
+
+            return Type::Array(Box::new(_type), next);
+        }
+
+        _type
+    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -223,7 +238,7 @@ pub struct InputModel<F: Field + PrimeField> {
 
 impl<F: Field + PrimeField> InputModel<F> {
     pub fn inner_type(&self) -> Result<Type<F>, ValueError> {
-        match self._type {
+        match &self._type {
             Type::Array(ref _type, _length) => Ok(*_type.clone()),
             ref _type => Err(ValueError::ArrayModel(_type.to_string())),
         }

@@ -374,11 +374,21 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_eq(cs, fe_1, fe_2)
             }
+            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
+                for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
+                    self.enforce_assert_eq_statement(cs, left, right)?;
+                }
+            }
             (val_1, val_2) => {
-                return Err(StatementError::AssertEq(
-                    val_1.to_string(),
-                    val_2.to_string(),
-                ))
+                unimplemented!(
+                    "assert eq not supported for given types {} == {}",
+                    val_1,
+                    val_2
+                )
+                // return Err(StatementError::AssertEq(
+                //     val_1.to_string(),
+                //     val_2.to_string(),
+                // ))
             }
         })
     }

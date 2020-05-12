@@ -261,7 +261,13 @@ impl<F: Field + PrimeField> fmt::Display for Type<F> {
             Type::FieldElement => write!(f, "fe"),
             Type::Boolean => write!(f, "bool"),
             Type::Struct(ref variable) => write!(f, "{}", variable),
-            Type::Array(ref array, ref count) => write!(f, "{}[{}]", array, count),
+            Type::Array(ref array, ref dimensions) => {
+                write!(f, "{}", *array)?;
+                for row in dimensions {
+                    write!(f, "[{}]", row)?;
+                }
+                write!(f, "")
+            }
         }
     }
 }

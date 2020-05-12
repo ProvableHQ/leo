@@ -193,7 +193,7 @@ pub enum BasicOrStructType<'ast> {
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
     pub _type: BasicType<'ast>,
-    pub count: Value<'ast>,
+    pub dimensions: Vec<Value<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

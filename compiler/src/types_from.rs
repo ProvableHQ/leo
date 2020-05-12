@@ -610,9 +610,13 @@ impl<'ast, F: Field + PrimeField> From<ast::BasicType<'ast>> for types::Type<F> 
 impl<'ast, F: Field + PrimeField> From<ast::ArrayType<'ast>> for types::Type<F> {
     fn from(array_type: ast::ArrayType<'ast>) -> Self {
         let element_type = Box::new(types::Type::from(array_type._type));
-        let count = types::Expression::<F>::get_count(array_type.count);
+        let dimensions = array_type
+            .dimensions
+            .into_iter()
+            .map(|row| types::Expression::<F>::get_count(row))
+            .collect();
 
-        types::Type::Array(element_type, count)
+        types::Type::Array(element_type, dimensions)
     }
 }
 

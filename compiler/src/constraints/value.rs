@@ -35,17 +35,21 @@ impl<F: Field + PrimeField> ConstrainedValue<F> {
             }
             (ConstrainedValue::FieldElement(ref _f), Type::FieldElement) => {}
             (ConstrainedValue::Boolean(ref _b), Type::Boolean) => {}
-            (ConstrainedValue::Array(ref arr), Type::Array(ref ty, ref len)) => {
+            (ConstrainedValue::Array(ref arr), Type::Array(ref _type, ref dimensions)) => {
                 // check array lengths are equal
-                if arr.len() != *len {
+                if arr.len() != dimensions[0] {
                     return Err(ValueError::ArrayLength(format!(
-                        "Expected array {:?} to be length {}",
-                        arr, len
+                        "Expected array {:?} to be length {:?}",
+                        arr, dimensions[0]
                     )));
                 }
+
+                // get next dimension of array if nested
+                let next_type = _type.next_dimension(dimensions);
+
                 // check each value in array matches
                 for value in arr {
-                    value.expect_type(ty)?;
+                    value.expect_type(&next_type)?;
                 }
             }
             (
@@ -59,9 +63,9 @@ impl<F: Field + PrimeField> ConstrainedValue<F> {
                     )));
                 }
             }
-            (ConstrainedValue::Return(ref values), ty) => {
+            (ConstrainedValue::Return(ref values), _type) => {
                 for value in values {
-                    value.expect_type(ty)?;
+                    value.expect_type(_type)?;
                 }
             }
             (value, _type) => {

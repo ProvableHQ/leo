@@ -1,20 +1,10 @@
 // Basic Pedersen hash function
 // 1 window x 3 bits
 
-struct PedersenCRHParameters {
-  bases: fe[3]
-}
+function main() {
+  let arr1: u32[2][3] = [[0; 3]; 2];
+  let arr2: u32[2][3] = [[0, 0, 0], [0, 0, 0]];
 
-function main(bits: private bool[3]) -> fe {
-  let params = PedersenCRHParameters { bases: [1fe, 1fe, 1fe] };
+  assert_eq(arr1, arr2);
 
-  let res = 0fe;
-
-  for bit in 0..3 {
-    //if (bits[bit]) {
-      res += params.bases[bit];
-    //}
-  }
-
-  return res
 }
