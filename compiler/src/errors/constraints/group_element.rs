@@ -1,4 +1,2 @@
 #[derive(Debug, Error)]
-pub enum GroupElementError {
-
-}
+pub enum GroupElementError {}

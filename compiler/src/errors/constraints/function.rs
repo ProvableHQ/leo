@@ -4,9 +4,6 @@ use crate::errors::{
 
 #[derive(Debug, Error)]
 pub enum FunctionError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     #[error("Function expected {} inputs, got {}", _0, _1)]
     InputsLength(usize, usize),
 
@@ -39,12 +36,6 @@ pub enum FunctionError {
 
     #[error("{}", _0)]
     StatementError(StatementError),
-}
-
-impl From<std::io::Error> for FunctionError {
-    fn from(error: std::io::Error) -> Self {
-        FunctionError::Crate("std::io", format!("{}", error))
-    }
 }
 
 impl From<ValueError> for FunctionError {

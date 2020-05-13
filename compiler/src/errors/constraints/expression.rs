@@ -2,9 +2,6 @@ use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     // Variables
     #[error("Variable \"{}\" not found", _0)]
     UndefinedVariable(String),
@@ -76,12 +73,6 @@ pub enum ExpressionError {
     // Conditionals
     #[error("If, else conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
-}
-
-impl From<std::io::Error> for ExpressionError {
-    fn from(error: std::io::Error) -> Self {
-        ExpressionError::Crate("std::io", format!("{}", error))
-    }
 }
 
 impl From<ValueError> for ExpressionError {
