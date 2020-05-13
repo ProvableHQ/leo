@@ -433,7 +433,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::DefinitionStatement<'ast>>
 {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Assignee::from(statement.variable),
+            types::Assignee::from(statement.variable.variable),
             statement
                 ._type
                 .map(|_type| types::Type::<F, G>::from(_type)),
@@ -507,7 +507,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::MultipleAssignmentStatemen
         let assignees = statement
             .assignees
             .into_iter()
-            .map(|i| types::Assignee::Variable(types::Variable::from(i.id)))
+            .map(|i| types::Assignee::Variable(types::Variable::from(i.variable.variable)))
             .collect();
 
         types::Statement::MultipleAssign(

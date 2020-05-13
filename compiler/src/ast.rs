@@ -345,14 +345,35 @@ impl<'ast> fmt::Display for Variable<'ast> {
 #[pest_ast(rule(Rule::optionally_typed_variable))]
 pub struct OptionallyTypedVariable<'ast> {
     pub _type: Option<Type<'ast>>,
-    pub id: Variable<'ast>,
+    pub variable: VariableWithMutability<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> fmt::Display for OptionallyTypedVariable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.id)
+        write!(f, "{}", self.variable)
+    }
+}
+
+// Mutability
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::mutable))]
+pub struct Mutable {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::variable_with_mutability))]
+pub struct VariableWithMutability<'ast> {
+    pub mutable: Option<Mutable>,
+    pub variable: Variable<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for VariableWithMutability<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.variable)
     }
 }
 
@@ -917,7 +938,7 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
-    pub variable: Variable<'ast>,
+    pub variable: VariableWithMutability<'ast>,
     pub _type: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]

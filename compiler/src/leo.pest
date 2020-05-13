@@ -1,4 +1,4 @@
-/// Visibili_type
+/// Visibility
 
 visibility_public = { "public" }
 visibility_private = { "private" }
@@ -55,7 +55,8 @@ operation_assign = {
     operation_mul_assign | operation_div_assign | operation_pow_assign
 }
 
-/// types
+/// Types
+
 type_u8 = {"u8"}
 type_u16 = {"u16"}
 type_u32 = {"u32"}
@@ -98,10 +99,16 @@ protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 
-optionally_typed_variable = { (_type ~ variable) | (variable)}
+optionally_typed_variable = { (_type ~ variable_with_mutability) | (variable_with_mutability)}
 optionally_typed_variable_tuple = _{ optionally_typed_variable ~ ("," ~ optionally_typed_variable)* }
 
 expression_primitive = { value | variable }
+
+/// Mutability
+
+mutable = {"mut"}
+
+variable_with_mutability = {mutable? ~ variable}
 
 /// Access
 
@@ -172,7 +179,7 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ (":" ~ _type)? ~ "=" ~ expression }
+statement_definition = { "let" ~ variable_with_mutability ~ (":" ~ _type)? ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
 statement_multiple_assignment = { "let" ~ "(" ~ optionally_typed_variable_tuple ~ ")" ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}

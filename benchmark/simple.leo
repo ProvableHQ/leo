@@ -3,5 +3,5 @@ circuit Circ {
 }
 
 function main() {
-  let c = Circ { x: 4 };
+  let mut c = Circ { x: 4 };
 }
