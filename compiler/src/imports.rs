@@ -2,7 +2,7 @@
 
 use crate::Variable;
 
-use snarkos_models::curves::{Field, PrimeField, Group};
+use snarkos_models::curves::{Field, Group, PrimeField};
 use std::fmt;
 
 #[derive(Clone)]

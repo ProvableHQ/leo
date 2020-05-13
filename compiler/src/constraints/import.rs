@@ -8,7 +8,7 @@ use crate::{
 
 use from_pest::FromPest;
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::fs;

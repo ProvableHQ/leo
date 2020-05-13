@@ -7,13 +7,16 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::utilities::boolean::Boolean,
 };
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedStructMember<F: Field + PrimeField, G: Group>(pub Variable<F, G>, pub ConstrainedValue<F, G>);
+pub struct ConstrainedStructMember<F: Field + PrimeField, G: Group>(
+    pub Variable<F, G>,
+    pub ConstrainedValue<F, G>,
+);
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {

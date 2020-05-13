@@ -10,7 +10,7 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
@@ -440,6 +440,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // Values
             Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
             Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
+            Expression::GroupElement(gr) => Ok(ConstrainedValue::GroupElement(gr)),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
 
             // Binary operations

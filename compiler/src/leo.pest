@@ -72,7 +72,7 @@ type_integer = {
 type_field = {"field"}
 type_group = {"group"}
 type_bool = {"bool"}
-type_basic = { type_integer | type_field | type_group | type_bool }
+type_basic = { type_field | type_group | type_bool | type_integer }
 type_struct = { variable }
 type_basic_or_struct = {type_basic | type_struct }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
@@ -83,10 +83,10 @@ type_list = _{(_type ~ ("," ~ _type)*)?}
 
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
 value_integer = { value_number ~ type_integer? }
-value_field = { value_number ~ "fe" }
-value_group = { value_number ~ "gr" }
+value_field = { value_number ~ type_field }
+value_group = { value_number ~ type_group }
 value_boolean = { "true" | "false" }
-value = { value_field | value_boolean | value_integer }
+value = { value_field | value_group | value_boolean | value_integer }
 
 /// Variables
 

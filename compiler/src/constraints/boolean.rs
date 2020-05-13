@@ -8,7 +8,7 @@ use crate::{
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget},

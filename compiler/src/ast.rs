@@ -259,6 +259,7 @@ impl<'ast> fmt::Display for Integer<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
+    pub _type: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -273,6 +274,7 @@ impl<'ast> fmt::Display for Field<'ast> {
 #[pest_ast(rule(Rule::value_group))]
 pub struct Group<'ast> {
     pub number: Number<'ast>,
+    pub _type: GroupType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

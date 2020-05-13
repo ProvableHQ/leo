@@ -3,7 +3,7 @@
 use crate::{constraints::ConstrainedValue, types::Variable};
 
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::{collections::HashMap, marker::PhantomData};
@@ -31,7 +31,7 @@ pub fn new_variable_from_variable<F: Field + PrimeField, G: Group>(
     Variable {
         name: new_scope_from_variable(outer, inner),
         _engine: PhantomData::<F>,
-        _group: PhantomData::<G>
+        _group: PhantomData::<G>,
     }
 }
 
@@ -58,7 +58,11 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         self.resolved_names.insert(name, value);
     }
 
-    pub(crate) fn store_variable(&mut self, variable: Variable<F, G>, value: ConstrainedValue<F, G>) {
+    pub(crate) fn store_variable(
+        &mut self,
+        variable: Variable<F, G>,
+        value: ConstrainedValue<F, G>,
+    ) {
         self.store(variable.name, value);
     }
 

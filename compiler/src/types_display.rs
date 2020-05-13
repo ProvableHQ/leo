@@ -6,7 +6,7 @@ use crate::{
     SpreadOrExpression, Statement, Struct, StructField, Type, Variable,
 };
 
-use snarkos_models::curves::{Group, Field, PrimeField};
+use snarkos_models::curves::{Field, Group, PrimeField};
 use std::fmt;
 
 impl<F: Field + PrimeField, G: Group> fmt::Display for Variable<F, G> {
@@ -34,7 +34,7 @@ impl<F: Field + PrimeField> FieldElement<F> {
                 if option.is_some() {
                     write!(f, "{}", option.unwrap())
                 } else {
-                    write!(f, "allocated fe")
+                    write!(f, "allocated field")
                 }
             }
         }
@@ -314,6 +314,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for InputValue<F, G> {
         match self {
             InputValue::Integer(ref integer) => write!(f, "{}", integer),
             InputValue::Field(ref field) => write!(f, "{}", field),
+            InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Boolean(ref bool) => write!(f, "{}", bool),
             InputValue::Array(ref array) => {
                 write!(f, "[")?;

@@ -4,7 +4,7 @@
 use crate::{errors::IntegerError, Import};
 
 use crate::errors::ValueError;
-use snarkos_models::curves::{Field, PrimeField, Group};
+use snarkos_models::curves::{Field, Group, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::Variable as R1CSVariable,
     utilities::{
@@ -135,7 +135,11 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     Lt(Box<Expression<F, G>>, Box<Expression<F, G>>),
 
     // Conditionals
-    IfElse(Box<Expression<F, G>>, Box<Expression<F, G>>, Box<Expression<F, G>>),
+    IfElse(
+        Box<Expression<F, G>>,
+        Box<Expression<F, G>>,
+        Box<Expression<F, G>>,
+    ),
 
     // Arrays
     Array(Vec<Box<SpreadOrExpression<F, G>>>),

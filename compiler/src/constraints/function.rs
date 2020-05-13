@@ -13,7 +13,7 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Group, Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 

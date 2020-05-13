@@ -6,24 +6,23 @@ use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
 use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_curves::edwards_bls12::EdwardsProjective;
 use snarkos_errors::gadgets::SynthesisError;
+use snarkos_models::curves::Group;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
-use snarkos_models::curves::Group;
 use std::{
     fs,
     marker::PhantomData,
     time::{Duration, Instant},
 };
-use std::str::FromStr;
-use snarkos_curves::edwards_bls12::EdwardsProjective;
 
 #[derive(Clone)]
 pub struct Benchmark<F: Field + PrimeField, G: Group> {
-    program: Program<F>,
-    parameters: Vec<Option<InputValue<F>>>,
+    program: Program<F, G>,
+    parameters: Vec<Option<InputValue<F, G>>>,
     _group: PhantomData<G>,
     _engine: PhantomData<F>,
 }
@@ -39,12 +38,6 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
     }
 
     pub fn evaluate_program(&mut self) -> Result<(), CompilerError> {
-        let scalar = G::ScalarField::from_str("2325446546544").unwrap_or_default();
-        println!("{}", scalar);
-        let other = G::default().mul(&G::ScalarField::one());
-        println!("{}", other);
-
-        assert_eq!(G::default(), G::default().double());
         // Read in file as string
         let unparsed_file = fs::read_to_string("simple.leo").expect("cannot read file");
 
@@ -53,10 +46,9 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
 
         // Build the abstract syntax tree
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
-        // println!("{:#?}", syntax_tree);
 
         // Build a leo program from the syntax tree
-        self.program = Program::<F>::from(syntax_tree, "simple".into());
+        self.program = Program::<F, G>::from(syntax_tree, "simple".into());
         self.parameters = vec![None; self.program.num_parameters];
 
         println!(" compiled: {:#?}\n", self.program);
@@ -70,8 +62,7 @@ impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, 
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res =
-            leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
+        let _res = leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something
