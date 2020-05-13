@@ -264,10 +264,10 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayInitializerExpression
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineCircuitMember<'ast>>
-    for types::StructMember<F, G>
+    for types::CircuitMember<F, G>
 {
     fn from(member: ast::InlineCircuitMember<'ast>) -> Self {
-        types::StructMember {
+        types::CircuitMember {
             variable: types::Variable::from(member.variable),
             expression: types::Expression::from(member.expression),
         }
@@ -282,10 +282,10 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitInlineExpression<'a
         let members = expression
             .members
             .into_iter()
-            .map(|member| types::StructMember::from(member))
-            .collect::<Vec<types::StructMember<F, G>>>();
+            .map(|member| types::CircuitMember::from(member))
+            .collect::<Vec<types::CircuitMember<F, G>>>();
 
-        types::Expression::Struct(variable, members)
+        types::Expression::Circuit(variable, members)
     }
 }
 
@@ -316,7 +316,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
                         unimplemented!("only function names are callable, found \"{}\"", expression)
                     }
                 },
-                ast::Access::Member(struct_member) => types::Expression::StructMemberAccess(
+                ast::Access::Member(struct_member) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
                     types::Variable::from(struct_member.variable),
                 ),
@@ -370,7 +370,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
             .into_iter()
             .fold(variable, |acc, access| match access {
                 ast::AssigneeAccess::Member(struct_member) => {
-                    types::Expression::StructMemberAccess(
+                    types::Expression::CircuitMemberAccess(
                         Box::new(acc),
                         types::Variable::from(struct_member.variable),
                     )
@@ -404,7 +404,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
                     Box::new(acc),
                     types::RangeOrExpression::from(array.expression),
                 ),
-                ast::AssigneeAccess::Member(struct_member) => types::Assignee::StructMember(
+                ast::AssigneeAccess::Member(struct_member) => types::Assignee::CircuitMember(
                     Box::new(acc),
                     types::Variable::from(struct_member.variable),
                 ),
@@ -667,7 +667,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayType<'ast>> for types
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitType<'ast>> for types::Type<F, G> {
     fn from(struct_type: ast::CircuitType<'ast>) -> Self {
-        types::Type::Struct(types::Variable::from(struct_type.variable))
+        types::Type::Circuit(types::Variable::from(struct_type.variable))
     }
 }
 
@@ -684,26 +684,26 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
 /// pest ast -> types::Struct
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
-    for types::StructField<F, G>
+    for types::CircuitObject<F, G>
 {
     fn from(struct_field: ast::CircuitObject<'ast>) -> Self {
-        types::StructField {
+        types::CircuitObject {
             variable: types::Variable::from(struct_field.variable),
             _type: types::Type::from(struct_field._type),
         }
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::Struct<F, G> {
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::Circuit<F, G> {
     fn from(struct_definition: ast::Circuit<'ast>) -> Self {
         let variable = types::Variable::from(struct_definition.variable);
         let fields = struct_definition
             .fields
             .into_iter()
-            .map(|struct_field| types::StructField::from(struct_field))
+            .map(|struct_field| types::CircuitObject::from(struct_field))
             .collect();
 
-        types::Struct { variable, fields }
+        types::Circuit { variable, fields }
     }
 }
 
@@ -812,7 +812,7 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Program<F, G> {
         file.structs.into_iter().for_each(|struct_def| {
             structs.insert(
                 types::Variable::from(struct_def.variable.clone()),
-                types::Struct::from(struct_def),
+                types::Circuit::from(struct_def),
             );
         });
         file.functions.into_iter().for_each(|function_def| {
@@ -834,7 +834,7 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Program<F, G> {
             },
             num_parameters,
             imports,
-            structs,
+            circuits: structs,
             functions,
         }
     }

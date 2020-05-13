@@ -29,11 +29,11 @@ pub enum StatementError {
     #[error("Cannot assign to unknown array {}", _0)]
     UndefinedArray(String),
 
-    #[error("Attempted to assign to unknown struct {}", _0)]
-    UndefinedStruct(String),
+    #[error("Attempted to assign to unknown circuit {}", _0)]
+    UndefinedCircuit(String),
 
-    #[error("Attempted to assign to unknown struct field {}", _0)]
-    UndefinedStructField(String),
+    #[error("Attempted to assign to unknown circuit {}", _0)]
+    UndefinedCircuitObject(String),
 
     #[error("Function return statement expected {} return values, got {}", _0, _1)]
     InvalidNumberOfReturns(usize, usize),

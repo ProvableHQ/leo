@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         // Use same namespace as calling function for imported symbols
         program = program.name(scope);
 
-        // * -> import all imports, structs, functions in the current scope
+        // * -> import all imports, circuits, functions in the current scope
         if import.is_star() {
             // recursively evaluate program statements
             self.resolve_definitions(cs, program).unwrap();
@@ -47,24 +47,24 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
             // match each import symbol to a symbol in the imported file
             import.symbols.into_iter().for_each(|symbol| {
-                // see if the imported symbol is a struct
-                let matched_struct = program
-                    .structs
+                // see if the imported symbol is a circuit
+                let matched_circuit = program
+                    .circuits
                     .clone()
                     .into_iter()
-                    .find(|(struct_name, _struct_def)| symbol.symbol == *struct_name);
+                    .find(|(circuit_name, _circuit_def)| symbol.symbol == *circuit_name);
 
-                match matched_struct {
-                    Some((_struct_name, struct_def)) => {
+                match matched_circuit {
+                    Some((_circuit_name, circuit_def)) => {
                         // take the alias if it is present
                         let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
-                        let resolved_struct_name =
+                        let resolved_circuit_name =
                             new_variable_from_variables(&program_name.clone(), &resolved_name);
 
-                        // store imported struct under resolved name
+                        // store imported circuit under resolved name
                         self.store_variable(
-                            resolved_struct_name,
-                            ConstrainedValue::StructDefinition(struct_def),
+                            resolved_circuit_name,
+                            ConstrainedValue::CircuitDefinition(circuit_def),
                         );
                     }
                     None => {

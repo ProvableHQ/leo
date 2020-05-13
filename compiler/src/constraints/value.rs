@@ -2,7 +2,7 @@
 
 use crate::{
     errors::ValueError,
-    types::{FieldElement, Function, Struct, Type, Variable},
+    types::{Circuit, FieldElement, Function, Type, Variable},
     Integer,
 };
 
@@ -13,7 +13,7 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedStructMember<F: Field + PrimeField, G: Group>(
+pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(
     pub Variable<F, G>,
     pub ConstrainedValue<F, G>,
 );
@@ -25,8 +25,8 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     GroupElement(G),
     Boolean(Boolean),
     Array(Vec<ConstrainedValue<F, G>>),
-    StructDefinition(Struct<F, G>),
-    StructExpression(Variable<F, G>, Vec<ConstrainedStructMember<F, G>>),
+    CircuitDefinition(Circuit<F, G>),
+    CircuitExpression(Variable<F, G>, Vec<ConstrainedCircuitMember<F, G>>),
     Function(Function<F, G>),
     Return(Vec<ConstrainedValue<F, G>>), // add Null for function returns
 }
@@ -58,8 +58,8 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 }
             }
             (
-                ConstrainedValue::StructExpression(ref actual_name, ref _members),
-                Type::Struct(ref expected_name),
+                ConstrainedValue::CircuitExpression(ref actual_name, ref _members),
+                Type::Circuit(ref expected_name),
             ) => {
                 if expected_name != actual_name {
                     return Err(ValueError::StructName(format!(
@@ -102,7 +102,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 }
                 write!(f, "]")
             }
-            ConstrainedValue::StructExpression(ref variable, ref members) => {
+            ConstrainedValue::CircuitExpression(ref variable, ref members) => {
                 write!(f, "{} {{", variable)?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
@@ -122,7 +122,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 }
                 write!(f, "]")
             }
-            ConstrainedValue::StructDefinition(ref _definition) => {
+            ConstrainedValue::CircuitDefinition(ref _definition) => {
                 unimplemented!("cannot return struct definition in program")
             }
             ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),

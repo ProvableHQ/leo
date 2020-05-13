@@ -1,9 +1,9 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, FieldElement, Function,
-    FunctionName, InputModel, InputValue, Integer, IntegerType, RangeOrExpression,
-    SpreadOrExpression, Statement, Struct, StructField, Type, Variable,
+    Assignee, Circuit, CircuitObject, ConditionalNestedOrEnd, ConditionalStatement, Expression,
+    FieldElement, Function, FunctionName, InputModel, InputValue, Integer, IntegerType,
+    RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, Group, PrimeField};
@@ -127,8 +127,8 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
             }
             Expression::ArrayAccess(ref array, ref index) => write!(f, "{}[{}]", array, index),
 
-            // Structs
-            Expression::Struct(ref var, ref members) => {
+            // Circuits
+            Expression::Circuit(ref var, ref members) => {
                 write!(f, "{} {{", var)?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.variable, member.expression)?;
@@ -138,8 +138,8 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
                 }
                 write!(f, "}}")
             }
-            Expression::StructMemberAccess(ref struct_variable, ref member) => {
-                write!(f, "{}.{}", struct_variable, member)
+            Expression::CircuitMemberAccess(ref circuit_variable, ref member) => {
+                write!(f, "{}.{}", circuit_variable, member)
             }
 
             // Function calls
@@ -162,8 +162,8 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Assignee<F, G> {
         match *self {
             Assignee::Variable(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::StructMember(ref struct_variable, ref member) => {
-                write!(f, "{}.{}", struct_variable, member)
+            Assignee::CircuitMember(ref circuit_variable, ref member) => {
+                write!(f, "{}.{}", circuit_variable, member)
             }
         }
     }
@@ -262,7 +262,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
             Type::FieldElement => write!(f, "field"),
             Type::GroupElement => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
-            Type::Struct(ref variable) => write!(f, "{}", variable),
+            Type::Circuit(ref variable) => write!(f, "{}", variable),
             Type::Array(ref array, ref dimensions) => {
                 write!(f, "{}", *array)?;
                 for row in dimensions {
@@ -274,15 +274,15 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> fmt::Display for StructField<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}: {}", self.variable, self._type)
     }
 }
 
-impl<F: Field + PrimeField, G: Group> Struct<F, G> {
+impl<F: Field + PrimeField, G: Group> Circuit<F, G> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "struct {} {{ \n", self.variable)?;
+        write!(f, "circuit {} {{ \n", self.variable)?;
         for field in self.fields.iter() {
             write!(f, "    {}\n", field)?;
         }
@@ -296,7 +296,7 @@ impl<F: Field + PrimeField, G: Group> Struct<F, G> {
 //     }
 // }
 
-impl<F: Field + PrimeField, G: Group> fmt::Debug for Struct<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Debug for Circuit<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
