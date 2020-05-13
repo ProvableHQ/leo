@@ -229,16 +229,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             .map(|import| self.enforce_import(cs, program_name.name.clone(), import))
             .collect::<Result<Vec<_>, ImportError>>()?;
 
-        // evaluate and store all struct definitions
+        // evaluate and store all circuit definitions
         program
-            .structs
+            .circuits
             .into_iter()
-            .for_each(|(variable, struct_def)| {
-                let resolved_struct_name =
+            .for_each(|(variable, circuit_def)| {
+                let resolved_circuit_name =
                     new_variable_from_variables(&program_name.clone(), &variable);
                 self.store_variable(
-                    resolved_struct_name,
-                    ConstrainedValue::StructDefinition(struct_def),
+                    resolved_circuit_name,
+                    ConstrainedValue::CircuitDefinition(circuit_def),
                 );
             });
 

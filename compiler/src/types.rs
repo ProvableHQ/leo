@@ -145,9 +145,9 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     Array(Vec<Box<SpreadOrExpression<F, G>>>),
     ArrayAccess(Box<Expression<F, G>>, Box<RangeOrExpression<F, G>>), // (array name, range)
 
-    // Structs
-    Struct(Variable<F, G>, Vec<StructMember<F, G>>),
-    StructMemberAccess(Box<Expression<F, G>>, Variable<F, G>), // (struct name, struct member name)
+    // Circuits
+    Circuit(Variable<F, G>, Vec<CircuitMember<F, G>>),
+    CircuitMemberAccess(Box<Expression<F, G>>, Variable<F, G>), // (circuit name, circuit member name)
 
     // Functions
     FunctionCall(Variable<F, G>, Vec<Expression<F, G>>),
@@ -158,7 +158,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
 pub enum Assignee<F: Field + PrimeField, G: Group> {
     Variable(Variable<F, G>),
     Array(Box<Assignee<F, G>>, RangeOrExpression<F, G>),
-    StructMember(Box<Assignee<F, G>>, Variable<F, G>),
+    CircuitMember(Box<Assignee<F, G>>, Variable<F, G>),
 }
 
 /// Explicit integer type
@@ -179,7 +179,7 @@ pub enum Type<F: Field + PrimeField, G: Group> {
     GroupElement,
     Boolean,
     Array(Box<Type<F, G>>, Vec<usize>),
-    Struct(Variable<F, G>),
+    Circuit(Variable<F, G>),
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {
@@ -225,21 +225,21 @@ pub enum Statement<F: Field + PrimeField, G: Group> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct StructMember<F: Field + PrimeField, G: Group> {
+pub struct CircuitMember<F: Field + PrimeField, G: Group> {
     pub variable: Variable<F, G>,
     pub expression: Expression<F, G>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct StructField<F: Field + PrimeField, G: Group> {
+pub struct CircuitObject<F: Field + PrimeField, G: Group> {
     pub variable: Variable<F, G>,
     pub _type: Type<F, G>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Struct<F: Field + PrimeField, G: Group> {
+pub struct Circuit<F: Field + PrimeField, G: Group> {
     pub variable: Variable<F, G>,
-    pub fields: Vec<StructField<F, G>>,
+    pub fields: Vec<CircuitObject<F, G>>,
 }
 
 /// Function parameters
@@ -293,7 +293,7 @@ pub struct Program<F: Field + PrimeField, G: Group> {
     pub name: Variable<F, G>,
     pub num_parameters: usize,
     pub imports: Vec<Import<F, G>>,
-    pub structs: HashMap<Variable<F, G>, Struct<F, G>>,
+    pub circuits: HashMap<Variable<F, G>, Circuit<F, G>>,
     pub functions: HashMap<FunctionName, Function<F, G>>,
 }
 
@@ -307,7 +307,7 @@ impl<'ast, F: Field + PrimeField, G: Group> Program<F, G> {
             },
             num_parameters: 0,
             imports: vec![],
-            structs: HashMap::new(),
+            circuits: HashMap::new(),
             functions: HashMap::new(),
         }
     }

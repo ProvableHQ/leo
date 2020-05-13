@@ -174,8 +174,8 @@ pub struct BooleanType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_struct))]
-pub struct StructType<'ast> {
+#[pest_ast(rule(Rule::type_circuit))]
+pub struct CircuitType<'ast> {
     pub variable: Variable<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -188,13 +188,6 @@ pub enum BasicType<'ast> {
     Field(FieldType<'ast>),
     Group(GroupType<'ast>),
     Boolean(BooleanType<'ast>),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_basic_or_struct))]
-pub enum BasicOrStructType<'ast> {
-    Struct(StructType<'ast>),
-    Basic(BasicType<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -211,7 +204,7 @@ pub struct ArrayType<'ast> {
 pub enum Type<'ast> {
     Basic(BasicType<'ast>),
     Array(ArrayType<'ast>),
-    Struct(StructType<'ast>),
+    Circuit(CircuitType<'ast>),
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
@@ -219,7 +212,7 @@ impl<'ast> fmt::Display for Type<'ast> {
         match *self {
             Type::Basic(ref _type) => write!(f, "basic"),
             Type::Array(ref _type) => write!(f, "array"),
-            Type::Struct(ref _type) => write!(f, "struct"),
+            Type::Circuit(ref _type) => write!(f, "struct"),
         }
     }
 }
@@ -539,11 +532,11 @@ pub struct ArrayInitializerExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-// Structs
+// Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::struct_field))]
-pub struct StructField<'ast> {
+#[pest_ast(rule(Rule::circuit_object))]
+pub struct CircuitObject<'ast> {
     pub variable: Variable<'ast>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
@@ -551,17 +544,17 @@ pub struct StructField<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::struct_definition))]
-pub struct Struct<'ast> {
+#[pest_ast(rule(Rule::circuit_definition))]
+pub struct Circuit<'ast> {
     pub variable: Variable<'ast>,
-    pub fields: Vec<StructField<'ast>>,
+    pub fields: Vec<CircuitObject<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::inline_struct_member))]
-pub struct InlineStructMember<'ast> {
+#[pest_ast(rule(Rule::inline_circuit_member))]
+pub struct InlineCircuitMember<'ast> {
     pub variable: Variable<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
@@ -569,10 +562,10 @@ pub struct InlineStructMember<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_inline_struct))]
-pub struct StructInlineExpression<'ast> {
+#[pest_ast(rule(Rule::expression_inline_circuit))]
+pub struct CircuitInlineExpression<'ast> {
     pub variable: Variable<'ast>,
-    pub members: Vec<InlineStructMember<'ast>>,
+    pub members: Vec<InlineCircuitMember<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -633,7 +626,7 @@ pub enum Expression<'ast> {
     Ternary(TernaryExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
     ArrayInitializer(ArrayInitializerExpression<'ast>),
-    StructInline(StructInlineExpression<'ast>),
+    CircuitInline(CircuitInlineExpression<'ast>),
     Postfix(PostfixExpression<'ast>),
 }
 
@@ -677,7 +670,7 @@ impl<'ast> Expression<'ast> {
             Expression::Ternary(expression) => &expression.span,
             Expression::ArrayInline(expression) => &expression.span,
             Expression::ArrayInitializer(expression) => &expression.span,
-            Expression::StructInline(expression) => &expression.span,
+            Expression::CircuitInline(expression) => &expression.span,
             Expression::Postfix(expression) => &expression.span,
         }
     }
@@ -711,8 +704,8 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
-            Expression::StructInline(ref expression) => {
-                write!(f, "inline struct display not impl {}", expression.variable)
+            Expression::CircuitInline(ref expression) => {
+                write!(f, "inline circuit display not impl {}", expression.variable)
             }
             Expression::Postfix(ref expression) => {
                 write!(f, "Postfix display not impl {}", expression.variable)
@@ -746,9 +739,9 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-                Rule::expression_inline_struct => {
-                    Expression::StructInline(
-                        StructInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                Rule::expression_inline_circuit => {
+                    Expression::CircuitInline(
+                        CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )
                 },
                 Rule::expression_array_inline => {
@@ -1150,7 +1143,7 @@ pub struct Import<'ast> {
 #[pest_ast(rule(Rule::file))]
 pub struct File<'ast> {
     pub imports: Vec<Import<'ast>>,
-    pub structs: Vec<Struct<'ast>>,
+    pub structs: Vec<Circuit<'ast>>,
     pub functions: Vec<Function<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]

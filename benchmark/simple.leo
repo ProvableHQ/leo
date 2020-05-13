@@ -1,3 +1,7 @@
+circuit Circ {
+  x: u32
+}
+
 function main() {
-  let g = 0group;
+  let c = Circ { x: 4 };
 }

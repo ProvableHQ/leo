@@ -41,21 +41,21 @@ pub enum ExpressionError {
     #[error("Index must resolve to an integer, got {}", _0)]
     InvalidIndex(String),
 
-    // Structs
+    // Circuits
     #[error(
-        "Struct {} must be declared before it is used in an inline expression",
+        "Circuit {} must be declared before it is used in an inline expression",
         _0
     )]
-    UndefinedStruct(String),
+    UndefinedCircuit(String),
 
-    #[error("Struct field {} does not exist", _0)]
-    UndefinedStructField(String),
+    #[error("Circuit object {} does not exist", _0)]
+    UndefinedCircuitObject(String),
 
-    #[error("Expected struct field {}, got {}", _0, _1)]
-    InvalidStructField(String, String),
+    #[error("Expected circuit object {}, got {}", _0, _1)]
+    InvalidCircuitObject(String, String),
 
-    #[error("Cannot access struct {}", _0)]
-    InvalidStructAccess(String),
+    #[error("Cannot access circuit {}", _0)]
+    InvalidCircuitAccess(String),
 
     // Functions
     #[error(

@@ -19,8 +19,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         match assignee {
             Assignee::Variable(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
-            Assignee::StructMember(struct_variable, _member) => {
-                self.resolve_assignee(scope, *struct_variable)
+            Assignee::CircuitMember(circuit_variable, _member) => {
+                self.resolve_assignee(scope, *circuit_variable)
             }
         }
     }
@@ -93,26 +93,27 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     }
                 }
             }
-            Assignee::StructMember(struct_variable, struct_member) => {
-                // Check that struct exists
-                let expected_struct_name =
-                    self.resolve_assignee(function_scope.clone(), *struct_variable);
+            Assignee::CircuitMember(circuit_variable, circuit_member) => {
+                // Check that circuit exists
+                let expected_circuit_name =
+                    self.resolve_assignee(function_scope.clone(), *circuit_variable);
 
-                match self.get_mut(&expected_struct_name) {
-                    Some(ConstrainedValue::StructExpression(_variable, members)) => {
-                        // Modify the struct member in place
-                        let matched_member =
-                            members.into_iter().find(|member| member.0 == struct_member);
+                match self.get_mut(&expected_circuit_name) {
+                    Some(ConstrainedValue::CircuitExpression(_variable, members)) => {
+                        // Modify the circuit member in place
+                        let matched_member = members
+                            .into_iter()
+                            .find(|member| member.0 == circuit_member);
                         match matched_member {
                             Some(mut member) => member.1 = return_value.to_owned(),
                             None => {
-                                return Err(StatementError::UndefinedStructField(
-                                    struct_member.to_string(),
+                                return Err(StatementError::UndefinedCircuitObject(
+                                    circuit_member.to_string(),
                                 ))
                             }
                         }
                     }
-                    _ => return Err(StatementError::UndefinedStruct(expected_struct_name)),
+                    _ => return Err(StatementError::UndefinedCircuit(expected_circuit_name)),
                 }
             }
         }

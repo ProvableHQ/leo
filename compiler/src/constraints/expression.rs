@@ -2,11 +2,11 @@
 
 use crate::{
     constraints::{
-        new_scope_from_variable, new_variable_from_variable, ConstrainedProgram,
-        ConstrainedStructMember, ConstrainedValue,
+        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitMember,
+        ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
-    types::{Expression, RangeOrExpression, SpreadOrExpression, StructMember, Variable},
+    types::{CircuitMember, Expression, RangeOrExpression, SpreadOrExpression, Variable},
 };
 
 use snarkos_models::{
@@ -28,7 +28,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // Reassigning variable to another variable
             Ok(self.get_mut(&variable_name).unwrap().clone())
         } else if self.contains_variable(&unresolved_variable) {
-            // Check global scope (function and struct names)
+            // Check global scope (function and circuit names)
             Ok(self.get_mut_variable(&unresolved_variable).unwrap().clone())
         } else {
             Err(ExpressionError::UndefinedVariable(
@@ -335,33 +335,33 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
     }
 
-    fn enforce_struct_expression(
+    fn enforce_circuit_expression(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
         variable: Variable<F, G>,
-        members: Vec<StructMember<F, G>>,
+        members: Vec<CircuitMember<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let struct_name = new_variable_from_variable(file_scope.clone(), &variable);
+        let circuit_name = new_variable_from_variable(file_scope.clone(), &variable);
 
-        if let Some(ConstrainedValue::StructDefinition(struct_definition)) =
-            self.get_mut_variable(&struct_name)
+        if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) =
+            self.get_mut_variable(&circuit_name)
         {
             let mut resolved_members = vec![];
-            for (field, member) in struct_definition
+            for (field, member) in circuit_definition
                 .fields
                 .clone()
                 .into_iter()
                 .zip(members.clone().into_iter())
             {
                 if field.variable != member.variable {
-                    return Err(ExpressionError::InvalidStructField(
+                    return Err(ExpressionError::InvalidCircuitObject(
                         field.variable.name,
                         member.variable.name,
                     ));
                 }
-                // Resolve and enforce struct fields
+                // Resolve and enforce circuit fields
                 let member_value = self.enforce_expression(
                     cs,
                     file_scope.clone(),
@@ -372,37 +372,39 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 // Check member types
                 member_value.expect_type(&field._type)?;
 
-                resolved_members.push(ConstrainedStructMember(member.variable, member_value))
+                resolved_members.push(ConstrainedCircuitMember(member.variable, member_value))
             }
 
-            Ok(ConstrainedValue::StructExpression(
+            Ok(ConstrainedValue::CircuitExpression(
                 variable,
                 resolved_members,
             ))
         } else {
-            Err(ExpressionError::UndefinedStruct(variable.to_string()))
+            Err(ExpressionError::UndefinedCircuit(variable.to_string()))
         }
     }
 
-    fn enforce_struct_access_expression(
+    fn enforce_circuit_access_expression(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        struct_variable: Box<Expression<F, G>>,
-        struct_member: Variable<F, G>,
+        circuit_variable: Box<Expression<F, G>>,
+        circuit_member: Variable<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match self.enforce_expression(cs, file_scope, function_scope, *struct_variable)? {
-            ConstrainedValue::StructExpression(_name, members) => {
-                let matched_member = members.into_iter().find(|member| member.0 == struct_member);
+        match self.enforce_expression(cs, file_scope, function_scope, *circuit_variable)? {
+            ConstrainedValue::CircuitExpression(_name, members) => {
+                let matched_member = members
+                    .into_iter()
+                    .find(|member| member.0 == circuit_member);
                 match matched_member {
                     Some(member) => Ok(member.1),
-                    None => Err(ExpressionError::UndefinedStructField(
-                        struct_member.to_string(),
+                    None => Err(ExpressionError::UndefinedCircuitObject(
+                        circuit_member.to_string(),
                     )),
                 }
             }
-            value => Err(ExpressionError::InvalidStructAccess(value.to_string())),
+            value => Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
         }
     }
 
@@ -633,17 +635,21 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 self.enforce_array_access_expression(cs, file_scope, function_scope, array, *index)
             }
 
-            // Structs
-            Expression::Struct(struct_name, members) => {
-                self.enforce_struct_expression(cs, file_scope, function_scope, struct_name, members)
-            }
-            Expression::StructMemberAccess(struct_variable, struct_member) => self
-                .enforce_struct_access_expression(
+            // Circuits
+            Expression::Circuit(circuit_name, members) => self.enforce_circuit_expression(
+                cs,
+                file_scope,
+                function_scope,
+                circuit_name,
+                members,
+            ),
+            Expression::CircuitMemberAccess(circuit_variable, circuit_member) => self
+                .enforce_circuit_access_expression(
                     cs,
                     file_scope,
                     function_scope,
-                    struct_variable,
-                    struct_member,
+                    circuit_variable,
+                    circuit_member,
                 ),
 
             // Functions
