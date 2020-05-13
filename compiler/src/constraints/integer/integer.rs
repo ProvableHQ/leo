@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, InputValue, Integer, Type},
+    types::{InputValue, Integer},
     IntegerType,
 };
 
@@ -41,35 +41,29 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
-        integer_model: InputModel<F, G>,
+        integer_type: IntegerType,
+        name: String,
+        private: bool,
         integer_value: Option<InputValue<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        let integer_type = match &integer_model._type {
-            Type::IntegerType(integer_type) => integer_type,
-            _type => return Err(IntegerError::InvalidType(_type.to_string())),
-        };
-
-        // Check that the parameter value is the correct type
+        // Check that the input value is the correct type
         let integer_option = match integer_value {
-            Some(parameter) => {
-                if let InputValue::Integer(integer) = parameter {
+            Some(input) => {
+                if let InputValue::Integer(integer) = input {
                     Some(integer)
                 } else {
-                    return Err(IntegerError::InvalidInteger(
-                        integer_model._type.to_string(),
-                        parameter.to_string(),
-                    ));
+                    return Err(IntegerError::InvalidInteger(input.to_string()));
                 }
             }
             None => None,
         };
 
         match integer_type {
-            IntegerType::U8 => self.u8_from_input(cs, integer_model, integer_option),
-            IntegerType::U16 => self.u16_from_input(cs, integer_model, integer_option),
-            IntegerType::U32 => self.u32_from_input(cs, integer_model, integer_option),
-            IntegerType::U64 => self.u64_from_input(cs, integer_model, integer_option),
-            IntegerType::U128 => self.u128_from_integer(cs, integer_model, integer_option),
+            IntegerType::U8 => self.u8_from_input(cs, name, private, integer_option),
+            IntegerType::U16 => self.u16_from_input(cs, name, private, integer_option),
+            IntegerType::U32 => self.u32_from_input(cs, name, private, integer_option),
+            IntegerType::U64 => self.u64_from_input(cs, name, private, integer_option),
+            IntegerType::U128 => self.u128_from_input(cs, name, private, integer_option),
         }
     }
 

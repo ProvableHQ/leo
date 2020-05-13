@@ -7,27 +7,38 @@ use snarkos_models::gadgets::utilities::{
     boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
     uint8::UInt8,
 };
-use std::{collections::HashMap};
+use std::collections::HashMap;
+
+/// pest ast -> types::Identifier
+
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::Identifier<'ast>>
+    for types::Identifier<F, G>
+{
+    fn from(identifier: ast::Identifier<'ast>) -> Self {
+        types::Identifier::new(identifier.value)
+    }
+}
+
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::Identifier<'ast>>
+    for types::Expression<F, G>
+{
+    fn from(identifier: ast::Identifier<'ast>) -> Self {
+        types::Expression::Identifier(types::Identifier::from(identifier))
+    }
+}
 
 /// pest ast -> types::Variable
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Variable<'ast>> for types::Variable<F, G> {
     fn from(variable: ast::Variable<'ast>) -> Self {
-        types::Variable::new(variable.identifier.value)
+        types::Variable {
+            identifier: types::Identifier::from(variable.identifier),
+            mutable: variable.mutable.is_some(),
+            _type: variable._type.map(|_type| types::Type::from(_type)),
+        }
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::Identifier<'ast>> for types::Variable<F, G> {
-    fn from(identifier: ast::Identifier<'ast>) -> Self {
-        types::Variable::new(identifier.value)
-    }
-}
-
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::Identifier<'ast>> for types::Expression<F, G> {
-    fn from(identifier: ast::Identifier<'ast>) -> Self {
-        types::Expression::Variable(types::Variable::from(identifier))
-    }
-}
 /// pest ast - types::Integer
 
 impl<'ast> types::Integer {
@@ -270,7 +281,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineCircuitMember<'ast>>
 {
     fn from(member: ast::InlineCircuitMember<'ast>) -> Self {
         types::CircuitMember {
-            variable: types::Variable::from(member.identifier),
+            identifier: types::Identifier::from(member.identifier),
             expression: types::Expression::from(member.expression),
         }
     }
@@ -280,7 +291,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitInlineExpression<'a
     for types::Expression<F, G>
 {
     fn from(expression: ast::CircuitInlineExpression<'ast>) -> Self {
-        let variable = types::Variable::from(expression.identifier);
+        let variable = types::Identifier::from(expression.identifier);
         let members = expression
             .members
             .into_iter()
@@ -295,7 +306,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
     for types::Expression<F, G>
 {
     fn from(expression: ast::PostfixExpression<'ast>) -> Self {
-        let variable = types::Expression::Variable(types::Variable::from(expression.identifier));
+        let variable =
+            types::Expression::Identifier(types::Identifier::from(expression.identifier));
 
         // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
         // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
@@ -306,7 +318,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
             .into_iter()
             .fold(variable, |acc, access| match access {
                 ast::Access::Call(function) => match acc {
-                    types::Expression::Variable(variable) => types::Expression::FunctionCall(
+                    types::Expression::Identifier(variable) => types::Expression::FunctionCall(
                         variable,
                         function
                             .expressions
@@ -320,7 +332,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
                 },
                 ast::Access::Member(struct_member) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
-                    types::Variable::from(struct_member.identifier),
+                    types::Identifier::from(struct_member.identifier),
                 ),
                 ast::Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
@@ -364,7 +376,7 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Expression<F, G> {
 // ast::Assignee -> types::Expression for operator assign statements
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types::Expression<F, G> {
     fn from(assignee: ast::Assignee<'ast>) -> Self {
-        let variable = types::Expression::Variable(types::Variable::from(assignee.identifier));
+        let variable = types::Expression::Identifier(types::Identifier::from(assignee.identifier));
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
         assignee
@@ -374,7 +386,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
                 ast::AssigneeAccess::Member(struct_member) => {
                     types::Expression::CircuitMemberAccess(
                         Box::new(acc),
-                        types::Variable::from(struct_member.identifier),
+                        types::Identifier::from(struct_member.identifier),
                     )
                 }
                 ast::AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
@@ -389,7 +401,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Identifier<'ast>> for types::Assignee<F, G> {
     fn from(variable: ast::Identifier<'ast>) -> Self {
-        types::Assignee::Variable(types::Variable::from(variable))
+        types::Assignee::Identifier(types::Identifier::from(variable))
     }
 }
 
@@ -408,7 +420,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
                 ),
                 ast::AssigneeAccess::Member(struct_member) => types::Assignee::CircuitMember(
                     Box::new(acc),
-                    types::Variable::from(struct_member.identifier),
+                    types::Identifier::from(struct_member.identifier),
                 ),
             })
     }
@@ -435,10 +447,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::DefinitionStatement<'ast>>
 {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Assignee::from(statement.variable.identifier),
-            statement
-                ._type
-                .map(|_type| types::Type::<F, G>::from(_type)),
+            types::Variable::from(statement.variable),
             types::Expression::from(statement.expression),
         )
     }
@@ -506,16 +515,16 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::MultipleAssignmentStatemen
     for types::Statement<F, G>
 {
     fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
-        let assignees = statement
-            .assignees
+        let variables = statement
+            .variables
             .into_iter()
-            .map(|i| types::Assignee::Variable(types::Variable::from(i.variable.identifier)))
+            .map(|typed_variable| types::Variable::from(typed_variable))
             .collect();
 
         types::Statement::MultipleAssign(
-            assignees,
+            variables,
             types::Expression::FunctionCall(
-                types::Variable::from(statement.function_name),
+                types::Identifier::from(statement.function_name),
                 statement
                     .arguments
                     .into_iter()
@@ -577,7 +586,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ForStatement<'ast>>
         };
 
         types::Statement::For(
-            types::Variable::from(statement.index),
+            types::Identifier::from(statement.index),
             from,
             to,
             statement
@@ -669,7 +678,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayType<'ast>> for types
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitType<'ast>> for types::Type<F, G> {
     fn from(struct_type: ast::CircuitType<'ast>) -> Self {
-        types::Type::Circuit(types::Variable::from(struct_type.identifier))
+        types::Type::Circuit(types::Identifier::from(struct_type.identifier))
     }
 }
 
@@ -690,7 +699,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
 {
     fn from(struct_field: ast::CircuitObject<'ast>) -> Self {
         types::CircuitObject {
-            variable: types::Variable::from(struct_field.identifier),
+            identifier: types::Identifier::from(struct_field.identifier),
             _type: types::Type::from(struct_field._type),
         }
     }
@@ -698,40 +707,34 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::Circuit<F, G> {
     fn from(struct_definition: ast::Circuit<'ast>) -> Self {
-        let variable = types::Variable::from(struct_definition.identifier);
+        let variable = types::Identifier::from(struct_definition.identifier);
         let fields = struct_definition
             .fields
             .into_iter()
             .map(|struct_field| types::CircuitObject::from(struct_field))
             .collect();
 
-        types::Circuit { variable, fields }
+        types::Circuit {
+            identifier: variable,
+            fields,
+        }
     }
 }
 
 /// pest ast -> function types::Parameters
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::Parameter<'ast>> for types::InputModel<F, G> {
-    fn from(parameter: ast::Parameter<'ast>) -> Self {
-        let _type = types::Type::from(parameter._type);
-        let variable = types::Variable::from(parameter.variable);
-
-        if parameter.visibility.is_some() {
-            let private = match parameter.visibility.unwrap() {
-                ast::Visibility::Private(_) => true,
-                ast::Visibility::Public(_) => false,
-            };
-            types::InputModel {
-                private,
-                _type,
-                variable,
-            }
-        } else {
-            types::InputModel {
-                private: true,
-                _type,
-                variable,
-            }
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::InputModel<'ast>>
+    for types::InputModel<F, G>
+{
+    fn from(parameter: ast::InputModel<'ast>) -> Self {
+        types::InputModel {
+            identifier: types::Identifier::from(parameter.identifier),
+            mutable: parameter.mutable.is_some(),
+            // private by default
+            private: parameter.visibility.map_or(true, |visibility| {
+                visibility.eq(&ast::Visibility::Private(ast::Private {}))
+            }),
+            _type: types::Type::from(parameter._type),
         }
     }
 }
@@ -740,7 +743,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Parameter<'ast>> for types
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Function<'ast>> for types::Function<F, G> {
     fn from(function_definition: ast::Function<'ast>) -> Self {
-        let function_name = types::Variable::from(function_definition.function_name);
+        let function_name = types::Identifier::from(function_definition.function_name);
         let parameters = function_definition
             .parameters
             .into_iter()
@@ -771,8 +774,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Function<'ast>> for types:
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::ImportSymbol<'ast>> for ImportSymbol<F, G> {
     fn from(symbol: ast::ImportSymbol<'ast>) -> Self {
         ImportSymbol {
-            symbol: types::Variable::from(symbol.value),
-            alias: symbol.alias.map(|alias| types::Variable::from(alias)),
+            symbol: types::Identifier::from(symbol.value),
+            alias: symbol.alias.map(|alias| types::Identifier::from(alias)),
         }
     }
 }
@@ -807,23 +810,23 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Program<F, G> {
 
         file.circuits.into_iter().for_each(|struct_def| {
             structs.insert(
-                types::Variable::from(struct_def.identifier.clone()),
+                types::Identifier::from(struct_def.identifier.clone()),
                 types::Circuit::from(struct_def),
             );
         });
         file.functions.into_iter().for_each(|function_def| {
             functions.insert(
-                types::Variable::from(function_def.function_name.clone()),
+                types::Identifier::from(function_def.function_name.clone()),
                 types::Function::from(function_def),
             );
         });
 
-        if let Some(main_function) = functions.get(&types::Variable::new("main".into())) {
+        if let Some(main_function) = functions.get(&types::Identifier::new("main".into())) {
             num_parameters = main_function.inputs.len();
         }
 
         types::Program {
-            name: types::Variable::new(name),
+            name: types::Identifier::new(name),
             num_parameters,
             imports,
             circuits: structs,

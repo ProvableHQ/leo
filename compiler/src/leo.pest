@@ -98,10 +98,8 @@ expression_primitive = { value | identifier }
 /// Variables + Mutability
 
 mutable = {"mut"}
-variable = {mutable? ~ identifier}
-
-optionally_typed_variable = { (_type ~ variable) | (variable)}
-optionally_typed_variable_tuple = _{ optionally_typed_variable ~ ("," ~ optionally_typed_variable)* }
+variable = { mutable? ~ identifier ~ (":" ~ _type)? }
+variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 /// Access
 
@@ -172,9 +170,9 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ (":" ~ _type)? ~ "=" ~ expression }
+statement_definition = { "let" ~ variable ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
-statement_multiple_assignment = { "let" ~ "(" ~ optionally_typed_variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" }
+statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
 statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 statement_assert = {
@@ -198,10 +196,10 @@ statement = {
 
 /// Functions
 
-parameter = {variable ~ ":" ~ visibility? ~ _type}
-parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
+input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ _type}
+input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
 
-function_definition = {"function" ~ identifier ~ "(" ~ parameter_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 /// Utilities
 

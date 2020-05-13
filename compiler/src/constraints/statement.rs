@@ -3,10 +3,12 @@
 use crate::{
     constraints::{new_scope_from_variable, ConstrainedProgram, ConstrainedValue},
     errors::StatementError,
+    new_scope,
     types::{
-        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer,
-        RangeOrExpression, Statement, Type, Variable,
+        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Identifier, Integer,
+        RangeOrExpression, Statement, Type,
     },
+    Variable,
 };
 
 use snarkos_models::{
@@ -17,7 +19,7 @@ use snarkos_models::{
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
         match assignee {
-            Assignee::Variable(name) => new_scope_from_variable(scope, &name),
+            Assignee::Identifier(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
             Assignee::CircuitMember(circuit_variable, _member) => {
                 self.resolve_assignee(scope, *circuit_variable)
@@ -34,7 +36,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         return_value: &mut ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         match assignee {
-            Assignee::Variable(name) => {
+            Assignee::Identifier(name) => {
                 // Store the variable in the current scope
                 let definition_name = new_scope_from_variable(function_scope.clone(), &name);
 
@@ -147,31 +149,41 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
     }
 
+    fn store_definition(
+        &mut self,
+        function_scope: String,
+        variable: Variable<F, G>,
+        mut value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        // Check optional explicit type
+        if let Some(_type) = variable._type {
+            value.expect_type(&_type)?;
+        }
+
+        // Store with given mutability
+        if variable.mutable {
+            value = ConstrainedValue::Mutable(Box::new(value));
+        }
+
+        let variable_program_identifier = new_scope(function_scope, variable.identifier.name);
+
+        self.store(variable_program_identifier, value);
+
+        Ok(())
+    }
+
     fn enforce_definition_statement(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F, G>,
-        ty: Option<Type<F, G>>,
+        variable: Variable<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
-        let result_value = &mut self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expression,
-        )?;
+        let value =
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
 
-        match ty {
-            // Explicit type
-            Some(ty) => {
-                result_value.expect_type(&ty)?;
-                self.store_assignment(cs, file_scope, function_scope, assignee, result_value)
-            }
-            // Implicit type
-            None => self.store_assignment(cs, file_scope, function_scope, assignee, result_value),
-        }
+        self.store_definition(function_scope, variable, value)
     }
 
     fn enforce_multiple_definition_statement(
@@ -179,7 +191,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignees: Vec<Assignee<F, G>>,
+        variables: Vec<Variable<F, G>>,
         function: Expression<F, G>,
     ) -> Result<(), StatementError> {
         // Expect return values from function
@@ -196,20 +208,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             ),
         };
 
-        assignees
-            .into_iter()
-            .zip(return_values.into_iter())
-            .map(|(assignee, mut return_value)| {
-                self.store_assignment(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    assignee,
-                    &mut return_value,
-                )
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        if variables.len() != return_values.len() {
+            return Err(StatementError::InvalidNumberOfDefinitions(
+                variables.len(),
+                return_values.len(),
+            ));
+        }
 
+        for (variable, value) in variables.into_iter().zip(return_values.into_iter()) {
+            self.store_definition(function_scope.clone(), variable, value)?;
+        }
         Ok(())
     }
 
@@ -326,7 +334,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Variable<F, G>,
+        index: Identifier<F, G>,
         start: Integer,
         stop: Integer,
         statements: Vec<Statement<F, G>>,
@@ -413,13 +421,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     return_types,
                 )?);
             }
-            Statement::Definition(assignee, ty, expression) => {
+            Statement::Definition(variable, expression) => {
                 self.enforce_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignee,
-                    ty,
+                    variable,
                     expression,
                 )?;
             }
@@ -432,12 +439,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     expression,
                 )?;
             }
-            Statement::MultipleAssign(assignees, function) => {
+            Statement::MultipleAssign(variables, function) => {
                 self.enforce_multiple_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignees,
+                    variables,
                     function,
                 )?;
             }

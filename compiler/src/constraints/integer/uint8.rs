@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, Integer},
+    types::Integer,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -19,7 +19,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn u8_from_input(
         &mut self,
         cs: &mut CS,
-        parameter_model: InputModel<F, G>,
+        name: String,
+        private: bool,
         integer_option: Option<usize>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Type cast to u8 in rust.
@@ -27,8 +28,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let u8_option = integer_option.map(|integer| integer as u8);
 
         // Check visibility of parameter
-        let name = parameter_model.variable.name.clone();
-        let integer_value = if parameter_model.private {
+        let integer_value = if private {
             UInt8::alloc(cs.ns(|| name), || {
                 u8_option.ok_or(SynthesisError::AssignmentMissing)
             })?

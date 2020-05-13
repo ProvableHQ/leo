@@ -1,14 +1,14 @@
 //! The Import type for a Leo program.
 
-use crate::Variable;
+use crate::Identifier;
 
 use snarkos_models::curves::{Field, Group, PrimeField};
 use std::fmt;
 
 #[derive(Clone)]
 pub struct ImportSymbol<F: Field + PrimeField, G: Group> {
-    pub symbol: Variable<F, G>,
-    pub alias: Option<Variable<F, G>>,
+    pub symbol: Identifier<F, G>,
+    pub alias: Option<Identifier<F, G>>,
 }
 
 #[derive(Clone)]

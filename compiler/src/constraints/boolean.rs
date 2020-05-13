@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::BooleanError,
-    types::{InputModel, InputValue},
+    types::InputValue,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -19,7 +19,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn bool_from_input(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<F, G>,
+        name: String,
+        private: bool,
         input_value: Option<InputValue<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
@@ -35,8 +36,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         };
 
         // Check visibility of input
-        let name = input_model.variable.name.clone();
-        let number = if input_model.private {
+        let number = if private {
             Boolean::alloc(cs.ns(|| name), || {
                 bool_value.ok_or(SynthesisError::AssignmentMissing)
             })?

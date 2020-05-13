@@ -5,8 +5,8 @@ pub enum IntegerError {
     #[error("expected integer parameter type, got {}", _0)]
     InvalidType(String),
 
-    #[error("Expected integer {} parameter, got {}", _0, _1)]
-    InvalidInteger(String, String),
+    #[error("Expected integer parameter, got {}", _0)]
+    InvalidInteger(String),
 
     #[error("Cannot evaluate {}", _0)]
     CannotEvaluate(String),

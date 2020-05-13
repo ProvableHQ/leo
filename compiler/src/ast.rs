@@ -352,28 +352,24 @@ pub struct Mutable {}
 pub struct Variable<'ast> {
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
+    pub _type: Option<Type<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> fmt::Display for Variable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.identifier)
-    }
-}
+        if let Some(ref _mutable) = self.mutable {
+            write!(f, "mut ")?;
+        }
 
-#[derive(Debug, FromPest, PartialEq, Clone)]
-#[pest_ast(rule(Rule::optionally_typed_variable))]
-pub struct OptionallyTypedVariable<'ast> {
-    pub _type: Option<Type<'ast>>,
-    pub variable: Variable<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+        write!(f, "{}", self.identifier)?;
 
-impl<'ast> fmt::Display for OptionallyTypedVariable<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.variable)
+        if let Some(ref _type) = self._type {
+            write!(f, ": {}", _type)?;
+        }
+
+        write!(f, "")
     }
 }
 
@@ -725,9 +721,11 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
-            Expression::CircuitInline(ref expression) => {
-                write!(f, "inline circuit display not impl {}", expression.identifier)
-            }
+            Expression::CircuitInline(ref expression) => write!(
+                f,
+                "inline circuit display not impl {}",
+                expression.identifier
+            ),
             Expression::Postfix(ref expression) => {
                 write!(f, "Postfix display not impl {}", expression.identifier)
             }
@@ -928,7 +926,7 @@ pub struct ForStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_multiple_assignment))]
 pub struct MultipleAssignmentStatement<'ast> {
-    pub assignees: Vec<OptionallyTypedVariable<'ast>>,
+    pub variables: Vec<Variable<'ast>>,
     pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
@@ -939,7 +937,6 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
     pub variable: Variable<'ast>,
-    pub _type: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -1037,9 +1034,9 @@ impl<'ast> fmt::Display for ForStatement<'ast> {
 
 impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for (i, id) in self.assignees.iter().enumerate() {
+        for (i, id) in self.variables.iter().enumerate() {
             write!(f, "{}", id)?;
-            if i < self.assignees.len() - 1 {
+            if i < self.variables.len() - 1 {
                 write!(f, ", ")?;
             }
         }
@@ -1049,14 +1046,7 @@ impl<'ast> fmt::Display for MultipleAssignmentStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self._type {
-            Some(ref _type) => write!(
-                f,
-                "let {} : {} = {};",
-                self.variable, _type, self.expression
-            ),
-            None => write!(f, "let {} = {}", self.variable, self.expression),
-        }
+        write!(f, "let {} = {};", self.variable, self.expression)
     }
 }
 
@@ -1094,9 +1084,10 @@ impl<'ast> fmt::Display for Statement<'ast> {
 // Functions
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::parameter))]
-pub struct Parameter<'ast> {
-    pub variable: Variable<'ast>,
+#[pest_ast(rule(Rule::input_model))]
+pub struct InputModel<'ast> {
+    pub mutable: Option<Mutable>,
+    pub identifier: Identifier<'ast>,
     pub visibility: Option<Visibility>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
@@ -1107,7 +1098,7 @@ pub struct Parameter<'ast> {
 #[pest_ast(rule(Rule::function_definition))]
 pub struct Function<'ast> {
     pub function_name: Identifier<'ast>,
-    pub parameters: Vec<Parameter<'ast>>,
+    pub parameters: Vec<InputModel<'ast>>,
     pub returns: Vec<Type<'ast>>,
     pub statements: Vec<Statement<'ast>>,
     #[pest_ast(outer())]
@@ -1155,7 +1146,7 @@ pub struct Import<'ast> {
 #[pest_ast(rule(Rule::file))]
 pub struct File<'ast> {
     pub imports: Vec<Import<'ast>>,
-    pub circuits : Vec<Circuit<'ast>>,
+    pub circuits: Vec<Circuit<'ast>>,
     pub functions: Vec<Function<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]
