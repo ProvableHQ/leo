@@ -37,11 +37,11 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn generate_constraints<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program<G, F>,
-    parameters: Vec<Option<InputValue<G, F>>>,
-) -> Result<ConstrainedValue<G, F>, CompilerError> {
+    program: Program<F, G>,
+    parameters: Vec<Option<InputValue<F, G>>>,
+) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

@@ -17,7 +17,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn check_inputs_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -33,8 +33,8 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
         scope: String,
         caller_scope: String,
         function_name: String,
-        input: Expression<G, F>,
-    ) -> Result<ConstrainedValue<G, F>, FunctionError> {
+        input: Expression<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match input {
             Expression::Variable(variable) => Ok(self.enforce_variable(caller_scope, variable)?),
             expression => Ok(self.enforce_expression(cs, scope, function_name, expression)?),
@@ -46,9 +46,9 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
         cs: &mut CS,
         scope: String,
         caller_scope: String,
-        function: Function<G, F>,
-        inputs: Vec<Expression<G, F>>,
-    ) -> Result<ConstrainedValue<G, F>, FunctionError> {
+        function: Function<F, G>,
+        inputs: Vec<Expression<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -99,12 +99,12 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
     fn allocate_array(
         &mut self,
         cs: &mut CS,
-        array_name: Variable<G, F>,
+        array_name: Variable<F, G>,
         array_private: bool,
-        array_type: Type<G, F>,
+        array_type: Type<F, G>,
         array_dimensions: Vec<usize>,
-        input_value: Option<InputValue<G, F>>,
-    ) -> Result<ConstrainedValue<G, F>, FunctionError> {
+        input_value: Option<InputValue<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -163,9 +163,9 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<G, F>,
-        input_value: Option<InputValue<G, F>>,
-    ) -> Result<ConstrainedValue<G, F>, FunctionError> {
+        input_model: InputModel<F, G>,
+        input_value: Option<InputValue<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match input_model._type {
             Type::IntegerType(ref _integer_type) => {
                 Ok(self.integer_from_parameter(cs, input_model, input_value)?)
@@ -190,9 +190,9 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Function<G, F>,
-        inputs: Vec<Option<InputValue<G, F>>>,
-    ) -> Result<ConstrainedValue<G, F>, FunctionError> {
+        function: Function<F, G>,
+        inputs: Vec<Option<InputValue<F, G>>>,
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -218,7 +218,7 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
     pub(crate) fn resolve_definitions(
         &mut self,
         cs: &mut CS,
-        program: Program<G, F>,
+        program: Program<F, G>,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

@@ -15,13 +15,13 @@ use snarkos_models::{
     },
 };
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn bool_from_input(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<G, F>,
-        input_value: Option<InputValue<G, F>>,
-    ) -> Result<ConstrainedValue<G, F>, BooleanError> {
+        input_model: InputModel<F, G>,
+        input_value: Option<InputValue<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
         let bool_value = match input_value {
             Some(input) => {
@@ -49,13 +49,13 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
         Ok(ConstrainedValue::Boolean(number))
     }
 
-    pub(crate) fn get_boolean_constant(bool: Boolean) -> ConstrainedValue<G, F> {
+    pub(crate) fn get_boolean_constant(bool: Boolean) -> ConstrainedValue<F, G> {
         ConstrainedValue::Boolean(bool)
     }
 
     pub(crate) fn evaluate_not(
-        value: ConstrainedValue<G, F>,
-    ) -> Result<ConstrainedValue<G, F>, BooleanError> {
+        value: ConstrainedValue<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match value {
             ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
             value => Err(BooleanError::CannotEvaluate(format!("!{}", value))),
@@ -65,9 +65,9 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
     pub(crate) fn enforce_or(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<G, F>,
-        right: ConstrainedValue<G, F>,
-    ) -> Result<ConstrainedValue<G, F>, BooleanError> {
+        left: ConstrainedValue<F, G>,
+        right: ConstrainedValue<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
             (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
                 ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?),
@@ -82,9 +82,9 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
     pub(crate) fn enforce_and(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<G, F>,
-        right: ConstrainedValue<G, F>,
-    ) -> Result<ConstrainedValue<G, F>, BooleanError> {
+        left: ConstrainedValue<F, G>,
+        right: ConstrainedValue<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
             (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
                 ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?),
@@ -96,7 +96,7 @@ impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgra
         }
     }
 
-    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ConstrainedValue<G, F> {
+    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ConstrainedValue<F, G> {
         ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 

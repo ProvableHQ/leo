@@ -15,13 +15,13 @@ use snarkos_models::{
     },
 };
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn u128_from_integer(
         &mut self,
         cs: &mut CS,
-        parameter_model: InputModel<G, F>,
+        parameter_model: InputModel<F, G>,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
+    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Type cast to u128 in rust.
         // If this fails should we return our own error?
         let u128_option = integer_option.map(|integer| integer as u128);

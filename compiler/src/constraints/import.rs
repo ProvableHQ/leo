@@ -14,7 +14,7 @@ use snarkos_models::{
 use std::fs;
 use std::path::Path;
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,

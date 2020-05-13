@@ -14,7 +14,7 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
 };
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
         match assignee {
             Assignee::Variable(name) => new_scope_from_variable(scope, &name),

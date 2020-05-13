@@ -18,16 +18,16 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<G: Group, F: Field + PrimeField> {
+pub struct Compiler<F: Field + PrimeField, G: Group> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<G, F>,
-    program_inputs: Vec<Option<InputValue<G, F>>>,
-    output: Option<ConstrainedValue<G, F>>,
+    program: Program<F, G>,
+    program_inputs: Vec<Option<InputValue<F, G>>>,
+    output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<G: Group, F: Field + PrimeField> Compiler<G, F> {
+impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Self {
         Self {
             package_name,
@@ -82,7 +82,7 @@ impl<G: Group, F: Field + PrimeField> Compiler<G, F> {
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<G, F>::from(syntax_tree, package_name);
+        self.program = Program::<F, G>::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Compilation complete\n{:#?}", self.program);
@@ -91,7 +91,7 @@ impl<G: Group, F: Field + PrimeField> Compiler<G, F> {
     }
 }
 
-impl<G: Group, F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<G, F> {
+impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,

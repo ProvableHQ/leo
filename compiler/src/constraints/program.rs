@@ -8,7 +8,7 @@ use snarkos_models::{
 };
 use std::{collections::HashMap, marker::PhantomData};
 
-pub struct ConstrainedProgram<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> {
+pub struct ConstrainedProgram<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> {
     pub resolved_names: HashMap<String, ConstrainedValue<F, G>>,
     pub _cs: PhantomData<CS>,
 }
@@ -46,7 +46,7 @@ pub fn new_variable_from_variables<F: Field + PrimeField, G: Group>(
     }
 }
 
-impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn new() -> Self {
         Self {
             resolved_names: HashMap::new(),
