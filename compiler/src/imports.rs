@@ -2,23 +2,23 @@
 
 use crate::Variable;
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::curves::{Field, PrimeField, Group};
 use std::fmt;
 
 #[derive(Clone)]
-pub struct ImportSymbol<F: Field + PrimeField> {
-    pub symbol: Variable<F>,
-    pub alias: Option<Variable<F>>,
+pub struct ImportSymbol<F: Field + PrimeField, G: Group> {
+    pub symbol: Variable<F, G>,
+    pub alias: Option<Variable<F, G>>,
 }
 
 #[derive(Clone)]
-pub struct Import<F: Field + PrimeField> {
+pub struct Import<F: Field + PrimeField, G: Group> {
     pub path_string: String,
-    pub symbols: Vec<ImportSymbol<F>>,
+    pub symbols: Vec<ImportSymbol<F, G>>,
 }
 
-impl<F: Field + PrimeField> Import<F> {
-    pub fn new(source: String, symbols: Vec<ImportSymbol<F>>) -> Import<F> {
+impl<F: Field + PrimeField, G: Group> Import<F, G> {
+    pub fn new(source: String, symbols: Vec<ImportSymbol<F, G>>) -> Import<F, G> {
         Import {
             path_string: source,
             symbols,
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField> Import<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
+impl<F: Field + PrimeField, G: Group> fmt::Display for ImportSymbol<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {
             write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
@@ -61,13 +61,13 @@ impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for Import<F> {
+impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Import<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Debug for Import<F> {
+impl<'ast, F: Field + PrimeField, G: Group> fmt::Debug for Import<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

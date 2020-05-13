@@ -8,18 +8,18 @@ use crate::{
 
 use from_pest::FromPest;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Group, Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::fs;
 use std::path::Path;
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,
         scope: String,
-        import: Import<F>,
+        import: Import<F, G>,
     ) -> Result<(), ImportError> {
         // Resolve program file path
         let unparsed_file = fs::read_to_string(Path::new(&import.path_string_full()))

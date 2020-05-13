@@ -8,19 +8,19 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Group, Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
-    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<F> {
+impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<G>> ConstrainedProgram<G, F, CS> {
+    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<G, F> {
         ConstrainedValue::Integer(integer)
     }
 
     pub(crate) fn evaluate_integer_eq(
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Boolean(Boolean::Constant(
             match (left, right) {
                 (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.eq(&right_u8),
@@ -41,9 +41,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
-        integer_model: InputModel<F>,
-        integer_value: Option<InputValue<F>>,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+        integer_model: InputModel<G, F>,
+        integer_value: Option<InputValue<G, F>>,
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         let integer_type = match &integer_model._type {
             Type::IntegerType(integer_type) => integer_type,
             _type => return Err(IntegerError::InvalidType(_type.to_string())),
@@ -107,7 +107,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_add(cs, left_u8, right_u8)?)
@@ -133,7 +133,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_sub(cs, left_u8, right_u8)?)
@@ -159,7 +159,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_mul(cs, left_u8, right_u8)?)
@@ -185,7 +185,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_div(cs, left_u8, right_u8)?)
@@ -211,7 +211,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_pow(cs, left_u8, right_u8)?)

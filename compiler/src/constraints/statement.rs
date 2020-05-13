@@ -10,12 +10,12 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Group, Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
+impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
+    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
         match assignee {
             Assignee::Variable(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
@@ -30,8 +30,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        return_value: &mut ConstrainedValue<F>,
+        assignee: Assignee<F, G>,
+        return_value: &mut ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         match assignee {
             Assignee::Variable(name) => {
@@ -125,8 +125,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        expression: Expression<F>,
+        assignee: Assignee<F, G>,
+        expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
         // Check that assignee exists
         let name = self.resolve_assignee(function_scope.clone(), assignee.clone());
@@ -151,9 +151,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        ty: Option<Type<F>>,
-        expression: Expression<F>,
+        assignee: Assignee<F, G>,
+        ty: Option<Type<F, G>>,
+        expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
         let result_value = &mut self.enforce_expression(
             cs,
@@ -178,8 +178,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignees: Vec<Assignee<F>>,
-        function: Expression<F>,
+        assignees: Vec<Assignee<F, G>>,
+        function: Expression<F, G>,
     ) -> Result<(), StatementError> {
         // Expect return values from function
         let return_values = match self.enforce_expression(
@@ -217,9 +217,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expressions: Vec<Expression<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> Result<ConstrainedValue<F>, StatementError> {
+        expressions: Vec<Expression<F, G>>,
+        return_types: Vec<Type<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Make sure we return the correct number of values
         if return_types.len() != expressions.len() {
             return Err(StatementError::InvalidNumberOfReturns(
@@ -249,9 +249,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statements: Vec<Statement<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
+        statements: Vec<Statement<F, G>>,
+        return_types: Vec<Type<F, G>>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         // Evaluate statements and possibly return early
         for statement in statements.iter() {
@@ -275,9 +275,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: ConditionalStatement<F>,
-        return_types: Vec<Type<F>>,
-    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
+        statement: ConditionalStatement<F, G>,
+        return_types: Vec<Type<F, G>>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let condition = match self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -325,12 +325,12 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Variable<F>,
+        index: Variable<F, G>,
         start: Integer,
         stop: Integer,
-        statements: Vec<Statement<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
+        statements: Vec<Statement<F, G>>,
+        return_types: Vec<Type<F, G>>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
 
         for i in start.to_usize()..stop.to_usize() {
@@ -361,8 +361,8 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     fn enforce_assert_eq_statement(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<F>,
-        right: ConstrainedValue<F>,
+        left: ConstrainedValue<F, G>,
+        right: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         Ok(match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
@@ -398,9 +398,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: Statement<F>,
-        return_types: Vec<Type<F>>,
-    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
+        statement: Statement<F, G>,
+        return_types: Vec<Type<F, G>>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {

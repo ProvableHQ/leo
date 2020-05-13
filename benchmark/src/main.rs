@@ -11,29 +11,40 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
+use snarkos_models::curves::Group;
 use std::{
     fs,
     marker::PhantomData,
     time::{Duration, Instant},
 };
+use std::str::FromStr;
+use snarkos_curves::edwards_bls12::EdwardsProjective;
 
 #[derive(Clone)]
-pub struct Benchmark<F: Field + PrimeField> {
+pub struct Benchmark<F: Field + PrimeField, G: Group> {
     program: Program<F>,
     parameters: Vec<Option<InputValue<F>>>,
+    _group: PhantomData<G>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField> Benchmark<F> {
+impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
     pub fn new() -> Self {
         Self {
             program: Program::new(),
             parameters: vec![],
+            _group: PhantomData,
             _engine: PhantomData,
         }
     }
 
     pub fn evaluate_program(&mut self) -> Result<(), CompilerError> {
+        let scalar = G::ScalarField::from_str("2325446546544").unwrap_or_default();
+        println!("{}", scalar);
+        let other = G::default().mul(&G::ScalarField::one());
+        println!("{}", other);
+
+        assert_eq!(G::default(), G::default().double());
         // Read in file as string
         let unparsed_file = fs::read_to_string("simple.leo").expect("cannot read file");
 
@@ -54,7 +65,7 @@ impl<F: Field + PrimeField> Benchmark<F> {
     }
 }
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
+impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
@@ -79,7 +90,7 @@ fn main() {
     let start = Instant::now();
 
     // Load and compile program
-    let mut program = Benchmark::<Fr>::new();
+    let mut program = Benchmark::<Fr, EdwardsProjective>::new();
     program.evaluate_program().unwrap();
 
     // Generate proof parameters

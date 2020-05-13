@@ -160,6 +160,13 @@ pub struct FieldType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_group))]
+pub struct GroupType<'ast> {
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_bool))]
 pub struct BooleanType<'ast> {
     #[pest_ast(outer())]
@@ -179,6 +186,7 @@ pub struct StructType<'ast> {
 pub enum BasicType<'ast> {
     Integer(IntegerType),
     Field(FieldType<'ast>),
+    Group(GroupType<'ast>),
     Boolean(BooleanType<'ast>),
 }
 
@@ -251,12 +259,25 @@ impl<'ast> fmt::Display for Integer<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub _type: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> fmt::Display for Field<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.number)
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::value_group))]
+pub struct Group<'ast> {
+    pub number: Number<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for Group<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.number)
     }
@@ -282,6 +303,7 @@ impl<'ast> fmt::Display for Boolean<'ast> {
 pub enum Value<'ast> {
     Integer(Integer<'ast>),
     Field(Field<'ast>),
+    Group(Group<'ast>),
     Boolean(Boolean<'ast>),
 }
 
@@ -290,6 +312,7 @@ impl<'ast> Value<'ast> {
         match self {
             Value::Integer(value) => &value.span,
             Value::Field(value) => &value.span,
+            Value::Group(value) => &value.span,
             Value::Boolean(value) => &value.span,
         }
     }
@@ -300,6 +323,7 @@ impl<'ast> fmt::Display for Value<'ast> {
         match *self {
             Value::Integer(ref value) => write!(f, "{}", value),
             Value::Field(ref value) => write!(f, "{}", value),
+            Value::Group(ref value) => write!(f, "{}", value),
             Value::Boolean(ref value) => write!(f, "{}", value),
         }
     }

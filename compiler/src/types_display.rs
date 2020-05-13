@@ -6,15 +6,15 @@ use crate::{
     SpreadOrExpression, Statement, Struct, StructField, Type, Variable,
 };
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkos_models::curves::{Group, Field, PrimeField};
 use std::fmt;
 
-impl<F: Field + PrimeField> fmt::Display for Variable<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for Variable<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
 }
-impl<F: Field + PrimeField> fmt::Debug for Variable<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Debug for Variable<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
@@ -53,7 +53,7 @@ impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for RangeOrExpression<F> {
+impl<'ast, G: Group, F: Field + PrimeField> fmt::Display for RangeOrExpression<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             RangeOrExpression::Range(ref from, ref to) => write!(
@@ -71,7 +71,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for RangeOrExpression<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for SpreadOrExpression<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for SpreadOrExpression<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             SpreadOrExpression::Spread(ref spread) => write!(f, "...{}", spread),
@@ -80,7 +80,7 @@ impl<F: Field + PrimeField> fmt::Display for SpreadOrExpression<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
+impl<'ast, G: Group, F: Field + PrimeField> fmt::Display for Expression<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             // Variables
@@ -89,6 +89,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
             Expression::FieldElement(ref fe) => write!(f, "{}", fe),
+            Expression::GroupElement(ref gr) => write!(f, "{}", gr),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
 
             // Number operations
@@ -156,7 +157,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for Assignee<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for Assignee<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Assignee::Variable(ref variable) => write!(f, "{}", variable),
@@ -168,7 +169,7 @@ impl<F: Field + PrimeField> fmt::Display for Assignee<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ConditionalNestedOrEnd<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for ConditionalNestedOrEnd<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
@@ -183,7 +184,7 @@ impl<F: Field + PrimeField> fmt::Display for ConditionalNestedOrEnd<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ConditionalStatement<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for ConditionalStatement<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if ({}) {{\n", self.condition)?;
         for statement in self.statements.iter() {
@@ -196,7 +197,7 @@ impl<F: Field + PrimeField> fmt::Display for ConditionalStatement<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for Statement<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for Statement<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref statements) => {
@@ -254,11 +255,12 @@ impl fmt::Display for IntegerType {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for Type<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for Type<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::FieldElement => write!(f, "fe"),
+            Type::FieldElement => write!(f, "field"),
+            Type::GroupElement => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
             Type::Struct(ref variable) => write!(f, "{}", variable),
             Type::Array(ref array, ref dimensions) => {
@@ -272,13 +274,13 @@ impl<F: Field + PrimeField> fmt::Display for Type<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for StructField<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for StructField<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}: {}", self.variable, self._type)
     }
 }
 
-impl<F: Field + PrimeField> Struct<F> {
+impl<G: Group, F: Field + PrimeField> Struct<G, F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "struct {} {{ \n", self.variable)?;
         for field in self.fields.iter() {
@@ -288,26 +290,26 @@ impl<F: Field + PrimeField> Struct<F> {
     }
 }
 
-// impl<F: Field + PrimeField> fmt::Display for Struct<F> {// uncomment when we no longer print out Program
+// impl<G: Group, F: Field + PrimeField> fmt::Display for Struct<G, F> {// uncomment when we no longer print out Program
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         self.format(f)
 //     }
 // }
 
-impl<F: Field + PrimeField> fmt::Debug for Struct<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Debug for Struct<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for InputModel<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for InputModel<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let visibility = if self.private { "private" } else { "public" };
         write!(f, "{}: {} {}", self.variable, visibility, self._type,)
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for InputValue<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Display for InputValue<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             InputValue::Integer(ref integer) => write!(f, "{}", integer),
@@ -345,7 +347,7 @@ impl fmt::Debug for FunctionName {
     }
 }
 
-impl<F: Field + PrimeField> Function<F> {
+impl<G: Group, F: Field + PrimeField> Function<G, F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.function_name)?;
         let parameters = self
@@ -376,13 +378,13 @@ impl<F: Field + PrimeField> Function<F> {
     }
 }
 
-// impl<F: Field + PrimeField> fmt::Display for Function<F> {// uncomment when we no longer print out Program
+// impl<G: Group, F: Field + PrimeField> fmt::Display for Function<G, F> {// uncomment when we no longer print out Program
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         self.format(f)
 //     }
 // }
 
-impl<F: Field + PrimeField> fmt::Debug for Function<F> {
+impl<G: Group, F: Field + PrimeField> fmt::Debug for Function<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

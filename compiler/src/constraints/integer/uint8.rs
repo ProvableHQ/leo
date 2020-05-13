@@ -8,20 +8,20 @@ use crate::{
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Group, Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, eq::EqGadget, uint8::UInt8},
     },
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+impl<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<G, F, CS> {
     pub(crate) fn u8_from_input(
         &mut self,
         cs: &mut CS,
-        parameter_model: InputModel<F>,
+        parameter_model: InputModel<G, F>,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<G, F>, IntegerError> {
         // Type cast to u8 in rust.
         // If this fails should we return our own error?
         let u8_option = integer_option.map(|integer| integer as u8);

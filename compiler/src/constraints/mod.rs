@@ -33,15 +33,15 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Group, Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<G: Group, F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program<F>,
-    parameters: Vec<Option<InputValue<F>>>,
-) -> Result<ConstrainedValue<F>, CompilerError> {
+    program: Program<G, F>,
+    parameters: Vec<Option<InputValue<G, F>>>,
+) -> Result<ConstrainedValue<G, F>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());
