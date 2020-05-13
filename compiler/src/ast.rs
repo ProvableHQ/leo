@@ -26,6 +26,23 @@ lazy_static! {
     static ref PRECEDENCE_CLIMBER: PrecClimber<Rule> = precedence_climber();
 }
 
+// Identifiers
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::identifier))]
+pub struct Identifier<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub value: String,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for Identifier<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
 // Visibility
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -176,7 +193,7 @@ pub struct BooleanType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_circuit))]
 pub struct CircuitType<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -324,20 +341,24 @@ impl<'ast> fmt::Display for Value<'ast> {
     }
 }
 
-// Variables
+// Variables + Mutability
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::mutable))]
+pub struct Mutable {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::variable))]
 pub struct Variable<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
+    pub mutable: Option<Mutable>,
+    pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> fmt::Display for Variable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
+        write!(f, "{}", self.identifier)
     }
 }
 
@@ -345,33 +366,12 @@ impl<'ast> fmt::Display for Variable<'ast> {
 #[pest_ast(rule(Rule::optionally_typed_variable))]
 pub struct OptionallyTypedVariable<'ast> {
     pub _type: Option<Type<'ast>>,
-    pub variable: VariableWithMutability<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for OptionallyTypedVariable<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.variable)
-    }
-}
-
-// Mutability
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::mutable))]
-pub struct Mutable {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::variable_with_mutability))]
-pub struct VariableWithMutability<'ast> {
-    pub mutable: Option<Mutable>,
     pub variable: Variable<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for VariableWithMutability<'ast> {
+impl<'ast> fmt::Display for OptionallyTypedVariable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.variable)
     }
@@ -444,7 +444,7 @@ pub struct ArrayAccess<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access_member))]
 pub struct MemberAccess<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -460,7 +460,7 @@ pub enum Access<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_postfix))]
 pub struct PostfixExpression<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub accesses: Vec<Access<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -477,7 +477,7 @@ impl<'ast> fmt::Display for AssigneeAccess<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             AssigneeAccess::Array(ref array) => write!(f, "[{}]", array.expression),
-            AssigneeAccess::Member(ref member) => write!(f, ".{}", member.variable),
+            AssigneeAccess::Member(ref member) => write!(f, ".{}", member.identifier),
         }
     }
 }
@@ -485,7 +485,7 @@ impl<'ast> fmt::Display for AssigneeAccess<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::assignee))]
 pub struct Assignee<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub accesses: Vec<AssigneeAccess<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -493,7 +493,7 @@ pub struct Assignee<'ast> {
 
 impl<'ast> fmt::Display for Assignee<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.variable)?;
+        write!(f, "{}", self.identifier)?;
         for (i, access) in self.accesses.iter().enumerate() {
             write!(f, "{}", access)?;
             if i < self.accesses.len() - 1 {
@@ -558,7 +558,7 @@ pub struct ArrayInitializerExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::circuit_object))]
 pub struct CircuitObject<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -567,7 +567,7 @@ pub struct CircuitObject<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::circuit_definition))]
 pub struct Circuit<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub fields: Vec<CircuitObject<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -576,7 +576,7 @@ pub struct Circuit<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::inline_circuit_member))]
 pub struct InlineCircuitMember<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -585,7 +585,7 @@ pub struct InlineCircuitMember<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_inline_circuit))]
 pub struct CircuitInlineExpression<'ast> {
-    pub variable: Variable<'ast>,
+    pub identifier: Identifier<'ast>,
     pub members: Vec<InlineCircuitMember<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -639,7 +639,7 @@ pub struct TernaryExpression<'ast> {
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression<'ast> {
     Value(Value<'ast>),
-    Variable(Variable<'ast>),
+    Identifier(Identifier<'ast>),
     Not(NotExpression<'ast>),
     // Increment(IncrementExpression<'ast>),
     // Decrement(DecrementExpression<'ast>),
@@ -683,7 +683,7 @@ impl<'ast> Expression<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
             Expression::Value(expression) => &expression.span(),
-            Expression::Variable(expression) => &expression.span,
+            Expression::Identifier(expression) => &expression.span,
             Expression::Not(expression) => &expression.span,
             // Expression::Increment(expression) => &expression.span,
             // Expression::Decrement(expression) => &expression.span,
@@ -701,7 +701,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Expression::Value(ref expression) => write!(f, "{}", expression),
-            Expression::Variable(ref expression) => write!(f, "{}", expression),
+            Expression::Identifier(ref expression) => write!(f, "{}", expression),
             Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
             // Expression::Increment(ref expression) => write!(f, "{}++", expression.expression),
             // Expression::Decrement(ref expression) => write!(f, "{}--", expression.expression),
@@ -726,10 +726,10 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
             Expression::CircuitInline(ref expression) => {
-                write!(f, "inline circuit display not impl {}", expression.variable)
+                write!(f, "inline circuit display not impl {}", expression.identifier)
             }
             Expression::Postfix(ref expression) => {
-                write!(f, "Postfix display not impl {}", expression.variable)
+                write!(f, "Postfix display not impl {}", expression.identifier)
             }
         }
     }
@@ -825,14 +825,14 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                                 Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
                             )
                         },
-                        Rule::variable => Expression::Variable(
-                            Variable::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        Rule::identifier => Expression::Identifier(
+                            Identifier::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                         ),
-                        rule => unreachable!("`expression_primitive` should contain one of [`value`, `variable`], found {:#?}", rule)
+                        rule => unreachable!("`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}", rule)
                     }
                 },
 
-                rule => unreachable!("`term` should contain one of ['value', 'variable', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
+                rule => unreachable!("`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
             }
         }
         rule => unreachable!(
@@ -917,7 +917,7 @@ pub struct ConditionalStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_for))]
 pub struct ForStatement<'ast> {
-    pub index: Variable<'ast>,
+    pub index: Identifier<'ast>,
     pub start: Expression<'ast>,
     pub stop: Expression<'ast>,
     pub statements: Vec<Statement<'ast>>,
@@ -929,7 +929,7 @@ pub struct ForStatement<'ast> {
 #[pest_ast(rule(Rule::statement_multiple_assignment))]
 pub struct MultipleAssignmentStatement<'ast> {
     pub assignees: Vec<OptionallyTypedVariable<'ast>>,
-    pub function_name: Variable<'ast>,
+    pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -938,7 +938,7 @@ pub struct MultipleAssignmentStatement<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
-    pub variable: VariableWithMutability<'ast>,
+    pub variable: Variable<'ast>,
     pub _type: Option<Type<'ast>>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
@@ -1104,18 +1104,9 @@ pub struct Parameter<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::function_name))]
-pub struct FunctionName<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::function_definition))]
 pub struct Function<'ast> {
-    pub function_name: FunctionName<'ast>,
+    pub function_name: Identifier<'ast>,
     pub parameters: Vec<Parameter<'ast>>,
     pub returns: Vec<Type<'ast>>,
     pub statements: Vec<Statement<'ast>>,
@@ -1143,8 +1134,8 @@ pub struct ImportSource<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::import_symbol))]
 pub struct ImportSymbol<'ast> {
-    pub value: Variable<'ast>,
-    pub alias: Option<Variable<'ast>>,
+    pub value: Identifier<'ast>,
+    pub alias: Option<Identifier<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1164,7 +1155,7 @@ pub struct Import<'ast> {
 #[pest_ast(rule(Rule::file))]
 pub struct File<'ast> {
     pub imports: Vec<Import<'ast>>,
-    pub structs: Vec<Circuit<'ast>>,
+    pub circuits : Vec<Circuit<'ast>>,
     pub functions: Vec<Function<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]

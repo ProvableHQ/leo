@@ -2,7 +2,7 @@
 
 use crate::{
     Assignee, Circuit, CircuitObject, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    FieldElement, Function, FunctionName, InputModel, InputValue, Integer, IntegerType,
+    FieldElement, Function, InputModel, InputValue, Integer, IntegerType,
     RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
 };
 
@@ -327,24 +327,6 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for InputValue<F, G> {
                 write!(f, "]")
             }
         }
-    }
-}
-
-impl FunctionName {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl fmt::Display for FunctionName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl fmt::Debug for FunctionName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
     }
 }
 

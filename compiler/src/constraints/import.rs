@@ -70,7 +70,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     None => {
                         // see if the imported symbol is a function
                         let matched_function = program.functions.clone().into_iter().find(
-                            |(function_name, _function)| symbol.symbol.name == *function_name.0,
+                            |(function_name, _function)| symbol.symbol.name == *function_name.name,
                         );
 
                         match matched_function {

@@ -247,7 +247,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             .functions
             .into_iter()
             .for_each(|(function_name, function)| {
-                let resolved_function_name = new_scope(program_name.name.clone(), function_name.0);
+                let resolved_function_name = new_scope(program_name.name.clone(), function_name.name);
                 self.store(resolved_function_name, ConstrainedValue::Function(function));
             });
 

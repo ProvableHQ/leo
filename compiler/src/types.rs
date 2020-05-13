@@ -269,13 +269,9 @@ pub enum InputValue<F: Field + PrimeField, G: Group> {
     Array(Vec<InputValue<F, G>>),
 }
 
-/// The given name for a defined function in the program.
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct FunctionName(pub String);
-
 #[derive(Clone, PartialEq, Eq)]
 pub struct Function<F: Field + PrimeField, G: Group> {
-    pub function_name: FunctionName,
+    pub function_name: Variable<F, G>,
     pub inputs: Vec<InputModel<F, G>>,
     pub returns: Vec<Type<F, G>>,
     pub statements: Vec<Statement<F, G>>,
@@ -283,7 +279,7 @@ pub struct Function<F: Field + PrimeField, G: Group> {
 
 impl<F: Field + PrimeField, G: Group> Function<F, G> {
     pub fn get_name(&self) -> String {
-        self.function_name.0.clone()
+        self.function_name.name.clone()
     }
 }
 
@@ -294,7 +290,7 @@ pub struct Program<F: Field + PrimeField, G: Group> {
     pub num_parameters: usize,
     pub imports: Vec<Import<F, G>>,
     pub circuits: HashMap<Variable<F, G>, Circuit<F, G>>,
-    pub functions: HashMap<FunctionName, Function<F, G>>,
+    pub functions: HashMap<Variable<F, G>, Function<F, G>>,
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> Program<F, G> {
