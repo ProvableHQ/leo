@@ -2,12 +2,12 @@ use crate::errors::ManifestError;
 
 use std::ffi::OsString;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum RunError {
-    #[fail(display = "main file {:?} does not exist", _0)]
+    #[error("main file {:?} does not exist", _0)]
     MainFileDoesNotExist(OsString),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ManifestError(ManifestError),
 }
 

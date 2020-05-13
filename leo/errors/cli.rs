@@ -1,47 +1,47 @@
 use crate::errors::*;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum CLIError {
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     BuildError(BuildError),
 
-    #[fail(display = "{}: {}", _0, _1)]
+    #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ChecksumFileError(ChecksumFileError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     InitError(InitError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     InputsDirectoryError(InputsDirectoryError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     MainFileError(MainFileError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ManifestError(ManifestError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     NewError(NewError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     OutputsDirectoryError(OutputsDirectoryError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ProofFileError(ProofFileError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ProvingKeyFileError(ProvingKeyFileError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     RunError(RunError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     VerificationKeyFileError(VerificationKeyFileError),
 }
 

@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate failure;
+extern crate thiserror;
 
 #[cfg_attr(tarpaulin, skip)]
 pub mod cli;

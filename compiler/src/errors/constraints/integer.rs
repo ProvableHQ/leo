@@ -2,9 +2,6 @@ use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum IntegerError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     #[error("expected integer parameter type, got {}", _0)]
     InvalidType(String),
 
@@ -19,12 +16,6 @@ pub enum IntegerError {
 
     #[error("{}", _0)]
     SynthesisError(SynthesisError),
-}
-
-impl From<std::io::Error> for IntegerError {
-    fn from(error: std::io::Error) -> Self {
-        IntegerError::Crate("std::io", format!("{}", error))
-    }
 }
 
 impl From<SynthesisError> for IntegerError {

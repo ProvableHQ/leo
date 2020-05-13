@@ -9,7 +9,7 @@ use crate::{
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
@@ -18,16 +18,16 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField> {
+pub struct Compiler<F: Field + PrimeField, G: Group> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<F>,
-    program_inputs: Vec<Option<InputValue<F>>>,
-    output: Option<ConstrainedValue<F>>,
+    program: Program<F, G>,
+    program_inputs: Vec<Option<InputValue<F, G>>>,
+    output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField> Compiler<F> {
+impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Self {
         Self {
             package_name,
@@ -82,7 +82,7 @@ impl<F: Field + PrimeField> Compiler<F> {
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<F>::from(syntax_tree, package_name);
+        self.program = Program::<F, G>::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Compilation complete\n{:#?}", self.program);
@@ -91,7 +91,7 @@ impl<F: Field + PrimeField> Compiler<F> {
     }
 }
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
+impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,

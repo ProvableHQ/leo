@@ -6,8 +6,8 @@ pub enum ValueError {
     #[error("{}", _0)]
     ArrayLength(String),
 
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
+    #[error("Expected type array, got {}", _0)]
+    ArrayModel(String),
 
     #[error("{}", _0)]
     IntegerError(IntegerError),
@@ -19,12 +19,6 @@ pub enum ValueError {
     /// Unexpected type
     #[error("{}", _0)]
     TypeError(String),
-}
-
-impl From<std::io::Error> for ValueError {
-    fn from(error: std::io::Error) -> Self {
-        ValueError::Crate("std::io", format!("{}", error))
-    }
 }
 
 impl From<IntegerError> for ValueError {

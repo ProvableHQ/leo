@@ -28,7 +28,6 @@ snarkos-utilities = { path = "../snarkOS/utilities", version = "0.8.0" }
 clap = { version = "2.33.0" }
 colored = { version = "1.9" }
 env_logger = { version = "0.7" }
-failure = { version = "0.1.5" }
 from-pest = { version = "0.3.1" }
 log = { version = "0.4" }
 rand = { version = "0.7" }
@@ -37,3 +36,4 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 structopt = { version = "0.3.14" }
 toml = { version = "0.5" }
+thiserror = { version = "1.0" }

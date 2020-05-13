@@ -6,7 +6,9 @@ use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
 use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_curves::edwards_bls12::EdwardsProjective;
 use snarkos_errors::gadgets::SynthesisError;
+use snarkos_models::curves::Group;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
@@ -18,17 +20,19 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct Benchmark<F: Field + PrimeField> {
-    program: Program<F>,
-    parameters: Vec<Option<InputValue<F>>>,
+pub struct Benchmark<F: Field + PrimeField, G: Group> {
+    program: Program<F, G>,
+    parameters: Vec<Option<InputValue<F, G>>>,
+    _group: PhantomData<G>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField> Benchmark<F> {
+impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
     pub fn new() -> Self {
         Self {
             program: Program::new(),
             parameters: vec![],
+            _group: PhantomData,
             _engine: PhantomData,
         }
     }
@@ -42,10 +46,9 @@ impl<F: Field + PrimeField> Benchmark<F> {
 
         // Build the abstract syntax tree
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
-        // println!("{:#?}", syntax_tree);
 
         // Build a leo program from the syntax tree
-        self.program = Program::<F>::from(syntax_tree, "simple".into());
+        self.program = Program::<F, G>::from(syntax_tree, "simple".into());
         self.parameters = vec![None; self.program.num_parameters];
 
         println!(" compiled: {:#?}\n", self.program);
@@ -54,13 +57,12 @@ impl<F: Field + PrimeField> Benchmark<F> {
     }
 }
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
+impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res =
-            leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
+        let _res = leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something
@@ -79,7 +81,7 @@ fn main() {
     let start = Instant::now();
 
     // Load and compile program
-    let mut program = Benchmark::<Fr>::new();
+    let mut program = Benchmark::<Fr, EdwardsProjective>::new();
     program.evaluate_program().unwrap();
 
     // Generate proof parameters
@@ -92,7 +94,12 @@ fn main() {
     let start = Instant::now();
 
     // Set main function arguments in compiled program
-    // let argument = Some(ParameterValue::Field(Fr::one()));
+    // let argument = Some(InputValue::Field(Fr::one()));
+
+    // let bool_true = InputValue::Boolean(true);
+    // let array = InputValue::Array(vec![bool_true.clone(), bool_true.clone(), bool_true.clone()]);
+    // let argument = Some(array);
+    //
     // program.parameters = vec![argument];
 
     // Generate proof

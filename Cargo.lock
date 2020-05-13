@@ -478,7 +478,6 @@ dependencies = [
  "clap",
  "colored",
  "env_logger",
- "failure",
  "from-pest",
  "leo-compiler",
  "log",
@@ -493,6 +492,7 @@ dependencies = [
  "snarkos-models",
  "snarkos-utilities",
  "structopt",
+ "thiserror",
  "toml",
 ]
 

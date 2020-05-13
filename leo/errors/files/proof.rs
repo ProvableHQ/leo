@@ -1,18 +1,18 @@
 use std::io;
 use std::path::PathBuf;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum ProofFileError {
-    #[fail(display = "{}: {}", _0, _1)]
+    #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[fail(display = "creating: {}", _0)]
+    #[error("creating: {}", _0)]
     Creating(io::Error),
 
-    #[fail(display = "Cannot read from the provided file path - {:?}", _0)]
+    #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
-    #[fail(display = "writing: {}", _0)]
+    #[error("writing: {}", _0)]
     Writing(io::Error),
 }
 

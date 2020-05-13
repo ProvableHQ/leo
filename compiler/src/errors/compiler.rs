@@ -5,9 +5,6 @@ use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     #[error("creating: {}", _0)]
     Creating(io::Error),
 
@@ -37,12 +34,6 @@ pub enum CompilerError {
 
     #[error("writing: {}", _0)]
     Writing(io::Error),
-}
-
-impl From<std::io::Error> for CompilerError {
-    fn from(error: std::io::Error) -> Self {
-        CompilerError::Crate("std::io", format!("{}", error))
-    }
 }
 
 impl From<ImportError> for CompilerError {

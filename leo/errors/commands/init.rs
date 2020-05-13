@@ -3,21 +3,21 @@ use crate::errors::ManifestError;
 use std::ffi::OsString;
 use std::io;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum InitError {
-    #[fail(display = "root directory {:?} creating: {}", _0, _1)]
+    #[error("root directory {:?} creating: {}", _0, _1)]
     CreatingRootDirectory(OsString, io::Error),
 
-    #[fail(display = "directory {:?} does not exist", _0)]
+    #[error("directory {:?} does not exist", _0)]
     DirectoryDoesNotExist(OsString),
 
-    #[fail(display = "{}", _0)]
+    #[error("{}", _0)]
     ManifestError(ManifestError),
 
-    #[fail(display = "package at path {:?} already exists", _0)]
+    #[error("package at path {:?} already exists", _0)]
     PackageAlreadyExists(OsString),
 
-    #[fail(display = "package name is missing - {:?}", _0)]
+    #[error("package name is missing - {:?}", _0)]
     ProjectNameInvalid(OsString),
 }
 

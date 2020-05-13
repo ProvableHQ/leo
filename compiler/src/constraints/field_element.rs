@@ -1,40 +1,39 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
 use crate::{
-    constraints::{new_variable_from_variable, ConstrainedProgram, ConstrainedValue},
+    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::FieldElementError,
-    types::{FieldElement, InputModel, InputValue, Integer, Variable},
+    types::{FieldElement, InputModel, InputValue, Integer},
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
-    pub(crate) fn field_element_from_parameter(
+impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+    pub(crate) fn field_element_from_input(
         &mut self,
         cs: &mut CS,
-        scope: String,
-        parameter_model: InputModel<F>,
-        parameter_value: Option<InputValue<F>>,
-    ) -> Result<Variable<F>, FieldElementError> {
+        input_model: InputModel<F, G>,
+        input_value: Option<InputValue<F, G>>,
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         // Check that the parameter value is the correct type
-        let field_option = match parameter_value {
-            Some(parameter) => {
-                if let InputValue::Field(fe) = parameter {
+        let field_option = match input_value {
+            Some(input) => {
+                if let InputValue::Field(fe) = input {
                     Some(fe)
                 } else {
-                    return Err(FieldElementError::InvalidField(parameter.to_string()));
+                    return Err(FieldElementError::InvalidField(input.to_string()));
                 }
             }
             None => None,
         };
 
         // Check visibility of parameter
-        let name = parameter_model.variable.name.clone();
-        let field_value = if parameter_model.private {
+        let name = input_model.variable.name.clone();
+        let field_value = if input_model.private {
             cs.alloc(
                 || name,
                 || field_option.ok_or(SynthesisError::AssignmentMissing),
@@ -46,46 +45,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
             )?
         };
 
-        let parameter_variable = new_variable_from_variable(scope, &parameter_model.variable);
-
-        // Store parameter as variable in resolved program
-        self.store_variable(
-            parameter_variable.clone(),
-            ConstrainedValue::FieldElement(FieldElement::Allocated(field_option, field_value)),
-        );
-
-        Ok(parameter_variable)
+        Ok(ConstrainedValue::FieldElement(FieldElement::Allocated(
+            field_option,
+            field_value,
+        )))
     }
 
-    pub(crate) fn field_element_array_from_parameter(
-        &mut self,
-        _cs: &mut CS,
-        _scope: String,
-        _parameter_model: InputModel<F>,
-        _parameter_value: Option<InputValue<F>>,
-    ) -> Result<Variable<F>, FieldElementError> {
-        unimplemented!("Cannot enforce field element array as parameter")
-        // // Check visibility of parameter
-        // let mut array_value = vec![];
-        // let name = parameter.variable.name.clone();
-        // for argument in argument_array {
-        //     if parameter.private {
-        //         cs.alloc(|| name, || Ok(argument.clone())).unwrap();
-        //     } else {
-        //         cs.alloc_input(|| name, || Ok(argument.clone())).unwrap();
-        //     };
-        // }
-        //
-        //
-        // let parameter_variable = new_variable_from_variable(scope, &parameter.variable);
-        //
-        // // store array as variable in resolved program
-        // self.store_variable(parameter_variable.clone(), ResolvedValue::FieldElementArray(argument_array));
-        //
-        // parameter_variable
-    }
-
-    pub(crate) fn get_field_element_constant(fe: FieldElement<F>) -> ConstrainedValue<F> {
+    pub(crate) fn get_field_element_constant(fe: FieldElement<F>) -> ConstrainedValue<F, G> {
         ConstrainedValue::FieldElement(fe)
     }
 
@@ -158,7 +124,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -235,7 +201,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -312,7 +278,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -389,7 +355,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -477,7 +443,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         cs: &mut CS,
         fe_1: FieldElement<F>,
         num: Integer,
-    ) -> Result<ConstrainedValue<F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match fe_1 {
             // if both constants, then return a constant result
             FieldElement::Constant(fe_1_constant) => ConstrainedValue::FieldElement(

@@ -1,12 +1,9 @@
 use crate::errors::{
-    BooleanError, ExpressionError, FieldElementError, IntegerError, StatementError,
+    BooleanError, ExpressionError, FieldElementError, IntegerError, StatementError, ValueError,
 };
 
 #[derive(Debug, Error)]
 pub enum FunctionError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     #[error("Function expected {} inputs, got {}", _0, _1)]
     InputsLength(usize, usize),
 
@@ -15,6 +12,15 @@ pub enum FunctionError {
 
     #[error("Function expected input type {}, got {}", _0, _1)]
     InvalidInput(String, String),
+
+    #[error("Expected function input array, got {}", _0)]
+    InvalidArray(String),
+
+    #[error("Expected function input array length {}, got length {}", _0, _1)]
+    InvalidArrayLength(usize, usize),
+
+    #[error("{}", _0)]
+    ValueError(ValueError),
 
     #[error("{}", _0)]
     IntegerError(IntegerError),
@@ -32,9 +38,9 @@ pub enum FunctionError {
     StatementError(StatementError),
 }
 
-impl From<std::io::Error> for FunctionError {
-    fn from(error: std::io::Error) -> Self {
-        FunctionError::Crate("std::io", format!("{}", error))
+impl From<ValueError> for FunctionError {
+    fn from(error: ValueError) -> Self {
+        FunctionError::ValueError(error)
     }
 }
 

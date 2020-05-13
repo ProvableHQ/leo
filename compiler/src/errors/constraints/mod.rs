@@ -18,6 +18,9 @@ pub use integer::*;
 pub mod field_element;
 pub use field_element::*;
 
+pub mod group_element;
+pub use group_element::*;
+
 pub mod value;
 pub use value::*;
 
