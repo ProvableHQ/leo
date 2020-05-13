@@ -51,6 +51,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_add(cs, fe_1, fe_2)?
             }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Self::evaluate_group_add(ge_1, ge_2)
+            }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} + {}",
@@ -72,6 +75,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_sub(cs, fe_1, fe_2)?
+            }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Self::evaluate_group_sub(ge_1, ge_2)
             }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
@@ -166,6 +172,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_eq(fe_1, fe_2)
             // }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Self::evaluate_group_eq(ge_1, ge_2)
+            }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} == {}",
