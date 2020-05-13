@@ -73,10 +73,9 @@ type_field = {"field"}
 type_group = {"group"}
 type_bool = {"bool"}
 type_basic = { type_field | type_group | type_bool | type_integer }
-type_struct = { variable }
-type_basic_or_struct = {type_basic | type_struct }
+type_circuit = { variable }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
-_type = {type_array | type_basic | type_struct}
+_type = {type_array | type_basic | type_circuit}
 type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values
@@ -95,7 +94,7 @@ value = { value_field | value_group | value_boolean | value_integer }
 protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
 // keyword = @{ "as" | "in" | "return" | "export" | "false" |
-//             "def" | "in" | "return" | "struct" | "true" }
+//             "def" | "in" | "return" | "circuit" | "true" }
 
 variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 
@@ -131,15 +130,15 @@ inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expre
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" }
 
-/// Structs
+/// Circuits
 
-struct_field = { variable ~ ":" ~ _type }
-struct_field_list = _{(struct_field ~ (NEWLINE+ ~ struct_field)*)? }
-struct_definition = { "struct" ~ variable ~ "{" ~ NEWLINE* ~ struct_field_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit_object = { variable ~ ":" ~ _type }
+circuit_object_list = _{(circuit_object ~ (NEWLINE+ ~ circuit_object)*)? }
+circuit_definition = { "circuit" ~ variable ~ "{" ~ NEWLINE* ~ circuit_object_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-inline_struct_member = { variable ~ ":" ~ expression }
-inline_struct_member_list = _{(inline_struct_member ~ ("," ~ NEWLINE* ~ inline_struct_member)*)? ~ ","? }
-expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_list ~ NEWLINE* ~ "}" }
+inline_circuit_member = { variable ~ ":" ~ expression }
+inline_circuit_member_list = _{(inline_circuit_member ~ ("," ~ NEWLINE* ~ inline_circuit_member)*)? ~ ","? }
+expression_inline_circuit = { variable ~ "{" ~ NEWLINE* ~ inline_circuit_member_list ~ NEWLINE* ~ "}" }
 
 /// Conditionals
 
@@ -149,7 +148,7 @@ expression_conditional = { "if" ~ expression ~ "?" ~ expression ~ ":" ~ expressi
 
 expression_term = {
     ("(" ~ expression ~ ")")
-    | expression_inline_struct
+    | expression_inline_circuit
     | expression_conditional
     | expression_postfix
     | expression_primitive
@@ -221,4 +220,4 @@ import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLI
 
 /// Program File
 
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ struct_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }

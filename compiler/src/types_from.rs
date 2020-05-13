@@ -263,10 +263,10 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayInitializerExpression
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineStructMember<'ast>>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineCircuitMember<'ast>>
     for types::StructMember<F, G>
 {
-    fn from(member: ast::InlineStructMember<'ast>) -> Self {
+    fn from(member: ast::InlineCircuitMember<'ast>) -> Self {
         types::StructMember {
             variable: types::Variable::from(member.variable),
             expression: types::Expression::from(member.expression),
@@ -274,10 +274,10 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineStructMember<'ast>>
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::StructInlineExpression<'ast>>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitInlineExpression<'ast>>
     for types::Expression<F, G>
 {
-    fn from(expression: ast::StructInlineExpression<'ast>) -> Self {
+    fn from(expression: ast::CircuitInlineExpression<'ast>) -> Self {
         let variable = types::Variable::from(expression.variable);
         let members = expression
             .members
@@ -340,7 +340,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Expression<'ast>>
             ast::Expression::Ternary(expression) => types::Expression::from(expression),
             ast::Expression::ArrayInline(expression) => types::Expression::from(expression),
             ast::Expression::ArrayInitializer(expression) => types::Expression::from(expression),
-            ast::Expression::StructInline(expression) => types::Expression::from(expression),
+            ast::Expression::CircuitInline(expression) => types::Expression::from(expression),
             ast::Expression::Postfix(expression) => types::Expression::from(expression),
         }
     }
@@ -665,8 +665,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayType<'ast>> for types
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::StructType<'ast>> for types::Type<F, G> {
-    fn from(struct_type: ast::StructType<'ast>) -> Self {
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitType<'ast>> for types::Type<F, G> {
+    fn from(struct_type: ast::CircuitType<'ast>) -> Self {
         types::Type::Struct(types::Variable::from(struct_type.variable))
     }
 }
@@ -676,17 +676,17 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
         match _type {
             ast::Type::Basic(_type) => types::Type::from(_type),
             ast::Type::Array(_type) => types::Type::from(_type),
-            ast::Type::Struct(_type) => types::Type::from(_type),
+            ast::Type::Circuit(_type) => types::Type::from(_type),
         }
     }
 }
 
 /// pest ast -> types::Struct
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::StructField<'ast>>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
     for types::StructField<F, G>
 {
-    fn from(struct_field: ast::StructField<'ast>) -> Self {
+    fn from(struct_field: ast::CircuitObject<'ast>) -> Self {
         types::StructField {
             variable: types::Variable::from(struct_field.variable),
             _type: types::Type::from(struct_field._type),
@@ -694,8 +694,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::StructField<'ast>>
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::Struct<'ast>> for types::Struct<F, G> {
-    fn from(struct_definition: ast::Struct<'ast>) -> Self {
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::Struct<F, G> {
+    fn from(struct_definition: ast::Circuit<'ast>) -> Self {
         let variable = types::Variable::from(struct_definition.variable);
         let fields = struct_definition
             .fields
