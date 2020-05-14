@@ -58,14 +58,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn store_variable(
-        &mut self,
-        variable: Identifier<F, G>,
-        value: ConstrainedValue<F, G>,
-    ) {
-        self.store(variable.name, value);
-    }
-
     pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<F, G>> {
         self.identifiers.get(name)
     }

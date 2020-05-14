@@ -31,6 +31,9 @@ pub enum StatementError {
     UndefinedArray(String),
 
     // Circuits
+    #[error("Cannot mutate circuit function, {}", _0)]
+    ImmutableCircuitFunction(String),
+
     #[error("Attempted to assign to unknown circuit {}", _0)]
     UndefinedCircuit(String),
 

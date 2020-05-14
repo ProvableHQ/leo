@@ -51,12 +51,6 @@ pub enum ExpressionError {
     #[error("Circuit object {} does not exist", _0)]
     UndefinedCircuitObject(String),
 
-    #[error("Cannot assign to circuit functions")]
-    InvalidCircuitValue,
-
-    #[error("Expected circuit object {}, got {}", _0, _1)]
-    InvalidCircuitObject(String, String),
-
     #[error("Cannot access circuit {}", _0)]
     InvalidCircuitAccess(String),
 

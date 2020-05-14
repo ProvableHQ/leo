@@ -438,16 +438,16 @@ pub struct ArrayAccess<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_object))]
-pub struct ObjectAccess<'ast> {
+#[pest_ast(rule(Rule::access_member))]
+pub struct MemberAccess<'ast> {
     pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_static_object))]
-pub struct StaticObjectAccess<'ast> {
+#[pest_ast(rule(Rule::access_static_member))]
+pub struct StaticMemberAccess<'ast> {
     pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -458,8 +458,8 @@ pub struct StaticObjectAccess<'ast> {
 pub enum Access<'ast> {
     Array(ArrayAccess<'ast>),
     Call(CallAccess<'ast>),
-    Object(ObjectAccess<'ast>),
-    StaticObject(StaticObjectAccess<'ast>),
+    Object(MemberAccess<'ast>),
+    StaticObject(StaticMemberAccess<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -475,7 +475,7 @@ pub struct PostfixExpression<'ast> {
 #[pest_ast(rule(Rule::assignee_access))]
 pub enum AssigneeAccess<'ast> {
     Array(ArrayAccess<'ast>),
-    Member(ObjectAccess<'ast>),
+    Member(MemberAccess<'ast>),
 }
 
 impl<'ast> fmt::Display for AssigneeAccess<'ast> {
@@ -561,8 +561,8 @@ pub struct ArrayInitializerExpression<'ast> {
 // Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_value))]
-pub struct CircuitValue<'ast> {
+#[pest_ast(rule(Rule::circuit_field_definition))]
+pub struct CircuitFieldDefinition<'ast> {
     pub identifier: Identifier<'ast>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
@@ -583,9 +583,9 @@ pub struct CircuitFunction<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_object))]
-pub enum CircuitObject<'ast> {
-    CircuitValue(CircuitValue<'ast>),
+#[pest_ast(rule(Rule::circuit_member))]
+pub enum CircuitMember<'ast> {
+    CircuitFieldDefinition(CircuitFieldDefinition<'ast>),
     CircuitFunction(CircuitFunction<'ast>),
 }
 
@@ -593,14 +593,14 @@ pub enum CircuitObject<'ast> {
 #[pest_ast(rule(Rule::circuit_definition))]
 pub struct Circuit<'ast> {
     pub identifier: Identifier<'ast>,
-    pub fields: Vec<CircuitObject<'ast>>,
+    pub members: Vec<CircuitMember<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::inline_circuit_member))]
-pub struct InlineCircuitMember<'ast> {
+#[pest_ast(rule(Rule::circuit_field))]
+pub struct CircuitField<'ast> {
     pub identifier: Identifier<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
@@ -608,10 +608,10 @@ pub struct InlineCircuitMember<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_inline_circuit))]
+#[pest_ast(rule(Rule::expression_circuit_inline))]
 pub struct CircuitInlineExpression<'ast> {
     pub identifier: Identifier<'ast>,
-    pub members: Vec<InlineCircuitMember<'ast>>,
+    pub members: Vec<CircuitField<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -787,7 +787,7 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-                Rule::expression_inline_circuit => {
+                Rule::expression_circuit_inline => {
                     Expression::CircuitInline(
                         CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )

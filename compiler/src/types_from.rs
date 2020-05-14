@@ -276,11 +276,11 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayInitializerExpression
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::InlineCircuitMember<'ast>>
-    for types::CircuitMember<F, G>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitField<'ast>>
+    for types::CircuitFieldDefinition<F, G>
 {
-    fn from(member: ast::InlineCircuitMember<'ast>) -> Self {
-        types::CircuitMember {
+    fn from(member: ast::CircuitField<'ast>) -> Self {
+        types::CircuitFieldDefinition {
             identifier: types::Identifier::from(member.identifier),
             expression: types::Expression::from(member.expression),
         }
@@ -295,8 +295,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitInlineExpression<'a
         let members = expression
             .members
             .into_iter()
-            .map(|member| types::CircuitMember::from(member))
-            .collect::<Vec<types::CircuitMember<F, G>>>();
+            .map(|member| types::CircuitFieldDefinition::from(member))
+            .collect::<Vec<types::CircuitFieldDefinition<F, G>>>();
 
         types::Expression::Circuit(variable, members)
     }
@@ -334,12 +334,12 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
                 ),
 
                 // Handle circuit member accesses
-                ast::Access::Object(circuit_object) => types::Expression::CircuitObjectAccess(
+                ast::Access::Object(circuit_object) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
                     types::Identifier::from(circuit_object.identifier),
                 ),
                 ast::Access::StaticObject(circuit_object) => {
-                    types::Expression::CircuitStaticObjectAccess(
+                    types::Expression::CircuitStaticFunctionAccess(
                         Box::new(acc),
                         types::Identifier::from(circuit_object.identifier),
                     )
@@ -389,10 +389,10 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                ast::AssigneeAccess::Member(struct_member) => {
-                    types::Expression::CircuitObjectAccess(
+                ast::AssigneeAccess::Member(circuit_member) => {
+                    types::Expression::CircuitMemberAccess(
                         Box::new(acc),
-                        types::Identifier::from(struct_member.identifier),
+                        types::Identifier::from(circuit_member.identifier),
                     )
                 }
                 ast::AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
@@ -424,9 +424,9 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
                     Box::new(acc),
                     types::RangeOrExpression::from(array.expression),
                 ),
-                ast::AssigneeAccess::Member(struct_member) => types::Assignee::CircuitMember(
+                ast::AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
                     Box::new(acc),
-                    types::Identifier::from(struct_member.identifier),
+                    types::Identifier::from(circuit_field.identifier),
                 ),
             })
     }
@@ -642,7 +642,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Statement<'ast>> for types
     }
 }
 
-/// pest ast -> Explicit types::Type for defining struct members and function params
+/// pest ast -> Explicit types::Type for defining circuit members and function params
 
 impl From<ast::IntegerType> for types::IntegerType {
     fn from(integer_type: ast::IntegerType) -> Self {
@@ -683,8 +683,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ArrayType<'ast>> for types
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitType<'ast>> for types::Type<F, G> {
-    fn from(struct_type: ast::CircuitType<'ast>) -> Self {
-        types::Type::Circuit(types::Identifier::from(struct_type.identifier))
+    fn from(circuit_type: ast::CircuitType<'ast>) -> Self {
+        types::Type::Circuit(types::Identifier::from(circuit_type.identifier))
     }
 }
 
@@ -698,13 +698,13 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
     }
 }
 
-/// pest ast -> types::Struct
+/// pest ast -> types::Circuit
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitValue<'ast>>
-    for types::CircuitObject<F, G>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitFieldDefinition<'ast>>
+    for types::CircuitMember<F, G>
 {
-    fn from(circuit_value: ast::CircuitValue<'ast>) -> Self {
-        types::CircuitObject::CircuitValue(
+    fn from(circuit_value: ast::CircuitFieldDefinition<'ast>) -> Self {
+        types::CircuitMember::CircuitField(
             types::Identifier::from(circuit_value.identifier),
             types::Type::from(circuit_value._type),
         )
@@ -712,43 +712,43 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitValue<'ast>>
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitFunction<'ast>>
-    for types::CircuitObject<F, G>
+    for types::CircuitMember<F, G>
 {
     fn from(circuit_function: ast::CircuitFunction<'ast>) -> Self {
-        types::CircuitObject::CircuitFunction(
+        types::CircuitMember::CircuitFunction(
             circuit_function._static.is_some(),
             types::Function::from(circuit_function.function),
         )
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
-    for types::CircuitObject<F, G>
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitMember<'ast>>
+    for types::CircuitMember<F, G>
 {
-    fn from(object: ast::CircuitObject<'ast>) -> Self {
+    fn from(object: ast::CircuitMember<'ast>) -> Self {
         match object {
-            ast::CircuitObject::CircuitValue(circuit_value) => {
-                types::CircuitObject::from(circuit_value)
+            ast::CircuitMember::CircuitFieldDefinition(circuit_value) => {
+                types::CircuitMember::from(circuit_value)
             }
-            ast::CircuitObject::CircuitFunction(circuit_function) => {
-                types::CircuitObject::from(circuit_function)
+            ast::CircuitMember::CircuitFunction(circuit_function) => {
+                types::CircuitMember::from(circuit_function)
             }
         }
     }
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::Circuit<F, G> {
-    fn from(struct_definition: ast::Circuit<'ast>) -> Self {
-        let variable = types::Identifier::from(struct_definition.identifier);
-        let fields = struct_definition
-            .fields
+    fn from(circuit: ast::Circuit<'ast>) -> Self {
+        let variable = types::Identifier::from(circuit.identifier);
+        let members = circuit
+            .members
             .into_iter()
-            .map(|struct_field| types::CircuitObject::from(struct_field))
+            .map(|member| types::CircuitMember::from(member))
             .collect();
 
         types::Circuit {
             identifier: variable,
-            objects: fields,
+            members,
         }
     }
 }
@@ -836,14 +836,14 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Program<F, G> {
             .map(|import| Import::from(import))
             .collect::<Vec<Import<F, G>>>();
 
-        let mut structs = HashMap::new();
+        let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
         let mut num_parameters = 0usize;
 
-        file.circuits.into_iter().for_each(|struct_def| {
-            structs.insert(
-                types::Identifier::from(struct_def.identifier.clone()),
-                types::Circuit::from(struct_def),
+        file.circuits.into_iter().for_each(|circuit| {
+            circuits.insert(
+                types::Identifier::from(circuit.identifier.clone()),
+                types::Circuit::from(circuit),
             );
         });
         file.functions.into_iter().for_each(|function_def| {
@@ -861,7 +861,7 @@ impl<'ast, F: Field + PrimeField, G: Group> types::Program<F, G> {
             name: types::Identifier::new(name),
             num_parameters,
             imports,
-            circuits: structs,
+            circuits,
             functions,
         }
     }

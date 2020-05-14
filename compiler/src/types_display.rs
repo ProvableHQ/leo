@@ -1,7 +1,7 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, Circuit, CircuitObject, ConditionalNestedOrEnd, ConditionalStatement, Expression,
+    Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
     FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
     RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
 };
@@ -154,10 +154,10 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitObjectAccess(ref circuit_name, ref member) => {
+            Expression::CircuitMemberAccess(ref circuit_name, ref member) => {
                 write!(f, "{}.{}", circuit_name, member)
             }
-            Expression::CircuitStaticObjectAccess(ref circuit_name, ref member) => {
+            Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member) => {
                 write!(f, "{}::{}", circuit_name, member)
             }
 
@@ -181,7 +181,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Assignee<F, G> {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::CircuitMember(ref circuit_variable, ref member) => {
+            Assignee::CircuitField(ref circuit_variable, ref member) => {
                 write!(f, "{}.{}", circuit_variable, member)
             }
         }
@@ -292,13 +292,13 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitMember<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitObject::CircuitValue(ref identifier, ref _type) => {
+            CircuitMember::CircuitField(ref identifier, ref _type) => {
                 write!(f, "{}: {}", identifier, _type)
             }
-            CircuitObject::CircuitFunction(ref _static, ref function) => {
+            CircuitMember::CircuitFunction(ref _static, ref function) => {
                 if *_static {
                     write!(f, "static ")?;
                 }
@@ -311,14 +311,14 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
 impl<F: Field + PrimeField, G: Group> Circuit<F, G> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "circuit {} {{ \n", self.identifier)?;
-        for field in self.objects.iter() {
+        for field in self.members.iter() {
             write!(f, "    {}\n", field)?;
         }
         write!(f, "}}")
     }
 }
 
-// impl<F: Field + PrimeField, G: Group> fmt::Display for Struct<F, G> {// uncomment when we no longer print out Program
+// impl<F: Field + PrimeField, G: Group> fmt::Display for Circuit<F, G> {// uncomment when we no longer print out Program
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         self.format(f)
 //     }

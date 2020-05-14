@@ -13,7 +13,7 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitObject<F: Field + PrimeField, G: Group>(
+pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(
     pub Identifier<F, G>,
     pub ConstrainedValue<F, G>,
 );
@@ -28,7 +28,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     Array(Vec<ConstrainedValue<F, G>>),
 
     CircuitDefinition(Circuit<F, G>),
-    CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitObject<F, G>>),
+    CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitMember<F, G>>),
 
     Function(Function<F, G>),
     Return(Vec<ConstrainedValue<F, G>>),
@@ -68,10 +68,10 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 Type::Circuit(ref expected_name),
             ) => {
                 if expected_name != actual_name {
-                    return Err(ValueError::StructName(format!(
-                        "Expected struct name {} got {}",
-                        expected_name, actual_name
-                    )));
+                    return Err(ValueError::CircuitName(
+                        expected_name.to_string(),
+                        actual_name.to_string(),
+                    ));
                 }
             }
             (ConstrainedValue::Return(ref values), _type) => {
@@ -114,8 +114,8 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 }
                 write!(f, "]")
             }
-            ConstrainedValue::CircuitExpression(ref variable, ref members) => {
-                write!(f, "{} {{", variable)?;
+            ConstrainedValue::CircuitExpression(ref identifier, ref members) => {
+                write!(f, "{} {{", identifier)?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
                     if i < members.len() - 1 {
@@ -135,7 +135,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 write!(f, "]")
             }
             ConstrainedValue::CircuitDefinition(ref _definition) => {
-                unimplemented!("cannot return struct definition in program")
+                unimplemented!("cannot return circuit definition in program")
             }
             ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),

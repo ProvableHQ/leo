@@ -2,13 +2,14 @@
 
 use crate::{
     constraints::{
-        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitObject,
+        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitMember,
         ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
     new_scope,
     types::{
-        CircuitMember, CircuitObject, Expression, Identifier, RangeOrExpression, SpreadOrExpression,
+        CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
+        SpreadOrExpression,
     },
 };
 
@@ -354,7 +355,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         file_scope: String,
         function_scope: String,
         variable: Identifier<F, G>,
-        members: Vec<CircuitMember<F, G>>,
+        members: Vec<CircuitFieldDefinition<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let circuit_name = new_variable_from_variable(file_scope.clone(), &variable);
 
@@ -362,28 +363,28 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             self.get_mut_variable(&circuit_name)
         {
             let mut resolved_members = vec![];
-            for object in circuit_definition.objects.clone().into_iter() {
-                match object {
-                    CircuitObject::CircuitValue(identifier, _type) => {
-                        let matched_member = members
+            for member in circuit_definition.members.clone().into_iter() {
+                match member {
+                    CircuitMember::CircuitField(identifier, _type) => {
+                        let matched_field = members
                             .clone()
                             .into_iter()
-                            .find(|member| member.identifier.eq(&identifier));
-                        match matched_member {
-                            Some(member) => {
+                            .find(|field| field.identifier.eq(&identifier));
+                        match matched_field {
+                            Some(field) => {
                                 // Resolve and enforce circuit object
-                                let member_value = self.enforce_expression(
+                                let field_value = self.enforce_expression(
                                     cs,
                                     file_scope.clone(),
                                     function_scope.clone(),
-                                    member.expression,
+                                    field.expression,
                                 )?;
 
-                                // Check member type
-                                member_value.expect_type(&_type)?;
+                                // Check field type
+                                field_value.expect_type(&_type)?;
 
                                 resolved_members
-                                    .push(ConstrainedCircuitObject(identifier, member_value))
+                                    .push(ConstrainedCircuitMember(identifier, field_value))
                             }
                             None => {
                                 return Err(ExpressionError::ExpectedCircuitValue(
@@ -392,16 +393,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                             }
                         }
                     }
-                    CircuitObject::CircuitFunction(_static, function) => {
+                    CircuitMember::CircuitFunction(_static, function) => {
                         let identifier = function.function_name.clone();
                         let mut constrained_function_value = ConstrainedValue::Function(function);
 
                         if _static {
                             constrained_function_value =
-                                ConstrainedValue::Mutable(Box::new(constrained_function_value));
+                                ConstrainedValue::Static(Box::new(constrained_function_value));
                         }
 
-                        resolved_members.push(ConstrainedCircuitObject(
+                        resolved_members.push(ConstrainedCircuitMember(
                             identifier,
                             constrained_function_value,
                         ));
@@ -472,14 +473,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         };
 
         // Find static circuit function
-        let matched_function = circuit.objects.into_iter().find(|member| match member {
-            CircuitObject::CircuitFunction(_static, _function) => *_static,
+        let matched_function = circuit.members.into_iter().find(|member| match member {
+            CircuitMember::CircuitFunction(_static, _function) => *_static,
             _ => false,
         });
 
         // Return errors if no static function exists
         let function = match matched_function {
-            Some(CircuitObject::CircuitFunction(_static, function)) => {
+            Some(CircuitMember::CircuitFunction(_static, function)) => {
                 if _static {
                     function
                 } else {
@@ -740,7 +741,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 circuit_name,
                 members,
             ),
-            Expression::CircuitObjectAccess(circuit_variable, circuit_member) => self
+            Expression::CircuitMemberAccess(circuit_variable, circuit_member) => self
                 .enforce_circuit_access_expression(
                     cs,
                     file_scope,
@@ -748,7 +749,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     circuit_variable,
                     circuit_member,
                 ),
-            Expression::CircuitStaticObjectAccess(circuit_identifier, circuit_member) => self
+            Expression::CircuitStaticFunctionAccess(circuit_identifier, circuit_member) => self
                 .enforce_circuit_static_access_expression(
                     cs,
                     file_scope,

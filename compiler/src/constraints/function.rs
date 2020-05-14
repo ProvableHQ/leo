@@ -2,7 +2,7 @@
 //! a resolved Leo program.
 
 use crate::{
-    constraints::{new_scope, new_variable_from_variables, ConstrainedProgram, ConstrainedValue},
+    constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
     types::{Expression, Function, Identifier, InputValue, Program, Type},
 };
@@ -231,12 +231,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         program
             .circuits
             .into_iter()
-            .for_each(|(variable, circuit_def)| {
+            .for_each(|(identifier, circuit)| {
                 let resolved_circuit_name =
-                    new_variable_from_variables(&program_name.clone(), &variable);
-                self.store_variable(
+                    new_scope(program_name.to_string(), identifier.to_string());
+                self.store(
                     resolved_circuit_name,
-                    ConstrainedValue::CircuitDefinition(circuit_def),
+                    ConstrainedValue::CircuitDefinition(circuit),
                 );
             });
 
@@ -246,7 +246,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             .into_iter()
             .for_each(|(function_name, function)| {
                 let resolved_function_name =
-                    new_scope(program_name.name.clone(), function_name.name);
+                    new_scope(program_name.to_string(), function_name.to_string());
                 self.store(resolved_function_name, ConstrainedValue::Function(function));
             });
 
