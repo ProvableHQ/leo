@@ -6,7 +6,9 @@ use crate::{
         ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
-    types::{CircuitMember, Expression, Identifier, RangeOrExpression, SpreadOrExpression},
+    types::{
+        CircuitMember, CircuitObject, Expression, Identifier, RangeOrExpression, SpreadOrExpression,
+    },
 };
 
 use snarkos_models::{
@@ -357,19 +359,26 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             self.get_mut_variable(&circuit_name)
         {
             let mut resolved_members = vec![];
-            for (field, member) in circuit_definition
-                .fields
+            for (object, member) in circuit_definition
+                .objects
                 .clone()
                 .into_iter()
                 .zip(members.clone().into_iter())
             {
-                if field.identifier != member.identifier {
+                let (identifier, _type) = match object {
+                    CircuitObject::CircuitValue(identifier, _type) => (identifier, _type),
+                    CircuitObject::CircuitFunction(_, _) => {
+                        return Err(ExpressionError::InvalidCircuitValue)
+                    }
+                };
+
+                if identifier != member.identifier {
                     return Err(ExpressionError::InvalidCircuitObject(
-                        field.identifier.name,
+                        identifier.to_string(),
                         member.identifier.name,
                     ));
                 }
-                // Resolve and enforce circuit fields
+                // Resolve and enforce circuit object
                 let member_value = self.enforce_expression(
                     cs,
                     file_scope.clone(),
@@ -377,8 +386,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     member.expression,
                 )?;
 
-                // Check member types
-                member_value.expect_type(&field._type)?;
+                // Check member type
+                member_value.expect_type(&_type)?;
 
                 resolved_members.push(ConstrainedCircuitObject(member.identifier, member_value))
             }

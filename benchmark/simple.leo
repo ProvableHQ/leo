@@ -1,7 +1,8 @@
 circuit PedersenHash {
-  static function new() {}
   parameters: group[1]
 
+  static function new() {
+  }
 }
 
 function main() {

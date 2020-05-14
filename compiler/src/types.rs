@@ -247,7 +247,7 @@ pub enum CircuitObject<F: Field + PrimeField, G: Group> {
 #[derive(Clone, PartialEq, Eq)]
 pub struct Circuit<F: Field + PrimeField, G: Group> {
     pub identifier: Identifier<F, G>,
-    pub fields: Vec<CircuitObject<F, G>>,
+    pub objects: Vec<CircuitObject<F, G>>,
 }
 
 /// Function parameters

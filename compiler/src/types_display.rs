@@ -293,10 +293,10 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             CircuitObject::CircuitValue(ref identifier, ref _type) => {
-                write!(f, "{}: {}", self.identifier, self._type)
+                write!(f, "{}: {}", identifier, _type)
             }
             CircuitObject::CircuitFunction(ref _static, ref function) => {
-                if _static {
+                if *_static {
                     write!(f, "static ")?;
                 }
                 write!(f, "{}", function)
@@ -308,7 +308,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
 impl<F: Field + PrimeField, G: Group> Circuit<F, G> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "circuit {} {{ \n", self.identifier)?;
-        for field in self.fields.iter() {
+        for field in self.objects.iter() {
             write!(f, "    {}\n", field)?;
         }
         write!(f, "}}")
@@ -395,11 +395,11 @@ impl<F: Field + PrimeField, G: Group> Function<F, G> {
     }
 }
 
-// impl<F: Field + PrimeField, G: Group> fmt::Display for Function<F, G> {// uncomment when we no longer print out Program
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         self.format(f)
-//     }
-// }
+impl<F: Field + PrimeField, G: Group> fmt::Display for Function<F, G> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
 
 impl<F: Field + PrimeField, G: Group> fmt::Debug for Function<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

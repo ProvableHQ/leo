@@ -742,7 +742,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Circuit<'ast>> for types::
 
         types::Circuit {
             identifier: variable,
-            fields,
+            objects: fields,
         }
     }
 }
