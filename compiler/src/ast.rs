@@ -438,8 +438,16 @@ pub struct ArrayAccess<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_member))]
-pub struct MemberAccess<'ast> {
+#[pest_ast(rule(Rule::access_object))]
+pub struct ObjectAccess<'ast> {
+    pub identifier: Identifier<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::access_static_object))]
+pub struct StaticObjectAccess<'ast> {
     pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -450,7 +458,8 @@ pub struct MemberAccess<'ast> {
 pub enum Access<'ast> {
     Array(ArrayAccess<'ast>),
     Call(CallAccess<'ast>),
-    Member(MemberAccess<'ast>),
+    Object(ObjectAccess<'ast>),
+    StaticObject(StaticObjectAccess<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -466,7 +475,7 @@ pub struct PostfixExpression<'ast> {
 #[pest_ast(rule(Rule::assignee_access))]
 pub enum AssigneeAccess<'ast> {
     Array(ArrayAccess<'ast>),
-    Member(MemberAccess<'ast>),
+    Member(ObjectAccess<'ast>),
 }
 
 impl<'ast> fmt::Display for AssigneeAccess<'ast> {

@@ -111,12 +111,13 @@ range_or_expression = { range | expression }
 
 access_array = { "[" ~ range_or_expression ~ "]" }
 access_call = { "(" ~ expression_tuple ~ ")" }
-access_member = { "." ~ identifier }
-access = { access_array | access_call | access_member }
+access_object = { "." ~ identifier }
+access_static_object = { "::" ~ identifier }
+access = { access_array | access_call | access_object | access_static_object}
 
 expression_postfix = { identifier ~ access+ }
 
-assignee_access = { access_array | access_member }
+assignee_access = { access_array | access_object }
 assignee = { identifier ~ assignee_access* }
 
 spread = { "..." ~ expression }

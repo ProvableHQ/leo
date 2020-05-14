@@ -154,7 +154,8 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
 
     // Circuits
     Circuit(Identifier<F, G>, Vec<CircuitMember<F, G>>),
-    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
+    CircuitObjectAccess(Box<Expression<F, G>>, Identifier<F, G>), // (declared circuit name, circuit object name)
+    CircuitStaticObjectAccess(Box<Expression<F, G>>, Identifier<F, G>), // (defined circuit name, circuit staic object name)
 
     // Functions
     FunctionCall(Box<Expression<F, G>>, Vec<Expression<F, G>>),

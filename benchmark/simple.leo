@@ -1,7 +1,7 @@
 circuit PedersenHash {
   parameters: group[1]
 
-  function new(b: u32) -> u32 {
+  static function new(b: u32) -> u32 {
     return b
   }
 }
@@ -9,7 +9,7 @@ circuit PedersenHash {
 function main() -> u32{
   let parameters = [0group; 1];
   let pedersen = PedersenHash { parameters: parameters };
-  let b = pedersen.new(3);
+  let b = PedersenHash::new(3);
 
   return b
 }

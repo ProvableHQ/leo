@@ -31,8 +31,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         input: Expression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match input {
-            Expression::Identifier(variable) => {
-                Ok(self.evaluate_identifier(caller_scope, variable)?)
+            Expression::Identifier(identifier) => {
+                Ok(self.evaluate_identifier(caller_scope, function_name, identifier)?)
             }
             expression => Ok(self.enforce_expression(cs, scope, function_name, expression)?),
         }

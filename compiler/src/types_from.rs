@@ -317,49 +317,33 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                // Handle function calls
-                ast::Access::Call(function) => {
-                    types::Expression::FunctionCall(
-                        Box::new(acc),
-                        function
-                            .expressions
-                            .into_iter()
-                            .map(|expression| types::Expression::from(expression))
-                            .collect(),
-                    )
-                    //match acc {
-                    // Normal function call
-                    // types::Expression::Identifier(identifier) => types::Expression::FunctionCall(
-                    //     Box::new(acc),
-                    //     function
-                    //         .expressions
-                    //         .into_iter()
-                    //         .map(|expression| types::Expression::from(expression))
-                    //         .collect(),
-                    // ),
-                    // // Circuit function call
-                    // types::Expression::CircuitMemberAccess(acc, circuit_function) => types::Expression::FunctionCall(
-                    //     circuit_function,
-                    //     function
-                    //         .expressions
-                    //         .into_iter()
-                    //         .map(|expression| types::Expression::from(expression))
-                    //         .collect(),
-                    // ),
-                    // expression => {
-                    //     unimplemented!("only function names are callable, found \"{}\"", expression)
-                    // }
-                }
-                // Handle circuit member accesses
-                ast::Access::Member(circuit_member) => types::Expression::CircuitMemberAccess(
-                    Box::new(acc),
-                    types::Identifier::from(circuit_member.identifier),
-                ),
                 // Handle array accesses
                 ast::Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     Box::new(types::RangeOrExpression::from(array.expression)),
                 ),
+
+                // Handle function calls
+                ast::Access::Call(function) => types::Expression::FunctionCall(
+                    Box::new(acc),
+                    function
+                        .expressions
+                        .into_iter()
+                        .map(|expression| types::Expression::from(expression))
+                        .collect(),
+                ),
+
+                // Handle circuit member accesses
+                ast::Access::Object(circuit_object) => types::Expression::CircuitObjectAccess(
+                    Box::new(acc),
+                    types::Identifier::from(circuit_object.identifier),
+                ),
+                ast::Access::StaticObject(circuit_object) => {
+                    types::Expression::CircuitStaticObjectAccess(
+                        Box::new(acc),
+                        types::Identifier::from(circuit_object.identifier),
+                    )
+                }
             })
     }
 }
@@ -406,7 +390,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Assignee<'ast>> for types:
             .into_iter()
             .fold(variable, |acc, access| match access {
                 ast::AssigneeAccess::Member(struct_member) => {
-                    types::Expression::CircuitMemberAccess(
+                    types::Expression::CircuitObjectAccess(
                         Box::new(acc),
                         types::Identifier::from(struct_member.identifier),
                     )

@@ -154,8 +154,11 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitMemberAccess(ref circuit_variable, ref member) => {
-                write!(f, "{}.{}", circuit_variable, member)
+            Expression::CircuitObjectAccess(ref circuit_name, ref member) => {
+                write!(f, "{}.{}", circuit_name, member)
+            }
+            Expression::CircuitStaticObjectAccess(ref circuit_name, ref member) => {
+                write!(f, "{}::{}", circuit_name, member)
             }
 
             // Function calls

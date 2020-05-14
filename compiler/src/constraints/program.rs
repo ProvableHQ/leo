@@ -66,14 +66,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         self.store(variable.name, value);
     }
 
-    pub(crate) fn contains_name(&self, name: &String) -> bool {
-        self.identifiers.contains_key(name)
-    }
-
-    pub(crate) fn contains_variable(&self, variable: &Identifier<F, G>) -> bool {
-        self.contains_name(&variable.name)
-    }
-
     pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<F, G>> {
         self.identifiers.get(name)
     }

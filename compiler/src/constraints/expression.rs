@@ -6,6 +6,7 @@ use crate::{
         ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
+    new_scope,
     types::{
         CircuitMember, CircuitObject, Expression, Identifier, RangeOrExpression, SpreadOrExpression,
     },
@@ -20,21 +21,23 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     /// Enforce a variable expression by getting the resolved value
     pub(crate) fn evaluate_identifier(
         &mut self,
-        scope: String,
-        unresolved_variable: Identifier<F, G>,
+        file_scope: String,
+        function_scope: String,
+        unresolved_identifier: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Evaluate the variable name in the current function scope
-        let variable_name = new_scope_from_variable(scope, &unresolved_variable);
+        // Evaluate the identifier name in the current function scope
+        let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
+        let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
 
-        if self.contains_name(&variable_name) {
+        if let Some(variable) = self.get(&variable_name) {
             // Reassigning variable to another variable
-            Ok(self.get_mut(&variable_name).unwrap().clone())
-        } else if self.contains_variable(&unresolved_variable) {
+            Ok(variable.clone())
+        } else if let Some(identifier) = self.get(&identifier_name) {
             // Check global scope (function and circuit names)
-            Ok(self.get_mut_variable(&unresolved_variable).unwrap().clone())
+            Ok(identifier.clone())
         } else {
-            Err(ExpressionError::UndefinedVariable(
-                unresolved_variable.to_string(),
+            Err(ExpressionError::UndefinedIdentifier(
+                unresolved_identifier.to_string(),
             ))
         }
     }
@@ -449,6 +452,53 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
     }
 
+    fn enforce_circuit_static_access_expression(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        circuit_identifier: Box<Expression<F, G>>,
+        circuit_member: Identifier<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        // Get defined circuit
+        let circuit = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            *circuit_identifier.clone(),
+        )? {
+            ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,
+            value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
+        };
+
+        // Find static circuit function
+        let matched_function = circuit.objects.into_iter().find(|member| match member {
+            CircuitObject::CircuitFunction(_static, _function) => *_static,
+            _ => false,
+        });
+
+        // Return errors if no static function exists
+        let function = match matched_function {
+            Some(CircuitObject::CircuitFunction(_static, function)) => {
+                if _static {
+                    function
+                } else {
+                    return Err(ExpressionError::InvalidStaticFunction(
+                        function.function_name.to_string(),
+                    ));
+                }
+            }
+            _ => {
+                return Err(ExpressionError::UndefinedStaticFunction(
+                    circuit.identifier.to_string(),
+                    circuit_member.to_string(),
+                ))
+            }
+        };
+
+        Ok(ConstrainedValue::Function(function))
+    }
+
     fn enforce_function_call_expression(
         &mut self,
         cs: &mut CS,
@@ -492,7 +542,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => {
-                self.evaluate_identifier(function_scope, unresolved_variable)
+                self.evaluate_identifier(file_scope, function_scope, unresolved_variable)
             }
 
             // Values
@@ -690,12 +740,20 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 circuit_name,
                 members,
             ),
-            Expression::CircuitMemberAccess(circuit_variable, circuit_member) => self
+            Expression::CircuitObjectAccess(circuit_variable, circuit_member) => self
                 .enforce_circuit_access_expression(
                     cs,
                     file_scope,
                     function_scope,
                     circuit_variable,
+                    circuit_member,
+                ),
+            Expression::CircuitStaticObjectAccess(circuit_identifier, circuit_member) => self
+                .enforce_circuit_static_access_expression(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    circuit_identifier,
                     circuit_member,
                 ),
 
