@@ -199,6 +199,10 @@ pub struct CircuitType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_self))]
+pub struct SelfType {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_basic))]
 pub enum BasicType<'ast> {
     Integer(IntegerType),
@@ -222,6 +226,7 @@ pub enum Type<'ast> {
     Basic(BasicType<'ast>),
     Array(ArrayType<'ast>),
     Circuit(CircuitType<'ast>),
+    SelfType(SelfType),
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
@@ -230,6 +235,7 @@ impl<'ast> fmt::Display for Type<'ast> {
             Type::Basic(ref _type) => write!(f, "basic"),
             Type::Array(ref _type) => write!(f, "array"),
             Type::Circuit(ref _type) => write!(f, "struct"),
+            Type::SelfType(ref _type) => write!(f, "Self"),
         }
     }
 }

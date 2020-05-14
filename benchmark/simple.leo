@@ -1,15 +1,15 @@
 circuit PedersenHash {
   parameters: group[1]
 
-  function new(b: u32) -> u32 {
-    return b
+  static function new(parameters: group[1]) -> Self {
+    return Self { parameters: parameters }
   }
+
 }
 
 function main() -> u32{
   let parameters = [0group; 1];
-  let mut pedersen = PedersenHash { parameters: parameters };
-  let b = PedersenHash::new(3);
+  let pedersen = PedersenHash::new(parameters);
 
-  return b
+  return pedersen
 }

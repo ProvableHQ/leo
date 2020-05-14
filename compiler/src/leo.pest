@@ -79,10 +79,11 @@ type_integer = {
 type_field = {"field"}
 type_group = {"group"}
 type_bool = {"bool"}
+type_self = {"Self"}
 type_basic = { type_field | type_group | type_bool | type_integer }
 type_circuit = { identifier }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
-_type = {type_array | type_basic | type_circuit}
+_type = {type_self | type_array | type_basic | type_circuit}
 type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values

@@ -694,6 +694,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
             ast::Type::Basic(_type) => types::Type::from(_type),
             ast::Type::Array(_type) => types::Type::from(_type),
             ast::Type::Circuit(_type) => types::Type::from(_type),
+            ast::Type::SelfType(_type) => unimplemented!("no Self yet")
         }
     }
 }
