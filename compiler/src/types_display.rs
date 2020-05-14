@@ -291,7 +291,17 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
 
 impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.identifier, self._type)
+        match self {
+            CircuitObject::CircuitValue(ref identifier, ref _type) => {
+                write!(f, "{}: {}", self.identifier, self._type)
+            }
+            CircuitObject::CircuitFunction(ref _static, ref function) => {
+                if _static {
+                    write!(f, "static ")?;
+                }
+                write!(f, "{}", function)
+            }
+        }
     }
 }
 

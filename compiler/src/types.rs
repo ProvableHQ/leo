@@ -230,6 +230,8 @@ pub enum Statement<F: Field + PrimeField, G: Group> {
     Expression(Expression<F, G>),
 }
 
+/// Circuits
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CircuitMember<F: Field + PrimeField, G: Group> {
     pub identifier: Identifier<F, G>,
@@ -237,9 +239,9 @@ pub struct CircuitMember<F: Field + PrimeField, G: Group> {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct CircuitObject<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
-    pub _type: Type<F, G>,
+pub enum CircuitObject<F: Field + PrimeField, G: Group> {
+    CircuitValue(Identifier<F, G>, Type<F, G>),
+    CircuitFunction(bool, Function<F, G>),
 }
 
 #[derive(Clone, PartialEq, Eq)]
