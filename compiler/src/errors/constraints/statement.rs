@@ -38,6 +38,9 @@ pub enum StatementError {
     UndefinedCircuitObject(String),
 
     // Statements
+    #[error("Cannot assign to immutable variable {}", _0)]
+    ImmutableAssign(String),
+
     #[error(
         "Multiple definition statement expected {} return values, got {}",
         _0,

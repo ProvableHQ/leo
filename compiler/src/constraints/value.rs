@@ -13,7 +13,7 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(
+pub struct ConstrainedCircuitObject<F: Field + PrimeField, G: Group>(
     pub Identifier<F, G>,
     pub ConstrainedValue<F, G>,
 );
@@ -26,7 +26,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     Boolean(Boolean),
     Array(Vec<ConstrainedValue<F, G>>),
     CircuitDefinition(Circuit<F, G>),
-    CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitObject<F, G>>),
     Function(Function<F, G>),
     Return(Vec<ConstrainedValue<F, G>>),
     Mutable(Box<ConstrainedValue<F, G>>),

@@ -14,7 +14,7 @@ use snarkos_models::gadgets::{
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
-/// A variable in a constraint system.
+/// An identifier in the constrained program.
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Identifier<F: Field + PrimeField, G: Group> {
     pub name: String,
@@ -32,6 +32,7 @@ impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
     }
 }
 
+/// A variable that is assigned to a value in the constrained program
 #[derive(Clone, PartialEq, Eq)]
 pub struct Variable<F: Field + PrimeField, G: Group> {
     pub identifier: Identifier<F, G>,
@@ -153,7 +154,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
 
     // Circuits
     Circuit(Identifier<F, G>, Vec<CircuitMember<F, G>>),
-    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit member name)
+    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
 
     // Functions
     FunctionCall(Identifier<F, G>, Vec<Expression<F, G>>),
@@ -164,7 +165,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
 pub enum Assignee<F: Field + PrimeField, G: Group> {
     Identifier(Identifier<F, G>),
     Array(Box<Assignee<F, G>>, RangeOrExpression<F, G>),
-    CircuitMember(Box<Assignee<F, G>>, Identifier<F, G>),
+    CircuitMember(Box<Assignee<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
 }
 
 /// Explicit integer type
