@@ -157,7 +157,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
 
     // Functions
-    FunctionCall(Identifier<F, G>, Vec<Expression<F, G>>),
+    FunctionCall(Box<Expression<F, G>>, Vec<Expression<F, G>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x

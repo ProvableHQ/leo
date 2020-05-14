@@ -359,37 +359,51 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             self.get_mut_variable(&circuit_name)
         {
             let mut resolved_members = vec![];
-            for (object, member) in circuit_definition
-                .objects
-                .clone()
-                .into_iter()
-                .zip(members.clone().into_iter())
-            {
-                let (identifier, _type) = match object {
-                    CircuitObject::CircuitValue(identifier, _type) => (identifier, _type),
-                    CircuitObject::CircuitFunction(_, _) => {
-                        return Err(ExpressionError::InvalidCircuitValue)
+            for object in circuit_definition.objects.clone().into_iter() {
+                match object {
+                    CircuitObject::CircuitValue(identifier, _type) => {
+                        let matched_member = members
+                            .clone()
+                            .into_iter()
+                            .find(|member| member.identifier.eq(&identifier));
+                        match matched_member {
+                            Some(member) => {
+                                // Resolve and enforce circuit object
+                                let member_value = self.enforce_expression(
+                                    cs,
+                                    file_scope.clone(),
+                                    function_scope.clone(),
+                                    member.expression,
+                                )?;
+
+                                // Check member type
+                                member_value.expect_type(&_type)?;
+
+                                resolved_members
+                                    .push(ConstrainedCircuitObject(identifier, member_value))
+                            }
+                            None => {
+                                return Err(ExpressionError::ExpectedCircuitValue(
+                                    identifier.to_string(),
+                                ))
+                            }
+                        }
+                    }
+                    CircuitObject::CircuitFunction(_static, function) => {
+                        let identifier = function.function_name.clone();
+                        let mut constrained_function_value = ConstrainedValue::Function(function);
+
+                        if _static {
+                            constrained_function_value =
+                                ConstrainedValue::Mutable(Box::new(constrained_function_value));
+                        }
+
+                        resolved_members.push(ConstrainedCircuitObject(
+                            identifier,
+                            constrained_function_value,
+                        ));
                     }
                 };
-
-                if identifier != member.identifier {
-                    return Err(ExpressionError::InvalidCircuitObject(
-                        identifier.to_string(),
-                        member.identifier.name,
-                    ));
-                }
-                // Resolve and enforce circuit object
-                let member_value = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    member.expression,
-                )?;
-
-                // Check member type
-                member_value.expect_type(&_type)?;
-
-                resolved_members.push(ConstrainedCircuitObject(member.identifier, member_value))
             }
 
             Ok(ConstrainedValue::CircuitExpression(
@@ -406,14 +420,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        circuit_variable: Box<Expression<F, G>>,
+        circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let members = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            *circuit_variable.clone(),
+            *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitExpression(_name, members) => members,
             ConstrainedValue::Mutable(value) => match *value {
@@ -440,13 +454,19 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        function: Identifier<F, G>,
+        function: Box<Expression<F, G>>,
         arguments: Vec<Expression<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let function_name = new_variable_from_variable(file_scope.clone(), &function);
-        let function_call = match self.get(&function_name.to_string()) {
-            Some(ConstrainedValue::Function(function)) => function.clone(),
-            _ => return Err(ExpressionError::UndefinedFunction(function.to_string())),
+        let function_value = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            *function.clone(),
+        )?;
+
+        let function_call = match function_value {
+            ConstrainedValue::Function(function) => function.clone(),
+            value => return Err(ExpressionError::UndefinedFunction(value.to_string())),
         };
 
         match self.enforce_function(cs, file_scope, function_scope, function_call, arguments) {

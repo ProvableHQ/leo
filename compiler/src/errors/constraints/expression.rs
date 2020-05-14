@@ -60,6 +60,9 @@ pub enum ExpressionError {
     #[error("Cannot access circuit {}", _0)]
     InvalidCircuitAccess(String),
 
+    #[error("Expected circuit value {}", _0)]
+    ExpectedCircuitValue(String),
+
     // Functions
     #[error(
         "Function {} must be declared before it is used in an inline expression",

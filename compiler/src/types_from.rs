@@ -317,23 +317,45 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::PostfixExpression<'ast>>
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                ast::Access::Call(function) => match acc {
-                    types::Expression::Identifier(variable) => types::Expression::FunctionCall(
-                        variable,
+                // Handle function calls
+                ast::Access::Call(function) => {
+                    types::Expression::FunctionCall(
+                        Box::new(acc),
                         function
                             .expressions
                             .into_iter()
                             .map(|expression| types::Expression::from(expression))
                             .collect(),
-                    ),
-                    expression => {
-                        unimplemented!("only function names are callable, found \"{}\"", expression)
-                    }
-                },
-                ast::Access::Member(struct_member) => types::Expression::CircuitMemberAccess(
+                    )
+                    //match acc {
+                    // Normal function call
+                    // types::Expression::Identifier(identifier) => types::Expression::FunctionCall(
+                    //     Box::new(acc),
+                    //     function
+                    //         .expressions
+                    //         .into_iter()
+                    //         .map(|expression| types::Expression::from(expression))
+                    //         .collect(),
+                    // ),
+                    // // Circuit function call
+                    // types::Expression::CircuitMemberAccess(acc, circuit_function) => types::Expression::FunctionCall(
+                    //     circuit_function,
+                    //     function
+                    //         .expressions
+                    //         .into_iter()
+                    //         .map(|expression| types::Expression::from(expression))
+                    //         .collect(),
+                    // ),
+                    // expression => {
+                    //     unimplemented!("only function names are callable, found \"{}\"", expression)
+                    // }
+                }
+                // Handle circuit member accesses
+                ast::Access::Member(circuit_member) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
-                    types::Identifier::from(struct_member.identifier),
+                    types::Identifier::from(circuit_member.identifier),
                 ),
+                // Handle array accesses
                 ast::Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     Box::new(types::RangeOrExpression::from(array.expression)),
@@ -524,7 +546,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::MultipleAssignmentStatemen
         types::Statement::MultipleAssign(
             variables,
             types::Expression::FunctionCall(
-                types::Identifier::from(statement.function_name),
+                Box::new(types::Expression::from(statement.function_name)),
                 statement
                     .arguments
                     .into_iter()

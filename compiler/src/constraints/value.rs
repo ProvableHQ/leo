@@ -24,12 +24,17 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     FieldElement(FieldElement<F>),
     GroupElement(G),
     Boolean(Boolean),
+
     Array(Vec<ConstrainedValue<F, G>>),
+
     CircuitDefinition(Circuit<F, G>),
     CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitObject<F, G>>),
+
     Function(Function<F, G>),
     Return(Vec<ConstrainedValue<F, G>>),
+
     Mutable(Box<ConstrainedValue<F, G>>),
+    Static(Box<ConstrainedValue<F, G>>),
 }
 
 impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
@@ -75,6 +80,9 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 }
             }
             (ConstrainedValue::Mutable(ref value), _type) => {
+                value.expect_type(&_type)?;
+            }
+            (ConstrainedValue::Static(ref value), _type) => {
                 value.expect_type(&_type)?;
             }
             (value, _type) => {
@@ -131,6 +139,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
             }
             ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
+            ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
         }
     }
 }
