@@ -552,12 +552,32 @@ pub struct ArrayInitializerExpression<'ast> {
 // Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_object))]
-pub struct CircuitObject<'ast> {
+#[pest_ast(rule(Rule::circuit_value))]
+pub struct CircuitValue<'ast> {
     pub identifier: Identifier<'ast>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::_static))]
+pub struct Static {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::circuit_function))]
+pub struct CircuitFunction<'ast> {
+    pub _static: Option<Static>,
+    pub function: Function<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::circuit_object))]
+pub enum CircuitObject<'ast> {
+    CircuitValue(CircuitValue<'ast>),
+    CircuitFunction(CircuitFunction<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]

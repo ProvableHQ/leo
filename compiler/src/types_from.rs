@@ -657,7 +657,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::BasicType<'ast>> for types
                 types::Type::IntegerType(types::IntegerType::from(_type))
             }
             ast::BasicType::Field(_type) => types::Type::FieldElement,
-            ast::BasicType::Group(_type) => unimplemented!(),
+            ast::BasicType::Group(_type) => types::Type::GroupElement,
             ast::BasicType::Boolean(_type) => types::Type::Boolean,
         }
     }
@@ -694,13 +694,38 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
 
 /// pest ast -> types::Struct
 
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitValue<'ast>>
+for types::CircuitObject<F, G>
+{
+    fn from(_circuit_value: ast::CircuitValue<'ast>) -> Self {
+        unimplemented!("circuit value")
+        // types::CircuitObject {
+        //     identifier: types::Identifier::from(struct_field.identifier),
+        //     _type: types::Type::from(struct_field._type),
+        // }
+    }
+}
+
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitFunction<'ast>>
+for types::CircuitObject<F, G>
+{
+    fn from(_circuit_value: ast::CircuitFunction<'ast>) -> Self {
+        unimplemented!("circuit function")
+        // types::CircuitObject {
+        //     identifier: types::Identifier::from(struct_field.identifier),
+        //     _type: types::Type::from(struct_field._type),
+        // }
+    }
+}
+
+
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::CircuitObject<'ast>>
     for types::CircuitObject<F, G>
 {
-    fn from(struct_field: ast::CircuitObject<'ast>) -> Self {
-        types::CircuitObject {
-            identifier: types::Identifier::from(struct_field.identifier),
-            _type: types::Type::from(struct_field._type),
+    fn from(object: ast::CircuitObject<'ast>) -> Self {
+        match object {
+            ast::CircuitObject::CircuitValue(circuit_value) => types::CircuitObject::from(circuit_value),
+            ast::CircuitObject::CircuitFunction(circuit_function) => types::CircuitObject::from(circuit_function),
         }
     }
 }
