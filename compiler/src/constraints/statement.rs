@@ -3,10 +3,12 @@
 use crate::{
     constraints::{new_scope_from_variable, ConstrainedProgram, ConstrainedValue},
     errors::StatementError,
+    new_scope,
     types::{
-        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer,
-        RangeOrExpression, Statement, Type, Variable,
+        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Identifier, Integer,
+        RangeOrExpression, Statement, Type,
     },
+    Variable,
 };
 
 use snarkos_models::{
@@ -17,7 +19,7 @@ use snarkos_models::{
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
         match assignee {
-            Assignee::Variable(name) => new_scope_from_variable(scope, &name),
+            Assignee::Identifier(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
             Assignee::CircuitMember(circuit_variable, _member) => {
                 self.resolve_assignee(scope, *circuit_variable)
@@ -25,100 +27,91 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
     }
 
-    fn store_assignment(
+    fn mutate_array(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F, G>,
-        return_value: &mut ConstrainedValue<F, G>,
+        name: String,
+        range_or_expression: RangeOrExpression<F, G>,
+        new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
-        match assignee {
-            Assignee::Variable(name) => {
-                // Store the variable in the current scope
-                let definition_name = new_scope_from_variable(function_scope.clone(), &name);
+        // Resolve index so we know if we are assigning to a single value or a range of values
+        match range_or_expression {
+            RangeOrExpression::Expression(index) => {
+                let index =
+                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
 
-                self.store(definition_name, return_value.to_owned());
-            }
-            Assignee::Array(array, index_expression) => {
-                // Check that array exists
-                let expected_array_name = self.resolve_assignee(function_scope.clone(), *array);
-
-                // Resolve index so we know if we are assigning to a single value or a range of values
-                match index_expression {
-                    RangeOrExpression::Expression(index) => {
-                        let index = self.enforce_index(
-                            cs,
-                            file_scope.clone(),
-                            function_scope.clone(),
-                            index,
-                        )?;
-
-                        // Modify the single value of the array in place
-                        match self.get_mut(&expected_array_name) {
-                            Some(value) => match value {
-                                ConstrainedValue::Array(old) => {
-                                    old[index] = return_value.to_owned();
-                                }
-                                _ => return Err(StatementError::ArrayAssignIndex),
-                            },
-                            None => {
-                                return Err(StatementError::UndefinedArray(expected_array_name))
-                            }
-                        }
+                // Modify the single value of the array in place
+                match self.get_mutable_variable(name)? {
+                    ConstrainedValue::Array(old) => {
+                        old[index] = new_value;
                     }
-                    RangeOrExpression::Range(from, to) => {
-                        let from_index = match from {
-                            Some(integer) => integer.to_usize(),
-                            None => 0usize,
-                        };
-                        let to_index_option = match to {
-                            Some(integer) => Some(integer.to_usize()),
-                            None => None,
-                        };
-
-                        // Modify the range of values of the array in place
-                        match self.get_mut(&expected_array_name) {
-                            Some(value) => match (value, return_value) {
-                                (ConstrainedValue::Array(old), ConstrainedValue::Array(new)) => {
-                                    let to_index = to_index_option.unwrap_or(old.len());
-                                    old.splice(from_index..to_index, new.iter().cloned());
-                                }
-                                _ => return Err(StatementError::ArrayAssignRange),
-                            },
-                            None => {
-                                return Err(StatementError::UndefinedArray(expected_array_name))
-                            }
-                        }
-                    }
+                    _ => return Err(StatementError::ArrayAssignIndex),
                 }
             }
-            Assignee::CircuitMember(circuit_variable, circuit_member) => {
-                // Check that circuit exists
-                let expected_circuit_name =
-                    self.resolve_assignee(function_scope.clone(), *circuit_variable);
+            RangeOrExpression::Range(from, to) => {
+                let from_index = match from {
+                    Some(integer) => integer.to_usize(),
+                    None => 0usize,
+                };
+                let to_index_option = match to {
+                    Some(integer) => Some(integer.to_usize()),
+                    None => None,
+                };
 
-                match self.get_mut(&expected_circuit_name) {
-                    Some(ConstrainedValue::CircuitExpression(_variable, members)) => {
-                        // Modify the circuit member in place
-                        let matched_member = members
-                            .into_iter()
-                            .find(|member| member.0 == circuit_member);
-                        match matched_member {
-                            Some(mut member) => member.1 = return_value.to_owned(),
-                            None => {
-                                return Err(StatementError::UndefinedCircuitObject(
-                                    circuit_member.to_string(),
-                                ))
-                            }
-                        }
+                // Modify the range of values of the array in place
+                match (self.get_mutable_variable(name)?, new_value) {
+                    (ConstrainedValue::Array(old), ConstrainedValue::Array(ref new)) => {
+                        let to_index = to_index_option.unwrap_or(old.len());
+                        old.splice(from_index..to_index, new.iter().cloned());
                     }
-                    _ => return Err(StatementError::UndefinedCircuit(expected_circuit_name)),
+                    _ => return Err(StatementError::ArrayAssignRange),
                 }
             }
         }
 
         Ok(())
+    }
+
+    fn mutute_circuit_object(
+        &mut self,
+        circuit_name: String,
+        object_name: Identifier<F, G>,
+        new_value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        match self.get_mutable_variable(circuit_name)? {
+            ConstrainedValue::CircuitExpression(_variable, objects) => {
+                // Modify the circuit member in place
+                let matched_object = objects.into_iter().find(|object| object.0 == object_name);
+
+                match matched_object {
+                    Some(mut object) => object.1 = new_value.to_owned(),
+                    None => {
+                        return Err(StatementError::UndefinedCircuitObject(
+                            object_name.to_string(),
+                        ))
+                    }
+                }
+            }
+            _ => return Err(StatementError::UndefinedCircuit(object_name.to_string())),
+        }
+
+        Ok(())
+    }
+
+    fn get_mutable_variable(
+        &mut self,
+        name: String,
+    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
+        // Check that assignee exists and is mutable
+        Ok(match self.get_mut(&name) {
+            Some(value) => match value {
+                ConstrainedValue::Mutable(mutable_value) => mutable_value,
+                _ => return Err(StatementError::ImmutableAssign(name)),
+            },
+            None => return Err(StatementError::UndefinedVariable(name)),
+        })
     }
 
     fn enforce_assign_statement(
@@ -129,22 +122,57 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         assignee: Assignee<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
-        // Check that assignee exists
-        let name = self.resolve_assignee(function_scope.clone(), assignee.clone());
+        // Get the name of the variable we are assigning to
+        let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
-        match self.get(&name) {
-            Some(_assignee) => {
-                let result_value = &mut self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expression,
-                )?;
+        // Evaluate new value
+        let new_value =
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
 
-                self.store_assignment(cs, file_scope, function_scope, assignee, result_value)
+        // Mutate the old value into the new value
+        match assignee {
+            Assignee::Identifier(_identifier) => {
+                let old_value = self.get_mutable_variable(variable_name.clone())?;
+
+                *old_value = new_value;
+
+                Ok(())
             }
-            None => Err(StatementError::UndefinedVariable(assignee.to_string())),
+            Assignee::Array(_assignee, range_or_expression) => self.mutate_array(
+                cs,
+                file_scope,
+                function_scope,
+                variable_name,
+                range_or_expression,
+                new_value,
+            ),
+            Assignee::CircuitMember(_assignee, object_name) => {
+                self.mutute_circuit_object(variable_name, object_name, new_value)
+            }
         }
+    }
+
+    fn store_definition(
+        &mut self,
+        function_scope: String,
+        variable: Variable<F, G>,
+        mut value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        // Check optional explicit type
+        if let Some(_type) = variable._type {
+            value.expect_type(&_type)?;
+        }
+
+        // Store with given mutability
+        if variable.mutable {
+            value = ConstrainedValue::Mutable(Box::new(value));
+        }
+
+        let variable_program_identifier = new_scope(function_scope, variable.identifier.name);
+
+        self.store(variable_program_identifier, value);
+
+        Ok(())
     }
 
     fn enforce_definition_statement(
@@ -152,26 +180,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F, G>,
-        ty: Option<Type<F, G>>,
+        variable: Variable<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
-        let result_value = &mut self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expression,
-        )?;
+        let value =
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
 
-        match ty {
-            // Explicit type
-            Some(ty) => {
-                result_value.expect_type(&ty)?;
-                self.store_assignment(cs, file_scope, function_scope, assignee, result_value)
-            }
-            // Implicit type
-            None => self.store_assignment(cs, file_scope, function_scope, assignee, result_value),
-        }
+        self.store_definition(function_scope, variable, value)
     }
 
     fn enforce_multiple_definition_statement(
@@ -179,7 +194,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignees: Vec<Assignee<F, G>>,
+        variables: Vec<Variable<F, G>>,
         function: Expression<F, G>,
     ) -> Result<(), StatementError> {
         // Expect return values from function
@@ -196,20 +211,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             ),
         };
 
-        assignees
-            .into_iter()
-            .zip(return_values.into_iter())
-            .map(|(assignee, mut return_value)| {
-                self.store_assignment(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    assignee,
-                    &mut return_value,
-                )
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+        if variables.len() != return_values.len() {
+            return Err(StatementError::InvalidNumberOfDefinitions(
+                variables.len(),
+                return_values.len(),
+            ));
+        }
 
+        for (variable, value) in variables.into_iter().zip(return_values.into_iter()) {
+            self.store_definition(function_scope.clone(), variable, value)?;
+        }
         Ok(())
     }
 
@@ -326,7 +337,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Variable<F, G>,
+        index: Identifier<F, G>,
         start: Integer,
         stop: Integer,
         statements: Vec<Statement<F, G>>,
@@ -413,13 +424,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     return_types,
                 )?);
             }
-            Statement::Definition(assignee, ty, expression) => {
+            Statement::Definition(variable, expression) => {
                 self.enforce_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignee,
-                    ty,
+                    variable,
                     expression,
                 )?;
             }
@@ -432,12 +442,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     expression,
                 )?;
             }
-            Statement::MultipleAssign(assignees, function) => {
+            Statement::MultipleAssign(variables, function) => {
                 self.enforce_multiple_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignees,
+                    variables,
                     function,
                 )?;
             }

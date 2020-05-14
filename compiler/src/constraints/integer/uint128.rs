@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
-    types::{InputModel, Integer},
+    types::Integer,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -16,10 +16,11 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub(crate) fn u128_from_integer(
+    pub(crate) fn u128_from_input(
         &mut self,
         cs: &mut CS,
-        parameter_model: InputModel<F, G>,
+        name: String,
+        private: bool,
         integer_option: Option<usize>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Type cast to u128 in rust.
@@ -27,8 +28,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let u128_option = integer_option.map(|integer| integer as u128);
 
         // Check visibility of parameter
-        let name = parameter_model.variable.name.clone();
-        let integer_value = if parameter_model.private {
+        let integer_value = if private {
             UInt128::alloc(cs.ns(|| name), || {
                 u128_option.ok_or(SynthesisError::AssignmentMissing)
             })?

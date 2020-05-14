@@ -20,6 +20,7 @@ pub enum StatementError {
     #[error("{}", _0)]
     ValueError(ValueError),
 
+    // Arrays
     #[error("Cannot assign single index to array of values")]
     ArrayAssignIndex,
 
@@ -29,11 +30,23 @@ pub enum StatementError {
     #[error("Cannot assign to unknown array {}", _0)]
     UndefinedArray(String),
 
+    // Circuits
     #[error("Attempted to assign to unknown circuit {}", _0)]
     UndefinedCircuit(String),
 
     #[error("Attempted to assign to unknown circuit {}", _0)]
     UndefinedCircuitObject(String),
+
+    // Statements
+    #[error("Cannot assign to immutable variable {}", _0)]
+    ImmutableAssign(String),
+
+    #[error(
+        "Multiple definition statement expected {} return values, got {}",
+        _0,
+        _1
+    )]
+    InvalidNumberOfDefinitions(usize, usize),
 
     #[error("Function return statement expected {} return values, got {}", _0, _1)]
     InvalidNumberOfReturns(usize, usize),

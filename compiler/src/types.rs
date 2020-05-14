@@ -3,7 +3,6 @@
 
 use crate::{errors::IntegerError, Import};
 
-use crate::errors::ValueError;
 use snarkos_models::curves::{Field, Group, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::Variable as R1CSVariable,
@@ -15,15 +14,15 @@ use snarkos_models::gadgets::{
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
-/// A variable in a constraint system.
+/// An identifier in the constrained program.
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Variable<F: Field + PrimeField, G: Group> {
+pub struct Identifier<F: Field + PrimeField, G: Group> {
     pub name: String,
     pub(crate) _group: PhantomData<G>,
     pub(crate) _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField, G: Group> Variable<F, G> {
+impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
     pub fn new(name: String) -> Self {
         Self {
             name,
@@ -31,6 +30,14 @@ impl<F: Field + PrimeField, G: Group> Variable<F, G> {
             _engine: PhantomData::<F>,
         }
     }
+}
+
+/// A variable that is assigned to a value in the constrained program
+#[derive(Clone, PartialEq, Eq)]
+pub struct Variable<F: Field + PrimeField, G: Group> {
+    pub identifier: Identifier<F, G>,
+    pub mutable: bool,
+    pub _type: Option<Type<F, G>>,
 }
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
@@ -108,8 +115,8 @@ pub enum SpreadOrExpression<F: Field + PrimeField, G: Group> {
 /// Expression that evaluates to a value
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression<F: Field + PrimeField, G: Group> {
-    // Variable
-    Variable(Variable<F, G>),
+    // Identifier
+    Identifier(Identifier<F, G>),
 
     // Values
     Integer(Integer),
@@ -146,19 +153,19 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     ArrayAccess(Box<Expression<F, G>>, Box<RangeOrExpression<F, G>>), // (array name, range)
 
     // Circuits
-    Circuit(Variable<F, G>, Vec<CircuitMember<F, G>>),
-    CircuitMemberAccess(Box<Expression<F, G>>, Variable<F, G>), // (circuit name, circuit member name)
+    Circuit(Identifier<F, G>, Vec<CircuitMember<F, G>>),
+    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
 
     // Functions
-    FunctionCall(Variable<F, G>, Vec<Expression<F, G>>),
+    FunctionCall(Identifier<F, G>, Vec<Expression<F, G>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Assignee<F: Field + PrimeField, G: Group> {
-    Variable(Variable<F, G>),
+    Identifier(Identifier<F, G>),
     Array(Box<Assignee<F, G>>, RangeOrExpression<F, G>),
-    CircuitMember(Box<Assignee<F, G>>, Variable<F, G>),
+    CircuitMember(Box<Assignee<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
 }
 
 /// Explicit integer type
@@ -179,7 +186,7 @@ pub enum Type<F: Field + PrimeField, G: Group> {
     GroupElement,
     Boolean,
     Array(Box<Type<F, G>>, Vec<usize>),
-    Circuit(Variable<F, G>),
+    Circuit(Identifier<F, G>),
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {
@@ -213,32 +220,31 @@ pub struct ConditionalStatement<F: Field + PrimeField, G: Group> {
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq)]
 pub enum Statement<F: Field + PrimeField, G: Group> {
-    // Declaration(Variable),
     Return(Vec<Expression<F, G>>),
-    Definition(Assignee<F, G>, Option<Type<F, G>>, Expression<F, G>),
+    Definition(Variable<F, G>, Expression<F, G>),
     Assign(Assignee<F, G>, Expression<F, G>),
-    MultipleAssign(Vec<Assignee<F, G>>, Expression<F, G>),
+    MultipleAssign(Vec<Variable<F, G>>, Expression<F, G>),
     Conditional(ConditionalStatement<F, G>),
-    For(Variable<F, G>, Integer, Integer, Vec<Statement<F, G>>),
+    For(Identifier<F, G>, Integer, Integer, Vec<Statement<F, G>>),
     AssertEq(Expression<F, G>, Expression<F, G>),
     Expression(Expression<F, G>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CircuitMember<F: Field + PrimeField, G: Group> {
-    pub variable: Variable<F, G>,
+    pub identifier: Identifier<F, G>,
     pub expression: Expression<F, G>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct CircuitObject<F: Field + PrimeField, G: Group> {
-    pub variable: Variable<F, G>,
+    pub identifier: Identifier<F, G>,
     pub _type: Type<F, G>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Circuit<F: Field + PrimeField, G: Group> {
-    pub variable: Variable<F, G>,
+    pub identifier: Identifier<F, G>,
     pub fields: Vec<CircuitObject<F, G>>,
 }
 
@@ -246,18 +252,10 @@ pub struct Circuit<F: Field + PrimeField, G: Group> {
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct InputModel<F: Field + PrimeField, G: Group> {
+    pub identifier: Identifier<F, G>,
+    pub mutable: bool,
     pub private: bool,
     pub _type: Type<F, G>,
-    pub variable: Variable<F, G>,
-}
-
-impl<F: Field + PrimeField, G: Group> InputModel<F, G> {
-    pub fn inner_type(&self) -> Result<Type<F, G>, ValueError> {
-        match &self._type {
-            Type::Array(ref _type, _length) => Ok(*_type.clone()),
-            ref _type => Err(ValueError::ArrayModel(_type.to_string())),
-        }
-    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -269,13 +267,9 @@ pub enum InputValue<F: Field + PrimeField, G: Group> {
     Array(Vec<InputValue<F, G>>),
 }
 
-/// The given name for a defined function in the program.
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct FunctionName(pub String);
-
 #[derive(Clone, PartialEq, Eq)]
 pub struct Function<F: Field + PrimeField, G: Group> {
-    pub function_name: FunctionName,
+    pub function_name: Identifier<F, G>,
     pub inputs: Vec<InputModel<F, G>>,
     pub returns: Vec<Type<F, G>>,
     pub statements: Vec<Statement<F, G>>,
@@ -283,28 +277,24 @@ pub struct Function<F: Field + PrimeField, G: Group> {
 
 impl<F: Field + PrimeField, G: Group> Function<F, G> {
     pub fn get_name(&self) -> String {
-        self.function_name.0.clone()
+        self.function_name.name.clone()
     }
 }
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program<F: Field + PrimeField, G: Group> {
-    pub name: Variable<F, G>,
+    pub name: Identifier<F, G>,
     pub num_parameters: usize,
     pub imports: Vec<Import<F, G>>,
-    pub circuits: HashMap<Variable<F, G>, Circuit<F, G>>,
-    pub functions: HashMap<FunctionName, Function<F, G>>,
+    pub circuits: HashMap<Identifier<F, G>, Circuit<F, G>>,
+    pub functions: HashMap<Identifier<F, G>, Function<F, G>>,
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> Program<F, G> {
     pub fn new() -> Self {
         Self {
-            name: Variable {
-                name: "".into(),
-                _group: PhantomData::<G>,
-                _engine: PhantomData::<F>,
-            },
+            name: Identifier::new("".into()),
             num_parameters: 0,
             imports: vec![],
             circuits: HashMap::new(),
@@ -317,11 +307,7 @@ impl<'ast, F: Field + PrimeField, G: Group> Program<F, G> {
     }
 
     pub fn name(mut self, name: String) -> Self {
-        self.name = Variable {
-            name,
-            _group: PhantomData::<G>,
-            _engine: PhantomData::<F>,
-        };
+        self.name = Identifier::new(name);
         self
     }
 }

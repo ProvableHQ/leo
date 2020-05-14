@@ -3,7 +3,7 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::FieldElementError,
-    types::{FieldElement, InputModel, InputValue, Integer},
+    types::{FieldElement, InputValue, Integer},
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -16,7 +16,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn field_element_from_input(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<F, G>,
+        name: String,
+        private: bool,
         input_value: Option<InputValue<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         // Check that the parameter value is the correct type
@@ -32,8 +33,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         };
 
         // Check visibility of parameter
-        let name = input_model.variable.name.clone();
-        let field_value = if input_model.private {
+        let field_value = if private {
             cs.alloc(
                 || name,
                 || field_option.ok_or(SynthesisError::AssignmentMissing),

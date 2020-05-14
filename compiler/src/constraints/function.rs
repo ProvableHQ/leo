@@ -2,14 +2,9 @@
 //! a resolved Leo program.
 
 use crate::{
-    constraints::{
-        new_scope, new_scope_from_variable, new_variable_from_variables, ConstrainedProgram,
-        ConstrainedValue,
-    },
+    constraints::{new_scope, new_variable_from_variables, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
-    new_variable_from_variable,
-    types::{Expression, Function, InputValue, Program, Type},
-    InputModel, Variable,
+    types::{Expression, Function, Identifier, InputValue, Program, Type},
 };
 
 use snarkos_models::{
@@ -36,7 +31,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         input: Expression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match input {
-            Expression::Variable(variable) => Ok(self.enforce_variable(caller_scope, variable)?),
+            Expression::Identifier(variable) => {
+                Ok(self.evaluate_identifier(caller_scope, variable)?)
+            }
             expression => Ok(self.enforce_expression(cs, scope, function_name, expression)?),
         }
     }
@@ -59,7 +56,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             function.inputs.clone().iter().zip(inputs.into_iter())
         {
             // First evaluate input expression
-            let input_value = self.enforce_input(
+            let mut input_value = self.enforce_input(
                 cs,
                 scope.clone(),
                 caller_scope.clone(),
@@ -70,10 +67,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // Check that input is correct type
             input_value.expect_type(&input_model._type)?;
 
+            if input_model.mutable {
+                input_value = ConstrainedValue::Mutable(Box::new(input_value))
+            }
+
             // Store input as variable with {function_name}_{input_name}
-            let variable_name =
-                new_scope_from_variable(function_name.clone(), &input_model.variable);
-            self.store(variable_name, input_value);
+            let input_program_identifier =
+                new_scope(function_name.clone(), input_model.identifier.name.clone());
+            self.store(input_program_identifier, input_value);
         }
 
         // Evaluate function statements
@@ -99,8 +100,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     fn allocate_array(
         &mut self,
         cs: &mut CS,
-        array_name: Variable<F, G>,
-        array_private: bool,
+        name: String,
+        private: bool,
         array_type: Type<F, G>,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue<F, G>>,
@@ -115,18 +116,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
-                    let array_input_model = InputModel {
-                        private: array_private,
-                        _type: array_type.next_dimension(&array_dimensions),
-                        variable: new_variable_from_variables(
-                            &array_name,
-                            &Variable::new(i.to_string()),
-                        ),
-                    };
+                    let value_name = new_scope(name.clone(), i.to_string());
+                    let value_type = array_type.next_dimension(&array_dimensions);
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
-                        array_input_model,
+                        value_type,
+                        value_name,
+                        private,
                         Some(value),
                     )?)
                 }
@@ -134,20 +131,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             None => {
                 // Allocate all row values as none
                 for i in 0..expected_length {
-                    let array_input_model = InputModel {
-                        private: array_private,
-                        _type: array_type.next_dimension(&array_dimensions),
-                        variable: new_variable_from_variables(
-                            &array_name,
-                            &Variable::new(i.to_string()),
-                        ),
-                    };
+                    let value_name = new_scope(name.clone(), i.to_string());
+                    let value_type = array_type.next_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(
-                        cs,
-                        array_input_model,
-                        None,
-                    )?);
+                    array_value.push(
+                        self.allocate_main_function_input(
+                            cs, value_type, value_name, private, None,
+                        )?,
+                    );
                 }
             }
             _ => {
@@ -163,25 +154,22 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        input_model: InputModel<F, G>,
+        _type: Type<F, G>,
+        name: String,
+        private: bool,
         input_value: Option<InputValue<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        match input_model._type {
-            Type::IntegerType(ref _integer_type) => {
-                Ok(self.integer_from_parameter(cs, input_model, input_value)?)
+        match _type {
+            Type::IntegerType(integer_type) => {
+                Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
             }
             Type::FieldElement => {
-                Ok(self.field_element_from_input(cs, input_model, input_value)?)
+                Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
-            Type::Boolean => Ok(self.bool_from_input(cs, input_model, input_value)?),
-            Type::Array(_type, dimensions) => self.allocate_array(
-                cs,
-                input_model.variable,
-                input_model.private,
-                *_type,
-                dimensions,
-                input_value,
-            ),
+            Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
+            Type::Array(_type, dimensions) => {
+                self.allocate_array(cs, name, private, *_type, dimensions, input_value)
+            }
             _ => unimplemented!("main function input not implemented for type"),
         }
     }
@@ -200,16 +188,26 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
-        for (input_model, input_value) in
+        for (input_model, input_option) in
             function.inputs.clone().into_iter().zip(inputs.into_iter())
         {
-            let variable = new_variable_from_variable(scope.clone(), &input_model.variable);
-            let value = self.allocate_main_function_input(cs, input_model, input_value)?;
+            let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
+            let mut input_value = self.allocate_main_function_input(
+                cs,
+                input_model._type,
+                input_name.clone(),
+                input_model.private,
+                input_option,
+            )?;
 
-            // store a new variable for every allocated main function input
-            self.store_variable(variable.clone(), value);
+            if input_model.mutable {
+                input_value = ConstrainedValue::Mutable(Box::new(input_value))
+            }
 
-            input_variables.push(Expression::Variable(variable));
+            // Store a new variable for every allocated main function input
+            self.store(input_name.clone(), input_value);
+
+            input_variables.push(Expression::Identifier(Identifier::new(input_name)));
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)
@@ -247,7 +245,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             .functions
             .into_iter()
             .for_each(|(function_name, function)| {
-                let resolved_function_name = new_scope(program_name.name.clone(), function_name.0);
+                let resolved_function_name =
+                    new_scope(program_name.name.clone(), function_name.name);
                 self.store(resolved_function_name, ConstrainedValue::Function(function));
             });
 

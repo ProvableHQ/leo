@@ -2,21 +2,37 @@
 
 use crate::{
     Assignee, Circuit, CircuitObject, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    FieldElement, Function, FunctionName, InputModel, InputValue, Integer, IntegerType,
+    FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
     RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, Group, PrimeField};
 use std::fmt;
 
-impl<F: Field + PrimeField, G: Group> fmt::Display for Variable<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Display for Identifier<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
 }
-impl<F: Field + PrimeField, G: Group> fmt::Debug for Variable<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Debug for Identifier<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
+    }
+}
+
+impl<F: Field + PrimeField, G: Group> fmt::Display for Variable<F, G> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.mutable {
+            write!(f, "mut ")?;
+        }
+
+        write!(f, "{}", self.identifier)?;
+
+        if self._type.is_some() {
+            write!(f, ": {}", self._type.as_ref().unwrap())?;
+        }
+
+        write!(f, "")
     }
 }
 
@@ -84,7 +100,7 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             // Variables
-            Expression::Variable(ref variable) => write!(f, "{}", variable),
+            Expression::Identifier(ref variable) => write!(f, "{}", variable),
 
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
@@ -131,7 +147,7 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
             Expression::Circuit(ref var, ref members) => {
                 write!(f, "{} {{", var)?;
                 for (i, member) in members.iter().enumerate() {
-                    write!(f, "{}: {}", member.variable, member.expression)?;
+                    write!(f, "{}: {}", member.identifier, member.expression)?;
                     if i < members.len() - 1 {
                         write!(f, ", ")?;
                     }
@@ -160,7 +176,7 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
 impl<F: Field + PrimeField, G: Group> fmt::Display for Assignee<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Assignee::Variable(ref variable) => write!(f, "{}", variable),
+            Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
             Assignee::CircuitMember(ref circuit_variable, ref member) => {
                 write!(f, "{}.{}", circuit_variable, member)
@@ -210,10 +226,9 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Statement<F, G> {
                 }
                 write!(f, ")\n")
             }
-            Statement::Definition(ref assignee, ref ty, ref expression) => match ty {
-                Some(ref ty) => write!(f, "let {}: {} = {};", assignee, ty, expression),
-                None => write!(f, "let {} = {};", assignee, expression),
-            },
+            Statement::Definition(ref variable, ref expression) => {
+                write!(f, "let {} = {};", variable, expression)
+            }
             Statement::Assign(ref variable, ref statement) => {
                 write!(f, "{} = {};", variable, statement)
             }
@@ -276,13 +291,13 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
 
 impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.variable, self._type)
+        write!(f, "{}: {}", self.identifier, self._type)
     }
 }
 
 impl<F: Field + PrimeField, G: Group> Circuit<F, G> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "circuit {} {{ \n", self.variable)?;
+        write!(f, "circuit {} {{ \n", self.identifier)?;
         for field in self.fields.iter() {
             write!(f, "    {}\n", field)?;
         }
@@ -304,8 +319,17 @@ impl<F: Field + PrimeField, G: Group> fmt::Debug for Circuit<F, G> {
 
 impl<F: Field + PrimeField, G: Group> fmt::Display for InputModel<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let visibility = if self.private { "private" } else { "public" };
-        write!(f, "{}: {} {}", self.variable, visibility, self._type,)
+        // mut var: private bool
+        if self.mutable {
+            write!(f, "mut ")?;
+        }
+        write!(f, "{}: ", self.identifier)?;
+        if self.private {
+            write!(f, "private ")?;
+        } else {
+            write!(f, "public ")?;
+        }
+        write!(f, "{}", self._type)
     }
 }
 
@@ -327,24 +351,6 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for InputValue<F, G> {
                 write!(f, "]")
             }
         }
-    }
-}
-
-impl FunctionName {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl fmt::Display for FunctionName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl fmt::Debug for FunctionName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
     }
 }
 

@@ -2,7 +2,7 @@
 
 use crate::{
     errors::ValueError,
-    types::{Circuit, FieldElement, Function, Type, Variable},
+    types::{Circuit, FieldElement, Function, Identifier, Type},
     Integer,
 };
 
@@ -13,8 +13,8 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(
-    pub Variable<F, G>,
+pub struct ConstrainedCircuitObject<F: Field + PrimeField, G: Group>(
+    pub Identifier<F, G>,
     pub ConstrainedValue<F, G>,
 );
 
@@ -26,9 +26,10 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     Boolean(Boolean),
     Array(Vec<ConstrainedValue<F, G>>),
     CircuitDefinition(Circuit<F, G>),
-    CircuitExpression(Variable<F, G>, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitObject<F, G>>),
     Function(Function<F, G>),
-    Return(Vec<ConstrainedValue<F, G>>), // add Null for function returns
+    Return(Vec<ConstrainedValue<F, G>>),
+    Mutable(Box<ConstrainedValue<F, G>>),
 }
 
 impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
@@ -72,6 +73,9 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 for value in values {
                     value.expect_type(_type)?;
                 }
+            }
+            (ConstrainedValue::Mutable(ref value), _type) => {
+                value.expect_type(&_type)?;
             }
             (value, _type) => {
                 return Err(ValueError::TypeError(format!(
@@ -126,6 +130,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 unimplemented!("cannot return struct definition in program")
             }
             ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),
+            ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
         }
     }
 }

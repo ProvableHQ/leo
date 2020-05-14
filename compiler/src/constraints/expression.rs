@@ -2,11 +2,11 @@
 
 use crate::{
     constraints::{
-        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitMember,
+        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitObject,
         ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
-    types::{CircuitMember, Expression, RangeOrExpression, SpreadOrExpression, Variable},
+    types::{CircuitMember, Expression, Identifier, RangeOrExpression, SpreadOrExpression},
 };
 
 use snarkos_models::{
@@ -16,10 +16,10 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     /// Enforce a variable expression by getting the resolved value
-    pub(crate) fn enforce_variable(
+    pub(crate) fn evaluate_identifier(
         &mut self,
         scope: String,
-        unresolved_variable: Variable<F, G>,
+        unresolved_variable: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the variable name in the current function scope
         let variable_name = new_scope_from_variable(scope, &unresolved_variable);
@@ -260,7 +260,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         for element in array.into_iter() {
             match *element {
                 SpreadOrExpression::Spread(spread) => match spread {
-                    Expression::Variable(variable) => {
+                    Expression::Identifier(variable) => {
                         let array_name = new_scope_from_variable(function_scope.clone(), &variable);
                         match self.get(&array_name) {
                             Some(value) => match value {
@@ -308,30 +308,38 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         array: Box<Expression<F, G>>,
         index: RangeOrExpression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *array)? {
-            ConstrainedValue::Array(array) => {
-                match index {
-                    RangeOrExpression::Range(from, to) => {
-                        let from_resolved = match from {
-                            Some(from_index) => from_index.to_usize(),
-                            None => 0usize, // Array slice starts at index 0
-                        };
-                        let to_resolved = match to {
-                            Some(to_index) => to_index.to_usize(),
-                            None => array.len(), // Array slice ends at array length
-                        };
-                        Ok(ConstrainedValue::Array(
-                            array[from_resolved..to_resolved].to_owned(),
-                        ))
-                    }
-                    RangeOrExpression::Expression(index) => {
-                        let index_resolved =
-                            self.enforce_index(cs, file_scope, function_scope, index)?;
-                        Ok(array[index_resolved].to_owned())
-                    }
-                }
+        let array = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            *array,
+        )? {
+            ConstrainedValue::Array(array) => array,
+            ConstrainedValue::Mutable(value) => match *value {
+                ConstrainedValue::Array(array) => array,
+                value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
+            },
+            value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
+        };
+
+        match index {
+            RangeOrExpression::Range(from, to) => {
+                let from_resolved = match from {
+                    Some(from_index) => from_index.to_usize(),
+                    None => 0usize, // Array slice starts at index 0
+                };
+                let to_resolved = match to {
+                    Some(to_index) => to_index.to_usize(),
+                    None => array.len(), // Array slice ends at array length
+                };
+                Ok(ConstrainedValue::Array(
+                    array[from_resolved..to_resolved].to_owned(),
+                ))
             }
-            value => Err(ExpressionError::InvalidArrayAccess(value.to_string())),
+            RangeOrExpression::Expression(index) => {
+                let index_resolved = self.enforce_index(cs, file_scope, function_scope, index)?;
+                Ok(array[index_resolved].to_owned())
+            }
         }
     }
 
@@ -340,7 +348,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variable: Variable<F, G>,
+        variable: Identifier<F, G>,
         members: Vec<CircuitMember<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let circuit_name = new_variable_from_variable(file_scope.clone(), &variable);
@@ -355,10 +363,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 .into_iter()
                 .zip(members.clone().into_iter())
             {
-                if field.variable != member.variable {
+                if field.identifier != member.identifier {
                     return Err(ExpressionError::InvalidCircuitObject(
-                        field.variable.name,
-                        member.variable.name,
+                        field.identifier.name,
+                        member.identifier.name,
                     ));
                 }
                 // Resolve and enforce circuit fields
@@ -372,7 +380,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 // Check member types
                 member_value.expect_type(&field._type)?;
 
-                resolved_members.push(ConstrainedCircuitMember(member.variable, member_value))
+                resolved_members.push(ConstrainedCircuitObject(member.identifier, member_value))
             }
 
             Ok(ConstrainedValue::CircuitExpression(
@@ -390,21 +398,31 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         file_scope: String,
         function_scope: String,
         circuit_variable: Box<Expression<F, G>>,
-        circuit_member: Variable<F, G>,
+        circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match self.enforce_expression(cs, file_scope, function_scope, *circuit_variable)? {
-            ConstrainedValue::CircuitExpression(_name, members) => {
-                let matched_member = members
-                    .into_iter()
-                    .find(|member| member.0 == circuit_member);
-                match matched_member {
-                    Some(member) => Ok(member.1),
-                    None => Err(ExpressionError::UndefinedCircuitObject(
-                        circuit_member.to_string(),
-                    )),
-                }
-            }
-            value => Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
+        let members = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            *circuit_variable.clone(),
+        )? {
+            ConstrainedValue::CircuitExpression(_name, members) => members,
+            ConstrainedValue::Mutable(value) => match *value {
+                ConstrainedValue::CircuitExpression(_name, members) => members,
+                value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
+            },
+            value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
+        };
+
+        let matched_member = members
+            .into_iter()
+            .find(|member| member.0 == circuit_member);
+
+        match matched_member {
+            Some(member) => Ok(member.1),
+            None => Err(ExpressionError::UndefinedCircuitObject(
+                circuit_member.to_string(),
+            )),
         }
     }
 
@@ -413,7 +431,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        function: Variable<F, G>,
+        function: Identifier<F, G>,
         arguments: Vec<Expression<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let function_name = new_variable_from_variable(file_scope.clone(), &function);
@@ -444,8 +462,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
             // Variables
-            Expression::Variable(unresolved_variable) => {
-                self.enforce_variable(function_scope, unresolved_variable)
+            Expression::Identifier(unresolved_variable) => {
+                self.evaluate_identifier(function_scope, unresolved_variable)
             }
 
             // Values

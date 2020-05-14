@@ -1,4 +1,10 @@
-/// Visibili_type
+/// Identifiers
+protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+
+identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+
+
+/// Visibility
 
 visibility_public = { "public" }
 visibility_private = { "private" }
@@ -55,7 +61,8 @@ operation_assign = {
     operation_mul_assign | operation_div_assign | operation_pow_assign
 }
 
-/// types
+/// Types
+
 type_u8 = {"u8"}
 type_u16 = {"u16"}
 type_u32 = {"u32"}
@@ -73,7 +80,7 @@ type_field = {"field"}
 type_group = {"group"}
 type_bool = {"bool"}
 type_basic = { type_field | type_group | type_bool | type_integer }
-type_circuit = { variable }
+type_circuit = { identifier }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
 _type = {type_array | type_basic | type_circuit}
 type_list = _{(_type ~ ("," ~ _type)*)?}
@@ -86,22 +93,13 @@ value_field = { value_number ~ type_field }
 value_group = { value_number ~ type_group }
 value_boolean = { "true" | "false" }
 value = { value_field | value_group | value_boolean | value_integer }
+expression_primitive = { value | identifier }
 
-/// Variables
+/// Variables + Mutability
 
-// TODO: Include "import" and "conditional"
-
-protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
-
-// keyword = @{ "as" | "in" | "return" | "export" | "false" |
-//             "def" | "in" | "return" | "circuit" | "true" }
-
-variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-
-optionally_typed_variable = { (_type ~ variable) | (variable)}
-optionally_typed_variable_tuple = _{ optionally_typed_variable ~ ("," ~ optionally_typed_variable)* }
-
-expression_primitive = { value | variable }
+mutable = {"mut"}
+variable = { mutable? ~ identifier ~ (":" ~ _type)? }
+variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 /// Access
 
@@ -113,13 +111,13 @@ range_or_expression = { range | expression }
 
 access_array = { "[" ~ range_or_expression ~ "]" }
 access_call = { "(" ~ expression_tuple ~ ")" }
-access_member = { "." ~ variable }
+access_member = { "." ~ identifier }
 access = { access_array | access_call | access_member }
 
-expression_postfix = { variable ~ access+ }
+expression_postfix = { identifier ~ access+ }
 
 assignee_access = { access_array | access_member }
-assignee = { variable ~ assignee_access* }
+assignee = { identifier ~ assignee_access* }
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
@@ -132,13 +130,13 @@ expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" 
 
 /// Circuits
 
-circuit_object = { variable ~ ":" ~ _type }
+circuit_object = { identifier ~ ":" ~ _type }
 circuit_object_list = _{(circuit_object ~ (NEWLINE+ ~ circuit_object)*)? }
-circuit_definition = { "circuit" ~ variable ~ "{" ~ NEWLINE* ~ circuit_object_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_object_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-inline_circuit_member = { variable ~ ":" ~ expression }
+inline_circuit_member = { identifier ~ ":" ~ expression }
 inline_circuit_member_list = _{(inline_circuit_member ~ ("," ~ NEWLINE* ~ inline_circuit_member)*)? ~ ","? }
-expression_inline_circuit = { variable ~ "{" ~ NEWLINE* ~ inline_circuit_member_list ~ NEWLINE* ~ "}" }
+expression_inline_circuit = { identifier ~ "{" ~ NEWLINE* ~ inline_circuit_member_list ~ NEWLINE* ~ "}" }
 
 /// Conditionals
 
@@ -172,11 +170,11 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ (":" ~ _type)? ~ "=" ~ expression }
+statement_definition = { "let" ~ variable ~ "=" ~ expression }
 statement_assign = { assignee ~ operation_assign ~ expression }
-statement_multiple_assignment = { "let" ~ "(" ~ optionally_typed_variable_tuple ~ ")" ~ "=" ~  variable ~ "(" ~ expression_tuple ~ ")" }
+statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" }
 statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
-statement_for = { "for" ~ variable ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 statement_assert = {
     assert_eq
 //     | assert_true |
@@ -198,11 +196,10 @@ statement = {
 
 /// Functions
 
-parameter = {variable ~ ":" ~ visibility? ~ _type}
-parameter_list = _{(parameter ~ ("," ~ parameter)*)?}
+input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ _type}
+input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
 
-function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-function_definition = {"function" ~ function_name ~ "(" ~ parameter_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 /// Utilities
 
@@ -213,7 +210,7 @@ LINE_END = _{";" ~ NEWLINE*}
 /// Imports
 
 import_source = @{(!"\"" ~ ANY)*}
-import_symbol = { variable ~ ("as" ~ variable)? }
+import_symbol = { identifier ~ ("as" ~ identifier)? }
 import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
 import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}")) ~ LINE_END}
