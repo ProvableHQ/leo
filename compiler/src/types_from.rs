@@ -124,8 +124,13 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Field<'ast>> for types::Ex
 /// pest ast -> types::Group
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Group<'ast>> for types::Expression<F, G> {
-    fn from(_group: ast::Group<'ast>) -> Self {
-        types::Expression::GroupElement(G::zero())
+    fn from(group: ast::Group<'ast>) -> Self {
+        use std::str::FromStr;
+
+        let scalar = G::ScalarField::from_str(&group.number.value).unwrap_or_default();
+        let point = G::default().mul(&scalar);
+
+        types::Expression::GroupElement(point)
     }
 }
 
@@ -142,6 +147,16 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Boolean<'ast>> for types::
     }
 }
 
+/// pest ast -> types::NumberImplicit
+
+impl<'ast, F: Field + PrimeField, G: Group> From<ast::NumberImplicit<'ast>>
+    for types::Expression<F, G>
+{
+    fn from(_number: ast::NumberImplicit<'ast>) -> Self {
+        unimplemented!()
+    }
+}
+
 /// pest ast -> types::Expression
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Value<'ast>> for types::Expression<F, G> {
@@ -151,6 +166,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Value<'ast>> for types::Ex
             ast::Value::Field(field) => types::Expression::from(field),
             ast::Value::Group(group) => types::Expression::from(group),
             ast::Value::Boolean(bool) => types::Expression::from(bool),
+            ast::Value::Implicit(value) => types::Expression::from(value),
         }
     }
 }

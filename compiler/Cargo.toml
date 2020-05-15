@@ -10,6 +10,7 @@ snarkos-curves = { path = "../../snarkOS/curves", version = "0.8.0" }
 snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0" }
 snarkos-gadgets = { path = "../../snarkOS/gadgets", version = "0.8.0" }
 snarkos-models = { path = "../../snarkOS/models", version = "0.8.0" }
+snarkos-utilities = { path = "../../snarkOS/utilities", version = "0.8.0" }
 
 thiserror = { version = "1.0" }
 from-pest = { version = "0.3.1" }
