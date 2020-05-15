@@ -30,6 +30,10 @@ impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
             _engine: PhantomData::<F>,
         }
     }
+
+    pub fn is_self(&self) -> bool {
+        self.name == "Self"
+    }
 }
 
 /// A variable that is assigned to a value in the constrained program
@@ -188,6 +192,7 @@ pub enum Type<F: Field + PrimeField, G: Group> {
     Boolean,
     Array(Box<Type<F, G>>, Vec<usize>),
     Circuit(Identifier<F, G>),
+    SelfType,
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {

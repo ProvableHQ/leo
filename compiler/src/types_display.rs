@@ -281,6 +281,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
             Type::GroupElement => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
             Type::Circuit(ref variable) => write!(f, "{}", variable),
+            Type::SelfType => write!(f, "Self"),
             Type::Array(ref array, ref dimensions) => {
                 write!(f, "{}", *array)?;
                 for row in dimensions {

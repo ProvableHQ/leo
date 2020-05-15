@@ -65,11 +65,4 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<F, G>> {
         self.identifiers.get_mut(name)
     }
-
-    pub(crate) fn get_mut_variable(
-        &mut self,
-        variable: &Identifier<F, G>,
-    ) -> Option<&mut ConstrainedValue<F, G>> {
-        self.get_mut(&variable.name)
-    }
 }

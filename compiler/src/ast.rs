@@ -171,24 +171,15 @@ pub enum IntegerType {
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_field))]
-pub struct FieldType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct FieldType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_group))]
-pub struct GroupType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct GroupType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_bool))]
-pub struct BooleanType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct BooleanType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_circuit))]
@@ -204,17 +195,17 @@ pub struct SelfType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_basic))]
-pub enum BasicType<'ast> {
+pub enum BasicType {
     Integer(IntegerType),
-    Field(FieldType<'ast>),
-    Group(GroupType<'ast>),
-    Boolean(BooleanType<'ast>),
+    Field(FieldType),
+    Group(GroupType),
+    Boolean(BooleanType),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub _type: BasicType<'ast>,
+    pub _type: BasicType,
     pub dimensions: Vec<Value<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -223,7 +214,7 @@ pub struct ArrayType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
-    Basic(BasicType<'ast>),
+    Basic(BasicType),
     Array(ArrayType<'ast>),
     Circuit(CircuitType<'ast>),
     SelfType(SelfType),
@@ -275,7 +266,7 @@ impl<'ast> fmt::Display for Integer<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub _type: FieldType<'ast>,
+    pub _type: FieldType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -290,7 +281,7 @@ impl<'ast> fmt::Display for Field<'ast> {
 #[pest_ast(rule(Rule::value_group))]
 pub struct Group<'ast> {
     pub number: Number<'ast>,
-    pub _type: GroupType<'ast>,
+    pub _type: GroupType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

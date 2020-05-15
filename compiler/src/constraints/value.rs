@@ -30,7 +30,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
     CircuitDefinition(Circuit<F, G>),
     CircuitExpression(Identifier<F, G>, Vec<ConstrainedCircuitMember<F, G>>),
 
-    Function(Function<F, G>),
+    Function(Option<Identifier<F, G>>, Function<F, G>), // (optional circuit identifier, function definition)
     Return(Vec<ConstrainedValue<F, G>>),
 
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -70,6 +70,17 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 if expected_name != actual_name {
                     return Err(ValueError::CircuitName(
                         expected_name.to_string(),
+                        actual_name.to_string(),
+                    ));
+                }
+            }
+            (
+                ConstrainedValue::CircuitExpression(ref actual_name, ref _members),
+                Type::SelfType,
+            ) => {
+                if Identifier::new("Self".into()) == *actual_name {
+                    return Err(ValueError::CircuitName(
+                        "Self".into(),
                         actual_name.to_string(),
                     ));
                 }
@@ -137,7 +148,9 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
             ConstrainedValue::CircuitDefinition(ref _definition) => {
                 unimplemented!("cannot return circuit definition in program")
             }
-            ConstrainedValue::Function(ref function) => write!(f, "{}();", function.function_name),
+            ConstrainedValue::Function(ref _circuit_option, ref function) => {
+                write!(f, "{}();", function.function_name)
+            }
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
         }

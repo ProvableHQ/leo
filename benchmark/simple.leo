@@ -7,7 +7,7 @@ circuit PedersenHash {
 
 }
 
-function main() -> u32{
+function main() -> PedersenHash {
   let parameters = [0group; 1];
   let pedersen = PedersenHash::new(parameters);
 

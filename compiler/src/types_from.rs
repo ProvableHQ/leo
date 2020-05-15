@@ -656,8 +656,8 @@ impl From<ast::IntegerType> for types::IntegerType {
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> From<ast::BasicType<'ast>> for types::Type<F, G> {
-    fn from(basic_type: ast::BasicType<'ast>) -> Self {
+impl<F: Field + PrimeField, G: Group> From<ast::BasicType> for types::Type<F, G> {
+    fn from(basic_type: ast::BasicType) -> Self {
         match basic_type {
             ast::BasicType::Integer(_type) => {
                 types::Type::IntegerType(types::IntegerType::from(_type))
@@ -694,7 +694,7 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Type<'ast>> for types::Typ
             ast::Type::Basic(_type) => types::Type::from(_type),
             ast::Type::Array(_type) => types::Type::from(_type),
             ast::Type::Circuit(_type) => types::Type::from(_type),
-            ast::Type::SelfType(_type) => unimplemented!("no Self yet")
+            ast::Type::SelfType(_type) => types::Type::SelfType,
         }
     }
 }

@@ -2,8 +2,7 @@
 
 use crate::{
     constraints::{
-        new_scope_from_variable, new_variable_from_variable, ConstrainedCircuitMember,
-        ConstrainedProgram, ConstrainedValue,
+        new_scope_from_variable, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue,
     },
     errors::ExpressionError,
     new_scope,
@@ -354,14 +353,19 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variable: Identifier<F, G>,
+        identifier: Identifier<F, G>,
         members: Vec<CircuitFieldDefinition<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let circuit_name = new_variable_from_variable(file_scope.clone(), &variable);
+        let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
+
+        if identifier.is_self() {
+            program_identifier = file_scope.clone();
+        }
 
         if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) =
-            self.get_mut_variable(&circuit_name)
+            self.get_mut(&program_identifier)
         {
+            let circuit_identifier = circuit_definition.identifier.clone();
             let mut resolved_members = vec![];
             for member in circuit_definition.members.clone().into_iter() {
                 match member {
@@ -395,7 +399,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     }
                     CircuitMember::CircuitFunction(_static, function) => {
                         let identifier = function.function_name.clone();
-                        let mut constrained_function_value = ConstrainedValue::Function(function);
+                        let mut constrained_function_value =
+                            ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
 
                         if _static {
                             constrained_function_value =
@@ -411,11 +416,11 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
 
             Ok(ConstrainedValue::CircuitExpression(
-                variable,
+                circuit_identifier.clone(),
                 resolved_members,
             ))
         } else {
-            Err(ExpressionError::UndefinedCircuit(variable.to_string()))
+            Err(ExpressionError::UndefinedCircuit(identifier.to_string()))
         }
     }
 
@@ -497,7 +502,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
         };
 
-        Ok(ConstrainedValue::Function(function))
+        Ok(ConstrainedValue::Function(
+            Some(circuit.identifier),
+            function,
+        ))
     }
 
     fn enforce_function_call_expression(
@@ -515,12 +523,20 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             *function.clone(),
         )?;
 
-        let function_call = match function_value {
-            ConstrainedValue::Function(function) => function.clone(),
+        let (outer_scope, function_call) = match function_value {
+            ConstrainedValue::Function(circuit_identifier, function) => {
+                let mut outer_scope = file_scope.clone();
+                // If this is a circuit function, evaluate inside the circuit scope
+                if circuit_identifier.is_some() {
+                    outer_scope = new_scope(file_scope, circuit_identifier.unwrap().to_string());
+                }
+
+                (outer_scope, function.clone())
+            }
             value => return Err(ExpressionError::UndefinedFunction(value.to_string())),
         };
 
-        match self.enforce_function(cs, file_scope, function_scope, function_call, arguments) {
+        match self.enforce_function(cs, outer_scope, function_scope, function_call, arguments) {
             Ok(ConstrainedValue::Return(return_values)) => {
                 if return_values.len() == 1 {
                     Ok(return_values[0].clone())

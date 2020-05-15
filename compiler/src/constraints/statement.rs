@@ -101,7 +101,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 match matched_field {
                     Some(object) => match &object.1 {
-                        ConstrainedValue::Function(function) => {
+                        ConstrainedValue::Function(_circuit_identifier, function) => {
                             return Err(StatementError::ImmutableCircuitFunction(
                                 function.function_name.to_string(),
                             ))
@@ -193,6 +193,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         variable: Variable<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
+        // println!("evaluating {}", expression);
         let value =
             self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
 

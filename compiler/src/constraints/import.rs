@@ -67,7 +67,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                         match matched_function {
                             Some((_function_name, function)) => {
-                                ConstrainedValue::Function(function)
+                                ConstrainedValue::Function(None, function)
                             }
                             None => unimplemented!(
                                 "cannot find imported symbol {} in imported file {}",
