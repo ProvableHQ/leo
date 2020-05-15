@@ -104,9 +104,10 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
 
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
-            Expression::FieldElement(ref fe) => write!(f, "{}", fe),
-            Expression::GroupElement(ref gr) => write!(f, "{}", gr),
+            Expression::FieldElement(ref field) => write!(f, "{}", field),
+            Expression::GroupElement(ref group) => write!(f, "{}", group),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
+            Expression::Implicit(ref value) => write!(f, "{}", value),
 
             // Number operations
             Expression::Add(ref left, ref right) => write!(f, "{} + {}", left, right),

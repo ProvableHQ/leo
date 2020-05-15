@@ -265,7 +265,7 @@ impl<'ast> fmt::Display for NumberImplicit<'ast> {
 #[pest_ast(rule(Rule::value_integer))]
 pub struct Integer<'ast> {
     pub number: Number<'ast>,
-    pub _type: Option<IntegerType>,
+    pub _type: IntegerType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

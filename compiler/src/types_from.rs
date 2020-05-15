@@ -65,17 +65,7 @@ impl<'ast> types::Integer {
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Integer<'ast>> for types::Expression<F, G> {
     fn from(field: ast::Integer<'ast>) -> Self {
-        types::Expression::Integer(match field._type {
-            Some(_type) => types::Integer::from(field.number, _type),
-            // default integer type is u32
-            None => types::Integer::U32(UInt32::constant(
-                field
-                    .number
-                    .value
-                    .parse::<u32>()
-                    .expect("unable to parse u32"),
-            )),
-        })
+        types::Expression::Integer(types::Integer::from(field.number, field._type))
     }
 }
 
@@ -152,8 +142,8 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Boolean<'ast>> for types::
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::NumberImplicit<'ast>>
     for types::Expression<F, G>
 {
-    fn from(_number: ast::NumberImplicit<'ast>) -> Self {
-        unimplemented!()
+    fn from(number: ast::NumberImplicit<'ast>) -> Self {
+        types::Expression::Implicit(number.number.value)
     }
 }
 

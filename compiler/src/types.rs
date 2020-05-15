@@ -95,13 +95,6 @@ pub enum FieldElement<F: Field + PrimeField> {
     Allocated(Option<F>, R1CSVariable),
 }
 
-// /// A constant or allocated element in the field
-// #[derive(Clone, PartialEq, Eq)]
-// pub enum GroupElement<G: Field + PrimeField> {
-//     Constant(G),
-//     Allocated(Option<G>, R1CSVariable),
-// }
-
 /// Range or expression enum
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RangeOrExpression<F: Field + PrimeField, G: Group> {
@@ -127,6 +120,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     FieldElement(FieldElement<F>),
     GroupElement(G),
     Boolean(Boolean),
+    Implicit(String),
 
     // Number operations
     Add(Box<Expression<F, G>>, Box<Expression<F, G>>),

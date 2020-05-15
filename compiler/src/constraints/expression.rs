@@ -645,6 +645,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
             Expression::GroupElement(gr) => Ok(ConstrainedValue::GroupElement(gr)),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
+            Expression::Implicit(string) => unimplemented!(),
 
             // Binary operations
             Expression::Add(left, right) => {
