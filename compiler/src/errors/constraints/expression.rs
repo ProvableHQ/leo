@@ -3,7 +3,7 @@ use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError
 #[derive(Debug, Error)]
 pub enum ExpressionError {
     // Identifiers
-    #[error("Variable \"{}\" not found", _0)]
+    #[error("Identifier \"{}\" not found", _0)]
     UndefinedIdentifier(String),
 
     // Types

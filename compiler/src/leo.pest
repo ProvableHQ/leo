@@ -132,15 +132,14 @@ expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" 
 
 /// Circuits
 
-circuit_field_definition = { identifier ~ ":" ~ _type }
+circuit_field_definition = { identifier ~ ":" ~ _type ~ NEWLINE* }
 
 _static = {"static"}
 circuit_function = {_static? ~ function_definition }
 
-circuit_member = { circuit_field_definition | circuit_function }
+circuit_member = { circuit_function | circuit_field_definition }
 
-circuit_member_list = _{(circuit_member ~ (NEWLINE+ ~ circuit_member)*)? }
-circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 circuit_field = { identifier ~ ":" ~ expression }
 circuit_field_list = _{(circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }

@@ -193,7 +193,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         variable: Variable<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
-        // println!("evaluating {}", expression);
         let value =
             self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
 

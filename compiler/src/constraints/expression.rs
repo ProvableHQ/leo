@@ -59,11 +59,18 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Self::evaluate_group_add(ge_1, ge_2)
             }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.enforce_add_expression(cs, *val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.enforce_add_expression(cs, val_1, *val_2)?
+            }
             (val_1, val_2) => {
+                println!("not both groups");
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} + {}",
                     val_1, val_2,
-                )))
+                )));
             }
         })
     }
@@ -83,6 +90,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Self::evaluate_group_sub(ge_1, ge_2)
+            }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.enforce_sub_expression(cs, *val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.enforce_sub_expression(cs, val_1, *val_2)?
             }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
@@ -106,6 +119,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_mul(cs, fe_1, fe_2)?
             }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.enforce_mul_expression(cs, *val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.enforce_mul_expression(cs, val_1, *val_2)?
+            }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} * {}",
@@ -128,6 +147,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_div(cs, fe_1, fe_2)?
             }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.enforce_div_expression(cs, *val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.enforce_div_expression(cs, val_1, *val_2)?
+            }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} / {}",
@@ -148,6 +173,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::Integer(num_2)) => {
                 self.enforce_field_pow(cs, fe_1, num_2)?
+            }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.enforce_pow_expression(cs, *val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.enforce_pow_expression(cs, val_1, *val_2)?
             }
             (_, ConstrainedValue::FieldElement(num_2)) => {
                 return Err(ExpressionError::InvalidExponent(num_2.to_string()))
@@ -180,6 +211,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Self::evaluate_group_eq(ge_1, ge_2)
             }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.evaluate_eq_expression(*val_1, val_2)?
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.evaluate_eq_expression(val_1, *val_2)?
+            }
             (val_1, val_2) => {
                 return Err(ExpressionError::IncompatibleTypes(format!(
                     "{} == {}",
@@ -198,6 +235,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_geq(fe_1, fe_2)
             // }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.evaluate_geq_expression(*val_1, val_2)
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.evaluate_geq_expression(val_1, *val_2)
+            }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} >= {}, values must be fields",
                 val_1, val_2
@@ -214,6 +257,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_gt(fe_1, fe_2)
             // }
+            (ConstrainedValue::Mutable(val_1), val_2) => self.evaluate_gt_expression(*val_1, val_2),
+            (val_1, ConstrainedValue::Mutable(val_2)) => self.evaluate_gt_expression(val_1, *val_2),
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} > {}, values must be fields",
                 val_1, val_2
@@ -230,6 +275,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_leq(fe_1, fe_2)
             // }
+            (ConstrainedValue::Mutable(val_1), val_2) => {
+                self.evaluate_leq_expression(*val_1, val_2)
+            }
+            (val_1, ConstrainedValue::Mutable(val_2)) => {
+                self.evaluate_leq_expression(val_1, *val_2)
+            }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} <= {}, values must be fields",
                 val_1, val_2
@@ -246,6 +297,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_lt(fe_1, fe_2)
             // }
+            (ConstrainedValue::Mutable(val_1), val_2) => self.evaluate_lt_expression(*val_1, val_2),
+            (val_1, ConstrainedValue::Mutable(val_2)) => self.evaluate_lt_expression(val_1, *val_2),
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} < {}, values must be fields",
                 val_1, val_2,
@@ -432,26 +485,51 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let members = match self.enforce_expression(
+        let (circuit_name, members) = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
             *circuit_identifier.clone(),
         )? {
-            ConstrainedValue::CircuitExpression(_name, members) => members,
+            ConstrainedValue::CircuitExpression(name, members) => (name, members),
             ConstrainedValue::Mutable(value) => match *value {
-                ConstrainedValue::CircuitExpression(_name, members) => members,
+                ConstrainedValue::CircuitExpression(name, members) => (name, members),
                 value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
             },
             value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
         };
 
         let matched_member = members
+            .clone()
             .into_iter()
             .find(|member| member.0 == circuit_member);
 
         match matched_member {
-            Some(member) => Ok(member.1),
+            Some(member) => {
+                match &member.1 {
+                    ConstrainedValue::Function(ref _circuit_identifier, ref _function) => {
+                        // Pass static circuit fields into function call by value
+                        for stored_member in members {
+                            match &stored_member.1 {
+                                ConstrainedValue::Function(_, _) => {}
+                                ConstrainedValue::Static(_) => {}
+                                _ => {
+                                    let circuit_scope =
+                                        new_scope(file_scope.clone(), circuit_name.to_string());
+                                    let function_scope =
+                                        new_scope(circuit_scope, member.0.to_string());
+                                    let field =
+                                        new_scope(function_scope, stored_member.0.to_string());
+
+                                    self.store(field, stored_member.1.clone());
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+                Ok(member.1)
+            }
             None => Err(ExpressionError::UndefinedCircuitObject(
                 circuit_member.to_string(),
             )),
