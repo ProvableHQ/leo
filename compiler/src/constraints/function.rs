@@ -34,7 +34,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Expression::Identifier(identifier) => {
                 Ok(self.evaluate_identifier(caller_scope, function_name, identifier)?)
             }
-            expression => Ok(self.enforce_expression(cs, scope, function_name, expression)?),
+            expression => Ok(self.enforce_expression(cs, scope, function_name, vec![], expression)?),
         }
     }
 

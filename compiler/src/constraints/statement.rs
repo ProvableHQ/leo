@@ -54,7 +54,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
                 let index =
-                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
+                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), vec![], index)?;
 
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
@@ -137,7 +137,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         // Evaluate new value
         let new_value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], expression)?;
 
         // Mutate the old value into the new value
         match assignee {
@@ -193,8 +193,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         variable: Variable<F, G>,
         expression: Expression<F, G>,
     ) -> Result<(), StatementError> {
+        let mut expected_types = vec![];
+        if let Some(ref _type) = variable._type {
+            expected_types.push(_type.clone());
+        }
         let value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expression)?;
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types, expression)?;
 
         self.store_definition(function_scope, variable, value)
     }
@@ -207,11 +211,19 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         variables: Vec<Variable<F, G>>,
         function: Expression<F, G>,
     ) -> Result<(), StatementError> {
+        let mut expected_types = vec![];
+        for variable in variables.iter() {
+            if let Some(ref _type) = variable._type {
+                expected_types.push(_type.clone());
+            }
+        }
+
         // Expect return values from function
         let return_values = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types,
             function,
         )? {
             ConstrainedValue::Return(values) => values,
@@ -252,10 +264,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
+            let expected_types = vec![ty.clone()];
             let result = self.enforce_expression(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
+                expected_types,
                 expression,
             )?;
             result.expect_type(&ty)?;
@@ -300,10 +314,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         statement: ConditionalStatement<F, G>,
         return_types: Vec<Type<F, G>>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
+        let expected_types = vec![Type::Boolean];
         let condition = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types,
             statement.condition.clone(),
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
@@ -488,14 +504,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Statement::AssertEq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], left)?;
                 let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), right)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], right)?;
 
                 self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
             }
             Statement::Expression(expression) => {
-                match self.enforce_expression(cs, file_scope, function_scope, expression.clone())? {
+                match self.enforce_expression(cs, file_scope, function_scope, vec![], expression.clone())? {
                     ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
                             return Err(StatementError::Unassigned(expression.to_string()));

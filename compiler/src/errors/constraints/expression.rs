@@ -7,6 +7,9 @@ pub enum ExpressionError {
     UndefinedIdentifier(String),
 
     // Types
+    #[error("Expected single type for implicit number {}", _0)]
+    SingleType(String),
+
     #[error("{}", _0)]
     IncompatibleTypes(String),
 

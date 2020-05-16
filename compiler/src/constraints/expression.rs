@@ -1,16 +1,11 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
-use crate::{
-    constraints::{
-        new_scope_from_variable, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue,
-    },
-    errors::ExpressionError,
-    new_scope,
-    types::{
-        CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
-        SpreadOrExpression,
-    },
-};
+use crate::{constraints::{
+    new_scope_from_variable, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue,
+}, errors::ExpressionError, new_scope, types::{
+    CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
+    SpreadOrExpression,
+}, Type};
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
@@ -312,6 +307,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         array: Vec<Box<SpreadOrExpression<F, G>>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut result = vec![];
@@ -337,6 +333,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                         cs,
                         file_scope.clone(),
                         function_scope.clone(),
+                        expected_types.clone(),
                         expression,
                     )?);
                 }
@@ -350,9 +347,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         index: Expression<F, G>,
     ) -> Result<usize, ExpressionError> {
-        match self.enforce_expression(cs, file_scope, function_scope, index)? {
+        match self.enforce_expression(cs, file_scope, function_scope, expected_types, index)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize()),
             value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
@@ -363,6 +361,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         array: Box<Expression<F, G>>,
         index: RangeOrExpression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -370,6 +369,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types.clone(),
             *array,
         )? {
             ConstrainedValue::Array(array) => array,
@@ -395,7 +395,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 ))
             }
             RangeOrExpression::Expression(index) => {
-                let index_resolved = self.enforce_index(cs, file_scope, function_scope, index)?;
+                let index_resolved = self.enforce_index(cs, file_scope, function_scope, expected_types, index)?;
                 Ok(array[index_resolved].to_owned())
             }
         }
@@ -406,6 +406,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         identifier: Identifier<F, G>,
         members: Vec<CircuitFieldDefinition<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -434,6 +435,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                                     cs,
                                     file_scope.clone(),
                                     function_scope.clone(),
+                                    expected_types.clone(),
                                     field.expression,
                                 )?;
 
@@ -482,6 +484,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -489,6 +492,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types.clone(),
             *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitExpression(name, members) => (name, members),
@@ -541,6 +545,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -549,6 +554,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types.clone(),
             *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,
@@ -591,6 +597,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         function: Box<Expression<F, G>>,
         arguments: Vec<Expression<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -598,6 +605,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            expected_types.clone(),
             *function.clone(),
         )?;
 
@@ -627,11 +635,25 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
     }
 
+    pub(crate) fn enforce_number_implicit(
+        expected_types: Vec<Type<F, G>>,
+        value: String,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        if expected_types.len() != 1 {
+            return Err(ExpressionError::SingleType(value))
+        }
+
+        Ok(ConstrainedValue::from_type(value, &expected_types[0])?)
+
+
+    }
+
     pub(crate) fn enforce_expression(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F,G>>,
         expression: Expression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
@@ -645,16 +667,17 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
             Expression::GroupElement(gr) => Ok(ConstrainedValue::GroupElement(gr)),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
-            Expression::Implicit(string) => unimplemented!(),
+            Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 
             // Binary operations
             Expression::Add(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -662,11 +685,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Sub(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -674,11 +698,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Mul(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -686,11 +711,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Div(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -698,11 +724,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Pow(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -714,15 +741,17 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 cs,
                 file_scope,
                 function_scope,
+                expected_types,
                 *expression,
             )?)?),
             Expression::Or(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -730,11 +759,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::And(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -742,11 +772,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Eq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -754,11 +785,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Geq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -766,11 +798,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Gt(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -778,11 +811,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Leq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -790,11 +824,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             Expression::Lt(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), *left)?;
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types.clone(), *left)?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types,
                     *right,
                 )?;
 
@@ -807,6 +842,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
+                    expected_types.clone(),
                     *first,
                 )? {
                     ConstrainedValue::Boolean(resolved) => resolved,
@@ -814,18 +850,18 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 };
 
                 if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_expression(cs, file_scope, function_scope, *second)
+                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *second)
                 } else {
-                    self.enforce_expression(cs, file_scope, function_scope, *third)
+                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *third)
                 }
             }
 
             // Arrays
             Expression::Array(array) => {
-                self.enforce_array_expression(cs, file_scope, function_scope, array)
+                self.enforce_array_expression(cs, file_scope, function_scope, expected_types, array)
             }
             Expression::ArrayAccess(array, index) => {
-                self.enforce_array_access_expression(cs, file_scope, function_scope, array, *index)
+                self.enforce_array_access_expression(cs, file_scope, function_scope, expected_types, array, *index)
             }
 
             // Circuits
@@ -833,6 +869,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 cs,
                 file_scope,
                 function_scope,
+                expected_types,
                 circuit_name,
                 members,
             ),
@@ -841,6 +878,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     cs,
                     file_scope,
                     function_scope,
+                    expected_types,
                     circuit_variable,
                     circuit_member,
                 ),
@@ -849,6 +887,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     cs,
                     file_scope,
                     function_scope,
+                    expected_types,
                     circuit_identifier,
                     circuit_member,
                 ),
@@ -858,6 +897,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 cs,
                 file_scope,
                 function_scope,
+                expected_types,
                 function,
                 arguments,
             ),
