@@ -1,19 +1,29 @@
-circuit Circ {
-  x: u32
+circuit PedersenHash {
+
+  parameters: group[1]
+
+  static function new(parameters: group[1]) -> Self {
+    return Self { parameters: parameters }
+  }
+
+  function hash(bits: bool[1]) -> group {
+    let mut digest: group = 0group;
+
+    for i in 0..1 {
+      let base: group = if bits[i] ? parameters[i] : 0group;
+      digest += base;
+    }
+
+    return digest
+  }
 }
 
-function main() -> u32 {
-  let mut a = 1;
-  a = 0;
+function main() -> group {
+  let parameters = [0group; 1];
+  let pedersen = PedersenHash::new(parameters);
 
-  let b = 1;
-  //b = 0; // <- illegal
+  let input: bool[1] = [true];
+  let output = pedersen.hash(input);
 
-  let mut arr = [1, 2];
-  arr[0] = 0;
-
-  let mut c = Circ { x: 1 };
-  c.x = 0;
-
-  return c.x
+  return output
 }

@@ -1,7 +1,7 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, Circuit, CircuitObject, ConditionalNestedOrEnd, ConditionalStatement, Expression,
+    Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
     FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
     RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
 };
@@ -154,8 +154,11 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitMemberAccess(ref circuit_variable, ref member) => {
-                write!(f, "{}.{}", circuit_variable, member)
+            Expression::CircuitMemberAccess(ref circuit_name, ref member) => {
+                write!(f, "{}.{}", circuit_name, member)
+            }
+            Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member) => {
+                write!(f, "{}::{}", circuit_name, member)
             }
 
             // Function calls
@@ -178,7 +181,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Assignee<F, G> {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::CircuitMember(ref circuit_variable, ref member) => {
+            Assignee::CircuitField(ref circuit_variable, ref member) => {
                 write!(f, "{}.{}", circuit_variable, member)
             }
         }
@@ -278,6 +281,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
             Type::GroupElement => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
             Type::Circuit(ref variable) => write!(f, "{}", variable),
+            Type::SelfType => write!(f, "Self"),
             Type::Array(ref array, ref dimensions) => {
                 write!(f, "{}", *array)?;
                 for row in dimensions {
@@ -289,23 +293,33 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitObject<F, G> {
+impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitMember<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.identifier, self._type)
+        match self {
+            CircuitMember::CircuitField(ref identifier, ref _type) => {
+                write!(f, "{}: {}", identifier, _type)
+            }
+            CircuitMember::CircuitFunction(ref _static, ref function) => {
+                if *_static {
+                    write!(f, "static ")?;
+                }
+                write!(f, "{}", function)
+            }
+        }
     }
 }
 
 impl<F: Field + PrimeField, G: Group> Circuit<F, G> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "circuit {} {{ \n", self.identifier)?;
-        for field in self.fields.iter() {
+        for field in self.members.iter() {
             write!(f, "    {}\n", field)?;
         }
         write!(f, "}}")
     }
 }
 
-// impl<F: Field + PrimeField, G: Group> fmt::Display for Struct<F, G> {// uncomment when we no longer print out Program
+// impl<F: Field + PrimeField, G: Group> fmt::Display for Circuit<F, G> {// uncomment when we no longer print out Program
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         self.format(f)
 //     }
@@ -385,11 +399,11 @@ impl<F: Field + PrimeField, G: Group> Function<F, G> {
     }
 }
 
-// impl<F: Field + PrimeField, G: Group> fmt::Display for Function<F, G> {// uncomment when we no longer print out Program
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         self.format(f)
-//     }
-// }
+impl<F: Field + PrimeField, G: Group> fmt::Display for Function<F, G> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
 
 impl<F: Field + PrimeField, G: Group> fmt::Debug for Function<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

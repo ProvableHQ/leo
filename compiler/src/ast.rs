@@ -171,24 +171,15 @@ pub enum IntegerType {
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_field))]
-pub struct FieldType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct FieldType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_group))]
-pub struct GroupType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct GroupType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_bool))]
-pub struct BooleanType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
+pub struct BooleanType {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_circuit))]
@@ -199,18 +190,22 @@ pub struct CircuitType<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_self))]
+pub struct SelfType {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_basic))]
-pub enum BasicType<'ast> {
+pub enum BasicType {
     Integer(IntegerType),
-    Field(FieldType<'ast>),
-    Group(GroupType<'ast>),
-    Boolean(BooleanType<'ast>),
+    Field(FieldType),
+    Group(GroupType),
+    Boolean(BooleanType),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub _type: BasicType<'ast>,
+    pub _type: BasicType,
     pub dimensions: Vec<Value<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -219,9 +214,10 @@ pub struct ArrayType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
-    Basic(BasicType<'ast>),
+    Basic(BasicType),
     Array(ArrayType<'ast>),
     Circuit(CircuitType<'ast>),
+    SelfType(SelfType),
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
@@ -230,6 +226,7 @@ impl<'ast> fmt::Display for Type<'ast> {
             Type::Basic(ref _type) => write!(f, "basic"),
             Type::Array(ref _type) => write!(f, "array"),
             Type::Circuit(ref _type) => write!(f, "struct"),
+            Type::SelfType(ref _type) => write!(f, "Self"),
         }
     }
 }
@@ -269,7 +266,7 @@ impl<'ast> fmt::Display for Integer<'ast> {
 #[pest_ast(rule(Rule::value_field))]
 pub struct Field<'ast> {
     pub number: Number<'ast>,
-    pub _type: FieldType<'ast>,
+    pub _type: FieldType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -284,7 +281,7 @@ impl<'ast> fmt::Display for Field<'ast> {
 #[pest_ast(rule(Rule::value_group))]
 pub struct Group<'ast> {
     pub number: Number<'ast>,
-    pub _type: GroupType<'ast>,
+    pub _type: GroupType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -446,11 +443,20 @@ pub struct MemberAccess<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::access_static_member))]
+pub struct StaticMemberAccess<'ast> {
+    pub identifier: Identifier<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
     Array(ArrayAccess<'ast>),
     Call(CallAccess<'ast>),
-    Member(MemberAccess<'ast>),
+    Object(MemberAccess<'ast>),
+    StaticObject(StaticMemberAccess<'ast>),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -552,8 +558,8 @@ pub struct ArrayInitializerExpression<'ast> {
 // Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_object))]
-pub struct CircuitObject<'ast> {
+#[pest_ast(rule(Rule::circuit_field_definition))]
+pub struct CircuitFieldDefinition<'ast> {
     pub identifier: Identifier<'ast>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
@@ -561,17 +567,37 @@ pub struct CircuitObject<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_definition))]
-pub struct Circuit<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub fields: Vec<CircuitObject<'ast>>,
+#[pest_ast(rule(Rule::_static))]
+pub struct Static {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::circuit_function))]
+pub struct CircuitFunction<'ast> {
+    pub _static: Option<Static>,
+    pub function: Function<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::inline_circuit_member))]
-pub struct InlineCircuitMember<'ast> {
+#[pest_ast(rule(Rule::circuit_member))]
+pub enum CircuitMember<'ast> {
+    CircuitFieldDefinition(CircuitFieldDefinition<'ast>),
+    CircuitFunction(CircuitFunction<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::circuit_definition))]
+pub struct Circuit<'ast> {
+    pub identifier: Identifier<'ast>,
+    pub members: Vec<CircuitMember<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::circuit_field))]
+pub struct CircuitField<'ast> {
     pub identifier: Identifier<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
@@ -579,10 +605,10 @@ pub struct InlineCircuitMember<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_inline_circuit))]
+#[pest_ast(rule(Rule::expression_circuit_inline))]
 pub struct CircuitInlineExpression<'ast> {
     pub identifier: Identifier<'ast>,
-    pub members: Vec<InlineCircuitMember<'ast>>,
+    pub members: Vec<CircuitField<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -758,7 +784,7 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-                Rule::expression_inline_circuit => {
+                Rule::expression_circuit_inline => {
                     Expression::CircuitInline(
                         CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )

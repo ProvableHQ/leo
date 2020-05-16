@@ -12,9 +12,9 @@ pub enum ValueError {
     #[error("{}", _0)]
     IntegerError(IntegerError),
 
-    /// Unexpected struct name
-    #[error("{}", _0)]
-    StructName(String),
+    /// Unexpected circuit name
+    #[error("Expected circuit name {} got {}", _0, _1)]
+    CircuitName(String, String),
 
     /// Unexpected type
     #[error("{}", _0)]

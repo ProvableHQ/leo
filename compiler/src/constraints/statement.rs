@@ -21,10 +21,24 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         match assignee {
             Assignee::Identifier(name) => new_scope_from_variable(scope, &name),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
-            Assignee::CircuitMember(circuit_variable, _member) => {
-                self.resolve_assignee(scope, *circuit_variable)
+            Assignee::CircuitField(circuit_name, _member) => {
+                self.resolve_assignee(scope, *circuit_name)
             }
         }
+    }
+
+    fn get_mutable_assignee(
+        &mut self,
+        name: String,
+    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
+        // Check that assignee exists and is mutable
+        Ok(match self.get_mut(&name) {
+            Some(value) => match value {
+                ConstrainedValue::Mutable(mutable_value) => mutable_value,
+                _ => return Err(StatementError::ImmutableAssign(name)),
+            },
+            None => return Err(StatementError::UndefinedVariable(name)),
+        })
     }
 
     fn mutate_array(
@@ -43,7 +57,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
 
                 // Modify the single value of the array in place
-                match self.get_mutable_variable(name)? {
+                match self.get_mutable_assignee(name)? {
                     ConstrainedValue::Array(old) => {
                         old[index] = new_value;
                     }
@@ -61,7 +75,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 };
 
                 // Modify the range of values of the array in place
-                match (self.get_mutable_variable(name)?, new_value) {
+                match (self.get_mutable_assignee(name)?, new_value) {
                     (ConstrainedValue::Array(old), ConstrainedValue::Array(ref new)) => {
                         let to_index = to_index_option.unwrap_or(old.len());
                         old.splice(from_index..to_index, new.iter().cloned());
@@ -74,19 +88,29 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(())
     }
 
-    fn mutute_circuit_object(
+    fn mutute_circuit_field(
         &mut self,
         circuit_name: String,
         object_name: Identifier<F, G>,
         new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
-        match self.get_mutable_variable(circuit_name)? {
-            ConstrainedValue::CircuitExpression(_variable, objects) => {
-                // Modify the circuit member in place
-                let matched_object = objects.into_iter().find(|object| object.0 == object_name);
+        match self.get_mutable_assignee(circuit_name)? {
+            ConstrainedValue::CircuitExpression(_variable, members) => {
+                // Modify the circuit field in place
+                let matched_field = members.into_iter().find(|object| object.0 == object_name);
 
-                match matched_object {
-                    Some(mut object) => object.1 = new_value.to_owned(),
+                match matched_field {
+                    Some(object) => match &object.1 {
+                        ConstrainedValue::Function(_circuit_identifier, function) => {
+                            return Err(StatementError::ImmutableCircuitFunction(
+                                function.function_name.to_string(),
+                            ))
+                        }
+                        ConstrainedValue::Static(_value) => {
+                            return Err(StatementError::ImmutableCircuitFunction("static".into()))
+                        }
+                        _ => object.1 = new_value.to_owned(),
+                    },
                     None => {
                         return Err(StatementError::UndefinedCircuitObject(
                             object_name.to_string(),
@@ -98,20 +122,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         }
 
         Ok(())
-    }
-
-    fn get_mutable_variable(
-        &mut self,
-        name: String,
-    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
-        // Check that assignee exists and is mutable
-        Ok(match self.get_mut(&name) {
-            Some(value) => match value {
-                ConstrainedValue::Mutable(mutable_value) => mutable_value,
-                _ => return Err(StatementError::ImmutableAssign(name)),
-            },
-            None => return Err(StatementError::UndefinedVariable(name)),
-        })
     }
 
     fn enforce_assign_statement(
@@ -132,7 +142,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         // Mutate the old value into the new value
         match assignee {
             Assignee::Identifier(_identifier) => {
-                let old_value = self.get_mutable_variable(variable_name.clone())?;
+                let old_value = self.get_mutable_assignee(variable_name.clone())?;
 
                 *old_value = new_value;
 
@@ -146,8 +156,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 range_or_expression,
                 new_value,
             ),
-            Assignee::CircuitMember(_assignee, object_name) => {
-                self.mutute_circuit_object(variable_name, object_name, new_value)
+            Assignee::CircuitField(_assignee, object_name) => {
+                self.mutute_circuit_field(variable_name, object_name, new_value)
             }
         }
     }

@@ -79,10 +79,11 @@ type_integer = {
 type_field = {"field"}
 type_group = {"group"}
 type_bool = {"bool"}
+type_self = {"Self"}
 type_basic = { type_field | type_group | type_bool | type_integer }
 type_circuit = { identifier }
 type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
-_type = {type_array | type_basic | type_circuit}
+_type = {type_self | type_array | type_basic | type_circuit}
 type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values
@@ -112,7 +113,8 @@ range_or_expression = { range | expression }
 access_array = { "[" ~ range_or_expression ~ "]" }
 access_call = { "(" ~ expression_tuple ~ ")" }
 access_member = { "." ~ identifier }
-access = { access_array | access_call | access_member }
+access_static_member = { "::" ~ identifier }
+access = { access_array | access_call | access_member | access_static_member}
 
 expression_postfix = { identifier ~ access+ }
 
@@ -130,13 +132,18 @@ expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" 
 
 /// Circuits
 
-circuit_object = { identifier ~ ":" ~ _type }
-circuit_object_list = _{(circuit_object ~ (NEWLINE+ ~ circuit_object)*)? }
-circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_object_list ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit_field_definition = { identifier ~ ":" ~ _type ~ NEWLINE* }
 
-inline_circuit_member = { identifier ~ ":" ~ expression }
-inline_circuit_member_list = _{(inline_circuit_member ~ ("," ~ NEWLINE* ~ inline_circuit_member)*)? ~ ","? }
-expression_inline_circuit = { identifier ~ "{" ~ NEWLINE* ~ inline_circuit_member_list ~ NEWLINE* ~ "}" }
+_static = {"static"}
+circuit_function = {_static? ~ function_definition }
+
+circuit_member = { circuit_function | circuit_field_definition }
+
+circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+
+circuit_field = { identifier ~ ":" ~ expression }
+circuit_field_list = _{(circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
+expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
 
 /// Conditionals
 
@@ -146,7 +153,7 @@ expression_conditional = { "if" ~ expression ~ "?" ~ expression ~ ":" ~ expressi
 
 expression_term = {
     ("(" ~ expression ~ ")")
-    | expression_inline_circuit
+    | expression_circuit_inline
     | expression_conditional
     | expression_postfix
     | expression_primitive

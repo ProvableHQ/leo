@@ -1,4 +1,4 @@
-//! A typed Leo program consists of import, struct, and function definitions.
+//! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
 use crate::{errors::IntegerError, Import};
@@ -29,6 +29,10 @@ impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
             _group: PhantomData::<G>,
             _engine: PhantomData::<F>,
         }
+    }
+
+    pub fn is_self(&self) -> bool {
+        self.name == "Self"
     }
 }
 
@@ -153,11 +157,12 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     ArrayAccess(Box<Expression<F, G>>, Box<RangeOrExpression<F, G>>), // (array name, range)
 
     // Circuits
-    Circuit(Identifier<F, G>, Vec<CircuitMember<F, G>>),
-    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
+    Circuit(Identifier<F, G>, Vec<CircuitFieldDefinition<F, G>>),
+    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (declared circuit name, circuit member name)
+    CircuitStaticFunctionAccess(Box<Expression<F, G>>, Identifier<F, G>), // (defined circuit name, circuit static member name)
 
     // Functions
-    FunctionCall(Identifier<F, G>, Vec<Expression<F, G>>),
+    FunctionCall(Box<Expression<F, G>>, Vec<Expression<F, G>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
@@ -165,7 +170,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
 pub enum Assignee<F: Field + PrimeField, G: Group> {
     Identifier(Identifier<F, G>),
     Array(Box<Assignee<F, G>>, RangeOrExpression<F, G>),
-    CircuitMember(Box<Assignee<F, G>>, Identifier<F, G>), // (circuit name, circuit object name)
+    CircuitField(Box<Assignee<F, G>>, Identifier<F, G>), // (circuit name, circuit field name)
 }
 
 /// Explicit integer type
@@ -187,6 +192,7 @@ pub enum Type<F: Field + PrimeField, G: Group> {
     Boolean,
     Array(Box<Type<F, G>>, Vec<usize>),
     Circuit(Identifier<F, G>),
+    SelfType,
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {
@@ -230,22 +236,24 @@ pub enum Statement<F: Field + PrimeField, G: Group> {
     Expression(Expression<F, G>),
 }
 
+/// Circuits
+
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct CircuitMember<F: Field + PrimeField, G: Group> {
+pub struct CircuitFieldDefinition<F: Field + PrimeField, G: Group> {
     pub identifier: Identifier<F, G>,
     pub expression: Expression<F, G>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct CircuitObject<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
-    pub _type: Type<F, G>,
+pub enum CircuitMember<F: Field + PrimeField, G: Group> {
+    CircuitField(Identifier<F, G>, Type<F, G>),
+    CircuitFunction(bool, Function<F, G>),
 }
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Circuit<F: Field + PrimeField, G: Group> {
     pub identifier: Identifier<F, G>,
-    pub fields: Vec<CircuitObject<F, G>>,
+    pub members: Vec<CircuitMember<F, G>>,
 }
 
 /// Function parameters

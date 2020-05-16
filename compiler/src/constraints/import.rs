@@ -1,7 +1,8 @@
 use crate::{
     ast,
-    constraints::{new_variable_from_variables, ConstrainedProgram, ConstrainedValue},
+    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::constraints::ImportError,
+    new_scope,
     types::Program,
     Import,
 };
@@ -46,7 +47,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             let program_name = program.name.clone();
 
             // match each import symbol to a symbol in the imported file
-            import.symbols.into_iter().for_each(|symbol| {
+            for symbol in import.symbols.into_iter() {
                 // see if the imported symbol is a circuit
                 let matched_circuit = program
                     .circuits
@@ -54,18 +55,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     .into_iter()
                     .find(|(circuit_name, _circuit_def)| symbol.symbol == *circuit_name);
 
-                match matched_circuit {
+                let value = match matched_circuit {
                     Some((_circuit_name, circuit_def)) => {
-                        // take the alias if it is present
-                        let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
-                        let resolved_circuit_name =
-                            new_variable_from_variables(&program_name.clone(), &resolved_name);
-
-                        // store imported circuit under resolved name
-                        self.store_variable(
-                            resolved_circuit_name,
-                            ConstrainedValue::CircuitDefinition(circuit_def),
-                        );
+                        ConstrainedValue::CircuitDefinition(circuit_def)
                     }
                     None => {
                         // see if the imported symbol is a function
@@ -75,18 +67,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                         match matched_function {
                             Some((_function_name, function)) => {
-                                // take the alias if it is present
-                                let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
-                                let resolved_function_name = new_variable_from_variables(
-                                    &program_name.clone(),
-                                    &resolved_name,
-                                );
-
-                                // store imported function under resolved name
-                                self.store_variable(
-                                    resolved_function_name,
-                                    ConstrainedValue::Function(function),
-                                )
+                                ConstrainedValue::Function(None, function)
                             }
                             None => unimplemented!(
                                 "cannot find imported symbol {} in imported file {}",
@@ -95,8 +76,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                             ),
                         }
                     }
-                }
-            });
+                };
+
+                // take the alias if it is present
+                let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
+                let resolved_circuit_name =
+                    new_scope(program_name.to_string(), resolved_name.to_string());
+
+                // store imported circuit under resolved name
+                self.store(resolved_circuit_name, value);
+            }
 
             // evaluate all import statements in imported file
             program

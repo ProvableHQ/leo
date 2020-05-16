@@ -2,9 +2,9 @@ use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
-    // Variables
-    #[error("Variable \"{}\" not found", _0)]
-    UndefinedVariable(String),
+    // Identifiers
+    #[error("Identifier \"{}\" not found", _0)]
+    UndefinedIdentifier(String),
 
     // Types
     #[error("{}", _0)]
@@ -51,11 +51,20 @@ pub enum ExpressionError {
     #[error("Circuit object {} does not exist", _0)]
     UndefinedCircuitObject(String),
 
-    #[error("Expected circuit object {}, got {}", _0, _1)]
-    InvalidCircuitObject(String, String),
-
     #[error("Cannot access circuit {}", _0)]
     InvalidCircuitAccess(String),
+
+    #[error("Expected circuit value {}", _0)]
+    ExpectedCircuitValue(String),
+
+    #[error("Circuit {} has no static function {}", _0, _1)]
+    UndefinedStaticFunction(String, String),
+
+    #[error(
+        "Static access only supported for static circuit functions, got function {}",
+        _0
+    )]
+    InvalidStaticFunction(String),
 
     // Functions
     #[error(
