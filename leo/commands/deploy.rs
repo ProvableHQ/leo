@@ -15,7 +15,7 @@ impl CLI for DeployCommand {
     type Output = ();
 
     const NAME: NameType = "deploy";
-    const ABOUT: AboutType = "Deploy package as program to the network (*)";
+    const ABOUT: AboutType = "Deploy the package as a program to the network (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];

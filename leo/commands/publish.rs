@@ -15,7 +15,7 @@ impl CLI for PublishCommand {
     type Output = ();
 
     const NAME: NameType = "publish";
-    const ABOUT: AboutType = "Package circuit and upload this package to the registry (*)";
+    const ABOUT: AboutType = "Publish the package to the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];

@@ -17,16 +17,15 @@ fn main() -> Result<(), CLIError> {
             AppSettings::DisableVersion,
             AppSettings::SubcommandRequiredElseHelp,
         ])
-        // TODO (howardwu): Print subcommands in non-alphabetical order, instead print as ordered here.
         .subcommands(vec![
-            NewCommand::new(),
-            InitCommand::new(),
-            BuildCommand::new(),
-            SetupCommand::new(),
-            ProveCommand::new(),
-            RunCommand::new(),
-            PublishCommand::new(),
-            DeployCommand::new(),
+            NewCommand::new().display_order(0),
+            InitCommand::new().display_order(1),
+            BuildCommand::new().display_order(2),
+            SetupCommand::new().display_order(3),
+            ProveCommand::new().display_order(4),
+            RunCommand::new().display_order(5),
+            PublishCommand::new().display_order(6),
+            DeployCommand::new().display_order(7),
         ])
         .set_term_width(0)
         .get_matches();
