@@ -12,6 +12,9 @@ pub enum CLIError {
     ChecksumFileError(ChecksumFileError),
 
     #[error("{}", _0)]
+    GitignoreError(GitignoreError),
+
+    #[error("{}", _0)]
     InitError(InitError),
 
     #[error("{}", _0)]
@@ -54,6 +57,12 @@ impl From<BuildError> for CLIError {
 impl From<ChecksumFileError> for CLIError {
     fn from(error: ChecksumFileError) -> Self {
         CLIError::ChecksumFileError(error)
+    }
+}
+
+impl From<GitignoreError> for CLIError {
+    fn from(error: GitignoreError) -> Self {
+        CLIError::GitignoreError(error)
     }
 }
 
