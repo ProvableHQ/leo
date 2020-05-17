@@ -15,7 +15,7 @@ impl CLI for NewCommand {
     type Output = ();
 
     const NAME: NameType = "new";
-    const ABOUT: AboutType = "Creates a new Leo package";
+    const ABOUT: AboutType = "Create a new Leo package in a new directory";
     const ARGUMENTS: &'static [ArgumentType] = &[
         // (name, description, required, index)
         (

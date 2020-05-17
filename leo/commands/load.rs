@@ -8,14 +8,14 @@ use std::convert::TryFrom;
 use std::env::current_dir;
 
 #[derive(Debug)]
-pub struct PublishCommand;
+pub struct LoadCommand;
 
-impl CLI for PublishCommand {
+impl CLI for LoadCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "publish";
-    const ABOUT: AboutType = "Publish the current package to the package manager (*)";
+    const NAME: NameType = "load";
+    const ABOUT: AboutType = "Install a package from the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
@@ -34,7 +34,7 @@ impl CLI for PublishCommand {
         let path = current_dir()?;
         let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-        log::info!("Unimplemented - `leo publish`");
+        log::info!("Unimplemented - `leo deploy`");
 
         Ok(())
     }
