@@ -21,11 +21,13 @@ fn main() -> Result<(), CLIError> {
             NewCommand::new().display_order(0),
             InitCommand::new().display_order(1),
             BuildCommand::new().display_order(2),
-            SetupCommand::new().display_order(3),
-            ProveCommand::new().display_order(4),
-            RunCommand::new().display_order(5),
-            PublishCommand::new().display_order(6),
-            DeployCommand::new().display_order(7),
+            LoadCommand::new().display_order(3),
+            UnloadCommand::new().display_order(4),
+            SetupCommand::new().display_order(5),
+            ProveCommand::new().display_order(6),
+            RunCommand::new().display_order(7),
+            PublishCommand::new().display_order(8),
+            DeployCommand::new().display_order(9),
         ])
         .set_term_width(0)
         .get_matches();
@@ -37,6 +39,8 @@ fn main() -> Result<(), CLIError> {
             BuildCommand::output(BuildCommand::parse(arguments)?)?;
             Ok(())
         }
+        ("load", Some(arguments)) => LoadCommand::output(LoadCommand::parse(arguments)?),
+        ("unload", Some(arguments)) => UnloadCommand::output(UnloadCommand::parse(arguments)?),
         ("setup", Some(arguments)) => {
             SetupCommand::output(SetupCommand::parse(arguments)?)?;
             Ok(())

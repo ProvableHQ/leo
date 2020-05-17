@@ -14,7 +14,7 @@ impl CLI for InitCommand {
     type Output = ();
 
     const NAME: NameType = "init";
-    const ABOUT: AboutType = "Creates a new Leo package in an existing directory";
+    const ABOUT: AboutType = "Create a new Leo package in an existing directory";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];

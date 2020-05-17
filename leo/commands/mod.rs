@@ -7,6 +7,9 @@ pub use self::deploy::*;
 pub mod init;
 pub use self::init::*;
 
+pub mod load;
+pub use self::load::*;
+
 pub mod new;
 pub use self::new::*;
 
@@ -21,3 +24,6 @@ pub use self::run::*;
 
 pub mod setup;
 pub use self::setup::*;
+
+pub mod unload;
+pub use self::unload::*;
