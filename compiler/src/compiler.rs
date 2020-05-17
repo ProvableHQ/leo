@@ -4,7 +4,7 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program,
+    InputValue, Program
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -28,15 +28,20 @@ pub struct Compiler<F: Field + PrimeField, G: Group> {
 }
 
 impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
-    pub fn init(package_name: String, main_file_path: PathBuf) -> Self {
-        Self {
+    pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
+        let mut program = Self {
             package_name,
             main_file_path,
             program: Program::new(),
             program_inputs: vec![],
             output: None,
             _engine: PhantomData,
-        }
+        };
+
+        // Generate the abstract syntax tree and assemble the program
+        program.parse_program()?;
+
+        Ok(program)
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -50,6 +55,17 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         let hash = hasher.result();
 
         Ok(hex::encode(hash))
+    }
+
+    pub fn compile_constraints<CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+    ) -> Result<ConstrainedValue<F, G>, SynthesisError> {
+        let result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
+
+        // Write results to file or something
+
+        Ok(result)
     }
 
     // pub fn compile(&self) -> Result<ast::File, CompilerError> {
@@ -66,7 +82,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
     //     Ok(syntax_tree)
     // }
 
-    pub fn evaluate_program<CS: ConstraintSystem<F>>(&mut self) -> Result<(), CompilerError> {
+    fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
             .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
@@ -85,7 +101,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         self.program = Program::<F, G>::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
-        log::debug!("Compilation complete\n{:#?}", self.program);
+        log::debug!("Program parsing complete\n{:#?}", self.program);
 
         Ok(())
     }
@@ -96,7 +112,7 @@ impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Compiler<F, G
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = generate_constraints(cs, self.program, self.program_inputs).unwrap();
+        let _result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

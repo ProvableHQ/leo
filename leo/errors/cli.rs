@@ -138,6 +138,12 @@ impl From<leo_compiler::errors::CompilerError> for CLIError {
     }
 }
 
+impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
+    fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
+        CLIError::Crate("snarkos_errors", format!("{}", error))
+    }
+}
+
 impl From<serde_json::error::Error> for CLIError {
     fn from(error: serde_json::error::Error) -> Self {
         CLIError::Crate("serde_json", format!("{}", error))
