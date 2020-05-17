@@ -1,3 +1,5 @@
 function main() {
-  let g: group = 123456789;
+  let mut g: group = 123456789;
+
+  g += 1;
 }

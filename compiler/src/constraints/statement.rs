@@ -53,8 +53,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
-                let index =
-                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), vec![], index)?;
+                let index = self.enforce_index(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    vec![],
+                    index,
+                )?;
 
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
@@ -136,8 +141,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
-        let new_value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], expression)?;
+        let new_value = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            vec![],
+            expression,
+        )?;
 
         // Mutate the old value into the new value
         match assignee {
@@ -197,8 +207,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         if let Some(ref _type) = variable._type {
             expected_types.push(_type.clone());
         }
-        let value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_types, expression)?;
+        let value = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            expression,
+        )?;
 
         self.store_definition(function_scope, variable, value)
     }
@@ -503,15 +518,31 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 }
             }
             Statement::AssertEq(left, right) => {
-                let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], left)?;
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), vec![], right)?;
+                let resolved_left = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    vec![],
+                    left,
+                )?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    vec![],
+                    right,
+                )?;
 
                 self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
             }
             Statement::Expression(expression) => {
-                match self.enforce_expression(cs, file_scope, function_scope, vec![], expression.clone())? {
+                match self.enforce_expression(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    vec![],
+                    expression.clone(),
+                )? {
                     ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
                             return Err(StatementError::Unassigned(expression.to_string()));

@@ -37,6 +37,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
 
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
+    Unresolved(String),
 }
 
 impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
@@ -109,6 +110,15 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
         Ok(())
     }
 
+    pub(crate) fn from_other(
+        value: String,
+        other: &ConstrainedValue<F, G>,
+    ) -> Result<Self, ValueError> {
+        let other_type = other.to_type();
+
+        ConstrainedValue::from_type(value, &other_type)
+    }
+
     pub(crate) fn from_type(value: String, _type: &Type<F, G>) -> Result<Self, ValueError> {
         Ok(match _type {
             Type::IntegerType(integer_type) => ConstrainedValue::Integer(match integer_type {
@@ -129,8 +139,18 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 point
             }),
             Type::Boolean => ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?)),
-            _ => unimplemented!("Cannot implicitly create type"),
+            _ => ConstrainedValue::Unresolved(value),
         })
+    }
+
+    pub(crate) fn to_type(&self) -> Type<F, G> {
+        match self {
+            ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
+            ConstrainedValue::FieldElement(_field) => Type::FieldElement,
+            ConstrainedValue::GroupElement(_group) => Type::GroupElement,
+            ConstrainedValue::Boolean(_bool) => Type::Boolean,
+            _ => unimplemented!("to type only implemented for primitives"),
+        }
     }
 }
 
@@ -179,6 +199,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
             }
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
+            ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
         }
     }
 }
