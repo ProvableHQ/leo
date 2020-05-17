@@ -1,8 +1,14 @@
 pub mod checksum;
 pub use self::checksum::*;
 
+pub mod gitignore;
+pub use self::gitignore::*;
+
 pub mod main;
 pub use self::main::*;
+
+pub mod manifest;
+pub use self::manifest::*;
 
 pub mod proof;
 pub use self::proof::*;

@@ -9,6 +9,3 @@ pub use self::directory::*;
 
 pub mod files;
 pub use self::files::*;
-
-pub mod manifest;
-pub use self::manifest::*;

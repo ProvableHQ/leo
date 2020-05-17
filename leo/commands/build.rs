@@ -1,7 +1,6 @@
 use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
 use crate::errors::{BuildError, CLIError};
-use crate::files::{ChecksumFile, MainFile, MAIN_FILE_NAME};
-use crate::manifest::Manifest;
+use crate::files::{ChecksumFile, MainFile, Manifest, MAIN_FILE_NAME};
 use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 

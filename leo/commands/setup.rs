@@ -1,8 +1,7 @@
 use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
 use crate::errors::{CLIError, VerificationKeyFileError};
-use crate::files::{ProvingKeyFile, VerificationKeyFile};
-use crate::manifest::Manifest;
+use crate::files::{Manifest, ProvingKeyFile, VerificationKeyFile};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::{

@@ -1,7 +1,6 @@
 use crate::directories::{InputsDirectory, SourceDirectory};
 use crate::errors::{CLIError, NewError};
-use crate::files::MainFile;
-use crate::manifest::Manifest;
+use crate::files::{Gitignore, MainFile, Manifest};
 use crate::{cli::*, cli_types::*};
 
 use clap::ArgMatches;
@@ -66,6 +65,9 @@ impl CLI for NewCommand {
 
         // Create the manifest file
         Manifest::new(&package_name).write_to(&path)?;
+
+        // Create the .gitignore file
+        Gitignore::new().write_to(&path)?;
 
         // Create the source directory
         SourceDirectory::create(&path)?;
