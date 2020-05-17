@@ -26,6 +26,7 @@ fn main() -> Result<(), CLIError> {
             ProveCommand::new(),
             RunCommand::new(),
             PublishCommand::new(),
+            DeployCommand::new(),
         ])
         .set_term_width(0)
         .get_matches();
@@ -47,6 +48,7 @@ fn main() -> Result<(), CLIError> {
         }
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         ("publish", Some(arguments)) => PublishCommand::output(PublishCommand::parse(arguments)?),
+        ("deploy", Some(arguments)) => DeployCommand::output(DeployCommand::parse(arguments)?),
         _ => unreachable!(),
     }
 }
