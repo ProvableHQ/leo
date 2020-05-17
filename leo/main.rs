@@ -25,6 +25,7 @@ fn main() -> Result<(), CLIError> {
             SetupCommand::new(),
             ProveCommand::new(),
             RunCommand::new(),
+            PublishCommand::new(),
         ])
         .set_term_width(0)
         .get_matches();
@@ -45,6 +46,7 @@ fn main() -> Result<(), CLIError> {
             Ok(())
         }
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
+        ("publish", Some(arguments)) => PublishCommand::output(PublishCommand::parse(arguments)?),
         _ => unreachable!(),
     }
 }

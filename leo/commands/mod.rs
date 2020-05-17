@@ -10,6 +10,9 @@ pub use self::new::*;
 pub mod prove;
 pub use self::prove::*;
 
+pub mod publish;
+pub use self::publish::*;
+
 pub mod run;
 pub use self::run::*;
 
