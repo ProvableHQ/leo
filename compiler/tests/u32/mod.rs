@@ -1,15 +1,18 @@
-use leo_compiler::{compiler::Compiler, ConstrainedValue};
+use leo_compiler::{compiler::Compiler, errors::CompilerError, types::Integer, ConstrainedValue};
 
-use snarkos_curves::bls12_377::Fr;
-
+use snarkos_curves::{
+    bls12_377::{Bls12_377, Fr},
+    edwards_bls12::EdwardsProjective
+};
 use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, TestConstraintSystem};
 use snarkos_models::gadgets::utilities::uint32::UInt32;
+
 use std::env::current_dir;
 
 const DIRECTORY_NAME: &str = "tests/u32/";
 
-fn compile_program(directory_name: &str, file_name: &str) -> Compiler<Fr> {
-    let path = current_dir().unwrap();
+fn compile_program(directory_name: &str, file_name: &str) -> Result<Compiler<Fr, EdwardsProjective>, CompilerError> {
+    let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory
     let mut package_path = path.clone();
@@ -25,69 +28,63 @@ fn compile_program(directory_name: &str, file_name: &str) -> Compiler<Fr> {
     println!("Compiling file - {:?}", main_file_path);
 
     // Compile from the main file path
-    let program = Compiler::<Fr>::init(file_name.to_string(), main_file_path);
-
-    program
+    Compiler::<Fr, EdwardsProjective>::init(file_name.to_string(), main_file_path)
 }
 
 #[test]
 fn test_zero() {
     let mut cs = TestConstraintSystem::<Fr>::new();
-    let program = compile_program(DIRECTORY_NAME, "zero.leo");
-    let output = program.evaluate_program(&mut cs);
-    assert!(cs.is_satisfied());
+    let program = compile_program(DIRECTORY_NAME, "zero.leo").unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
+    println!("{}", output);
 
-    let output = output.unwrap();
+    assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(0))]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))]),
         output
     );
-    println!("{}", output);
 }
 
 #[test]
 fn test_one() {
     let mut cs = TestConstraintSystem::<Fr>::new();
-    let program = compile_program(DIRECTORY_NAME, "one.leo");
-    let output = program.evaluate_program(&mut cs);
-    assert!(cs.is_satisfied());
+    let program = compile_program(DIRECTORY_NAME, "one.leo").unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
+    println!("{}", output);
 
-    let output = output.unwrap();
+    assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(1))]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1)))]),
         output
     );
-    println!("{}", output);
 }
 
 #[test]
 fn test_1_plus_1() {
     let mut cs = TestConstraintSystem::<Fr>::new();
-    let program = compile_program(DIRECTORY_NAME, "1+1.leo");
-    let output = program.evaluate_program(&mut cs);
-    assert!(cs.is_satisfied());
+    let program = compile_program(DIRECTORY_NAME, "1+1.leo").unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
+    println!("{}", output);
 
-    let output = output.unwrap();
+    assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(2))]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(2)))]),
         output
     );
-    println!("{}", output);
 }
 
 #[test]
 fn test_1_minus_1() {
     let mut cs = TestConstraintSystem::<Fr>::new();
-    let program = compile_program(DIRECTORY_NAME, "1-1.leo");
-    let output = program.evaluate_program(&mut cs);
-    assert!(cs.is_satisfied());
+    let program = compile_program(DIRECTORY_NAME, "1-1.leo").unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
+    println!("{}", output);
 
-    let output = output.unwrap();
+    assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::<Fr>::Integer(UInt32::constant(0))]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))]),
         output
     );
-    println!("{}", output);
 }
 
 #[test]
@@ -95,7 +92,7 @@ fn test_1_minus_2_should_fail() {
     // TODO (howardwu): Catch panic from subtraction overflow
 
     let mut cs = TestConstraintSystem::<Fr>::new();
-    let program = compile_program(DIRECTORY_NAME, "1-2.leo");
-    let output = program.evaluate_program(&mut cs);
+    let program = compile_program(DIRECTORY_NAME, "1-2.leo").unwrap();
+    let output = program.compile_constraints(&mut cs);
     assert!(output.is_err());
 }
