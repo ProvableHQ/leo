@@ -22,7 +22,7 @@ impl CLI for BuildCommand {
     type Output = (Compiler<Fr, EdwardsProjective>, bool);
 
     const NAME: NameType = "build";
-    const ABOUT: AboutType = "Compile the current package";
+    const ABOUT: AboutType = "Compile the package as a program";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
