@@ -54,28 +54,6 @@ pub enum Integer {
     U128(UInt128),
 }
 
-impl Integer {
-    pub fn to_usize(&self) -> usize {
-        match self {
-            Integer::U8(u8) => u8.value.unwrap() as usize,
-            Integer::U16(u16) => u16.value.unwrap() as usize,
-            Integer::U32(u32) => u32.value.unwrap() as usize,
-            Integer::U64(u64) => u64.value.unwrap() as usize,
-            Integer::U128(u128) => u128.value.unwrap() as usize,
-        }
-    }
-
-    pub(crate) fn get_type(&self) -> IntegerType {
-        match self {
-            Integer::U8(_u8) => IntegerType::U8,
-            Integer::U16(_u16) => IntegerType::U16,
-            Integer::U32(_u32) => IntegerType::U32,
-            Integer::U64(_u64) => IntegerType::U64,
-            Integer::U128(_u128) => IntegerType::U128,
-        }
-    }
-}
-
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
 pub enum FieldElement<F: Field + PrimeField> {

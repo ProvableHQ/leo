@@ -1,5 +1,7 @@
 use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError, ValueError};
 
+use snarkos_errors::gadgets::SynthesisError;
+
 #[derive(Debug, Error)]
 pub enum ExpressionError {
     // Identifiers
@@ -85,6 +87,15 @@ pub enum ExpressionError {
     // Conditionals
     #[error("If, else conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
+
+    #[error("{}", _0)]
+    SynthesisError(SynthesisError),
+}
+
+impl From<SynthesisError> for ExpressionError {
+    fn from(error: SynthesisError) -> Self {
+        ExpressionError::SynthesisError(error)
+    }
 }
 
 impl From<ValueError> for ExpressionError {

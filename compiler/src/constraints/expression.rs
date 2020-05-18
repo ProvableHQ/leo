@@ -10,12 +10,15 @@ use crate::{
         CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
         SpreadOrExpression,
     },
-    Type,
+    Integer, Type,
 };
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, select::CondSelectGadget},
+    },
 };
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
@@ -379,6 +382,54 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 "{} < {}, values must be fields",
                 val_1, val_2,
             ))),
+        }
+    }
+
+    /// Enforce ternary conditional expression
+    fn enforce_conditional_expression(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        expected_types: Vec<Type<F, G>>,
+        first: Expression<F, G>,
+        second: Expression<F, G>,
+        third: Expression<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        let resolved_first = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            vec![Type::Boolean],
+            first,
+        )? {
+            ConstrainedValue::Boolean(resolved) => resolved,
+            value => return Err(ExpressionError::IfElseConditional(value.to_string())),
+        };
+
+        let resolved_second = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types.clone(),
+            second,
+        )?;
+        let resolved_third =
+            self.enforce_expression(cs, file_scope, function_scope, expected_types, third)?;
+
+        match (resolved_second, resolved_third) {
+            (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
+                let result = Boolean::conditionally_select(cs, &resolved_first, &bool_2, &bool_3)?;
+                Ok(ConstrainedValue::Boolean(result))
+            }
+            (ConstrainedValue::Integer(integer_2), ConstrainedValue::Integer(integer_3)) => {
+                let result =
+                    Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
+                Ok(ConstrainedValue::Integer(result))
+            }
+            (_, _) => {
+                unimplemented!("conditional select gadget not implemented between given types")
+            }
         }
     }
 
@@ -976,24 +1027,15 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
 
             // Conditionals
-            Expression::IfElse(first, second, third) => {
-                let resolved_first = match self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *first,
-                )? {
-                    ConstrainedValue::Boolean(resolved) => resolved,
-                    value => return Err(ExpressionError::IfElseConditional(value.to_string())),
-                };
-
-                if resolved_first.eq(&Boolean::Constant(true)) {
-                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *second)
-                } else {
-                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *third)
-                }
-            }
+            Expression::IfElse(first, second, third) => self.enforce_conditional_expression(
+                cs,
+                file_scope,
+                function_scope,
+                expected_types,
+                *first,
+                *second,
+                *third,
+            ),
 
             // Arrays
             Expression::Array(array) => {

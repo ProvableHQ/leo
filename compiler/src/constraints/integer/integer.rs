@@ -7,10 +7,71 @@ use crate::{
     IntegerType,
 };
 
+use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{
+            boolean::Boolean, select::CondSelectGadget, uint128::UInt128, uint16::UInt16,
+            uint32::UInt32, uint64::UInt64, uint8::UInt8,
+        },
+    },
 };
+
+impl Integer {
+    pub fn to_usize(&self) -> usize {
+        match self {
+            Integer::U8(u8) => u8.value.unwrap() as usize,
+            Integer::U16(u16) => u16.value.unwrap() as usize,
+            Integer::U32(u32) => u32.value.unwrap() as usize,
+            Integer::U64(u64) => u64.value.unwrap() as usize,
+            Integer::U128(u128) => u128.value.unwrap() as usize,
+        }
+    }
+
+    pub(crate) fn get_type(&self) -> IntegerType {
+        match self {
+            Integer::U8(_u8) => IntegerType::U8,
+            Integer::U16(_u16) => IntegerType::U16,
+            Integer::U32(_u32) => IntegerType::U32,
+            Integer::U64(_u64) => IntegerType::U64,
+            Integer::U128(_u128) => IntegerType::U128,
+        }
+    }
+}
+
+impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        match (first, second) {
+            (Integer::U8(u8_first), Integer::U8(u8_second)) => Ok(Integer::U8(
+                UInt8::conditionally_select(cs, cond, u8_first, u8_second)?,
+            )),
+            (Integer::U16(u16_first), Integer::U16(u18_second)) => Ok(Integer::U16(
+                UInt16::conditionally_select(cs, cond, u16_first, u18_second)?,
+            )),
+            (Integer::U32(u32_first), Integer::U32(u32_second)) => Ok(Integer::U32(
+                UInt32::conditionally_select(cs, cond, u32_first, u32_second)?,
+            )),
+            (Integer::U64(u64_first), Integer::U64(u64_second)) => Ok(Integer::U64(
+                UInt64::conditionally_select(cs, cond, u64_first, u64_second)?,
+            )),
+            (Integer::U128(u128_first), Integer::U128(u128_second)) => Ok(Integer::U128(
+                UInt128::conditionally_select(cs, cond, u128_first, u128_second)?,
+            )),
+            (_, _) => Err(SynthesisError::Unsatisfiable), // types do not match
+        }
+    }
+
+    fn cost() -> usize {
+        unimplemented!("Cannot calculate cost.")
+    }
+}
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<F, G> {

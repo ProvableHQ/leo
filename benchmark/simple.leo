@@ -1,11 +1,3 @@
-circuit Foo {
-  x: u32
-
-  static function new() -> Self {
-    return Self { x: 5 }
-  }
-}
-
 function main() {
-  let a = Foo::new();
+  let a: u32 = if true ? 1 : 5;
 }
