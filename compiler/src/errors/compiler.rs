@@ -8,6 +8,9 @@ pub enum CompilerError {
     #[error("creating: {}", _0)]
     Creating(io::Error),
 
+    #[error("Attempt to access current directory failed - {:?}", _0)]
+    DirectoryError(io::Error),
+
     #[error("{}", _0)]
     ImportError(ImportError),
 

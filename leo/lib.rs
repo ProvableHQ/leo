@@ -9,4 +9,3 @@ pub mod directories;
 pub mod errors;
 pub mod files;
 pub mod logger;
-pub mod manifest;

@@ -1,0 +1,3 @@
+[package]
+name = "pedersen_hash"
+version = "0.1.0"

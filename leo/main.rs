@@ -17,14 +17,17 @@ fn main() -> Result<(), CLIError> {
             AppSettings::DisableVersion,
             AppSettings::SubcommandRequiredElseHelp,
         ])
-        // TODO (howardwu): Print subcommands in non-alphabetical order, instead print as ordered here.
         .subcommands(vec![
-            NewCommand::new(),
-            InitCommand::new(),
-            BuildCommand::new(),
-            SetupCommand::new(),
-            ProveCommand::new(),
-            RunCommand::new(),
+            NewCommand::new().display_order(0),
+            InitCommand::new().display_order(1),
+            BuildCommand::new().display_order(2),
+            LoadCommand::new().display_order(3),
+            UnloadCommand::new().display_order(4),
+            SetupCommand::new().display_order(5),
+            ProveCommand::new().display_order(6),
+            RunCommand::new().display_order(7),
+            PublishCommand::new().display_order(8),
+            DeployCommand::new().display_order(9),
         ])
         .set_term_width(0)
         .get_matches();
@@ -36,6 +39,8 @@ fn main() -> Result<(), CLIError> {
             BuildCommand::output(BuildCommand::parse(arguments)?)?;
             Ok(())
         }
+        ("load", Some(arguments)) => LoadCommand::output(LoadCommand::parse(arguments)?),
+        ("unload", Some(arguments)) => UnloadCommand::output(UnloadCommand::parse(arguments)?),
         ("setup", Some(arguments)) => {
             SetupCommand::output(SetupCommand::parse(arguments)?)?;
             Ok(())
@@ -45,6 +50,8 @@ fn main() -> Result<(), CLIError> {
             Ok(())
         }
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
+        ("publish", Some(arguments)) => PublishCommand::output(PublishCommand::parse(arguments)?),
+        ("deploy", Some(arguments)) => DeployCommand::output(DeployCommand::parse(arguments)?),
         _ => unreachable!(),
     }
 }

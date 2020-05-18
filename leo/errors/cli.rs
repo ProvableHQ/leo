@@ -12,6 +12,9 @@ pub enum CLIError {
     ChecksumFileError(ChecksumFileError),
 
     #[error("{}", _0)]
+    GitignoreError(GitignoreError),
+
+    #[error("{}", _0)]
     InitError(InitError),
 
     #[error("{}", _0)]
@@ -54,6 +57,12 @@ impl From<BuildError> for CLIError {
 impl From<ChecksumFileError> for CLIError {
     fn from(error: ChecksumFileError) -> Self {
         CLIError::ChecksumFileError(error)
+    }
+}
+
+impl From<GitignoreError> for CLIError {
+    fn from(error: GitignoreError) -> Self {
+        CLIError::GitignoreError(error)
     }
 }
 
@@ -126,6 +135,12 @@ impl From<VerificationKeyFileError> for CLIError {
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
         CLIError::Crate("leo_compiler", format!("{}", error))
+    }
+}
+
+impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
+    fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
+        CLIError::Crate("snarkos_errors", format!("{}", error))
     }
 }
 

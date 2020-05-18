@@ -1,7 +1,6 @@
 use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
 use crate::errors::{BuildError, CLIError};
-use crate::files::{ChecksumFile, MainFile, MAIN_FILE_NAME};
-use crate::manifest::Manifest;
+use crate::files::{ChecksumFile, MainFile, Manifest, MAIN_FILE_NAME};
 use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
@@ -23,7 +22,7 @@ impl CLI for BuildCommand {
     type Output = (Compiler<Fr, EdwardsProjective>, bool);
 
     const NAME: NameType = "build";
-    const ABOUT: AboutType = "Compile the current package";
+    const ABOUT: AboutType = "Compile the current package as a program";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
@@ -64,14 +63,29 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let mut program = Compiler::<Fr, EdwardsProjective>::init(package_name.clone(), main_file_path.clone());
-        let checksum = program.checksum()?;
+        let program = Compiler::<Fr, EdwardsProjective>::init(package_name.clone(), main_file_path.clone())?;
+        let program_checksum = program.checksum()?;
+
+        // Generate the program on the constraint system and verify correctness
+        {
+            let mut cs = KeypairAssembly::<Bls12_377> {
+                num_inputs: 0,
+                num_aux: 0,
+                num_constraints: 0,
+                at: vec![],
+                bt: vec![],
+                ct: vec![],
+            };
+            let temporary_program = program.clone();
+            let output = temporary_program.compile_constraints(&mut cs).unwrap();
+            log::debug!("Compiled constraints - {:#?}", output);
+        }
 
         // If a checksum file exists, check if it differs from the new checksum
         let checksum_file = ChecksumFile::new(&package_name);
         let checksum_differs = if checksum_file.exists_at(&package_path) {
             let previous_checksum = checksum_file.read_from(&package_path)?;
-            checksum != previous_checksum
+            program_checksum != previous_checksum
         } else {
             // By default, the checksum differs if there is no checksum to compare against
             true
@@ -80,19 +94,8 @@ impl CLI for BuildCommand {
         // If checksum differs, compile the program
         if checksum_differs {
             // Write the new checksum to the outputs directory
-            checksum_file.write_to(&path, checksum)?;
-
-            // Generate the program on the constraint system and verify correctness
-            // let mut cs = KeypairAssembly::<Bls12_377> {
-            //     num_inputs: 0,
-            //     num_aux: 0,
-            //     num_constraints: 0,
-            //     at: vec![],
-            //     bt: vec![],
-            //     ct: vec![],
-            // };
+            checksum_file.write_to(&path, program_checksum)?;
         }
-        program.evaluate_program::<KeypairAssembly::<Bls12_377>>()?;
 
         log::info!("Compiled program in {:?}", main_file_path);
 

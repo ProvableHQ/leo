@@ -1,8 +1,7 @@
 use crate::{cli::*, cli_types::*};
 use crate::commands::SetupCommand;
 use crate::errors::CLIError;
-use crate::files::ProofFile;
-use crate::manifest::Manifest;
+use crate::files::{Manifest, ProofFile};
 
 use snarkos_algorithms::snark::{create_random_proof, Proof};
 use snarkos_curves::bls12_377::Bls12_377;

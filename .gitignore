@@ -1,7 +1,4 @@
 /target
 **.idea/
-Leo.toml
-src/
-inputs/
 outputs/
 *.DS_Store
