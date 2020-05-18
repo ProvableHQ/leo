@@ -24,22 +24,30 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         &mut self,
         file_scope: String,
         function_scope: String,
+        expected_types: Vec<Type<F, G>>,
         unresolved_identifier: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
 
-        if let Some(variable) = self.get(&variable_name) {
+        let result_value = if let Some(value) = self.get(&variable_name) {
             // Reassigning variable to another variable
-            Ok(variable.clone())
-        } else if let Some(identifier) = self.get(&identifier_name) {
+            value.clone()
+        } else if let Some(value) = self.get(&identifier_name) {
             // Check global scope (function and circuit names)
-            Ok(identifier.clone())
+            value.clone()
         } else {
-            Err(ExpressionError::UndefinedIdentifier(
+            return Err(ExpressionError::UndefinedIdentifier(
                 unresolved_identifier.to_string(),
-            ))
+            ));
+        };
+
+        match result_value {
+            ConstrainedValue::Unresolved(string) => {
+                Self::enforce_number_implicit(expected_types, string)
+            }
+            value => Ok(value),
         }
     }
 
@@ -480,7 +488,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
         identifier: Identifier<F, G>,
         members: Vec<CircuitFieldDefinition<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -509,12 +516,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                                     cs,
                                     file_scope.clone(),
                                     function_scope.clone(),
-                                    expected_types.clone(),
+                                    vec![_type.clone()],
                                     field.expression,
                                 )?;
-
-                                // Check field type
-                                field_value.expect_type(&_type)?;
 
                                 resolved_members
                                     .push(ConstrainedCircuitMember(identifier, field_value))
@@ -730,9 +734,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
             // Variables
-            Expression::Identifier(unresolved_variable) => {
-                self.evaluate_identifier(file_scope, function_scope, unresolved_variable)
-            }
+            Expression::Identifier(unresolved_variable) => self.evaluate_identifier(
+                file_scope,
+                function_scope,
+                expected_types,
+                unresolved_variable,
+            ),
 
             // Values
             Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
@@ -1006,7 +1013,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 cs,
                 file_scope,
                 function_scope,
-                expected_types,
                 circuit_name,
                 members,
             ),

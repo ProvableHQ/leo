@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{errors::IntegerError, Import};
+use crate::Import;
 
 use snarkos_models::curves::{Field, Group, PrimeField};
 use snarkos_models::gadgets::{
@@ -73,18 +73,6 @@ impl Integer {
             Integer::U64(_u64) => IntegerType::U64,
             Integer::U128(_u128) => IntegerType::U128,
         }
-    }
-
-    pub(crate) fn expect_type(&self, integer_type: &IntegerType) -> Result<(), IntegerError> {
-        if self.get_type() != *integer_type {
-            unimplemented!(
-                "expected integer type {}, got {}",
-                self.get_type(),
-                integer_type
-            )
-        }
-
-        Ok(())
     }
 }
 

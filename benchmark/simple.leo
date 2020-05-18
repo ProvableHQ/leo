@@ -1,5 +1,11 @@
-function main() {
-  let mut g: group = 123456789;
+circuit Foo {
+  x: u32
 
-  g += 1;
+  static function new() -> Self {
+    return Self { x: 5 }
+  }
+}
+
+function main() {
+  let a = Foo::new();
 }

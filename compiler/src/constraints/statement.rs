@@ -178,11 +178,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         variable: Variable<F, G>,
         mut value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
-        // Check optional explicit type
-        if let Some(_type) = variable._type {
-            value.expect_type(&_type)?;
-        }
-
         // Store with given mutability
         if variable.mutable {
             value = ConstrainedValue::Mutable(Box::new(value));
@@ -287,7 +282,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 expected_types,
                 expression,
             )?;
-            result.expect_type(&ty)?;
 
             returns.push(result);
         }
