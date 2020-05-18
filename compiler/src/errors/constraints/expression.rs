@@ -1,6 +1,7 @@
 use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError, ValueError};
 
 use snarkos_errors::gadgets::SynthesisError;
+use std::num::ParseIntError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -20,6 +21,9 @@ pub enum ExpressionError {
 
     #[error("{}", _0)]
     IntegerError(IntegerError),
+
+    #[error("{}", _0)]
+    ParseIntError(ParseIntError),
 
     #[error("{}", _0)]
     FieldElementError(FieldElementError),
@@ -45,6 +49,9 @@ pub enum ExpressionError {
 
     #[error("Index must resolve to an integer, got {}", _0)]
     InvalidIndex(String),
+
+    #[error("Expected array length {}, got {}", _0, _1)]
+    InvalidLength(usize, usize),
 
     // Circuits
     #[error(
@@ -107,6 +114,12 @@ impl From<ValueError> for ExpressionError {
 impl From<IntegerError> for ExpressionError {
     fn from(error: IntegerError) -> Self {
         ExpressionError::IntegerError(error)
+    }
+}
+
+impl From<ParseIntError> for ExpressionError {
+    fn from(error: ParseIntError) -> Self {
+        ExpressionError::ParseIntError(error)
     }
 }
 

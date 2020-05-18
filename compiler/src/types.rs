@@ -156,12 +156,25 @@ pub enum Type<F: Field + PrimeField, G: Group> {
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {
-    pub fn next_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
         let _type = self.clone();
 
         if dimensions.len() > 1 {
             let mut next = vec![];
             next.extend_from_slice(&dimensions[1..]);
+
+            return Type::Array(Box::new(_type), next);
+        }
+
+        _type
+    }
+
+    pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
+        let _type = self.clone();
+
+        if dimensions.len() > 1 {
+            let mut next = vec![];
+            next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
 
             return Type::Array(Box::new(_type), next);
         }

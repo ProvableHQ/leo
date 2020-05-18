@@ -61,6 +61,12 @@ impl<'ast> types::Integer {
             )),
         }
     }
+
+    pub(crate) fn from_implicit(number: String) -> Self {
+        types::Integer::U128(UInt128::constant(
+            number.parse::<u128>().expect("unable to parse u128"),
+        ))
+    }
 }
 
 impl<'ast, F: Field + PrimeField, G: Group> From<ast::Integer<'ast>> for types::Expression<F, G> {
@@ -79,6 +85,9 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::RangeOrExpression<'ast>>
                     .from
                     .map(|from| match types::Expression::<F, G>::from(from.0) {
                         types::Expression::Integer(number) => number,
+                        types::Expression::Implicit(string) => {
+                            types::Integer::from_implicit(string)
+                        }
                         expression => {
                             unimplemented!("Range bounds should be integers, found {}", expression)
                         }
@@ -87,6 +96,9 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::RangeOrExpression<'ast>>
                     .to
                     .map(|to| match types::Expression::<F, G>::from(to.0) {
                         types::Expression::Integer(number) => number,
+                        types::Expression::Implicit(string) => {
+                            types::Integer::from_implicit(string)
+                        }
                         expression => {
                             unimplemented!("Range bounds should be integers, found {}", expression)
                         }
@@ -375,7 +387,12 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::Expression<'ast>>
 impl<'ast, F: Field + PrimeField, G: Group> types::Expression<F, G> {
     fn get_count(count: ast::Value<'ast>) -> usize {
         match count {
-            ast::Value::Integer(f) => f
+            ast::Value::Integer(integer) => integer
+                .number
+                .value
+                .parse::<usize>()
+                .expect("Unable to read array size"),
+            ast::Value::Implicit(number) => number
                 .number
                 .value
                 .parse::<usize>()
@@ -590,10 +607,12 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::ForStatement<'ast>>
     fn from(statement: ast::ForStatement<'ast>) -> Self {
         let from = match types::Expression::<F, G>::from(statement.start) {
             types::Expression::Integer(number) => number,
+            types::Expression::Implicit(string) => types::Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
         let to = match types::Expression::<F, G>::from(statement.stop) {
             types::Expression::Integer(number) => number,
+            types::Expression::Implicit(string) => types::Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
 

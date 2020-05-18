@@ -142,6 +142,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_mul(cs, fe_1, fe_2)?)
             }
+            // (ConstrainedValue::GroupElement(group), ConstrainedValue::FieldElement(scalar)) => {
+            //     Ok(Self::evaluate_group_mul(group, scalar))
+            // }
             (ConstrainedValue::Mutable(val_1), val_2) => {
                 self.enforce_mul_expression(cs, *val_1, val_2)
             }
@@ -439,9 +442,20 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        mut expected_types: Vec<Type<F, G>>,
         array: Vec<Box<SpreadOrExpression<F, G>>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        // Check explicit array type dimension if given
+        let expected_dimensions = vec![];
+        if !expected_types.is_empty() {
+            match expected_types[0] {
+                Type::Array(ref _type, ref dimensions) => {
+                    expected_types = vec![expected_types[0].inner_dimension(dimensions)];
+                }
+                ref _type => return Err(ExpressionError::IncompatibleTypes(_type.to_string())),
+            }
+        }
+
         let mut result = vec![];
         for element in array.into_iter() {
             match *element {
@@ -471,6 +485,17 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 }
             }
         }
+
+        // Check expected_dimensions if given
+        if !expected_dimensions.is_empty() {
+            if expected_dimensions[expected_dimensions.len() - 1] != result.len() {
+                return Err(ExpressionError::InvalidLength(
+                    expected_dimensions[expected_dimensions.len() - 1],
+                    result.len(),
+                ));
+            }
+        }
+
         Ok(ConstrainedValue::Array(result))
     }
 
@@ -484,6 +509,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     ) -> Result<usize, ExpressionError> {
         match self.enforce_expression(cs, file_scope, function_scope, expected_types, index)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize()),
+            ConstrainedValue::Unresolved(string) => Ok(string.parse::<usize>()?),
             value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
     }

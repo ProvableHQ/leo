@@ -127,7 +127,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = new_scope(name.clone(), i.to_string());
-                    let value_type = array_type.next_dimension(&array_dimensions);
+                    let value_type = array_type.outer_dimension(&array_dimensions);
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
@@ -142,7 +142,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 // Allocate all row values as none
                 for i in 0..expected_length {
                     let value_name = new_scope(name.clone(), i.to_string());
-                    let value_type = array_type.next_dimension(&array_dimensions);
+                    let value_type = array_type.outer_dimension(&array_dimensions);
 
                     array_value.push(
                         self.allocate_main_function_input(

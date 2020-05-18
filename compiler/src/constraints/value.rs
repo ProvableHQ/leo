@@ -51,27 +51,30 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
     }
 
     pub(crate) fn from_type(value: String, _type: &Type<F, G>) -> Result<Self, ValueError> {
-        Ok(match _type {
-            Type::IntegerType(integer_type) => ConstrainedValue::Integer(match integer_type {
+        match _type {
+            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
                 IntegerType::U16 => Integer::U16(UInt16::constant(value.parse::<u16>()?)),
                 IntegerType::U32 => Integer::U32(UInt32::constant(value.parse::<u32>()?)),
                 IntegerType::U64 => Integer::U64(UInt64::constant(value.parse::<u64>()?)),
                 IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
-            }),
-            Type::FieldElement => ConstrainedValue::FieldElement(FieldElement::Constant(
+            })),
+            Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
-            )),
-            Type::GroupElement => ConstrainedValue::GroupElement({
+            ))),
+            Type::GroupElement => Ok(ConstrainedValue::GroupElement({
                 use std::str::FromStr;
 
                 let scalar = G::ScalarField::from_str(&value).unwrap_or_default();
                 let point = G::default().mul(&scalar);
                 point
-            }),
-            Type::Boolean => ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?)),
-            _ => ConstrainedValue::Unresolved(value),
-        })
+            })),
+            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
+                value.parse::<bool>()?,
+            ))),
+            Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type),
+            _ => Ok(ConstrainedValue::Unresolved(value)),
+        }
     }
 
     pub(crate) fn to_type(&self) -> Type<F, G> {
