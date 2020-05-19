@@ -1,7 +1,7 @@
 //! Methods to enforce constraints on statements in a resolved Leo program.
 
 use crate::{
-    constraints::{new_scope_from_variable, ConstrainedProgram, ConstrainedValue},
+    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::StatementError,
     new_scope,
     types::{
@@ -19,7 +19,7 @@ use snarkos_models::{
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
         match assignee {
-            Assignee::Identifier(name) => new_scope_from_variable(scope, &name),
+            Assignee::Identifier(name) => new_scope(scope, name.to_string()),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
             Assignee::CircuitField(circuit_name, _member) => {
                 self.resolve_assignee(scope, *circuit_name)
@@ -378,7 +378,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         for i in start.to_usize()..stop.to_usize() {
             // Store index in current function scope.
             // For loop scope is not implemented.
-            let index_name = new_scope_from_variable(function_scope.clone(), &index);
+            let index_name = new_scope(function_scope.clone(), index.to_string());
             self.store(
                 index_name,
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),

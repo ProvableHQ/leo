@@ -1,9 +1,7 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
 use crate::{
-    constraints::{
-        new_scope_from_variable, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue,
-    },
+    constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
     errors::ExpressionError,
     new_scope,
     types::{
@@ -411,8 +409,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         for element in array.into_iter() {
             match *element {
                 SpreadOrExpression::Spread(spread) => match spread {
-                    Expression::Identifier(variable) => {
-                        let array_name = new_scope_from_variable(function_scope.clone(), &variable);
+                    Expression::Identifier(identifier) => {
+                        let array_name = new_scope(function_scope.clone(), identifier.to_string());
                         match self.get(&array_name) {
                             Some(value) => match value {
                                 ConstrainedValue::Array(array) => result.extend(array.clone()),
@@ -420,7 +418,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                                     return Err(ExpressionError::InvalidSpread(value.to_string()));
                                 }
                             },
-                            None => return Err(ExpressionError::UndefinedArray(variable.name)),
+                            None => return Err(ExpressionError::UndefinedArray(identifier.name)),
                         }
                     }
                     value => return Err(ExpressionError::InvalidSpread(value.to_string())),
