@@ -1,14 +1,13 @@
 use crate::compile_program;
 
-use leo_compiler::{types::Integer, ConstrainedValue, InputValue};
-
-use leo_compiler::compiler::Compiler;
-use leo_compiler::errors::CompilerError;
-use leo_compiler::errors::FunctionError;
-use leo_compiler::errors::StatementError;
+use leo_compiler::{
+    compiler::Compiler,
+    errors::{CompilerError, FunctionError, StatementError},
+    types::{InputValue, Integer},
+    ConstrainedValue,
+};
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-use snarkos_models::gadgets::utilities::uint32::UInt32;
+use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 

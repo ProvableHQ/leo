@@ -1,11 +1,27 @@
+pub mod boolean;
+pub mod integers;
 pub mod mutability;
-pub mod u32;
 
-use leo_compiler::{compiler::Compiler, errors::CompilerError};
+use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
 
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 
+use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
+
+pub(crate) fn get_output(
+    program: Compiler<Fr, EdwardsProjective>,
+) -> ConstrainedValue<Fr, EdwardsProjective> {
+    let mut cs = TestConstraintSystem::<Fr>::new();
+    let output = program.compile_constraints(&mut cs).unwrap();
+    assert!(cs.is_satisfied());
+    output
+}
+
+pub(crate) fn get_error(program: Compiler<Fr, EdwardsProjective>) -> CompilerError {
+    let mut cs = TestConstraintSystem::<Fr>::new();
+    program.compile_constraints(&mut cs).unwrap_err()
+}
 
 pub(crate) fn compile_program(
     directory_name: &str,

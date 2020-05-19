@@ -51,7 +51,10 @@ impl<'ast> types::Integer {
                 number.value.parse::<u16>().expect("unable to parse u16"),
             )),
             ast::IntegerType::U32Type(_u32) => types::Integer::U32(UInt32::constant(
-                number.value.parse::<u32>().expect("unable to parse u32"),
+                number
+                    .value
+                    .parse::<u32>()
+                    .expect("unable to parse integers.u32"),
             )),
             ast::IntegerType::U64Type(_u64) => types::Integer::U64(UInt64::constant(
                 number.value.parse::<u64>().expect("unable to parse u64"),
