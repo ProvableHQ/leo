@@ -10,7 +10,7 @@ use crate::{
         CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
         SpreadOrExpression,
     },
-    Integer, Type,
+    Integer, IntegerType, Type,
 };
 
 use snarkos_models::{
@@ -27,14 +27,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         &mut self,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         unresolved_identifier: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
 
-        let result_value = if let Some(value) = self.get(&variable_name) {
+        let mut result_value = if let Some(value) = self.get(&variable_name) {
             // Reassigning variable to another variable
             value.clone()
         } else if let Some(value) = self.get(&identifier_name) {
@@ -46,12 +46,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             ));
         };
 
-        match result_value {
-            ConstrainedValue::Unresolved(string) => {
-                Self::enforce_number_implicit(expected_types, string)
-            }
-            value => Ok(value),
-        }
+        result_value.resolve_type(expected_types)?;
+
+        Ok(result_value)
     }
 
     /// Enforce numerical operations
@@ -70,12 +67,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Ok(Self::evaluate_group_add(ge_1, ge_2))
-            }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.enforce_add_expression(cs, *val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.enforce_add_expression(cs, val_1, *val_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -108,12 +99,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Ok(Self::evaluate_group_sub(ge_1, ge_2))
             }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.enforce_sub_expression(cs, *val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.enforce_sub_expression(cs, val_1, *val_2)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_sub_expression(cs, val_1, val_2)
@@ -145,12 +130,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ConstrainedValue::GroupElement(group), ConstrainedValue::FieldElement(scalar)) => {
             //     Ok(Self::evaluate_group_mul(group, scalar))
             // }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.enforce_mul_expression(cs, *val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.enforce_mul_expression(cs, val_1, *val_2)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_mul_expression(cs, val_1, val_2)
@@ -181,12 +160,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_div(cs, fe_1, fe_2)?)
             }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.enforce_div_expression(cs, *val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.enforce_div_expression(cs, val_1, *val_2)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_div_expression(cs, val_1, val_2)
@@ -215,12 +188,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(self.enforce_field_pow(cs, fe_1, num_2)?)
-            }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.enforce_pow_expression(cs, *val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.enforce_pow_expression(cs, val_1, *val_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -259,8 +226,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Ok(Self::evaluate_group_eq(ge_1, ge_2))
             }
-            (ConstrainedValue::Mutable(val_1), val_2) => self.evaluate_eq_expression(*val_1, val_2),
-            (val_1, ConstrainedValue::Mutable(val_2)) => self.evaluate_eq_expression(val_1, *val_2),
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_eq_expression(val_1, val_2)
@@ -285,12 +250,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_geq(fe_1, fe_2)
             // }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.evaluate_geq_expression(*val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.evaluate_geq_expression(val_1, *val_2)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_geq_expression(val_1, val_2)
@@ -315,8 +274,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_gt(fe_1, fe_2)
             // }
-            (ConstrainedValue::Mutable(val_1), val_2) => self.evaluate_gt_expression(*val_1, val_2),
-            (val_1, ConstrainedValue::Mutable(val_2)) => self.evaluate_gt_expression(val_1, *val_2),
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_gt_expression(val_1, val_2)
@@ -341,12 +298,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_leq(fe_1, fe_2)
             // }
-            (ConstrainedValue::Mutable(val_1), val_2) => {
-                self.evaluate_leq_expression(*val_1, val_2)
-            }
-            (val_1, ConstrainedValue::Mutable(val_2)) => {
-                self.evaluate_leq_expression(val_1, *val_2)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_leq_expression(val_1, val_2)
@@ -371,8 +322,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_lt(fe_1, fe_2)
             // }
-            (ConstrainedValue::Mutable(val_1), val_2) => self.evaluate_lt_expression(*val_1, val_2),
-            (val_1, ConstrainedValue::Mutable(val_2)) => self.evaluate_lt_expression(val_1, *val_2),
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_lt_expression(val_1, val_2)
@@ -394,7 +343,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         first: Expression<F, G>,
         second: Expression<F, G>,
         third: Expression<F, G>,
@@ -403,22 +352,22 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            vec![Type::Boolean],
+            &vec![Type::Boolean],
             first,
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => return Err(ExpressionError::IfElseConditional(value.to_string())),
         };
 
-        let resolved_second = self.enforce_expression(
+        let resolved_second = self.enforce_branch(
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types.clone(),
+            expected_types,
             second,
         )?;
         let resolved_third =
-            self.enforce_expression(cs, file_scope, function_scope, expected_types, third)?;
+            self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
 
         match (resolved_second, resolved_third) {
             (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
@@ -442,11 +391,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        mut expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         array: Vec<Box<SpreadOrExpression<F, G>>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
+        let mut expected_types = expected_types.clone();
         let expected_dimensions = vec![];
+
         if !expected_types.is_empty() {
             match expected_types[0] {
                 Type::Array(ref _type, ref dimensions) => {
@@ -479,7 +430,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                         cs,
                         file_scope.clone(),
                         function_scope.clone(),
-                        expected_types.clone(),
+                        &expected_types,
                         expression,
                     )?);
                 }
@@ -504,12 +455,17 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
         index: Expression<F, G>,
     ) -> Result<usize, ExpressionError> {
-        match self.enforce_expression(cs, file_scope, function_scope, expected_types, index)? {
+        let expected_types = vec![Type::IntegerType(IntegerType::U32)];
+        match self.enforce_branch(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            &expected_types,
+            index,
+        )? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize()),
-            ConstrainedValue::Unresolved(string) => Ok(string.parse::<usize>()?),
             value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
     }
@@ -519,7 +475,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         array: Box<Expression<F, G>>,
         index: RangeOrExpression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -527,14 +483,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types.clone(),
+            expected_types,
             *array,
         )? {
             ConstrainedValue::Array(array) => array,
-            ConstrainedValue::Mutable(value) => match *value {
-                ConstrainedValue::Array(array) => array,
-                value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
-            },
             value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
         };
 
@@ -553,8 +505,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 ))
             }
             RangeOrExpression::Expression(index) => {
-                let index_resolved =
-                    self.enforce_index(cs, file_scope, function_scope, expected_types, index)?;
+                let index_resolved = self.enforce_index(cs, file_scope, function_scope, index)?;
                 Ok(array[index_resolved].to_owned())
             }
         }
@@ -593,7 +544,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                                     cs,
                                     file_scope.clone(),
                                     function_scope.clone(),
-                                    vec![_type.clone()],
+                                    &vec![_type.clone()],
                                     field.expression,
                                 )?;
 
@@ -639,22 +590,18 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (circuit_name, members) = match self.enforce_expression(
+        let (circuit_name, members) = match self.enforce_branch(
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types.clone(),
+            expected_types,
             *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitExpression(name, members) => (name, members),
-            ConstrainedValue::Mutable(value) => match *value {
-                ConstrainedValue::CircuitExpression(name, members) => (name, members),
-                value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
-            },
             value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
         };
 
@@ -700,7 +647,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         circuit_identifier: Box<Expression<F, G>>,
         circuit_member: Identifier<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -709,7 +656,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types.clone(),
+            expected_types,
             *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,
@@ -752,7 +699,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         function: Box<Expression<F, G>>,
         arguments: Vec<Expression<F, G>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -760,7 +707,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types.clone(),
+            expected_types,
             *function.clone(),
         )?;
 
@@ -791,7 +738,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     }
 
     pub(crate) fn enforce_number_implicit(
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         value: String,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         if expected_types.len() == 1 {
@@ -801,12 +748,59 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(ConstrainedValue::Unresolved(value))
     }
 
+    /// Enforce a branch of a binary expression.
+    /// We don't care about mutability because we are not changing any variables.
+    /// We try to resolve unresolved types here if the type is given explicitly.
+    pub(crate) fn enforce_branch(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        expected_types: &Vec<Type<F, G>>,
+        expression: Expression<F, G>,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        let mut branch =
+            self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
+
+        branch.get_inner_mut();
+        branch.resolve_type(expected_types)?;
+
+        Ok(branch)
+    }
+
+    pub(crate) fn enforce_binary_expression(
+        &mut self,
+        cs: &mut CS,
+        file_scope: String,
+        function_scope: String,
+        expected_types: &Vec<Type<F, G>>,
+        left: Expression<F, G>,
+        right: Expression<F, G>,
+    ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
+        let resolved_left = self.enforce_branch(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            left,
+        )?;
+        let resolved_right = self.enforce_branch(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            right,
+        )?;
+
+        Ok((resolved_left, resolved_right))
+    }
+
     pub(crate) fn enforce_expression(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: Vec<Type<F, G>>,
+        expected_types: &Vec<Type<F, G>>,
         expression: Expression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
@@ -827,90 +821,60 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
             // Binary operations
             Expression::Add(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 self.enforce_add_expression(cs, resolved_left, resolved_right)
             }
             Expression::Sub(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 self.enforce_sub_expression(cs, resolved_left, resolved_right)
             }
             Expression::Mul(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 self.enforce_mul_expression(cs, resolved_left, resolved_right)
             }
             Expression::Div(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 self.enforce_div_expression(cs, resolved_left, resolved_right)
             }
             Expression::Pow(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
@@ -926,126 +890,84 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 *expression,
             )?)?),
             Expression::Or(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.enforce_or(cs, resolved_left, resolved_right)?)
             }
             Expression::And(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.enforce_and(cs, resolved_left, resolved_right)?)
             }
             Expression::Eq(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.evaluate_eq_expression(resolved_left, resolved_right)?)
             }
             Expression::Geq(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.evaluate_geq_expression(resolved_left, resolved_right)?)
             }
             Expression::Gt(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.evaluate_gt_expression(resolved_left, resolved_right)?)
             }
             Expression::Leq(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 
                 Ok(self.evaluate_leq_expression(resolved_left, resolved_right)?)
             }
             Expression::Lt(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_types.clone(),
-                    *left,
-                )?;
-                let resolved_right = self.enforce_expression(
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
                     expected_types,
+                    *left,
                     *right,
                 )?;
 

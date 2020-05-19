@@ -53,13 +53,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
-                let index = self.enforce_index(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    vec![],
-                    index,
-                )?;
+                let index =
+                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
 
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
@@ -145,7 +140,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            vec![],
+            &vec![],
             expression,
         )?;
 
@@ -206,7 +201,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            &expected_types,
             expression,
         )?;
 
@@ -233,7 +228,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            &expected_types,
             function,
         )? {
             ConstrainedValue::Return(values) => values,
@@ -275,11 +270,11 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
             let expected_types = vec![ty.clone()];
-            let result = self.enforce_expression(
+            let result = self.enforce_branch(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
-                expected_types,
+                &expected_types,
                 expression,
             )?;
 
@@ -328,7 +323,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            &expected_types,
             statement.condition.clone(),
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
@@ -516,14 +511,14 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    vec![],
+                    &vec![],
                     left,
                 )?;
                 let resolved_right = self.enforce_expression(
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    vec![],
+                    &vec![],
                     right,
                 )?;
 
@@ -534,7 +529,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     cs,
                     file_scope,
                     function_scope,
-                    vec![],
+                    &vec![],
                     expression.clone(),
                 )? {
                     ConstrainedValue::Return(values) => {

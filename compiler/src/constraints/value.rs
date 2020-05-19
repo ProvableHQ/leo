@@ -86,6 +86,22 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
             _ => unimplemented!("to type only implemented for primitives"),
         }
     }
+
+    pub(crate) fn resolve_type(&mut self, types: &Vec<Type<F, G>>) -> Result<(), ValueError> {
+        if let ConstrainedValue::Unresolved(ref string) = self {
+            if !types.is_empty() {
+                *self = ConstrainedValue::from_type(string.clone(), &types[0])?
+            }
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn get_inner_mut(&mut self) {
+        if let ConstrainedValue::Mutable(inner) = self {
+            *self = *inner.clone()
+        }
+    }
 }
 
 impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
