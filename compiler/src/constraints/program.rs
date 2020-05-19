@@ -1,6 +1,6 @@
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
-use crate::{constraints::ConstrainedValue, types::Identifier};
+use crate::constraints::ConstrainedValue;
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
@@ -26,7 +26,6 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     }
 
     pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<F, G>) {
-        println!("storing {}", name);
         self.identifiers.insert(name, value);
     }
 

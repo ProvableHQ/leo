@@ -477,7 +477,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         array: Box<Expression<F, G>>,
         index: RangeOrExpression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_expression(
+        let array = match self.enforce_branch(
             cs,
             file_scope.clone(),
             function_scope.clone(),
