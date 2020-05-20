@@ -12,8 +12,8 @@ use snarkos_models::{
     curves::{Field, Group, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
+use std::env::current_dir;
 use std::fs;
-use std::path::Path;
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(
@@ -22,9 +22,23 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         scope: String,
         import: Import<F, G>,
     ) -> Result<(), ImportError> {
+        let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
+
+        // Sanitize the package path to the imports directory
+        let mut package_path = path.clone();
+        if package_path.is_file() {
+            package_path.pop();
+        }
+
+        // Construct the path to the import file in the import directory
+        let mut main_file_path = package_path.clone();
+        main_file_path.push(import.path_string_full());
+
+        println!("Compiling import - {:?}", main_file_path);
+
         // Resolve program file path
-        let unparsed_file = fs::read_to_string(Path::new(&import.path_string_full()))
-            .map_err(|_| ImportError::FileReadError(import.path_string_full()))?;
+        let unparsed_file = fs::read_to_string(main_file_path.clone())
+            .map_err(|_| ImportError::FileReadError(main_file_path))?;
         let mut file = ast::parse(&unparsed_file).map_err(|_| ImportError::FileParsingError)?;
 
         // generate ast from file

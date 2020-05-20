@@ -85,7 +85,7 @@ pub enum ExpressionError {
     )]
     UndefinedFunction(String),
 
-    #[error("Cannot evaluate function call")]
+    #[error("{}", _0)]
     FunctionError(Box<FunctionError>),
 
     #[error("Inline function call to {} did not return", _0)]

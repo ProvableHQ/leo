@@ -221,7 +221,7 @@ import_source = @{(!"\"" ~ ANY)*}
 import_symbol = { identifier ~ ("as" ~ identifier)? }
 import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
-import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}")) ~ LINE_END}
+import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
 
 /// Program File
 

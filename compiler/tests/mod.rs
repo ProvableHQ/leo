@@ -2,7 +2,9 @@ pub mod array;
 pub mod boolean;
 pub mod circuit;
 pub mod field_element;
+pub mod function;
 pub mod group_element;
+pub mod import;
 pub mod integer;
 pub mod mutability;
 
