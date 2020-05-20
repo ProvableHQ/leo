@@ -145,7 +145,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
                 unimplemented!("cannot return circuit definition in program")
             }
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "{}();", function.function_name)
+                write!(f, "{}", function)
             }
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),

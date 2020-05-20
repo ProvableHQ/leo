@@ -180,6 +180,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Type::FieldElement => {
                 Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
+            Type::GroupElement => {
+                Ok(self.group_element_from_input(cs, name, private, input_value)?)
+            }
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {
                 self.allocate_array(cs, name, private, *_type, dimensions, input_value)

@@ -6,7 +6,7 @@ use snarkos_models::curves::Group;
 
 const DIRECTORY_NAME: &str = "tests/group_element/";
 
-fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
         ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::GroupElement(

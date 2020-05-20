@@ -270,6 +270,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
             let expected_types = vec![ty.clone()];
+            println!("expression {}", expression);
+            println!("expected types {:?}", expected_types);
             let result = self.enforce_branch(
                 cs,
                 file_scope.clone(),

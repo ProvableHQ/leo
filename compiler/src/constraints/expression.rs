@@ -377,6 +377,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                     Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
                 Ok(ConstrainedValue::Integer(result))
             }
+            // (ConstrainedValue::GroupElement(group_2), ConstrainedValue::GroupElement(group_3)) => {
+            //     let result = Group
+            // }
             (_, _) => {
                 unimplemented!("conditional select gadget not implemented between given types")
             }
@@ -630,11 +633,15 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                             }
                         }
                     }
+                    ConstrainedValue::Static(value) => {
+                        return Err(ExpressionError::InvalidStaticAccess(value.to_string()))
+                    }
                     _ => {}
                 }
                 Ok(member.1)
             }
-            None => Err(ExpressionError::UndefinedCircuitObject(
+            None => Err(ExpressionError::UndefinedMemberAccess(
+                circuit_name.to_string(),
                 circuit_member.to_string(),
             )),
         }
@@ -663,7 +670,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
-            CircuitMember::CircuitFunction(_static, _function) => *_static,
+            CircuitMember::CircuitFunction(_static, function) => {
+                function.function_name == circuit_member
+            }
             _ => false,
         });
 
@@ -673,13 +682,13 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 if _static {
                     function
                 } else {
-                    return Err(ExpressionError::InvalidStaticFunction(
+                    return Err(ExpressionError::InvalidMemberAccess(
                         function.function_name.to_string(),
                     ));
                 }
             }
             _ => {
-                return Err(ExpressionError::UndefinedStaticFunction(
+                return Err(ExpressionError::UndefinedStaticAccess(
                     circuit.identifier.to_string(),
                     circuit_member.to_string(),
                 ))
