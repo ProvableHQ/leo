@@ -89,11 +89,12 @@ type_list = _{(_type ~ ("," ~ _type)*)?}
 /// Values
 
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
-value_integer = { value_number ~ type_integer? }
+value_implicit = { value_number }
+value_integer = { value_number ~ type_integer }
 value_field = { value_number ~ type_field }
 value_group = { value_number ~ type_group }
 value_boolean = { "true" | "false" }
-value = { value_field | value_group | value_boolean | value_integer }
+value = { value_field | value_group | value_boolean | value_integer | value_implicit }
 expression_primitive = { value | identifier }
 
 /// Variables + Mutability

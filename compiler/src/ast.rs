@@ -248,10 +248,24 @@ impl<'ast> fmt::Display for Number<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::value_implicit))]
+pub struct NumberImplicit<'ast> {
+    pub number: Number<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for NumberImplicit<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.number)
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value_integer))]
 pub struct Integer<'ast> {
     pub number: Number<'ast>,
-    pub _type: Option<IntegerType>,
+    pub _type: IntegerType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -314,6 +328,7 @@ pub enum Value<'ast> {
     Field(Field<'ast>),
     Group(Group<'ast>),
     Boolean(Boolean<'ast>),
+    Implicit(NumberImplicit<'ast>),
 }
 
 impl<'ast> Value<'ast> {
@@ -323,6 +338,7 @@ impl<'ast> Value<'ast> {
             Value::Field(value) => &value.span,
             Value::Group(value) => &value.span,
             Value::Boolean(value) => &value.span,
+            Value::Implicit(value) => &value.span,
         }
     }
 }
@@ -334,6 +350,7 @@ impl<'ast> fmt::Display for Value<'ast> {
             Value::Field(ref value) => write!(f, "{}", value),
             Value::Group(ref value) => write!(f, "{}", value),
             Value::Boolean(ref value) => write!(f, "{}", value),
+            Value::Implicit(ref value) => write!(f, "{}", value),
         }
     }
 }

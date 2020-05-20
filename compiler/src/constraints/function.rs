@@ -13,10 +13,10 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    fn check_inputs_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
+    fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
-            Err(FunctionError::InputsLength(expected, actual))
+            Err(FunctionError::ArgumentsLength(expected, actual))
         } else {
             Ok(())
         }
@@ -28,13 +28,21 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         scope: String,
         caller_scope: String,
         function_name: String,
+        expected_types: Vec<Type<F, G>>,
         input: Expression<F, G>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        // Evaluate the function input value as pass by value from the caller or
+        // evaluate as an expression in the current function scope
         match input {
-            Expression::Identifier(identifier) => {
-                Ok(self.evaluate_identifier(caller_scope, function_name, identifier)?)
+            Expression::Identifier(identifier) => Ok(self.evaluate_identifier(
+                caller_scope,
+                function_name,
+                expected_types,
+                identifier,
+            )?),
+            expression => {
+                Ok(self.enforce_expression(cs, scope, function_name, expected_types, expression)?)
             }
-            expression => Ok(self.enforce_expression(cs, scope, function_name, expression)?),
         }
     }
 
@@ -49,7 +57,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
-        Self::check_inputs_length(function.inputs.len(), inputs.len())?;
+        Self::check_arguments_length(function.inputs.len(), inputs.len())?;
 
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in
@@ -61,11 +69,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 scope.clone(),
                 caller_scope.clone(),
                 function_name.clone(),
+                vec![input_model._type.clone()],
                 input_expression,
             )?;
-
-            // Check that input is correct type
-            input_value.expect_type(&input_model._type)?;
 
             if input_model.mutable {
                 input_value = ConstrainedValue::Mutable(Box::new(input_value))
@@ -94,6 +100,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             }
         }
 
+        if let ConstrainedValue::Return(ref returns) = return_values {
+            Self::check_arguments_length(function.returns.len(), returns.len())?;
+        }
+
         Ok(return_values)
     }
 
@@ -112,12 +122,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         match input_value {
             Some(InputValue::Array(arr)) => {
                 // Check the dimension of the array
-                Self::check_inputs_length(expected_length, arr.len())?;
+                Self::check_arguments_length(expected_length, arr.len())?;
 
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = new_scope(name.clone(), i.to_string());
-                    let value_type = array_type.next_dimension(&array_dimensions);
+                    let value_type = array_type.outer_dimension(&array_dimensions);
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
@@ -132,7 +142,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 // Allocate all row values as none
                 for i in 0..expected_length {
                     let value_name = new_scope(name.clone(), i.to_string());
-                    let value_type = array_type.next_dimension(&array_dimensions);
+                    let value_type = array_type.outer_dimension(&array_dimensions);
 
                     array_value.push(
                         self.allocate_main_function_input(
@@ -184,7 +194,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
-        Self::check_inputs_length(function.inputs.len(), inputs.len())?;
+        Self::check_arguments_length(function.inputs.len(), inputs.len())?;
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];

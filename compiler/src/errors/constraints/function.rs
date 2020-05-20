@@ -5,7 +5,7 @@ use crate::errors::{
 #[derive(Debug, Error)]
 pub enum FunctionError {
     #[error("Function expected {} inputs, got {}", _0, _1)]
-    InputsLength(usize, usize),
+    ArgumentsLength(usize, usize),
 
     #[error("Function input type not defined {}", _0)]
     UndefinedInput(String),

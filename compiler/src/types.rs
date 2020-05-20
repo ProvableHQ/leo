@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{errors::IntegerError, Import};
+use crate::Import;
 
 use snarkos_models::curves::{Field, Group, PrimeField};
 use snarkos_models::gadgets::{
@@ -54,53 +54,12 @@ pub enum Integer {
     U128(UInt128),
 }
 
-impl Integer {
-    pub fn to_usize(&self) -> usize {
-        match self {
-            Integer::U8(u8) => u8.value.unwrap() as usize,
-            Integer::U16(u16) => u16.value.unwrap() as usize,
-            Integer::U32(u32) => u32.value.unwrap() as usize,
-            Integer::U64(u64) => u64.value.unwrap() as usize,
-            Integer::U128(u128) => u128.value.unwrap() as usize,
-        }
-    }
-
-    pub(crate) fn get_type(&self) -> IntegerType {
-        match self {
-            Integer::U8(_u8) => IntegerType::U8,
-            Integer::U16(_u16) => IntegerType::U16,
-            Integer::U32(_u32) => IntegerType::U32,
-            Integer::U64(_u64) => IntegerType::U64,
-            Integer::U128(_u128) => IntegerType::U128,
-        }
-    }
-
-    pub(crate) fn expect_type(&self, integer_type: &IntegerType) -> Result<(), IntegerError> {
-        if self.get_type() != *integer_type {
-            unimplemented!(
-                "expected integer type {}, got {}",
-                self.get_type(),
-                integer_type
-            )
-        }
-
-        Ok(())
-    }
-}
-
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
 pub enum FieldElement<F: Field + PrimeField> {
     Constant(F),
     Allocated(Option<F>, R1CSVariable),
 }
-
-// /// A constant or allocated element in the field
-// #[derive(Clone, PartialEq, Eq)]
-// pub enum GroupElement<G: Field + PrimeField> {
-//     Constant(G),
-//     Allocated(Option<G>, R1CSVariable),
-// }
 
 /// Range or expression enum
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -127,6 +86,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     FieldElement(FieldElement<F>),
     GroupElement(G),
     Boolean(Boolean),
+    Implicit(String),
 
     // Number operations
     Add(Box<Expression<F, G>>, Box<Expression<F, G>>),
@@ -196,12 +156,25 @@ pub enum Type<F: Field + PrimeField, G: Group> {
 }
 
 impl<F: Field + PrimeField, G: Group> Type<F, G> {
-    pub fn next_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
         let _type = self.clone();
 
         if dimensions.len() > 1 {
             let mut next = vec![];
             next.extend_from_slice(&dimensions[1..]);
+
+            return Type::Array(Box::new(_type), next);
+        }
+
+        _type
+    }
+
+    pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
+        let _type = self.clone();
+
+        if dimensions.len() > 1 {
+            let mut next = vec![];
+            next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
 
             return Type::Array(Box::new(_type), next);
         }
