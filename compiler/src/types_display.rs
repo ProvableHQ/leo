@@ -267,7 +267,7 @@ impl fmt::Display for IntegerType {
         match *self {
             IntegerType::U8 => write!(f, "u8"),
             IntegerType::U16 => write!(f, "u16"),
-            IntegerType::U32 => write!(f, "integers.u32"),
+            IntegerType::U32 => write!(f, "u32"),
             IntegerType::U64 => write!(f, "u64"),
             IntegerType::U128 => write!(f, "u128"),
         }

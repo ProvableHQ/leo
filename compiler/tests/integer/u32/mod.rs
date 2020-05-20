@@ -1,15 +1,12 @@
-use crate::{
-    compile_program,
-    // get_error,
-    get_output,
-};
+use crate::{compile_program, get_error, get_output};
 
-use leo_compiler::{compiler::Compiler, types::Integer, ConstrainedValue};
+use leo_compiler::{compiler::Compiler, types::Integer, ConstrainedValue, InputValue};
 
+use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
-const DIRECTORY_NAME: &str = "tests/integers/u32/";
+const DIRECTORY_NAME: &str = "tests/integer/u32/";
 
 fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
@@ -39,6 +36,38 @@ fn output_two(program: Compiler<Fr, EdwardsProjective>) {
         )]),
         output
     )
+}
+
+fn fail_integer(program: Compiler<Fr, EdwardsProjective>) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::IntegerError(
+            IntegerError::InvalidInteger(_string),
+        )) => {}
+        error => panic!("Expected invalid boolean error, got {}", error),
+    }
+}
+
+fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::IntegerError(
+            IntegerError::SynthesisError(_string),
+        )) => {}
+        error => panic!("Expected synthesis error, got {}", error),
+    }
+}
+
+#[test]
+fn test_input_u32_bool() {
+    let mut program = compile_program(DIRECTORY_NAME, "input_u32.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    fail_integer(program);
+}
+
+#[test]
+fn test_input_u32_none() {
+    let mut program = compile_program(DIRECTORY_NAME, "input_u32.leo").unwrap();
+    program.set_inputs(vec![None]);
+    fail_synthesis(program);
 }
 
 #[test]

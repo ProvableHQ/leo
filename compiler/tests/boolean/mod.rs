@@ -4,7 +4,7 @@ use leo_compiler::errors::{BooleanError, ExpressionError};
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, FunctionError, StatementError},
-    ConstrainedValue,
+    ConstrainedValue, InputValue,
 };
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::gadgets::utilities::boolean::Boolean;
@@ -53,6 +53,24 @@ fn fail_enforce(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
+fn fail_boolean(program: Compiler<Fr, EdwardsProjective>) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::BooleanError(
+            BooleanError::InvalidBoolean(_string),
+        )) => {}
+        error => panic!("Expected invalid boolean error, got {}", error),
+    }
+}
+
+fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::BooleanError(
+            BooleanError::SynthesisError(_string),
+        )) => {}
+        error => panic!("Expected synthesis error, got {}", error),
+    }
+}
+
 #[test]
 fn test_true() {
     let program = compile_program(DIRECTORY_NAME, "true.leo").unwrap();
@@ -63,6 +81,20 @@ fn test_true() {
 fn test_false() {
     let program = compile_program(DIRECTORY_NAME, "false.leo").unwrap();
     output_false(program);
+}
+
+#[test]
+fn test_input_bool_field() {
+    let mut program = compile_program(DIRECTORY_NAME, "input_bool.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Integer(1usize))]);
+    fail_boolean(program);
+}
+
+#[test]
+fn test_input_bool_none() {
+    let mut program = compile_program(DIRECTORY_NAME, "input_bool.leo").unwrap();
+    program.set_inputs(vec![None]);
+    fail_synthesis(program);
 }
 
 // Boolean not !

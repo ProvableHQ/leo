@@ -788,7 +788,6 @@ impl<'ast, F: Field + PrimeField, G: Group> From<ast::InputModel<'ast>>
     for types::InputModel<F, G>
 {
     fn from(parameter: ast::InputModel<'ast>) -> Self {
-        println!("{}", parameter.mutable.is_some());
         types::InputModel {
             identifier: types::Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),

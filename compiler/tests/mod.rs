@@ -1,5 +1,8 @@
+pub mod array;
 pub mod boolean;
-pub mod integers;
+pub mod field_element;
+pub mod group_element;
+pub mod integer;
 pub mod mutability;
 
 use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};

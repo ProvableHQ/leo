@@ -14,7 +14,6 @@ const DIRECTORY_NAME: &str = "tests/mutability/";
 fn mut_success(program: Compiler<Fr, EdwardsProjective>) {
     let mut cs = TestConstraintSystem::<Fr>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
-    println!("{}", output);
 
     assert!(cs.is_satisfied());
     assert_eq!(
