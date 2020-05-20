@@ -550,7 +550,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                                     .push(ConstrainedCircuitMember(identifier, field_value))
                             }
                             None => {
-                                return Err(ExpressionError::ExpectedCircuitValue(
+                                return Err(ExpressionError::ExpectedCircuitMember(
                                     identifier.to_string(),
                                 ))
                             }

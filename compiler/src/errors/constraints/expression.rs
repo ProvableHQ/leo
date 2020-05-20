@@ -67,7 +67,7 @@ pub enum ExpressionError {
     InvalidCircuitAccess(String),
 
     #[error("Expected circuit value {}", _0)]
-    ExpectedCircuitValue(String),
+    ExpectedCircuitMember(String),
 
     #[error("Circuit {} has no static function {}", _0, _1)]
     UndefinedStaticFunction(String, String),

@@ -27,8 +27,7 @@ fn output_ones(program: Compiler<Fr, EdwardsProjective>) {
 fn output_multi(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(
-            vec![
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(vec![
                 ConstrainedValue::Array(vec![
                     ConstrainedValue::Integer(Integer::U32(
                         UInt32::constant(0u32)
@@ -36,8 +35,7 @@ fn output_multi(program: Compiler<Fr, EdwardsProjective>) {
                     3
                 ]);
                 2
-            ]
-        )]),
+            ])]),
         output
     )
 }

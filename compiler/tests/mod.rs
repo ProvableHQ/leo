@@ -1,5 +1,6 @@
 pub mod array;
 pub mod boolean;
+pub mod circuit;
 pub mod field_element;
 pub mod group_element;
 pub mod integer;

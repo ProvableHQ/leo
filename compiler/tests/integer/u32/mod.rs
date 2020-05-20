@@ -18,7 +18,7 @@ fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
     )
 }
 
-fn output_one(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_one(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
         ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
