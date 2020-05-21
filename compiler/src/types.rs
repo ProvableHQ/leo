@@ -2,15 +2,12 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
+use leo_gadgets::integers::{
+    uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8,
+};
 
 use snarkos_models::curves::{Field, Group, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::Variable as R1CSVariable,
-    utilities::{
-        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
-        uint8::UInt8,
-    },
-};
+use snarkos_models::gadgets::{r1cs::Variable as R1CSVariable, utilities::boolean::Boolean};
 use std::collections::HashMap;
 use std::marker::PhantomData;
 

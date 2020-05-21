@@ -517,6 +517,7 @@ dependencies = [
  "from-pest",
  "hex",
  "lazy_static",
+ "leo-gadgets",
  "log",
  "pest",
  "pest-ast",
@@ -530,6 +531,18 @@ dependencies = [
  "snarkos-models",
  "snarkos-utilities",
  "thiserror",
+]
+
+[[package]]
+name = "leo-gadgets"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "rand_xorshift",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+ "snarkos-utilities",
 ]
 
 [[package]]

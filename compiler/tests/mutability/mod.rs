@@ -6,8 +6,10 @@ use leo_compiler::{
     types::{InputValue, Integer},
     ConstrainedValue,
 };
+use leo_gadgets::integers::uint32::UInt32;
+
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
+use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 

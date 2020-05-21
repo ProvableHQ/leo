@@ -5,13 +5,14 @@ use crate::{
     errors::IntegerError,
     types::Integer,
 };
+use leo_gadgets::integers::uint16::UInt16;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, eq::EqGadget, uint16::UInt16},
+        utilities::{alloc::AllocGadget, eq::EqGadget},
     },
 };
 

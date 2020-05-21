@@ -10,10 +10,11 @@ use crate::{
     },
     Variable,
 };
+use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {

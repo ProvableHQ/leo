@@ -4,13 +4,13 @@ use crate::{
     errors::ValueError,
     types::{Circuit, FieldElement, Function, Identifier, Integer, IntegerType, Type},
 };
+use leo_gadgets::integers::{
+    uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8,
+};
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
-    gadgets::utilities::{
-        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
-        uint8::UInt8,
-    },
+    gadgets::utilities::boolean::Boolean,
 };
 use std::fmt;
 
