@@ -8,11 +8,13 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
+    ConstrainedProgram<NativeF, F, CS>
+{
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -28,9 +30,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         scope: String,
         caller_scope: String,
         function_name: String,
-        expected_types: Vec<Type<F, G>>,
-        input: Expression<F, G>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        expected_types: Vec<Type<NativeF, F>>,
+        input: Expression<NativeF, F>,
+    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -55,9 +57,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         scope: String,
         caller_scope: String,
-        function: Function<F, G>,
-        inputs: Vec<Expression<F, G>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        function: Function<NativeF, F>,
+        inputs: Vec<Expression<NativeF, F>>,
+    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -116,10 +118,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         name: String,
         private: bool,
-        array_type: Type<F, G>,
+        array_type: Type<NativeF, F>,
         array_dimensions: Vec<usize>,
-        input_value: Option<InputValue<F, G>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        input_value: Option<InputValue<NativeF, F>>,
+    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -168,11 +170,11 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        _type: Type<F, G>,
+        _type: Type<NativeF, F>,
         name: String,
         private: bool,
-        input_value: Option<InputValue<F, G>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        input_value: Option<InputValue<NativeF, F>>,
+    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
@@ -180,9 +182,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Type::FieldElement => {
                 Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
-            Type::GroupElement => {
-                Ok(self.group_element_from_input(cs, name, private, input_value)?)
-            }
+            // Type::GroupElement => {
+            //     Ok(self.group_element_from_input(cs, name, private, input_value)?)
+            // }
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {
                 self.allocate_array(cs, name, private, *_type, dimensions, input_value)
@@ -195,9 +197,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Function<F, G>,
-        inputs: Vec<Option<InputValue<F, G>>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        function: Function<NativeF, F>,
+        inputs: Vec<Option<InputValue<NativeF, F>>>,
+    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -231,7 +233,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     pub(crate) fn resolve_definitions(
         &mut self,
         cs: &mut CS,
-        program: Program<F, G>,
+        program: Program<NativeF, F>,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

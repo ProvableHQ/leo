@@ -9,21 +9,23 @@ use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, eq::EqGadget},
     },
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
+    ConstrainedProgram<NativeF, F, CS>
+{
     pub(crate) fn u32_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
+    ) -> Result<ConstrainedValue<NativeF, F>, IntegerError> {
         // Type cast to integers.u32 in rust.
         // If this fails should we return our own error?
         let u32_option = integer_option.map(|integer| integer as u32);

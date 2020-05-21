@@ -9,18 +9,20 @@ use crate::{
 
 use from_pest::FromPest;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::env::current_dir;
 use std::fs;
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
+    ConstrainedProgram<NativeF, F, CS>
+{
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,
         scope: String,
-        import: Import<F, G>,
+        import: Import<NativeF, F>,
     ) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 
