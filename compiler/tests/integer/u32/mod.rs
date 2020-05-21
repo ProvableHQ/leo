@@ -8,7 +8,7 @@ use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/integer/u32/";
 
-fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
         ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(

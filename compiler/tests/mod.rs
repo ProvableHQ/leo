@@ -7,6 +7,7 @@ pub mod group_element;
 pub mod import;
 pub mod integer;
 pub mod mutability;
+pub mod statement;
 
 use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
 

@@ -170,7 +170,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Asserts
 
-assert_eq = {"assert_eq" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")"}
+assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")"}
 // assert_true = {"assert"}
 
 /// Conditionals
