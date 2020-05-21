@@ -60,23 +60,23 @@ pub enum ExpressionError {
     )]
     UndefinedCircuit(String),
 
-    #[error("Circuit object {} does not exist", _0)]
-    UndefinedCircuitObject(String),
-
     #[error("Cannot access circuit {}", _0)]
     InvalidCircuitAccess(String),
 
-    #[error("Expected circuit value {}", _0)]
-    ExpectedCircuitValue(String),
+    #[error("Expected circuit member {}", _0)]
+    ExpectedCircuitMember(String),
 
-    #[error("Circuit {} has no static function {}", _0, _1)]
-    UndefinedStaticFunction(String, String),
+    #[error("Circuit {} has no member {}", _0, _1)]
+    UndefinedMemberAccess(String, String),
 
-    #[error(
-        "Static access only supported for static circuit functions, got function {}",
-        _0
-    )]
-    InvalidStaticFunction(String),
+    #[error("Non-static member {} must be accessed using `.` syntax", _0)]
+    InvalidMemberAccess(String),
+
+    #[error("Circuit {} has no static member {}", _0, _1)]
+    UndefinedStaticAccess(String, String),
+
+    #[error("Static member {} must be accessed using `::` syntax", _0)]
+    InvalidStaticAccess(String),
 
     // Functions
     #[error(
@@ -85,7 +85,7 @@ pub enum ExpressionError {
     )]
     UndefinedFunction(String),
 
-    #[error("Cannot evaluate function call")]
+    #[error("{}", _0)]
     FunctionError(Box<FunctionError>),
 
     #[error("Inline function call to {} did not return", _0)]

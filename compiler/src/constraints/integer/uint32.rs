@@ -23,7 +23,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         private: bool,
         integer_option: Option<usize>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        // Type cast to u32 in rust.
+        // Type cast to integers.u32 in rust.
         // If this fails should we return our own error?
         let u32_option = integer_option.map(|integer| integer as u32);
 
@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         left: UInt32,
         right: UInt32,
     ) -> Result<(), IntegerError> {
-        Ok(left.enforce_equal(cs.ns(|| format!("enforce u32 equal")), &right)?)
+        Ok(left.enforce_equal(cs.ns(|| format!("enforce integers.u32 equal")), &right)?)
     }
 
     pub(crate) fn enforce_u32_add(

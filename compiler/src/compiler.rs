@@ -4,7 +4,7 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program
+    InputValue, Program,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -44,6 +44,10 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         Ok(program)
     }
 
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F, G>>>) {
+        self.program_inputs = program_inputs;
+    }
+
     pub fn checksum(&self) -> Result<String, CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
@@ -60,12 +64,8 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-    ) -> Result<ConstrainedValue<F, G>, SynthesisError> {
-        let result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
-
-        // Write results to file or something
-
-        Ok(result)
+    ) -> Result<ConstrainedValue<F, G>, CompilerError> {
+        generate_constraints(cs, self.program, self.program_inputs)
     }
 
     // pub fn compile(&self) -> Result<ast::File, CompilerError> {

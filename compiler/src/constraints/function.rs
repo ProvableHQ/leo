@@ -37,12 +37,16 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Expression::Identifier(identifier) => Ok(self.evaluate_identifier(
                 caller_scope,
                 function_name,
-                expected_types,
+                &expected_types,
                 identifier,
             )?),
-            expression => {
-                Ok(self.enforce_expression(cs, scope, function_name, expected_types, expression)?)
-            }
+            expression => Ok(self.enforce_expression(
+                cs,
+                scope,
+                function_name,
+                &expected_types,
+                expression,
+            )?),
         }
     }
 
@@ -176,6 +180,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             Type::FieldElement => {
                 Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
+            Type::GroupElement => {
+                Ok(self.group_element_from_input(cs, name, private, input_value)?)
+            }
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {
                 self.allocate_array(cs, name, private, *_type, dimensions, input_value)
@@ -202,7 +209,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             function.inputs.clone().into_iter().zip(inputs.into_iter())
         {
             let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-            let mut input_value = self.allocate_main_function_input(
+            let input_value = self.allocate_main_function_input(
                 cs,
                 input_model._type,
                 input_name.clone(),
@@ -210,14 +217,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 input_option,
             )?;
 
-            if input_model.mutable {
-                input_value = ConstrainedValue::Mutable(Box::new(input_value))
-            }
-
             // Store a new variable for every allocated main function input
             self.store(input_name.clone(), input_value);
 
-            input_variables.push(Expression::Identifier(Identifier::new(input_name)));
+            input_variables.push(Expression::Identifier(Identifier::new(
+                input_model.identifier.name.clone(),
+            )));
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)
