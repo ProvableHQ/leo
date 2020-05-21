@@ -50,7 +50,7 @@ impl MainFile {
         format!(
             r#"// The '{}' main function.
 function main() -> u32 {{
-    let a = 1 + 1;
+    let a: u32 = 1 + 1;
     return a
 }}
 "#,
