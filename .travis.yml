@@ -11,6 +11,7 @@ before_install:
   - export PATH="$PATH:$TRAVIS_HOME/.bin"
   - export RUSTC_WRAPPER="sccache"
   - openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in travis-snarkos.enc -out travis-snarkos -d
+  - git clone --progress --verbose git@github.com:AleoHQ/snarkOS.git ../
 
 cache:
   directories:
