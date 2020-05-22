@@ -14,10 +14,9 @@ pub struct ConstrainedProgram<
     P: std::clone::Clone + TEModelParameters,
     F: Field + PrimeField,
     FG: FieldGadget<P::BaseField, F>,
-    FF: FieldGadget<F, F>,
     CS: ConstraintSystem<F>,
 > {
-    pub identifiers: HashMap<String, ConstrainedValue<P, F, FG, FF>>,
+    pub identifiers: HashMap<String, ConstrainedValue<P, F, FG>>,
     pub _cs: PhantomData<CS>,
 }
 
@@ -29,9 +28,8 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub fn new() -> Self {
         Self {
@@ -40,15 +38,15 @@ impl<
         }
     }
 
-    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<P, F, FG, FF>) {
+    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<P, F, FG>) {
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<P, F, FG, FF>> {
+    pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<P, F, FG>> {
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<P, F, FG, FF>> {
+    pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<P, F, FG>> {
         self.identifiers.get_mut(name)
     }
 }

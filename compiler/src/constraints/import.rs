@@ -21,9 +21,8 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub fn enforce_import(
         &mut self,

@@ -14,20 +14,20 @@ use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
-fn mut_success(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
+fn mut_success(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
             ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))
         ]),
         output
     );
 }
 
-fn mut_fail(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
+fn mut_fail(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let err = program.compile_constraints(&mut cs).unwrap_err();
 

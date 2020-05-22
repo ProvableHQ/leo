@@ -18,9 +18,8 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
@@ -39,7 +38,7 @@ impl<
         function_name: String,
         expected_types: Vec<Type<P::BaseField, F>>,
         input: Expression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FunctionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -66,7 +65,7 @@ impl<
         caller_scope: String,
         function: Function<P::BaseField, F>,
         inputs: Vec<Expression<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FunctionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -128,7 +127,7 @@ impl<
         array_type: Type<P::BaseField, F>,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FunctionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -181,7 +180,7 @@ impl<
         name: String,
         private: bool,
         input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FunctionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
@@ -206,7 +205,7 @@ impl<
         scope: String,
         function: Function<P::BaseField, F>,
         inputs: Vec<Option<InputValue<P::BaseField, F>>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FunctionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs

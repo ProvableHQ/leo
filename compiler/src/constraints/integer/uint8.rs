@@ -22,9 +22,8 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub(crate) fn u8_from_input(
         &mut self,
@@ -32,7 +31,7 @@ impl<
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         // Type cast to u8 in rust.
         // If this fails should we return our own error?
         let u8_option = integer_option.map(|integer| integer as u8);

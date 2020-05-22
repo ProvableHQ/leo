@@ -46,13 +46,12 @@ pub fn generate_constraints<
     P: std::clone::Clone + TEModelParameters,
     F: Field + PrimeField,
     FG: FieldGadget<P::BaseField, F>,
-    FF: FieldGadget<F, F>,
     CS: ConstraintSystem<F>,
 >(
     cs: &mut CS,
     program: Program<P::BaseField, F>,
     parameters: Vec<Option<InputValue<P::BaseField, F>>>,
-) -> Result<ConstrainedValue<P, F, FG, FF>, CompilerError> {
+) -> Result<ConstrainedValue<P, F, FG>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

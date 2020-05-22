@@ -79,18 +79,17 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
-    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<P, F, FG, FF> {
+    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<P, F, FG> {
         ConstrainedValue::Integer(integer)
     }
 
     pub(crate) fn evaluate_integer_eq(
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Boolean(Boolean::Constant(
             match (left, right) {
                 (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.eq(&right_u8),
@@ -115,7 +114,7 @@ impl<
         name: String,
         private: bool,
         integer_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         // Check that the input value is the correct type
         let integer_option = match integer_value {
             Some(input) => {
@@ -171,7 +170,7 @@ impl<
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_add(cs, left_u8, right_u8)?)
@@ -197,7 +196,7 @@ impl<
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_sub(cs, left_u8, right_u8)?)
@@ -223,7 +222,7 @@ impl<
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_mul(cs, left_u8, right_u8)?)
@@ -249,7 +248,7 @@ impl<
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_div(cs, left_u8, right_u8)?)
@@ -275,7 +274,7 @@ impl<
         cs: &mut CS,
         left: Integer,
         right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
         Ok(ConstrainedValue::Integer(match (left, right) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 Integer::U8(Self::enforce_u8_pow(cs, left_u8, right_u8)?)

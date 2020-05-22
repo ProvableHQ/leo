@@ -66,7 +66,7 @@ impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldG
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = leo_compiler::generate_constraints::<P, F, FG, FF, CS>(cs, self.program, self.program_inputs).unwrap();
+        let _res = leo_compiler::generate_constraints::<P, F, FG, CS>(cs, self.program, self.program_inputs).unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something

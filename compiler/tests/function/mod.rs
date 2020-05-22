@@ -11,19 +11,19 @@ use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
 
-pub(crate) fn output_empty(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
+pub(crate) fn output_empty(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![]),
         output
     );
 }
 
 // (true, false)
-pub(crate) fn output_multiple(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
+pub(crate) fn output_multiple(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
             ConstrainedValue::Boolean(Boolean::Constant(true)),
             ConstrainedValue::Boolean(Boolean::Constant(false))
         ]),
@@ -31,7 +31,7 @@ pub(crate) fn output_multiple(program: Compiler<EdwardsParameters, Fq, FqGadget,
     )
 }
 
-fn fail_undefined_identifier(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
+fn fail_undefined_identifier(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),

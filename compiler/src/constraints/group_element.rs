@@ -14,15 +14,14 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub(crate) fn get_group_element_pair(
         cs: &mut CS,
         x: P::BaseField,
         y: P::BaseField,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, GroupElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, GroupElementError> {
         let x = FG::alloc(cs.ns(|| "x"), || Ok(x))?;
         let y = FG::alloc(cs.ns(|| "y"), || Ok(y))?;
 
@@ -35,7 +34,7 @@ impl<
     //     _name: String,
     //     _private: bool,
     //     input_value: Option<InputValue<NativeF, F>>,
-    // ) -> Result<ConstrainedValue<P, F, FG, FF>, GroupElementError> {
+    // ) -> Result<ConstrainedValue<P, F, FG>, GroupElementError> {
     //     // Check that the parameter value is the correct type
     //     // let group_option = match input_value {
     //     //     Some(input) => {
@@ -74,7 +73,7 @@ impl<
     pub fn evaluate_group_eq(
         group_element_1: AffineGadget<P, F, FG>,
         group_element_2: AffineGadget<P, F, FG>,
-    ) -> ConstrainedValue<P, F, FG, FF> {
+    ) -> ConstrainedValue<P, F, FG> {
         ConstrainedValue::Boolean(Boolean::constant(group_element_1.eq(&group_element_2)))
     }
 
@@ -82,7 +81,7 @@ impl<
         cs: &mut CS,
         group_element_1: AffineGadget<P, F, FG>,
         group_element_2: AffineGadget<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, GroupElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, GroupElementError> {
         let result = GroupGadget::<GroupAffine<P>, F>::add(
             &group_element_1,
             cs.ns(|| "group add"),
@@ -95,7 +94,7 @@ impl<
         cs: &mut CS,
         group_element_1: AffineGadget<P, F, FG>,
         group_element_2: AffineGadget<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, GroupElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, GroupElementError> {
         let result = GroupGadget::<GroupAffine<P>, F>::sub(
             &group_element_1,
             cs.ns(|| "group sub"),

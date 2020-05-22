@@ -8,7 +8,8 @@ use crate::{
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
+use snarkos_models::gadgets::curves::{FieldGadget, FpGadget};
+use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -18,12 +19,12 @@ use std::fmt;
 
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
-pub enum FieldElement<F: Field + PrimeField, FF: FieldGadget<F, F>> {
+pub enum FieldElement<F: Field + PrimeField> {
     Constant(F),
-    Allocated(FF),
+    Allocated(FpGadget<F>),
 }
 
-impl<F: Field + PrimeField, FF: FieldGadget<F, F>> FieldElement<F, FF> {
+impl<F: Field + PrimeField> FieldElement<F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             FieldElement::Constant(ref constant) => write!(f, "{}", constant),
@@ -32,13 +33,13 @@ impl<F: Field + PrimeField, FF: FieldGadget<F, F>> FieldElement<F, FF> {
     }
 }
 
-impl<F: Field + PrimeField, FF: FieldGadget<F, F>> fmt::Display for FieldElement<F, FF> {
+impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<F: Field + PrimeField, FF: FieldGadget<F, F>> fmt::Debug for FieldElement<F, FF> {
+impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
@@ -48,9 +49,8 @@ impl<
         P: std::clone::Clone + TEModelParameters,
         F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, FF, CS>
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub(crate) fn field_element_from_input(
         &mut self,
@@ -58,7 +58,7 @@ impl<
         name: String,
         private: bool,
         input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         // Check that the parameter value is the correct type
         let field_option = match input_value {
             Some(input) => {
@@ -73,11 +73,11 @@ impl<
 
         // Check visibility of parameter
         let field_value = if private {
-            FF::alloc(&mut cs.ns(|| name), || {
+            FpGadget::<F>::alloc(&mut cs.ns(|| name), || {
                 field_option.ok_or(SynthesisError::AssignmentMissing)
             })?
         } else {
-            FF::alloc_input(&mut cs.ns(|| name), || {
+            FpGadget::<F>::alloc_input(&mut cs.ns(|| name), || {
                 field_option.ok_or(SynthesisError::AssignmentMissing)
             })?
         };
@@ -87,7 +87,7 @@ impl<
         )))
     }
 
-    pub(crate) fn get_field_element_constant(constant: F) -> ConstrainedValue<P, F, FG, FF> {
+    pub(crate) fn get_field_element_constant(constant: F) -> ConstrainedValue<P, F, FG> {
         ConstrainedValue::FieldElement(FieldElement::Constant(constant))
     }
 
@@ -112,9 +112,9 @@ impl<
     // }
 
     pub(crate) fn evaluate_field_eq(
-        fe_1: FieldElement<F, FF>,
-        fe_2: FieldElement<F, FF>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+        fe_1: FieldElement<F>,
+        fe_2: FieldElement<F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         let result = match (fe_1, fe_2) {
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
                 fe_1_constant.eq(&fe_2_constant)
@@ -130,9 +130,9 @@ impl<
 
     pub(crate) fn enforce_field_add(
         cs: &mut CS,
-        fe_1: FieldElement<F, FF>,
-        fe_2: FieldElement<F, FF>,
-    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+        fe_1: FieldElement<F>,
+        fe_2: FieldElement<F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
                 FieldElement::Constant(fe_1_constant.add(&fe_2_constant))
@@ -153,7 +153,7 @@ impl<
     //     cs: &mut CS,
     //     fe_1: FieldElement<P, F, FG, FF>,
     //     fe_2: FieldElement<P, F, FG, FF>
-    // ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
     //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
     //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
     //             FieldElement::Constant(fe_1_constant.sub(&fe_2_constant))
@@ -172,7 +172,7 @@ impl<
     //     cs: &mut CS,
     //     fe_1: FieldElement<P, F, FG, FF>,
     //     fe_2: FieldElement<P, F, FG, FF>
-    // ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
     //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
     //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
     //             FieldElement::Constant(fe_1_constant.mul(&fe_2_constant))
