@@ -218,7 +218,7 @@ impl<
                 Ok(Self::evaluate_integer_eq(num_1, num_2)?)
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                Ok(Self::evaluate_field_eq(fe_1, fe_2)?)
+                Ok(Self::evaluate_field_eq(fe_1, fe_2))
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Ok(Self::evaluate_group_eq(ge_1, ge_2))
@@ -244,9 +244,9 @@ impl<
         right: ConstrainedValue<P, F, FG>,
     ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_geq(fe_1, fe_2)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::evaluate_field_geq(fe_1, fe_2))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_geq_expression(val_1, val_2)
@@ -268,9 +268,9 @@ impl<
         right: ConstrainedValue<P, F, FG>,
     ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_gt(fe_1, fe_2)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::evaluate_field_gt(fe_1, fe_2))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_gt_expression(val_1, val_2)
@@ -292,9 +292,9 @@ impl<
         right: ConstrainedValue<P, F, FG>,
     ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_leq(fe_1, fe_2)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::evaluate_field_leq(fe_1, fe_2))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_leq_expression(val_1, val_2)
@@ -316,9 +316,9 @@ impl<
         right: ConstrainedValue<P, F, FG>,
     ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_lt(fe_1, fe_2)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::evaluate_field_lt(fe_1, fe_2))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_lt_expression(val_1, val_2)
