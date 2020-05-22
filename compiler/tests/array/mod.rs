@@ -8,15 +8,16 @@ use leo_compiler::{
 };
 use leo_gadgets::integers::uint32::UInt32;
 
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
-fn output_ones(program: Compiler<Fr, EdwardsProjective>) {
+fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
             vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32))); 3]
         )]),
         output
@@ -25,10 +26,11 @@ fn output_ones(program: Compiler<Fr, EdwardsProjective>) {
 
 // [[0, 0, 0],
 //  [0, 0, 0]]
-fn output_multi(program: Compiler<Fr, EdwardsProjective>) {
+fn output_multi(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
+            vec![
                 ConstrainedValue::Array(vec![
                     ConstrainedValue::Integer(Integer::U32(
                         UInt32::constant(0u32)
@@ -36,19 +38,20 @@ fn output_multi(program: Compiler<Fr, EdwardsProjective>) {
                     3
                 ]);
                 2
-            ])]),
+            ]
+        )]),
         output
     )
 }
 
-fn fail_array(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_array(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::SynthesisError(_string),

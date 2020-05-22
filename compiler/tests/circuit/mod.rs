@@ -14,15 +14,16 @@ use leo_compiler::{
 };
 use leo_gadgets::integers::uint32::UInt32;
 
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";
 
 // Circ { x: 1u32 }
-fn output_circuit(program: Compiler<Fr, EdwardsProjective>) {
+fn output_circuit(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
             ConstrainedValue::CircuitExpression(
                 Identifier::new("Circ".into()),
                 vec![ConstrainedCircuitMember(
@@ -35,7 +36,7 @@ fn output_circuit(program: Compiler<Fr, EdwardsProjective>) {
     );
 }
 
-fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_expected_member(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
@@ -44,7 +45,7 @@ fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_undefined_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_undefined_member(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
@@ -154,7 +155,7 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
             ConstrainedValue::CircuitExpression(
                 Identifier::new("Circ".into()),
                 vec![ConstrainedCircuitMember(

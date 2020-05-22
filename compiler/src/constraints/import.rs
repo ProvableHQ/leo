@@ -8,6 +8,8 @@ use crate::{
 };
 
 use from_pest::FromPest;
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -15,14 +17,18 @@ use snarkos_models::{
 use std::env::current_dir;
 use std::fs;
 
-impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
-    ConstrainedProgram<NativeF, F, CS>
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,
         scope: String,
-        import: Import<NativeF, F>,
+        import: Import<P::BaseField, F>,
     ) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 

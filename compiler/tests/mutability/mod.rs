@@ -8,26 +8,27 @@ use leo_compiler::{
 };
 use leo_gadgets::integers::uint32::UInt32;
 
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
-fn mut_success(program: Compiler<Fr, EdwardsProjective>) {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+fn mut_success(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(0))
-        )]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))
+        ]),
         output
     );
 }
 
-fn mut_fail(program: Compiler<Fr, EdwardsProjective>) {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+fn mut_fail(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let err = program.compile_constraints(&mut cs).unwrap_err();
 
     // It would be ideal if assert_eq!(Error1, Error2) were possible but unfortunately it is not due to

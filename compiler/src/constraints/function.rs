@@ -7,13 +7,19 @@ use crate::{
     types::{Expression, Function, Identifier, InputValue, Program, Type},
 };
 
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
-    ConstrainedProgram<NativeF, F, CS>
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<P, F, FG, CS>
 {
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
@@ -30,9 +36,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         scope: String,
         caller_scope: String,
         function_name: String,
-        expected_types: Vec<Type<NativeF, F>>,
-        input: Expression<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
+        expected_types: Vec<Type<P::BaseField, F>>,
+        input: Expression<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -57,9 +63,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         scope: String,
         caller_scope: String,
-        function: Function<NativeF, F>,
-        inputs: Vec<Expression<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
+        function: Function<P::BaseField, F>,
+        inputs: Vec<Expression<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -118,10 +124,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         name: String,
         private: bool,
-        array_type: Type<NativeF, F>,
+        array_type: Type<P::BaseField, F>,
         array_dimensions: Vec<usize>,
-        input_value: Option<InputValue<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
+        input_value: Option<InputValue<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -170,11 +176,11 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        _type: Type<NativeF, F>,
+        _type: Type<P::BaseField, F>,
         name: String,
         private: bool,
-        input_value: Option<InputValue<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
+        input_value: Option<InputValue<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
@@ -197,9 +203,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Function<NativeF, F>,
-        inputs: Vec<Option<InputValue<NativeF, F>>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FunctionError> {
+        function: Function<P::BaseField, F>,
+        inputs: Vec<Option<InputValue<P::BaseField, F>>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -233,7 +239,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     pub(crate) fn resolve_definitions(
         &mut self,
         cs: &mut CS,
-        program: Program<NativeF, F>,
+        program: Program<P::BaseField, F>,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

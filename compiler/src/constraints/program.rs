@@ -2,14 +2,21 @@
 
 use crate::constraints::ConstrainedValue;
 
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::{collections::HashMap, marker::PhantomData};
 
-pub struct ConstrainedProgram<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>> {
-    pub identifiers: HashMap<String, ConstrainedValue<NativeF, F>>,
+pub struct ConstrainedProgram<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+    CS: ConstraintSystem<F>,
+> {
+    pub identifiers: HashMap<String, ConstrainedValue<P, F, FG>>,
     pub _cs: PhantomData<CS>,
 }
 
@@ -17,8 +24,12 @@ pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
 
-impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
-    ConstrainedProgram<NativeF, F, CS>
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub fn new() -> Self {
         Self {
@@ -27,15 +38,15 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         }
     }
 
-    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<NativeF, F>) {
+    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<P, F, FG>) {
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<NativeF, F>> {
+    pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<P, F, FG>> {
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<NativeF, F>> {
+    pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<P, F, FG>> {
         self.identifiers.get_mut(name)
     }
 }

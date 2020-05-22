@@ -35,16 +35,23 @@ use crate::{
     types::{InputValue, Program},
 };
 
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn generate_constraints<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+    CS: ConstraintSystem<F>,
+>(
     cs: &mut CS,
-    program: Program<NativeF, F>,
-    parameters: Vec<Option<InputValue<NativeF, F>>>,
-) -> Result<ConstrainedValue<NativeF, F>, CompilerError> {
+    program: Program<P::BaseField, F>,
+    parameters: Vec<Option<InputValue<P::BaseField, F>>>,
+) -> Result<ConstrainedValue<P, F, FG>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

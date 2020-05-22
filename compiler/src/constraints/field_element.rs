@@ -7,21 +7,27 @@ use crate::{
 };
 
 use snarkos_errors::gadgets::SynthesisError;
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, LinearCombination, Variable as R1CSVariable},
 };
 
-impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
-    ConstrainedProgram<NativeF, F, CS>
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<P, F, FG, CS>
 {
     pub(crate) fn field_element_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
-        input_value: Option<InputValue<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+        input_value: Option<InputValue<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         // Check that the parameter value is the correct type
         let field_option = match input_value {
             Some(input) => {
@@ -53,7 +59,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         )))
     }
 
-    pub(crate) fn get_field_element_constant(fe: FieldElement<F>) -> ConstrainedValue<NativeF, F> {
+    pub(crate) fn get_field_element_constant(fe: FieldElement<F>) -> ConstrainedValue<P, F, FG> {
         ConstrainedValue::FieldElement(fe)
     }
 
@@ -126,7 +132,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -203,7 +209,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -280,7 +286,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -357,7 +363,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
@@ -445,7 +451,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         fe_1: FieldElement<F>,
         num: Integer,
-    ) -> Result<ConstrainedValue<NativeF, F>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
         Ok(match fe_1 {
             // if both constants, then return a constant result
             FieldElement::Constant(fe_1_constant) => ConstrainedValue::FieldElement(

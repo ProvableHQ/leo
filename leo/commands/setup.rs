@@ -8,9 +8,10 @@ use snarkos_algorithms::snark::{
     generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey,
 };
 use snarkos_curves::{
-    bls12_377::{Bls12_377, Fr},
-    edwards_bls12::EdwardsProjective
+    bls12_377::{Bls12_377},
 };
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_utilities::bytes::ToBytes;
 
 use clap::ArgMatches;
@@ -25,7 +26,7 @@ pub struct SetupCommand;
 impl CLI for SetupCommand {
     type Options = ();
     type Output = (
-        Compiler<Fr, EdwardsProjective>,
+        Compiler<EdwardsParameters, Fq, FqGadget>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );

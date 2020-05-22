@@ -11,29 +11,29 @@ pub mod statement;
 
 use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
 
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
 pub(crate) fn get_output(
-    program: Compiler<Fr, EdwardsProjective>,
-) -> ConstrainedValue<Fr, EdwardsProjective> {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+    program: Compiler<EdwardsParameters, Fq, FqGadget>,
+) -> ConstrainedValue<EdwardsParameters, Fq, FqGadget> {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());
     output
 }
 
-pub(crate) fn get_error(program: Compiler<Fr, EdwardsProjective>) -> CompilerError {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+pub(crate) fn get_error(program: Compiler<EdwardsParameters, Fq, FqGadget>) -> CompilerError {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     program.compile_constraints(&mut cs).unwrap_err()
 }
 
 pub(crate) fn compile_program(
     directory_name: &str,
     file_name: &str,
-) -> Result<Compiler<Fr, EdwardsProjective>, CompilerError> {
+) -> Result<Compiler<EdwardsParameters, Fq, FqGadget>, CompilerError> {
     let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory
@@ -50,5 +50,5 @@ pub(crate) fn compile_program(
     println!("Compiling file - {:?}", main_file_path);
 
     // Compile from the main file path
-    Compiler::<Fr, EdwardsProjective>::init(file_name.to_string(), main_file_path)
+    Compiler::<EdwardsParameters, Fq, FqGadget>::init(file_name.to_string(), main_file_path)
 }

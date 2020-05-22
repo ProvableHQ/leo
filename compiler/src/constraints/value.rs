@@ -8,6 +8,9 @@ use leo_gadgets::integers::{
     uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8,
 };
 
+use snarkos_gadgets::curves::templates::twisted_edwards::AffineGadget;
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::utilities::boolean::Boolean,
@@ -15,45 +18,64 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<NativeF: Field, F: Field + PrimeField>(
-    pub Identifier<NativeF, F>,
-    pub ConstrainedValue<NativeF, F>,
+pub struct ConstrainedCircuitMember<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+>(
+    pub Identifier<P::BaseField, F>,
+    pub ConstrainedValue<P, F, FG>,
 );
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConstrainedValue<NativeF: Field, F: Field + PrimeField> {
+pub enum ConstrainedValue<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+> {
     Integer(Integer),
     FieldElement(FieldElement<F>),
-    GroupElement(NativeF, NativeF),
+    GroupElement(AffineGadget<P, F, FG>),
     Boolean(Boolean),
 
-    Array(Vec<ConstrainedValue<NativeF, F>>),
+    Array(Vec<ConstrainedValue<P, F, FG>>),
 
-    CircuitDefinition(Circuit<NativeF, F>),
+    CircuitDefinition(Circuit<P::BaseField, F>),
     CircuitExpression(
-        Identifier<NativeF, F>,
-        Vec<ConstrainedCircuitMember<NativeF, F>>,
+        Identifier<P::BaseField, F>,
+        Vec<ConstrainedCircuitMember<P, F, FG>>,
     ),
 
-    Function(Option<Identifier<NativeF, F>>, Function<NativeF, F>), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<NativeF, F>>),
+    Function(
+        Option<Identifier<P::BaseField, F>>,
+        Function<P::BaseField, F>,
+    ), // (optional circuit identifier, function definition)
+    Return(Vec<ConstrainedValue<P, F, FG>>),
 
-    Mutable(Box<ConstrainedValue<NativeF, F>>),
-    Static(Box<ConstrainedValue<NativeF, F>>),
+    Mutable(Box<ConstrainedValue<P, F, FG>>),
+    Static(Box<ConstrainedValue<P, F, FG>>),
     Unresolved(String),
 }
 
-impl<NativeF: Field, F: Field + PrimeField> ConstrainedValue<NativeF, F> {
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+    > ConstrainedValue<P, F, FG>
+{
     pub(crate) fn from_other(
         value: String,
-        other: &ConstrainedValue<NativeF, F>,
+        other: &ConstrainedValue<P, F, FG>,
     ) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
         ConstrainedValue::from_type(value, &other_type)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type<NativeF, F>) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(
+        value: String,
+        _type: &Type<P::BaseField, F>,
+    ) -> Result<Self, ValueError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
@@ -65,10 +87,9 @@ impl<NativeF: Field, F: Field + PrimeField> ConstrainedValue<NativeF, F> {
             Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
             ))),
-            Type::GroupElement => Ok(ConstrainedValue::GroupElement(
-                NativeF::default(),
-                NativeF::zero(),
-            )),
+            // Type::GroupElement => Ok(ConstrainedValue::GroupElement(
+            //     unimplemented!()
+            // )),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
             ))),
@@ -77,17 +98,20 @@ impl<NativeF: Field, F: Field + PrimeField> ConstrainedValue<NativeF, F> {
         }
     }
 
-    pub(crate) fn to_type(&self) -> Type<NativeF, F> {
+    pub(crate) fn to_type(&self) -> Type<P::BaseField, F> {
         match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
             ConstrainedValue::FieldElement(_field) => Type::FieldElement,
-            ConstrainedValue::GroupElement(_x, _y) => Type::GroupElement,
+            ConstrainedValue::GroupElement(_group) => Type::GroupElement,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
             _ => unimplemented!("to type only implemented for primitives"),
         }
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type<NativeF, F>>) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(
+        &mut self,
+        types: &Vec<Type<P::BaseField, F>>,
+    ) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if !types.is_empty() {
                 *self = ConstrainedValue::from_type(string.clone(), &types[0])?
@@ -104,12 +128,17 @@ impl<NativeF: Field, F: Field + PrimeField> ConstrainedValue<NativeF, F> {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConstrainedValue<NativeF, F> {
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+    > fmt::Display for ConstrainedValue<P, F, FG>
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
             ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
-            ConstrainedValue::GroupElement(ref x, ref y) => write!(f, "({}, {})", x, y),
+            ConstrainedValue::GroupElement(ref group) => write!(f, "{:?}", group),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
@@ -154,7 +183,12 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConstrainedValue<Na
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Debug for ConstrainedValue<NativeF, F> {
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+    > fmt::Debug for ConstrainedValue<P, F, FG>
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

@@ -1,37 +1,38 @@
 use crate::{compile_program, get_error, get_output};
-
 use leo_compiler::errors::FieldElementError;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::curves::Field;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
+fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fr::zero())
-        )]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::FieldElement(FieldElement::Constant(Fq::zero()))
+        ]),
         output
     );
 }
 
-fn output_one(program: Compiler<Fr, EdwardsProjective>) {
+fn output_one(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fr::one())
-        )]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::FieldElement(FieldElement::Constant(Fq::one()))
+        ]),
         output
     );
 }
 
-fn fail_field(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -40,7 +41,7 @@ fn fail_field(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),

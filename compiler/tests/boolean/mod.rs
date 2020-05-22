@@ -6,32 +6,34 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError, StatementError},
     ConstrainedValue, InputValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/boolean/";
 
-fn output_true(program: Compiler<Fr, EdwardsProjective>) {
+fn output_true(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(
-            Boolean::Constant(true)
-        )]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::Boolean(Boolean::Constant(true))
+        ]),
         output
     );
 }
 
-fn output_false(program: Compiler<Fr, EdwardsProjective>) {
+fn output_false(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(
-            Boolean::Constant(false)
-        )]),
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::Boolean(Boolean::Constant(false))
+        ]),
         output
     );
 }
 
-fn fail_evaluate(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_evaluate(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::BooleanError(
@@ -42,7 +44,7 @@ fn fail_evaluate(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_enforce(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_enforce(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::BooleanError(
@@ -53,7 +55,7 @@ fn fail_enforce(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_boolean(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_boolean(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::BooleanError(
             BooleanError::InvalidBoolean(_string),
@@ -62,7 +64,7 @@ fn fail_boolean(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::BooleanError(
             BooleanError::SynthesisError(_string),

@@ -11,6 +11,8 @@ use crate::{
     Integer, IntegerType, Type,
 };
 
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -19,17 +21,21 @@ use snarkos_models::{
     },
 };
 
-impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
-    ConstrainedProgram<NativeF, F, CS>
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<P, F, FG, CS>
 {
     /// Enforce a variable expression by getting the resolved value
     pub(crate) fn evaluate_identifier(
         &mut self,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        unresolved_identifier: Identifier<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        unresolved_identifier: Identifier<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
@@ -55,9 +61,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn enforce_add_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_add(cs, num_1, num_2)?)
@@ -65,9 +71,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_add(cs, fe_1, fe_2)?)
             }
-            // (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-            //     Ok(Self::evaluate_group_add(ge_1, ge_2))
-            // }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Ok(Self::evaluate_group_add(cs, ge_1, ge_2)?)
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_add_expression(cs, val_1, val_2)
@@ -86,9 +92,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn enforce_sub_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_sub(cs, num_1, num_2)?)
@@ -96,9 +102,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_sub(cs, fe_1, fe_2)?)
             }
-            // (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-            //     Ok(Self::evaluate_group_sub(ge_1, ge_2))
-            // }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Ok(Self::evaluate_group_sub(cs, ge_1, ge_2)?)
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_sub_expression(cs, val_1, val_2)
@@ -117,9 +123,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn enforce_mul_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_mul(cs, num_1, num_2)?)
@@ -127,9 +133,6 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_mul(cs, fe_1, fe_2)?)
             }
-            // (ConstrainedValue::GroupElement(group), ConstrainedValue::FieldElement(scalar)) => {
-            //     Ok(Self::evaluate_group_mul(group, scalar))
-            // }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_mul_expression(cs, val_1, val_2)
@@ -150,9 +153,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn enforce_div_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_div(cs, num_1, num_2)?)
@@ -179,9 +182,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     fn enforce_pow_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_pow(cs, num_1, num_2)?)
@@ -210,9 +213,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     /// Evaluate Boolean operations
     fn evaluate_eq_expression(
         &mut self,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Ok(Self::boolean_eq(bool_1, bool_2))
@@ -223,9 +226,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_eq(fe_1, fe_2)
             // }
-            // (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-            //     Ok(Self::evaluate_group_eq(ge_1, ge_2))
-            // }
+            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
+                Ok(Self::evaluate_group_eq(ge_1, ge_2))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_eq_expression(val_1, val_2)
@@ -243,9 +246,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
 
     fn evaluate_geq_expression(
         &mut self,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_geq(fe_1, fe_2)
@@ -267,9 +270,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
 
     fn evaluate_gt_expression(
         &mut self,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_gt(fe_1, fe_2)
@@ -291,9 +294,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
 
     fn evaluate_leq_expression(
         &mut self,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_leq(fe_1, fe_2)
@@ -315,9 +318,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
 
     fn evaluate_lt_expression(
         &mut self,
-        left: ConstrainedValue<NativeF, F>,
-        right: ConstrainedValue<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        left: ConstrainedValue<P, F, FG>,
+        right: ConstrainedValue<P, F, FG>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match (left, right) {
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_lt(fe_1, fe_2)
@@ -343,11 +346,11 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        first: Expression<NativeF, F>,
-        second: Expression<NativeF, F>,
-        third: Expression<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        first: Expression<P::BaseField, F>,
+        second: Expression<P::BaseField, F>,
+        third: Expression<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let resolved_first = match self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -394,9 +397,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        array: Vec<Box<SpreadOrExpression<NativeF, F>>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        array: Vec<Box<SpreadOrExpression<P::BaseField, F>>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         // Check explicit array type dimension if given
         let mut expected_types = expected_types.clone();
         let expected_dimensions = vec![];
@@ -458,7 +461,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Expression<NativeF, F>,
+        index: Expression<P::BaseField, F>,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
         match self.enforce_branch(
@@ -478,10 +481,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        array: Box<Expression<NativeF, F>>,
-        index: RangeOrExpression<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        array: Box<Expression<P::BaseField, F>>,
+        index: RangeOrExpression<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let array = match self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -519,9 +522,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        identifier: Identifier<NativeF, F>,
-        members: Vec<CircuitFieldDefinition<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        identifier: Identifier<P::BaseField, F>,
+        members: Vec<CircuitFieldDefinition<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
 
         if identifier.is_self() {
@@ -593,10 +596,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        circuit_identifier: Box<Expression<NativeF, F>>,
-        circuit_member: Identifier<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        circuit_identifier: Box<Expression<P::BaseField, F>>,
+        circuit_member: Identifier<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let (circuit_name, members) = match self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -654,10 +657,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        circuit_identifier: Box<Expression<NativeF, F>>,
-        circuit_member: Identifier<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        circuit_identifier: Box<Expression<P::BaseField, F>>,
+        circuit_member: Identifier<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         // Get defined circuit
         let circuit = match self.enforce_expression(
             cs,
@@ -708,10 +711,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        function: Box<Expression<NativeF, F>>,
-        arguments: Vec<Expression<NativeF, F>>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        function: Box<Expression<P::BaseField, F>>,
+        arguments: Vec<Expression<P::BaseField, F>>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let function_value = self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -747,9 +750,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
     }
 
     pub(crate) fn enforce_number_implicit(
-        expected_types: &Vec<Type<NativeF, F>>,
+        expected_types: &Vec<Type<P::BaseField, F>>,
         value: String,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         if expected_types.len() == 1 {
             return Ok(ConstrainedValue::from_type(value, &expected_types[0])?);
         }
@@ -765,9 +768,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        expression: Expression<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        expression: Expression<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         let mut branch =
             self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
 
@@ -782,10 +785,10 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        left: Expression<NativeF, F>,
-        right: Expression<NativeF, F>,
-    ) -> Result<(ConstrainedValue<NativeF, F>, ConstrainedValue<NativeF, F>), ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        left: Expression<P::BaseField, F>,
+        right: Expression<P::BaseField, F>,
+    ) -> Result<(ConstrainedValue<P, F, FG>, ConstrainedValue<P, F, FG>), ExpressionError> {
         let resolved_left = self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -809,9 +812,9 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<NativeF, F>>,
-        expression: Expression<NativeF, F>,
-    ) -> Result<ConstrainedValue<NativeF, F>, ExpressionError> {
+        expected_types: &Vec<Type<P::BaseField, F>>,
+        expression: Expression<P::BaseField, F>,
+    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => self.evaluate_identifier(
@@ -824,7 +827,7 @@ impl<NativeF: Field, F: Field + PrimeField, CS: ConstraintSystem<F>>
             // Values
             Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
             Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
-            Expression::GroupElement(x, y) => unimplemented!(),
+            Expression::GroupElement(x, y) => Ok(Self::get_group_element_pair(cs, x, y)?),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 

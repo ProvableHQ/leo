@@ -5,10 +5,9 @@ use rand::thread_rng;
 use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_curves::edwards_bls12::EdwardsProjective;
+use snarkos_curves::bls12_377::{Bls12_377};
+use snarkos_curves::edwards_bls12::{Fq, EdwardsParameters};
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::Group;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
@@ -18,22 +17,27 @@ use std::{
     marker::PhantomData,
     time::{Duration, Instant},
 };
+use snarkos_models::gadgets::curves::FieldGadget;
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_models::curves::TEModelParameters;
 
 #[derive(Clone)]
-pub struct Benchmark<F: Field + PrimeField, G: Group> {
-    program: Program<F, G>,
-    parameters: Vec<Option<InputValue<F, G>>>,
-    _group: PhantomData<G>,
+pub struct Benchmark<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> {
+    program: Program<P::BaseField, F>,
+    program_inputs: Vec<Option<InputValue<P::BaseField, F>>>,
+    _params: PhantomData<P>,
     _engine: PhantomData<F>,
+    _point: PhantomData<FG>,
 }
 
-impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
+impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> Benchmark<P, F, FG> {
     pub fn new() -> Self {
         Self {
             program: Program::new(),
-            parameters: vec![],
-            _group: PhantomData,
+            program_inputs: vec![],
+            _params: PhantomData,
             _engine: PhantomData,
+            _point: PhantomData
         }
     }
 
@@ -48,8 +52,8 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
 
         // Build a leo program from the syntax tree
-        self.program = Program::<F, G>::from(syntax_tree, "simple".into());
-        self.parameters = vec![None; self.program.num_parameters];
+        self.program = Program::<P::BaseField, F>::from(syntax_tree, "simple".into());
+        self.program_inputs = vec![None; self.program.num_parameters];
 
         println!(" compiled: {:#?}\n", self.program);
 
@@ -57,12 +61,12 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, G> {
+impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> ConstraintSynthesizer<F> for Benchmark<P, F, FG> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
+        let _res = leo_compiler::generate_constraints::<P, F, FG, CS>(cs, self.program, self.program_inputs).unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something
@@ -81,7 +85,7 @@ fn main() {
     let start = Instant::now();
 
     // Load and compile program
-    let mut program = Benchmark::<Fr, EdwardsProjective>::new();
+    let mut program = Benchmark::<EdwardsParameters, Fq, FqGadget>::new();
     program.evaluate_program().unwrap();
 
     // Generate proof parameters
@@ -125,14 +129,4 @@ fn main() {
     );
     println!("  Verifier output : {}", is_success);
     println!(" ");
-
-    // let mut cs = TestConstraintSystem::<Fr>::new();
-    //
-    // println!("\n satisfied: {:?}", cs.is_satisfied());
-    //
-    // println!(
-    //     "\n number of constraints for input: {}",
-    //     cs.num_constraints()
-    // );
-    //
 }
