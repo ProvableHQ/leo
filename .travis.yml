@@ -10,6 +10,7 @@ before_install:
   - mv $TRAVIS_HOME/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $TRAVIS_HOME/.bin/sccache
   - export PATH="$PATH:$TRAVIS_HOME/.bin"
   - export RUSTC_WRAPPER="sccache"
+  - openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in travis-snarkos.enc -out travis-snarkos -d
 
 cache:
   directories:
