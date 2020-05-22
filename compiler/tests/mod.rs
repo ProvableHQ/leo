@@ -17,15 +17,15 @@ use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
 pub(crate) fn get_output(
-    program: Compiler<EdwardsParameters, Fq, FqGadget>,
-) -> ConstrainedValue<EdwardsParameters, Fq, FqGadget> {
+    program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>,
+) -> ConstrainedValue<EdwardsParameters, Fq, FqGadget, FqGadget> {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());
     output
 }
 
-pub(crate) fn get_error(program: Compiler<EdwardsParameters, Fq, FqGadget>) -> CompilerError {
+pub(crate) fn get_error(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
     program.compile_constraints(&mut cs).unwrap_err()
 }
@@ -33,7 +33,7 @@ pub(crate) fn get_error(program: Compiler<EdwardsParameters, Fq, FqGadget>) -> C
 pub(crate) fn compile_program(
     directory_name: &str,
     file_name: &str,
-) -> Result<Compiler<EdwardsParameters, Fq, FqGadget>, CompilerError> {
+) -> Result<Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>, CompilerError> {
     let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory
@@ -50,5 +50,5 @@ pub(crate) fn compile_program(
     println!("Compiling file - {:?}", main_file_path);
 
     // Compile from the main file path
-    Compiler::<EdwardsParameters, Fq, FqGadget>::init(file_name.to_string(), main_file_path)
+    Compiler::<EdwardsParameters, Fq, FqGadget, FqGadget>::init(file_name.to_string(), main_file_path)
 }

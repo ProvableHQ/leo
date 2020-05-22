@@ -20,7 +20,7 @@ pub struct BuildCommand;
 
 impl CLI for BuildCommand {
     type Options = ();
-    type Output = (Compiler<EdwardsParameters, Fq, FqGadget>, bool);
+    type Output = (Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>, bool);
 
     const NAME: NameType = "build";
     const ABOUT: AboutType = "Compile the current package as a program";
@@ -64,7 +64,7 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<EdwardsParameters, Fq, FqGadget>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<EdwardsParameters, Fq, FqGadget, FqGadget>::init(package_name.clone(), main_file_path.clone())?;
         let program_checksum = program.checksum()?;
 
         // Generate the program on the constraint system and verify correctness

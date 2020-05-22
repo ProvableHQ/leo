@@ -23,22 +23,24 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 #[derive(Clone)]
 pub struct Compiler<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+    F: Field + PrimeField,
     FG: FieldGadget<P::BaseField, F>,
+    FF: FieldGadget<F, F>,
 > {
     package_name: String,
     main_file_path: PathBuf,
     program: Program<P::BaseField, F>,
     program_inputs: Vec<Option<InputValue<P::BaseField, F>>>,
-    output: Option<ConstrainedValue<P, F, FG>>,
+    output: Option<ConstrainedValue<P, F, FG, FF>>,
     _engine: PhantomData<F>,
 }
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > Compiler<P, F, FG>
+        FF: FieldGadget<F, F>,
+    > Compiler<P, F, FG, FF>
 {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
@@ -76,7 +78,7 @@ impl<
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-    ) -> Result<ConstrainedValue<P, F, FG>, CompilerError> {
+    ) -> Result<ConstrainedValue<P, F, FG, FF>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
     }
 
@@ -121,16 +123,18 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > ConstraintSynthesizer<F> for Compiler<P, F, FG>
+        FF: FieldGadget<F, F>,
+    > ConstraintSynthesizer<F> for Compiler<P, F, FG, FF>
 {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
         let _result =
-            generate_constraints::<P, F, FG, CS>(cs, self.program, self.program_inputs).unwrap();
+            generate_constraints::<P, F, FG, FF, CS>(cs, self.program, self.program_inputs)
+                .unwrap();
 
         // Write results to file or something
 

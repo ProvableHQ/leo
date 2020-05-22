@@ -15,39 +15,30 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 use std::fmt;
-use std::marker::PhantomData;
 
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
-pub enum FieldElement<
-    P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
-    FG: FieldGadget<P::BaseField, F>,
-> {
+pub enum FieldElement<F: Field + PrimeField, FF: FieldGadget<F, F>> {
     Constant(F),
-    Allocated(FG, PhantomData<P>),
+    Allocated(FF),
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
-        FG: FieldGadget<P::BaseField, F>,
-    > FieldElement<P, F, FG>
-{
+impl<F: Field + PrimeField, FF: FieldGadget<F, F>> FieldElement<F, FF> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             FieldElement::Constant(ref constant) => write!(f, "{}", constant),
-            FieldElement::Allocated(ref allocated, _) => write!(f, "{:?}", allocated),
+            FieldElement::Allocated(ref allocated) => write!(f, "{:?}", allocated),
         }
     }
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
-        FG: FieldGadget<P::BaseField, F>,
-    > fmt::Display for FieldElement<P, F, FG>
-{
+impl<F: Field + PrimeField, FF: FieldGadget<F, F>> fmt::Display for FieldElement<F, FF> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl<F: Field + PrimeField, FF: FieldGadget<F, F>> fmt::Debug for FieldElement<F, FF> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
@@ -55,21 +46,11 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > fmt::Debug for FieldElement<P, F, FG>
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
-        FG: FieldGadget<P::BaseField, F>,
+        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
+    > ConstrainedProgram<P, F, FG, FF, CS>
 {
     pub(crate) fn field_element_from_input(
         &mut self,
@@ -77,7 +58,7 @@ impl<
         name: String,
         private: bool,
         input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
         // Check that the parameter value is the correct type
         let field_option = match input_value {
             Some(input) => {
@@ -92,22 +73,21 @@ impl<
 
         // Check visibility of parameter
         let field_value = if private {
-            FG::alloc(&mut cs.ns(|| name), || {
+            FF::alloc(&mut cs.ns(|| name), || {
                 field_option.ok_or(SynthesisError::AssignmentMissing)
             })?
         } else {
-            FG::alloc_input(&mut cs.ns(|| name), || {
+            FF::alloc_input(&mut cs.ns(|| name), || {
                 field_option.ok_or(SynthesisError::AssignmentMissing)
             })?
         };
 
         Ok(ConstrainedValue::FieldElement(FieldElement::Allocated(
             field_value,
-            PhantomData,
         )))
     }
 
-    pub(crate) fn get_field_element_constant(constant: F) -> ConstrainedValue<P, F, FG> {
+    pub(crate) fn get_field_element_constant(constant: F) -> ConstrainedValue<P, F, FG, FF> {
         ConstrainedValue::FieldElement(FieldElement::Constant(constant))
     }
 
@@ -132,14 +112,14 @@ impl<
     // }
 
     pub(crate) fn evaluate_field_eq(
-        fe_1: FieldElement<P, F, FG>,
-        fe_2: FieldElement<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+        fe_1: FieldElement<F, FF>,
+        fe_2: FieldElement<F, FF>,
+    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
         let result = match (fe_1, fe_2) {
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
                 fe_1_constant.eq(&fe_2_constant)
             }
-            (FieldElement::Allocated(fe_1_gadget, _), FieldElement::Allocated(fe_2_gadget, _)) => {
+            (FieldElement::Allocated(fe_1_gadget), FieldElement::Allocated(fe_2_gadget)) => {
                 fe_1_gadget.eq(&fe_2_gadget)
             }
             (_, _) => unimplemented!("field equality between constant and allocated not impl"),
@@ -147,37 +127,39 @@ impl<
 
         Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
     }
-    //
-    // pub(crate) fn enforce_field_add(
-    //     cs: &mut CS,
-    //     fe_1: FieldElement<P, F, FG>,
-    //     fe_2: FieldElement<P, F, FG>
-    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
-    //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
-    //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-    //             FieldElement::Constant(fe_1_constant.add(&fe_2_constant))
-    //         },
-    //         (FieldElement::Allocated(fe_1_gadget, _), FieldElement::Allocated(fe_2_gadget, _)) => {
-    //             FieldElement::Allocated(fe_1_gadget.add(cs.ns(|| "field add"), &fe_2_gadget)?, PhantomData)
-    //         }
-    //         (FieldElement::Allocated(fe_gadget, _), FieldElement::Constant(fe_constant)) |
-    //         (FieldElement::Constant(fe_constant), FieldElement::Allocated(fe_gadget, _)) => {
-    //             FieldElement::Allocated(fe_gadget.add_constant(cs.ns(|| "field add"), &fe_constant)?, PhantomData)
-    //         }
-    //     }))
-    // }
-    //
+
+    pub(crate) fn enforce_field_add(
+        cs: &mut CS,
+        fe_1: FieldElement<F, FF>,
+        fe_2: FieldElement<F, FF>,
+    ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
+        Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
+                FieldElement::Constant(fe_1_constant.add(&fe_2_constant))
+            }
+            (FieldElement::Allocated(fe_1_gadget), FieldElement::Allocated(fe_2_gadget)) => {
+                FieldElement::Allocated(fe_1_gadget.add(cs.ns(|| "field add"), &fe_2_gadget)?)
+            }
+            (FieldElement::Allocated(fe_gadget), FieldElement::Constant(fe_constant))
+            | (FieldElement::Constant(fe_constant), FieldElement::Allocated(fe_gadget)) => {
+                FieldElement::Allocated(
+                    fe_gadget.add_constant(cs.ns(|| "field add"), &fe_constant)?,
+                )
+            }
+        }))
+    }
+
     // pub(crate) fn enforce_field_sub(
     //     cs: &mut CS,
-    //     fe_1: FieldElement<P, F, FG>,
-    //     fe_2: FieldElement<P, F, FG>
-    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+    //     fe_1: FieldElement<P, F, FG, FF>,
+    //     fe_2: FieldElement<P, F, FG, FF>
+    // ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
     //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
     //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
     //             FieldElement::Constant(fe_1_constant.sub(&fe_2_constant))
     //         },
     //         (FieldElement::Allocated(fe_1_gadget, _), FieldElement::Allocated(fe_2_gadget, _)) => {
-    //             FieldElement::Allocated(fe_1_gadget.sub(cs.ns(|| "field subtraction"), &fe_2_gadget)?, PhantomData)
+    //             FieldElement::Allocated(fe_1_gadget.sub(cs.ns(|| "field subtraction"), &fe_2_gadget)?)
     //         }
     //         (FieldElement::Allocated(fe_gadget, _), FieldElement::Constant(fe_constant)) => {
     //             FieldElement::Allocated(fe_gadget.sub_constant(cs.ns(|| "field subtraction"), &fe_constant)?, PhantomData)
@@ -188,9 +170,9 @@ impl<
     //
     // pub(crate) fn enforce_field_mul(
     //     cs: &mut CS,
-    //     fe_1: FieldElement<P, F, FG>,
-    //     fe_2: FieldElement<P, F, FG>
-    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+    //     fe_1: FieldElement<P, F, FG, FF>,
+    //     fe_2: FieldElement<P, F, FG, FF>
+    // ) -> Result<ConstrainedValue<P, F, FG, FF>, FieldElementError> {
     //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
     //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
     //             FieldElement::Constant(fe_1_constant.mul(&fe_2_constant))

@@ -6,10 +6,10 @@
 //
 // const DIRECTORY_NAME: &str = "tests/group_element/";
 //
-// pub(crate) fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+// pub(crate) fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
 //     let output = get_output(program);
 //     assert_eq!(
-//        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::GroupElement(
+//        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![ConstrainedValue::GroupElement(
 //             EdwardsProjective::zero()
 //         )]),
 //         output

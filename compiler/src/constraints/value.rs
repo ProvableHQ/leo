@@ -21,52 +21,55 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+    F: Field + PrimeField,
     FG: FieldGadget<P::BaseField, F>,
+    FF: FieldGadget<F, F>,
 >(
     pub Identifier<P::BaseField, F>,
-    pub ConstrainedValue<P, F, FG>,
+    pub ConstrainedValue<P, F, FG, FF>,
 );
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+    F: Field + PrimeField,
     FG: FieldGadget<P::BaseField, F>,
+    FF: FieldGadget<F, F>,
 > {
     Integer(Integer),
-    FieldElement(FieldElement<P, F, FG>),
+    FieldElement(FieldElement<F, FF>),
     GroupElement(AffineGadget<P, F, FG>),
     Boolean(Boolean),
 
-    Array(Vec<ConstrainedValue<P, F, FG>>),
+    Array(Vec<ConstrainedValue<P, F, FG, FF>>),
 
     CircuitDefinition(Circuit<P::BaseField, F>),
     CircuitExpression(
         Identifier<P::BaseField, F>,
-        Vec<ConstrainedCircuitMember<P, F, FG>>,
+        Vec<ConstrainedCircuitMember<P, F, FG, FF>>,
     ),
 
     Function(
         Option<Identifier<P::BaseField, F>>,
         Function<P::BaseField, F>,
     ), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<P, F, FG>>),
+    Return(Vec<ConstrainedValue<P, F, FG, FF>>),
 
-    Mutable(Box<ConstrainedValue<P, F, FG>>),
-    Static(Box<ConstrainedValue<P, F, FG>>),
+    Mutable(Box<ConstrainedValue<P, F, FG, FF>>),
+    Static(Box<ConstrainedValue<P, F, FG, FF>>),
     Unresolved(String),
 }
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > ConstrainedValue<P, F, FG>
+        FF: FieldGadget<F, F>,
+    > ConstrainedValue<P, F, FG, FF>
 {
     pub(crate) fn from_other(
         value: String,
-        other: &ConstrainedValue<P, F, FG>,
+        other: &ConstrainedValue<P, F, FG, FF>,
     ) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
@@ -131,9 +134,10 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > fmt::Display for ConstrainedValue<P, F, FG>
+        FF: FieldGadget<F, F>,
+    > fmt::Display for ConstrainedValue<P, F, FG, FF>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -186,9 +190,10 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
-    > fmt::Debug for ConstrainedValue<P, F, FG>
+        FF: FieldGadget<F, F>,
+    > fmt::Debug for ConstrainedValue<P, F, FG, FF>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)

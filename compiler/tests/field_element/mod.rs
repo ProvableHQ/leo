@@ -12,27 +12,27 @@ use snarkos_models::curves::Field;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![
             ConstrainedValue::FieldElement(FieldElement::Constant(Fq::zero()))
         ]),
         output
     );
 }
 
-fn output_one(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_one(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![
             ConstrainedValue::FieldElement(FieldElement::Constant(Fq::one()))
         ]),
         output
     );
 }
 
-fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -41,7 +41,7 @@ fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),

@@ -20,10 +20,11 @@ use snarkos_models::{
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
+        F: Field + PrimeField,
         FG: FieldGadget<P::BaseField, F>,
+        FF: FieldGadget<F, F>,
         CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
+    > ConstrainedProgram<P, F, FG, FF, CS>
 {
     pub(crate) fn u16_from_input(
         &mut self,
@@ -31,7 +32,7 @@ impl<
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
+    ) -> Result<ConstrainedValue<P, F, FG, FF>, IntegerError> {
         // Type cast to u16 in rust.
         // If this fails should we return our own error?
         let u16_option = integer_option.map(|integer| integer as u16);

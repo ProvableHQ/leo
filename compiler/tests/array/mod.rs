@@ -14,10 +14,10 @@ use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
-fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![ConstrainedValue::Array(
             vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32))); 3]
         )]),
         output
@@ -26,10 +26,10 @@ fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
 
 // [[0, 0, 0],
 //  [0, 0, 0]]
-fn output_multi(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_multi(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget, FqGadget>::Return(vec![ConstrainedValue::Array(
             vec![
                 ConstrainedValue::Array(vec![
                     ConstrainedValue::Integer(Integer::U32(
@@ -44,14 +44,14 @@ fn output_multi(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     )
 }
 
-fn fail_array(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_array(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget, FqGadget>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::SynthesisError(_string),
