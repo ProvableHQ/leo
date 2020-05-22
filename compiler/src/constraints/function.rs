@@ -1,11 +1,7 @@
 //! Methods to enforce functions with arguments in
 //! a resolved Leo program.
 
-use crate::{
-    constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
-    errors::{FunctionError, ImportError},
-    types::{Expression, Function, Identifier, InputValue, Program, Type},
-};
+use crate::{constraints::{new_scope, ConstrainedProgram, ConstrainedValue}, errors::{FunctionError, ImportError}, types::{Expression, Function, Identifier, InputValue, Program, Type}, GroupElement};
 
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
@@ -188,9 +184,9 @@ impl<
             Type::FieldElement => {
                 Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
-            // Type::GroupElement => {
-            //     Ok(self.group_element_from_input(cs, name, private, input_value)?)
-            // }
+            Type::GroupElement => {
+                Ok(ConstrainedValue::GroupElement(GroupElement::new_allocated(cs, name, private, input_value)?))
+            }
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {
                 self.allocate_array(cs, name, private, *_type, dimensions, input_value)

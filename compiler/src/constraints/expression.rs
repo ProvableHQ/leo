@@ -8,7 +8,7 @@ use crate::{
         CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
         SpreadOrExpression,
     },
-    Integer, IntegerType, Type,
+    Integer, IntegerType, Type, GroupElement
 };
 
 use snarkos_models::curves::TEModelParameters;
@@ -72,7 +72,7 @@ impl<
                 Ok(Self::enforce_field_add(cs, fe_1, fe_2)?)
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(Self::enforce_group_add(cs, ge_1, ge_2)?)
+                Ok(ConstrainedValue::GroupElement(ge_1.enforce_add(cs, &ge_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -103,7 +103,7 @@ impl<
                 Ok(Self::enforce_field_sub(cs, fe_1, fe_2)?)
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(Self::enforce_group_sub(cs, ge_1, ge_2)?)
+                Ok(ConstrainedValue::GroupElement(ge_1.enforce_sub(cs, &ge_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -221,7 +221,7 @@ impl<
                 Ok(Self::evaluate_field_eq(fe_1, fe_2))
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(Self::evaluate_group_eq(ge_1, ge_2))
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(ge_1.eq(&ge_2))))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -376,9 +376,11 @@ impl<
                     Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
                 Ok(ConstrainedValue::Integer(result))
             }
-            // (ConstrainedValue::GroupElement(group_2), ConstrainedValue::GroupElement(group_3)) => {
-            //     let result = Group
-            // }
+            (ConstrainedValue::GroupElement(ge_2), ConstrainedValue::GroupElement(ge_3)) => {
+                let result =
+                    GroupElement::conditionally_select(cs, &resolved_first, &ge_2, &ge_3)?;
+                Ok(ConstrainedValue::GroupElement(result))
+            }
             (_, _) => {
                 unimplemented!("conditional select gadget not implemented between given types")
             }
@@ -821,7 +823,7 @@ impl<
             // Values
             Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
             Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
-            Expression::GroupElement(x, y) => Ok(Self::get_group_element_pair(cs, x, y)?),
+            Expression::GroupElement(x, y) => Ok(ConstrainedValue::GroupElement(GroupElement::new_constant(x, y))),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 
