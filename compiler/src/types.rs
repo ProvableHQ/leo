@@ -90,9 +90,9 @@ pub enum Expression<NativeF: Field, F: Field + PrimeField> {
     Or(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
     And(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
     Eq(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
-    Geq(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
+    Ge(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
     Gt(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
-    Leq(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
+    Le(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
     Lt(Box<Expression<NativeF, F>>, Box<Expression<NativeF, F>>),
 
     // Conditionals

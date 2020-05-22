@@ -91,9 +91,9 @@ pub enum BinaryOperator {
     And,
     Eq,
     Neq,
-    Geq,
+    Ge,
     Gt,
-    Leq,
+    Le,
     Lt,
     Add,
     Sub,
@@ -782,9 +782,9 @@ fn precedence_climber() -> PrecClimber<Rule> {
         Operator::new(Rule::operation_and, Assoc::Left),
         Operator::new(Rule::operation_eq, Assoc::Left)
             | Operator::new(Rule::operation_neq, Assoc::Left),
-        Operator::new(Rule::operation_geq, Assoc::Left)
+        Operator::new(Rule::operation_ge, Assoc::Left)
             | Operator::new(Rule::operation_gt, Assoc::Left)
-            | Operator::new(Rule::operation_leq, Assoc::Left)
+            | Operator::new(Rule::operation_le, Assoc::Left)
             | Operator::new(Rule::operation_lt, Assoc::Left),
         Operator::new(Rule::operation_add, Assoc::Left)
             | Operator::new(Rule::operation_sub, Assoc::Left),
@@ -897,9 +897,9 @@ fn binary_expression<'ast>(
         Rule::operation_and => Expression::binary(BinaryOperator::And, lhs, rhs, span),
         Rule::operation_eq => Expression::binary(BinaryOperator::Eq, lhs, rhs, span),
         Rule::operation_neq => Expression::binary(BinaryOperator::Neq, lhs, rhs, span),
-        Rule::operation_geq => Expression::binary(BinaryOperator::Geq, lhs, rhs, span),
+        Rule::operation_ge => Expression::binary(BinaryOperator::Ge, lhs, rhs, span),
         Rule::operation_gt => Expression::binary(BinaryOperator::Gt, lhs, rhs, span),
-        Rule::operation_leq => Expression::binary(BinaryOperator::Leq, lhs, rhs, span),
+        Rule::operation_le => Expression::binary(BinaryOperator::Le, lhs, rhs, span),
         Rule::operation_lt => Expression::binary(BinaryOperator::Lt, lhs, rhs, span),
         Rule::operation_add => Expression::binary(BinaryOperator::Add, lhs, rhs, span),
         Rule::operation_sub => Expression::binary(BinaryOperator::Sub, lhs, rhs, span),

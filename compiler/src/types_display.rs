@@ -94,9 +94,9 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for Expression<Na
             Expression::Or(ref lhs, ref rhs) => write!(f, "{} || {}", lhs, rhs),
             Expression::And(ref lhs, ref rhs) => write!(f, "{} && {}", lhs, rhs),
             Expression::Eq(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
-            Expression::Geq(ref lhs, ref rhs) => write!(f, "{} >= {}", lhs, rhs),
+            Expression::Ge(ref lhs, ref rhs) => write!(f, "{} >= {}", lhs, rhs),
             Expression::Gt(ref lhs, ref rhs) => write!(f, "{} > {}", lhs, rhs),
-            Expression::Leq(ref lhs, ref rhs) => write!(f, "{} <= {}", lhs, rhs),
+            Expression::Le(ref lhs, ref rhs) => write!(f, "{} <= {}", lhs, rhs),
             Expression::Lt(ref lhs, ref rhs) => write!(f, "{} < {}", lhs, rhs),
 
             // Conditionals

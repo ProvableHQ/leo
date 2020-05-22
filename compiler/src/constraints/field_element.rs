@@ -16,6 +16,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 use std::fmt;
+use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
@@ -44,6 +45,27 @@ impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
         self.format(f)
     }
 }
+
+impl<F: Field + PrimeField> CondSelectGadget<F> for FieldElement<F> {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        match (first, second) {
+            (FieldElement::Allocated(fe_1), FieldElement::Allocated(fe_2)) => Ok(FieldElement::Allocated(
+                FpGadget::<F>::conditionally_select(cs, cond, fe_1, fe_2)?
+            )),
+            (_, _) => Err(SynthesisError::Unsatisfiable), // types do not match
+        }
+    }
+
+    fn cost() -> usize {
+        FpGadget::<F>::cost()
+    }
+}
+
 
 impl<
         P: std::clone::Clone + TEModelParameters,
@@ -114,7 +136,7 @@ impl<
         ConstrainedValue::Boolean(Boolean::Constant(result))
     }
 
-    pub(crate) fn evaluate_field_geq(
+    pub(crate) fn evaluate_field_ge(
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
     ) -> ConstrainedValue<P, F, FG> {
@@ -166,7 +188,7 @@ impl<
         ConstrainedValue::Boolean(Boolean::Constant(result))
     }
 
-    pub(crate) fn evaluate_field_leq(
+    pub(crate) fn evaluate_field_le(
         fe_1: FieldElement<F>,
         fe_2: FieldElement<F>,
     ) -> ConstrainedValue<P, F, FG> {

@@ -227,7 +227,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::BinaryExpression<'as
             ast::BinaryOperator::Neq => {
                 types::Expression::Not(Box::new(types::Expression::from(expression)))
             }
-            ast::BinaryOperator::Geq => types::Expression::Geq(
+            ast::BinaryOperator::Ge => types::Expression::Ge(
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),
@@ -235,7 +235,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::BinaryExpression<'as
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),
-            ast::BinaryOperator::Leq => types::Expression::Leq(
+            ast::BinaryOperator::Le => types::Expression::Le(
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),

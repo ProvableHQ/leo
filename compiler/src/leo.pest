@@ -27,9 +27,9 @@ operation_or = { "||" }
 operation_eq = { "==" }
 operation_neq = { "!=" }
 
-operation_geq = { ">=" }
+operation_ge = { ">=" }
 operation_gt = { ">" }
-operation_leq = { "<=" }
+operation_le = { "<=" }
 operation_lt = { "<" }
 
 operation_add = { "+" }
@@ -40,8 +40,8 @@ operation_pow = { "**" }
 
 operation_compare = _{
     operation_eq | operation_neq |
-    operation_geq | operation_gt |
-    operation_leq | operation_lt
+    operation_ge | operation_gt |
+    operation_le | operation_lt
 }
 
 operation_binary = _{
