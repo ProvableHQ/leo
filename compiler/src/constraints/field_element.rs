@@ -149,41 +149,41 @@ impl<
         }))
     }
 
-    // pub(crate) fn enforce_field_sub(
-    //     cs: &mut CS,
-    //     fe_1: FieldElement<P, F, FG, FF>,
-    //     fe_2: FieldElement<P, F, FG, FF>
-    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
-    //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
-    //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-    //             FieldElement::Constant(fe_1_constant.sub(&fe_2_constant))
-    //         },
-    //         (FieldElement::Allocated(fe_1_gadget, _), FieldElement::Allocated(fe_2_gadget, _)) => {
-    //             FieldElement::Allocated(fe_1_gadget.sub(cs.ns(|| "field subtraction"), &fe_2_gadget)?)
-    //         }
-    //         (FieldElement::Allocated(fe_gadget, _), FieldElement::Constant(fe_constant)) => {
-    //             FieldElement::Allocated(fe_gadget.sub_constant(cs.ns(|| "field subtraction"), &fe_constant)?, PhantomData)
-    //         }
-    //         (_, _) => unimplemented!("field subtraction between constant and allocated not impl")
-    //     }))
-    // }
-    //
-    // pub(crate) fn enforce_field_mul(
-    //     cs: &mut CS,
-    //     fe_1: FieldElement<P, F, FG, FF>,
-    //     fe_2: FieldElement<P, F, FG, FF>
-    // ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
-    //     Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
-    //         (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-    //             FieldElement::Constant(fe_1_constant.mul(&fe_2_constant))
-    //         },
-    //         (FieldElement::Allocated(fe_1_gadget, _), FieldElement::Allocated(fe_2_gadget, _)) => {
-    //             FieldElement::Allocated(fe_1_gadget.mul(cs.ns(|| "field multiplication"), &fe_2_gadget)?, PhantomData)
-    //         }
-    //         (FieldElement::Allocated(fe_gadget, _), FieldElement::Constant(fe_constant)) |
-    //         (FieldElement::Constant(fe_constant), FieldElement::Allocated(fe_gadget, _)) => {
-    //             FieldElement::Allocated(fe_gadget.mul_by_constant(cs.ns(|| "field multiplication"), &fe_constant)?, PhantomData)
-    //         }
-    //     }))
-    // }
+    pub(crate) fn enforce_field_sub(
+        cs: &mut CS,
+        fe_1: FieldElement<F>,
+        fe_2: FieldElement<F>
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+        Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
+                FieldElement::Constant(fe_1_constant.sub(&fe_2_constant))
+            },
+            (FieldElement::Allocated(fe_1_gadget), FieldElement::Allocated(fe_2_gadget)) => {
+                FieldElement::Allocated(fe_1_gadget.sub(cs.ns(|| "field subtraction"), &fe_2_gadget)?)
+            }
+            (FieldElement::Allocated(fe_gadget), FieldElement::Constant(fe_constant)) => {
+                FieldElement::Allocated(fe_gadget.sub_constant(cs.ns(|| "field subtraction"), &fe_constant)?)
+            }
+            (_, _) => unimplemented!("field subtraction between constant and allocated not impl")
+        }))
+    }
+
+    pub(crate) fn enforce_field_mul(
+        cs: &mut CS,
+        fe_1: FieldElement<F>,
+        fe_2: FieldElement<F>
+    ) -> Result<ConstrainedValue<P, F, FG>, FieldElementError> {
+        Ok(ConstrainedValue::FieldElement(match (fe_1, fe_2) {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
+                FieldElement::Constant(fe_1_constant.mul(&fe_2_constant))
+            },
+            (FieldElement::Allocated(fe_1_gadget), FieldElement::Allocated(fe_2_gadget)) => {
+                FieldElement::Allocated(fe_1_gadget.mul(cs.ns(|| "field multiplication"), &fe_2_gadget)?)
+            }
+            (FieldElement::Allocated(fe_gadget), FieldElement::Constant(fe_constant)) |
+            (FieldElement::Constant(fe_constant), FieldElement::Allocated(fe_gadget)) => {
+                FieldElement::Allocated(fe_gadget.mul_by_constant(cs.ns(|| "field multiplication"), &fe_constant)?)
+            }
+        }))
+    }
 }

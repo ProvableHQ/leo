@@ -30,7 +30,7 @@ pub struct Benchmark<P: std::clone::Clone + TEModelParameters, F: Field + PrimeF
     _point: PhantomData<FG>,
 }
 
-impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> Benchmark<P, F, FG, FF> {
+impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> Benchmark<P, F, FG> {
     pub fn new() -> Self {
         Self {
             program: Program::new(),
@@ -61,7 +61,7 @@ impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldG
     }
 }
 
-impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> ConstraintSynthesizer<F> for Benchmark<P, F, FG, FF> {
+impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> ConstraintSynthesizer<F> for Benchmark<P, F, FG> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,

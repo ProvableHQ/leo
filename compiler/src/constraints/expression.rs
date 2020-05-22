@@ -99,9 +99,9 @@ impl<
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_sub(cs, num_1, num_2)?)
             }
-            // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-            //     Ok(self.enforce_field_sub(cs, fe_1, fe_2)?)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::enforce_field_sub(cs, fe_1, fe_2)?)
+            }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
                 Ok(Self::enforce_group_sub(cs, ge_1, ge_2)?)
             }
@@ -130,9 +130,9 @@ impl<
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_mul(cs, num_1, num_2)?)
             }
-            // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-            //     Ok(self.enforce_field_mul(cs, fe_1, fe_2)?)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(Self::enforce_field_mul(cs, fe_1, fe_2)?)
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_mul_expression(cs, val_1, val_2)
@@ -160,9 +160,6 @@ impl<
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_div(cs, num_1, num_2)?)
             }
-            // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-            //     Ok(self.enforce_field_div(cs, fe_1, fe_2)?)
-            // }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_div_expression(cs, val_1, val_2)
@@ -189,9 +186,6 @@ impl<
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_pow(cs, num_1, num_2)?)
             }
-            // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::Integer(num_2)) => {
-            //     Ok(self.enforce_field_pow(cs, fe_1, num_2)?)
-            // }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_pow_expression(cs, val_1, val_2)

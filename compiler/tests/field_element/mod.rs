@@ -9,6 +9,8 @@ use leo_compiler::{
 use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::curves::Field;
+use snarkos_models::gadgets::r1cs::{TestConstraintSystem, ConstraintSystem};
+use snarkos_models::gadgets::curves::FieldGadget;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
@@ -60,6 +62,25 @@ fn test_zero() {
 fn test_one() {
     let program = compile_program(DIRECTORY_NAME, "one.leo").unwrap();
     output_one(program);
+}
+
+#[test]
+fn test_input_field() {
+    let mut program = compile_program(DIRECTORY_NAME, "input_field.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Field(Fq::one()))]);
+
+    let mut cs = TestConstraintSystem::<Fq>::new();
+    let one_allocated = FqGadget::one(cs.ns(||"one")).unwrap();
+
+    let output = program.compile_constraints(&mut cs).unwrap();
+    assert!(cs.is_satisfied());
+
+    assert_eq!(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::FieldElement(FieldElement::Allocated(one_allocated))
+        ]),
+        output
+    );
 }
 
 #[test]
