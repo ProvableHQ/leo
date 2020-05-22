@@ -7,7 +7,7 @@ use leo_gadgets::integers::{
 };
 
 use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{r1cs::Variable as R1CSVariable, utilities::boolean::Boolean};
+use snarkos_models::gadgets::utilities::boolean::Boolean;
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
@@ -51,13 +51,6 @@ pub enum Integer {
     U128(UInt128),
 }
 
-/// A constant or allocated element in the field
-#[derive(Clone, PartialEq, Eq)]
-pub enum FieldElement<F: Field + PrimeField> {
-    Constant(F),
-    Allocated(Option<F>, R1CSVariable),
-}
-
 /// Range or expression enum
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RangeOrExpression<NativeF: Field, F: Field + PrimeField> {
@@ -80,7 +73,7 @@ pub enum Expression<NativeF: Field, F: Field + PrimeField> {
 
     // Values
     Integer(Integer),
-    FieldElement(FieldElement<F>),
+    FieldElement(F),
     GroupElement(NativeF, NativeF),
     Boolean(Boolean),
     Implicit(String),

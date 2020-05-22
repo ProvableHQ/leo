@@ -12,7 +12,7 @@ use snarkos_models::{
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
         CS: ConstraintSystem<F>,
     > ConstrainedProgram<P, F, FG, CS>
@@ -77,7 +77,7 @@ impl<
         ConstrainedValue::Boolean(Boolean::constant(group_element_1.eq(&group_element_2)))
     }
 
-    pub fn evaluate_group_add(
+    pub fn enforce_group_add(
         cs: &mut CS,
         group_element_1: AffineGadget<P, F, FG>,
         group_element_2: AffineGadget<P, F, FG>,
@@ -90,7 +90,7 @@ impl<
         Ok(ConstrainedValue::GroupElement(result))
     }
 
-    pub fn evaluate_group_sub(
+    pub fn enforce_group_sub(
         cs: &mut CS,
         group_element_1: AffineGadget<P, F, FG>,
         group_element_2: AffineGadget<P, F, FG>,

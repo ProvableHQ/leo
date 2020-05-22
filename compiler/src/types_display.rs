@@ -2,8 +2,8 @@
 
 use crate::{
     Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
-    RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
+    Function, Identifier, InputModel, InputValue, Integer, IntegerType, RangeOrExpression,
+    SpreadOrExpression, Statement, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -39,33 +39,6 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Variable<NativeF, F
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}{}", self.to_usize(), self.get_type())
-    }
-}
-
-impl<F: Field + PrimeField> FieldElement<F> {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            FieldElement::Constant(ref constant) => write!(f, "{}", constant),
-            FieldElement::Allocated(ref option, ref _r1cs_var) => {
-                if option.is_some() {
-                    write!(f, "{}", option.unwrap())
-                } else {
-                    write!(f, "allocated field")
-                }
-            }
-        }
-    }
-}
-
-impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
     }
 }
 

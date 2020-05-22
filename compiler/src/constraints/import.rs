@@ -19,7 +19,7 @@ use std::fs;
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
         CS: ConstraintSystem<F>,
     > ConstrainedProgram<P, F, FG, CS>

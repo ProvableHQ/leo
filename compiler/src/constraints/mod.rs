@@ -44,7 +44,7 @@ use snarkos_models::{
 
 pub fn generate_constraints<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
+    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
     FG: FieldGadget<P::BaseField, F>,
     CS: ConstraintSystem<F>,
 >(

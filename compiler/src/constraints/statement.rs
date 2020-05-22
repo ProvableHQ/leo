@@ -21,7 +21,7 @@ use snarkos_models::{
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
         CS: ConstraintSystem<F>,
     > ConstrainedProgram<P, F, FG, CS>
@@ -422,9 +422,9 @@ impl<
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Self::enforce_integer_eq(cs, num_1, num_2)?
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_eq(cs, fe_1, fe_2)
-            }
+            // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+            //     self.enforce_field_eq(cs, fe_1, fe_2)
+            // }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
                     self.enforce_assert_eq_statement(cs, left, right)?;

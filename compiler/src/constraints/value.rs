@@ -2,7 +2,8 @@
 
 use crate::{
     errors::ValueError,
-    types::{Circuit, FieldElement, Function, Identifier, Integer, IntegerType, Type},
+    types::{Circuit, Function, Identifier, Integer, IntegerType, Type},
+    FieldElement,
 };
 use leo_gadgets::integers::{
     uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8,
@@ -20,7 +21,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
+    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
     FG: FieldGadget<P::BaseField, F>,
 >(
     pub Identifier<P::BaseField, F>,
@@ -30,11 +31,11 @@ pub struct ConstrainedCircuitMember<
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
+    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
     FG: FieldGadget<P::BaseField, F>,
 > {
     Integer(Integer),
-    FieldElement(FieldElement<F>),
+    FieldElement(FieldElement<P, F, FG>),
     GroupElement(AffineGadget<P, F, FG>),
     Boolean(Boolean),
 
@@ -59,7 +60,7 @@ pub enum ConstrainedValue<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
     > ConstrainedValue<P, F, FG>
 {
@@ -130,7 +131,7 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
     > fmt::Display for ConstrainedValue<P, F, FG>
 {
@@ -185,7 +186,7 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
     > fmt::Debug for ConstrainedValue<P, F, FG>
 {

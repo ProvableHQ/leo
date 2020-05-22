@@ -128,9 +128,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Field<'ast>>
     for types::Expression<NativeF, F>
 {
     fn from(field: ast::Field<'ast>) -> Self {
-        types::Expression::FieldElement(types::FieldElement::Constant(
-            F::from_str(&field.number.value).unwrap_or_default(),
-        ))
+        types::Expression::FieldElement(F::from_str(&field.number.value).unwrap_or_default())
     }
 }
 

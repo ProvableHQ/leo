@@ -12,7 +12,7 @@ use std::{collections::HashMap, marker::PhantomData};
 
 pub struct ConstrainedProgram<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
+    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
     FG: FieldGadget<P::BaseField, F>,
     CS: ConstraintSystem<F>,
 > {
@@ -26,7 +26,7 @@ pub fn new_scope(outer: String, inner: String) -> String {
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
         CS: ConstraintSystem<F>,
     > ConstrainedProgram<P, F, FG, CS>

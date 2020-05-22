@@ -23,7 +23,7 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 #[derive(Clone)]
 pub struct Compiler<
     P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
+    F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
     FG: FieldGadget<P::BaseField, F>,
 > {
     package_name: String,
@@ -36,7 +36,7 @@ pub struct Compiler<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
     > Compiler<P, F, FG>
 {
@@ -121,7 +121,7 @@ impl<
 
 impl<
         P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
+        F: Field + PrimeField + std::borrow::Borrow<P::BaseField>,
         FG: FieldGadget<P::BaseField, F>,
     > ConstraintSynthesizer<F> for Compiler<P, F, FG>
 {
