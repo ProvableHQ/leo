@@ -968,6 +968,7 @@ dependencies = [
  "derivative",
  "digest 0.7.6",
  "rand",
+ "rand_chacha",
  "rayon",
  "sha2",
  "smallvec",
@@ -993,10 +994,10 @@ name = "snarkos-errors"
 version = "0.8.0"
 dependencies = [
  "bincode",
- "failure",
  "hex",
  "jsonrpc-core",
  "rocksdb",
+ "thiserror",
 ]
 
 [[package]]
@@ -1017,7 +1018,6 @@ name = "snarkos-models"
 version = "0.8.0"
 dependencies = [
  "derivative",
- "failure",
  "rand",
  "rand_xorshift",
  "smallvec",
