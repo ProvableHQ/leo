@@ -1,11 +1,7 @@
-use crate::{cli::*, cli_types::*};
-use crate::commands::BuildCommand;
-use crate::errors::CLIError;
-use crate::files::Manifest;
+use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError, files::Manifest};
 
 use clap::ArgMatches;
-use std::convert::TryFrom;
-use std::env::current_dir;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct UnloadCommand;
@@ -14,10 +10,10 @@ impl CLI for UnloadCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "unload";
     const ABOUT: AboutType = "Uninstall a package from the current package (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "unload";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

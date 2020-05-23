@@ -1,10 +1,11 @@
 use crate::{compile_program, get_error, get_output};
 
-use leo_compiler::errors::FieldElementError;
 use leo_compiler::{
     compiler::Compiler,
-    errors::{CompilerError, FunctionError},
-    ConstrainedValue, FieldElement, InputValue,
+    errors::{CompilerError, FieldElementError, FunctionError},
+    ConstrainedValue,
+    FieldElement,
+    InputValue,
 };
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::curves::Field;
@@ -33,18 +34,14 @@ fn output_one(program: Compiler<Fr, EdwardsProjective>) {
 
 fn fail_field(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldElementError(
-            FieldElementError::InvalidField(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::FieldElementError(FieldElementError::InvalidField(_string))) => {}
         error => panic!("Expected invalid field error, got {}", error),
     }
 }
 
 fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldElementError(
-            FieldElementError::SynthesisError(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::FieldElementError(FieldElementError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }

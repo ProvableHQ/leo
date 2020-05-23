@@ -4,7 +4,8 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program,
+    InputValue,
+    Program,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -91,8 +92,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
 
         // Build the abstract syntax tree
-        let syntax_tree =
-            ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
+        let syntax_tree = ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
         log::debug!("{:#?}", syntax_tree);
 
         // Build program from abstract syntax tree
@@ -108,10 +108,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
 }
 
 impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Compiler<F, G> {
-    fn generate_constraints<CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-    ) -> Result<(), SynthesisError> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let _result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something

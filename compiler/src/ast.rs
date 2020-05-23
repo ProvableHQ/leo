@@ -5,7 +5,8 @@ use pest::{
     error::Error,
     iterators::{Pair, Pairs},
     prec_climber::{Assoc, Operator, PrecClimber},
-    Parser, Span,
+    Parser,
+    Span,
 };
 use pest_ast::FromPest;
 use std::fmt;
@@ -420,16 +421,8 @@ impl<'ast> fmt::Display for RangeOrExpression<'ast> {
             RangeOrExpression::Range(ref range) => write!(
                 f,
                 "{}..{}",
-                range
-                    .from
-                    .as_ref()
-                    .map(|e| e.0.to_string())
-                    .unwrap_or("".to_string()),
-                range
-                    .to
-                    .as_ref()
-                    .map(|e| e.0.to_string())
-                    .unwrap_or("".to_string())
+                range.from.as_ref().map(|e| e.0.to_string()).unwrap_or("".to_string()),
+                range.to.as_ref().map(|e| e.0.to_string()).unwrap_or("".to_string())
             ),
         }
     }
@@ -744,9 +737,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
             // Expression::Increment(ref expression) => write!(f, "{}++", expression.expression),
             // Expression::Decrement(ref expression) => write!(f, "{}--", expression.expression),
-            Expression::Binary(ref expression) => {
-                write!(f, "{} == {}", expression.left, expression.right)
-            }
+            Expression::Binary(ref expression) => write!(f, "{} == {}", expression.left, expression.right),
             Expression::Ternary(ref expression) => write!(
                 f,
                 "if {} ? {} : {}",
@@ -764,14 +755,10 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
-            Expression::CircuitInline(ref expression) => write!(
-                f,
-                "inline circuit display not impl {}",
-                expression.identifier
-            ),
-            Expression::Postfix(ref expression) => {
-                write!(f, "Postfix display not impl {}", expression.identifier)
+            Expression::CircuitInline(ref expression) => {
+                write!(f, "inline circuit display not impl {}", expression.identifier)
             }
+            Expression::Postfix(ref expression) => write!(f, "Postfix display not impl {}", expression.identifier),
         }
     }
 }
@@ -780,16 +767,13 @@ fn precedence_climber() -> PrecClimber<Rule> {
     PrecClimber::new(vec![
         Operator::new(Rule::operation_or, Assoc::Left),
         Operator::new(Rule::operation_and, Assoc::Left),
-        Operator::new(Rule::operation_eq, Assoc::Left)
-            | Operator::new(Rule::operation_neq, Assoc::Left),
+        Operator::new(Rule::operation_eq, Assoc::Left) | Operator::new(Rule::operation_neq, Assoc::Left),
         Operator::new(Rule::operation_geq, Assoc::Left)
             | Operator::new(Rule::operation_gt, Assoc::Left)
             | Operator::new(Rule::operation_leq, Assoc::Left)
             | Operator::new(Rule::operation_lt, Assoc::Left),
-        Operator::new(Rule::operation_add, Assoc::Left)
-            | Operator::new(Rule::operation_sub, Assoc::Left),
-        Operator::new(Rule::operation_mul, Assoc::Left)
-            | Operator::new(Rule::operation_div, Assoc::Left),
+        Operator::new(Rule::operation_add, Assoc::Left) | Operator::new(Rule::operation_sub, Assoc::Left),
+        Operator::new(Rule::operation_mul, Assoc::Left) | Operator::new(Rule::operation_div, Assoc::Left),
         Operator::new(Rule::operation_pow, Assoc::Left),
     ])
 }
@@ -802,35 +786,33 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
                 Rule::expression_circuit_inline => {
-                    Expression::CircuitInline(
-                        CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                },
+                    Expression::CircuitInline(CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_array_inline => {
-                    Expression::ArrayInline(
-                        ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap()
-                    )
-                },
+                    Expression::ArrayInline(ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_array_initializer => {
-                    Expression::ArrayInitializer(
-                        ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap()
-                    )
-                },
+                    Expression::ArrayInitializer(ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_conditional => {
-                    Expression::Ternary(
-                        TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                },
+                    Expression::Ternary(TernaryExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_not => {
                     let span = next.as_span();
                     let mut inner = next.into_inner();
                     let operation = match inner.next().unwrap().as_rule() {
-                        Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
+                        Rule::operation_pre_not => {
+                            Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
+                        }
+                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule),
                     };
                     let expression = parse_term(inner.next().unwrap());
-                    Expression::Not(NotExpression { operation, expression, span })
-                },
+                    Expression::Not(NotExpression {
+                        operation,
+                        expression,
+                        span,
+                    })
+                }
                 // Rule::expression_increment => {
                 //     println!("expression increment");
                 //     let span = next.as_span();
@@ -854,26 +836,28 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 //     Expression::Decrement(DecrementExpression { expression, span })
                 // },
                 Rule::expression_postfix => {
-                    Expression::Postfix(
-                        PostfixExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
+                    Expression::Postfix(PostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
                 Rule::expression_primitive => {
                     let next = next.into_inner().next().unwrap();
                     match next.as_rule() {
-                        Rule::value => {
-                            Expression::Value(
-                                Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
-                            )
-                        },
+                        Rule::value => Expression::Value(
+                            Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        ),
                         Rule::identifier => Expression::Identifier(
                             Identifier::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                         ),
-                        rule => unreachable!("`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}", rule)
+                        rule => unreachable!(
+                            "`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}",
+                            rule
+                        ),
                     }
-                },
+                }
 
-                rule => unreachable!("`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
+                rule => unreachable!(
+                    "`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}",
+                    rule
+                ),
             }
         }
         rule => unreachable!(
@@ -911,8 +895,8 @@ fn binary_expression<'ast>(
 }
 
 impl<'ast> FromPest<'ast> for Expression<'ast> {
-    type Rule = Rule;
     type FatalError = Void;
+    type Rule = Rule;
 
     fn from_pest(pest: &mut Pairs<'ast, Rule>) -> Result<Self, ConversionError<Void>> {
         let mut clone = pest.clone();
@@ -1047,9 +1031,7 @@ impl<'ast> fmt::Display for ConditionalNestedOrEnd<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEnd::End(ref statements) => {
-                write!(f, "else {{\n \t{:#?}\n }}", statements)
-            }
+            ConditionalNestedOrEnd::End(ref statements) => write!(f, "else {{\n \t{:#?}\n }}", statements),
         }
     }
 }
@@ -1102,9 +1084,7 @@ impl<'ast> fmt::Display for AssignStatement<'ast> {
 impl<'ast> fmt::Display for AssertStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            AssertStatement::AssertEq(ref assert) => {
-                write!(f, "assert_eq({}, {});", assert.left, assert.right)
-            }
+            AssertStatement::AssertEq(ref assert) => write!(f, "assert_eq({}, {});", assert.left, assert.right),
         }
     }
 }

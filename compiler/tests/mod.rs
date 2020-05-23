@@ -16,9 +16,7 @@ use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
-pub(crate) fn get_output(
-    program: Compiler<Fr, EdwardsProjective>,
-) -> ConstrainedValue<Fr, EdwardsProjective> {
+pub(crate) fn get_output(program: Compiler<Fr, EdwardsProjective>) -> ConstrainedValue<Fr, EdwardsProjective> {
     let mut cs = TestConstraintSystem::<Fr>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());

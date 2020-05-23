@@ -1,16 +1,16 @@
-use crate::{
-    compile_program,
-    get_error,
-    get_output,
-    integer::u32::output_one,
-    // group_element::output_zero
-};
+use crate::{compile_program, get_error, get_output, integer::u32::output_one};
 
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedCircuitMember, ConstrainedValue, Expression, Function, Identifier, Integer,
-    Statement, Type,
+    ConstrainedCircuitMember,
+    ConstrainedValue,
+    Expression,
+    Function,
+    Identifier,
+    Integer,
+    Statement,
+    Type,
 };
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::gadgets::utilities::uint32::UInt32;
@@ -21,33 +21,31 @@ const DIRECTORY_NAME: &str = "tests/circuit/";
 fn output_circuit(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("x".into()),
-                    ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
-                )]
-            )
-        ]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("x".into()),
+                ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
+            )]
+        )]),
         output
     );
 }
 
 fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::ExpectedCircuitMember(_string),
+        ))) => {}
         error => panic!("Expected invalid circuit member error, got {}", error),
     }
 }
 
 fn fail_undefined_member(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedMemberAccess(_, _),
+        ))) => {}
         error => panic!("Expected undefined circuit member error, got {}", error),
     }
 }
@@ -70,9 +68,9 @@ fn test_inline_fail() {
 fn test_inline_undefined() {
     let program = compile_program(DIRECTORY_NAME, "inline_undefined.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedCircuit(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedCircuit(_),
+        ))) => {}
         error => panic!("Expected undefined circuit error, got {}", error),
     }
 }
@@ -107,9 +105,9 @@ fn test_member_function_fail() {
 fn test_member_function_invalid() {
     let program = compile_program(DIRECTORY_NAME, "member_function_invalid.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::InvalidStaticAccess(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::InvalidStaticAccess(_),
+        ))) => {}
         error => panic!("Expected invalid function error, got {}", error),
     }
 }
@@ -124,9 +122,9 @@ fn test_member_static_function() {
 fn test_member_static_function_undefined() {
     let program = compile_program(DIRECTORY_NAME, "member_static_function_undefined.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedStaticAccess(_, _)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedStaticAccess(_, _),
+        ))) => {}
         error => panic!("Expected undefined static function error, got {}", error),
     }
 }
@@ -134,9 +132,9 @@ fn test_member_static_function_undefined() {
 fn test_member_static_function_invalid() {
     let program = compile_program(DIRECTORY_NAME, "member_static_function_invalid.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::InvalidMemberAccess(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::InvalidMemberAccess(_),
+        ))) => {}
         error => panic!("Expected invalid static function error, got {}", error),
     }
 }
@@ -153,26 +151,24 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("new".into()),
-                    ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                        Some(Identifier::new("Circ".into())),
-                        Function {
-                            function_name: Identifier::new("new".into()),
-                            inputs: vec![],
-                            returns: vec![Type::SelfType],
-                            statements: vec![Statement::Return(vec![Expression::Circuit(
-                                Identifier::new("Self".into()),
-                                vec![]
-                            )])]
-                        }
-                    )))
-                )]
-            )
-        ]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("new".into()),
+                ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
+                    Some(Identifier::new("Circ".into())),
+                    Function {
+                        function_name: Identifier::new("new".into()),
+                        inputs: vec![],
+                        returns: vec![Type::SelfType],
+                        statements: vec![Statement::Return(vec![Expression::Circuit(
+                            Identifier::new("Self".into()),
+                            vec![]
+                        )])]
+                    }
+                )))
+            )]
+        )]),
         output
     );
 }

@@ -1,12 +1,13 @@
 //! The build checksum file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::ChecksumFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::ChecksumFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static CHECKSUM_FILE_EXTENSION: &str = ".leo.checksum";
 
@@ -52,7 +53,10 @@ impl ChecksumFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, CHECKSUM_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!(
+                "{}{}",
+                self.package_name, CHECKSUM_FILE_EXTENSION
+            )));
         }
         path
     }

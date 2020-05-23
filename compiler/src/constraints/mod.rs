@@ -57,8 +57,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: Group, CS: ConstraintSyste
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result =
-                resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
+            let result = resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
             log::debug!("{}", result);
             Ok(result)
         }

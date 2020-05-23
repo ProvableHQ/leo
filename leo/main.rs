@@ -1,5 +1,4 @@
-use leo::errors::CLIError;
-use leo::{cli::*, commands::*, logger};
+use leo::{cli::*, commands::*, errors::CLIError, logger};
 
 use clap::{App, AppSettings};
 

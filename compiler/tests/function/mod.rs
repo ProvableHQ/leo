@@ -12,10 +12,7 @@ const DIRECTORY_NAME: &str = "tests/function/";
 
 pub(crate) fn output_empty(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
-    assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![]),
-        output
-    );
+    assert_eq!(ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![]), output);
 }
 
 // (true, false)
@@ -32,9 +29,9 @@ pub(crate) fn output_multiple(program: Compiler<Fr, EdwardsProjective>) {
 
 fn fail_undefined_identifier(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedIdentifier(_),
+        ))) => {}
         error => panic!("Expected function undefined, got {}", error),
     }
 }
@@ -65,12 +62,11 @@ fn test_undefined() {
 fn test_global_scope_fail() {
     let program = compile_program(DIRECTORY_NAME, "scope_fail.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::FunctionError(value)),
-        )) => match *value {
-            FunctionError::StatementError(StatementError::ExpressionError(
-                ExpressionError::UndefinedIdentifier(_),
-            )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::FunctionError(value),
+        ))) => match *value {
+            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_))) => {
+            }
             error => panic!("Expected function undefined, got {}", error),
         },
         error => panic!("Expected function undefined, got {}", error),

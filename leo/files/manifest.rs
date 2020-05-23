@@ -1,11 +1,12 @@
 use crate::errors::ManifestError;
 
 use serde::Deserialize;
-use std::convert::TryFrom;
-use std::fs::File;
-use std::io::Read;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    convert::TryFrom,
+    fs::File,
+    io::{Read, Write},
+    path::PathBuf,
+};
 
 pub static MANIFEST_FILE_NAME: &str = "Leo.toml";
 
@@ -48,8 +49,7 @@ impl Manifest {
             path.push(PathBuf::from(MANIFEST_FILE_NAME));
         }
 
-        let mut file = File::create(&path)
-            .map_err(|error| ManifestError::Creating(MANIFEST_FILE_NAME, error))?;
+        let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILE_NAME, error))?;
         file.write_all(self.template().as_bytes())
             .map_err(|error| ManifestError::Writing(MANIFEST_FILE_NAME, error))
     }
@@ -74,8 +74,7 @@ impl TryFrom<&PathBuf> for Manifest {
             path.push(PathBuf::from(MANIFEST_FILE_NAME));
         }
 
-        let mut file =
-            File::open(path).map_err(|error| ManifestError::Opening(MANIFEST_FILE_NAME, error))?;
+        let mut file = File::open(path).map_err(|error| ManifestError::Opening(MANIFEST_FILE_NAME, error))?;
         let size = file
             .metadata()
             .map_err(|error| ManifestError::Metadata(MANIFEST_FILE_NAME, error))?
@@ -85,7 +84,6 @@ impl TryFrom<&PathBuf> for Manifest {
         file.read_to_string(&mut buffer)
             .map_err(|error| ManifestError::Reading(MANIFEST_FILE_NAME, error))?;
 
-        Ok(toml::from_str(&buffer)
-            .map_err(|error| ManifestError::Parsing(MANIFEST_FILE_NAME, error))?)
+        Ok(toml::from_str(&buffer).map_err(|error| ManifestError::Parsing(MANIFEST_FILE_NAME, error))?)
     }
 }

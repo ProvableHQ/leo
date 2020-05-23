@@ -1,16 +1,17 @@
-use crate::{cli::*, cli_types::*};
-use crate::commands::SetupCommand;
-use crate::errors::CLIError;
-use crate::files::{Manifest, ProofFile};
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::SetupCommand,
+    errors::CLIError,
+    files::{Manifest, ProofFile},
+};
 
 use snarkos_algorithms::snark::{create_random_proof, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
 
 use clap::ArgMatches;
 use rand::thread_rng;
-use std::convert::TryFrom;
-use std::env::current_dir;
-use std::time::Instant;
+use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
 pub struct ProveCommand;
@@ -19,10 +20,10 @@ impl CLI for ProveCommand {
     type Options = ();
     type Output = Proof<Bls12_377>;
 
-    const NAME: NameType = "prove";
     const ABOUT: AboutType = "Run the program and produce a proof";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "prove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

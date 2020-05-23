@@ -1,11 +1,7 @@
-use crate::{cli::*, cli_types::*};
-use crate::commands::BuildCommand;
-use crate::errors::CLIError;
-use crate::files::Manifest;
+use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError, files::Manifest};
 
 use clap::ArgMatches;
-use std::convert::TryFrom;
-use std::env::current_dir;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct LoadCommand;
@@ -14,10 +10,10 @@ impl CLI for LoadCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "load";
     const ABOUT: AboutType = "Install a package from the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "load";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

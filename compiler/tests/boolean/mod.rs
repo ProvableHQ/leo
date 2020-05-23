@@ -1,10 +1,10 @@
 use crate::{compile_program, get_error, get_output};
 
-use leo_compiler::errors::{BooleanError, ExpressionError};
 use leo_compiler::{
     compiler::Compiler,
-    errors::{CompilerError, FunctionError, StatementError},
-    ConstrainedValue, InputValue,
+    errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
+    ConstrainedValue,
+    InputValue,
 };
 use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
 use snarkos_models::gadgets::utilities::boolean::Boolean;
@@ -14,9 +14,7 @@ const DIRECTORY_NAME: &str = "tests/boolean/";
 fn output_true(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(
-            Boolean::Constant(true)
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(true))]),
         output
     );
 }
@@ -24,49 +22,39 @@ fn output_true(program: Compiler<Fr, EdwardsProjective>) {
 fn output_false(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(
-            Boolean::Constant(false)
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(false))]),
         output
     );
 }
 
 fn fail_evaluate(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::BooleanError(
-                BooleanError::CannotEvaluate(_string),
-            )),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::BooleanError(BooleanError::CannotEvaluate(_string)),
+        ))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }
 
 fn fail_enforce(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::BooleanError(
-                BooleanError::CannotEnforce(_string),
-            )),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::BooleanError(BooleanError::CannotEnforce(_string)),
+        ))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }
 
 fn fail_boolean(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(
-            BooleanError::InvalidBoolean(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::InvalidBoolean(_string))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
     }
 }
 
 fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(
-            BooleanError::SynthesisError(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }

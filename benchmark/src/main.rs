@@ -2,15 +2,14 @@ use leo_compiler::{self, ast, errors::CompilerError, InputValue, Program};
 
 use from_pest::FromPest;
 use rand::thread_rng;
-use snarkos_algorithms::snark::{
-    create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
+use snarkos_algorithms::snark::{create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof};
+use snarkos_curves::{
+    bls12_377::{Bls12_377, Fr},
+    edwards_bls12::EdwardsProjective,
 };
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_curves::edwards_bls12::EdwardsProjective;
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::Group;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{Field, Group, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 use std::{
@@ -58,10 +57,7 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
 }
 
 impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, G> {
-    fn generate_constraints<CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-    ) -> Result<(), SynthesisError> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let _res = leo_compiler::generate_constraints(cs, self.program, self.parameters).unwrap();
         println!(" Result: {}", _res);
 
@@ -119,10 +115,7 @@ fn main() {
     println!(" ");
     println!("  Setup time      : {:?} milliseconds", setup.as_millis());
     println!("  Prover time     : {:?} milliseconds", proving.as_millis());
-    println!(
-        "  Verifier time   : {:?} milliseconds",
-        verifying.as_millis()
-    );
+    println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
     println!("  Verifier output : {}", is_success);
     println!(" ");
 

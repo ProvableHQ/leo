@@ -40,9 +40,7 @@ fn test_assertion_basic() {
     let mut cs_satisfied = TestConstraintSystem::<Fr>::new();
 
     program_input_true.set_inputs(vec![Some(InputValue::Boolean(true))]);
-    let _output = program_input_true
-        .compile_constraints(&mut cs_satisfied)
-        .unwrap();
+    let _output = program_input_true.compile_constraints(&mut cs_satisfied).unwrap();
 
     assert!(cs_satisfied.is_satisfied());
 
@@ -50,9 +48,7 @@ fn test_assertion_basic() {
     let mut cs_unsatisfied = TestConstraintSystem::<Fr>::new();
 
     program_input_false.set_inputs(vec![Some(InputValue::Boolean(false))]);
-    let _output = program_input_false
-        .compile_constraints(&mut cs_unsatisfied)
-        .unwrap();
+    let _output = program_input_false.compile_constraints(&mut cs_unsatisfied).unwrap();
 
     assert!(!cs_unsatisfied.is_satisfied());
 }

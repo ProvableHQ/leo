@@ -11,9 +11,9 @@ const DIRECTORY_NAME: &str = "tests/integer/u32/";
 pub(crate) fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(0u32))
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+            UInt32::constant(0u32)
+        ))]),
         output
     )
 }
@@ -21,9 +21,9 @@ pub(crate) fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
 pub(crate) fn output_one(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(1u32))
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+            UInt32::constant(1u32)
+        ))]),
         output
     )
 }
@@ -31,27 +31,23 @@ pub(crate) fn output_one(program: Compiler<Fr, EdwardsProjective>) {
 fn output_two(program: Compiler<Fr, EdwardsProjective>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(2u32))
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+            UInt32::constant(2u32)
+        ))]),
         output
     )
 }
 
 fn fail_integer(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(
-            IntegerError::InvalidInteger(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::InvalidInteger(_string))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
     }
 }
 
 fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(
-            IntegerError::SynthesisError(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }

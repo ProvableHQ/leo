@@ -1,5 +1,4 @@
-use crate::errors::GroupElementError;
-use crate::{ConstrainedProgram, ConstrainedValue, InputValue};
+use crate::{errors::GroupElementError, ConstrainedProgram, ConstrainedValue, InputValue};
 
 use snarkos_models::{
     curves::{Field, Group, PrimeField},

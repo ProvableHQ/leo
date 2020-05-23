@@ -1,9 +1,24 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
-    RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
+    Assignee,
+    Circuit,
+    CircuitMember,
+    ConditionalNestedOrEnd,
+    ConditionalStatement,
+    Expression,
+    FieldElement,
+    Function,
+    Identifier,
+    InputModel,
+    InputValue,
+    Integer,
+    IntegerType,
+    RangeOrExpression,
+    SpreadOrExpression,
+    Statement,
+    Type,
+    Variable,
 };
 
 use snarkos_models::curves::{Field, Group, PrimeField};
@@ -75,12 +90,8 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for RangeOrExpression<F
             RangeOrExpression::Range(ref from, ref to) => write!(
                 f,
                 "{}..{}",
-                from.as_ref()
-                    .map(|e| format!("{}", e))
-                    .unwrap_or("".to_string()),
-                to.as_ref()
-                    .map(|e| format!("{}", e))
-                    .unwrap_or("".to_string())
+                from.as_ref().map(|e| format!("{}", e)).unwrap_or("".to_string()),
+                to.as_ref().map(|e| format!("{}", e)).unwrap_or("".to_string())
             ),
             RangeOrExpression::Expression(ref e) => write!(f, "{}", e),
         }
@@ -155,9 +166,7 @@ impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Expression<F, G> {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitMemberAccess(ref circuit_name, ref member) => {
-                write!(f, "{}.{}", circuit_name, member)
-            }
+            Expression::CircuitMemberAccess(ref circuit_name, ref member) => write!(f, "{}.{}", circuit_name, member),
             Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member) => {
                 write!(f, "{}::{}", circuit_name, member)
             }
@@ -182,9 +191,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Assignee<F, G> {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::CircuitField(ref circuit_variable, ref member) => {
-                write!(f, "{}.{}", circuit_variable, member)
-            }
+            Assignee::CircuitField(ref circuit_variable, ref member) => write!(f, "{}.{}", circuit_variable, member),
         }
     }
 }
@@ -230,12 +237,8 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Statement<F, G> {
                 }
                 write!(f, ")\n")
             }
-            Statement::Definition(ref variable, ref expression) => {
-                write!(f, "let {} = {};", variable, expression)
-            }
-            Statement::Assign(ref variable, ref statement) => {
-                write!(f, "{} = {};", variable, statement)
-            }
+            Statement::Definition(ref variable, ref expression) => write!(f, "let {} = {};", variable, expression),
+            Statement::Assign(ref variable, ref statement) => write!(f, "{} = {};", variable, statement),
             Statement::MultipleAssign(ref assignees, ref function) => {
                 write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
@@ -254,9 +257,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Statement<F, G> {
                 }
                 write!(f, "\t}}")
             }
-            Statement::AssertEq(ref left, ref right) => {
-                write!(f, "assert_eq({}, {});", left, right)
-            }
+            Statement::AssertEq(ref left, ref right) => write!(f, "assert_eq({}, {});", left, right),
             Statement::Expression(ref expression) => write!(f, "{};", expression),
         }
     }
@@ -297,9 +298,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for Type<F, G> {
 impl<F: Field + PrimeField, G: Group> fmt::Display for CircuitMember<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitField(ref identifier, ref _type) => {
-                write!(f, "{}: {}", identifier, _type)
-            }
+            CircuitMember::CircuitField(ref identifier, ref _type) => write!(f, "{}: {}", identifier, _type),
             CircuitMember::CircuitFunction(ref _static, ref function) => {
                 if *_static {
                     write!(f, "static ")?;

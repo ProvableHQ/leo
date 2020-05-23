@@ -1,12 +1,13 @@
 //! The verification key file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::VerificationKeyFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::VerificationKeyFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".leo.vk";
 
@@ -52,7 +53,10 @@ impl VerificationKeyFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!(
+                "{}{}",
+                self.package_name, VERIFICATION_KEY_FILE_EXTENSION
+            )));
         }
         path
     }

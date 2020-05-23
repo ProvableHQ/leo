@@ -1,6 +1,11 @@
 use crate::errors::{
-    BooleanError, ExpressionError, FieldElementError, GroupElementError, IntegerError,
-    StatementError, ValueError,
+    BooleanError,
+    ExpressionError,
+    FieldElementError,
+    GroupElementError,
+    IntegerError,
+    StatementError,
+    ValueError,
 };
 
 #[derive(Debug, Error)]

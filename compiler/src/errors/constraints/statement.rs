@@ -44,11 +44,7 @@ pub enum StatementError {
     #[error("Cannot assign to immutable variable {}", _0)]
     ImmutableAssign(String),
 
-    #[error(
-        "Multiple definition statement expected {} return values, got {}",
-        _0,
-        _1
-    )]
+    #[error("Multiple definition statement expected {} return values, got {}", _0, _1)]
     InvalidNumberOfDefinitions(usize, usize),
 
     #[error("Function return statement expected {} return values, got {}", _0, _1)]

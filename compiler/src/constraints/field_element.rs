@@ -34,15 +34,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         // Check visibility of parameter
         let field_value = if private {
-            cs.alloc(
-                || name,
-                || field_option.ok_or(SynthesisError::AssignmentMissing),
-            )?
+            cs.alloc(|| name, || field_option.ok_or(SynthesisError::AssignmentMissing))?
         } else {
-            cs.alloc_input(
-                || name,
-                || field_option.ok_or(SynthesisError::AssignmentMissing),
-            )?
+            cs.alloc_input(|| name, || field_option.ok_or(SynthesisError::AssignmentMissing))?
         };
 
         Ok(ConstrainedValue::FieldElement(FieldElement::Allocated(
@@ -75,12 +69,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     //     ResolvedValue::Boolean(Boolean::Constant(fe1.lt(&fe2)))
     // }
 
-    pub(crate) fn enforce_field_eq(
-        &mut self,
-        cs: &mut CS,
-        fe_1: FieldElement<F>,
-        fe_2: FieldElement<F>,
-    ) {
+    pub(crate) fn enforce_field_eq(&mut self, cs: &mut CS, fe_1: FieldElement<F>, fe_2: FieldElement<F>) {
         let mut lc = LinearCombination::zero();
 
         match (fe_1, fe_2) {
@@ -90,18 +79,12 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
                 lc = lc + (fe_1_constant, CS::one()) - (fe_2_constant, CS::one());
             }
             // else, return an allocated result
-            (
-                FieldElement::Allocated(_fe_1_value, fe_1_variable),
-                FieldElement::Constant(fe_2_constant),
-            ) => {
+            (FieldElement::Allocated(_fe_1_value, fe_1_variable), FieldElement::Constant(fe_2_constant)) => {
                 // lc = lc + fe_1 - (fe_2_constant * 1)
                 // lc = lc + fe_1 - fe_2
                 lc = lc + fe_1_variable - (fe_2_constant, CS::one())
             }
-            (
-                FieldElement::Constant(fe_1_constant),
-                FieldElement::Allocated(_fe_2_value, fe_2_variable),
-            ) => {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Allocated(_fe_2_value, fe_2_variable)) => {
                 // lc = lc + (fe_1_constant * 1) - fe_2
                 // lc = lc + fe_1 - fe_2
                 lc = lc + (fe_1_constant, CS::one()) - fe_2_variable
@@ -128,15 +111,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ConstrainedValue::FieldElement(FieldElement::Constant(
-                    fe_1_constant.add(&fe_2_constant),
-                ))
+                ConstrainedValue::FieldElement(FieldElement::Constant(fe_1_constant.add(&fe_2_constant)))
             }
             // else, return an allocated result
-            (
-                FieldElement::Allocated(fe_1_value, fe_1_variable),
-                FieldElement::Constant(fe_2_constant),
-            ) => {
+            (FieldElement::Allocated(fe_1_value, fe_1_variable), FieldElement::Constant(fe_2_constant)) => {
                 let sum_value: Option<F> = fe_1_value.map(|v| v.add(&fe_2_constant));
                 let sum_variable: R1CSVariable = cs.alloc(
                     || "field addition",
@@ -152,10 +130,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 ConstrainedValue::FieldElement(FieldElement::Allocated(sum_value, sum_variable))
             }
-            (
-                FieldElement::Constant(fe_1_constant),
-                FieldElement::Allocated(fe_2_value, fe_2_variable),
-            ) => {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Allocated(fe_2_value, fe_2_variable)) => {
                 let sum_value: Option<F> = fe_2_value.map(|v| fe_1_constant.add(&v));
                 let sum_variable: R1CSVariable = cs.alloc(
                     || "field addition",
@@ -205,15 +180,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ConstrainedValue::FieldElement(FieldElement::Constant(
-                    fe_1_constant.sub(&fe_2_constant),
-                ))
+                ConstrainedValue::FieldElement(FieldElement::Constant(fe_1_constant.sub(&fe_2_constant)))
             }
             // else, return an allocated result
-            (
-                FieldElement::Allocated(fe_1_value, fe_1_variable),
-                FieldElement::Constant(fe_2_constant),
-            ) => {
+            (FieldElement::Allocated(fe_1_value, fe_1_variable), FieldElement::Constant(fe_2_constant)) => {
                 let sub_value: Option<F> = fe_1_value.map(|v| v.sub(&fe_2_constant));
                 let sub_variable: R1CSVariable = cs.alloc(
                     || "field subtraction",
@@ -229,10 +199,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 ConstrainedValue::FieldElement(FieldElement::Allocated(sub_value, sub_variable))
             }
-            (
-                FieldElement::Constant(fe_1_constant),
-                FieldElement::Allocated(fe_2_value, fe_2_variable),
-            ) => {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Allocated(fe_2_value, fe_2_variable)) => {
                 let sub_value: Option<F> = fe_2_value.map(|v| fe_1_constant.sub(&v));
                 let sub_variable: R1CSVariable = cs.alloc(
                     || "field subtraction",
@@ -282,15 +249,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ConstrainedValue::FieldElement(FieldElement::Constant(
-                    fe_1_constant.mul(&fe_2_constant),
-                ))
+                ConstrainedValue::FieldElement(FieldElement::Constant(fe_1_constant.mul(&fe_2_constant)))
             }
             // else, return an allocated result
-            (
-                FieldElement::Allocated(fe_1_value, fe_1_variable),
-                FieldElement::Constant(fe_2_constant),
-            ) => {
+            (FieldElement::Allocated(fe_1_value, fe_1_variable), FieldElement::Constant(fe_2_constant)) => {
                 let mul_value: Option<F> = fe_1_value.map(|v| v.mul(&fe_2_constant));
                 let mul_variable: R1CSVariable = cs.alloc(
                     || "field multiplication",
@@ -306,10 +268,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 ConstrainedValue::FieldElement(FieldElement::Allocated(mul_value, mul_variable))
             }
-            (
-                FieldElement::Constant(fe_1_constant),
-                FieldElement::Allocated(fe_2_value, fe_2_variable),
-            ) => {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Allocated(fe_2_value, fe_2_variable)) => {
                 let mul_value: Option<F> = fe_2_value.map(|v| fe_1_constant.mul(&v));
                 let mul_variable: R1CSVariable = cs.alloc(
                     || "field multiplication",
@@ -359,15 +318,10 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         Ok(match (fe_1, fe_2) {
             // if both constants, then return a constant result
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
-                ConstrainedValue::FieldElement(FieldElement::Constant(
-                    fe_1_constant.div(&fe_2_constant),
-                ))
+                ConstrainedValue::FieldElement(FieldElement::Constant(fe_1_constant.div(&fe_2_constant)))
             }
             // else, return an allocated result
-            (
-                FieldElement::Allocated(fe_1_value, fe_1_variable),
-                FieldElement::Constant(fe_2_constant),
-            ) => {
+            (FieldElement::Allocated(fe_1_value, fe_1_variable), FieldElement::Constant(fe_2_constant)) => {
                 let div_value: Option<F> = fe_1_value.map(|v| v.div(&fe_2_constant));
                 let div_variable: R1CSVariable = cs.alloc(
                     || "field division",
@@ -384,10 +338,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
                 ConstrainedValue::FieldElement(FieldElement::Allocated(div_value, div_variable))
             }
-            (
-                FieldElement::Constant(fe_1_constant),
-                FieldElement::Allocated(fe_2_value, _fe_2_variable),
-            ) => {
+            (FieldElement::Constant(fe_1_constant), FieldElement::Allocated(fe_2_value, _fe_2_variable)) => {
                 let div_value: Option<F> = fe_2_value.map(|v| fe_1_constant.div(&v));
                 let div_variable: R1CSVariable = cs.alloc(
                     || "field division",
@@ -446,9 +397,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     ) -> Result<ConstrainedValue<F, G>, FieldElementError> {
         Ok(match fe_1 {
             // if both constants, then return a constant result
-            FieldElement::Constant(fe_1_constant) => ConstrainedValue::FieldElement(
-                FieldElement::Constant(fe_1_constant.pow(&[num.to_usize() as u64])),
-            ),
+            FieldElement::Constant(fe_1_constant) => {
+                ConstrainedValue::FieldElement(FieldElement::Constant(fe_1_constant.pow(&[num.to_usize() as u64])))
+            }
             // else, return an allocated result
             FieldElement::Allocated(fe_1_value, _fe_1_variable) => {
                 let pow_value: Option<F> = fe_1_value.map(|v| v.pow(&[num.to_usize() as u64]));

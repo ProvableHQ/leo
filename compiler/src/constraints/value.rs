@@ -8,17 +8,18 @@ use crate::{
 use snarkos_models::{
     curves::{Field, Group, PrimeField},
     gadgets::utilities::{
-        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
+        boolean::Boolean,
+        uint128::UInt128,
+        uint16::UInt16,
+        uint32::UInt32,
+        uint64::UInt64,
         uint8::UInt8,
     },
 };
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(
-    pub Identifier<F, G>,
-    pub ConstrainedValue<F, G>,
-);
+pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: Group>(pub Identifier<F, G>, pub ConstrainedValue<F, G>);
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
@@ -41,10 +42,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: Group> {
 }
 
 impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
-    pub(crate) fn from_other(
-        value: String,
-        other: &ConstrainedValue<F, G>,
-    ) -> Result<Self, ValueError> {
+    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
         ConstrainedValue::from_type(value, &other_type)
@@ -69,9 +67,7 @@ impl<F: Field + PrimeField, G: Group> ConstrainedValue<F, G> {
                 let point = G::default().mul(&scalar);
                 point
             })),
-            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
-                value.parse::<bool>()?,
-            ))),
+            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?))),
             Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }
@@ -144,9 +140,7 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ConstrainedValue<F, G> {
             ConstrainedValue::CircuitDefinition(ref _definition) => {
                 unimplemented!("cannot return circuit definition in program")
             }
-            ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "{}", function)
-            }
+            ConstrainedValue::Function(ref _circuit_option, ref function) => write!(f, "{}", function),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),

@@ -17,9 +17,9 @@ fn mut_success(program: Compiler<Fr, EdwardsProjective>) {
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(0))
-        )]),
+        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+            UInt32::constant(0)
+        ))]),
         output
     );
 }
@@ -31,9 +31,7 @@ fn mut_fail(program: Compiler<Fr, EdwardsProjective>) {
     // It would be ideal if assert_eq!(Error1, Error2) were possible but unfortunately it is not due to
     // https://github.com/rust-lang/rust/issues/34158#issuecomment-224910299
     match err {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ImmutableAssign(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ImmutableAssign(_string))) => {}
         err => panic!("Expected immutable assign error, got {}", err),
     }
 }

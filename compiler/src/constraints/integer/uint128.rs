@@ -29,81 +29,49 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
 
         // Check visibility of parameter
         let integer_value = if private {
-            UInt128::alloc(cs.ns(|| name), || {
-                u128_option.ok_or(SynthesisError::AssignmentMissing)
-            })?
+            UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?
         } else {
-            UInt128::alloc_input(cs.ns(|| name), || {
-                u128_option.ok_or(SynthesisError::AssignmentMissing)
-            })?
+            UInt128::alloc_input(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?
         };
 
         Ok(ConstrainedValue::Integer(Integer::U128(integer_value)))
     }
 
-    pub(crate) fn enforce_u128_eq(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<(), IntegerError> {
+    pub(crate) fn enforce_u128_eq(cs: &mut CS, left: UInt128, right: UInt128) -> Result<(), IntegerError> {
         Ok(left.enforce_equal(cs.ns(|| format!("enforce u128 equal")), &right)?)
     }
 
-    pub(crate) fn enforce_u128_add(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<UInt128, IntegerError> {
+    pub(crate) fn enforce_u128_add(cs: &mut CS, left: UInt128, right: UInt128) -> Result<UInt128, IntegerError> {
         Ok(UInt128::addmany(
             cs.ns(|| format!("enforce {} + {}", left.value.unwrap(), right.value.unwrap())),
             &[left, right],
         )?)
     }
 
-    pub(crate) fn enforce_u128_sub(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<UInt128, IntegerError> {
+    pub(crate) fn enforce_u128_sub(cs: &mut CS, left: UInt128, right: UInt128) -> Result<UInt128, IntegerError> {
         Ok(left.sub(
             cs.ns(|| format!("enforce {} - {}", left.value.unwrap(), right.value.unwrap())),
             &right,
         )?)
     }
 
-    pub(crate) fn enforce_u128_mul(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<UInt128, IntegerError> {
+    pub(crate) fn enforce_u128_mul(cs: &mut CS, left: UInt128, right: UInt128) -> Result<UInt128, IntegerError> {
         Ok(left.mul(
             cs.ns(|| format!("enforce {} * {}", left.value.unwrap(), right.value.unwrap())),
             &right,
         )?)
     }
-    pub(crate) fn enforce_u128_div(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<UInt128, IntegerError> {
+
+    pub(crate) fn enforce_u128_div(cs: &mut CS, left: UInt128, right: UInt128) -> Result<UInt128, IntegerError> {
         Ok(left.div(
             cs.ns(|| format!("enforce {} / {}", left.value.unwrap(), right.value.unwrap())),
             &right,
         )?)
     }
-    pub(crate) fn enforce_u128_pow(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<UInt128, IntegerError> {
+
+    pub(crate) fn enforce_u128_pow(cs: &mut CS, left: UInt128, right: UInt128) -> Result<UInt128, IntegerError> {
         Ok(left.pow(
-            cs.ns(|| {
-                format!(
-                    "enforce {} ** {}",
-                    left.value.unwrap(),
-                    right.value.unwrap()
-                )
-            }),
+            cs.ns(|| format!("enforce {} ** {}", left.value.unwrap(), right.value.unwrap())),
             &right,
         )?)
     }

@@ -3,16 +3,14 @@
 
 use crate::Import;
 
-use snarkos_models::curves::{Field, Group, PrimeField};
-use snarkos_models::gadgets::{
-    r1cs::Variable as R1CSVariable,
-    utilities::{
-        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
-        uint8::UInt8,
+use snarkos_models::{
+    curves::{Field, Group, PrimeField},
+    gadgets::{
+        r1cs::Variable as R1CSVariable,
+        utilities::{boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8},
     },
 };
-use std::collections::HashMap;
-use std::marker::PhantomData;
+use std::{collections::HashMap, marker::PhantomData};
 
 /// An identifier in the constrained program.
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -106,11 +104,7 @@ pub enum Expression<F: Field + PrimeField, G: Group> {
     Lt(Box<Expression<F, G>>, Box<Expression<F, G>>),
 
     // Conditionals
-    IfElse(
-        Box<Expression<F, G>>,
-        Box<Expression<F, G>>,
-        Box<Expression<F, G>>,
-    ),
+    IfElse(Box<Expression<F, G>>, Box<Expression<F, G>>, Box<Expression<F, G>>),
 
     // Arrays
     Array(Vec<Box<SpreadOrExpression<F, G>>>),

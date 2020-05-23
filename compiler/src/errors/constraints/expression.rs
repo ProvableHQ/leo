@@ -35,10 +35,7 @@ pub enum ExpressionError {
     InvalidExponent(String),
 
     // Arrays
-    #[error(
-        "Array {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Array {} must be declared before it is used in an inline expression", _0)]
     UndefinedArray(String),
 
     #[error("Cannot access array {}", _0)]
@@ -54,10 +51,7 @@ pub enum ExpressionError {
     InvalidLength(usize, usize),
 
     // Circuits
-    #[error(
-        "Circuit {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Circuit {} must be declared before it is used in an inline expression", _0)]
     UndefinedCircuit(String),
 
     #[error("Cannot access circuit {}", _0)]
@@ -79,10 +73,7 @@ pub enum ExpressionError {
     InvalidStaticAccess(String),
 
     // Functions
-    #[error(
-        "Function {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Function {} must be declared before it is used in an inline expression", _0)]
     UndefinedFunction(String),
 
     #[error("{}", _0)]
