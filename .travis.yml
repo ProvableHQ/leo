@@ -10,7 +10,14 @@ before_install:
   - mv $TRAVIS_HOME/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $TRAVIS_HOME/.bin/sccache
   - export PATH="$PATH:$TRAVIS_HOME/.bin"
   - export RUSTC_WRAPPER="sccache"
-  - openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in travis-snarkos.enc -out travis-snarkos -d
+  - |
+      declare -r SSH_FILE="$(mktemp -u $HOME/.ssh/travis-snarkos)"
+      openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in .travis/travis-snarkos.enc -out $SSH_FILE -d
+      chmod 600 "$SSH_FILE" \
+             && printf "%s\n" \
+                  "Host github.com" \
+                  "  IdentityFile $SSH_FILE" \
+                  "  LogLevel ERROR" >> ~/.ssh/config
   - git clone --progress --verbose git@github.com:AleoHQ/snarkOS.git
   - mv snarkOS ..
 
