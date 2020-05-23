@@ -13,6 +13,7 @@ use leo_gadgets::integers::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
+use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -40,6 +41,39 @@ impl Integer {
             Integer::U64(_u64) => IntegerType::U64,
             Integer::U128(_u128) => IntegerType::U128,
         }
+    }
+}
+
+impl<F: Field + PrimeField> EqGadget<F> for Integer {}
+
+impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        mut cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                left_u8.conditional_enforce_equal(&mut cs.ns(|| "u8 eq"), &right_u8, condition)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                left_u16.conditional_enforce_equal(&mut cs.ns(|| "u16 eq"), &right_u16, condition)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                left_u32.conditional_enforce_equal(&mut cs.ns(|| "u32 eq"), &right_u32, condition)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                left_u64.conditional_enforce_equal(&mut cs.ns(|| "u64 eq"), &right_u64, condition)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => left_u128
+                .conditional_enforce_equal(&mut cs.ns(|| "u128 eq"), &right_u128, condition),
+            (_, _) => Err(SynthesisError::Unsatisfiable),
+        }
+    }
+
+    fn cost() -> usize {
+        <UInt128 as ConditionalEqGadget<F>>::cost()
     }
 }
 
@@ -71,7 +105,7 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
     }
 
     fn cost() -> usize {
-        unimplemented!("Cannot calculate cost.")
+        <UInt128 as CondSelectGadget<F>>::cost()
     }
 }
 
@@ -82,31 +116,6 @@ impl<
         CS: ConstraintSystem<F>,
     > ConstrainedProgram<P, F, FG, CS>
 {
-    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<P, F, FG> {
-        ConstrainedValue::Integer(integer)
-    }
-
-    pub(crate) fn evaluate_integer_eq(
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
-        Ok(ConstrainedValue::Boolean(Boolean::Constant(
-            match (left, right) {
-                (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.eq(&right_u8),
-                (Integer::U16(left_u16), Integer::U16(right_u16)) => left_u16.eq(&right_u16),
-                (Integer::U32(left_u32), Integer::U32(right_u32)) => left_u32.eq(&right_u32),
-                (Integer::U64(left_u64), Integer::U64(right_u64)) => left_u64.eq(&right_u64),
-                (Integer::U128(left_u128), Integer::U128(right_u128)) => left_u128.eq(&right_u128),
-                (left, right) => {
-                    return Err(IntegerError::CannotEvaluate(format!(
-                        "{} == {}",
-                        left, right
-                    )))
-                }
-            },
-        )))
-    }
-
     pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
@@ -133,36 +142,6 @@ impl<
             IntegerType::U32 => self.u32_from_input(cs, name, private, integer_option),
             IntegerType::U64 => self.u64_from_input(cs, name, private, integer_option),
             IntegerType::U128 => self.u128_from_input(cs, name, private, integer_option),
-        }
-    }
-
-    pub(crate) fn enforce_integer_eq(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<(), IntegerError> {
-        match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Self::enforce_u8_eq(cs, left_u8, right_u8)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Self::enforce_u16_eq(cs, left_u16, right_u16)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Self::enforce_u32_eq(cs, left_u32, right_u32)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Self::enforce_u64_eq(cs, left_u64, right_u64)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Self::enforce_u128_eq(cs, left_u128, right_u128)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!(
-                    "{} == {}",
-                    left, right
-                )))
-            }
         }
     }
 

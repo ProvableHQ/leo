@@ -1,5 +1,7 @@
 use crate::errors::{BooleanError, ExpressionError, FieldElementError, IntegerError, ValueError};
 
+use snarkos_errors::gadgets::SynthesisError;
+
 #[derive(Debug, Error)]
 pub enum StatementError {
     #[error("Attempted to assign to unknown variable {}", _0)]
@@ -19,6 +21,9 @@ pub enum StatementError {
 
     #[error("{}", _0)]
     ValueError(ValueError),
+
+    #[error("{}", _0)]
+    SynthesisError(SynthesisError),
 
     // Arrays
     #[error("Cannot assign single index to array of values")]
@@ -91,5 +96,11 @@ impl From<BooleanError> for StatementError {
 impl From<ValueError> for StatementError {
     fn from(error: ValueError) -> Self {
         StatementError::ValueError(error)
+    }
+}
+
+impl From<SynthesisError> for StatementError {
+    fn from(error: SynthesisError) -> Self {
+        StatementError::SynthesisError(error)
     }
 }

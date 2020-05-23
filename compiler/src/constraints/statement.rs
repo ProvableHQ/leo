@@ -14,6 +14,7 @@ use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
+use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
@@ -420,7 +421,7 @@ impl<
                 self.enforce_boolean_eq(cs, bool_1, bool_2)?
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_eq(cs, num_1, num_2)?
+                num_1.enforce_equal(cs, &num_2)?
             }
             // (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
             //     self.enforce_field_eq(cs, fe_1, fe_2)

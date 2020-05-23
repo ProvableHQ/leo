@@ -1,9 +1,15 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
-use crate::{constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue}, errors::ExpressionError, new_scope, types::{
-    CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
-    SpreadOrExpression,
-}, Integer, IntegerType, Type, GroupElement, FieldElement};
+use crate::{
+    constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
+    errors::ExpressionError,
+    new_scope,
+    types::{
+        CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
+        SpreadOrExpression,
+    },
+    FieldElement, GroupElement, Integer, IntegerType, Type,
+};
 
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
@@ -208,9 +214,9 @@ impl<
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Ok(Self::boolean_eq(bool_1, bool_2))
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::evaluate_integer_eq(num_1, num_2)?)
-            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => Ok(
+                ConstrainedValue::Boolean(Boolean::Constant(num_1.eq(&num_2))),
+            ),
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
             }
@@ -357,8 +363,7 @@ impl<
             expected_types,
             second,
         )?;
-        let value_2 =
-            self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
+        let value_2 = self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
 
         match (value_1, value_2) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
@@ -366,18 +371,15 @@ impl<
                 Ok(ConstrainedValue::Boolean(result))
             }
             (ConstrainedValue::Integer(integer_1), ConstrainedValue::Integer(integer_2)) => {
-                let result =
-                    Integer::conditionally_select(cs, &boolean, &integer_1, &integer_2)?;
+                let result = Integer::conditionally_select(cs, &boolean, &integer_1, &integer_2)?;
                 Ok(ConstrainedValue::Integer(result))
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                let result =
-                    FieldElement::conditionally_select(cs, &boolean, &fe_1, &fe_2)?;
+                let result = FieldElement::conditionally_select(cs, &boolean, &fe_1, &fe_2)?;
                 Ok(ConstrainedValue::FieldElement(result))
             }
             (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                let result =
-                    GroupElement::conditionally_select(cs, &boolean, &ge_1, &ge_2)?;
+                let result = GroupElement::conditionally_select(cs, &boolean, &ge_1, &ge_2)?;
                 Ok(ConstrainedValue::GroupElement(result))
             }
             (_, _) => {
@@ -820,9 +822,13 @@ impl<
             ),
 
             // Values
-            Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
-            Expression::FieldElement(fe) => Ok(ConstrainedValue::FieldElement(FieldElement::new_constant(fe))),
-            Expression::GroupElement(x, y) => Ok(ConstrainedValue::GroupElement(GroupElement::new_constant(x, y))),
+            Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
+            Expression::FieldElement(fe) => Ok(ConstrainedValue::FieldElement(
+                FieldElement::new_constant(fe),
+            )),
+            Expression::GroupElement(x, y) => Ok(ConstrainedValue::GroupElement(
+                GroupElement::new_constant(x, y),
+            )),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 

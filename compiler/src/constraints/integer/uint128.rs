@@ -12,10 +12,7 @@ use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, eq::EqGadget},
-    },
+    gadgets::{r1cs::ConstraintSystem, utilities::alloc::AllocGadget},
 };
 
 impl<
@@ -48,14 +45,6 @@ impl<
         };
 
         Ok(ConstrainedValue::Integer(Integer::U128(integer_value)))
-    }
-
-    pub(crate) fn enforce_u128_eq(
-        cs: &mut CS,
-        left: UInt128,
-        right: UInt128,
-    ) -> Result<(), IntegerError> {
-        Ok(left.enforce_equal(cs.ns(|| format!("enforce u128 equal")), &right)?)
     }
 
     pub(crate) fn enforce_u128_add(

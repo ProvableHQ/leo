@@ -1,21 +1,18 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
-use crate::{
-    errors::FieldElementError,
-    types::InputValue,
-};
+use crate::{errors::FieldElementError, types::InputValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::{FieldGadget, FpGadget};
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
+use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 use std::fmt;
-use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 
 /// A constant or allocated element in the field
 #[derive(Clone, PartialEq, Eq)]
@@ -58,9 +55,7 @@ impl<F: Field + PrimeField> FieldElement<F> {
             })?
         };
 
-        Ok(FieldElement::Allocated(
-            field_value,
-        ))
+        Ok(FieldElement::Allocated(field_value))
     }
 
     pub fn eq(&self, other: &Self) -> bool {
@@ -165,7 +160,6 @@ impl<F: Field + PrimeField> FieldElement<F> {
         }
     }
 
-
     pub fn enforce_add<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
@@ -180,9 +174,7 @@ impl<F: Field + PrimeField> FieldElement<F> {
             }
             (FieldElement::Allocated(ref fe_gadget), FieldElement::Constant(ref fe_constant))
             | (FieldElement::Constant(ref fe_constant), FieldElement::Allocated(ref fe_gadget)) => {
-                FieldElement::Allocated(
-                    fe_gadget.add_constant(cs.ns(|| "field add"), fe_constant)?,
-                )
+                FieldElement::Allocated(fe_gadget.add_constant(cs.ns(|| "field add"), fe_constant)?)
             }
         })
     }
@@ -213,17 +205,18 @@ impl<F: Field + PrimeField> FieldElement<F> {
     pub fn enforce_mul<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-        other: &Self
+        other: &Self,
     ) -> Result<Self, FieldElementError> {
         Ok(match (self, other) {
             (FieldElement::Constant(fe_1_constant), FieldElement::Constant(fe_2_constant)) => {
                 FieldElement::Constant(fe_1_constant.mul(&fe_2_constant))
             }
-            (FieldElement::Allocated(ref fe_1_gadget), FieldElement::Allocated(ref fe_2_gadget)) => {
-                FieldElement::Allocated(
-                    fe_1_gadget.mul(cs.ns(|| "field multiplication"), fe_2_gadget)?,
-                )
-            }
+            (
+                FieldElement::Allocated(ref fe_1_gadget),
+                FieldElement::Allocated(ref fe_2_gadget),
+            ) => FieldElement::Allocated(
+                fe_1_gadget.mul(cs.ns(|| "field multiplication"), fe_2_gadget)?,
+            ),
             (FieldElement::Allocated(ref fe_gadget), FieldElement::Constant(ref fe_constant))
             | (FieldElement::Constant(ref fe_constant), FieldElement::Allocated(ref fe_gadget)) => {
                 FieldElement::Allocated(
@@ -261,9 +254,9 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for FieldElement<F> {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         match (first, second) {
-            (FieldElement::Allocated(fe_1), FieldElement::Allocated(fe_2)) => Ok(FieldElement::Allocated(
-                FpGadget::<F>::conditionally_select(cs, cond, fe_1, fe_2)?
-            )),
+            (FieldElement::Allocated(fe_1), FieldElement::Allocated(fe_2)) => Ok(
+                FieldElement::Allocated(FpGadget::<F>::conditionally_select(cs, cond, fe_1, fe_2)?),
+            ),
             (_, _) => Err(SynthesisError::Unsatisfiable), // types do not match
         }
     }
