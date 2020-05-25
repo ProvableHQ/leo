@@ -1,10 +1,10 @@
 use crate::{compile_program, get_error, get_output};
 use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
 use leo_compiler::{compiler::Compiler, types::Integer, ConstrainedValue, InputValue};
-use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/integer/u32/";
 

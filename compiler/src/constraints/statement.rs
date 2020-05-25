@@ -10,14 +10,16 @@ use crate::{
     },
     Variable,
 };
-use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, uint32::UInt32},
+    },
 };
 
 impl<

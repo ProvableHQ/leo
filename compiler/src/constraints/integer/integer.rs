@@ -6,9 +6,6 @@ use crate::{
     types::{InputValue, Integer},
     IntegerType,
 };
-use leo_gadgets::integers::{
-    uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64, uint8::UInt8,
-};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::TEModelParameters;
@@ -18,7 +15,10 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, select::CondSelectGadget},
+        utilities::{
+            boolean::Boolean, select::CondSelectGadget, uint128::UInt128, uint16::UInt16,
+            uint32::UInt32, uint64::UInt64, uint8::UInt8,
+        },
     },
 };
 

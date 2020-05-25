@@ -1,4 +1,4 @@
-use crate::commands::{SetupCommand, ProveCommand};
+use crate::commands::{ProveCommand, SetupCommand};
 use crate::errors::CLIError;
 use crate::{cli::*, cli_types::*};
 

@@ -6,10 +6,10 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError},
     ConstrainedValue, InputValue, Integer,
 };
-use leo_gadgets::integers::uint32::UInt32;
 
 use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 

@@ -1,7 +1,7 @@
-use crate::{cli::*, cli_types::*};
 use crate::commands::BuildCommand;
 use crate::errors::CLIError;
 use crate::files::Manifest;
+use crate::{cli::*, cli_types::*};
 
 use clap::ArgMatches;
 use std::convert::TryFrom;

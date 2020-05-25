@@ -5,9 +5,7 @@ use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::KeypairAssembly;
-use snarkos_curves::{
-    bls12_377::{Bls12_377},
-};
+use snarkos_curves::bls12_377::Bls12_377;
 use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 
@@ -64,7 +62,10 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<EdwardsParameters, Fq, FqGadget>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<EdwardsParameters, Fq, FqGadget>::init(
+            package_name.clone(),
+            main_file_path.clone(),
+        )?;
         let program_checksum = program.checksum()?;
 
         // Generate the program on the constraint system and verify correctness

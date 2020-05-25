@@ -5,9 +5,12 @@ use rand::thread_rng;
 use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
-use snarkos_curves::bls12_377::{Bls12_377};
-use snarkos_curves::edwards_bls12::{Fq, EdwardsParameters};
+use snarkos_curves::bls12_377::Bls12_377;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
 use snarkos_errors::gadgets::SynthesisError;
+use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_models::curves::TEModelParameters;
+use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
@@ -17,12 +20,13 @@ use std::{
     marker::PhantomData,
     time::{Duration, Instant},
 };
-use snarkos_models::gadgets::curves::FieldGadget;
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
-use snarkos_models::curves::TEModelParameters;
 
 #[derive(Clone)]
-pub struct Benchmark<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> {
+pub struct Benchmark<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+> {
     program: Program<P::BaseField, F>,
     program_inputs: Vec<Option<InputValue<P::BaseField, F>>>,
     _params: PhantomData<P>,
@@ -30,14 +34,19 @@ pub struct Benchmark<P: std::clone::Clone + TEModelParameters, F: Field + PrimeF
     _point: PhantomData<FG>,
 }
 
-impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> Benchmark<P, F, FG> {
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+    > Benchmark<P, F, FG>
+{
     pub fn new() -> Self {
         Self {
             program: Program::new(),
             program_inputs: vec![],
             _params: PhantomData,
             _engine: PhantomData,
-            _point: PhantomData
+            _point: PhantomData,
         }
     }
 
@@ -61,12 +70,22 @@ impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldG
     }
 }
 
-impl<P: std::clone::Clone + TEModelParameters, F: Field + PrimeField, FG: FieldGadget<P::BaseField, F>> ConstraintSynthesizer<F> for Benchmark<P, F, FG> {
+impl<
+        P: std::clone::Clone + TEModelParameters,
+        F: Field + PrimeField,
+        FG: FieldGadget<P::BaseField, F>,
+    > ConstraintSynthesizer<F> for Benchmark<P, F, FG>
+{
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = leo_compiler::generate_constraints::<P, F, FG, CS>(cs, self.program, self.program_inputs).unwrap();
+        let _res = leo_compiler::generate_constraints::<P, F, FG, CS>(
+            cs,
+            self.program,
+            self.program_inputs,
+        )
+        .unwrap();
         println!(" Result: {}", _res);
 
         // Write results to file or something
