@@ -1,4 +1,5 @@
 use crate::errors::*;
+use leo_compiler::errors::CompilerError;
 
 #[derive(Debug, Error)]
 pub enum CLIError {
@@ -10,6 +11,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     ChecksumFileError(ChecksumFileError),
+
+    #[error("{}", _0)]
+    CompilerError(#[from] CompilerError),
 
     #[error("{}", _0)]
     GitignoreError(GitignoreError),
@@ -129,12 +133,6 @@ impl From<SourceDirectoryError> for CLIError {
 impl From<VerificationKeyFileError> for CLIError {
     fn from(error: VerificationKeyFileError) -> Self {
         CLIError::VerificationKeyFileError(error)
-    }
-}
-
-impl From<leo_compiler::errors::CompilerError> for CLIError {
-    fn from(error: leo_compiler::errors::CompilerError) -> Self {
-        CLIError::Crate("leo_compiler", format!("{}", error))
     }
 }
 

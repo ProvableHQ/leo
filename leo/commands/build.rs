@@ -79,7 +79,7 @@ impl CLI for BuildCommand {
                 ct: vec![],
             };
             let temporary_program = program.clone();
-            let output = temporary_program.compile_constraints(&mut cs).unwrap();
+            let output = temporary_program.compile_constraints(&mut cs)?;
             log::debug!("Compiled constraints - {:#?}", output);
         }
 

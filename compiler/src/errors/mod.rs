@@ -1,3 +1,6 @@
+pub mod ast;
+pub use self::ast::*;
+
 pub mod compiler;
 pub use self::compiler::*;
 

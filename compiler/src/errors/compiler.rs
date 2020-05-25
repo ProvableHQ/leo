@@ -1,5 +1,7 @@
-use crate::errors::{FunctionError, ImportError, IntegerError};
+use crate::errors::{FunctionError, ImportError, IntegerError, SyntaxError};
+use crate::ast::Rule;
 
+use pest::error::Error;
 use std::io;
 use std::path::PathBuf;
 
@@ -37,6 +39,9 @@ pub enum CompilerError {
 
     #[error("writing: {}", _0)]
     Writing(io::Error),
+
+    #[error("{}", _0)]
+    SyntaxError(SyntaxError)
 }
 
 impl From<ImportError> for CompilerError {
@@ -54,5 +59,11 @@ impl From<IntegerError> for CompilerError {
 impl From<FunctionError> for CompilerError {
     fn from(error: FunctionError) -> Self {
         CompilerError::FunctionError(error)
+    }
+}
+
+impl From<Error<Rule>> for CompilerError {
+    fn from(error: Error<Rule>) -> Self {
+        CompilerError::SyntaxError(SyntaxError::from(error))
     }
 }
