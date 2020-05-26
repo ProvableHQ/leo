@@ -4,26 +4,48 @@ use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum StatementError {
+    #[error("Cannot assert equality between {} == {}", _0, _1)]
+    AssertEq(String, String),
+
+    #[error("{}", _0)]
+    BooleanError(#[from] BooleanError),
+
+    #[error("{}", _0)]
+    ExpressionError(#[from] ExpressionError),
+
+    #[error("{}", _0)]
+    FieldElementError(#[from] FieldElementError),
+
+    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
+    IfElseConditional(String),
+
+    #[error("Cannot assign to immutable variable {}", _0)]
+    ImmutableAssign(String),
+
+    #[error("{}", _0)]
+    IntegerError(#[from] IntegerError),
+
+    #[error(
+        "Multiple definition statement expected {} return values, got {}",
+        _0,
+        _1
+    )]
+    InvalidNumberOfDefinitions(usize, usize),
+
+    #[error("Function return statement expected {} return values, got {}", _0, _1)]
+    InvalidNumberOfReturns(usize, usize),
+
+    #[error("{}", _0)]
+    SynthesisError(#[from] SynthesisError),
+
+    #[error("{}", _0)]
+    ValueError(#[from] ValueError),
+
+    #[error("Expected assignment of return values for expression {}", _0)]
+    Unassigned(String),
+
     #[error("Attempted to assign to unknown variable {}", _0)]
     UndefinedVariable(String),
-
-    #[error("{}", _0)]
-    ExpressionError(ExpressionError),
-
-    #[error("{}", _0)]
-    IntegerError(IntegerError),
-
-    #[error("{}", _0)]
-    FieldElementError(FieldElementError),
-
-    #[error("{}", _0)]
-    BooleanError(BooleanError),
-
-    #[error("{}", _0)]
-    ValueError(ValueError),
-
-    #[error("{}", _0)]
-    SynthesisError(SynthesisError),
 
     // Arrays
     #[error("Cannot assign single index to array of values")]
@@ -44,63 +66,4 @@ pub enum StatementError {
 
     #[error("Attempted to assign to unknown circuit {}", _0)]
     UndefinedCircuitObject(String),
-
-    // Statements
-    #[error("Cannot assign to immutable variable {}", _0)]
-    ImmutableAssign(String),
-
-    #[error(
-        "Multiple definition statement expected {} return values, got {}",
-        _0,
-        _1
-    )]
-    InvalidNumberOfDefinitions(usize, usize),
-
-    #[error("Function return statement expected {} return values, got {}", _0, _1)]
-    InvalidNumberOfReturns(usize, usize),
-
-    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
-    IfElseConditional(String),
-
-    #[error("Cannot assert equality between {} == {}", _0, _1)]
-    AssertEq(String, String),
-
-    #[error("Expected assignment of return values for expression {}", _0)]
-    Unassigned(String),
-}
-
-impl From<ExpressionError> for StatementError {
-    fn from(error: ExpressionError) -> Self {
-        StatementError::ExpressionError(error)
-    }
-}
-
-impl From<IntegerError> for StatementError {
-    fn from(error: IntegerError) -> Self {
-        StatementError::IntegerError(error)
-    }
-}
-
-impl From<FieldElementError> for StatementError {
-    fn from(error: FieldElementError) -> Self {
-        StatementError::FieldElementError(error)
-    }
-}
-
-impl From<BooleanError> for StatementError {
-    fn from(error: BooleanError) -> Self {
-        StatementError::BooleanError(error)
-    }
-}
-
-impl From<ValueError> for StatementError {
-    fn from(error: ValueError) -> Self {
-        StatementError::ValueError(error)
-    }
-}
-
-impl From<SynthesisError> for StatementError {
-    fn from(error: SynthesisError) -> Self {
-        StatementError::SynthesisError(error)
-    }
 }

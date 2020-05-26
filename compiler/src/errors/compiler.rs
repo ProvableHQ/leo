@@ -13,20 +13,20 @@ pub enum CompilerError {
     #[error("Attempt to access current directory failed - {:?}", _0)]
     DirectoryError(io::Error),
 
-    #[error("{}", _0)]
-    ImportError(ImportError),
-
-    #[error("{}", _0)]
-    IntegerError(IntegerError),
-
-    #[error("{}", _0)]
-    FunctionError(FunctionError),
+    #[error("Syntax error. Cannot parse the file")]
+    FileParsingError,
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
-    #[error("Syntax error. Cannot parse the file")]
-    FileParsingError,
+    #[error("{}", _0)]
+    FunctionError(#[from] FunctionError),
+
+    #[error("{}", _0)]
+    ImportError(#[from] ImportError),
+
+    #[error("{}", _0)]
+    IntegerError(#[from] IntegerError),
 
     #[error("Main function not found")]
     NoMain,
@@ -34,32 +34,14 @@ pub enum CompilerError {
     #[error("Main must be a function")]
     NoMainFunction,
 
+    #[error("{}", _0)]
+    SyntaxError(#[from] SyntaxError),
+
     #[error("Unable to construct abstract syntax tree")]
     SyntaxTreeError,
 
     #[error("writing: {}", _0)]
     Writing(io::Error),
-
-    #[error("{}", _0)]
-    SyntaxError(SyntaxError),
-}
-
-impl From<ImportError> for CompilerError {
-    fn from(error: ImportError) -> Self {
-        CompilerError::ImportError(error)
-    }
-}
-
-impl From<IntegerError> for CompilerError {
-    fn from(error: IntegerError) -> Self {
-        CompilerError::IntegerError(error)
-    }
-}
-
-impl From<FunctionError> for CompilerError {
-    fn from(error: FunctionError) -> Self {
-        CompilerError::FunctionError(error)
-    }
 }
 
 impl From<Error<Rule>> for CompilerError {

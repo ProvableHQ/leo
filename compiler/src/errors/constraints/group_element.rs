@@ -6,11 +6,5 @@ pub enum GroupElementError {
     InvalidGroup(String),
 
     #[error("{}", _0)]
-    SynthesisError(SynthesisError),
-}
-
-impl From<SynthesisError> for GroupElementError {
-    fn from(error: SynthesisError) -> Self {
-        GroupElementError::SynthesisError(error)
-    }
+    SynthesisError(#[from] SynthesisError),
 }

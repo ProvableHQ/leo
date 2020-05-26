@@ -15,11 +15,5 @@ pub enum IntegerError {
     CannotEnforce(String),
 
     #[error("{}", _0)]
-    SynthesisError(SynthesisError),
-}
-
-impl From<SynthesisError> for IntegerError {
-    fn from(error: SynthesisError) -> Self {
-        IntegerError::SynthesisError(error)
-    }
+    SynthesisError(#[from] SynthesisError),
 }

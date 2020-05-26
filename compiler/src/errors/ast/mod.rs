@@ -37,7 +37,7 @@ impl From<Error<Rule>> for SyntaxError {
             rule => format!("{:?}", rule),
         });
 
-        log::error!("{}\n", error.to_string());
+        log::error!("{}\n", error);
 
         SyntaxError::Error
     }

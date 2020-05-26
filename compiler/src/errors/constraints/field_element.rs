@@ -6,11 +6,5 @@ pub enum FieldElementError {
     InvalidField(String),
 
     #[error("{}", _0)]
-    SynthesisError(SynthesisError),
-}
-
-impl From<SynthesisError> for FieldElementError {
-    fn from(error: SynthesisError) -> Self {
-        FieldElementError::SynthesisError(error)
-    }
+    SynthesisError(#[from] SynthesisError),
 }
