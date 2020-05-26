@@ -44,7 +44,7 @@ operation_compare = _{
     operation_le | operation_lt
 }
 
-operation_binary = {
+operation_binary = _{
     operation_compare | operation_and | operation_or |
     operation_add | operation_sub | operation_pow | operation_mul | operation_div
 }

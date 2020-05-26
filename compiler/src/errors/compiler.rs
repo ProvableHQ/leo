@@ -1,5 +1,5 @@
-use crate::errors::{FunctionError, ImportError, IntegerError, SyntaxError};
 use crate::ast::Rule;
+use crate::errors::{FunctionError, ImportError, IntegerError, SyntaxError};
 
 use pest::error::Error;
 use std::io;
@@ -41,7 +41,7 @@ pub enum CompilerError {
     Writing(io::Error),
 
     #[error("{}", _0)]
-    SyntaxError(SyntaxError)
+    SyntaxError(SyntaxError),
 }
 
 impl From<ImportError> for CompilerError {

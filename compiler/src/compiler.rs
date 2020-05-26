@@ -100,10 +100,9 @@ impl<
             .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
 
         // Parse the file using leo.pest
-        let mut file = ast::parse(&unparsed_file)
-            .map_err(|error|
-                         CompilerError::from(
-                             error.with_path(&self.main_file_path.to_str().unwrap())))?;
+        let mut file = ast::parse(&unparsed_file).map_err(|error| {
+            CompilerError::from(error.with_path(&self.main_file_path.to_str().unwrap()))
+        })?;
 
         // Build the abstract syntax tree
         let syntax_tree =
