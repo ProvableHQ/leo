@@ -12,17 +12,11 @@ pub enum NewError {
     DirectoryAlreadyExists(OsString),
 
     #[error("{}", _0)]
-    ManifestError(ManifestError),
+    ManifestError(#[from] ManifestError),
 
     #[error("package at path {:?} already exists", _0)]
     PackageAlreadyExists(OsString),
 
     #[error("package name is missing - {:?}", _0)]
     ProjectNameInvalid(OsString),
-}
-
-impl From<ManifestError> for NewError {
-    fn from(error: ManifestError) -> Self {
-        NewError::ManifestError(error)
-    }
 }
