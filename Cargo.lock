@@ -468,20 +468,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-benchmark"
-version = "0.1.0"
-dependencies = [
- "from-pest",
- "leo-compiler",
- "rand",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
-]
-
-[[package]]
 name = "leo-compiler"
 version = "0.1.0"
 dependencies = [
