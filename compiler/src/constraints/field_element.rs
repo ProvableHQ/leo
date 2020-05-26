@@ -7,6 +7,7 @@ use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::{FieldGadget, FpGadget};
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
+use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -56,6 +57,13 @@ impl<F: Field + PrimeField> FieldElement<F> {
         };
 
         Ok(FieldElement::Allocated(field_value))
+    }
+
+    pub fn to_fpgadget<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> FpGadget<F> {
+        match self {
+            FieldElement::Constant(value) => FpGadget::from(&mut cs, value),
+            FieldElement::Allocated(value) => value.clone(),
+        }
     }
 
     pub fn eq(&self, other: &Self) -> bool {
@@ -246,22 +254,40 @@ impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
     }
 }
 
+impl<F: Field + PrimeField> EqGadget<F> for FieldElement<F> {}
+
+impl<F: Field + PrimeField> ConditionalEqGadget<F> for FieldElement<F> {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        mut cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        let value_1 = self.to_fpgadget(&mut cs.ns(|| "first"));
+        let value_2 = other.to_fpgadget(&mut cs.ns(|| "second"));
+        FpGadget::<F>::conditional_enforce_equal(&value_1, cs, &value_2, condition)
+    }
+
+    fn cost() -> usize {
+        <FpGadget<F> as ConditionalEqGadget<F>>::cost()
+    }
+}
+
 impl<F: Field + PrimeField> CondSelectGadget<F> for FieldElement<F> {
     fn conditionally_select<CS: ConstraintSystem<F>>(
-        cs: CS,
+        mut cs: CS,
         cond: &Boolean,
         first: &Self,
         second: &Self,
     ) -> Result<Self, SynthesisError> {
-        match (first, second) {
-            (FieldElement::Allocated(fe_1), FieldElement::Allocated(fe_2)) => Ok(
-                FieldElement::Allocated(FpGadget::<F>::conditionally_select(cs, cond, fe_1, fe_2)?),
-            ),
-            (_, _) => Err(SynthesisError::Unsatisfiable), // types do not match
-        }
+        let value_1 = first.to_fpgadget(&mut cs.ns(|| "first"));
+        let value_2 = second.to_fpgadget(&mut cs.ns(|| "second"));
+        Ok(FieldElement::Allocated(
+            FpGadget::<F>::conditionally_select(cs, cond, &value_1, &value_2)?,
+        ))
     }
 
     fn cost() -> usize {
-        FpGadget::<F>::cost()
+        <FpGadget<F> as CondSelectGadget<F>>::cost()
     }
 }
