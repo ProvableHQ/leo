@@ -881,6 +881,16 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Import<'ast>> for Im
     }
 }
 
+/// pest ast -> Test
+impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Test<'ast>>
+    for types::Test<NativeF, F>
+{
+    fn from(test: ast::Test<'ast>) -> Self {
+        println!("{:?}", test);
+        types::Test(types::Function::from(test.function))
+    }
+}
+
 /// pest ast -> types::Program
 
 impl<'ast, NativeF: Field, F: Field + PrimeField> types::Program<NativeF, F> {
@@ -894,6 +904,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> types::Program<NativeF, F> {
 
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
+        let mut tests = HashMap::new();
         let mut num_parameters = 0usize;
 
         file.circuits.into_iter().for_each(|circuit| {
@@ -908,6 +919,12 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> types::Program<NativeF, F> {
                 types::Function::from(function_def),
             );
         });
+        file.tests.into_iter().for_each(|test_def| {
+            tests.insert(
+                types::Identifier::from(test_def.function.function_name.clone()),
+                types::Test::from(test_def),
+            );
+        });
 
         if let Some(main_function) = functions.get(&types::Identifier::new("main".into())) {
             num_parameters = main_function.inputs.len();
@@ -919,6 +936,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> types::Program<NativeF, F> {
             imports,
             circuits,
             functions,
+            tests,
         }
     }
 }

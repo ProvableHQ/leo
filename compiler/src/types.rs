@@ -263,6 +263,11 @@ impl<NativeF: Field, F: Field + PrimeField> Function<NativeF, F> {
     }
 }
 
+/// Tests
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Test<NativeF: Field, F: Field + PrimeField>(pub Function<NativeF, F>);
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program<NativeF: Field, F: Field + PrimeField> {
@@ -271,6 +276,7 @@ pub struct Program<NativeF: Field, F: Field + PrimeField> {
     pub imports: Vec<Import<NativeF, F>>,
     pub circuits: HashMap<Identifier<NativeF, F>, Circuit<NativeF, F>>,
     pub functions: HashMap<Identifier<NativeF, F>, Function<NativeF, F>>,
+    pub tests: HashMap<Identifier<NativeF, F>, Test<NativeF, F>>,
 }
 
 impl<'ast, NativeF: Field, F: Field + PrimeField> Program<NativeF, F> {
@@ -281,6 +287,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> Program<NativeF, F> {
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),
+            tests: HashMap::new(),
         }
     }
 
