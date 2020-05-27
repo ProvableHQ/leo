@@ -103,7 +103,7 @@ pub fn generate_test_constraints<
 
         if result.is_ok() {
             log::info!(
-                "test {} passed. Constraint system satisfied: {}",
+                "test {} compiled. Constraint system satisfied: {}",
                 full_test_name,
                 cs.is_satisfied()
             );
