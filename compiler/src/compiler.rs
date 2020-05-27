@@ -4,7 +4,7 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program,
+    generate_test_constraints, InputValue, Program,
 };
 
 use snarkos_models::{
@@ -17,7 +17,7 @@ use sha2::{Digest, Sha256};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
-use snarkos_models::gadgets::r1cs::ConstraintSynthesizer;
+use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, TestConstraintSystem};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
@@ -78,6 +78,13 @@ impl<
         cs: &mut CS,
     ) -> Result<ConstrainedValue<P, F, FG>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
+    }
+
+    pub fn compile_test_constraints(
+        self,
+        cs: &mut TestConstraintSystem<F>,
+    ) -> Result<(), CompilerError> {
+        generate_test_constraints::<P, F, FG>(cs, self.program)
     }
 
     // pub fn compile(&self) -> Result<ast::File, CompilerError> {

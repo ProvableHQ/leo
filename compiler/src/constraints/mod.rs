@@ -37,6 +37,7 @@ use crate::{
 
 use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::FieldGadget;
+use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -71,4 +72,52 @@ pub fn generate_constraints<
         }
         _ => Err(CompilerError::NoMainFunction),
     }
+}
+
+pub fn generate_test_constraints<
+    P: std::clone::Clone + TEModelParameters,
+    F: Field + PrimeField,
+    FG: FieldGadget<P::BaseField, F>,
+>(
+    cs: &mut TestConstraintSystem<F>,
+    program: Program<P::BaseField, F>,
+) -> Result<(), CompilerError> {
+    let mut resolved_program = ConstrainedProgram::<P, F, FG, TestConstraintSystem<F>>::new();
+    let program_name = program.get_name();
+
+    let test_names = program
+        .tests
+        .iter()
+        .map(|test| new_scope(program_name.clone(), test.0.name.clone()))
+        .collect::<Vec<String>>();
+
+    resolved_program.resolve_definitions(cs, program)?;
+
+    for name in test_names {
+        let test = resolved_program
+            .get(&name)
+            .ok_or_else(|| CompilerError::NoMain)?;
+        match test.clone() {
+            ConstrainedValue::Function(_circuit_identifier, function) => {
+                log::info!("Running test {}", name);
+                let _result = resolved_program.enforce_main_function(
+                    cs,
+                    program_name.clone(),
+                    function,
+                    vec![],
+                )?;
+
+                log::info!("Test {} completed", name);
+
+                if cs.is_satisfied() {
+                    log::info!("Test passed. Constraint system satisfied");
+                } else {
+                    log::info!("Test failed. Constraint system not satisfied");
+                }
+            }
+            _ => return Err(CompilerError::NoMainFunction),
+        }
+    }
+
+    Ok(())
 }
