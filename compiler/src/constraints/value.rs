@@ -49,7 +49,7 @@ pub enum ConstrainedValue<
     Function(
         Option<Identifier<P::BaseField, F>>,
         Function<P::BaseField, F>,
-    ), // (optional circuit identifier, function definition)
+    ),
     Return(Vec<ConstrainedValue<P, F, FG>>),
 
     Mutable(Box<ConstrainedValue<P, F, FG>>),

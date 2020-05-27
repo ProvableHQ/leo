@@ -1,4 +1,4 @@
-use crate::{compile_program, get_error, get_output};
+use crate::{compile_program, get_error, get_output, get_output_allocated};
 use leo_compiler::errors::FieldElementError;
 use leo_compiler::{
     compiler::Compiler,
@@ -32,6 +32,28 @@ fn output_one(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
         ]),
         output
     );
+}
+
+fn output_zero_allocated(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let output = get_output_allocated(cs, program);
+    assert_eq!(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::FieldElement(FieldElement::Allocated(FqGadget::zero(cs).unwrap()))
+        ]),
+        output
+    )
+}
+
+fn output_one_allocated(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let output = get_output_allocated(cs, program);
+    assert_eq!(
+        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
+            ConstrainedValue::FieldElement(FieldElement::Allocated(FqGadget::one(cs).unwrap()))
+        ]),
+        output
+    )
 }
 
 fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
@@ -95,4 +117,42 @@ fn test_input_field_none() {
     let mut program = compile_program(DIRECTORY_NAME, "input_field.leo").unwrap();
     program.set_inputs(vec![None]);
     fail_synthesis(program);
+}
+
+#[test]
+fn test_ternary_first() {
+    let mut program = compile_program(DIRECTORY_NAME, "ternary.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
+
+    output_one_allocated(program)
+}
+
+#[test]
+fn test_ternary_second() {
+    let mut program = compile_program(DIRECTORY_NAME, "ternary.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Boolean(false))]);
+
+    output_zero_allocated(program)
+}
+
+#[test]
+fn test_assertion_pass() {
+    let mut program = compile_program(DIRECTORY_NAME, "assertion.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Field(Fq::one()))]);
+
+    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let _output = program.compile_constraints(cs).unwrap();
+
+    assert!(cs.is_satisfied());
+}
+
+#[test]
+fn test_assertion_fail() {
+    let mut program = compile_program(DIRECTORY_NAME, "assertion.leo").unwrap();
+    program.set_inputs(vec![Some(InputValue::Field(Fq::zero()))]);
+
+    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let _output = program.compile_constraints(cs).unwrap();
+
+    assert!(!cs.is_satisfied());
 }

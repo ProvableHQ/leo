@@ -17,6 +17,15 @@ use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
+pub(crate) fn get_output_allocated(
+    cs: &mut TestConstraintSystem<Fq>,
+    program: Compiler<EdwardsParameters, Fq, FqGadget>,
+) -> ConstrainedValue<EdwardsParameters, Fq, FqGadget> {
+    let output = program.compile_constraints(cs).unwrap();
+    assert!(cs.is_satisfied());
+    output
+}
+
 pub(crate) fn get_output(
     program: Compiler<EdwardsParameters, Fq, FqGadget>,
 ) -> ConstrainedValue<EdwardsParameters, Fq, FqGadget> {
