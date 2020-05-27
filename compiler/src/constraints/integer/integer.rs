@@ -49,25 +49,26 @@ impl<F: Field + PrimeField> EqGadget<F> for Integer {}
 impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
-        mut cs: CS,
+        cs: CS,
         other: &Self,
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                left_u8.conditional_enforce_equal(&mut cs.ns(|| "u8 eq"), &right_u8, condition)
+                left_u8.conditional_enforce_equal(cs, &right_u8, condition)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                left_u16.conditional_enforce_equal(&mut cs.ns(|| "u16 eq"), &right_u16, condition)
+                left_u16.conditional_enforce_equal(cs, &right_u16, condition)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                left_u32.conditional_enforce_equal(&mut cs.ns(|| "u32 eq"), &right_u32, condition)
+                left_u32.conditional_enforce_equal(cs, &right_u32, condition)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                left_u64.conditional_enforce_equal(&mut cs.ns(|| "u64 eq"), &right_u64, condition)
+                left_u64.conditional_enforce_equal(cs, &right_u64, condition)
             }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => left_u128
-                .conditional_enforce_equal(&mut cs.ns(|| "u128 eq"), &right_u128, condition),
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                left_u128.conditional_enforce_equal(cs, &right_u128, condition)
+            }
             (_, _) => Err(SynthesisError::Unsatisfiable),
         }
     }

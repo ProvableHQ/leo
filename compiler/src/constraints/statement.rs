@@ -423,11 +423,13 @@ impl<
                 self.enforce_boolean_eq(cs, bool_1, bool_2)?
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.enforce_equal(cs, &num_2)?
+                num_1.enforce_equal(cs, &num_2).map_err(|_| {
+                    StatementError::AssertionFailed(num_1.to_string(), num_2.to_string())
+                })?
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                fe_1.enforce_equal(cs, &fe_2)?
-            }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => fe_1
+                .enforce_equal(cs, &fe_2)
+                .map_err(|_| StatementError::AssertionFailed(fe_1.to_string(), fe_2.to_string()))?,
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
                     self.enforce_assert_eq_statement(cs, left, right)?;

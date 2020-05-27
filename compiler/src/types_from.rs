@@ -886,7 +886,6 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Test<'ast>>
     for types::Test<NativeF, F>
 {
     fn from(test: ast::Test<'ast>) -> Self {
-        println!("{:?}", test);
         types::Test(types::Function::from(test.function))
     }
 }

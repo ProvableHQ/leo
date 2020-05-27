@@ -85,37 +85,30 @@ pub fn generate_test_constraints<
     let mut resolved_program = ConstrainedProgram::<P, F, FG, TestConstraintSystem<F>>::new();
     let program_name = program.get_name();
 
-    let test_names = program
-        .tests
-        .iter()
-        .map(|test| new_scope(program_name.clone(), test.0.name.clone()))
-        .collect::<Vec<String>>();
+    let tests = program.tests.clone();
 
     resolved_program.resolve_definitions(cs, program)?;
 
-    for name in test_names {
-        let test = resolved_program
-            .get(&name)
-            .ok_or_else(|| CompilerError::NoMain)?;
-        match test.clone() {
-            ConstrainedValue::Function(_circuit_identifier, function) => {
-                log::info!("Running test {}", name);
-                let _result = resolved_program.enforce_main_function(
-                    cs,
-                    program_name.clone(),
-                    function,
-                    vec![],
-                )?;
+    log::info!("Running {} tests", tests.len());
 
-                log::info!("Test {} completed", name);
+    for (test_name, test_function) in tests.into_iter() {
+        let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
 
-                if cs.is_satisfied() {
-                    log::info!("Test passed. Constraint system satisfied");
-                } else {
-                    log::info!("Test failed. Constraint system not satisfied");
-                }
-            }
-            _ => return Err(CompilerError::NoMainFunction),
+        let result = resolved_program.enforce_main_function(
+            cs,
+            program_name.clone(),
+            test_function.0,
+            vec![], // test functions should not take any inputs
+        );
+
+        if result.is_ok() {
+            log::info!(
+                "test {} passed. Constraint system satisfied: {}",
+                full_test_name,
+                cs.is_satisfied()
+            );
+        } else {
+            log::error!("test {} errored: {}", full_test_name, result.unwrap_err())
         }
     }
 
