@@ -11,8 +11,6 @@ use crate::{
     Variable,
 };
 
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::gadgets::utilities::eq::EqGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -22,14 +20,8 @@ use snarkos_models::{
     },
 };
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
-{
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<P::BaseField, F>) -> String {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
         match assignee {
             Assignee::Identifier(name) => new_scope(scope, name.to_string()),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
@@ -42,7 +34,7 @@ impl<
     fn get_mutable_assignee(
         &mut self,
         name: String,
-    ) -> Result<&mut ConstrainedValue<P, F, FG>, StatementError> {
+    ) -> Result<&mut ConstrainedValue<F>, StatementError> {
         // Check that assignee exists and is mutable
         Ok(match self.get_mut(&name) {
             Some(value) => match value {
@@ -59,8 +51,8 @@ impl<
         file_scope: String,
         function_scope: String,
         name: String,
-        range_or_expression: RangeOrExpression<P::BaseField, F>,
-        new_value: ConstrainedValue<P, F, FG>,
+        range_or_expression: RangeOrExpression<F>,
+        new_value: ConstrainedValue<F>,
     ) -> Result<(), StatementError> {
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
@@ -103,8 +95,8 @@ impl<
     fn mutute_circuit_field(
         &mut self,
         circuit_name: String,
-        object_name: Identifier<P::BaseField, F>,
-        new_value: ConstrainedValue<P, F, FG>,
+        object_name: Identifier<F>,
+        new_value: ConstrainedValue<F>,
     ) -> Result<(), StatementError> {
         match self.get_mutable_assignee(circuit_name)? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -141,8 +133,8 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<P::BaseField, F>,
-        expression: Expression<P::BaseField, F>,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
@@ -182,8 +174,8 @@ impl<
     fn store_definition(
         &mut self,
         function_scope: String,
-        variable: Variable<P::BaseField, F>,
-        mut value: ConstrainedValue<P, F, FG>,
+        variable: Variable<F>,
+        mut value: ConstrainedValue<F>,
     ) -> Result<(), StatementError> {
         // Store with given mutability
         if variable.mutable {
@@ -202,8 +194,8 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variable: Variable<P::BaseField, F>,
-        expression: Expression<P::BaseField, F>,
+        variable: Variable<F>,
+        expression: Expression<F>,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         if let Some(ref _type) = variable._type {
@@ -225,8 +217,8 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variables: Vec<Variable<P::BaseField, F>>,
-        function: Expression<P::BaseField, F>,
+        variables: Vec<Variable<F>>,
+        function: Expression<F>,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         for variable in variables.iter() {
@@ -268,9 +260,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expressions: Vec<Expression<P::BaseField, F>>,
-        return_types: Vec<Type<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, StatementError> {
+        expressions: Vec<Expression<F>>,
+        return_types: Vec<Type<F>>,
+    ) -> Result<ConstrainedValue<F>, StatementError> {
         // Make sure we return the correct number of values
         if return_types.len() != expressions.len() {
             return Err(StatementError::InvalidNumberOfReturns(
@@ -301,9 +293,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statements: Vec<Statement<P::BaseField, F>>,
-        return_types: Vec<Type<P::BaseField, F>>,
-    ) -> Result<Option<ConstrainedValue<P, F, FG>>, StatementError> {
+        statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
+    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
         let mut res = None;
         // Evaluate statements and possibly return early
         for statement in statements.iter() {
@@ -327,9 +319,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: ConditionalStatement<P::BaseField, F>,
-        return_types: Vec<Type<P::BaseField, F>>,
-    ) -> Result<Option<ConstrainedValue<P, F, FG>>, StatementError> {
+        statement: ConditionalStatement<F>,
+        return_types: Vec<Type<F>>,
+    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
         let expected_types = vec![Type::Boolean];
         let condition = match self.enforce_expression(
             cs,
@@ -379,12 +371,12 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Identifier<P::BaseField, F>,
+        index: Identifier<F>,
         start: Integer,
         stop: Integer,
-        statements: Vec<Statement<P::BaseField, F>>,
-        return_types: Vec<Type<P::BaseField, F>>,
-    ) -> Result<Option<ConstrainedValue<P, F, FG>>, StatementError> {
+        statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
+    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
         let mut res = None;
 
         for i in start.to_usize()..stop.to_usize() {
@@ -415,8 +407,8 @@ impl<
     fn enforce_assert_eq_statement(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
     ) -> Result<(), StatementError> {
         Ok(match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
@@ -452,9 +444,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: Statement<P::BaseField, F>,
-        return_types: Vec<Type<P::BaseField, F>>,
-    ) -> Result<Option<ConstrainedValue<P, F, FG>>, StatementError> {
+        statement: Statement<F>,
+        return_types: Vec<Type<F>>,
+    ) -> Result<Option<ConstrainedValue<F>>, StatementError> {
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {

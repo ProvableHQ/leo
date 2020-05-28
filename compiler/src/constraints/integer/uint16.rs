@@ -7,8 +7,6 @@ use crate::{
 };
 
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -17,20 +15,14 @@ use snarkos_models::{
     },
 };
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
-{
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn u16_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<P, F, FG>, IntegerError> {
+    ) -> Result<ConstrainedValue<F>, IntegerError> {
         // Type cast to u16 in rust.
         // If this fails should we return our own error?
         let u16_option = integer_option.map(|integer| integer as u16);

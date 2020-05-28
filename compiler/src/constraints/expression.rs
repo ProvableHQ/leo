@@ -8,11 +8,9 @@ use crate::{
         CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
         SpreadOrExpression,
     },
-    FieldElement, GroupElement, Integer, IntegerType, Type,
+    FieldElement, GroupType, Integer, IntegerType, Type,
 };
 
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -21,21 +19,15 @@ use snarkos_models::{
     },
 };
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
-{
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     /// Enforce a variable expression by getting the resolved value
     pub(crate) fn evaluate_identifier(
         &mut self,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        unresolved_identifier: Identifier<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        unresolved_identifier: Identifier<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
@@ -61,18 +53,15 @@ impl<
     fn enforce_add_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_add(cs, num_1, num_2)?)
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::FieldElement(fe_1.enforce_add(cs, &fe_2)?))
-            }
-            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(ConstrainedValue::GroupElement(ge_1.enforce_add(cs, &ge_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -92,18 +81,15 @@ impl<
     fn enforce_sub_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_sub(cs, num_1, num_2)?)
             }
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::FieldElement(fe_1.enforce_sub(cs, &fe_2)?))
-            }
-            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(ConstrainedValue::GroupElement(ge_1.enforce_sub(cs, &ge_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -123,9 +109,9 @@ impl<
     fn enforce_mul_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_mul(cs, num_1, num_2)?)
@@ -153,9 +139,9 @@ impl<
     fn enforce_div_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_div(cs, num_1, num_2)?)
@@ -179,9 +165,9 @@ impl<
     fn enforce_pow_expression(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_pow(cs, num_1, num_2)?)
@@ -207,9 +193,9 @@ impl<
     /// Evaluate Boolean operations
     fn evaluate_eq_expression(
         &mut self,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Ok(Self::boolean_eq(bool_1, bool_2))
@@ -219,9 +205,6 @@ impl<
             ),
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
-            }
-            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(ge_1.eq(&ge_2))))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -240,9 +223,9 @@ impl<
 
     fn evaluate_ge_expression(
         &mut self,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.ge(&fe_2))))
@@ -264,9 +247,9 @@ impl<
 
     fn evaluate_gt_expression(
         &mut self,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.gt(&fe_2))))
@@ -288,9 +271,9 @@ impl<
 
     fn evaluate_le_expression(
         &mut self,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.le(&fe_2))))
@@ -312,9 +295,9 @@ impl<
 
     fn evaluate_lt_expression(
         &mut self,
-        left: ConstrainedValue<P, F, FG>,
-        right: ConstrainedValue<P, F, FG>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        left: ConstrainedValue<F>,
+        right: ConstrainedValue<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.lt(&fe_2))))
@@ -340,11 +323,11 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        first: Expression<P::BaseField, F>,
-        second: Expression<P::BaseField, F>,
-        third: Expression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        first: Expression<F>,
+        second: Expression<F>,
+        third: Expression<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let boolean = match self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -378,10 +361,6 @@ impl<
                 let result = FieldElement::conditionally_select(cs, &boolean, &fe_1, &fe_2)?;
                 Ok(ConstrainedValue::FieldElement(result))
             }
-            (ConstrainedValue::GroupElement(ge_1), ConstrainedValue::GroupElement(ge_2)) => {
-                let result = GroupElement::conditionally_select(cs, &boolean, &ge_1, &ge_2)?;
-                Ok(ConstrainedValue::GroupElement(result))
-            }
             (_, _) => {
                 unimplemented!("conditional select gadget not implemented between given types")
             }
@@ -394,9 +373,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        array: Vec<Box<SpreadOrExpression<P::BaseField, F>>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        array: Vec<Box<SpreadOrExpression<F>>>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         // Check explicit array type dimension if given
         let mut expected_types = expected_types.clone();
         let expected_dimensions = vec![];
@@ -458,7 +437,7 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Expression<P::BaseField, F>,
+        index: Expression<F>,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
         match self.enforce_branch(
@@ -478,10 +457,10 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        array: Box<Expression<P::BaseField, F>>,
-        index: RangeOrExpression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        array: Box<Expression<F>>,
+        index: RangeOrExpression<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let array = match self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -519,9 +498,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        identifier: Identifier<P::BaseField, F>,
-        members: Vec<CircuitFieldDefinition<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        identifier: Identifier<F>,
+        members: Vec<CircuitFieldDefinition<F>>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
 
         if identifier.is_self() {
@@ -593,10 +572,10 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        circuit_identifier: Box<Expression<P::BaseField, F>>,
-        circuit_member: Identifier<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        circuit_identifier: Box<Expression<F>>,
+        circuit_member: Identifier<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let (circuit_name, members) = match self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -654,10 +633,10 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        circuit_identifier: Box<Expression<P::BaseField, F>>,
-        circuit_member: Identifier<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        circuit_identifier: Box<Expression<F>>,
+        circuit_member: Identifier<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         // Get defined circuit
         let circuit = match self.enforce_expression(
             cs,
@@ -708,10 +687,10 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        function: Box<Expression<P::BaseField, F>>,
-        arguments: Vec<Expression<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        function: Box<Expression<F>>,
+        arguments: Vec<Expression<F>>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let function_value = self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -747,9 +726,9 @@ impl<
     }
 
     pub(crate) fn enforce_number_implicit(
-        expected_types: &Vec<Type<P::BaseField, F>>,
+        expected_types: &Vec<Type<F>>,
         value: String,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         if expected_types.len() == 1 {
             return Ok(ConstrainedValue::from_type(value, &expected_types[0])?);
         }
@@ -765,9 +744,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        expression: Expression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        expression: Expression<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         let mut branch =
             self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
 
@@ -782,10 +761,10 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        left: Expression<P::BaseField, F>,
-        right: Expression<P::BaseField, F>,
-    ) -> Result<(ConstrainedValue<P, F, FG>, ConstrainedValue<P, F, FG>), ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        left: Expression<F>,
+        right: Expression<F>,
+    ) -> Result<(ConstrainedValue<F>, ConstrainedValue<F>), ExpressionError> {
         let resolved_left = self.enforce_branch(
             cs,
             file_scope.clone(),
@@ -809,9 +788,9 @@ impl<
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<P::BaseField, F>>,
-        expression: Expression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, ExpressionError> {
+        expected_types: &Vec<Type<F>>,
+        expression: Expression<F>,
+    ) -> Result<ConstrainedValue<F>, ExpressionError> {
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => self.evaluate_identifier(
@@ -826,9 +805,7 @@ impl<
             Expression::FieldElement(fe) => Ok(ConstrainedValue::FieldElement(
                 FieldElement::new_constant(fe),
             )),
-            Expression::GroupElement(x, y) => Ok(ConstrainedValue::GroupElement(
-                GroupElement::new_constant(x, y),
-            )),
+            Expression::Group(x, y) => Ok(ConstrainedValue::Group(GroupType::new(x, y))),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 

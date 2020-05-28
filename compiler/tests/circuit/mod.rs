@@ -13,30 +13,27 @@ use leo_compiler::{
     Statement, Type,
 };
 
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";
 
 // Circ { x: 1u32 }
-fn output_circuit(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_circuit(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("x".into()),
-                    ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
-                )]
-            )
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("x".into()),
+                ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
+            )]
+        )]),
         output
     );
 }
 
-fn fail_expected_member(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_expected_member(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
@@ -45,7 +42,7 @@ fn fail_expected_member(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     }
 }
 
-fn fail_undefined_member(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_undefined_member(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
@@ -155,26 +152,24 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("new".into()),
-                    ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                        Some(Identifier::new("Circ".into())),
-                        Function {
-                            function_name: Identifier::new("new".into()),
-                            inputs: vec![],
-                            returns: vec![Type::SelfType],
-                            statements: vec![Statement::Return(vec![Expression::Circuit(
-                                Identifier::new("Self".into()),
-                                vec![]
-                            )])]
-                        }
-                    )))
-                )]
-            )
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("new".into()),
+                ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
+                    Some(Identifier::new("Circ".into())),
+                    Function {
+                        function_name: Identifier::new("new".into()),
+                        inputs: vec![],
+                        returns: vec![Type::SelfType],
+                        statements: vec![Statement::Return(vec![Expression::Circuit(
+                            Identifier::new("Self".into()),
+                            vec![]
+                        )])]
+                    }
+                )))
+            )]
+        )]),
         output
     );
 }

@@ -3,7 +3,6 @@
 use crate::{errors::FieldElementError, types::InputValue};
 
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::TEModelParameters;
 use snarkos_models::gadgets::curves::{FieldGadget, FpGadget};
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
@@ -27,11 +26,11 @@ impl<F: Field + PrimeField> FieldElement<F> {
         FieldElement::Constant(constant)
     }
 
-    pub fn new_allocated<P: std::clone::Clone + TEModelParameters, CS: ConstraintSystem<F>>(
+    pub fn new_allocated<CS: ConstraintSystem<F>>(
         cs: &mut CS,
         name: String,
         private: bool,
-        input_value: Option<InputValue<P::BaseField, F>>,
+        input_value: Option<InputValue<F>>,
     ) -> Result<Self, FieldElementError> {
         // Check that the parameter value is the correct type
         let field_option = match input_value {

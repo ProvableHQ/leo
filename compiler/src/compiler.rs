@@ -15,31 +15,20 @@ use snarkos_models::{
 use from_pest::FromPest;
 use sha2::{Digest, Sha256};
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::gadgets::r1cs::ConstraintSynthesizer;
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<
-    P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
-    FG: FieldGadget<P::BaseField, F>,
-> {
+pub struct Compiler<F: Field + PrimeField> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<P::BaseField, F>,
-    program_inputs: Vec<Option<InputValue<P::BaseField, F>>>,
-    output: Option<ConstrainedValue<P, F, FG>>,
+    program: Program<F>,
+    program_inputs: Vec<Option<InputValue<F>>>,
+    output: Option<ConstrainedValue<F>>,
     _engine: PhantomData<F>,
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-    > Compiler<P, F, FG>
-{
+impl<F: Field + PrimeField> Compiler<F> {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
             package_name,
@@ -56,7 +45,7 @@ impl<
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<P::BaseField, F>>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F>>>) {
         self.program_inputs = program_inputs;
     }
 
@@ -76,7 +65,7 @@ impl<
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-    ) -> Result<ConstrainedValue<P, F, FG>, CompilerError> {
+    ) -> Result<ConstrainedValue<F>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
     }
 
@@ -110,7 +99,7 @@ impl<
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<P::BaseField, F>::from(syntax_tree, package_name);
+        self.program = Program::<F>::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
@@ -119,18 +108,12 @@ impl<
     }
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-    > ConstraintSynthesizer<F> for Compiler<P, F, FG>
-{
+impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _result =
-            generate_constraints::<P, F, FG, CS>(cs, self.program, self.program_inputs).unwrap();
+        let _result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

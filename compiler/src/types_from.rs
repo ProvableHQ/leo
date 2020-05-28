@@ -11,17 +11,13 @@ use std::collections::HashMap;
 
 /// pest ast -> types::Identifier
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Identifier<'ast>>
-    for types::Identifier<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Identifier<'ast>> for types::Identifier<F> {
     fn from(identifier: ast::Identifier<'ast>) -> Self {
         types::Identifier::new(identifier.value)
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Identifier<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Identifier<'ast>> for types::Expression<F> {
     fn from(identifier: ast::Identifier<'ast>) -> Self {
         types::Expression::Identifier(types::Identifier::from(identifier))
     }
@@ -29,9 +25,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Identifier<'ast>>
 
 /// pest ast -> types::Variable
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Variable<'ast>>
-    for types::Variable<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Variable<'ast>> for types::Variable<F> {
     fn from(variable: ast::Variable<'ast>) -> Self {
         types::Variable {
             identifier: types::Identifier::from(variable.identifier),
@@ -74,36 +68,21 @@ impl<'ast> types::Integer {
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Integer<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Integer<'ast>> for types::Expression<F> {
     fn from(field: ast::Integer<'ast>) -> Self {
         types::Expression::Integer(types::Integer::from(field.number, field._type))
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
-    for types::RangeOrExpression<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
+    for types::RangeOrExpression<F>
 {
     fn from(range_or_expression: ast::RangeOrExpression<'ast>) -> Self {
         match range_or_expression {
             ast::RangeOrExpression::Range(range) => {
-                let from =
-                    range
-                        .from
-                        .map(|from| match types::Expression::<NativeF, F>::from(from.0) {
-                            types::Expression::Integer(number) => number,
-                            types::Expression::Implicit(string) => {
-                                types::Integer::from_implicit(string)
-                            }
-                            expression => unimplemented!(
-                                "Range bounds should be integers, found {}",
-                                expression
-                            ),
-                        });
-                let to = range
-                    .to
-                    .map(|to| match types::Expression::<NativeF, F>::from(to.0) {
+                let from = range
+                    .from
+                    .map(|from| match types::Expression::<F>::from(from.0) {
                         types::Expression::Integer(number) => number,
                         types::Expression::Implicit(string) => {
                             types::Integer::from_implicit(string)
@@ -112,6 +91,13 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::RangeOrExpression<'a
                             unimplemented!("Range bounds should be integers, found {}", expression)
                         }
                     });
+                let to = range.to.map(|to| match types::Expression::<F>::from(to.0) {
+                    types::Expression::Integer(number) => number,
+                    types::Expression::Implicit(string) => types::Integer::from_implicit(string),
+                    expression => {
+                        unimplemented!("Range bounds should be integers, found {}", expression)
+                    }
+                });
 
                 types::RangeOrExpression::Range(from, to)
             }
@@ -124,9 +110,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::RangeOrExpression<'a
 
 /// pest ast -> types::Field
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Field<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Field<'ast>> for types::Expression<F> {
     fn from(field: ast::Field<'ast>) -> Self {
         types::Expression::FieldElement(F::from_str(&field.number.value).unwrap_or_default())
     }
@@ -134,19 +118,15 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Field<'ast>>
 
 /// pest ast -> types::Group
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Group<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Group<'ast>> for types::Expression<F> {
     fn from(_group: ast::Group<'ast>) -> Self {
-        types::Expression::GroupElement(NativeF::zero(), NativeF::one())
+        types::Expression::Group(F::zero(), F::one())
     }
 }
 
 /// pest ast -> types::Boolean
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Boolean<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Boolean<'ast>> for types::Expression<F> {
     fn from(boolean: ast::Boolean<'ast>) -> Self {
         types::Expression::Boolean(Boolean::Constant(
             boolean
@@ -159,9 +139,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Boolean<'ast>>
 
 /// pest ast -> types::NumberImplicit
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::NumberImplicit<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::NumberImplicit<'ast>> for types::Expression<F> {
     fn from(number: ast::NumberImplicit<'ast>) -> Self {
         types::Expression::Implicit(number.number.value)
     }
@@ -169,9 +147,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::NumberImplicit<'ast>
 
 /// pest ast -> types::Expression
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Value<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Value<'ast>> for types::Expression<F> {
     fn from(value: ast::Value<'ast>) -> Self {
         match value {
             ast::Value::Integer(num) => types::Expression::from(num),
@@ -183,16 +159,14 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Value<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::NotExpression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::NotExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::NotExpression<'ast>) -> Self {
         types::Expression::Not(Box::new(types::Expression::from(*expression.expression)))
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
-    for types::SpreadOrExpression<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::SpreadOrExpression<'ast>>
+    for types::SpreadOrExpression<F>
 {
     fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
         match s_or_e {
@@ -206,9 +180,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::SpreadOrExpression<'
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::BinaryExpression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::BinaryExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::BinaryExpression<'ast>) -> Self {
         match expression.operation {
             // Boolean operations
@@ -268,9 +240,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::BinaryExpression<'as
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::TernaryExpression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::TernaryExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::TernaryExpression<'ast>) -> Self {
         types::Expression::IfElse(
             Box::new(types::Expression::from(*expression.first)),
@@ -280,9 +250,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::TernaryExpression<'a
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ArrayInlineExpression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ArrayInlineExpression<'ast>> for types::Expression<F> {
     fn from(array: ast::ArrayInlineExpression<'ast>) -> Self {
         types::Expression::Array(
             array
@@ -293,19 +261,19 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ArrayInlineExpressio
         )
     }
 }
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ArrayInitializerExpression<'ast>>
-    for types::Expression<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::ArrayInitializerExpression<'ast>>
+    for types::Expression<F>
 {
     fn from(array: ast::ArrayInitializerExpression<'ast>) -> Self {
-        let count = types::Expression::<NativeF, F>::get_count(array.count);
+        let count = types::Expression::<F>::get_count(array.count);
         let expression = Box::new(types::SpreadOrExpression::from(*array.expression));
 
         types::Expression::Array(vec![expression; count])
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitField<'ast>>
-    for types::CircuitFieldDefinition<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::CircuitField<'ast>>
+    for types::CircuitFieldDefinition<F>
 {
     fn from(member: ast::CircuitField<'ast>) -> Self {
         types::CircuitFieldDefinition {
@@ -315,8 +283,8 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitField<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitInlineExpression<'ast>>
-    for types::Expression<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::CircuitInlineExpression<'ast>>
+    for types::Expression<F>
 {
     fn from(expression: ast::CircuitInlineExpression<'ast>) -> Self {
         let variable = types::Identifier::from(expression.identifier);
@@ -324,15 +292,13 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitInlineExpress
             .members
             .into_iter()
             .map(|member| types::CircuitFieldDefinition::from(member))
-            .collect::<Vec<types::CircuitFieldDefinition<NativeF, F>>>();
+            .collect::<Vec<types::CircuitFieldDefinition<F>>>();
 
         types::Expression::Circuit(variable, members)
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::PostfixExpression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::PostfixExpression<'ast>> for types::Expression<F> {
     fn from(expression: ast::PostfixExpression<'ast>) -> Self {
         let variable =
             types::Expression::Identifier(types::Identifier::from(expression.identifier));
@@ -376,9 +342,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::PostfixExpression<'a
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Expression<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Expression<'ast>> for types::Expression<F> {
     fn from(expression: ast::Expression<'ast>) -> Self {
         match expression {
             ast::Expression::Value(value) => types::Expression::from(value),
@@ -394,7 +358,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Expression<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> types::Expression<NativeF, F> {
+impl<'ast, F: Field + PrimeField> types::Expression<F> {
     fn get_count(count: ast::Value<'ast>) -> usize {
         match count {
             ast::Value::Integer(integer) => integer
@@ -413,9 +377,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> types::Expression<NativeF, F> 
 }
 
 // ast::Assignee -> types::Expression for operator assign statements
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Assignee<'ast>>
-    for types::Expression<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Assignee<'ast>> for types::Expression<F> {
     fn from(assignee: ast::Assignee<'ast>) -> Self {
         let variable = types::Expression::Identifier(types::Identifier::from(assignee.identifier));
 
@@ -440,17 +402,13 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Assignee<'ast>>
 
 /// pest ast -> types::Assignee
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Identifier<'ast>>
-    for types::Assignee<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Identifier<'ast>> for types::Assignee<F> {
     fn from(variable: ast::Identifier<'ast>) -> Self {
         types::Assignee::Identifier(types::Identifier::from(variable))
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Assignee<'ast>>
-    for types::Assignee<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Assignee<'ast>> for types::Assignee<F> {
     fn from(assignee: ast::Assignee<'ast>) -> Self {
         let variable = types::Assignee::from(assignee.identifier);
 
@@ -473,9 +431,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Assignee<'ast>>
 
 /// pest ast -> types::Statement
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ReturnStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ReturnStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ReturnStatement<'ast>) -> Self {
         types::Statement::Return(
             statement
@@ -487,9 +443,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ReturnStatement<'ast
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::DefinitionStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Variable::from(statement.variable),
@@ -498,9 +452,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::DefinitionStatement<
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::AssignStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::AssignStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::AssignStatement<'ast>) -> Self {
         match statement.assign {
             ast::OperationAssign::Assign(ref _assign) => types::Statement::Assign(
@@ -556,8 +508,8 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::AssignStatement<'ast
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
-    for types::Statement<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::MultipleAssignmentStatement<'ast>>
+    for types::Statement<F>
 {
     fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
         let variables = statement
@@ -580,8 +532,8 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::MultipleAssignmentSt
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ConditionalNestedOrEnd<'ast>>
-    for types::ConditionalNestedOrEnd<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::ConditionalNestedOrEnd<'ast>>
+    for types::ConditionalNestedOrEnd<F>
 {
     fn from(statement: ast::ConditionalNestedOrEnd<'ast>) -> Self {
         match statement {
@@ -598,8 +550,8 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ConditionalNestedOrE
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ConditionalStatement<'ast>>
-    for types::ConditionalStatement<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::ConditionalStatement<'ast>>
+    for types::ConditionalStatement<F>
 {
     fn from(statement: ast::ConditionalStatement<'ast>) -> Self {
         types::ConditionalStatement {
@@ -617,16 +569,14 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ConditionalStatement
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ForStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ForStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ForStatement<'ast>) -> Self {
-        let from = match types::Expression::<NativeF, F>::from(statement.start) {
+        let from = match types::Expression::<F>::from(statement.start) {
             types::Expression::Integer(number) => number,
             types::Expression::Implicit(string) => types::Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
-        let to = match types::Expression::<NativeF, F>::from(statement.stop) {
+        let to = match types::Expression::<F>::from(statement.stop) {
             types::Expression::Integer(number) => number,
             types::Expression::Implicit(string) => types::Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
@@ -645,9 +595,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ForStatement<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::AssertStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::AssertStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::AssertStatement<'ast>) -> Self {
         match statement {
             ast::AssertStatement::AssertEq(assert_eq) => types::Statement::AssertEq(
@@ -658,17 +606,13 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::AssertStatement<'ast
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ExpressionStatement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ExpressionStatement<'ast>> for types::Statement<F> {
     fn from(statement: ast::ExpressionStatement<'ast>) -> Self {
         types::Statement::Expression(types::Expression::from(statement.expression))
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Statement<'ast>>
-    for types::Statement<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Statement<'ast>> for types::Statement<F> {
     fn from(statement: ast::Statement<'ast>) -> Self {
         match statement {
             ast::Statement::Return(statement) => types::Statement::from(statement),
@@ -699,45 +643,39 @@ impl From<ast::IntegerType> for types::IntegerType {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> From<ast::BasicType> for types::Type<NativeF, F> {
+impl<F: Field + PrimeField> From<ast::BasicType> for types::Type<F> {
     fn from(basic_type: ast::BasicType) -> Self {
         match basic_type {
             ast::BasicType::Integer(_type) => {
                 types::Type::IntegerType(types::IntegerType::from(_type))
             }
             ast::BasicType::Field(_type) => types::Type::FieldElement,
-            ast::BasicType::Group(_type) => types::Type::GroupElement,
+            ast::BasicType::Group(_type) => types::Type::Group,
             ast::BasicType::Boolean(_type) => types::Type::Boolean,
         }
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ArrayType<'ast>>
-    for types::Type<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ArrayType<'ast>> for types::Type<F> {
     fn from(array_type: ast::ArrayType<'ast>) -> Self {
         let element_type = Box::new(types::Type::from(array_type._type));
         let dimensions = array_type
             .dimensions
             .into_iter()
-            .map(|row| types::Expression::<NativeF, F>::get_count(row))
+            .map(|row| types::Expression::<F>::get_count(row))
             .collect();
 
         types::Type::Array(element_type, dimensions)
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitType<'ast>>
-    for types::Type<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::CircuitType<'ast>> for types::Type<F> {
     fn from(circuit_type: ast::CircuitType<'ast>) -> Self {
         types::Type::Circuit(types::Identifier::from(circuit_type.identifier))
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Type<'ast>>
-    for types::Type<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Type<'ast>> for types::Type<F> {
     fn from(_type: ast::Type<'ast>) -> Self {
         match _type {
             ast::Type::Basic(_type) => types::Type::from(_type),
@@ -750,8 +688,8 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Type<'ast>>
 
 /// pest ast -> types::Circuit
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitFieldDefinition<'ast>>
-    for types::CircuitMember<NativeF, F>
+impl<'ast, F: Field + PrimeField> From<ast::CircuitFieldDefinition<'ast>>
+    for types::CircuitMember<F>
 {
     fn from(circuit_value: ast::CircuitFieldDefinition<'ast>) -> Self {
         types::CircuitMember::CircuitField(
@@ -761,9 +699,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitFieldDefiniti
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitFunction<'ast>>
-    for types::CircuitMember<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::CircuitFunction<'ast>> for types::CircuitMember<F> {
     fn from(circuit_function: ast::CircuitFunction<'ast>) -> Self {
         types::CircuitMember::CircuitFunction(
             circuit_function._static.is_some(),
@@ -772,9 +708,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitFunction<'ast
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitMember<'ast>>
-    for types::CircuitMember<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::CircuitMember<'ast>> for types::CircuitMember<F> {
     fn from(object: ast::CircuitMember<'ast>) -> Self {
         match object {
             ast::CircuitMember::CircuitFieldDefinition(circuit_value) => {
@@ -787,9 +721,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::CircuitMember<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Circuit<'ast>>
-    for types::Circuit<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Circuit<'ast>> for types::Circuit<F> {
     fn from(circuit: ast::Circuit<'ast>) -> Self {
         let variable = types::Identifier::from(circuit.identifier);
         let members = circuit
@@ -807,9 +739,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Circuit<'ast>>
 
 /// pest ast -> function types::Parameters
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::InputModel<'ast>>
-    for types::InputModel<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::InputModel<'ast>> for types::InputModel<F> {
     fn from(parameter: ast::InputModel<'ast>) -> Self {
         types::InputModel {
             identifier: types::Identifier::from(parameter.identifier),
@@ -825,9 +755,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::InputModel<'ast>>
 
 /// pest ast -> types::Function
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Function<'ast>>
-    for types::Function<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::Function<'ast>> for types::Function<F> {
     fn from(function_definition: ast::Function<'ast>) -> Self {
         let function_name = types::Identifier::from(function_definition.function_name);
         let parameters = function_definition
@@ -857,9 +785,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Function<'ast>>
 
 /// pest ast -> Import
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ImportSymbol<'ast>>
-    for ImportSymbol<NativeF, F>
-{
+impl<'ast, F: Field + PrimeField> From<ast::ImportSymbol<'ast>> for ImportSymbol<F> {
     fn from(symbol: ast::ImportSymbol<'ast>) -> Self {
         ImportSymbol {
             symbol: types::Identifier::from(symbol.value),
@@ -868,7 +794,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::ImportSymbol<'ast>>
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Import<'ast>> for Import<NativeF, F> {
+impl<'ast, F: Field + PrimeField> From<ast::Import<'ast>> for Import<F> {
     fn from(import: ast::Import<'ast>) -> Self {
         Import {
             path_string: import.source.value,
@@ -883,14 +809,14 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> From<ast::Import<'ast>> for Im
 
 /// pest ast -> types::Program
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> types::Program<NativeF, F> {
+impl<'ast, F: Field + PrimeField> types::Program<F> {
     pub fn from(file: ast::File<'ast>, name: String) -> Self {
         // Compiled ast -> aleo program representation
         let imports = file
             .imports
             .into_iter()
             .map(|import| Import::from(import))
-            .collect::<Vec<Import<NativeF, F>>>();
+            .collect::<Vec<Import<F>>>();
 
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();

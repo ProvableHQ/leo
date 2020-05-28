@@ -65,18 +65,6 @@ function main() -> field {
 }
 ```
 
-### Group Elements
-
-```rust
-function main() -> group {
-    let a = 1000group; // explicit type
-    let a: group = 21888242871839275222246405745257275088548364400416034343698204186575808495617; // explicit type
-    let b = a + 1; // implicit type
-    let c = b - 1; 
-    return c
-}
-```
-
 ### Operator Assignment Statements
 ```rust
 function main() -> u32 {

@@ -6,57 +6,56 @@ use leo_compiler::{
     ConstrainedValue, FieldElement, InputValue,
 };
 
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::curves::Field;
-use snarkos_models::gadgets::curves::FieldGadget;
-use snarkos_models::gadgets::r1cs::{ConstraintSystem, TestConstraintSystem};
+use snarkos_models::gadgets::curves::{field::FieldGadget, FpGadget};
+use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_zero(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::FieldElement(FieldElement::Constant(Fq::zero()))
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Constant(Fr::zero())
+        )]),
         output
     );
 }
 
-fn output_one(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_one(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::FieldElement(FieldElement::Constant(Fq::one()))
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Constant(Fr::one())
+        )]),
         output
     );
 }
 
-fn output_zero_allocated(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
-    let cs = &mut TestConstraintSystem::<Fq>::new();
+fn output_zero_allocated(program: Compiler<Fr>) {
+    let cs = &mut TestConstraintSystem::<Fr>::new();
     let output = get_output_allocated(cs, program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::FieldElement(FieldElement::Allocated(FqGadget::zero(cs).unwrap()))
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Allocated(FpGadget::zero(cs).unwrap())
+        )]),
         output
     )
 }
 
-fn output_one_allocated(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
-    let cs = &mut TestConstraintSystem::<Fq>::new();
+fn output_one_allocated(program: Compiler<Fr>) {
+    let cs = &mut TestConstraintSystem::<Fr>::new();
     let output = get_output_allocated(cs, program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::FieldElement(FieldElement::Allocated(FqGadget::one(cs).unwrap()))
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Allocated(FpGadget::one(cs).unwrap())
+        )]),
         output
     )
 }
 
-fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_field(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -65,7 +64,7 @@ fn fail_field(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_synthesis(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),
@@ -89,18 +88,18 @@ fn test_one() {
 #[test]
 fn test_input_field() {
     let mut program = compile_program(DIRECTORY_NAME, "input_field.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Field(Fq::one()))]);
+    program.set_inputs(vec![Some(InputValue::Field(Fr::one()))]);
 
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let one_allocated = FqGadget::one(cs.ns(|| "one")).unwrap();
+    let mut cs = TestConstraintSystem::<Fr>::new();
+    let one_allocated = FpGadget::one(&mut cs).unwrap();
 
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());
 
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![
-            ConstrainedValue::FieldElement(FieldElement::Allocated(one_allocated))
-        ]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Allocated(one_allocated)
+        )]),
         output
     );
 }
@@ -138,9 +137,9 @@ fn test_ternary_second() {
 #[test]
 fn test_assertion_pass() {
     let mut program = compile_program(DIRECTORY_NAME, "assertion.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Field(Fq::one()))]);
+    program.set_inputs(vec![Some(InputValue::Field(Fr::one()))]);
 
-    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let cs = &mut TestConstraintSystem::<Fr>::new();
     let _output = program.compile_constraints(cs).unwrap();
 
     assert!(cs.is_satisfied());
@@ -149,9 +148,9 @@ fn test_assertion_pass() {
 #[test]
 fn test_assertion_fail() {
     let mut program = compile_program(DIRECTORY_NAME, "assertion.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Field(Fq::zero()))]);
+    program.set_inputs(vec![Some(InputValue::Field(Fr::zero()))]);
 
-    let cs = &mut TestConstraintSystem::<Fq>::new();
+    let cs = &mut TestConstraintSystem::<Fr>::new();
     let _output = program.compile_constraints(cs).unwrap();
 
     assert!(!cs.is_satisfied());

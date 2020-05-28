@@ -3,11 +3,9 @@
 use crate::{
     errors::ValueError,
     types::{Circuit, Function, Identifier, Integer, IntegerType, Type},
-    FieldElement, GroupElement,
+    FieldElement, GroupType,
 };
 
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::utilities::{
@@ -18,64 +16,42 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<
-    P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
-    FG: FieldGadget<P::BaseField, F>,
->(
-    pub Identifier<P::BaseField, F>,
-    pub ConstrainedValue<P, F, FG>,
+pub struct ConstrainedCircuitMember<F: Field + PrimeField>(
+    pub Identifier<F>,
+    pub ConstrainedValue<F>,
 );
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConstrainedValue<
-    P: std::clone::Clone + TEModelParameters,
-    F: Field + PrimeField,
-    FG: FieldGadget<P::BaseField, F>,
-> {
+pub enum ConstrainedValue<F: Field + PrimeField> {
     Integer(Integer),
     FieldElement(FieldElement<F>),
-    GroupElement(GroupElement<P, F, FG>),
+    Group(GroupType<F>),
     Boolean(Boolean),
 
-    Array(Vec<ConstrainedValue<P, F, FG>>),
+    Array(Vec<ConstrainedValue<F>>),
 
-    CircuitDefinition(Circuit<P::BaseField, F>),
-    CircuitExpression(
-        Identifier<P::BaseField, F>,
-        Vec<ConstrainedCircuitMember<P, F, FG>>,
-    ),
+    CircuitDefinition(Circuit<F>),
+    CircuitExpression(Identifier<F>, Vec<ConstrainedCircuitMember<F>>),
 
-    Function(
-        Option<Identifier<P::BaseField, F>>,
-        Function<P::BaseField, F>,
-    ),
-    Return(Vec<ConstrainedValue<P, F, FG>>),
+    Function(Option<Identifier<F>>, Function<F>),
+    Return(Vec<ConstrainedValue<F>>),
 
-    Mutable(Box<ConstrainedValue<P, F, FG>>),
-    Static(Box<ConstrainedValue<P, F, FG>>),
+    Mutable(Box<ConstrainedValue<F>>),
+    Static(Box<ConstrainedValue<F>>),
     Unresolved(String),
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-    > ConstrainedValue<P, F, FG>
-{
+impl<F: Field + PrimeField> ConstrainedValue<F> {
     pub(crate) fn from_other(
         value: String,
-        other: &ConstrainedValue<P, F, FG>,
+        other: &ConstrainedValue<F>,
     ) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
         ConstrainedValue::from_type(value, &other_type)
     }
 
-    pub(crate) fn from_type(
-        value: String,
-        _type: &Type<P::BaseField, F>,
-    ) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(value: String, _type: &Type<F>) -> Result<Self, ValueError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
@@ -87,9 +63,6 @@ impl<
             Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
             ))),
-            // Type::GroupElement => Ok(ConstrainedValue::GroupElement(
-            //     unimplemented!()
-            // )),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
             ))),
@@ -98,20 +71,17 @@ impl<
         }
     }
 
-    pub(crate) fn to_type(&self) -> Type<P::BaseField, F> {
+    pub(crate) fn to_type(&self) -> Type<F> {
         match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
             ConstrainedValue::FieldElement(_field) => Type::FieldElement,
-            ConstrainedValue::GroupElement(_group) => Type::GroupElement,
+            ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
             _ => unimplemented!("to type only implemented for primitives"),
         }
     }
 
-    pub(crate) fn resolve_type(
-        &mut self,
-        types: &Vec<Type<P::BaseField, F>>,
-    ) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, types: &Vec<Type<F>>) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if !types.is_empty() {
                 *self = ConstrainedValue::from_type(string.clone(), &types[0])?
@@ -128,17 +98,12 @@ impl<
     }
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-    > fmt::Display for ConstrainedValue<P, F, FG>
-{
+impl<F: Field + PrimeField> fmt::Display for ConstrainedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
             ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
-            ConstrainedValue::GroupElement(ref group) => write!(f, "{:?}", group),
+            ConstrainedValue::Group(ref group) => write!(f, "{:?}", group),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
@@ -183,12 +148,7 @@ impl<
     }
 }
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-    > fmt::Debug for ConstrainedValue<P, F, FG>
-{
+impl<F: Field + PrimeField> fmt::Debug for ConstrainedValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

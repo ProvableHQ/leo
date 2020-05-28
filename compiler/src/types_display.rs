@@ -9,18 +9,18 @@ use crate::{
 use snarkos_models::curves::{Field, PrimeField};
 use std::fmt;
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Identifier<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Identifier<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
 }
-impl<NativeF: Field, F: Field + PrimeField> fmt::Debug for Identifier<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Debug for Identifier<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Variable<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Variable<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.mutable {
             write!(f, "mut ")?;
@@ -42,7 +42,7 @@ impl fmt::Display for Integer {
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for RangeOrExpression<NativeF, F> {
+impl<'ast, F: Field + PrimeField> fmt::Display for RangeOrExpression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             RangeOrExpression::Range(ref from, ref to) => write!(
@@ -60,7 +60,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for RangeOrExpres
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for SpreadOrExpression<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for SpreadOrExpression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             SpreadOrExpression::Spread(ref spread) => write!(f, "...{}", spread),
@@ -69,7 +69,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for SpreadOrExpression<
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for Expression<NativeF, F> {
+impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             // Variables
@@ -78,7 +78,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for Expression<Na
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
             Expression::FieldElement(ref field) => write!(f, "{}", field),
-            Expression::GroupElement(ref x, ref y) => write!(f, "({}, {})", x, y),
+            Expression::Group(ref x, ref y) => write!(f, "({}, {})", x, y),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
             Expression::Implicit(ref value) => write!(f, "{}", value),
 
@@ -150,7 +150,7 @@ impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for Expression<Na
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Assignee<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Assignee<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
@@ -162,7 +162,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Assignee<NativeF, F
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConditionalNestedOrEnd<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for ConditionalNestedOrEnd<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
@@ -177,7 +177,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConditionalNestedOr
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConditionalStatement<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for ConditionalStatement<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if ({}) {{\n", self.condition)?;
         for statement in self.statements.iter() {
@@ -190,7 +190,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ConditionalStatemen
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Statement<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Statement<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref statements) => {
@@ -247,12 +247,12 @@ impl fmt::Display for IntegerType {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Type<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Type<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::FieldElement => write!(f, "field"),
-            Type::GroupElement => write!(f, "group"),
+            Type::Group => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
             Type::Circuit(ref variable) => write!(f, "{}", variable),
             Type::SelfType => write!(f, "Self"),
@@ -267,7 +267,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Type<NativeF, F> {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for CircuitMember<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for CircuitMember<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             CircuitMember::CircuitField(ref identifier, ref _type) => {
@@ -283,7 +283,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for CircuitMember<Nativ
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> Circuit<NativeF, F> {
+impl<F: Field + PrimeField> Circuit<F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "circuit {} {{ \n", self.identifier)?;
         for field in self.members.iter() {
@@ -293,19 +293,19 @@ impl<NativeF: Field, F: Field + PrimeField> Circuit<NativeF, F> {
     }
 }
 
-// impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Circuit<NativeF, F> {// uncomment when we no longer print out Program
+// impl<F: Field + PrimeField> fmt::Display for Circuit<F> {// uncomment when we no longer print out Program
 //     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 //         self.format(f)
 //     }
 // }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Debug for Circuit<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Debug for Circuit<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for InputModel<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for InputModel<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: private bool
         if self.mutable {
@@ -321,7 +321,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for InputModel<NativeF,
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for InputValue<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for InputValue<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             InputValue::Integer(ref integer) => write!(f, "{}", integer),
@@ -342,7 +342,7 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for InputValue<NativeF,
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> Function<NativeF, F> {
+impl<F: Field + PrimeField> Function<F> {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.function_name)?;
         let parameters = self
@@ -373,13 +373,13 @@ impl<NativeF: Field, F: Field + PrimeField> Function<NativeF, F> {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for Function<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for Function<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Debug for Function<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Debug for Function<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

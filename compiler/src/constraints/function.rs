@@ -5,23 +5,15 @@ use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
     types::{Expression, Function, Identifier, InputValue, Program, Type},
-    FieldElement, GroupElement,
+    FieldElement,
 };
 
-use snarkos_models::curves::TEModelParameters;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<
-        P: std::clone::Clone + TEModelParameters,
-        F: Field + PrimeField,
-        FG: FieldGadget<P::BaseField, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<P, F, FG, CS>
-{
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -37,9 +29,9 @@ impl<
         scope: String,
         caller_scope: String,
         function_name: String,
-        expected_types: Vec<Type<P::BaseField, F>>,
-        input: Expression<P::BaseField, F>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
+        expected_types: Vec<Type<F>>,
+        input: Expression<F>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -64,9 +56,9 @@ impl<
         cs: &mut CS,
         scope: String,
         caller_scope: String,
-        function: Function<P::BaseField, F>,
-        inputs: Vec<Expression<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
+        function: Function<F>,
+        inputs: Vec<Expression<F>>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -125,10 +117,10 @@ impl<
         cs: &mut CS,
         name: String,
         private: bool,
-        array_type: Type<P::BaseField, F>,
+        array_type: Type<F>,
         array_dimensions: Vec<usize>,
-        input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
+        input_value: Option<InputValue<F>>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -177,19 +169,16 @@ impl<
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        _type: Type<P::BaseField, F>,
+        _type: Type<F>,
         name: String,
         private: bool,
-        input_value: Option<InputValue<P::BaseField, F>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
+        input_value: Option<InputValue<F>>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
             }
-            Type::FieldElement => Ok(ConstrainedValue::FieldElement(
-                FieldElement::new_allocated::<P, _>(cs, name, private, input_value)?,
-            )),
-            Type::GroupElement => Ok(ConstrainedValue::GroupElement(GroupElement::new_allocated(
+            Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::new_allocated(
                 cs,
                 name,
                 private,
@@ -207,9 +196,9 @@ impl<
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Function<P::BaseField, F>,
-        inputs: Vec<Option<InputValue<P::BaseField, F>>>,
-    ) -> Result<ConstrainedValue<P, F, FG>, FunctionError> {
+        function: Function<F>,
+        inputs: Vec<Option<InputValue<F>>>,
+    ) -> Result<ConstrainedValue<F>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -243,7 +232,7 @@ impl<
     pub(crate) fn resolve_definitions(
         &mut self,
         cs: &mut CS,
-        program: Program<P::BaseField, F>,
+        program: Program<F>,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

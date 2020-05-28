@@ -6,19 +6,19 @@ use snarkos_models::curves::{Field, PrimeField};
 use std::fmt;
 
 #[derive(Clone)]
-pub struct ImportSymbol<NativeF: Field, F: Field + PrimeField> {
-    pub symbol: Identifier<NativeF, F>,
-    pub alias: Option<Identifier<NativeF, F>>,
+pub struct ImportSymbol<F: Field + PrimeField> {
+    pub symbol: Identifier<F>,
+    pub alias: Option<Identifier<F>>,
 }
 
 #[derive(Clone)]
-pub struct Import<NativeF: Field, F: Field + PrimeField> {
+pub struct Import<F: Field + PrimeField> {
     pub path_string: String,
-    pub symbols: Vec<ImportSymbol<NativeF, F>>,
+    pub symbols: Vec<ImportSymbol<F>>,
 }
 
-impl<NativeF: Field, F: Field + PrimeField> Import<NativeF, F> {
-    pub fn new(source: String, symbols: Vec<ImportSymbol<NativeF, F>>) -> Import<NativeF, F> {
+impl<F: Field + PrimeField> Import<F> {
+    pub fn new(source: String, symbols: Vec<ImportSymbol<F>>) -> Import<F> {
         Import {
             path_string: source,
             symbols,
@@ -51,7 +51,7 @@ impl<NativeF: Field, F: Field + PrimeField> Import<NativeF, F> {
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ImportSymbol<NativeF, F> {
+impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {
             write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
@@ -61,13 +61,13 @@ impl<NativeF: Field, F: Field + PrimeField> fmt::Display for ImportSymbol<Native
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Display for Import<NativeF, F> {
+impl<'ast, F: Field + PrimeField> fmt::Display for Import<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<'ast, NativeF: Field, F: Field + PrimeField> fmt::Debug for Import<NativeF, F> {
+impl<'ast, F: Field + PrimeField> fmt::Debug for Import<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

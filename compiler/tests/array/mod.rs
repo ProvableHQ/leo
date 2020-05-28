@@ -7,17 +7,16 @@ use leo_compiler::{
     ConstrainedValue, InputValue, Integer,
 };
 
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
-fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_ones(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Array(
             vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32))); 3]
         )]),
         output
@@ -26,32 +25,27 @@ fn output_ones(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
 
 // [[0, 0, 0],
 //  [0, 0, 0]]
-fn output_multi(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn output_multi(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<EdwardsParameters, Fq, FqGadget>::Return(vec![ConstrainedValue::Array(
-            vec![
-                ConstrainedValue::Array(vec![
-                    ConstrainedValue::Integer(Integer::U32(
-                        UInt32::constant(0u32)
-                    ));
-                    3
-                ]);
-                2
-            ]
-        )]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Array(vec![
+            ConstrainedValue::Array(
+                vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32))); 3]
+            );
+            2
+        ])]),
         output
     )
 }
 
-fn fail_array(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_array(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: Compiler<EdwardsParameters, Fq, FqGadget>) {
+fn fail_synthesis(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::SynthesisError(_string),
