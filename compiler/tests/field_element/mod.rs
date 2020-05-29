@@ -1,37 +1,44 @@
 use crate::{compile_program, get_error, get_output};
 
 use leo_compiler::errors::FieldElementError;
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
-use snarkos_curves::bls12_377::Fr;
-use snarkos_models::curves::Field;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::{Field, ModelParameters};
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(program: Compiler<Fr>) {
+fn output_zero(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::FieldElement(
             FieldElement::Constant(Fr::zero())
         )]),
         output
     );
 }
 
-fn output_one(program: Compiler<Fr>) {
+fn output_one(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::FieldElement(
             FieldElement::Constant(Fr::one())
         )]),
         output
     );
 }
 
-fn fail_field(program: Compiler<Fr>) {
+fn fail_field(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -40,7 +47,9 @@ fn fail_field(program: Compiler<Fr>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr>) {
+fn fail_synthesis(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),

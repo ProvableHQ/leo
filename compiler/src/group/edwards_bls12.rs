@@ -1,27 +1,23 @@
 use crate::errors::GroupError;
 use crate::GroupType;
 
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_curves::templates::twisted_edwards_extended::GroupAffine;
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
-use snarkos_gadgets::curves::templates::twisted_edwards::AffineGadget;
+use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};
+use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::curves::ModelParameters;
 use std::str::FromStr;
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
-    Constant(GroupAffine<EdwardsParameters>),
-    Allocated(AffineGadget<EdwardsParameters, Fq, FqGadget>),
+    Constant(EdwardsAffine),
+    Allocated(EdwardsBlsGadget),
 }
 
 impl GroupType<<EdwardsParameters as ModelParameters>::BaseField, Fq> for EdwardsGroupType {
-    fn constant(x: String, y: String) -> Result<Self, GroupError> {
-        let x = <EdwardsParameters as ModelParameters>::BaseField::from_str(&x)
-            .map_err(|_| GroupError::InvalidGroup(x))?;
-        let y = <EdwardsParameters as ModelParameters>::BaseField::from_str(&y)
-            .map_err(|_| GroupError::InvalidGroup(y))?;
+    fn constant(string: String) -> Result<Self, GroupError> {
+        let result =
+            EdwardsAffine::from_str(&string).map_err(|_| GroupError::InvalidGroup(string))?;
 
-        Ok(EdwardsGroupType::Constant(GroupAffine::new(x, y)))
+        Ok(EdwardsGroupType::Constant(result))
     }
 
     // fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self) -> Result<Self, GroupElementError> {

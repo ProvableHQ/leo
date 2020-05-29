@@ -3,6 +3,7 @@
 use crate::{
     errors::ValueError,
     types::{Circuit, FieldElement, Function, Identifier, Integer, IntegerType, Type},
+    GroupType,
 };
 
 use snarkos_models::{
@@ -13,37 +14,45 @@ use snarkos_models::{
     },
 };
 use std::fmt;
+use std::marker::PhantomData;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<F: Field + PrimeField>(
-    pub Identifier<F>,
-    pub ConstrainedValue<F>,
-);
+pub struct ConstrainedCircuitMember<
+    NativeF: Field,
+    F: Field + PrimeField,
+    GType: GroupType<NativeF, F>,
+>(pub Identifier<F>, pub ConstrainedValue<NativeF, F, GType>);
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConstrainedValue<F: Field + PrimeField> {
+pub enum ConstrainedValue<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> {
     Integer(Integer),
     FieldElement(FieldElement<F>),
-    Group(String),
+    Group(GType),
     Boolean(Boolean),
 
-    Array(Vec<ConstrainedValue<F>>),
+    Array(Vec<ConstrainedValue<NativeF, F, GType>>),
 
     CircuitDefinition(Circuit<F>),
-    CircuitExpression(Identifier<F>, Vec<ConstrainedCircuitMember<F>>),
+    CircuitExpression(
+        Identifier<F>,
+        Vec<ConstrainedCircuitMember<NativeF, F, GType>>,
+    ),
 
     Function(Option<Identifier<F>>, Function<F>), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<F>>),
+    Return(Vec<ConstrainedValue<NativeF, F, GType>>),
 
-    Mutable(Box<ConstrainedValue<F>>),
-    Static(Box<ConstrainedValue<F>>),
+    Mutable(Box<ConstrainedValue<NativeF, F, GType>>),
+    Static(Box<ConstrainedValue<NativeF, F, GType>>),
     Unresolved(String),
+    Void(PhantomData<NativeF>),
 }
 
-impl<F: Field + PrimeField> ConstrainedValue<F> {
+impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
+    ConstrainedValue<NativeF, F, GType>
+{
     pub(crate) fn from_other(
         value: String,
-        other: &ConstrainedValue<F>,
+        other: &ConstrainedValue<NativeF, F, GType>,
     ) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
@@ -62,7 +71,7 @@ impl<F: Field + PrimeField> ConstrainedValue<F> {
             Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
             ))),
-            Type::Group => Ok(ConstrainedValue::Group(value)),
+            Type::Group => Ok(ConstrainedValue::Group(GType::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
             ))),
@@ -98,12 +107,14 @@ impl<F: Field + PrimeField> ConstrainedValue<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ConstrainedValue<F> {
+impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> fmt::Display
+    for ConstrainedValue<NativeF, F, GType>
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
             ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Group(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
@@ -144,11 +155,14 @@ impl<F: Field + PrimeField> fmt::Display for ConstrainedValue<F> {
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
+            ConstrainedValue::Void(_) => unreachable!(),
         }
     }
 }
 
-impl<F: Field + PrimeField> fmt::Debug for ConstrainedValue<F> {
+impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> fmt::Debug
+    for ConstrainedValue<NativeF, F, GType>
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

@@ -33,6 +33,7 @@ pub use statement::*;
 use crate::{
     errors::CompilerError,
     types::{InputValue, Program},
+    GroupType,
 };
 
 use snarkos_models::{
@@ -40,11 +41,16 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<
+    NativeF: Field,
+    F: Field + PrimeField,
+    GType: GroupType<NativeF, F>,
+    CS: ConstraintSystem<F>,
+>(
     cs: &mut CS,
     program: Program<F>,
     parameters: Vec<Option<InputValue<F>>>,
-) -> Result<ConstrainedValue<F>, CompilerError> {
+) -> Result<ConstrainedValue<NativeF, F, GType>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

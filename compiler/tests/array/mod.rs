@@ -1,21 +1,25 @@
 use crate::{compile_program, get_error, get_output};
 
 use leo_compiler::errors::IntegerError;
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, FunctionError},
     ConstrainedValue, InputValue, Integer,
 };
-use snarkos_curves::bls12_377::Fr;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
-fn output_ones(program: Compiler<Fr>) {
+fn output_ones(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Array(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Array(
             vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32))); 3]
         )]),
         output
@@ -24,10 +28,12 @@ fn output_ones(program: Compiler<Fr>) {
 
 // [[0, 0, 0],
 //  [0, 0, 0]]
-fn output_multi(program: Compiler<Fr>) {
+fn output_multi(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Array(vec![
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Array(vec![
             ConstrainedValue::Array(
                 vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32))); 3]
             );
@@ -37,14 +43,18 @@ fn output_multi(program: Compiler<Fr>) {
     )
 }
 
-fn fail_array(program: Compiler<Fr>) {
+fn fail_array(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr>) {
+fn fail_synthesis(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::SynthesisError(_string),

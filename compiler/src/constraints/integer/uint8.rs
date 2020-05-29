@@ -4,6 +4,7 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
     types::Integer,
+    GroupType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -15,14 +16,20 @@ use snarkos_models::{
     },
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+impl<
+        NativeF: Field,
+        F: Field + PrimeField,
+        GType: GroupType<NativeF, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<NativeF, F, GType, CS>
+{
     pub(crate) fn u8_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<F>, IntegerError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, IntegerError> {
         // Type cast to u8 in rust.
         // If this fails should we return our own error?
         let u8_option = integer_option.map(|integer| integer as u8);

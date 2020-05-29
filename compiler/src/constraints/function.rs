@@ -5,6 +5,7 @@ use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
     types::{Expression, Function, Identifier, InputValue, Program, Type},
+    GroupType,
 };
 
 use snarkos_models::{
@@ -12,7 +13,13 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+impl<
+        NativeF: Field,
+        F: Field + PrimeField,
+        GType: GroupType<NativeF, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<NativeF, F, GType, CS>
+{
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -30,7 +37,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         function_name: String,
         expected_types: Vec<Type<F>>,
         input: Expression<F>,
-    ) -> Result<ConstrainedValue<F>, FunctionError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -57,7 +64,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         caller_scope: String,
         function: Function<F>,
         inputs: Vec<Expression<F>>,
-    ) -> Result<ConstrainedValue<F>, FunctionError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -119,7 +126,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         array_type: Type<F>,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue<F>>,
-    ) -> Result<ConstrainedValue<F>, FunctionError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -172,7 +179,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         name: String,
         private: bool,
         input_value: Option<InputValue<F>>,
-    ) -> Result<ConstrainedValue<F>, FunctionError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
@@ -197,7 +204,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
         scope: String,
         function: Function<F>,
         inputs: Vec<Option<InputValue<F>>>,
-    ) -> Result<ConstrainedValue<F>, FunctionError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs

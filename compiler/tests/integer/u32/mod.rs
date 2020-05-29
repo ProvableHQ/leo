@@ -3,42 +3,52 @@ use crate::{compile_program, get_error, get_output};
 use leo_compiler::{compiler::Compiler, types::Integer, ConstrainedValue, InputValue};
 
 use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
-use snarkos_curves::bls12_377::Fr;
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/integer/u32/";
 
-pub(crate) fn output_zero(program: Compiler<Fr>) {
+pub(crate) fn output_zero(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Integer(Integer::U32(
             UInt32::constant(0u32)
         ))]),
         output
     )
 }
 
-pub(crate) fn output_one(program: Compiler<Fr>) {
+pub(crate) fn output_one(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Integer(Integer::U32(
             UInt32::constant(1u32)
         ))]),
         output
     )
 }
 
-fn output_two(program: Compiler<Fr>) {
+fn output_two(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Integer(Integer::U32(
             UInt32::constant(2u32)
         ))]),
         output
     )
 }
 
-fn fail_integer(program: Compiler<Fr>) {
+fn fail_integer(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::InvalidInteger(_string),
@@ -47,7 +57,9 @@ fn fail_integer(program: Compiler<Fr>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr>) {
+fn fail_synthesis(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(
             IntegerError::SynthesisError(_string),

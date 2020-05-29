@@ -4,7 +4,7 @@ use crate::{
     errors::constraints::ImportError,
     new_scope,
     types::Program,
-    Import,
+    GroupType, Import,
 };
 
 use from_pest::FromPest;
@@ -15,7 +15,13 @@ use snarkos_models::{
 use std::env::current_dir;
 use std::fs;
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
+impl<
+        NativeF: Field,
+        F: Field + PrimeField,
+        GType: GroupType<NativeF, F>,
+        CS: ConstraintSystem<F>,
+    > ConstrainedProgram<NativeF, F, GType, CS>
+{
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,

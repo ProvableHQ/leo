@@ -5,5 +5,5 @@ use std::fmt::Debug;
 pub mod edwards_bls12;
 
 pub trait GroupType<NativeF: Field, F: Field>: Sized + Clone + Debug {
-    fn constant(x: String, y: String) -> Result<Self, GroupError>;
+    fn constant(string: String) -> Result<Self, GroupError>;
 }

@@ -1,4 +1,4 @@
-use crate::errors::IntegerError;
+use crate::errors::{GroupError, IntegerError};
 
 use std::num::ParseIntError;
 use std::str::ParseBoolError;
@@ -27,6 +27,9 @@ pub enum ValueError {
     /// Unexpected type
     #[error("{}", _0)]
     TypeError(String),
+
+    #[error("{}", _0)]
+    GroupError(#[from] GroupError),
 }
 
 impl From<ParseIntError> for ValueError {

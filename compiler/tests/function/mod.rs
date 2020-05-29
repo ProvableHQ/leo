@@ -1,25 +1,31 @@
 use crate::{compile_program, get_error, get_output, integer::u32::output_one};
 
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use snarkos_curves::bls12_377::Fr;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
 
-pub(crate) fn output_empty(program: Compiler<Fr>) {
+pub(crate) fn output_empty(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
-    assert_eq!(ConstrainedValue::<Fr>::Return(vec![]), output);
+    assert_eq!(ConstrainedValue::<Fq>::Return(vec![]), output);
 }
 
 // (true, false)
-pub(crate) fn output_multiple(program: Compiler<Fr>) {
+pub(crate) fn output_multiple(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![
+        ConstrainedValue::<Fq>::Return(vec![
             ConstrainedValue::Boolean(Boolean::Constant(true)),
             ConstrainedValue::Boolean(Boolean::Constant(false))
         ]),
@@ -27,7 +33,9 @@ pub(crate) fn output_multiple(program: Compiler<Fr>) {
     )
 }
 
-fn fail_undefined_identifier(program: Compiler<Fr>) {
+fn fail_undefined_identifier(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),

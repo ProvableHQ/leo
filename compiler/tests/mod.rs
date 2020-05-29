@@ -11,26 +11,35 @@ pub mod statement;
 
 use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
 
-use snarkos_curves::bls12_377::Fr;
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
-pub(crate) fn get_output(program: Compiler<Fr>) -> ConstrainedValue<Fr> {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+pub(crate) fn get_output(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) -> ConstrainedValue<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType> {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());
     output
 }
 
-pub(crate) fn get_error(program: Compiler<Fr>) -> CompilerError {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+pub(crate) fn get_error(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) -> CompilerError {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     program.compile_constraints(&mut cs).unwrap_err()
 }
 
 pub(crate) fn compile_program(
     directory_name: &str,
     file_name: &str,
-) -> Result<Compiler<Fr>, CompilerError> {
+) -> Result<
+    Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+    CompilerError,
+> {
     let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory
@@ -47,5 +56,5 @@ pub(crate) fn compile_program(
     println!("Compiling file - {:?}", main_file_path);
 
     // Compile from the main file path
-    Compiler::<Fr>::init(file_name.to_string(), main_file_path)
+    Compiler::<Fq>::init(file_name.to_string(), main_file_path)
 }

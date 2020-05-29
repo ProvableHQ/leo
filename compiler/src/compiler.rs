@@ -4,7 +4,7 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program,
+    GroupType, InputValue, Program,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -18,16 +18,18 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField> {
+pub struct Compiler<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program<F>,
     program_inputs: Vec<Option<InputValue<F>>>,
-    output: Option<ConstrainedValue<F>>,
+    output: Option<ConstrainedValue<NativeF, F, GType>>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField> Compiler<F> {
+impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
+    Compiler<NativeF, F, GType>
+{
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
             package_name,
@@ -64,7 +66,7 @@ impl<F: Field + PrimeField> Compiler<F> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-    ) -> Result<ConstrainedValue<F>, CompilerError> {
+    ) -> Result<ConstrainedValue<NativeF, F, GType>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
     }
 
@@ -107,12 +109,16 @@ impl<F: Field + PrimeField> Compiler<F> {
     }
 }
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
+impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> ConstraintSynthesizer<F>
+    for Compiler<NativeF, F, GType>
+{
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
+        let _result =
+            generate_constraints::<NativeF, _, GType, _>(cs, self.program, self.program_inputs)
+                .unwrap();
 
         // Write results to file or something
 

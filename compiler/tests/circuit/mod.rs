@@ -6,22 +6,26 @@ use crate::{
     // group_element::output_zero
 };
 
+use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedCircuitMember, ConstrainedValue, Expression, Function, Identifier, Integer,
     Statement, Type,
 };
-use snarkos_curves::bls12_377::Fr;
+use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
+use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";
 
 // Circ { x: 1u32 }
-fn output_circuit(program: Compiler<Fr>) {
+fn output_circuit(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::CircuitExpression(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::CircuitExpression(
             Identifier::new("Circ".into()),
             vec![ConstrainedCircuitMember(
                 Identifier::new("x".into()),
@@ -32,7 +36,9 @@ fn output_circuit(program: Compiler<Fr>) {
     );
 }
 
-fn fail_expected_member(program: Compiler<Fr>) {
+fn fail_expected_member(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
@@ -41,7 +47,9 @@ fn fail_expected_member(program: Compiler<Fr>) {
     }
 }
 
-fn fail_undefined_member(program: Compiler<Fr>) {
+fn fail_undefined_member(
+    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
@@ -151,7 +159,7 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::CircuitExpression(
+        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::CircuitExpression(
             Identifier::new("Circ".into()),
             vec![ConstrainedCircuitMember(
                 Identifier::new("new".into()),
