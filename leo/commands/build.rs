@@ -5,10 +5,7 @@ use crate::{cli::*, cli_types::*};
 use leo_compiler::compiler::Compiler;
 
 use snarkos_algorithms::snark::KeypairAssembly;
-use snarkos_curves::{
-    bls12_377::{Bls12_377, Fr},
-    edwards_bls12::EdwardsProjective
-};
+use snarkos_curves::bls12_377::{Bls12_377, Fr};
 
 use clap::ArgMatches;
 use std::convert::TryFrom;
@@ -19,7 +16,7 @@ pub struct BuildCommand;
 
 impl CLI for BuildCommand {
     type Options = ();
-    type Output = (Compiler<Fr, EdwardsProjective>, bool);
+    type Output = (Compiler<Fr>, bool);
 
     const NAME: NameType = "build";
     const ABOUT: AboutType = "Compile the current package as a program";
@@ -63,7 +60,7 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<Fr, EdwardsProjective>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fr>::init(package_name.clone(), main_file_path.clone())?;
         let program_checksum = program.checksum()?;
 
         // Generate the program on the constraint system and verify correctness

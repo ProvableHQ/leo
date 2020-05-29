@@ -52,7 +52,10 @@ impl ProvingKeyFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, PROVING_KEY_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!(
+                "{}{}",
+                self.package_name, PROVING_KEY_FILE_EXTENSION
+            )));
         }
         path
     }

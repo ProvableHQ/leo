@@ -1,6 +1,6 @@
 use crate::errors::{
-    BooleanError, ExpressionError, FieldElementError, GroupElementError, IntegerError,
-    StatementError, ValueError,
+    BooleanError, ExpressionError, FieldElementError, GroupError, IntegerError, StatementError,
+    ValueError,
 };
 
 #[derive(Debug, Error)]
@@ -30,7 +30,7 @@ pub enum FunctionError {
     FieldElementError(FieldElementError),
 
     #[error("{}", _0)]
-    GroupElementError(GroupElementError),
+    GroupError(GroupError),
 
     #[error("{}", _0)]
     BooleanError(BooleanError),
@@ -60,9 +60,9 @@ impl From<FieldElementError> for FunctionError {
     }
 }
 
-impl From<GroupElementError> for FunctionError {
-    fn from(error: GroupElementError) -> Self {
-        FunctionError::GroupElementError(error)
+impl From<GroupError> for FunctionError {
+    fn from(error: GroupError) -> Self {
+        FunctionError::GroupError(error)
     }
 }
 

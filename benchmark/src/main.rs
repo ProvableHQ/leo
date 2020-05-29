@@ -6,9 +6,7 @@ use snarkos_algorithms::snark::{
     create_random_proof, generate_random_parameters, prepare_verifying_key, verify_proof,
 };
 use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_curves::edwards_bls12::EdwardsProjective;
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::Group;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
@@ -20,19 +18,17 @@ use std::{
 };
 
 #[derive(Clone)]
-pub struct Benchmark<F: Field + PrimeField, G: Group> {
-    program: Program<F, G>,
-    parameters: Vec<Option<InputValue<F, G>>>,
-    _group: PhantomData<G>,
+pub struct Benchmark<F: Field + PrimeField> {
+    program: Program<F>,
+    parameters: Vec<Option<InputValue<F>>>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
+impl<F: Field + PrimeField> Benchmark<F> {
     pub fn new() -> Self {
         Self {
             program: Program::new(),
             parameters: vec![],
-            _group: PhantomData,
             _engine: PhantomData,
         }
     }
@@ -48,7 +44,7 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
         let syntax_tree = ast::File::from_pest(&mut file).expect("infallible");
 
         // Build a leo program from the syntax tree
-        self.program = Program::<F, G>::from(syntax_tree, "simple".into());
+        self.program = Program::<F>::from(syntax_tree, "simple".into());
         self.parameters = vec![None; self.program.num_parameters];
 
         println!(" compiled: {:#?}\n", self.program);
@@ -57,7 +53,7 @@ impl<F: Field + PrimeField, G: Group> Benchmark<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Benchmark<F, G> {
+impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Benchmark<F> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
@@ -81,7 +77,7 @@ fn main() {
     let start = Instant::now();
 
     // Load and compile program
-    let mut program = Benchmark::<Fr, EdwardsProjective>::new();
+    let mut program = Benchmark::<Fr>::new();
     program.evaluate_program().unwrap();
 
     // Generate proof parameters

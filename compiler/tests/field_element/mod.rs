@@ -6,32 +6,32 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::curves::Field;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
+fn output_zero(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::FieldElement(
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
             FieldElement::Constant(Fr::zero())
         )]),
         output
     );
 }
 
-fn output_one(program: Compiler<Fr, EdwardsProjective>) {
+fn output_one(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::FieldElement(
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::FieldElement(
             FieldElement::Constant(Fr::one())
         )]),
         output
     );
 }
 
-fn fail_field(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_field(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -40,7 +40,7 @@ fn fail_field(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_synthesis(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),

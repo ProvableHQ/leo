@@ -3,7 +3,7 @@
 
 use crate::Import;
 
-use snarkos_models::curves::{Field, Group, PrimeField};
+use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::{
     r1cs::Variable as R1CSVariable,
     utilities::{
@@ -16,17 +16,15 @@ use std::marker::PhantomData;
 
 /// An identifier in the constrained program.
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Identifier<F: Field + PrimeField, G: Group> {
+pub struct Identifier<F: Field + PrimeField> {
     pub name: String,
-    pub(crate) _group: PhantomData<G>,
     pub(crate) _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
+impl<F: Field + PrimeField> Identifier<F> {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            _group: PhantomData::<G>,
             _engine: PhantomData::<F>,
         }
     }
@@ -38,10 +36,10 @@ impl<F: Field + PrimeField, G: Group> Identifier<F, G> {
 
 /// A variable that is assigned to a value in the constrained program
 #[derive(Clone, PartialEq, Eq)]
-pub struct Variable<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
+pub struct Variable<F: Field + PrimeField> {
+    pub identifier: Identifier<F>,
     pub mutable: bool,
-    pub _type: Option<Type<F, G>>,
+    pub _type: Option<Type<F>>,
 }
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
@@ -63,74 +61,70 @@ pub enum FieldElement<F: Field + PrimeField> {
 
 /// Range or expression enum
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum RangeOrExpression<F: Field + PrimeField, G: Group> {
+pub enum RangeOrExpression<F: Field + PrimeField> {
     Range(Option<Integer>, Option<Integer>),
-    Expression(Expression<F, G>),
+    Expression(Expression<F>),
 }
 
 /// Spread or expression
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SpreadOrExpression<F: Field + PrimeField, G: Group> {
-    Spread(Expression<F, G>),
-    Expression(Expression<F, G>),
+pub enum SpreadOrExpression<F: Field + PrimeField> {
+    Spread(Expression<F>),
+    Expression(Expression<F>),
 }
 
 /// Expression that evaluates to a value
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Expression<F: Field + PrimeField, G: Group> {
+pub enum Expression<F: Field + PrimeField> {
     // Identifier
-    Identifier(Identifier<F, G>),
+    Identifier(Identifier<F>),
 
     // Values
     Integer(Integer),
     FieldElement(FieldElement<F>),
-    GroupElement(G),
+    Group(String),
     Boolean(Boolean),
     Implicit(String),
 
     // Number operations
-    Add(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Sub(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Mul(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Div(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Pow(Box<Expression<F, G>>, Box<Expression<F, G>>),
+    Add(Box<Expression<F>>, Box<Expression<F>>),
+    Sub(Box<Expression<F>>, Box<Expression<F>>),
+    Mul(Box<Expression<F>>, Box<Expression<F>>),
+    Div(Box<Expression<F>>, Box<Expression<F>>),
+    Pow(Box<Expression<F>>, Box<Expression<F>>),
 
     // Boolean operations
-    Not(Box<Expression<F, G>>),
-    Or(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    And(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Eq(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Geq(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Gt(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Leq(Box<Expression<F, G>>, Box<Expression<F, G>>),
-    Lt(Box<Expression<F, G>>, Box<Expression<F, G>>),
+    Not(Box<Expression<F>>),
+    Or(Box<Expression<F>>, Box<Expression<F>>),
+    And(Box<Expression<F>>, Box<Expression<F>>),
+    Eq(Box<Expression<F>>, Box<Expression<F>>),
+    Geq(Box<Expression<F>>, Box<Expression<F>>),
+    Gt(Box<Expression<F>>, Box<Expression<F>>),
+    Leq(Box<Expression<F>>, Box<Expression<F>>),
+    Lt(Box<Expression<F>>, Box<Expression<F>>),
 
     // Conditionals
-    IfElse(
-        Box<Expression<F, G>>,
-        Box<Expression<F, G>>,
-        Box<Expression<F, G>>,
-    ),
+    IfElse(Box<Expression<F>>, Box<Expression<F>>, Box<Expression<F>>),
 
     // Arrays
-    Array(Vec<Box<SpreadOrExpression<F, G>>>),
-    ArrayAccess(Box<Expression<F, G>>, Box<RangeOrExpression<F, G>>), // (array name, range)
+    Array(Vec<Box<SpreadOrExpression<F>>>),
+    ArrayAccess(Box<Expression<F>>, Box<RangeOrExpression<F>>), // (array name, range)
 
     // Circuits
-    Circuit(Identifier<F, G>, Vec<CircuitFieldDefinition<F, G>>),
-    CircuitMemberAccess(Box<Expression<F, G>>, Identifier<F, G>), // (declared circuit name, circuit member name)
-    CircuitStaticFunctionAccess(Box<Expression<F, G>>, Identifier<F, G>), // (defined circuit name, circuit static member name)
+    Circuit(Identifier<F>, Vec<CircuitFieldDefinition<F>>),
+    CircuitMemberAccess(Box<Expression<F>>, Identifier<F>), // (declared circuit name, circuit member name)
+    CircuitStaticFunctionAccess(Box<Expression<F>>, Identifier<F>), // (defined circuit name, circuit static member name)
 
     // Functions
-    FunctionCall(Box<Expression<F, G>>, Vec<Expression<F, G>>),
+    FunctionCall(Box<Expression<F>>, Vec<Expression<F>>),
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Assignee<F: Field + PrimeField, G: Group> {
-    Identifier(Identifier<F, G>),
-    Array(Box<Assignee<F, G>>, RangeOrExpression<F, G>),
-    CircuitField(Box<Assignee<F, G>>, Identifier<F, G>), // (circuit name, circuit field name)
+pub enum Assignee<F: Field + PrimeField> {
+    Identifier(Identifier<F>),
+    Array(Box<Assignee<F>>, RangeOrExpression<F>),
+    CircuitField(Box<Assignee<F>>, Identifier<F>), // (circuit name, circuit field name)
 }
 
 /// Explicit integer type
@@ -145,17 +139,17 @@ pub enum IntegerType {
 
 /// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Type<F: Field + PrimeField, G: Group> {
+pub enum Type<F: Field + PrimeField> {
     IntegerType(IntegerType),
     FieldElement,
-    GroupElement,
+    Group,
     Boolean,
-    Array(Box<Type<F, G>>, Vec<usize>),
-    Circuit(Identifier<F, G>),
+    Array(Box<Type<F>>, Vec<usize>),
+    Circuit(Identifier<F>),
     SelfType,
 }
 
-impl<F: Field + PrimeField, G: Group> Type<F, G> {
+impl<F: Field + PrimeField> Type<F> {
     pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
         let _type = self.clone();
 
@@ -184,79 +178,79 @@ impl<F: Field + PrimeField, G: Group> Type<F, G> {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConditionalNestedOrEnd<F: Field + PrimeField, G: Group> {
-    Nested(Box<ConditionalStatement<F, G>>),
-    End(Vec<Statement<F, G>>),
+pub enum ConditionalNestedOrEnd<F: Field + PrimeField> {
+    Nested(Box<ConditionalStatement<F>>),
+    End(Vec<Statement<F>>),
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConditionalStatement<F: Field + PrimeField, G: Group> {
-    pub condition: Expression<F, G>,
-    pub statements: Vec<Statement<F, G>>,
-    pub next: Option<ConditionalNestedOrEnd<F, G>>,
+pub struct ConditionalStatement<F: Field + PrimeField> {
+    pub condition: Expression<F>,
+    pub statements: Vec<Statement<F>>,
+    pub next: Option<ConditionalNestedOrEnd<F>>,
 }
 
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq)]
-pub enum Statement<F: Field + PrimeField, G: Group> {
-    Return(Vec<Expression<F, G>>),
-    Definition(Variable<F, G>, Expression<F, G>),
-    Assign(Assignee<F, G>, Expression<F, G>),
-    MultipleAssign(Vec<Variable<F, G>>, Expression<F, G>),
-    Conditional(ConditionalStatement<F, G>),
-    For(Identifier<F, G>, Integer, Integer, Vec<Statement<F, G>>),
-    AssertEq(Expression<F, G>, Expression<F, G>),
-    Expression(Expression<F, G>),
+pub enum Statement<F: Field + PrimeField> {
+    Return(Vec<Expression<F>>),
+    Definition(Variable<F>, Expression<F>),
+    Assign(Assignee<F>, Expression<F>),
+    MultipleAssign(Vec<Variable<F>>, Expression<F>),
+    Conditional(ConditionalStatement<F>),
+    For(Identifier<F>, Integer, Integer, Vec<Statement<F>>),
+    AssertEq(Expression<F>, Expression<F>),
+    Expression(Expression<F>),
 }
 
 /// Circuits
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct CircuitFieldDefinition<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
-    pub expression: Expression<F, G>,
+pub struct CircuitFieldDefinition<F: Field + PrimeField> {
+    pub identifier: Identifier<F>,
+    pub expression: Expression<F>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum CircuitMember<F: Field + PrimeField, G: Group> {
-    CircuitField(Identifier<F, G>, Type<F, G>),
-    CircuitFunction(bool, Function<F, G>),
+pub enum CircuitMember<F: Field + PrimeField> {
+    CircuitField(Identifier<F>, Type<F>),
+    CircuitFunction(bool, Function<F>),
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Circuit<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
-    pub members: Vec<CircuitMember<F, G>>,
+pub struct Circuit<F: Field + PrimeField> {
+    pub identifier: Identifier<F>,
+    pub members: Vec<CircuitMember<F>>,
 }
 
 /// Function parameters
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct InputModel<F: Field + PrimeField, G: Group> {
-    pub identifier: Identifier<F, G>,
+pub struct InputModel<F: Field + PrimeField> {
+    pub identifier: Identifier<F>,
     pub mutable: bool,
     pub private: bool,
-    pub _type: Type<F, G>,
+    pub _type: Type<F>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum InputValue<F: Field + PrimeField, G: Group> {
+pub enum InputValue<F: Field + PrimeField> {
     Integer(usize),
     Field(F),
-    Group(G),
+    Group(String),
     Boolean(bool),
-    Array(Vec<InputValue<F, G>>),
+    Array(Vec<InputValue<F>>),
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Function<F: Field + PrimeField, G: Group> {
-    pub function_name: Identifier<F, G>,
-    pub inputs: Vec<InputModel<F, G>>,
-    pub returns: Vec<Type<F, G>>,
-    pub statements: Vec<Statement<F, G>>,
+pub struct Function<F: Field + PrimeField> {
+    pub function_name: Identifier<F>,
+    pub inputs: Vec<InputModel<F>>,
+    pub returns: Vec<Type<F>>,
+    pub statements: Vec<Statement<F>>,
 }
 
-impl<F: Field + PrimeField, G: Group> Function<F, G> {
+impl<F: Field + PrimeField> Function<F> {
     pub fn get_name(&self) -> String {
         self.function_name.name.clone()
     }
@@ -264,15 +258,15 @@ impl<F: Field + PrimeField, G: Group> Function<F, G> {
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
-pub struct Program<F: Field + PrimeField, G: Group> {
-    pub name: Identifier<F, G>,
+pub struct Program<F: Field + PrimeField> {
+    pub name: Identifier<F>,
     pub num_parameters: usize,
-    pub imports: Vec<Import<F, G>>,
-    pub circuits: HashMap<Identifier<F, G>, Circuit<F, G>>,
-    pub functions: HashMap<Identifier<F, G>, Function<F, G>>,
+    pub imports: Vec<Import<F>>,
+    pub circuits: HashMap<Identifier<F>, Circuit<F>>,
+    pub functions: HashMap<Identifier<F>, Function<F>>,
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> Program<F, G> {
+impl<'ast, F: Field + PrimeField> Program<F> {
     pub fn new() -> Self {
         Self {
             name: Identifier::new("".into()),

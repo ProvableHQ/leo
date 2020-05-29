@@ -5,24 +5,21 @@ use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
 
-pub(crate) fn output_empty(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_empty(program: Compiler<Fr>) {
     let output = get_output(program);
-    assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![]),
-        output
-    );
+    assert_eq!(ConstrainedValue::<Fr>::Return(vec![]), output);
 }
 
 // (true, false)
-pub(crate) fn output_multiple(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_multiple(program: Compiler<Fr>) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
+        ConstrainedValue::<Fr>::Return(vec![
             ConstrainedValue::Boolean(Boolean::Constant(true)),
             ConstrainedValue::Boolean(Boolean::Constant(false))
         ]),
@@ -30,7 +27,7 @@ pub(crate) fn output_multiple(program: Compiler<Fr, EdwardsProjective>) {
     )
 }
 
-fn fail_undefined_identifier(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_undefined_identifier(program: Compiler<Fr>) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),

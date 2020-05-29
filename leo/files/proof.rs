@@ -31,7 +31,8 @@ impl ProofFile {
     pub fn read_from(&self, path: &PathBuf) -> Result<String, ProofFileError> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
+        let proof =
+            fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
         Ok(proof)
     }
 
@@ -53,7 +54,10 @@ impl ProofFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!(
+                "{}{}",
+                self.package_name, PROOF_FILE_EXTENSION
+            )));
         }
         path
     }

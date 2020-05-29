@@ -6,25 +6,25 @@ use leo_compiler::{
     types::{InputValue, Integer},
     ConstrainedValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+use snarkos_curves::bls12_377::Fr;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
-fn mut_success(program: Compiler<Fr, EdwardsProjective>) {
+fn mut_success(program: Compiler<Fr>) {
     let mut cs = TestConstraintSystem::<Fr>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(
-            Integer::U32(UInt32::constant(0))
-        )]),
+        ConstrainedValue::<Fr>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+            UInt32::constant(0)
+        ))]),
         output
     );
 }
 
-fn mut_fail(program: Compiler<Fr, EdwardsProjective>) {
+fn mut_fail(program: Compiler<Fr>) {
     let mut cs = TestConstraintSystem::<Fr>::new();
     let err = program.compile_constraints(&mut cs).unwrap_err();
 

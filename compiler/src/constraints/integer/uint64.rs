@@ -8,21 +8,21 @@ use crate::{
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, eq::EqGadget, uint64::UInt64},
     },
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ConstrainedProgram<F, CS> {
     pub(crate) fn u64_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
+    ) -> Result<ConstrainedValue<F>, IntegerError> {
         // Type cast to u64 in rust.
         // If this fails should we return our own error?
         let u64_option = integer_option.map(|integer| integer as u64);

@@ -18,8 +18,8 @@ pub use integer::*;
 pub mod field_element;
 pub use field_element::*;
 
-pub mod group_element;
-pub use group_element::*;
+pub mod group;
+pub use group::*;
 
 pub mod program;
 pub use program::*;
@@ -36,15 +36,15 @@ use crate::{
 };
 
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn generate_constraints<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program<F, G>,
-    parameters: Vec<Option<InputValue<F, G>>>,
-) -> Result<ConstrainedValue<F, G>, CompilerError> {
+    program: Program<F>,
+    parameters: Vec<Option<InputValue<F>>>,
+) -> Result<ConstrainedValue<F>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

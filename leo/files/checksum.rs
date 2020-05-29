@@ -31,7 +31,10 @@ impl ChecksumFile {
     pub fn read_from(&self, path: &PathBuf) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.clone()))?)
+        Ok(
+            fs::read_to_string(&path)
+                .map_err(|_| ChecksumFileError::FileReadError(path.clone()))?,
+        )
     }
 
     /// Writes the given checksum to a file.
@@ -52,7 +55,10 @@ impl ChecksumFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, CHECKSUM_FILE_EXTENSION)));
+            path.push(PathBuf::from(format!(
+                "{}{}",
+                self.package_name, CHECKSUM_FILE_EXTENSION
+            )));
         }
         path
     }

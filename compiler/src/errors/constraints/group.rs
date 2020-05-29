@@ -1,7 +1,7 @@
 use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]
-pub enum GroupElementError {
+pub enum GroupError {
     #[error("Expected group element parameter, got {}", _0)]
     InvalidGroup(String),
 
@@ -9,8 +9,8 @@ pub enum GroupElementError {
     SynthesisError(SynthesisError),
 }
 
-impl From<SynthesisError> for GroupElementError {
+impl From<SynthesisError> for GroupError {
     fn from(error: SynthesisError) -> Self {
-        GroupElementError::SynthesisError(error)
+        GroupError::SynthesisError(error)
     }
 }
