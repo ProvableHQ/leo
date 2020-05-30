@@ -1,36 +1,30 @@
-use crate::compile_program;
+use crate::{compile_program, EdwardsConstrainedValue, EdwardsTestCompiler};
 
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, FunctionError, StatementError},
     types::{InputValue, Integer},
     ConstrainedValue,
 };
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::ModelParameters;
+use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
-fn mut_success(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn mut_success(program: EdwardsTestCompiler) {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Integer(Integer::U32(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
             UInt32::constant(0)
-        ))]),
-        output
+        ))])
+        .to_string(),
+        output.to_string()
     );
 }
 
-fn mut_fail(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn mut_fail(program: EdwardsTestCompiler) {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let err = program.compile_constraints(&mut cs).unwrap_err();
 

@@ -1,41 +1,38 @@
-use crate::{compile_program, get_error, get_output, integer::u32::output_one};
+use crate::{
+    compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
 
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
 
-pub(crate) fn output_empty(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+pub(crate) fn output_empty(program: EdwardsTestCompiler) {
     let output = get_output(program);
-    assert_eq!(ConstrainedValue::<Fq>::Return(vec![]), output);
+    assert_eq!(
+        EdwardsConstrainedValue::Return(vec![]).to_string(),
+        output.to_string()
+    );
 }
 
 // (true, false)
-pub(crate) fn output_multiple(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+pub(crate) fn output_multiple(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![
+        EdwardsConstrainedValue::Return(vec![
             ConstrainedValue::Boolean(Boolean::Constant(true)),
             ConstrainedValue::Boolean(Boolean::Constant(false))
-        ]),
-        output
+        ])
+        .to_string(),
+        output.to_string()
     )
 }
 
-fn fail_undefined_identifier(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_undefined_identifier(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),

@@ -1,44 +1,38 @@
-use crate::{compile_program, get_error, get_output};
+use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 
 use leo_compiler::errors::FieldElementError;
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::{Field, ModelParameters};
+use snarkos_curves::edwards_bls12::Fq;
+use snarkos_models::curves::Field;
 
 const DIRECTORY_NAME: &str = "tests/field_element/";
 
-fn output_zero(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn output_zero(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fr::zero())
-        )]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Constant(Fq::zero())
+        )])
+        .to_string(),
+        output.to_string()
     );
 }
 
-fn output_one(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn output_one(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fr::one())
-        )]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::FieldElement(
+            FieldElement::Constant(Fq::one())
+        )])
+        .to_string(),
+        output.to_string()
     );
 }
 
-fn fail_field(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::InvalidField(_string),
@@ -47,9 +41,7 @@ fn fail_field(
     }
 }
 
-fn fail_synthesis(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
             FieldElementError::SynthesisError(_string),

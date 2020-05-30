@@ -1,41 +1,33 @@
-use crate::{compile_program, get_error, get_output};
+use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 
 use leo_compiler::errors::{BooleanError, ExpressionError};
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, FunctionError, StatementError},
     ConstrainedValue, InputValue,
 };
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/boolean/";
 
-fn output_true(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn output_true(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(true))]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(true))])
+            .to_string(),
+        output.to_string()
     );
 }
 
-fn output_false(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn output_false(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fq>::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(false))]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(false))])
+            .to_string(),
+        output.to_string()
     );
 }
 
-fn fail_evaluate(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_evaluate(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::BooleanError(
@@ -46,9 +38,7 @@ fn fail_evaluate(
     }
 }
 
-fn fail_enforce(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_enforce(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::BooleanError(
@@ -59,9 +49,7 @@ fn fail_enforce(
     }
 }
 
-fn fail_boolean(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_boolean(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::BooleanError(
             BooleanError::InvalidBoolean(_string),
@@ -70,9 +58,7 @@ fn fail_boolean(
     }
 }
 
-fn fail_synthesis(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) {
+fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::BooleanError(
             BooleanError::SynthesisError(_string),

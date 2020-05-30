@@ -17,18 +17,19 @@ use snarkos_models::curves::ModelParameters;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
-pub(crate) fn get_output(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) -> ConstrainedValue<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType> {
+pub type EdwardsTestCompiler =
+    Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>;
+pub type EdwardsConstrainedValue =
+    ConstrainedValue<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>;
+
+pub(crate) fn get_output(program: EdwardsTestCompiler) -> EdwardsConstrainedValue {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
     assert!(cs.is_satisfied());
     output
 }
 
-pub(crate) fn get_error(
-    program: Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-) -> CompilerError {
+pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
     program.compile_constraints(&mut cs).unwrap_err()
 }
@@ -36,10 +37,7 @@ pub(crate) fn get_error(
 pub(crate) fn compile_program(
     directory_name: &str,
     file_name: &str,
-) -> Result<
-    Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
-    CompilerError,
-> {
+) -> Result<EdwardsTestCompiler, CompilerError> {
     let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory
@@ -56,5 +54,5 @@ pub(crate) fn compile_program(
     println!("Compiling file - {:?}", main_file_path);
 
     // Compile from the main file path
-    Compiler::<Fq>::init(file_name.to_string(), main_file_path)
+    EdwardsTestCompiler::init(file_name.to_string(), main_file_path)
 }
