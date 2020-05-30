@@ -122,7 +122,8 @@ impl<'ast, F: Field + PrimeField> From<ast::Field<'ast>> for types::Expression<F
 
 impl<'ast, F: Field + PrimeField> From<ast::Group<'ast>> for types::Expression<F> {
     fn from(group: ast::Group<'ast>) -> Self {
-        types::Expression::Group(group.number.value)
+        let string = format!("({}, 1)", group.number.value);
+        types::Expression::Group(string)
     }
 }
 
