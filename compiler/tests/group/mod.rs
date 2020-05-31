@@ -1,20 +1,30 @@
 use crate::{compile_program, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::ConstrainedValue;
+
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 use snarkos_models::curves::Group;
 
+use std::str::FromStr;
+
 const DIRECTORY_NAME: &str = "tests/group/";
 
-fn output_zero(program: EdwardsTestCompiler) {
+const TEST_POINT_1: &str = "(7374112779530666882856915975292384652154477718021969292781165691637980424078, 3435195339177955418892975564890903138308061187980579490487898366607011481796)";
+const TEST_POINT_2: &str = "(1005842117974384149622370061042978581211342111653966059496918451529532134799, 79389132189982034519597104273449021362784864778548730890166152019533697186)";
+
+fn output_expected(program: EdwardsTestCompiler, expected: EdwardsAffine) {
     let output = get_output(program);
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::Group(EdwardsGroupType::Constant(
-            EdwardsAffine::zero()
+            expected
         ))])
         .to_string(),
         output.to_string()
-    );
+    )
+}
+
+fn output_zero(program: EdwardsTestCompiler) {
+    output_expected(program, EdwardsAffine::zero())
 }
 
 #[test]
@@ -24,7 +34,21 @@ fn test_zero() {
 }
 
 #[test]
+fn test_point() {
+    let point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
+    let program = compile_program(DIRECTORY_NAME, "point.leo").unwrap();
+    output_expected(program, point);
+}
+
+#[test]
 fn test_add() {
+    use std::ops::Add;
+
+    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
+    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
+
+    let sum = point_1.add(&point_2);
+
     let program = compile_program(DIRECTORY_NAME, "add.leo").unwrap();
-    output_zero(program);
+    output_expected(program, sum);
 }

@@ -17,8 +17,14 @@ pub enum EdwardsGroupType {
 
 impl GroupType<<EdwardsParameters as ModelParameters>::BaseField, Fq> for EdwardsGroupType {
     fn constant(string: String) -> Result<Self, GroupError> {
+        // 0 or (0, 1)
         let result =
-            EdwardsAffine::from_str(&string).map_err(|_| GroupError::InvalidGroup(string))?;
+            match Fq::from_str(&string).ok() {
+                Some(x) => EdwardsAffine::get_point_from_x(x, false)
+                    .ok_or(GroupError::InvalidGroup(string))?,
+                None => EdwardsAffine::from_str(&string)
+                    .map_err(|_| GroupError::InvalidGroup(string))?,
+            };
 
         Ok(EdwardsGroupType::Constant(result))
     }

@@ -71,10 +71,7 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
             Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
             ))),
-            Type::Group => Ok(ConstrainedValue::Group(GType::constant(format!(
-                "({}, 1)",
-                value
-            ))?)),
+            Type::Group => Ok(ConstrainedValue::Group(GType::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
             ))),
