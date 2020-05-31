@@ -7,6 +7,7 @@ use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::curves::{AffineCurve, ModelParameters};
 use snarkos_models::gadgets::curves::GroupGadget;
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use std::ops::Sub;
 use std::str::FromStr;
 
 #[derive(Clone, Debug)]
@@ -52,6 +53,33 @@ impl GroupType<<EdwardsParameters as ModelParameters>::BaseField, Fq> for Edward
                 EdwardsGroupType::Constant(constant_value),
             ) => Ok(EdwardsGroupType::Allocated(
                 allocated_value.add_constant(cs, constant_value)?,
+            )),
+        }
+    }
+
+    fn sub<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError> {
+        match (self, other) {
+            (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
+                Ok(EdwardsGroupType::Constant(self_value.sub(other_value)))
+            }
+
+            (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
+                let result = <EdwardsBlsGadget as GroupGadget<
+                    GroupAffine<EdwardsParameters>,
+                    Fq,
+                >>::sub(self_value, cs, other_value)?;
+                Ok(EdwardsGroupType::Allocated(result))
+            }
+
+            (
+                EdwardsGroupType::Constant(constant_value),
+                EdwardsGroupType::Allocated(allocated_value),
+            )
+            | (
+                EdwardsGroupType::Allocated(allocated_value),
+                EdwardsGroupType::Constant(constant_value),
+            ) => Ok(EdwardsGroupType::Allocated(
+                allocated_value.sub_constant(cs, constant_value)?,
             )),
         }
     }

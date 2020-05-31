@@ -9,4 +9,6 @@ pub trait GroupType<NativeF: Field, F: Field>: Sized + Clone + Debug {
     fn constant(string: String) -> Result<Self, GroupError>;
 
     fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError>;
+
+    fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError>;
 }

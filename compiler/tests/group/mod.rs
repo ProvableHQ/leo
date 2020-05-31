@@ -52,3 +52,16 @@ fn test_add() {
     let program = compile_program(DIRECTORY_NAME, "add.leo").unwrap();
     output_expected(program, sum);
 }
+
+#[test]
+fn test_sub() {
+    use std::ops::Sub;
+
+    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
+    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
+
+    let sum = point_1.sub(&point_2);
+
+    let program = compile_program(DIRECTORY_NAME, "sub.leo").unwrap();
+    output_expected(program, sum);
+}

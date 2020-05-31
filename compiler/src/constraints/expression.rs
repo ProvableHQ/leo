@@ -100,9 +100,9 @@ impl<
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_sub(cs, fe_1, fe_2)?)
             }
-            // (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-            //     Ok(Self::evaluate_group_sub(ge_1, ge_2))
-            // }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2)?))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_sub_expression(cs, val_1, val_2)
@@ -131,9 +131,6 @@ impl<
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 Ok(self.enforce_field_mul(cs, fe_1, fe_2)?)
             }
-            // (ConstrainedValue::GroupElement(group), ConstrainedValue::FieldElement(scalar)) => {
-            //     Ok(Self::evaluate_group_mul(group, scalar))
-            // }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_mul_expression(cs, val_1, val_2)
