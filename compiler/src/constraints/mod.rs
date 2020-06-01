@@ -18,6 +18,9 @@ pub use integer::*;
 pub mod field_element;
 pub use field_element::*;
 
+pub(crate) mod group;
+pub(crate) use group::*;
+
 pub mod program;
 pub use program::*;
 

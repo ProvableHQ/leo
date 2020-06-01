@@ -4,6 +4,7 @@
 use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
+    group_from_input,
     types::{Expression, Function, Identifier, InputValue, Program, Type},
     GroupType,
 };
@@ -187,9 +188,7 @@ impl<
             Type::FieldElement => {
                 Ok(self.field_element_from_input(cs, name, private, input_value)?)
             }
-            // Type::Group => {
-            //     Ok(self.group_element_from_input(cs, name, private, input_value)?)
-            // }
+            Type::Group => Ok(group_from_input(cs, name, private, input_value)?),
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {
                 self.allocate_array(cs, name, private, *_type, dimensions, input_value)
