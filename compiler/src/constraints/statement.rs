@@ -422,6 +422,9 @@ impl<
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_eq(cs, fe_1, fe_2)
             }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                ge_1.enforce_equal(cs, &ge_2)?
+            }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
                     self.enforce_assert_eq_statement(cs, left, right)?;

@@ -1,10 +1,12 @@
-use crate::{compile_program, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use leo_compiler::ConstrainedValue;
 
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 use snarkos_models::curves::Group;
 
+use crate::boolean::{output_false, output_true};
+use leo_compiler::errors::{CompilerError, FunctionError, StatementError};
 use std::str::FromStr;
 
 const DIRECTORY_NAME: &str = "tests/group/";
@@ -25,6 +27,15 @@ fn output_expected(program: EdwardsTestCompiler, expected: EdwardsAffine) {
 
 fn output_zero(program: EdwardsTestCompiler) {
     output_expected(program, EdwardsAffine::zero())
+}
+
+fn fail_enforce(program: EdwardsTestCompiler) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::StatementError(
+            StatementError::SynthesisError(_),
+        )) => {}
+        error => panic!("Expected evaluate error, got {}", error),
+    }
 }
 
 #[test]
@@ -64,4 +75,28 @@ fn test_sub() {
 
     let program = compile_program(DIRECTORY_NAME, "sub.leo").unwrap();
     output_expected(program, sum);
+}
+
+#[test]
+fn test_eq_true() {
+    let program = compile_program(DIRECTORY_NAME, "eq_true.leo").unwrap();
+    output_true(program)
+}
+
+#[test]
+fn test_eq_false() {
+    let program = compile_program(DIRECTORY_NAME, "eq_false.leo").unwrap();
+    output_false(program)
+}
+
+#[test]
+fn test_assert_eq_true() {
+    let program = compile_program(DIRECTORY_NAME, "assert_eq_true.leo").unwrap();
+    let _res = get_output(program);
+}
+
+#[test]
+fn test_assert_eq_false() {
+    let program = compile_program(DIRECTORY_NAME, "assert_eq_false.leo").unwrap();
+    fail_enforce(program);
 }

@@ -224,9 +224,9 @@ impl<
             // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
             //     Self::field_eq(fe_1, fe_2)
             // }
-            // (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-            //     Ok(Self::evaluate_group_eq(ge_1, ge_2))
-            // }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(ge_1.eq(&ge_2))))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_eq_expression(val_1, val_2)

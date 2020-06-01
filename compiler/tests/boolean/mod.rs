@@ -9,7 +9,7 @@ use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/boolean/";
 
-fn output_true(program: EdwardsTestCompiler) {
+pub fn output_true(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(true))])
@@ -18,7 +18,7 @@ fn output_true(program: EdwardsTestCompiler) {
     );
 }
 
-fn output_false(program: EdwardsTestCompiler) {
+pub fn output_false(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(false))])
