@@ -25,8 +25,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         &mut self,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        unresolved_identifier: Identifier<F>,
+        expected_types: &Vec<Type>,
+        unresolved_identifier: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
@@ -332,10 +332,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        first: Expression<F>,
-        second: Expression<F>,
-        third: Expression<F>,
+        expected_types: &Vec<Type>,
+        first: Expression,
+        second: Expression,
+        third: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let resolved_first = match self.enforce_expression(
             cs,
@@ -384,8 +384,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        array: Vec<Box<SpreadOrExpression<F>>>,
+        expected_types: &Vec<Type>,
+        array: Vec<Box<SpreadOrExpression>>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
         let mut expected_types = expected_types.clone();
@@ -448,7 +448,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Expression<F>,
+        index: Expression,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
         match self.enforce_branch(
@@ -468,9 +468,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        array: Box<Expression<F>>,
-        index: RangeOrExpression<F>,
+        expected_types: &Vec<Type>,
+        array: Box<Expression>,
+        index: RangeOrExpression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let array = match self.enforce_branch(
             cs,
@@ -509,8 +509,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        identifier: Identifier<F>,
-        members: Vec<CircuitFieldDefinition<F>>,
+        identifier: Identifier,
+        members: Vec<CircuitFieldDefinition>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
 
@@ -583,9 +583,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        circuit_identifier: Box<Expression<F>>,
-        circuit_member: Identifier<F>,
+        expected_types: &Vec<Type>,
+        circuit_identifier: Box<Expression>,
+        circuit_member: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let (circuit_name, members) = match self.enforce_branch(
             cs,
@@ -644,9 +644,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        circuit_identifier: Box<Expression<F>>,
-        circuit_member: Identifier<F>,
+        expected_types: &Vec<Type>,
+        circuit_identifier: Box<Expression>,
+        circuit_member: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get defined circuit
         let circuit = match self.enforce_expression(
@@ -698,9 +698,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        function: Box<Expression<F>>,
-        arguments: Vec<Expression<F>>,
+        expected_types: &Vec<Type>,
+        function: Box<Expression>,
+        arguments: Vec<Expression>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let function_value = self.enforce_expression(
             cs,
@@ -737,7 +737,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     }
 
     pub(crate) fn enforce_number_implicit(
-        expected_types: &Vec<Type<F>>,
+        expected_types: &Vec<Type>,
         value: String,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         if expected_types.len() == 1 {
@@ -755,8 +755,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        expression: Expression<F>,
+        expected_types: &Vec<Type>,
+        expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut branch =
             self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
@@ -772,9 +772,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        left: Expression<F>,
-        right: Expression<F>,
+        expected_types: &Vec<Type>,
+        left: Expression,
+        right: Expression,
     ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
         let resolved_left = self.enforce_branch(
             cs,
@@ -799,8 +799,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type<F>>,
-        expression: Expression<F>,
+        expected_types: &Vec<Type>,
+        expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
             // Variables

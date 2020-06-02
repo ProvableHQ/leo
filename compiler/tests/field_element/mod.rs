@@ -1,7 +1,7 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
-    ConstrainedValue, FieldElement, InputValue,
+    ConstrainedValue, FieldType, InputValue,
 };
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -12,7 +12,7 @@ const DIRECTORY_NAME: &str = "tests/field_element/";
 fn output_zero(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldElement::Constant(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldType::Constant(
             Fq::zero()
         ))])
         .to_string(),
@@ -23,7 +23,7 @@ fn output_zero(program: EdwardsTestCompiler) {
 fn output_one(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldElement::Constant(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldType::Constant(
             Fq::one()
         ))])
         .to_string(),

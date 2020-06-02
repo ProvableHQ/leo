@@ -2,23 +2,22 @@
 
 use crate::Identifier;
 
-use snarkos_models::curves::{Field, PrimeField};
 use std::fmt;
 
 #[derive(Clone)]
-pub struct ImportSymbol<F: Field + PrimeField> {
-    pub symbol: Identifier<F>,
-    pub alias: Option<Identifier<F>>,
+pub struct ImportSymbol {
+    pub symbol: Identifier,
+    pub alias: Option<Identifier>,
 }
 
 #[derive(Clone)]
-pub struct Import<F: Field + PrimeField> {
+pub struct Import {
     pub path_string: String,
-    pub symbols: Vec<ImportSymbol<F>>,
+    pub symbols: Vec<ImportSymbol>,
 }
 
-impl<F: Field + PrimeField> Import<F> {
-    pub fn new(source: String, symbols: Vec<ImportSymbol<F>>) -> Import<F> {
+impl Import {
+    pub fn new(source: String, symbols: Vec<ImportSymbol>) -> Import {
         Import {
             path_string: source,
             symbols,
@@ -51,7 +50,7 @@ impl<F: Field + PrimeField> Import<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
+impl fmt::Display for ImportSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {
             write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
@@ -61,13 +60,13 @@ impl<F: Field + PrimeField> fmt::Display for ImportSymbol<F> {
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Display for Import<F> {
+impl<'ast> fmt::Display for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<'ast, F: Field + PrimeField> fmt::Debug for Import<F> {
+impl<'ast> fmt::Debug for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

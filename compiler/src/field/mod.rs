@@ -18,7 +18,7 @@ use snarkos_models::{
         },
     },
 };
-use std::{borrow::Borrow, str::FromStr};
+use std::borrow::Borrow;
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: Field + PrimeField> {

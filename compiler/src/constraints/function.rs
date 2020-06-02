@@ -30,8 +30,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         scope: String,
         caller_scope: String,
         function_name: String,
-        expected_types: Vec<Type<F>>,
-        input: Expression<F>,
+        expected_types: Vec<Type>,
+        input: Expression,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
@@ -57,8 +57,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         scope: String,
         caller_scope: String,
-        function: Function<F>,
-        inputs: Vec<Expression<F>>,
+        function: Function,
+        inputs: Vec<Expression>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
@@ -118,7 +118,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         name: String,
         private: bool,
-        array_type: Type<F>,
+        array_type: Type,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
@@ -170,7 +170,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     fn allocate_main_function_input(
         &mut self,
         cs: &mut CS,
-        _type: Type<F>,
+        _type: Type,
         name: String,
         private: bool,
         input_value: Option<InputValue>,
@@ -193,7 +193,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         &mut self,
         cs: &mut CS,
         scope: String,
-        function: Function<F>,
+        function: Function,
         inputs: Vec<Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
@@ -229,7 +229,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     pub(crate) fn resolve_definitions(
         &mut self,
         cs: &mut CS,
-        program: Program<F>,
+        program: Program,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

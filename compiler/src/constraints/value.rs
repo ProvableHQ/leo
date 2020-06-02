@@ -17,7 +17,7 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(
-    pub Identifier<F>,
+    pub Identifier,
     pub ConstrainedValue<F, G>,
 );
 
@@ -30,10 +30,10 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     Array(Vec<ConstrainedValue<F, G>>),
 
-    CircuitDefinition(Circuit<F>),
-    CircuitExpression(Identifier<F>, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitDefinition(Circuit),
+    CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
-    Function(Option<Identifier<F>>, Function<F>), // (optional circuit identifier, function definition)
+    Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
     Return(Vec<ConstrainedValue<F, G>>),
 
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         ConstrainedValue::from_type(value, &other_type)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type<F>) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(value: String, _type: &Type) -> Result<Self, ValueError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
@@ -70,7 +70,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn to_type(&self) -> Type<F> {
+    pub(crate) fn to_type(&self) -> Type {
         match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
             ConstrainedValue::Field(_field) => Type::Field,
@@ -80,7 +80,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type<F>>) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if !types.is_empty() {
                 *self = ConstrainedValue::from_type(string.clone(), &types[0])?
