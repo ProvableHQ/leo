@@ -7,10 +7,11 @@ use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::curves::{AffineCurve, ModelParameters};
 use snarkos_models::gadgets::curves::{FpGadget, GroupGadget};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use snarkos_models::gadgets::r1cs::{ConstraintSystem};
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
+use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 use std::borrow::Borrow;
 use std::ops::Sub;
 use std::str::FromStr;
@@ -106,6 +107,19 @@ impl EdwardsGroupType {
         }?;
 
         Self::edwards_affine_from_str(affine_string).map_err(|_| SynthesisError::AssignmentMissing)
+    }
+
+    pub fn allocated<CS: ConstraintSystem<Fq>>(
+        &self,
+        mut cs: CS,
+    ) -> Result<EdwardsBlsGadget, SynthesisError> {
+        match self {
+            EdwardsGroupType::Constant(constant) => <EdwardsBlsGadget as AllocGadget<
+                GroupAffine<EdwardsParameters>,
+                Fq,
+            >>::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
+            EdwardsGroupType::Allocated(allocated) => Ok(allocated.clone()),
+        }
     }
 }
 
@@ -223,49 +237,30 @@ impl ConditionalEqGadget<Fq> for EdwardsGroupType {
     }
 }
 
-// impl CondSelectGadget<Fq> for EdwardsGroupType {
-//     fn conditionally_select<CS: ConstraintSystem<F>>(
-//         mut cs: CS,
-//         cond: &Boolean,
-//         first: &Self,
-//         second: &Self
-//     ) -> Result<Self, SynthesisError> {
-//         if let Boolean::Constant(cond) = *cond {
-//             if cond { Ok(first.clone()) } else { Ok(second.clone()) }
-//         } else {
-//             let result = Self::a
-//             // // c - c
-//             // (EdwardsGroupType::Constant(first_value), EdwardsGroupType::Constant(other_value)) => {
-//             //     Ok(EdwardsGroupType::Constant(first_value.clone()))
-//             // }
-//             // // a - a
-//             // (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
-//             //     return <EdwardsBlsGadget>::conditional_enforce_equal(
-//             //         self_value,
-//             //         cs,
-//             //         other_value,
-//             //         condition,
-//             //     )
-//             // }
-//             // // c - a = a - c
-//             // (
-//             //     EdwardsGroupType::Constant(constant_value),
-//             //     EdwardsGroupType::Allocated(allocated_value),
-//             // )
-//             // | (
-//             //     EdwardsGroupType::Allocated(allocated_value),
-//             //     EdwardsGroupType::Constant(constant_value),
-//             // ) => {
-//             //     let x = FpGadget::from(&mut cs, &constant_value.x);
-//             //     let y = FpGadget::from(&mut cs, &constant_value.y);
-//             //     let constant_gadget = EdwardsBlsGadget::new(x, y);
-//             //
-//             //     constant_gadget.conditional_enforce_equal(cs, allocated_value, condition)
-//             // }
-//         }
-//     }
-//
-//     fn cost() -> usize {
-//         2 * <EdwardsBlsGadget as CondSelectGadget<Fq>>::cost()
-//     }
-// }
+impl CondSelectGadget<Fq> for EdwardsGroupType {
+    fn conditionally_select<CS: ConstraintSystem<Fq>>(
+        mut cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        if let Boolean::Constant(cond) = *cond {
+            if cond {
+                Ok(first.clone())
+            } else {
+                Ok(second.clone())
+            }
+        } else {
+            let first_gadget = first.allocated(&mut cs)?;
+            let second_gadget = second.allocated(&mut cs)?;
+            let result =
+                EdwardsBlsGadget::conditionally_select(cs, cond, &first_gadget, &second_gadget)?;
+
+            Ok(EdwardsGroupType::Allocated(result))
+        }
+    }
+
+    fn cost() -> usize {
+        2 * <EdwardsBlsGadget as CondSelectGadget<Fq>>::cost()
+    }
+}

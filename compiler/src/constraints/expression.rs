@@ -380,9 +380,11 @@ impl<
                     Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
                 Ok(ConstrainedValue::Integer(result))
             }
-            // (ConstrainedValue::GroupElement(group_2), ConstrainedValue::GroupElement(group_3)) => {
-            //     let result = Group
-            // }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                let result =
+                    GType::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
+                Ok(ConstrainedValue::Group(result))
+            }
             (_, _) => {
                 unimplemented!("conditional select gadget not implemented between given types")
             }

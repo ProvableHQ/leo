@@ -11,6 +11,7 @@ use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use std::str::FromStr;
+use snarkos_models::gadgets::curves::GroupGadget;
 
 const DIRECTORY_NAME: &str = "tests/group/";
 
@@ -126,5 +127,49 @@ fn test_input() {
         <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(constant_point))
             .unwrap();
 
-    output_expected_allocated(program, allocated_point)
+    output_expected_allocated(program, allocated_point);
+}
+
+#[test]
+fn test_ternary() {
+    let mut program_1 = compile_program(DIRECTORY_NAME, "ternary.leo").unwrap();
+    let mut program_2 = program_1.clone();
+
+    // true -> point_1
+    program_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
+
+    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
+    let output_1 = get_output(program_1);
+    let actual_1: EdwardsAffine = match output_1 {
+        EdwardsConstrainedValue::Return(vec) => {
+            match vec.as_slice() {
+                [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
+                    <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget).unwrap()
+                }
+                _ => panic!("program output unknown return value")
+            }
+        },
+        _ => panic!("program output unknown return value")
+    };
+
+    assert_eq!(point_1, actual_1);
+
+    // false -> point_2
+    program_2.set_inputs(vec![Some(InputValue::Boolean(false))]);
+
+    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
+    let output_2 = get_output(program_2);
+    let actual_2: EdwardsAffine = match output_2 {
+        EdwardsConstrainedValue::Return(vec) => {
+            match vec.as_slice() {
+                [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
+                    <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget).unwrap()
+                }
+                _ => panic!("program output unknown return value")
+            }
+        },
+        _ => panic!("program output unknown return value")
+    };
+
+    assert_eq!(point_2, actual_2);
 }
