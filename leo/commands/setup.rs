@@ -13,8 +13,7 @@ use snarkos_utilities::bytes::ToBytes;
 use clap::ArgMatches;
 use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use rand::thread_rng;
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::ModelParameters;
+use snarkos_curves::edwards_bls12::Fq;
 use std::convert::TryFrom;
 use std::env::current_dir;
 use std::time::Instant;
@@ -25,7 +24,7 @@ pub struct SetupCommand;
 impl CLI for SetupCommand {
     type Options = ();
     type Output = (
-        Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>,
+        Compiler<Fq, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );

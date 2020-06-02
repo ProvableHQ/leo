@@ -15,13 +15,7 @@ use snarkos_models::{
 use std::env::current_dir;
 use std::fs;
 
-impl<
-        NativeF: Field,
-        F: Field + PrimeField,
-        GType: GroupType<NativeF, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<NativeF, F, GType, CS>
-{
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,

@@ -4,17 +4,12 @@ use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::curves::{Field, PrimeField};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
-pub(crate) fn group_from_input<
-    NativeF: Field,
-    F: Field + PrimeField,
-    GType: GroupType<NativeF, F>,
-    CS: ConstraintSystem<F>,
->(
+pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: String,
     private: bool,
     input_value: Option<InputValue<F>>,
-) -> Result<ConstrainedValue<NativeF, F, GType>, GroupError> {
+) -> Result<ConstrainedValue<F, G>, GroupError> {
     // Check that the parameter value is the correct type
     let group_option = match input_value {
         Some(input) => {
@@ -29,11 +24,11 @@ pub(crate) fn group_from_input<
 
     // Check visibility of parameter
     let group_value = if private {
-        GType::alloc(cs.ns(|| name), || {
+        G::alloc(cs.ns(|| name), || {
             group_option.ok_or(SynthesisError::AssignmentMissing)
         })?
     } else {
-        GType::alloc_input(cs.ns(|| name), || {
+        G::alloc_input(cs.ns(|| name), || {
             group_option.ok_or(SynthesisError::AssignmentMissing)
         })?
     };

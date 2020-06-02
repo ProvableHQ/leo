@@ -18,18 +18,16 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> {
+pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program<F>,
     program_inputs: Vec<Option<InputValue<F>>>,
-    output: Option<ConstrainedValue<NativeF, F, GType>>,
+    output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
-    Compiler<NativeF, F, GType>
-{
+impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
             package_name,
@@ -66,7 +64,7 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, CompilerError> {
+    ) -> Result<ConstrainedValue<F, G>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
     }
 
@@ -109,16 +107,13 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> ConstraintSynthesizer<F>
-    for Compiler<NativeF, F, GType>
-{
+impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
         let _result =
-            generate_constraints::<NativeF, _, GType, _>(cs, self.program, self.program_inputs)
-                .unwrap();
+            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

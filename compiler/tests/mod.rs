@@ -12,15 +12,12 @@ pub mod statement;
 use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
 
 use leo_compiler::group::edwards_bls12::EdwardsGroupType;
-use snarkos_curves::edwards_bls12::{EdwardsParameters, Fq};
-use snarkos_models::curves::ModelParameters;
+use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;
 
-pub type EdwardsTestCompiler =
-    Compiler<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>;
-pub type EdwardsConstrainedValue =
-    ConstrainedValue<<EdwardsParameters as ModelParameters>::BaseField, Fq, EdwardsGroupType>;
+pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
+pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
 
 pub(crate) fn get_output(program: EdwardsTestCompiler) -> EdwardsConstrainedValue {
     let mut cs = TestConstraintSystem::<Fq>::new();

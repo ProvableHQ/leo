@@ -5,11 +5,10 @@ use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 use std::fmt::Debug;
-// use snarkos_models::gadgets::utilities::select::CondSelectGadget;
 
 pub mod edwards_bls12;
 
-pub trait GroupType<NativeF: Field, F: Field>:
+pub trait GroupType<F: Field>:
     Sized
     + Clone
     + Debug

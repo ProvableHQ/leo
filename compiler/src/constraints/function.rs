@@ -14,13 +14,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<
-        NativeF: Field,
-        F: Field + PrimeField,
-        GType: GroupType<NativeF, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<NativeF, F, GType, CS>
-{
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -38,7 +32,7 @@ impl<
         function_name: String,
         expected_types: Vec<Type<F>>,
         input: Expression<F>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
@@ -65,7 +59,7 @@ impl<
         caller_scope: String,
         function: Function<F>,
         inputs: Vec<Expression<F>>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
@@ -127,7 +121,7 @@ impl<
         array_type: Type<F>,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue<F>>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
 
@@ -180,7 +174,7 @@ impl<
         name: String,
         private: bool,
         input_value: Option<InputValue<F>>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
@@ -203,7 +197,7 @@ impl<
         scope: String,
         function: Function<F>,
         inputs: Vec<Option<InputValue<F>>>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, FunctionError> {
+    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs

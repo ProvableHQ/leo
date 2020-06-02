@@ -16,20 +16,14 @@ use snarkos_models::{
     },
 };
 
-impl<
-        NativeF: Field,
-        F: Field + PrimeField,
-        GType: GroupType<NativeF, F>,
-        CS: ConstraintSystem<F>,
-    > ConstrainedProgram<NativeF, F, GType, CS>
-{
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn u16_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
         integer_option: Option<usize>,
-    ) -> Result<ConstrainedValue<NativeF, F, GType>, IntegerError> {
+    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Type cast to u16 in rust.
         // If this fails should we return our own error?
         let u16_option = integer_option.map(|integer| integer as u16);

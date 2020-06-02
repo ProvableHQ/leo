@@ -14,45 +14,37 @@ use snarkos_models::{
     },
 };
 use std::fmt;
-use std::marker::PhantomData;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<
-    NativeF: Field,
-    F: Field + PrimeField,
-    GType: GroupType<NativeF, F>,
->(pub Identifier<F>, pub ConstrainedValue<NativeF, F, GType>);
+pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(
+    pub Identifier<F>,
+    pub ConstrainedValue<F, G>,
+);
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConstrainedValue<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> {
+pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Integer(Integer),
     FieldElement(FieldElement<F>),
-    Group(GType),
+    Group(G),
     Boolean(Boolean),
 
-    Array(Vec<ConstrainedValue<NativeF, F, GType>>),
+    Array(Vec<ConstrainedValue<F, G>>),
 
     CircuitDefinition(Circuit<F>),
-    CircuitExpression(
-        Identifier<F>,
-        Vec<ConstrainedCircuitMember<NativeF, F, GType>>,
-    ),
+    CircuitExpression(Identifier<F>, Vec<ConstrainedCircuitMember<F, G>>),
 
     Function(Option<Identifier<F>>, Function<F>), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<NativeF, F, GType>>),
+    Return(Vec<ConstrainedValue<F, G>>),
 
-    Mutable(Box<ConstrainedValue<NativeF, F, GType>>),
-    Static(Box<ConstrainedValue<NativeF, F, GType>>),
+    Mutable(Box<ConstrainedValue<F, G>>),
+    Static(Box<ConstrainedValue<F, G>>),
     Unresolved(String),
-    Void(PhantomData<NativeF>),
 }
 
-impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
-    ConstrainedValue<NativeF, F, GType>
-{
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn from_other(
         value: String,
-        other: &ConstrainedValue<NativeF, F, GType>,
+        other: &ConstrainedValue<F, G>,
     ) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
@@ -71,7 +63,7 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
             Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
                 F::from_str(&value).unwrap_or_default(),
             ))),
-            Type::Group => Ok(ConstrainedValue::Group(GType::constant(value)?)),
+            Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
             ))),
@@ -107,9 +99,7 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>>
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> fmt::Display
-    for ConstrainedValue<NativeF, F, GType>
-{
+impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
@@ -155,14 +145,11 @@ impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> fmt::D
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
-            ConstrainedValue::Void(_) => unreachable!(),
         }
     }
 }
 
-impl<NativeF: Field, F: Field + PrimeField, GType: GroupType<NativeF, F>> fmt::Debug
-    for ConstrainedValue<NativeF, F, GType>
-{
+impl<F: Field + PrimeField, G: GroupType<F>> fmt::Debug for ConstrainedValue<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }

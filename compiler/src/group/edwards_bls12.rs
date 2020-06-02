@@ -5,7 +5,7 @@ use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};
 use snarkos_curves::templates::twisted_edwards_extended::GroupAffine;
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkos_models::curves::{AffineCurve, ModelParameters};
+use snarkos_models::curves::AffineCurve;
 use snarkos_models::gadgets::curves::{FpGadget, GroupGadget};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
@@ -22,7 +22,7 @@ pub enum EdwardsGroupType {
     Allocated(EdwardsBlsGadget),
 }
 
-impl GroupType<<EdwardsParameters as ModelParameters>::BaseField, Fq> for EdwardsGroupType {
+impl GroupType<Fq> for EdwardsGroupType {
     fn constant(string: String) -> Result<Self, GroupError> {
         let value = Self::edwards_affine_from_str(string)?;
 
