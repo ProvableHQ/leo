@@ -479,7 +479,6 @@ dependencies = [
  "pest-ast",
  "pest_derive",
  "rand",
- "rand_xorshift",
  "sha2",
  "snarkos-algorithms",
  "snarkos-curves",

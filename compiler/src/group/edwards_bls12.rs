@@ -88,10 +88,8 @@ impl EdwardsGroupType {
     pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, GroupError> {
         // 0 or (0, 1)
         match Fq::from_str(&string).ok() {
-            Some(x) => {
-                EdwardsAffine::get_point_from_x(x, false).ok_or(GroupError::InvalidGroup(string))
-            }
-            None => EdwardsAffine::from_str(&string).map_err(|_| GroupError::InvalidGroup(string)),
+            Some(x) => EdwardsAffine::get_point_from_x(x, false).ok_or(GroupError::Invalid(string)),
+            None => EdwardsAffine::from_str(&string).map_err(|_| GroupError::Invalid(string)),
         }
     }
 

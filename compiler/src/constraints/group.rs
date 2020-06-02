@@ -16,7 +16,7 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
             if let InputValue::Group(group_string) = input {
                 Some(group_string)
             } else {
-                return Err(GroupError::InvalidGroup(input.to_string()));
+                return Err(GroupError::Invalid(input.to_string()));
             }
         }
         None => None,
