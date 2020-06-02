@@ -1,4 +1,4 @@
-use crate::boolean::{output_false, output_true, output_expected_boolean};
+use crate::boolean::{output_expected_boolean, output_false, output_true};
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
@@ -244,10 +244,8 @@ fn test_eq() {
         ]);
 
         output_expected_boolean(program, result)
-
     }
 }
-
 
 #[test]
 fn test_ge() {
@@ -275,7 +273,6 @@ fn test_ge() {
         ]);
 
         output_expected_boolean(program, result)
-
     }
 }
 
@@ -305,7 +302,6 @@ fn test_gt() {
         ]);
 
         output_expected_boolean(program, result)
-
     }
 }
 
@@ -335,7 +331,6 @@ fn test_le() {
         ]);
 
         output_expected_boolean(program, result)
-
     }
 }
 
@@ -365,7 +360,6 @@ fn test_lt() {
         ]);
 
         output_expected_boolean(program, result)
-
     }
 }
 

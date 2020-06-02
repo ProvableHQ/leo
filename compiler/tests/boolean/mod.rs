@@ -11,8 +11,10 @@ const DIRECTORY_NAME: &str = "tests/boolean/";
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(boolean))])
-            .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(
+            boolean
+        ))])
+        .to_string(),
         output.to_string()
     );
 }
