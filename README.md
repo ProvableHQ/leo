@@ -60,19 +60,20 @@ function main() -> field {
     let c = b - 1; 
     let d = c * 4;
     let e = d / 2;
-    let f = e ** 3u32; //Field exponents must be a `u32` type.
-    return f
+    return e
 }
 ```
 
-### Group Elements
+### Affine Points
+The set of affine points on the elliptic curve passed into the leo compiler forms a group.
+Leo supports this set as a primitive data type.
 
 ```rust
 function main() -> group {
     let a = 1000group; // explicit type
-    let a: group = 21888242871839275222246405745257275088548364400416034343698204186575808495617; // explicit type
-    let b = a + 1; // implicit type
-    let c = b - 1; 
+    let a = (21888242871839275222246405745257275088548364400416034343698204186575808495617, 21888242871839275222246405745257275088548364400416034343698204186575808495617)group; // explicit type
+    let b = a + 0; // implicit type
+    let c = b - 0; 
     return c
 }
 ```
@@ -142,6 +143,8 @@ function main() -> u32 {
 ```
 
 ### If Else Conditional Statement
+** **Experimental** **
+The current constraint system is not optimized for statement branching. Please use the ternary expression above until this feature is stable.
 ```rust
 function main(a: private bool, b: private bool) -> u32 {
   let mut res = 0u32;
@@ -158,7 +161,7 @@ function main(a: private bool, b: private bool) -> u32 {
 
 ### For loop
 ```rust
-function main() -> field {
+function main() -> fe {
   let mut a = 1field;
   for i in 0..4 {
     a = a + 1;
@@ -173,7 +176,7 @@ function test1(a : u32) -> u32 {
   return a + 1
 }
 
-function test2(b: field) -> field {
+function test2(b: fe) -> field {
   return b * 2field
 }
 
@@ -226,6 +229,12 @@ function main(a: public field) -> field {
   return a
 }
 ```
+Private by default. Below `a` is implicitly private.
+```rust
+function main(a: field) -> field {
+  return a
+}
+```
 Function inputs are passed by value.
 ```rust
 function test(mut a: u32) {
@@ -241,28 +250,61 @@ function main() -> u32 {
 ```
 
 ## Circuits
-```rust
-bab
-```
+Circuits in Leo are similar to classes in object oriented langauges. Circuits are defined above functions in a Leo program.  Circuits can have one or more members.
 
+
+Members can be defined as fields which hold primitive values
 ```rust
 circuit Point {
     x: u32
     y: u32
 }
 function main() -> u32 {
-    let p = Point {x: 1, y: 0}
+    let p = Point {x: 1, y: 0};
     return p.x
 }
 ```
+
+Members can also be defined as functions.
 ```rust
-circuit Foo {
-    x: bool
+circuit Circ {
+  function echo(x: u32) -> u32 {
+    return x
+  }
 }
-function main() -> Foo {
-    let mut f = Foo {x: true};
-    f.x = false;
-    return f
+
+function main() -> u32 {
+  let c = Circ { };
+  return c.echo(1u32)
+}
+```
+
+Circuit functions can be made static, enabling them to be called without instantiation.
+```rust
+circuit Circ {
+  static function echo(x: u32) -> u32 {
+    return x
+  }
+}
+
+function main() -> u32 {
+  return Circ::echo(1u32)
+}
+```
+
+The `Self` keyword is supported in circuit functions.
+```rust
+circuit Circ {
+  b: bool
+
+  static function new() -> Self {
+    return Self { b: true }
+  }
+}
+
+function main() -> Circ {
+  let c = Circ::new();
+  return c.b
 }
 ```
 
@@ -311,9 +353,31 @@ This will enforce that the two values are equal in the constraint system.
 function main() {
   assert_eq(45, 45);
   
-  assert_eq(2field, 2field);
+  assert_eq(2fe, 2fe);
   
   assert_eq(true, true);
+}
+```
+
+## Testing
+
+Use the `test` keyword to add tests to a leo program. Tests must have 0 function inputs and 0 function returns.
+
+```rust
+function main(a: u32) -> u32 {
+    return a
+}
+
+test function expect_pass() {
+  let a = 1u32;
+
+  let res = main(a);
+
+  assert_eq!(res, 1u32);
+}
+
+test function expect_fail() {
+  assert_eq!(1u8, 0u8);
 }
 ```
 
@@ -360,6 +424,12 @@ leo build
 To execute unit tests on your program, run:
 ```
 leo test
+```
+The results of test compilation and the constraint system will be printed:
+```
+ INFO  leo  Running 2 tests
+ INFO  leo  test language::expect_pass compiled. Constraint system satisfied: true
+ERROR  leo  test language::expect_fail errored: Assertion 1u8 == 0u8 failed
 ```
 
 ## Run
