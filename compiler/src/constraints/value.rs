@@ -2,8 +2,8 @@
 
 use crate::{
     errors::ValueError,
-    types::{Circuit, FieldElement, Function, Identifier, Integer, IntegerType, Type},
-    GroupType,
+    types::{Circuit, Function, Identifier, Integer, IntegerType, Type},
+    FieldType, GroupType,
 };
 
 use snarkos_models::{
@@ -24,7 +24,7 @@ pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Integer(Integer),
-    FieldElement(FieldElement<F>),
+    Field(FieldType<F>),
     Group(G),
     Boolean(Boolean),
 
@@ -60,9 +60,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 IntegerType::U64 => Integer::U64(UInt64::constant(value.parse::<u64>()?)),
                 IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
             })),
-            Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
-                F::from_str(&value).unwrap_or_default(),
-            ))),
+            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
@@ -75,7 +73,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn to_type(&self) -> Type<F> {
         match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
-            ConstrainedValue::FieldElement(_field) => Type::FieldElement,
+            ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
             _ => unimplemented!("to type only implemented for primitives"),
@@ -103,7 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
-            ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Field(ref value) => write!(f, "{}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {

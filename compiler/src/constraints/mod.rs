@@ -15,8 +15,8 @@ pub use import::*;
 pub mod integer;
 pub use integer::*;
 
-pub mod field_element;
-pub use field_element::*;
+pub(crate) mod field;
+pub(crate) use field::*;
 
 pub(crate) mod group;
 pub(crate) use group::*;

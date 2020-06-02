@@ -82,7 +82,7 @@ pub enum Expression<F: Field + PrimeField> {
 
     // Values
     Integer(Integer),
-    FieldElement(FieldElement<F>),
+    Field(String),
     Group(String),
     Boolean(Boolean),
     Implicit(String),
@@ -142,7 +142,7 @@ pub enum IntegerType {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Type<F: Field + PrimeField> {
     IntegerType(IntegerType),
-    FieldElement,
+    Field,
     Group,
     Boolean,
     Array(Box<Type<F>>, Vec<usize>),
@@ -237,7 +237,7 @@ pub struct InputModel<F: Field + PrimeField> {
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue<F: Field + PrimeField> {
     Integer(usize),
-    Field(F),
+    Field(String),
     Group(String),
     Boolean(bool),
     Array(Vec<InputValue<F>>),

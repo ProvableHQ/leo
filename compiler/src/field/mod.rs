@@ -18,7 +18,7 @@ use snarkos_models::{
         },
     },
 };
-use std::borrow::Borrow;
+use std::{borrow::Borrow, str::FromStr};
 
 pub enum FieldType<F: Field + PrimeField> {
     Constant(F),
@@ -26,6 +26,11 @@ pub enum FieldType<F: Field + PrimeField> {
 }
 
 impl<F: Field + PrimeField> FieldType<F> {
+    pub fn constant(string: String) -> Result<Self, FieldElementError> {
+        let value = F::from_str(&string).map_err(|_| FieldElementError::Invalid(string))?;
+        Ok(FieldType::Constant(value))
+    }
+
     pub fn add<CS: ConstraintSystem<F>>(
         &self,
         cs: CS,

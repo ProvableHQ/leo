@@ -4,7 +4,7 @@
 use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
-    group_from_input,
+    field_from_input, group_from_input,
     types::{Expression, Function, Identifier, InputValue, Program, Type},
     GroupType,
 };
@@ -179,9 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             Type::IntegerType(integer_type) => {
                 Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
             }
-            Type::FieldElement => {
-                Ok(self.field_element_from_input(cs, name, private, input_value)?)
-            }
+            Type::Field => Ok(field_from_input(cs, name, private, input_value)?),
             Type::Group => Ok(group_from_input(cs, name, private, input_value)?),
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
             Type::Array(_type, dimensions) => {

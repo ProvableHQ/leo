@@ -114,9 +114,7 @@ impl<'ast, F: Field + PrimeField> From<ast::RangeOrExpression<'ast>>
 
 impl<'ast, F: Field + PrimeField> From<ast::Field<'ast>> for types::Expression<F> {
     fn from(field: ast::Field<'ast>) -> Self {
-        types::Expression::FieldElement(types::FieldElement::Constant(
-            F::from_str(&field.number.value).unwrap_or_default(),
-        ))
+        types::Expression::Field(field.number.value)
     }
 }
 
@@ -653,7 +651,7 @@ impl<F: Field + PrimeField> From<ast::BasicType> for types::Type<F> {
             ast::BasicType::Integer(_type) => {
                 types::Type::IntegerType(types::IntegerType::from(_type))
             }
-            ast::BasicType::Field(_type) => types::Type::FieldElement,
+            ast::BasicType::Field(_type) => types::Type::Field,
             ast::BasicType::Group(_type) => types::Type::Group,
             ast::BasicType::Boolean(_type) => types::Type::Boolean,
         }

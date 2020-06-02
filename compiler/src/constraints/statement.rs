@@ -13,7 +13,10 @@ use crate::{
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, eq::EqGadget, uint32::UInt32},
+    },
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
@@ -413,8 +416,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Self::enforce_integer_eq(cs, num_1, num_2)?
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                self.enforce_field_eq(cs, fe_1, fe_2)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                fe_1.enforce_equal(cs, &fe_2)?
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
                 ge_1.enforce_equal(cs, &ge_2)?

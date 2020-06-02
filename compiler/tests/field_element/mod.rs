@@ -12,9 +12,9 @@ const DIRECTORY_NAME: &str = "tests/field_element/";
 fn output_zero(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fq::zero())
-        )])
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldElement::Constant(
+            Fq::zero()
+        ))])
         .to_string(),
         output.to_string()
     );
@@ -23,9 +23,9 @@ fn output_zero(program: EdwardsTestCompiler) {
 fn output_one(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::FieldElement(
-            FieldElement::Constant(Fq::one())
-        )])
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldElement::Constant(
+            Fq::one()
+        ))])
         .to_string(),
         output.to_string()
     );
@@ -34,7 +34,7 @@ fn output_one(program: EdwardsTestCompiler) {
 fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
-            FieldElementError::InvalidField(_string),
+            FieldElementError::Invalid(_string),
         )) => {}
         error => panic!("Expected invalid field error, got {}", error),
     }

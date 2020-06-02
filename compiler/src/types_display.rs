@@ -2,8 +2,8 @@
 
 use crate::{
     Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    FieldElement, Function, Identifier, InputModel, InputValue, Integer, IntegerType,
-    RangeOrExpression, SpreadOrExpression, Statement, Type, Variable,
+    Function, Identifier, InputModel, InputValue, Integer, IntegerType, RangeOrExpression,
+    SpreadOrExpression, Statement, Type, Variable,
 };
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -42,33 +42,6 @@ impl fmt::Display for Integer {
     }
 }
 
-impl<F: Field + PrimeField> FieldElement<F> {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            FieldElement::Constant(ref constant) => write!(f, "{}", constant),
-            FieldElement::Allocated(ref option, ref _r1cs_var) => {
-                if option.is_some() {
-                    write!(f, "{}", option.unwrap())
-                } else {
-                    write!(f, "allocated field")
-                }
-            }
-        }
-    }
-}
-
-impl<F: Field + PrimeField> fmt::Display for FieldElement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
-impl<F: Field + PrimeField> fmt::Debug for FieldElement<F> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
-    }
-}
-
 impl<'ast, F: Field + PrimeField> fmt::Display for RangeOrExpression<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -104,7 +77,7 @@ impl<'ast, F: Field + PrimeField> fmt::Display for Expression<F> {
 
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
-            Expression::FieldElement(ref field) => write!(f, "{}", field),
+            Expression::Field(ref field) => write!(f, "{}", field),
             Expression::Group(ref group) => write!(f, "{}", group),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
             Expression::Implicit(ref value) => write!(f, "{}", value),
@@ -278,7 +251,7 @@ impl<F: Field + PrimeField> fmt::Display for Type<F> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::FieldElement => write!(f, "field"),
+            Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
             Type::Circuit(ref variable) => write!(f, "{}", variable),

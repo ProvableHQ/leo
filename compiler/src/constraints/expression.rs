@@ -8,7 +8,7 @@ use crate::{
         CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
         SpreadOrExpression,
     },
-    GroupType, Integer, IntegerType, Type,
+    FieldType, GroupType, Integer, IntegerType, Type,
 };
 
 use snarkos_models::{
@@ -60,8 +60,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_add(cs, num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                Ok(self.enforce_field_add(cs, fe_1, fe_2)?)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
                 Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2)?))
@@ -91,8 +91,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_sub(cs, num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                Ok(self.enforce_field_sub(cs, fe_1, fe_2)?)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
                 Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2)?))
@@ -122,8 +122,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_mul(cs, num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                Ok(self.enforce_field_mul(cs, fe_1, fe_2)?)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -152,8 +152,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_div(cs, num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
-                Ok(self.enforce_field_div(cs, fe_1, fe_2)?)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -181,9 +181,6 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::enforce_integer_pow(cs, num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(self.enforce_field_pow(cs, fe_1, num_2)?)
-            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.enforce_pow_expression(cs, val_1, val_2)
@@ -192,7 +189,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_pow_expression(cs, val_1, val_2)
             }
-            (_, ConstrainedValue::FieldElement(num_2)) => {
+            (_, ConstrainedValue::Field(num_2)) => {
                 Err(ExpressionError::InvalidExponent(num_2.to_string()))
             }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
@@ -215,9 +212,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::evaluate_integer_eq(num_1, num_2)?)
             }
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_eq(fe_1, fe_2)
-            // }
+            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
+            }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(ge_1.eq(&ge_2))))
             }
@@ -819,7 +816,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
             // Values
             Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
-            Expression::FieldElement(fe) => Ok(Self::get_field_element_constant(fe)),
+            Expression::Field(field) => Ok(ConstrainedValue::Field(FieldType::constant(field)?)),
             Expression::Group(group_affine) => {
                 Ok(ConstrainedValue::Group(G::constant(group_affine)?))
             }
