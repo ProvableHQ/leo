@@ -1,3 +1,4 @@
+use crate::boolean::{output_false, output_true};
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
@@ -7,7 +8,10 @@ use leo_compiler::{
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{curves::field::FieldGadget, r1cs::TestConstraintSystem};
+use snarkos_models::gadgets::{
+    curves::field::FieldGadget,
+    r1cs::{ConstraintSystem, TestConstraintSystem},
+};
 use snarkos_utilities::biginteger::BigInteger256;
 
 const DIRECTORY_NAME: &str = "tests/field/";
@@ -141,10 +145,10 @@ fn test_sub() {
         let f1: Fq = Fq::from_repr(b1);
         let f2: Fq = Fq::from_repr(b2);
 
-        let sum = f1.sub(&f2);
+        let difference = f1.sub(&f2);
 
         let cs = TestConstraintSystem::<Fq>::new();
-        let sum_allocated = FqGadget::from(cs, &sum);
+        let difference_allocated = FqGadget::from(cs, &difference);
 
         let mut program = compile_program(DIRECTORY_NAME, "sub.leo").unwrap();
         program.set_inputs(vec![
@@ -152,7 +156,7 @@ fn test_sub() {
             Some(InputValue::Field(r2.to_string())),
         ]);
 
-        output_expected_allocated(program, sum_allocated);
+        output_expected_allocated(program, difference_allocated);
     }
 }
 
@@ -170,10 +174,10 @@ fn test_mul() {
         let f1: Fq = Fq::from_repr(b1);
         let f2: Fq = Fq::from_repr(b2);
 
-        let sum = f1.mul(&f2);
+        let product = f1.mul(&f2);
 
         let cs = TestConstraintSystem::<Fq>::new();
-        let sum_allocated = FqGadget::from(cs, &sum);
+        let product_allocated = FqGadget::from(cs, &product);
 
         let mut program = compile_program(DIRECTORY_NAME, "mul.leo").unwrap();
         program.set_inputs(vec![
@@ -181,7 +185,7 @@ fn test_mul() {
             Some(InputValue::Field(r2.to_string())),
         ]);
 
-        output_expected_allocated(program, sum_allocated);
+        output_expected_allocated(program, product_allocated);
     }
 }
 
@@ -199,10 +203,10 @@ fn test_div() {
         let f1: Fq = Fq::from_repr(b1);
         let f2: Fq = Fq::from_repr(b2);
 
-        let sum = f1.div(&f2);
+        let quotient = f1.div(&f2);
 
         let cs = TestConstraintSystem::<Fq>::new();
-        let sum_allocated = FqGadget::from(cs, &sum);
+        let quotient_allocated = FqGadget::from(cs, &quotient);
 
         let mut program = compile_program(DIRECTORY_NAME, "div.leo").unwrap();
         program.set_inputs(vec![
@@ -210,6 +214,115 @@ fn test_div() {
             Some(InputValue::Field(r2.to_string())),
         ]);
 
-        output_expected_allocated(program, sum_allocated);
+        output_expected_allocated(program, quotient_allocated);
     }
+}
+
+#[test]
+fn test_eq_true() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        let mut program = compile_program(DIRECTORY_NAME, "eq.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        output_true(program)
+    }
+}
+
+#[test]
+fn test_eq_false() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+        let r2: u64 = rand::random();
+
+        if r1 == r2 {
+            continue;
+        }
+
+        let mut program = compile_program(DIRECTORY_NAME, "eq.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        output_false(program)
+    }
+}
+
+#[test]
+fn test_assert_eq_pass() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        let mut program = compile_program(DIRECTORY_NAME, "assert_eq.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        let _ = get_output(program);
+    }
+}
+
+#[test]
+fn test_assert_eq_fail() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+        let r2: u64 = rand::random();
+
+        if r1 == r2 {
+            continue;
+        }
+
+        let mut program = compile_program(DIRECTORY_NAME, "assert_eq.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        let mut cs = TestConstraintSystem::<Fq>::new();
+        let _ = program.compile_constraints(&mut cs).unwrap();
+        assert!(!cs.is_satisfied());
+    }
+}
+
+#[test]
+fn test_ternary() {
+    let r1: u64 = rand::random();
+    let r2: u64 = rand::random();
+
+    let b1 = BigInteger256::from(r1);
+    let b2 = BigInteger256::from(r2);
+
+    let f1: Fq = Fq::from_repr(b1);
+    let f2: Fq = Fq::from_repr(b2);
+
+    let mut cs = TestConstraintSystem::<Fq>::new();
+    let g1 = FqGadget::from(cs.ns(|| "g1"), &f1);
+    let g2 = FqGadget::from(cs.ns(|| "g2"), &f2);
+
+    let mut program_1 = compile_program(DIRECTORY_NAME, "ternary.leo").unwrap();
+    let mut program_2 = program_1.clone();
+
+    // true -> field 1
+    program_1.set_inputs(vec![
+        Some(InputValue::Boolean(true)),
+        Some(InputValue::Field(r1.to_string())),
+        Some(InputValue::Field(r2.to_string())),
+    ]);
+
+    output_expected_allocated(program_1, g1);
+
+    // false -> field 2
+    program_2.set_inputs(vec![
+        Some(InputValue::Boolean(false)),
+        Some(InputValue::Field(r1.to_string())),
+        Some(InputValue::Field(r2.to_string())),
+    ]);
+
+    output_expected_allocated(program_2, g2);
 }
