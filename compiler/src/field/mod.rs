@@ -19,6 +19,7 @@ use snarkos_models::{
     },
 };
 use std::borrow::Borrow;
+use snarkos_models::gadgets::curves::FieldGadget;
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: Field + PrimeField> {
@@ -29,27 +30,98 @@ pub enum FieldType<F: Field + PrimeField> {
 impl<F: Field + PrimeField> FieldType<F> {
     pub fn constant(string: String) -> Result<Self, FieldError> {
         let value = F::from_str(&string).map_err(|_| FieldError::Invalid(string))?;
+
         Ok(FieldType::Constant(value))
     }
 
     pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        unimplemented!()
+        match (self, other) {
+            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
+                Ok(FieldType::Constant(self_value.add(other_value)))
+            }
+
+            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
+                let result = self_value.add(cs, other_value)?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (
+                FieldType::Constant(constant_value),
+                FieldType::Allocated(allocated_value),
+            )
+            | (
+                FieldType::Allocated(allocated_value),
+                FieldType::Constant(constant_value),
+            ) => Ok(FieldType::Allocated(
+                allocated_value.add_constant(cs, constant_value)?,
+            )),
+        }
     }
 
     pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        unimplemented!()
+        match (self, other) {
+            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
+                Ok(FieldType::Constant(self_value.sub(other_value)))
+            }
+
+            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
+                let result = self_value.sub(cs, other_value)?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (
+                FieldType::Constant(constant_value),
+                FieldType::Allocated(allocated_value),
+            )
+            | (
+                FieldType::Allocated(allocated_value),
+                FieldType::Constant(constant_value),
+            ) => Ok(FieldType::Allocated(
+                allocated_value.sub_constant(cs, constant_value)?,
+            )),
+        }
     }
 
     pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        unimplemented!()
+        match (self, other) {
+            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
+                Ok(FieldType::Constant(self_value.mul(other_value)))
+            }
+
+            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
+                let result = self_value.mul(cs, other_value)?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (
+                FieldType::Constant(constant_value),
+                FieldType::Allocated(allocated_value),
+            )
+            | (
+                FieldType::Allocated(allocated_value),
+                FieldType::Constant(constant_value),
+            ) => Ok(FieldType::Allocated(
+                allocated_value.mul_by_constant(cs, constant_value)?,
+            )),
+        }
     }
 
-    pub fn div<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        unimplemented!()
-    }
+    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, FieldError> {
+        let inverse = match other {
+            FieldType::Constant(constant) => {
+                let constant_inverse = constant.inverse().ok_or(FieldError::NoInverse(constant.to_string()))?;
+                FieldType::Constant(constant_inverse)
+            }
+            FieldType::Allocated(allocated) => {
+                let allocated_inverse = allocated.inverse(&mut cs)?;
+                FieldType::Allocated(allocated_inverse)
+            }
+        };
 
-    pub fn pow<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        unimplemented!()
+        self.mul(cs, &inverse)
     }
 }
 

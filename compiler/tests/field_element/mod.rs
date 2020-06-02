@@ -33,7 +33,7 @@ fn output_one(program: EdwardsTestCompiler) {
 
 fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldElementError(FieldError::Invalid(
+        CompilerError::FunctionError(FunctionError::FieldError(FieldError::Invalid(
             _string,
         ))) => {}
         error => panic!("Expected invalid field error, got {}", error),
@@ -42,7 +42,7 @@ fn fail_field(program: EdwardsTestCompiler) {
 
 fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldElementError(
+        CompilerError::FunctionError(FunctionError::FieldError(
             FieldError::SynthesisError(_string),
         )) => {}
         error => panic!("Expected synthesis error, got {}", error),

@@ -26,7 +26,7 @@ pub enum FunctionError {
     IntegerError(IntegerError),
 
     #[error("{}", _0)]
-    FieldElementError(FieldError),
+    FieldError(FieldError),
 
     #[error("{}", _0)]
     GroupError(GroupError),
@@ -55,7 +55,7 @@ impl From<IntegerError> for FunctionError {
 
 impl From<FieldError> for FunctionError {
     fn from(error: FieldError) -> Self {
-        FunctionError::FieldElementError(error)
+        FunctionError::FieldError(error)
     }
 }
 
