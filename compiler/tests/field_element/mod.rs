@@ -1,10 +1,9 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
-
-use leo_compiler::errors::FieldElementError;
 use leo_compiler::{
-    errors::{CompilerError, FunctionError},
+    errors::{CompilerError, FieldElementError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
+
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::curves::Field;
 

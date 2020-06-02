@@ -1,4 +1,5 @@
 use crate::errors::{BooleanError, ExpressionError, FieldElementError, IntegerError, ValueError};
+
 use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]

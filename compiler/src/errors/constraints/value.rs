@@ -1,7 +1,6 @@
 use crate::errors::{GroupError, IntegerError};
 
-use std::num::ParseIntError;
-use std::str::ParseBoolError;
+use std::{num::ParseIntError, str::ParseBoolError};
 
 #[derive(Debug, Error)]
 pub enum ValueError {

@@ -2,18 +2,22 @@ use crate::commands::BuildCommand;
 use crate::errors::{CLIError, VerificationKeyFileError};
 use crate::files::{Manifest, ProvingKeyFile, VerificationKeyFile};
 use crate::{cli::*, cli_types::*};
-use leo_compiler::compiler::Compiler;
+use leo_compiler::{
+    compiler::Compiler,
+    group::edwards_bls12::EdwardsGroupType
+};
 
 use snarkos_algorithms::snark::{
     generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey,
 };
-use snarkos_curves::bls12_377::Bls12_377;
+use snarkos_curves::{
+    bls12_377::Bls12_377,
+    edwards_bls12::Fq
+};
 use snarkos_utilities::bytes::ToBytes;
 
 use clap::ArgMatches;
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use rand::thread_rng;
-use snarkos_curves::edwards_bls12::Fq;
 use std::convert::TryFrom;
 use std::env::current_dir;
 use std::time::Instant;

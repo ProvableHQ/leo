@@ -2,12 +2,12 @@ use crate::{
     compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
-
 use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedCircuitMember, ConstrainedValue, Expression, Function, Identifier, Integer,
     Statement, Type,
 };
+
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";

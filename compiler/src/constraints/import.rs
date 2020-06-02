@@ -12,8 +12,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-use std::env::current_dir;
-use std::fs;
+use std::{env::current_dir, fs};
 
 impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(

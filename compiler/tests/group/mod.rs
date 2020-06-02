@@ -1,16 +1,19 @@
-use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
-use leo_compiler::{ConstrainedValue, InputValue};
+use crate::{
+    boolean::{output_false, output_true},
+    compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler,
+};
+use leo_compiler::{
+    errors::{CompilerError, FunctionError, StatementError},
+    group::edwards_bls12::EdwardsGroupType,
+    ConstrainedValue, InputValue,
+};
 
 use snarkos_curves::edwards_bls12::{EdwardsAffine, Fq};
-use snarkos_models::curves::Group;
-
-use crate::boolean::{output_false, output_true};
-use leo_compiler::errors::{CompilerError, FunctionError, StatementError};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkos_models::gadgets::curves::GroupGadget;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-use snarkos_models::gadgets::utilities::alloc::AllocGadget;
+use snarkos_models::{
+    curves::Group,
+    gadgets::{curves::GroupGadget, r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
+};
 use std::str::FromStr;
 
 const DIRECTORY_NAME: &str = "tests/group/";

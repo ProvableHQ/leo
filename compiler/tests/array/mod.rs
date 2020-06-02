@@ -1,10 +1,9 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
-
-use leo_compiler::errors::IntegerError;
 use leo_compiler::{
-    errors::{CompilerError, FunctionError},
+    errors::{CompilerError, FunctionError, IntegerError},
     ConstrainedValue, InputValue, Integer,
 };
+
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";

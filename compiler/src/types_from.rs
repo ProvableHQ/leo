@@ -2,10 +2,12 @@
 
 use crate::{ast, types, Import, ImportSymbol};
 
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::utilities::{
-    boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
-    uint8::UInt8,
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::utilities::{
+        boolean::Boolean, uint128::UInt128, uint16::UInt16, uint32::UInt32, uint64::UInt64,
+        uint8::UInt8,
+    },
 };
 use std::collections::HashMap;
 

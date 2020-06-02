@@ -1,10 +1,9 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
-
-use leo_compiler::errors::{BooleanError, ExpressionError};
 use leo_compiler::{
-    errors::{CompilerError, FunctionError, StatementError},
+    errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue, InputValue,
 };
+
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/boolean/";

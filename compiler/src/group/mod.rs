@@ -1,10 +1,17 @@
 use crate::errors::GroupError;
-use snarkos_models::curves::Field;
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
-use snarkos_models::gadgets::utilities::alloc::AllocGadget;
-use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
-use snarkos_models::gadgets::utilities::select::CondSelectGadget;
-use snarkos_models::gadgets::utilities::{ToBitsGadget, ToBytesGadget};
+
+use snarkos_models::{
+    curves::Field,
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{
+            alloc::AllocGadget,
+            eq::{ConditionalEqGadget, EqGadget},
+            select::CondSelectGadget,
+            ToBitsGadget, ToBytesGadget,
+        },
+    },
+};
 use std::fmt::Debug;
 
 pub mod edwards_bls12;

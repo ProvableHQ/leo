@@ -1,8 +1,10 @@
-use crate::errors::GroupError;
-use crate::{ConstrainedValue, GroupType, InputValue};
+use crate::{errors::GroupError, ConstrainedValue, GroupType, InputValue};
+
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::r1cs::ConstraintSystem,
+};
 
 pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

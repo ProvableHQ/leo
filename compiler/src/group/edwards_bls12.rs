@@ -1,22 +1,27 @@
-use crate::errors::GroupError;
-use crate::GroupType;
+use crate::{errors::GroupError, GroupType};
 
-use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};
-use snarkos_curves::templates::twisted_edwards_extended::GroupAffine;
+use snarkos_curves::{
+    edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
+    templates::twisted_edwards_extended::GroupAffine,
+};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkos_models::curves::AffineCurve;
-use snarkos_models::gadgets::curves::{FpGadget, GroupGadget};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
-use snarkos_models::gadgets::utilities::alloc::AllocGadget;
-use snarkos_models::gadgets::utilities::boolean::Boolean;
-use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
-use snarkos_models::gadgets::utilities::select::CondSelectGadget;
-use snarkos_models::gadgets::utilities::{ToBitsGadget, ToBytesGadget};
-use std::borrow::Borrow;
-use std::ops::Sub;
-use std::str::FromStr;
-use snarkos_models::gadgets::utilities::uint8::UInt8;
+use snarkos_models::{
+    curves::AffineCurve,
+    gadgets::{
+        curves::{FpGadget, GroupGadget},
+        r1cs::ConstraintSystem,
+        utilities::{
+            alloc::AllocGadget,
+            boolean::Boolean,
+            eq::{ConditionalEqGadget, EqGadget},
+            select::CondSelectGadget,
+            uint8::UInt8,
+            ToBitsGadget, ToBytesGadget,
+        },
+    },
+};
+use std::{borrow::Borrow, ops::Sub, str::FromStr};
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
@@ -268,12 +273,18 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
 }
 
 impl ToBitsGadget<Fq> for EdwardsGroupType {
-    fn to_bits<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits<CS: ConstraintSystem<Fq>>(
+        &self,
+        mut cs: CS,
+    ) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits(cs)
     }
 
-    fn to_bits_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits_strict<CS: ConstraintSystem<Fq>>(
+        &self,
+        mut cs: CS,
+    ) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits_strict(cs)
     }
@@ -285,7 +296,10 @@ impl ToBytesGadget<Fq> for EdwardsGroupType {
         self_gadget.to_bytes(cs)
     }
 
-    fn to_bytes_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
+    fn to_bytes_strict<CS: ConstraintSystem<Fq>>(
+        &self,
+        mut cs: CS,
+    ) -> Result<Vec<UInt8>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bytes_strict(cs)
     }

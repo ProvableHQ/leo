@@ -1,10 +1,10 @@
 use crate::{compile_program, EdwardsConstrainedValue, EdwardsTestCompiler};
-
 use leo_compiler::{
     errors::{CompilerError, FunctionError, StatementError},
     types::{InputValue, Integer},
     ConstrainedValue,
 };
+
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
 

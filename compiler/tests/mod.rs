@@ -9,9 +9,11 @@ pub mod integer;
 pub mod mutability;
 pub mod statement;
 
-use leo_compiler::{compiler::Compiler, errors::CompilerError, ConstrainedValue};
+use leo_compiler::{
+    compiler::Compiler, errors::CompilerError, group::edwards_bls12::EdwardsGroupType,
+    ConstrainedValue,
+};
 
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use std::env::current_dir;

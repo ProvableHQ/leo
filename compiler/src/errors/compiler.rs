@@ -1,7 +1,6 @@
 use crate::errors::{FunctionError, ImportError, IntegerError};
 
-use std::io;
-use std::path::PathBuf;
+use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {

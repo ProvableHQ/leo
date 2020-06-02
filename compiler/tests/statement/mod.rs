@@ -3,6 +3,7 @@ use crate::{
     integer::u32::{output_one, output_zero},
 };
 use leo_compiler::InputValue;
+
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 

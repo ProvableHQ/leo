@@ -1,7 +1,6 @@
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
-use crate::constraints::ConstrainedValue;
-use crate::GroupType;
+use crate::{constraints::ConstrainedValue, GroupType};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -2,11 +2,11 @@ use crate::{
     compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
-
 use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
+
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
