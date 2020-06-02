@@ -368,6 +368,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
                 Ok(ConstrainedValue::Integer(result))
             }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                let result = FieldType::conditionally_select(cs, &resolved_first, &fe_1, &fe_2)?;
+                Ok(ConstrainedValue::Field(result))
+            }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
                 let result = G::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
                 Ok(ConstrainedValue::Group(result))
