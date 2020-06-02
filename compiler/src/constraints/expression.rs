@@ -230,22 +230,23 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn evaluate_geq_expression(
+    fn evaluate_ge_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_geq(fe_1, fe_2)
-            // }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                let result = fe_1.ge(&fe_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
-                self.evaluate_geq_expression(val_1, val_2)
+                self.evaluate_ge_expression(val_1, val_2)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
-                self.evaluate_geq_expression(val_1, val_2)
+                self.evaluate_ge_expression(val_1, val_2)
             }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} >= {}, values must be fields",
@@ -260,9 +261,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_gt(fe_1, fe_2)
-            // }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                let result = fe_1.gt(&fe_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_gt_expression(val_1, val_2)
@@ -278,22 +280,23 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn evaluate_leq_expression(
+    fn evaluate_le_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_leq(fe_1, fe_2)
-            // }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                let result = fe_1.le(&fe_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
-                self.evaluate_leq_expression(val_1, val_2)
+                self.evaluate_le_expression(val_1, val_2)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
-                self.evaluate_leq_expression(val_1, val_2)
+                self.evaluate_le_expression(val_1, val_2)
             }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} <= {}, values must be fields",
@@ -308,9 +311,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
-            // (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-            //     Self::field_lt(fe_1, fe_2)
-            // }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                let result = fe_1.lt(&fe_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
                 self.evaluate_lt_expression(val_1, val_2)
@@ -930,7 +934,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
                 Ok(self.evaluate_eq_expression(resolved_left, resolved_right)?)
             }
-            Expression::Geq(left, right) => {
+            Expression::Ge(left, right) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
@@ -940,7 +944,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     *right,
                 )?;
 
-                Ok(self.evaluate_geq_expression(resolved_left, resolved_right)?)
+                Ok(self.evaluate_ge_expression(resolved_left, resolved_right)?)
             }
             Expression::Gt(left, right) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -954,7 +958,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
                 Ok(self.evaluate_gt_expression(resolved_left, resolved_right)?)
             }
-            Expression::Leq(left, right) => {
+            Expression::Le(left, right) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
@@ -964,7 +968,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     *right,
                 )?;
 
-                Ok(self.evaluate_leq_expression(resolved_left, resolved_right)?)
+                Ok(self.evaluate_le_expression(resolved_left, resolved_right)?)
             }
             Expression::Lt(left, right) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(

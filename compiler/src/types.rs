@@ -82,9 +82,9 @@ pub enum Expression {
     Or(Box<Expression>, Box<Expression>),
     And(Box<Expression>, Box<Expression>),
     Eq(Box<Expression>, Box<Expression>),
-    Geq(Box<Expression>, Box<Expression>),
+    Ge(Box<Expression>, Box<Expression>),
     Gt(Box<Expression>, Box<Expression>),
-    Leq(Box<Expression>, Box<Expression>),
+    Le(Box<Expression>, Box<Expression>),
     Lt(Box<Expression>, Box<Expression>),
 
     // Conditionals

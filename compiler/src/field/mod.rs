@@ -20,6 +20,7 @@ use snarkos_models::{
     },
 };
 use std::borrow::Borrow;
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: Field + PrimeField> {
@@ -184,6 +185,15 @@ impl<F: Field + PrimeField> PartialEq for FieldType<F> {
 }
 
 impl<F: Field + PrimeField> Eq for FieldType<F> {}
+
+impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let self_value = self.get_value();
+        let other_value = other.get_value();
+
+        Option::from(self_value.cmp(&other_value))
+    }
+}
 
 impl<F: Field + PrimeField> EqGadget<F> for FieldType<F> {}
 

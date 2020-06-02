@@ -191,10 +191,10 @@ impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),
-            ast::BinaryOperator::Neq => {
+            ast::BinaryOperator::Ne => {
                 types::Expression::Not(Box::new(types::Expression::from(expression)))
             }
-            ast::BinaryOperator::Geq => types::Expression::Geq(
+            ast::BinaryOperator::Ge => types::Expression::Ge(
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),
@@ -202,7 +202,7 @@ impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),
-            ast::BinaryOperator::Leq => types::Expression::Leq(
+            ast::BinaryOperator::Le => types::Expression::Le(
                 Box::new(types::Expression::from(*expression.left)),
                 Box::new(types::Expression::from(*expression.right)),
             ),

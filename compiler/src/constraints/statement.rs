@@ -433,10 +433,6 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     val_1,
                     val_2
                 )
-                // return Err(StatementError::AssertEq(
-                //     val_1.to_string(),
-                //     val_2.to_string(),
-                // ))
             }
         })
     }

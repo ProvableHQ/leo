@@ -1,4 +1,4 @@
-use crate::boolean::{output_false, output_true};
+use crate::boolean::{output_false, output_true, output_expected_boolean};
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
@@ -219,29 +219,23 @@ fn test_div() {
 }
 
 #[test]
-fn test_eq_true() {
+fn test_eq() {
     for _ in 0..10 {
         let r1: u64 = rand::random();
 
+        // test equal
         let mut program = compile_program(DIRECTORY_NAME, "eq.leo").unwrap();
         program.set_inputs(vec![
             Some(InputValue::Field(r1.to_string())),
             Some(InputValue::Field(r1.to_string())),
         ]);
 
-        output_true(program)
-    }
-}
+        output_true(program);
 
-#[test]
-fn test_eq_false() {
-    for _ in 0..10 {
-        let r1: u64 = rand::random();
+        // test not equal
         let r2: u64 = rand::random();
 
-        if r1 == r2 {
-            continue;
-        }
+        let result = r1.eq(&r2);
 
         let mut program = compile_program(DIRECTORY_NAME, "eq.leo").unwrap();
         program.set_inputs(vec![
@@ -249,7 +243,129 @@ fn test_eq_false() {
             Some(InputValue::Field(r2.to_string())),
         ]);
 
-        output_false(program)
+        output_expected_boolean(program, result)
+
+    }
+}
+
+
+#[test]
+fn test_ge() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        // test equal
+        let mut program = compile_program(DIRECTORY_NAME, "ge.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        output_true(program);
+
+        // test greater than
+        let r2: u64 = rand::random();
+
+        let result = r1.ge(&r2);
+
+        let mut program = compile_program(DIRECTORY_NAME, "ge.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        output_expected_boolean(program, result)
+
+    }
+}
+
+#[test]
+fn test_gt() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        // test equal
+        let mut program = compile_program(DIRECTORY_NAME, "gt.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        output_false(program);
+
+        // test greater than
+        let r2: u64 = rand::random();
+
+        let result = r1.gt(&r2);
+
+        let mut program = compile_program(DIRECTORY_NAME, "gt.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        output_expected_boolean(program, result)
+
+    }
+}
+
+#[test]
+fn test_le() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        // test equal
+        let mut program = compile_program(DIRECTORY_NAME, "le.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        output_true(program);
+
+        // test greater than
+        let r2: u64 = rand::random();
+
+        let result = r1.le(&r2);
+
+        let mut program = compile_program(DIRECTORY_NAME, "le.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        output_expected_boolean(program, result)
+
+    }
+}
+
+#[test]
+fn test_lt() {
+    for _ in 0..10 {
+        let r1: u64 = rand::random();
+
+        // test equal
+        let mut program = compile_program(DIRECTORY_NAME, "lt.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1.to_string())),
+        ]);
+
+        output_false(program);
+
+        // test greater than
+        let r2: u64 = rand::random();
+
+        let result = r1.lt(&r2);
+
+        let mut program = compile_program(DIRECTORY_NAME, "lt.leo").unwrap();
+        program.set_inputs(vec![
+            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r2.to_string())),
+        ]);
+
+        output_expected_boolean(program, result)
+
     }
 }
 
