@@ -235,12 +235,12 @@ pub struct InputModel<F: Field + PrimeField> {
 }
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum InputValue<F: Field + PrimeField> {
+pub enum InputValue {
     Integer(usize),
     Field(String),
     Group(String),
     Boolean(bool),
-    Array(Vec<InputValue<F>>),
+    Array(Vec<InputValue>),
 }
 
 #[derive(Clone, PartialEq, Eq)]

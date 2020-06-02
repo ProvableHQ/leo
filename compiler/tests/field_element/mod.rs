@@ -1,6 +1,6 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
-    errors::{CompilerError, FieldElementError, FunctionError},
+    errors::{CompilerError, FieldError, FunctionError},
     ConstrainedValue, FieldElement, InputValue,
 };
 
@@ -33,9 +33,9 @@ fn output_one(program: EdwardsTestCompiler) {
 
 fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldElementError(
-            FieldElementError::Invalid(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::FieldElementError(FieldError::Invalid(
+            _string,
+        ))) => {}
         error => panic!("Expected invalid field error, got {}", error),
     }
 }
@@ -43,7 +43,7 @@ fn fail_field(program: EdwardsTestCompiler) {
 fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldElementError(
-            FieldElementError::SynthesisError(_string),
+            FieldError::SynthesisError(_string),
         )) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }

@@ -101,7 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Field(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {

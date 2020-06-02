@@ -22,7 +22,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program<F>,
-    program_inputs: Vec<Option<InputValue<F>>>,
+    program_inputs: Vec<Option<InputValue>>,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F>>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
         self.program_inputs = program_inputs;
     }
 

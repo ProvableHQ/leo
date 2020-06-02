@@ -1,5 +1,5 @@
 use crate::errors::{
-    BooleanError, FieldElementError, FunctionError, GroupError, IntegerError, ValueError,
+    BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -28,7 +28,7 @@ pub enum ExpressionError {
     ParseIntError(ParseIntError),
 
     #[error("{}", _0)]
-    FieldElementError(FieldElementError),
+    FieldError(FieldError),
 
     #[error("{}", _0)]
     GroupError(#[from] GroupError),
@@ -128,9 +128,9 @@ impl From<ParseIntError> for ExpressionError {
     }
 }
 
-impl From<FieldElementError> for ExpressionError {
-    fn from(error: FieldElementError) -> Self {
-        ExpressionError::FieldElementError(error)
+impl From<FieldError> for ExpressionError {
+    fn from(error: FieldError) -> Self {
+        ExpressionError::FieldError(error)
     }
 }
 

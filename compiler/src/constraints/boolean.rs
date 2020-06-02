@@ -22,7 +22,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         name: String,
         private: bool,
-        input_value: Option<InputValue<F>>,
+        input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
         let bool_value = match input_value {

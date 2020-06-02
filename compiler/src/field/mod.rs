@@ -1,6 +1,6 @@
 //! A data type that represents a field value
 
-use crate::errors::FieldElementError;
+use crate::errors::FieldError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -20,54 +20,35 @@ use snarkos_models::{
 };
 use std::{borrow::Borrow, str::FromStr};
 
+#[derive(Clone, Debug)]
 pub enum FieldType<F: Field + PrimeField> {
     Constant(F),
     Allocated(FpGadget<F>),
 }
 
 impl<F: Field + PrimeField> FieldType<F> {
-    pub fn constant(string: String) -> Result<Self, FieldElementError> {
-        let value = F::from_str(&string).map_err(|_| FieldElementError::Invalid(string))?;
+    pub fn constant(string: String) -> Result<Self, FieldError> {
+        let value = F::from_str(&string).map_err(|_| FieldError::Invalid(string))?;
         Ok(FieldType::Constant(value))
     }
 
-    pub fn add<CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldElementError> {
+    pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
         unimplemented!()
     }
 
-    pub fn sub<CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldElementError> {
+    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
         unimplemented!()
     }
 
-    pub fn mul<CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldElementError> {
+    pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
         unimplemented!()
     }
 
-    pub fn div<CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldElementError> {
+    pub fn div<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
         unimplemented!()
     }
 
-    pub fn pow<CS: ConstraintSystem<F>>(
-        &self,
-        cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldElementError> {
+    pub fn pow<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
         unimplemented!()
     }
 }
@@ -97,8 +78,12 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> AllocGadget<F, F> for FieldType<F> {
-    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<F>, CS: ConstraintSystem<F>>(
+impl<F: Field + PrimeField> AllocGadget<String, F> for FieldType<F> {
+    fn alloc<
+        Fn: FnOnce() -> Result<T, SynthesisError>,
+        T: Borrow<String>,
+        CS: ConstraintSystem<F>,
+    >(
         cs: CS,
         f: Fn,
     ) -> Result<Self, SynthesisError> {
@@ -107,7 +92,7 @@ impl<F: Field + PrimeField> AllocGadget<F, F> for FieldType<F> {
 
     fn alloc_input<
         Fn: FnOnce() -> Result<T, SynthesisError>,
-        T: Borrow<F>,
+        T: Borrow<String>,
         CS: ConstraintSystem<F>,
     >(
         cs: CS,

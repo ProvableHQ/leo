@@ -1,8 +1,7 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
 use crate::{
-    constraints::ConstrainedValue, errors::FieldElementError, types::InputValue, FieldType,
-    GroupType,
+    constraints::ConstrainedValue, errors::FieldError, types::InputValue, FieldType, GroupType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -15,15 +14,15 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
     cs: &mut CS,
     name: String,
     private: bool,
-    input_value: Option<InputValue<F>>,
-) -> Result<ConstrainedValue<F, G>, FieldElementError> {
+    input_value: Option<InputValue>,
+) -> Result<ConstrainedValue<F, G>, FieldError> {
     // Check that the parameter value is the correct type
     let field_option = match input_value {
         Some(input) => {
             if let InputValue::Field(field_string) = input {
                 Some(field_string)
             } else {
-                return Err(FieldElementError::Invalid(input.to_string()));
+                return Err(FieldError::Invalid(input.to_string()));
             }
         }
         None => None,

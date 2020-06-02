@@ -189,9 +189,6 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_pow_expression(cs, val_1, val_2)
             }
-            (_, ConstrainedValue::Field(num_2)) => {
-                Err(ExpressionError::InvalidExponent(num_2.to_string()))
-            }
             (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
                 "{} * {}",
                 val_1, val_2,
@@ -212,7 +209,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(Self::evaluate_integer_eq(num_1, num_2)?)
             }
-            (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {

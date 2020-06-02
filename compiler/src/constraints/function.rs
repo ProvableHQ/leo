@@ -120,7 +120,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         private: bool,
         array_type: Type<F>,
         array_dimensions: Vec<usize>,
-        input_value: Option<InputValue<F>>,
+        input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
@@ -173,7 +173,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         _type: Type<F>,
         name: String,
         private: bool,
-        input_value: Option<InputValue<F>>,
+        input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => {
@@ -194,7 +194,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         scope: String,
         function: Function<F>,
-        inputs: Vec<Option<InputValue<F>>>,
+        inputs: Vec<Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 

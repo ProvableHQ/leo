@@ -321,7 +321,7 @@ impl<F: Field + PrimeField> fmt::Display for InputModel<F> {
     }
 }
 
-impl<F: Field + PrimeField> fmt::Display for InputValue<F> {
+impl fmt::Display for InputValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             InputValue::Integer(ref integer) => write!(f, "{}", integer),
