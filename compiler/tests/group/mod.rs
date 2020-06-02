@@ -12,7 +12,7 @@ use snarkos_curves::edwards_bls12::{EdwardsAffine, Fq};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
     curves::Group,
-    gadgets::{curves::GroupGadget, r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
+    gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
 };
 use std::str::FromStr;
 
@@ -34,13 +34,16 @@ fn output_expected_constant(program: EdwardsTestCompiler, expected: EdwardsAffin
 
 fn output_expected_allocated(program: EdwardsTestCompiler, expected: EdwardsBlsGadget) {
     let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Group(
-            EdwardsGroupType::Allocated(expected)
-        )])
-        .to_string(),
-        output.to_string()
-    )
+
+    match output {
+        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
+            [ConstrainedValue::Group(EdwardsGroupType::Allocated(gadget))] => {
+                assert_eq!(*gadget, expected as EdwardsBlsGadget)
+            }
+            _ => panic!("program output unknown return value"),
+        },
+        _ => panic!("program output unknown return value"),
+    }
 }
 
 fn output_zero(program: EdwardsTestCompiler) {
@@ -141,36 +144,20 @@ fn test_ternary() {
     // true -> point_1
     program_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
 
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let output_1 = get_output(program_1);
-    let actual_1: EdwardsAffine = match output_1 {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
-                <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget)
-                    .unwrap()
-            }
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    };
-
-    assert_eq!(point_1, actual_1);
+    let expected_point_1 =
+        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_1))
+            .unwrap();
+    output_expected_allocated(program_1, expected_point_1);
 
     // false -> point_2
     program_2.set_inputs(vec![Some(InputValue::Boolean(false))]);
 
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
-    let output_2 = get_output(program_2);
-    let actual_2: EdwardsAffine = match output_2 {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
-                <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget)
-                    .unwrap()
-            }
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    };
-
-    assert_eq!(point_2, actual_2);
+    let expected_point_2 =
+        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_2))
+            .unwrap();
+    output_expected_allocated(program_2, expected_point_2);
 }

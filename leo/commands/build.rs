@@ -2,16 +2,10 @@ use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
 use crate::errors::{BuildError, CLIError};
 use crate::files::{ChecksumFile, MainFile, Manifest, MAIN_FILE_NAME};
 use crate::{cli::*, cli_types::*};
-use leo_compiler::{
-    compiler::Compiler,
-    group::edwards_bls12::EdwardsGroupType
-};
+use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::KeypairAssembly;
-use snarkos_curves::{
-    bls12_377::Bls12_377,
-    edwards_bls12::Fq
-};
+use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use clap::ArgMatches;
 use std::convert::TryFrom;

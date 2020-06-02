@@ -1,7 +1,7 @@
 pub mod array;
 pub mod boolean;
 pub mod circuit;
-pub mod field_element;
+pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
