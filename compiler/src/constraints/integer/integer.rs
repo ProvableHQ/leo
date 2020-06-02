@@ -4,12 +4,12 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
     types::{InputValue, Integer},
-    IntegerType,
+    GroupType, IntegerType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
@@ -73,7 +73,7 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<F, G> {
         ConstrainedValue::Integer(integer)
     }
@@ -105,7 +105,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         integer_type: IntegerType,
         name: String,
         private: bool,
-        integer_value: Option<InputValue<F, G>>,
+        integer_value: Option<InputValue<F>>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Check that the input value is the correct type
         let integer_option = match integer_value {

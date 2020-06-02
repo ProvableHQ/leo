@@ -8,16 +8,16 @@ use crate::{
         Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Identifier, Integer,
         RangeOrExpression, Statement, Type,
     },
-    Variable,
+    GroupType, Variable,
 };
 
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F, G>) -> String {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
         match assignee {
             Assignee::Identifier(name) => new_scope(scope, name.to_string()),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         file_scope: String,
         function_scope: String,
         name: String,
-        range_or_expression: RangeOrExpression<F, G>,
+        range_or_expression: RangeOrExpression<F>,
         new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         // Resolve index so we know if we are assigning to a single value or a range of values
@@ -91,7 +91,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     fn mutute_circuit_field(
         &mut self,
         circuit_name: String,
-        object_name: Identifier<F, G>,
+        object_name: Identifier<F>,
         new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         match self.get_mutable_assignee(circuit_name)? {
@@ -129,8 +129,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F, G>,
-        expression: Expression<F, G>,
+        assignee: Assignee<F>,
+        expression: Expression<F>,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
@@ -170,7 +170,7 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
     fn store_definition(
         &mut self,
         function_scope: String,
-        variable: Variable<F, G>,
+        variable: Variable<F>,
         mut value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         // Store with given mutability
@@ -190,8 +190,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variable: Variable<F, G>,
-        expression: Expression<F, G>,
+        variable: Variable<F>,
+        expression: Expression<F>,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         if let Some(ref _type) = variable._type {
@@ -213,8 +213,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        variables: Vec<Variable<F, G>>,
-        function: Expression<F, G>,
+        variables: Vec<Variable<F>>,
+        function: Expression<F>,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         for variable in variables.iter() {
@@ -256,8 +256,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expressions: Vec<Expression<F, G>>,
-        return_types: Vec<Type<F, G>>,
+        expressions: Vec<Expression<F>>,
+        return_types: Vec<Type<F>>,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Make sure we return the correct number of values
         if return_types.len() != expressions.len() {
@@ -289,8 +289,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statements: Vec<Statement<F, G>>,
-        return_types: Vec<Type<F, G>>,
+        statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         // Evaluate statements and possibly return early
@@ -315,8 +315,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: ConditionalStatement<F, G>,
-        return_types: Vec<Type<F, G>>,
+        statement: ConditionalStatement<F>,
+        return_types: Vec<Type<F>>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let expected_types = vec![Type::Boolean];
         let condition = match self.enforce_expression(
@@ -367,11 +367,11 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Identifier<F, G>,
+        index: Identifier<F>,
         start: Integer,
         stop: Integer,
-        statements: Vec<Statement<F, G>>,
-        return_types: Vec<Type<F, G>>,
+        statements: Vec<Statement<F>>,
+        return_types: Vec<Type<F>>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
 
@@ -416,6 +416,9 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
             (ConstrainedValue::FieldElement(fe_1), ConstrainedValue::FieldElement(fe_2)) => {
                 self.enforce_field_eq(cs, fe_1, fe_2)
             }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                ge_1.enforce_equal(cs, &ge_2)?
+            }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
                     self.enforce_assert_eq_statement(cs, left, right)?;
@@ -440,8 +443,8 @@ impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgra
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: Statement<F, G>,
-        return_types: Vec<Type<F, G>>,
+        statement: Statement<F>,
+        return_types: Vec<Type<F>>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         match statement {

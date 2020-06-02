@@ -3,7 +3,8 @@ use crate::{
     integer::u32::{output_one, output_zero},
 };
 use leo_compiler::InputValue;
-use snarkos_curves::bls12_377::Fr;
+
+use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 const DIRECTORY_NAME: &str = "tests/statement/";
@@ -37,7 +38,7 @@ fn test_assertion_basic() {
     let program = compile_program(DIRECTORY_NAME, "assertion_basic.leo").unwrap();
 
     let mut program_input_true = program.clone();
-    let mut cs_satisfied = TestConstraintSystem::<Fr>::new();
+    let mut cs_satisfied = TestConstraintSystem::<Fq>::new();
 
     program_input_true.set_inputs(vec![Some(InputValue::Boolean(true))]);
     let _output = program_input_true
@@ -47,7 +48,7 @@ fn test_assertion_basic() {
     assert!(cs_satisfied.is_satisfied());
 
     let mut program_input_false = program.clone();
-    let mut cs_unsatisfied = TestConstraintSystem::<Fr>::new();
+    let mut cs_unsatisfied = TestConstraintSystem::<Fq>::new();
 
     program_input_false.set_inputs(vec![Some(InputValue::Boolean(false))]);
     let _output = program_input_false

@@ -4,24 +4,25 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::BooleanError,
     types::InputValue,
+    GroupType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget},
     },
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn bool_from_input(
         &mut self,
         cs: &mut CS,
         name: String,
         private: bool,
-        input_value: Option<InputValue<F, G>>,
+        input_value: Option<InputValue<F>>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
         let bool_value = match input_value {

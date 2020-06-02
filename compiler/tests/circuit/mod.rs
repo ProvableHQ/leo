@@ -1,40 +1,34 @@
 use crate::{
-    compile_program,
-    get_error,
-    get_output,
-    integer::u32::output_one,
-    // group_element::output_zero
+    compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
+    EdwardsTestCompiler,
 };
-
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedCircuitMember, ConstrainedValue, Expression, Function, Identifier, Integer,
     Statement, Type,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+
 use snarkos_models::gadgets::utilities::uint32::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";
 
 // Circ { x: 1u32 }
-fn output_circuit(program: Compiler<Fr, EdwardsProjective>) {
+fn output_circuit(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("x".into()),
-                    ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
-                )]
-            )
-        ]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("x".into()),
+                ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
+            )]
+        )])
+        .to_string(),
+        output.to_string()
     );
 }
 
-fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_expected_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
@@ -43,7 +37,7 @@ fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_undefined_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_undefined_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
@@ -153,27 +147,26 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
-            ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("new".into()),
-                    ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                        Some(Identifier::new("Circ".into())),
-                        Function {
-                            function_name: Identifier::new("new".into()),
-                            inputs: vec![],
-                            returns: vec![Type::SelfType],
-                            statements: vec![Statement::Return(vec![Expression::Circuit(
-                                Identifier::new("Self".into()),
-                                vec![]
-                            )])]
-                        }
-                    )))
-                )]
-            )
-        ]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("new".into()),
+                ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
+                    Some(Identifier::new("Circ".into())),
+                    Function {
+                        function_name: Identifier::new("new".into()),
+                        inputs: vec![],
+                        returns: vec![Type::SelfType],
+                        statements: vec![Statement::Return(vec![Expression::Circuit(
+                            Identifier::new("Self".into()),
+                            vec![]
+                        )])]
+                    }
+                )))
+            )]
+        )])
+        .to_string(),
+        output.to_string()
     );
 }
 

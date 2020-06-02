@@ -4,12 +4,12 @@ use crate::{
     ast,
     constraints::{generate_constraints, ConstrainedValue},
     errors::CompilerError,
-    InputValue, Program,
+    GroupType, InputValue, Program,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
@@ -18,16 +18,16 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField, G: Group> {
+pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<F, G>,
-    program_inputs: Vec<Option<InputValue<F, G>>>,
+    program: Program<F>,
+    program_inputs: Vec<Option<InputValue<F>>>,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
+impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
             package_name,
@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F, G>>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F>>>) {
         self.program_inputs = program_inputs;
     }
 
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<F, G>::from(syntax_tree, package_name);
+        self.program = Program::<F>::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
@@ -107,12 +107,13 @@ impl<F: Field + PrimeField, G: Group> Compiler<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> ConstraintSynthesizer<F> for Compiler<F, G> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _result = generate_constraints(cs, self.program, self.program_inputs).unwrap();
+        let _result =
+            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

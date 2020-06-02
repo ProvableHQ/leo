@@ -1,36 +1,38 @@
-use crate::{compile_program, get_error, get_output, integer::u32::output_one};
-
+use crate::{
+    compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
+
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/function/";
 
-pub(crate) fn output_empty(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_empty(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![]),
-        output
+        EdwardsConstrainedValue::Return(vec![]).to_string(),
+        output.to_string()
     );
 }
 
 // (true, false)
-pub(crate) fn output_multiple(program: Compiler<Fr, EdwardsProjective>) {
+pub(crate) fn output_multiple(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![
+        EdwardsConstrainedValue::Return(vec![
             ConstrainedValue::Boolean(Boolean::Constant(true)),
             ConstrainedValue::Boolean(Boolean::Constant(false))
-        ]),
-        output
+        ])
+        .to_string(),
+        output.to_string()
     )
 }
 
-fn fail_undefined_identifier(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_undefined_identifier(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(
             StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),

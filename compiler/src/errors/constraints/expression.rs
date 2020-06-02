@@ -1,4 +1,6 @@
-use crate::errors::{BooleanError, FieldElementError, FunctionError, IntegerError, ValueError};
+use crate::errors::{
+    BooleanError, FieldElementError, FunctionError, GroupError, IntegerError, ValueError,
+};
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::num::ParseIntError;
@@ -27,6 +29,9 @@ pub enum ExpressionError {
 
     #[error("{}", _0)]
     FieldElementError(FieldElementError),
+
+    #[error("{}", _0)]
+    GroupError(#[from] GroupError),
 
     #[error("{}", _0)]
     BooleanError(BooleanError),

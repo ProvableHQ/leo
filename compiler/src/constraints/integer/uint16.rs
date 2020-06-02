@@ -4,18 +4,19 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
     types::Integer,
+    GroupType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, eq::EqGadget, uint16::UInt16},
     },
 };
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub(crate) fn u16_from_input(
         &mut self,
         cs: &mut CS,

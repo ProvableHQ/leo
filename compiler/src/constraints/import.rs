@@ -4,23 +4,22 @@ use crate::{
     errors::constraints::ImportError,
     new_scope,
     types::Program,
-    Import,
+    GroupType, Import,
 };
 
 use from_pest::FromPest;
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
+    curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-use std::env::current_dir;
-use std::fs;
+use std::{env::current_dir, fs};
 
-impl<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(
         &mut self,
         cs: &mut CS,
         scope: String,
-        import: Import<F, G>,
+        import: Import<F>,
     ) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 

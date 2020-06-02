@@ -1,5 +1,7 @@
 use crate::errors::{BooleanError, ExpressionError, FieldElementError, IntegerError, ValueError};
 
+use snarkos_errors::gadgets::SynthesisError;
+
 #[derive(Debug, Error)]
 pub enum StatementError {
     #[error("Attempted to assign to unknown variable {}", _0)]
@@ -62,6 +64,9 @@ pub enum StatementError {
 
     #[error("Expected assignment of return values for expression {}", _0)]
     Unassigned(String),
+
+    #[error("{}", _0)]
+    SynthesisError(#[from] SynthesisError),
 }
 
 impl From<ExpressionError> for StatementError {
