@@ -7,7 +7,7 @@ use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::curves::{AffineCurve, ModelParameters};
 use snarkos_models::gadgets::curves::{FpGadget, GroupGadget};
-use snarkos_models::gadgets::r1cs::{ConstraintSystem};
+use snarkos_models::gadgets::r1cs::ConstraintSystem;
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
@@ -114,10 +114,12 @@ impl EdwardsGroupType {
         mut cs: CS,
     ) -> Result<EdwardsBlsGadget, SynthesisError> {
         match self {
-            EdwardsGroupType::Constant(constant) => <EdwardsBlsGadget as AllocGadget<
-                GroupAffine<EdwardsParameters>,
-                Fq,
-            >>::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
+            EdwardsGroupType::Constant(constant) => {
+                <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
+                    &mut cs.ns(|| format!("{:?}", constant)),
+                    || Ok(constant),
+                )
+            }
             EdwardsGroupType::Allocated(allocated) => Ok(allocated.clone()),
         }
     }

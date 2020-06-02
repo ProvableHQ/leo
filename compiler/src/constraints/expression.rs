@@ -381,8 +381,7 @@ impl<
                 Ok(ConstrainedValue::Integer(result))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                let result =
-                    GType::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
+                let result = GType::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
                 Ok(ConstrainedValue::Group(result))
             }
             (_, _) => {

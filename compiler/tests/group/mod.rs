@@ -8,10 +8,10 @@ use snarkos_models::curves::Group;
 use crate::boolean::{output_false, output_true};
 use leo_compiler::errors::{CompilerError, FunctionError, StatementError};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
+use snarkos_models::gadgets::curves::GroupGadget;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use std::str::FromStr;
-use snarkos_models::gadgets::curves::GroupGadget;
 
 const DIRECTORY_NAME: &str = "tests/group/";
 
@@ -141,15 +141,14 @@ fn test_ternary() {
     let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
     let output_1 = get_output(program_1);
     let actual_1: EdwardsAffine = match output_1 {
-        EdwardsConstrainedValue::Return(vec) => {
-            match vec.as_slice() {
-                [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
-                    <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget).unwrap()
-                }
-                _ => panic!("program output unknown return value")
+        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
+            [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
+                <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget)
+                    .unwrap()
             }
+            _ => panic!("program output unknown return value"),
         },
-        _ => panic!("program output unknown return value")
+        _ => panic!("program output unknown return value"),
     };
 
     assert_eq!(point_1, actual_1);
@@ -160,15 +159,14 @@ fn test_ternary() {
     let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
     let output_2 = get_output(program_2);
     let actual_2: EdwardsAffine = match output_2 {
-        EdwardsConstrainedValue::Return(vec) => {
-            match vec.as_slice() {
-                [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
-                    <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget).unwrap()
-                }
-                _ => panic!("program output unknown return value")
+        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
+            [ConstrainedValue::Group(EdwardsGroupType::Allocated(edwards_gadget))] => {
+                <EdwardsBlsGadget as GroupGadget<EdwardsAffine, Fq>>::get_value(edwards_gadget)
+                    .unwrap()
             }
+            _ => panic!("program output unknown return value"),
         },
-        _ => panic!("program output unknown return value")
+        _ => panic!("program output unknown return value"),
     };
 
     assert_eq!(point_2, actual_2);
