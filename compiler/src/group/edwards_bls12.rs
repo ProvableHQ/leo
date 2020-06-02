@@ -12,6 +12,7 @@ use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::gadgets::utilities::select::CondSelectGadget;
+use snarkos_models::gadgets::utilities::ToBitsGadget;
 use std::borrow::Borrow;
 use std::ops::Sub;
 use std::str::FromStr;
@@ -262,5 +263,17 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
 
     fn cost() -> usize {
         2 * <EdwardsBlsGadget as CondSelectGadget<Fq>>::cost()
+    }
+}
+
+impl ToBitsGadget<Fq> for EdwardsGroupType {
+    fn to_bits<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+        let self_gadget = self.allocated(&mut cs)?;
+        self_gadget.to_bits(cs)
+    }
+
+    fn to_bits_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+        let self_gadget = self.allocated(&mut cs)?;
+        self_gadget.to_bits_strict(cs)
     }
 }
