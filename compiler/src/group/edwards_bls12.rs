@@ -12,10 +12,11 @@ use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::gadgets::utilities::select::CondSelectGadget;
-use snarkos_models::gadgets::utilities::ToBitsGadget;
+use snarkos_models::gadgets::utilities::{ToBitsGadget, ToBytesGadget};
 use std::borrow::Borrow;
 use std::ops::Sub;
 use std::str::FromStr;
+use snarkos_models::gadgets::utilities::uint8::UInt8;
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
@@ -275,5 +276,17 @@ impl ToBitsGadget<Fq> for EdwardsGroupType {
     fn to_bits_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits_strict(cs)
+    }
+}
+
+impl ToBytesGadget<Fq> for EdwardsGroupType {
+    fn to_bytes<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
+        let self_gadget = self.allocated(&mut cs)?;
+        self_gadget.to_bytes(cs)
+    }
+
+    fn to_bytes_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
+        let self_gadget = self.allocated(&mut cs)?;
+        self_gadget.to_bytes_strict(cs)
     }
 }

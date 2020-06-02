@@ -4,8 +4,8 @@ use snarkos_models::gadgets::r1cs::ConstraintSystem;
 use snarkos_models::gadgets::utilities::alloc::AllocGadget;
 use snarkos_models::gadgets::utilities::eq::{ConditionalEqGadget, EqGadget};
 use snarkos_models::gadgets::utilities::select::CondSelectGadget;
+use snarkos_models::gadgets::utilities::{ToBitsGadget, ToBytesGadget};
 use std::fmt::Debug;
-use snarkos_models::gadgets::utilities::ToBitsGadget;
 
 pub mod edwards_bls12;
 
@@ -18,6 +18,7 @@ pub trait GroupType<F: Field>:
     + AllocGadget<String, F>
     + CondSelectGadget<F>
     + ToBitsGadget<F>
+    + ToBytesGadget<F>
 {
     fn constant(string: String) -> Result<Self, GroupError>;
 
