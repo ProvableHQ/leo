@@ -1,4 +1,4 @@
-use crate::errors::{GroupError, IntegerError};
+use crate::errors::{FieldError, GroupError, IntegerError};
 
 use std::{num::ParseIntError, str::ParseBoolError};
 
@@ -29,6 +29,9 @@ pub enum ValueError {
 
     #[error("{}", _0)]
     GroupError(#[from] GroupError),
+
+    #[error("{}", _0)]
+    FieldError(#[from] FieldError),
 }
 
 impl From<ParseIntError> for ValueError {

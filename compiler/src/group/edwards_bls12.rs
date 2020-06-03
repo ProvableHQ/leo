@@ -214,7 +214,7 @@ impl ConditionalEqGadget<Fq> for EdwardsGroupType {
             }
             // a - a
             (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
-                return <EdwardsBlsGadget>::conditional_enforce_equal(
+                <EdwardsBlsGadget>::conditional_enforce_equal(
                     self_value,
                     cs,
                     other_value,

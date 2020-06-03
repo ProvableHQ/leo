@@ -22,6 +22,9 @@ pub use self::constraints::*;
 
 pub mod errors;
 
+pub mod field;
+pub use self::field::*;
+
 pub mod group;
 pub use self::group::*;
 

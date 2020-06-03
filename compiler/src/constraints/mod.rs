@@ -15,8 +15,8 @@ pub use import::*;
 pub mod integer;
 pub use integer::*;
 
-pub mod field_element;
-pub use field_element::*;
+pub(crate) mod field;
+pub(crate) use field::*;
 
 pub(crate) mod group;
 pub(crate) use group::*;
@@ -43,8 +43,8 @@ use snarkos_models::{
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program<F>,
-    parameters: Vec<Option<InputValue<F>>>,
+    program: Program,
+    parameters: Vec<Option<InputValue>>,
 ) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();

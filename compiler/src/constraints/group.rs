@@ -10,7 +10,7 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
     cs: &mut CS,
     name: String,
     private: bool,
-    input_value: Option<InputValue<F>>,
+    input_value: Option<InputValue>,
 ) -> Result<ConstrainedValue<F, G>, GroupError> {
     // Check that the parameter value is the correct type
     let group_option = match input_value {

@@ -1,7 +1,7 @@
 pub mod array;
 pub mod boolean;
 pub mod circuit;
-pub mod field_element;
+pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
@@ -10,7 +10,9 @@ pub mod mutability;
 pub mod statement;
 
 use leo_compiler::{
-    compiler::Compiler, errors::CompilerError, group::edwards_bls12::EdwardsGroupType,
+    compiler::Compiler,
+    errors::{CompilerError, FunctionError, StatementError},
+    group::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
 };
 
@@ -31,6 +33,15 @@ pub(crate) fn get_output(program: EdwardsTestCompiler) -> EdwardsConstrainedValu
 pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
     program.compile_constraints(&mut cs).unwrap_err()
+}
+
+pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::StatementError(
+            StatementError::SynthesisError(_),
+        )) => {}
+        error => panic!("Expected evaluate error, got {}", error),
+    }
 }
 
 pub(crate) fn compile_program(

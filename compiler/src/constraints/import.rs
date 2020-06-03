@@ -19,7 +19,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         &mut self,
         cs: &mut CS,
         scope: String,
-        import: Import<F>,
+        import: Import,
     ) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 

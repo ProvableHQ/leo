@@ -8,22 +8,23 @@ use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 const DIRECTORY_NAME: &str = "tests/boolean/";
 
-pub fn output_true(program: EdwardsTestCompiler) {
+pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(true))])
-            .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(
+            boolean
+        ))])
+        .to_string(),
         output.to_string()
     );
 }
 
+pub fn output_true(program: EdwardsTestCompiler) {
+    output_expected_boolean(program, true)
+}
+
 pub fn output_false(program: EdwardsTestCompiler) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(false))])
-            .to_string(),
-        output.to_string()
-    );
+    output_expected_boolean(program, false)
 }
 
 fn fail_evaluate(program: EdwardsTestCompiler) {

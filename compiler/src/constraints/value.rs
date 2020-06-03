@@ -2,8 +2,8 @@
 
 use crate::{
     errors::ValueError,
-    types::{Circuit, FieldElement, Function, Identifier, Integer, IntegerType, Type},
-    GroupType,
+    types::{Circuit, Function, Identifier, Integer, IntegerType, Type},
+    FieldType, GroupType,
 };
 
 use snarkos_models::{
@@ -17,23 +17,23 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(
-    pub Identifier<F>,
+    pub Identifier,
     pub ConstrainedValue<F, G>,
 );
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Integer(Integer),
-    FieldElement(FieldElement<F>),
+    Field(FieldType<F>),
     Group(G),
     Boolean(Boolean),
 
     Array(Vec<ConstrainedValue<F, G>>),
 
-    CircuitDefinition(Circuit<F>),
-    CircuitExpression(Identifier<F>, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitDefinition(Circuit),
+    CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
-    Function(Option<Identifier<F>>, Function<F>), // (optional circuit identifier, function definition)
+    Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
     Return(Vec<ConstrainedValue<F, G>>),
 
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         ConstrainedValue::from_type(value, &other_type)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type<F>) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(value: String, _type: &Type) -> Result<Self, ValueError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
@@ -60,9 +60,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 IntegerType::U64 => Integer::U64(UInt64::constant(value.parse::<u64>()?)),
                 IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
             })),
-            Type::FieldElement => Ok(ConstrainedValue::FieldElement(FieldElement::Constant(
-                F::from_str(&value).unwrap_or_default(),
-            ))),
+            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
                 value.parse::<bool>()?,
@@ -72,17 +70,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn to_type(&self) -> Type<F> {
+    pub(crate) fn to_type(&self) -> Type {
         match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
-            ConstrainedValue::FieldElement(_field) => Type::FieldElement,
+            ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
             _ => unimplemented!("to type only implemented for primitives"),
         }
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type<F>>) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if !types.is_empty() {
                 *self = ConstrainedValue::from_type(string.clone(), &types[0])?
@@ -103,7 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
-            ConstrainedValue::FieldElement(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
             ConstrainedValue::Array(ref array) => {

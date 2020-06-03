@@ -105,7 +105,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         integer_type: IntegerType,
         name: String,
         private: bool,
-        integer_value: Option<InputValue<F>>,
+        integer_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, IntegerError> {
         // Check that the input value is the correct type
         let integer_option = match integer_value {

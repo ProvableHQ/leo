@@ -1,3 +1,5 @@
+//! A data type that represents members in the group formed by the set of affine points on a curve.
+
 use crate::errors::GroupError;
 
 use snarkos_models::{

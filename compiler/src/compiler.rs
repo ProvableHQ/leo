@@ -21,8 +21,8 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<F>,
-    program_inputs: Vec<Option<InputValue<F>>>,
+    program: Program,
+    program_inputs: Vec<Option<InputValue>>,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<F>>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
         self.program_inputs = program_inputs;
     }
 
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Build program from abstract syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<F>::from(syntax_tree, package_name);
+        self.program = Program::from(syntax_tree, package_name);
         self.program_inputs = vec![None; self.program.num_parameters];
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
