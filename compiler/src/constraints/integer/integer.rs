@@ -1,10 +1,9 @@
 //! Methods to enforce constraints on integers in a resolved Leo program.
 
 use crate::{
-    constraints::{ConstrainedProgram, ConstrainedValue},
     errors::IntegerError,
     types::{InputValue, Integer},
-    GroupType, IntegerType,
+    IntegerType,
 };
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -41,6 +40,89 @@ impl Integer {
             Integer::U64(_u64) => IntegerType::U64,
             Integer::U128(_u128) => IntegerType::U128,
         }
+    }
+
+    pub(crate) fn from_input<F: Field, CS: ConstraintSystem<F>>(
+        cs: &mut CS,
+        integer_type: IntegerType,
+        name: String,
+        private: bool,
+        integer_value: Option<InputValue>,
+    ) -> Result<Self, IntegerError> {
+        // Check that the input value is the correct type
+        let integer_option = match integer_value {
+            Some(input) => {
+                if let InputValue::Integer(integer) = input {
+                    Some(integer)
+                } else {
+                    return Err(IntegerError::InvalidInteger(input.to_string()));
+                }
+            }
+            None => None,
+        };
+
+        Ok(match integer_type {
+            IntegerType::U8 => {
+                let u8_option = integer_option.map(|integer| integer as u8);
+                let u8_result = match private {
+                    true => UInt8::alloc(cs.ns(|| name), || {
+                        u8_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt8::alloc_input(cs.ns(|| name), || {
+                        u8_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U8(u8_result)
+            }
+            IntegerType::U16 => {
+                let u16_option = integer_option.map(|integer| integer as u16);
+                let u16_result = match private {
+                    true => UInt16::alloc(cs.ns(|| name), || {
+                        u16_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt16::alloc_input(cs.ns(|| name), || {
+                        u16_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U16(u16_result)
+            }
+            IntegerType::U32 => {
+                let u32_option = integer_option.map(|integer| integer as u32);
+                let u32_result = match private {
+                    true => UInt32::alloc(cs.ns(|| name), || {
+                        u32_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt32::alloc_input(cs.ns(|| name), || {
+                        u32_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U32(u32_result)
+            }
+            IntegerType::U64 => {
+                let u64_option = integer_option.map(|integer| integer as u64);
+                let u64_result = match private {
+                    true => UInt64::alloc(cs.ns(|| name), || {
+                        u64_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt64::alloc_input(cs.ns(|| name), || {
+                        u64_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U64(u64_result)
+            }
+            IntegerType::U128 => {
+                let u128_option = integer_option.map(|integer| integer as u128);
+                let u128_result = match private {
+                    true => UInt128::alloc(cs.ns(|| name), || {
+                        u128_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt128::alloc_input(cs.ns(|| name), || {
+                        u128_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U128(u128_result)
+            }
+        })
     }
 
     pub(crate) fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -495,93 +577,5 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
 
     fn cost() -> usize {
         unimplemented!("Cannot calculate cost.")
-    }
-}
-
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub(crate) fn integer_from_parameter(
-        &mut self,
-        cs: &mut CS,
-        integer_type: IntegerType,
-        name: String,
-        private: bool,
-        integer_value: Option<InputValue>,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        // Check that the input value is the correct type
-        let integer_option = match integer_value {
-            Some(input) => {
-                if let InputValue::Integer(integer) = input {
-                    Some(integer)
-                } else {
-                    return Err(IntegerError::InvalidInteger(input.to_string()));
-                }
-            }
-            None => None,
-        };
-
-        let integer_result = match integer_type {
-            IntegerType::U8 => {
-                let u8_option = integer_option.map(|integer| integer as u8);
-                let u8_result = match private {
-                    true => UInt8::alloc(cs.ns(|| name), || {
-                        u8_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt8::alloc_input(cs.ns(|| name), || {
-                        u8_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                };
-                Integer::U8(u8_result)
-            }
-            IntegerType::U16 => {
-                let u16_option = integer_option.map(|integer| integer as u16);
-                let u16_result = match private {
-                    true => UInt16::alloc(cs.ns(|| name), || {
-                        u16_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt16::alloc_input(cs.ns(|| name), || {
-                        u16_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                };
-                Integer::U16(u16_result)
-            }
-            IntegerType::U32 => {
-                let u32_option = integer_option.map(|integer| integer as u32);
-                let u32_result = match private {
-                    true => UInt32::alloc(cs.ns(|| name), || {
-                        u32_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt32::alloc_input(cs.ns(|| name), || {
-                        u32_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                };
-                Integer::U32(u32_result)
-            }
-            IntegerType::U64 => {
-                let u64_option = integer_option.map(|integer| integer as u64);
-                let u64_result = match private {
-                    true => UInt64::alloc(cs.ns(|| name), || {
-                        u64_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt64::alloc_input(cs.ns(|| name), || {
-                        u64_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                };
-                Integer::U64(u64_result)
-            }
-            IntegerType::U128 => {
-                let u128_option = integer_option.map(|integer| integer as u128);
-                let u128_result = match private {
-                    true => UInt128::alloc(cs.ns(|| name), || {
-                        u128_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt128::alloc_input(cs.ns(|| name), || {
-                        u128_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                };
-                Integer::U128(u128_result)
-            }
-        };
-
-        Ok(ConstrainedValue::Integer(integer_result))
     }
 }
