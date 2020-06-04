@@ -13,8 +13,9 @@ use snarkos_models::{
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
-            boolean::Boolean, select::CondSelectGadget, uint128::UInt128, uint16::UInt16,
-            uint32::UInt32, uint64::UInt64, uint8::UInt8,
+            boolean::Boolean,
+            select::CondSelectGadget,
+            uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
         },
     },
 };

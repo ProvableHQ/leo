@@ -4,7 +4,7 @@ use leo_compiler::{
     ConstrainedValue, InputValue, Integer,
 };
 
-use snarkos_models::gadgets::utilities::uint32::UInt32;
+use snarkos_models::gadgets::utilities::uint::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 

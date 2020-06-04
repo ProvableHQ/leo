@@ -15,7 +15,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EqGadget, uint32::UInt32},
+        utilities::{boolean::Boolean, eq::EqGadget, uint::UInt32},
     },
 };
 

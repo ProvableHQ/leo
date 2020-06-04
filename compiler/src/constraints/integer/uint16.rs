@@ -12,7 +12,11 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, eq::EqGadget, uint16::UInt16},
+        utilities::{
+            alloc::AllocGadget,
+            eq::EqGadget,
+            uint::{UInt, UInt16},
+        },
     },
 };
 
