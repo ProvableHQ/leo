@@ -1225,6 +1225,16 @@ pub struct Import<'ast> {
     pub span: Span<'ast>,
 }
 
+// Tests
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::test))]
+pub struct Test<'ast> {
+    pub function: Function<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 // File
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -1233,6 +1243,7 @@ pub struct File<'ast> {
     pub imports: Vec<Import<'ast>>,
     pub circuits: Vec<Circuit<'ast>>,
     pub functions: Vec<Function<'ast>>,
+    pub tests: Vec<Test<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

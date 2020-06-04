@@ -240,6 +240,11 @@ impl Function {
     }
 }
 
+/// Tests
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Test(pub Function);
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
@@ -248,6 +253,7 @@ pub struct Program {
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
+    pub tests: HashMap<Identifier, Test>,
 }
 
 impl<'ast> Program {
@@ -258,6 +264,7 @@ impl<'ast> Program {
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),
+            tests: HashMap::new(),
         }
     }
 

@@ -788,6 +788,13 @@ impl<'ast> From<ast::Import<'ast>> for Import {
     }
 }
 
+/// pest ast -> Test
+impl<'ast> From<ast::Test<'ast>> for types::Test {
+    fn from(test: ast::Test) -> Self {
+        types::Test(types::Function::from(test.function))
+    }
+}
+
 /// pest ast -> types::Program
 
 impl<'ast> types::Program {
@@ -801,6 +808,7 @@ impl<'ast> types::Program {
 
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
+        let mut tests = HashMap::new();
         let mut num_parameters = 0usize;
 
         file.circuits.into_iter().for_each(|circuit| {
@@ -815,6 +823,12 @@ impl<'ast> types::Program {
                 types::Function::from(function_def),
             );
         });
+        file.tests.into_iter().for_each(|test_def| {
+            tests.insert(
+                types::Identifier::from(test_def.function.function_name.clone()),
+                types::Test::from(test_def),
+            );
+        });
 
         if let Some(main_function) = functions.get(&types::Identifier::new("main".into())) {
             num_parameters = main_function.inputs.len();
@@ -826,6 +840,7 @@ impl<'ast> types::Program {
             imports,
             circuits,
             functions,
+            tests,
         }
     }
 }
