@@ -8,6 +8,7 @@ pub mod import;
 pub mod integer;
 pub mod mutability;
 pub mod statement;
+pub mod syntax;
 
 use leo_compiler::{
     compiler::Compiler,

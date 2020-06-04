@@ -7,78 +7,27 @@ pub enum FunctionError {
     #[error("Function expected {} inputs, got {}", _0, _1)]
     ArgumentsLength(usize, usize),
 
-    #[error("Function input type not defined {}", _0)]
-    UndefinedInput(String),
+    #[error("{}", _0)]
+    BooleanError(#[from] BooleanError),
 
-    #[error("Function expected input type {}, got {}", _0, _1)]
-    InvalidInput(String, String),
+    #[error("{}", _0)]
+    ExpressionError(#[from] ExpressionError),
+
+    #[error("{}", _0)]
+    FieldError(#[from] FieldError),
+
+    #[error("{}", _0)]
+    GroupError(#[from] GroupError),
+
+    #[error("{}", _0)]
+    IntegerError(#[from] IntegerError),
 
     #[error("Expected function input array, got {}", _0)]
     InvalidArray(String),
 
-    #[error("Expected function input array length {}, got length {}", _0, _1)]
-    InvalidArrayLength(usize, usize),
+    #[error("{}", _0)]
+    StatementError(#[from] StatementError),
 
     #[error("{}", _0)]
-    ValueError(ValueError),
-
-    #[error("{}", _0)]
-    IntegerError(IntegerError),
-
-    #[error("{}", _0)]
-    FieldError(FieldError),
-
-    #[error("{}", _0)]
-    GroupError(GroupError),
-
-    #[error("{}", _0)]
-    BooleanError(BooleanError),
-
-    #[error("{}", _0)]
-    ExpressionError(ExpressionError),
-
-    #[error("{}", _0)]
-    StatementError(StatementError),
-}
-
-impl From<ValueError> for FunctionError {
-    fn from(error: ValueError) -> Self {
-        FunctionError::ValueError(error)
-    }
-}
-
-impl From<IntegerError> for FunctionError {
-    fn from(error: IntegerError) -> Self {
-        FunctionError::IntegerError(error)
-    }
-}
-
-impl From<FieldError> for FunctionError {
-    fn from(error: FieldError) -> Self {
-        FunctionError::FieldError(error)
-    }
-}
-
-impl From<GroupError> for FunctionError {
-    fn from(error: GroupError) -> Self {
-        FunctionError::GroupError(error)
-    }
-}
-
-impl From<BooleanError> for FunctionError {
-    fn from(error: BooleanError) -> Self {
-        FunctionError::BooleanError(error)
-    }
-}
-
-impl From<ExpressionError> for FunctionError {
-    fn from(error: ExpressionError) -> Self {
-        FunctionError::ExpressionError(error)
-    }
-}
-
-impl From<StatementError> for FunctionError {
-    fn from(error: StatementError) -> Self {
-        FunctionError::StatementError(error)
-    }
+    ValueError(#[from] ValueError),
 }

@@ -427,11 +427,12 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     self.enforce_assert_eq_statement(cs, left, right)?;
                 }
             }
-            (val_1, val_2) => unimplemented!(
-                "assert eq not supported for given types {} == {}",
-                val_1,
-                val_2
-            ),
+            (val_1, val_2) => {
+                return Err(StatementError::AssertEq(
+                    val_1.to_string(),
+                    val_2.to_string(),
+                ))
+            }
         })
     }
 

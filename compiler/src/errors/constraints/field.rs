@@ -9,11 +9,5 @@ pub enum FieldError {
     NoInverse(String),
 
     #[error("{}", _0)]
-    SynthesisError(SynthesisError),
-}
-
-impl From<SynthesisError> for FieldError {
-    fn from(error: SynthesisError) -> Self {
-        FieldError::SynthesisError(error)
-    }
+    SynthesisError(#[from] SynthesisError),
 }
