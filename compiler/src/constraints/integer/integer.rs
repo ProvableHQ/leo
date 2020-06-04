@@ -13,9 +13,11 @@ use snarkos_models::{
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
+            alloc::AllocGadget,
             boolean::Boolean,
+            eq::{ConditionalEqGadget, EqGadget},
             select::CondSelectGadget,
-            uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+            uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
         },
     },
 };
@@ -39,6 +41,428 @@ impl Integer {
             Integer::U64(_u64) => IntegerType::U64,
             Integer::U128(_u128) => IntegerType::U128,
         }
+    }
+
+    pub(crate) fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+        other: Self,
+    ) -> Result<Self, IntegerError> {
+        Ok(match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                let result = UInt8::addmany(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} + {}",
+                            left_u8.value.unwrap(),
+                            right_u8.value.unwrap()
+                        )
+                    }),
+                    &[left_u8, right_u8],
+                )?;
+                Integer::U8(result)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                let result = UInt16::addmany(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} + {}",
+                            left_u16.value.unwrap(),
+                            right_u16.value.unwrap()
+                        )
+                    }),
+                    &[left_u16, right_u16],
+                )?;
+                Integer::U16(result)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                let result = UInt32::addmany(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} + {}",
+                            left_u32.value.unwrap(),
+                            right_u32.value.unwrap()
+                        )
+                    }),
+                    &[left_u32, right_u32],
+                )?;
+                Integer::U32(result)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                let result = UInt64::addmany(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} + {}",
+                            left_u64.value.unwrap(),
+                            right_u64.value.unwrap()
+                        )
+                    }),
+                    &[left_u64, right_u64],
+                )?;
+                Integer::U64(result)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                let result = UInt128::addmany(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} + {}",
+                            left_u128.value.unwrap(),
+                            right_u128.value.unwrap()
+                        )
+                    }),
+                    &[left_u128, right_u128],
+                )?;
+                Integer::U128(result)
+            }
+            (left, right) => {
+                return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right)))
+            }
+        })
+    }
+
+    pub(crate) fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+        other: Self,
+    ) -> Result<Self, IntegerError> {
+        Ok(match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                let result = left_u8.sub(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} - {}",
+                            left_u8.value.unwrap(),
+                            right_u8.value.unwrap()
+                        )
+                    }),
+                    &right_u8,
+                )?;
+                Integer::U8(result)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                let result = left_u16.sub(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} - {}",
+                            left_u16.value.unwrap(),
+                            right_u16.value.unwrap()
+                        )
+                    }),
+                    &right_u16,
+                )?;
+                Integer::U16(result)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                let result = left_u32.sub(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} - {}",
+                            left_u32.value.unwrap(),
+                            right_u32.value.unwrap()
+                        )
+                    }),
+                    &right_u32,
+                )?;
+                Integer::U32(result)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                let result = left_u64.sub(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} - {}",
+                            left_u64.value.unwrap(),
+                            right_u64.value.unwrap()
+                        )
+                    }),
+                    &right_u64,
+                )?;
+                Integer::U64(result)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                let result = left_u128.sub(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} - {}",
+                            left_u128.value.unwrap(),
+                            right_u128.value.unwrap()
+                        )
+                    }),
+                    &right_u128,
+                )?;
+                Integer::U128(result)
+            }
+            (left, right) => {
+                return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right)))
+            }
+        })
+    }
+
+    pub(crate) fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+        other: Self,
+    ) -> Result<Self, IntegerError> {
+        Ok(match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                let result = left_u8.mul(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} * {}",
+                            left_u8.value.unwrap(),
+                            right_u8.value.unwrap()
+                        )
+                    }),
+                    &right_u8,
+                )?;
+                Integer::U8(result)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                let result = left_u16.mul(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} * {}",
+                            left_u16.value.unwrap(),
+                            right_u16.value.unwrap()
+                        )
+                    }),
+                    &right_u16,
+                )?;
+                Integer::U16(result)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                let result = left_u32.mul(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} * {}",
+                            left_u32.value.unwrap(),
+                            right_u32.value.unwrap()
+                        )
+                    }),
+                    &right_u32,
+                )?;
+                Integer::U32(result)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                let result = left_u64.mul(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} * {}",
+                            left_u64.value.unwrap(),
+                            right_u64.value.unwrap()
+                        )
+                    }),
+                    &right_u64,
+                )?;
+                Integer::U64(result)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                let result = left_u128.mul(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} * {}",
+                            left_u128.value.unwrap(),
+                            right_u128.value.unwrap()
+                        )
+                    }),
+                    &right_u128,
+                )?;
+                Integer::U128(result)
+            }
+            (left, right) => {
+                return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right)))
+            }
+        })
+    }
+
+    pub(crate) fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+        other: Self,
+    ) -> Result<Self, IntegerError> {
+        Ok(match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                let result = left_u8.div(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} / {}",
+                            left_u8.value.unwrap(),
+                            right_u8.value.unwrap()
+                        )
+                    }),
+                    &right_u8,
+                )?;
+                Integer::U8(result)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                let result = left_u16.div(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} / {}",
+                            left_u16.value.unwrap(),
+                            right_u16.value.unwrap()
+                        )
+                    }),
+                    &right_u16,
+                )?;
+                Integer::U16(result)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                let result = left_u32.div(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} / {}",
+                            left_u32.value.unwrap(),
+                            right_u32.value.unwrap()
+                        )
+                    }),
+                    &right_u32,
+                )?;
+                Integer::U32(result)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                let result = left_u64.div(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} / {}",
+                            left_u64.value.unwrap(),
+                            right_u64.value.unwrap()
+                        )
+                    }),
+                    &right_u64,
+                )?;
+                Integer::U64(result)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                let result = left_u128.div(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} / {}",
+                            left_u128.value.unwrap(),
+                            right_u128.value.unwrap()
+                        )
+                    }),
+                    &right_u128,
+                )?;
+                Integer::U128(result)
+            }
+            (left, right) => {
+                return Err(IntegerError::CannotEnforce(format!("{} / {}", left, right)))
+            }
+        })
+    }
+
+    pub(crate) fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+        other: Self,
+    ) -> Result<Self, IntegerError> {
+        Ok(match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                let result = left_u8.pow(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} ** {}",
+                            left_u8.value.unwrap(),
+                            right_u8.value.unwrap()
+                        )
+                    }),
+                    &right_u8,
+                )?;
+                Integer::U8(result)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                let result = left_u16.pow(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} ** {}",
+                            left_u16.value.unwrap(),
+                            right_u16.value.unwrap()
+                        )
+                    }),
+                    &right_u16,
+                )?;
+                Integer::U16(result)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                let result = left_u32.pow(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} ** {}",
+                            left_u32.value.unwrap(),
+                            right_u32.value.unwrap()
+                        )
+                    }),
+                    &right_u32,
+                )?;
+                Integer::U32(result)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                let result = left_u64.pow(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} ** {}",
+                            left_u64.value.unwrap(),
+                            right_u64.value.unwrap()
+                        )
+                    }),
+                    &right_u64,
+                )?;
+                Integer::U64(result)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                let result = left_u128.pow(
+                    cs.ns(|| {
+                        format!(
+                            "enforce {} ** {}",
+                            left_u128.value.unwrap(),
+                            right_u128.value.unwrap()
+                        )
+                    }),
+                    &right_u128,
+                )?;
+                Integer::U128(result)
+            }
+            (left, right) => {
+                return Err(IntegerError::CannotEnforce(format!(
+                    "{} ** {}",
+                    left, right
+                )))
+            }
+        })
+    }
+}
+
+impl<F: Field + PrimeField> EqGadget<F> for Integer {}
+
+impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
+                left_u8.conditional_enforce_equal(cs, right_u8, condition)
+            }
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
+                left_u16.conditional_enforce_equal(cs, right_u16, condition)
+            }
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
+                left_u32.conditional_enforce_equal(cs, right_u32, condition)
+            }
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
+                left_u64.conditional_enforce_equal(cs, right_u64, condition)
+            }
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
+                left_u128.conditional_enforce_equal(cs, right_u128, condition)
+            }
+            (_, _) => Err(SynthesisError::AssignmentMissing),
+        }
+    }
+
+    fn cost() -> usize {
+        <UInt128 as ConditionalEqGadget<F>>::cost()
     }
 }
 
@@ -75,31 +499,6 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub(crate) fn get_integer_constant(integer: Integer) -> ConstrainedValue<F, G> {
-        ConstrainedValue::Integer(integer)
-    }
-
-    pub(crate) fn evaluate_integer_eq(
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Boolean(Boolean::Constant(
-            match (left, right) {
-                (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.eq(&right_u8),
-                (Integer::U16(left_u16), Integer::U16(right_u16)) => left_u16.eq(&right_u16),
-                (Integer::U32(left_u32), Integer::U32(right_u32)) => left_u32.eq(&right_u32),
-                (Integer::U64(left_u64), Integer::U64(right_u64)) => left_u64.eq(&right_u64),
-                (Integer::U128(left_u128), Integer::U128(right_u128)) => left_u128.eq(&right_u128),
-                (left, right) => {
-                    return Err(IntegerError::CannotEvaluate(format!(
-                        "{} == {}",
-                        left, right
-                    )))
-                }
-            },
-        )))
-    }
-
     pub(crate) fn integer_from_parameter(
         &mut self,
         cs: &mut CS,
@@ -120,176 +519,69 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             None => None,
         };
 
-        match integer_type {
-            IntegerType::U8 => self.u8_from_input(cs, name, private, integer_option),
-            IntegerType::U16 => self.u16_from_input(cs, name, private, integer_option),
-            IntegerType::U32 => self.u32_from_input(cs, name, private, integer_option),
-            IntegerType::U64 => self.u64_from_input(cs, name, private, integer_option),
-            IntegerType::U128 => self.u128_from_input(cs, name, private, integer_option),
-        }
-    }
+        let integer_result = match integer_type {
+            IntegerType::U8 => {
+                let u8_option = integer_option.map(|integer| integer as u8);
+                let u8_result = match private {
+                    true => UInt8::alloc(cs.ns(|| name), || {
+                        u8_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt8::alloc_input(cs.ns(|| name), || {
+                        u8_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U8(u8_result)
+            }
+            IntegerType::U16 => {
+                let u16_option = integer_option.map(|integer| integer as u16);
+                let u16_result = match private {
+                    true => UInt16::alloc(cs.ns(|| name), || {
+                        u16_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt16::alloc_input(cs.ns(|| name), || {
+                        u16_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U16(u16_result)
+            }
+            IntegerType::U32 => {
+                let u32_option = integer_option.map(|integer| integer as u32);
+                let u32_result = match private {
+                    true => UInt32::alloc(cs.ns(|| name), || {
+                        u32_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt32::alloc_input(cs.ns(|| name), || {
+                        u32_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U32(u32_result)
+            }
+            IntegerType::U64 => {
+                let u64_option = integer_option.map(|integer| integer as u64);
+                let u64_result = match private {
+                    true => UInt64::alloc(cs.ns(|| name), || {
+                        u64_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt64::alloc_input(cs.ns(|| name), || {
+                        u64_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U64(u64_result)
+            }
+            IntegerType::U128 => {
+                let u128_option = integer_option.map(|integer| integer as u128);
+                let u128_result = match private {
+                    true => UInt128::alloc(cs.ns(|| name), || {
+                        u128_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                    false => UInt128::alloc_input(cs.ns(|| name), || {
+                        u128_option.ok_or(SynthesisError::AssignmentMissing)
+                    })?,
+                };
+                Integer::U128(u128_result)
+            }
+        };
 
-    pub(crate) fn enforce_integer_eq(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<(), IntegerError> {
-        match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Self::enforce_u8_eq(cs, left_u8, right_u8)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Self::enforce_u16_eq(cs, left_u16, right_u16)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Self::enforce_u32_eq(cs, left_u32, right_u32)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Self::enforce_u64_eq(cs, left_u64, right_u64)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Self::enforce_u128_eq(cs, left_u128, right_u128)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!(
-                    "{} == {}",
-                    left, right
-                )))
-            }
-        }
-    }
-
-    pub(crate) fn enforce_integer_add(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Integer(match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Integer::U8(Self::enforce_u8_add(cs, left_u8, right_u8)?)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Integer::U16(Self::enforce_u16_add(cs, left_u16, right_u16)?)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Integer::U32(Self::enforce_u32_add(cs, left_u32, right_u32)?)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Integer::U64(Self::enforce_u64_add(cs, left_u64, right_u64)?)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Integer::U128(Self::enforce_u128_add(cs, left_u128, right_u128)?)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right)))
-            }
-        }))
-    }
-    pub(crate) fn enforce_integer_sub(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Integer(match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Integer::U8(Self::enforce_u8_sub(cs, left_u8, right_u8)?)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Integer::U16(Self::enforce_u16_sub(cs, left_u16, right_u16)?)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Integer::U32(Self::enforce_u32_sub(cs, left_u32, right_u32)?)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Integer::U64(Self::enforce_u64_sub(cs, left_u64, right_u64)?)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Integer::U128(Self::enforce_u128_sub(cs, left_u128, right_u128)?)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right)))
-            }
-        }))
-    }
-    pub(crate) fn enforce_integer_mul(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Integer(match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Integer::U8(Self::enforce_u8_mul(cs, left_u8, right_u8)?)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Integer::U16(Self::enforce_u16_mul(cs, left_u16, right_u16)?)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Integer::U32(Self::enforce_u32_mul(cs, left_u32, right_u32)?)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Integer::U64(Self::enforce_u64_mul(cs, left_u64, right_u64)?)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Integer::U128(Self::enforce_u128_mul(cs, left_u128, right_u128)?)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right)))
-            }
-        }))
-    }
-    pub(crate) fn enforce_integer_div(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Integer(match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Integer::U8(Self::enforce_u8_div(cs, left_u8, right_u8)?)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Integer::U16(Self::enforce_u16_div(cs, left_u16, right_u16)?)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Integer::U32(Self::enforce_u32_div(cs, left_u32, right_u32)?)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Integer::U64(Self::enforce_u64_div(cs, left_u64, right_u64)?)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Integer::U128(Self::enforce_u128_div(cs, left_u128, right_u128)?)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} / {}", left, right)))
-            }
-        }))
-    }
-    pub(crate) fn enforce_integer_pow(
-        cs: &mut CS,
-        left: Integer,
-        right: Integer,
-    ) -> Result<ConstrainedValue<F, G>, IntegerError> {
-        Ok(ConstrainedValue::Integer(match (left, right) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                Integer::U8(Self::enforce_u8_pow(cs, left_u8, right_u8)?)
-            }
-            (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                Integer::U16(Self::enforce_u16_pow(cs, left_u16, right_u16)?)
-            }
-            (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                Integer::U32(Self::enforce_u32_pow(cs, left_u32, right_u32)?)
-            }
-            (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                Integer::U64(Self::enforce_u64_pow(cs, left_u64, right_u64)?)
-            }
-            (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                Integer::U128(Self::enforce_u128_pow(cs, left_u128, right_u128)?)
-            }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!(
-                    "{} ** {}",
-                    left, right
-                )))
-            }
-        }))
+        Ok(ConstrainedValue::Integer(integer_result))
     }
 }

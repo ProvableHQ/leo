@@ -58,7 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::enforce_integer_add(cs, num_1, num_2)?)
+                Ok(ConstrainedValue::Integer(num_1.add(cs, num_2)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2)?))
@@ -89,7 +89,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::enforce_integer_sub(cs, num_1, num_2)?)
+                Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2)?))
@@ -120,7 +120,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::enforce_integer_mul(cs, num_1, num_2)?)
+                Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2)?))
@@ -150,7 +150,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::enforce_integer_div(cs, num_1, num_2)?)
+                Ok(ConstrainedValue::Integer(num_1.div(cs, num_2)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2)?))
@@ -179,7 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::enforce_integer_pow(cs, num_1, num_2)?)
+                Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
@@ -206,9 +206,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Ok(Self::boolean_eq(bool_1, bool_2))
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(Self::evaluate_integer_eq(num_1, num_2)?)
-            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => Ok(
+                ConstrainedValue::Boolean(Boolean::Constant(num_1.eq(&num_2))),
+            ),
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
             }
@@ -820,7 +820,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             ),
 
             // Values
-            Expression::Integer(integer) => Ok(Self::get_integer_constant(integer)),
+            Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
             Expression::Field(field) => Ok(ConstrainedValue::Field(FieldType::constant(field)?)),
             Expression::Group(group_affine) => {
                 Ok(ConstrainedValue::Group(G::constant(group_affine)?))

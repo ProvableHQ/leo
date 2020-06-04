@@ -414,7 +414,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 self.enforce_boolean_eq(cs, bool_1, bool_2)?
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Self::enforce_integer_eq(cs, num_1, num_2)?
+                num_1.enforce_equal(cs, &num_2)?
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 fe_1.enforce_equal(cs, &fe_2)?
