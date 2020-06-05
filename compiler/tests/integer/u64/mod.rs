@@ -27,24 +27,24 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
 #[test]
 fn test_u64() {
     test_uint!(Testu64, u64, UInt64, DIRECTORY_NAME);
-    //
-    // Testu64::test_min(std::u64::MIN);
-    // Testu64::test_max(std::u64::MAX);
-    //
-    // Testu64::test_input();
 
-    // Testu64::test_add();
+    Testu64::test_min(std::u64::MIN);
+    Testu64::test_max(std::u64::MAX);
+
+    Testu64::test_input();
+
+    Testu64::test_add();
     // Testu64::test_sub(); //Todo: Catch subtraction overflow error in gadget
-    // Testu64::test_mul();
-    // Testu64::test_div();
-    // Testu64::test_pow(); // takes ~2mins
+    Testu64::test_mul();
+    Testu64::test_div();
+    Testu64::test_pow(); // takes ~2mins
 
-    // Testu64::test_eq();
-    // Testu64::test_ge();
-    // Testu64::test_gt();
-    // Testu64::test_le();
-    // Testu64::test_gt();
-    //
-    // Testu64::test_assert_eq();
-    // Testu64::test_ternary();
+    Testu64::test_eq();
+    Testu64::test_ge();
+    Testu64::test_gt();
+    Testu64::test_le();
+    Testu64::test_gt();
+
+    Testu64::test_assert_eq();
+    Testu64::test_ternary();
 }

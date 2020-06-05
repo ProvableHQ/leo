@@ -219,7 +219,7 @@ pub struct InputModel {
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue {
-    Integer(usize),
+    Integer(u128),
     Field(String),
     Group(String),
     Boolean(bool),

@@ -27,7 +27,7 @@ macro_rules! test_uint {
                 let expected = <$gadget>::constant(num);
 
                 let mut program = compile_program($directory, "input.leo").unwrap();
-                program.set_inputs(vec![Some(InputValue::Integer(num as usize))]);
+                program.set_inputs(vec![Some(InputValue::Integer(num as u128))]);
 
                 output_expected_allocated(program, expected);
 
@@ -54,8 +54,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "add.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_allocated(program, sum_allocated);
@@ -74,8 +74,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "sub.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_allocated(program, difference_allocated);
@@ -94,8 +94,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "mul.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_allocated(program, product_allocated);
@@ -114,8 +114,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "div.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_allocated(program, quotient_allocated);
@@ -135,8 +135,8 @@ macro_rules! test_uint {
 
                 let mut program = compile_program($directory, "pow.leo").unwrap();
                 program.set_inputs(vec![
-                    Some(InputValue::Integer(r1 as usize)),
-                    Some(InputValue::Integer(r2 as usize)),
+                    Some(InputValue::Integer(r1 as u128)),
+                    Some(InputValue::Integer(r2 as u128)),
                 ]);
 
                 output_expected_allocated(program, result_allocated);
@@ -150,8 +150,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "eq.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     output_true(program);
@@ -163,8 +163,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "eq.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -178,8 +178,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "ge.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     output_true(program);
@@ -191,8 +191,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "ge.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -206,8 +206,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "gt.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     output_false(program);
@@ -219,8 +219,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "gt.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -234,8 +234,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "le.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     output_true(program);
@@ -247,8 +247,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "le.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -262,8 +262,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "lt.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     output_false(program);
@@ -275,8 +275,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "lt.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -290,8 +290,8 @@ macro_rules! test_uint {
                     // test equal
                     let mut program = compile_program($directory, "assert_eq.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r1 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r1 as u128)),
                     ]);
 
                     let _ = get_output(program);
@@ -305,8 +305,8 @@ macro_rules! test_uint {
 
                     let mut program = compile_program($directory, "assert_eq.leo").unwrap();
                     program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
+                        Some(InputValue::Integer(r1 as u128)),
+                        Some(InputValue::Integer(r2 as u128)),
                     ]);
 
                     let mut cs = TestConstraintSystem::<Fq>::new();
@@ -328,8 +328,8 @@ macro_rules! test_uint {
                 // true -> field 1
                 program_1.set_inputs(vec![
                     Some(InputValue::Boolean(true)),
-                    Some(InputValue::Integer(r1 as usize)),
-                    Some(InputValue::Integer(r2 as usize)),
+                    Some(InputValue::Integer(r1 as u128)),
+                    Some(InputValue::Integer(r2 as u128)),
                 ]);
 
                 output_expected_allocated(program_1, g1);
@@ -337,8 +337,8 @@ macro_rules! test_uint {
                 // false -> field 2
                 program_2.set_inputs(vec![
                     Some(InputValue::Boolean(false)),
-                    Some(InputValue::Integer(r1 as usize)),
-                    Some(InputValue::Integer(r2 as usize)),
+                    Some(InputValue::Integer(r1 as u128)),
+                    Some(InputValue::Integer(r2 as u128)),
                 ]);
 
                 output_expected_allocated(program_2, g2);

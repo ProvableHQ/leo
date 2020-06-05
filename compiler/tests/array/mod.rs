@@ -91,7 +91,7 @@ fn test_input_array() {
     let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
     program.set_inputs(vec![Some(InputValue::Array(vec![
         InputValue::Integer(
-            1usize
+            1u128
         );
         3
     ]))]);
@@ -101,7 +101,7 @@ fn test_input_array() {
 #[test]
 fn test_input_array_fail() {
     let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Integer(1usize))]);
+    program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
     fail_array(program);
 }
 
