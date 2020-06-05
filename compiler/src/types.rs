@@ -34,7 +34,7 @@ pub struct Variable {
 }
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
 pub enum Integer {
     U8(UInt8),
     U16(UInt16),

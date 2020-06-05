@@ -1,6 +1,8 @@
 use crate::{
-    compile_program, get_error, get_output, integer::IntegerTester, EdwardsConstrainedValue,
-    EdwardsTestCompiler,
+    boolean::{output_expected_boolean, output_false, output_true},
+    compile_program, get_error, get_output,
+    integer::IntegerTester,
+    EdwardsConstrainedValue, EdwardsTestCompiler,
 };
 use leo_compiler::{
     errors::{CompilerError, FunctionError, IntegerError},
@@ -80,6 +82,15 @@ fn test_u32() {
     TestU32::test_mul();
     TestU32::test_div();
     TestU32::test_pow();
+
+    TestU32::test_eq();
+    TestU32::test_ge();
+    TestU32::test_gt();
+    TestU32::test_le();
+    TestU32::test_gt();
+
+    TestU32::test_assert_eq();
+    TestU32::test_ternary();
 }
 
 #[test]
