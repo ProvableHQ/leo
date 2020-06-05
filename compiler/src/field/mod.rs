@@ -287,3 +287,9 @@ impl<F: Field + PrimeField> ToBytesGadget<F> for FieldType<F> {
         self_gadget.to_bytes_strict(cs)
     }
 }
+
+impl<F: Field + PrimeField> std::fmt::Display for FieldType<F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self.get_value().ok_or(std::fmt::Error))
+    }
+}

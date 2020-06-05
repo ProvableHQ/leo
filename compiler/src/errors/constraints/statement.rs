@@ -34,6 +34,9 @@ pub enum StatementError {
     #[error("Cannot assert equality between {} == {}", _0, _1)]
     AssertEq(String, String),
 
+    #[error("Assertion {:?} == {:?} failed", _0, _1)]
+    AssertionFailed(String, String),
+
     #[error("If, else conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
 

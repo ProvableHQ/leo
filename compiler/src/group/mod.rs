@@ -14,7 +14,7 @@ use snarkos_models::{
         },
     },
 };
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 pub mod edwards_bls12;
 
@@ -22,6 +22,7 @@ pub trait GroupType<F: Field>:
     Sized
     + Clone
     + Debug
+    + Display
     + EqGadget<F>
     + ConditionalEqGadget<F>
     + AllocGadget<String, F>

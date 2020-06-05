@@ -304,3 +304,12 @@ impl ToBytesGadget<Fq> for EdwardsGroupType {
         self_gadget.to_bytes_strict(cs)
     }
 }
+
+impl std::fmt::Display for EdwardsGroupType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            EdwardsGroupType::Constant(constant) => write!(f, "{:?}", constant),
+            EdwardsGroupType::Allocated(allocated) => write!(f, "{:?}", allocated),
+        }
+    }
+}

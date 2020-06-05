@@ -25,5 +25,8 @@ pub use self::run::*;
 pub mod setup;
 pub use self::setup::*;
 
+pub mod test;
+pub use self::test::*;
+
 pub mod unload;
 pub use self::unload::*;

@@ -45,6 +45,9 @@ pub enum CLIError {
     SourceDirectoryError(#[from] SourceDirectoryError),
 
     #[error("{}", _0)]
+    TestError(#[from] TestError),
+
+    #[error("{}", _0)]
     VerificationKeyFileError(#[from] VerificationKeyFileError),
 }
 
