@@ -366,7 +366,7 @@ impl Integer {
                 let result = left_u8.div(
                     cs.ns(|| {
                         format!(
-                            "enforce {} / {}",
+                            "enforce {} ÷ {}",
                             left_u8.value.unwrap(),
                             right_u8.value.unwrap()
                         )
@@ -379,7 +379,7 @@ impl Integer {
                 let result = left_u16.div(
                     cs.ns(|| {
                         format!(
-                            "enforce {} / {}",
+                            "enforce {} ÷ {}",
                             left_u16.value.unwrap(),
                             right_u16.value.unwrap()
                         )
@@ -392,7 +392,7 @@ impl Integer {
                 let result = left_u32.div(
                     cs.ns(|| {
                         format!(
-                            "enforce {} / {}",
+                            "enforce {} ÷ {}",
                             left_u32.value.unwrap(),
                             right_u32.value.unwrap()
                         )
@@ -405,7 +405,7 @@ impl Integer {
                 let result = left_u64.div(
                     cs.ns(|| {
                         format!(
-                            "enforce {} / {}",
+                            "enforce {} ÷ {}",
                             left_u64.value.unwrap(),
                             right_u64.value.unwrap()
                         )
@@ -418,7 +418,7 @@ impl Integer {
                 let result = left_u128.div(
                     cs.ns(|| {
                         format!(
-                            "enforce {} / {}",
+                            "enforce {} ÷ {}",
                             left_u128.value.unwrap(),
                             right_u128.value.unwrap()
                         )
@@ -428,7 +428,7 @@ impl Integer {
                 Integer::U128(result)
             }
             (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} / {}", left, right)))
+                return Err(IntegerError::CannotEnforce(format!("{} ÷ {}", left, right)))
             }
         })
     }
