@@ -1,14 +1,10 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
-    compile_program, get_error, get_output,
-    integer::IntegerTester,
+    compile_program, get_output,
+    integer::{fail_integer, fail_synthesis, IntegerTester},
     EdwardsConstrainedValue, EdwardsTestCompiler,
 };
-use leo_compiler::{
-    errors::{CompilerError, FunctionError, IntegerError},
-    types::Integer,
-    ConstrainedValue, InputValue,
-};
+use leo_compiler::{types::Integer, ConstrainedValue, InputValue};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
@@ -50,24 +46,6 @@ pub(crate) fn output_one(program: EdwardsTestCompiler) {
     )
 }
 
-fn fail_integer(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(
-            IntegerError::InvalidInteger(_string),
-        )) => {}
-        error => panic!("Expected invalid boolean error, got {}", error),
-    }
-}
-
-fn fail_synthesis(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(
-            IntegerError::SynthesisError(_string),
-        )) => {}
-        error => panic!("Expected synthesis error, got {}", error),
-    }
-}
-
 #[test]
 fn test_u32() {
     test_uint!(TestU32, u32, UInt32, DIRECTORY_NAME);
@@ -81,7 +59,7 @@ fn test_u32() {
     // TestU32::test_sub(); //Todo: Catch subtraction overflow error in gadget
     TestU32::test_mul();
     TestU32::test_div();
-    TestU32::test_pow();
+    TestU32::test_pow(); // takes about 2 mins
 
     TestU32::test_eq();
     TestU32::test_ge();

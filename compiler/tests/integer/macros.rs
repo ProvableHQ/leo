@@ -67,10 +67,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let sum = r1.wrapping_sub(r2);
+                    let difference = r1.wrapping_sub(r2);
 
                     let cs = TestConstraintSystem::<Fq>::new();
-                    let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
+                    let difference_allocated = <$gadget>::alloc(cs, || Ok(difference)).unwrap();
 
                     let mut program = compile_program($directory, "sub.leo").unwrap();
                     program.set_inputs(vec![
@@ -78,7 +78,7 @@ macro_rules! test_uint {
                         Some(InputValue::Integer(r2 as usize)),
                     ]);
 
-                    output_expected_allocated(program, sum_allocated);
+                    output_expected_allocated(program, difference_allocated);
                 }
             }
 
@@ -87,10 +87,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let sum = r1.wrapping_mul(r2);
+                    let product = r1.wrapping_mul(r2);
 
                     let cs = TestConstraintSystem::<Fq>::new();
-                    let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
+                    let product_allocated = <$gadget>::alloc(cs, || Ok(product)).unwrap();
 
                     let mut program = compile_program($directory, "mul.leo").unwrap();
                     program.set_inputs(vec![
@@ -98,7 +98,7 @@ macro_rules! test_uint {
                         Some(InputValue::Integer(r2 as usize)),
                     ]);
 
-                    output_expected_allocated(program, sum_allocated);
+                    output_expected_allocated(program, product_allocated);
                 }
             }
 
@@ -107,10 +107,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let sum = r1.wrapping_div(r2);
+                    let quotient = r1.wrapping_div(r2);
 
                     let cs = TestConstraintSystem::<Fq>::new();
-                    let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
+                    let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
 
                     let mut program = compile_program($directory, "div.leo").unwrap();
                     program.set_inputs(vec![
@@ -118,28 +118,29 @@ macro_rules! test_uint {
                         Some(InputValue::Integer(r2 as usize)),
                     ]);
 
-                    output_expected_allocated(program, sum_allocated);
+                    output_expected_allocated(program, quotient_allocated);
                 }
             }
 
             fn test_pow() {
-                for _ in 0..10 {
-                    let r1: $_type = rand::random();
-                    let r2: $_type = rand::random();
+                // for _ in 0..10 {// these loops take an excessive amount of time
+                let r1: $_type = rand::random();
+                let r2: $_type = rand::random();
+                let r2 = r2 as u32; // we cast to u32 here because of rust pow() requirements
 
-                    let sum = r1.wrapping_pow(r2 as u32);
+                let result = r1.wrapping_pow(r2);
 
-                    let cs = TestConstraintSystem::<Fq>::new();
-                    let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
+                let cs = TestConstraintSystem::<Fq>::new();
+                let result_allocated = <$gadget>::alloc(cs, || Ok(result)).unwrap();
 
-                    let mut program = compile_program($directory, "pow.leo").unwrap();
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer(r1 as usize)),
-                        Some(InputValue::Integer(r2 as usize)),
-                    ]);
+                let mut program = compile_program($directory, "pow.leo").unwrap();
+                program.set_inputs(vec![
+                    Some(InputValue::Integer(r1 as usize)),
+                    Some(InputValue::Integer(r2 as usize)),
+                ]);
 
-                    output_expected_allocated(program, sum_allocated);
-                }
+                output_expected_allocated(program, result_allocated);
+                // }
             }
 
             fn test_eq() {

@@ -1,6 +1,8 @@
 #[macro_use]
 pub mod macros;
-pub use self::macros::*;
+
+use crate::{get_error, EdwardsTestCompiler};
+use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
 
 pub trait IntegerTester {
     /// Tests use of the integer in a function input
@@ -43,6 +45,27 @@ pub trait IntegerTester {
     fn test_ternary();
 }
 
+pub(crate) fn fail_integer(program: EdwardsTestCompiler) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::IntegerError(
+            IntegerError::InvalidInteger(_string),
+        )) => {}
+        error => panic!("Expected invalid boolean error, got {}", error),
+    }
+}
+
+pub(crate) fn fail_synthesis(program: EdwardsTestCompiler) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::IntegerError(
+            IntegerError::SynthesisError(_string),
+        )) => {}
+        error => panic!("Expected synthesis error, got {}", error),
+    }
+}
+
 // must be below macro definitions!
-// pub mod u8;
+pub mod u16;
 pub mod u32;
+pub mod u64;
+pub mod u8;
+// pub mod u128;
