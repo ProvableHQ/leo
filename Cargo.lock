@@ -449,9 +449,9 @@ checksum = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
 
 [[package]]
 name = "jsonrpc-core"
-version = "14.1.0"
+version = "14.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25525f6002338fb4debb5167a89a0b47f727a5a48418417545ad3429758b7fec"
+checksum = "a0747307121ffb9703afd93afbd0fb4f854c38fb873f2c8b90e0e902f27c7b62"
 dependencies = [
  "futures",
  "log",
@@ -1003,6 +1003,7 @@ checksum = "c7cb5678e1615754284ec264d9bb5b4c27d2018577fd90ac0ceb578591ed5ee4"
 [[package]]
 name = "snarkos-algorithms"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "blake2",
  "derivative",
@@ -1021,6 +1022,7 @@ dependencies = [
 [[package]]
 name = "snarkos-curves"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "rand",
@@ -1032,6 +1034,7 @@ dependencies = [
 [[package]]
 name = "snarkos-errors"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "bincode",
  "curl",
@@ -1044,6 +1047,7 @@ dependencies = [
 [[package]]
 name = "snarkos-gadgets"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "digest",
@@ -1057,6 +1061,7 @@ dependencies = [
 [[package]]
 name = "snarkos-models"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "rand",
@@ -1069,10 +1074,12 @@ dependencies = [
 [[package]]
 name = "snarkos-profiler"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 
 [[package]]
 name = "snarkos-utilities"
 version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "rand",
 ]
