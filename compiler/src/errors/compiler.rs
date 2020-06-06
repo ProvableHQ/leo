@@ -1,5 +1,7 @@
-use crate::errors::{FunctionError, ImportError, IntegerError};
+use crate::ast::Rule;
+use crate::errors::{FunctionError, ImportError, IntegerError, SyntaxError};
 
+use pest::error::Error;
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
@@ -11,13 +13,13 @@ pub enum CompilerError {
     DirectoryError(io::Error),
 
     #[error("{}", _0)]
-    ImportError(ImportError),
+    ImportError(#[from] ImportError),
 
     #[error("{}", _0)]
-    IntegerError(IntegerError),
+    IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    FunctionError(FunctionError),
+    FunctionError(#[from] FunctionError),
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
@@ -31,6 +33,9 @@ pub enum CompilerError {
     #[error("Main must be a function")]
     NoMainFunction,
 
+    #[error("{}", _0)]
+    SyntaxError(#[from] SyntaxError),
+
     #[error("Unable to construct abstract syntax tree")]
     SyntaxTreeError,
 
@@ -38,20 +43,8 @@ pub enum CompilerError {
     Writing(io::Error),
 }
 
-impl From<ImportError> for CompilerError {
-    fn from(error: ImportError) -> Self {
-        CompilerError::ImportError(error)
-    }
-}
-
-impl From<IntegerError> for CompilerError {
-    fn from(error: IntegerError) -> Self {
-        CompilerError::IntegerError(error)
-    }
-}
-
-impl From<FunctionError> for CompilerError {
-    fn from(error: FunctionError) -> Self {
-        CompilerError::FunctionError(error)
+impl From<Error<Rule>> for CompilerError {
+    fn from(error: Error<Rule>) -> Self {
+        CompilerError::SyntaxError(SyntaxError::from(error))
     }
 }

@@ -85,7 +85,8 @@ pub struct Not<'ast> {
 
 // Binary Operations
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_binary))]
 pub enum BinaryOperator {
     Or,
     And,
@@ -1003,6 +1004,7 @@ pub struct MultipleAssignmentStatement<'ast> {
     pub variables: Vec<Variable<'ast>>,
     pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1012,6 +1014,7 @@ pub struct MultipleAssignmentStatement<'ast> {
 pub struct DefinitionStatement<'ast> {
     pub variable: Variable<'ast>,
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1022,6 +1025,7 @@ pub struct AssignStatement<'ast> {
     pub assignee: Assignee<'ast>,
     pub assign: OperationAssign,
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1031,6 +1035,7 @@ pub struct AssignStatement<'ast> {
 pub struct AssertEq<'ast> {
     pub left: Expression<'ast>,
     pub right: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1045,6 +1050,7 @@ pub enum AssertStatement<'ast> {
 #[pest_ast(rule(Rule::statement_expression))]
 pub struct ExpressionStatement<'ast> {
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1185,6 +1191,10 @@ pub struct Function<'ast> {
 #[pest_ast(rule(Rule::EOI))]
 pub struct EOI;
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::LINE_END))]
+pub struct LineEnd;
+
 // Imports
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -1210,6 +1220,7 @@ pub struct ImportSymbol<'ast> {
 pub struct Import<'ast> {
     pub source: ImportSource<'ast>,
     pub symbols: Vec<ImportSymbol<'ast>>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
