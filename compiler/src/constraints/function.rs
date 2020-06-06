@@ -6,7 +6,7 @@ use crate::{
     errors::{FunctionError, ImportError},
     field_from_input, group_from_input,
     types::{Expression, Function, Identifier, InputValue, Program, Type},
-    GroupType,
+    GroupType, Integer,
 };
 
 use snarkos_models::{
@@ -176,9 +176,13 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
-            Type::IntegerType(integer_type) => {
-                Ok(self.integer_from_parameter(cs, integer_type, name, private, input_value)?)
-            }
+            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(
+                cs,
+                integer_type,
+                name,
+                private,
+                input_value,
+            )?)),
             Type::Field => Ok(field_from_input(cs, name, private, input_value)?),
             Type::Group => Ok(group_from_input(cs, name, private, input_value)?),
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),

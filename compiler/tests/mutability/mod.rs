@@ -6,7 +6,7 @@ use leo_compiler::{
 };
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
+use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint::UInt32};
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
