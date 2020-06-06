@@ -82,7 +82,7 @@ fn test_false() {
 #[test]
 fn test_input_bool_field() {
     let mut program = compile_program(DIRECTORY_NAME, "input_bool.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Integer(1usize))]);
+    program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
     fail_boolean(program);
 }
 

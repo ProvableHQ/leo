@@ -34,7 +34,7 @@ pub struct Variable {
 }
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
 pub enum Integer {
     U8(UInt8),
     U16(UInt16),
@@ -219,7 +219,7 @@ pub struct InputModel {
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue {
-    Integer(usize),
+    Integer(u128),
     Field(String),
     Group(String),
     Boolean(bool),
@@ -240,6 +240,11 @@ impl Function {
     }
 }
 
+/// Tests
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Test(pub Function);
+
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
@@ -248,6 +253,7 @@ pub struct Program {
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
+    pub tests: HashMap<Identifier, Test>,
 }
 
 impl<'ast> Program {
@@ -258,6 +264,7 @@ impl<'ast> Program {
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),
+            tests: HashMap::new(),
         }
     }
 

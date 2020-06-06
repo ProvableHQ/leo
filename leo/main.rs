@@ -28,6 +28,7 @@ fn main() -> Result<(), CLIError> {
             RunCommand::new().display_order(7),
             PublishCommand::new().display_order(8),
             DeployCommand::new().display_order(9),
+            TestCommand::new().display_order(10),
         ])
         .set_term_width(0)
         .get_matches();
@@ -52,6 +53,10 @@ fn main() -> Result<(), CLIError> {
         ("run", Some(arguments)) => RunCommand::output(RunCommand::parse(arguments)?),
         ("publish", Some(arguments)) => PublishCommand::output(PublishCommand::parse(arguments)?),
         ("deploy", Some(arguments)) => DeployCommand::output(DeployCommand::parse(arguments)?),
+        ("test", Some(arguments)) => {
+            TestCommand::output(TestCommand::parse(arguments)?)?;
+            Ok(())
+        }
         _ => unreachable!(),
     }
 }

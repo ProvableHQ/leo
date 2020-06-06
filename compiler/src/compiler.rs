@@ -2,7 +2,7 @@
 
 use crate::{
     ast,
-    constraints::{generate_constraints, ConstrainedValue},
+    constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
     errors::CompilerError,
     GroupType, InputValue, Program,
 };
@@ -10,7 +10,7 @@ use crate::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
+    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem, TestConstraintSystem},
 };
 
 use from_pest::FromPest;
@@ -66,6 +66,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         cs: &mut CS,
     ) -> Result<ConstrainedValue<F, G>, CompilerError> {
         generate_constraints(cs, self.program, self.program_inputs)
+    }
+
+    pub fn compile_test_constraints(
+        self,
+        cs: &mut TestConstraintSystem<F>,
+    ) -> Result<(), CompilerError> {
+        generate_test_constraints::<F, G>(cs, self.program)
     }
 
     // pub fn compile(&self) -> Result<ast::File, CompilerError> {

@@ -38,7 +38,7 @@ use crate::{
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -65,4 +65,41 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
         }
         _ => Err(CompilerError::NoMainFunction),
     }
+}
+
+pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
+    cs: &mut TestConstraintSystem<F>,
+    program: Program,
+) -> Result<(), CompilerError> {
+    let mut resolved_program = ConstrainedProgram::<F, G, TestConstraintSystem<F>>::new();
+    let program_name = program.get_name();
+
+    let tests = program.tests.clone();
+
+    resolved_program.resolve_definitions(cs, program)?;
+
+    log::info!("Running {} tests", tests.len());
+
+    for (test_name, test_function) in tests.into_iter() {
+        let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+
+        let result = resolved_program.enforce_main_function(
+            cs,
+            program_name.clone(),
+            test_function.0,
+            vec![], // test functions should not take any inputs
+        );
+
+        if result.is_ok() {
+            log::info!(
+                "test {} passed. Constraint system satisfied: {}",
+                full_test_name,
+                cs.is_satisfied()
+            );
+        } else {
+            log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
+        }
+    }
+
+    Ok(())
 }

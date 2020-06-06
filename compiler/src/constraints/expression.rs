@@ -236,6 +236,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                let result = num_1.ge(&num_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 let result = fe_1.ge(&fe_2);
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
@@ -261,6 +265,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                let result = num_1.gt(&num_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 let result = fe_1.gt(&fe_2);
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
@@ -286,6 +294,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                let result = num_1.le(&num_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 let result = fe_1.le(&fe_2);
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
@@ -311,6 +323,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                let result = num_1.lt(&num_2);
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 let result = fe_1.lt(&fe_2);
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))

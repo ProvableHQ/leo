@@ -226,6 +226,10 @@ import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
 import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
 
+/// Tests
+
+test = {"test" ~ function_definition}
+
 /// Program File
 
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test* ~ NEWLINE* ~ EOI }
