@@ -86,15 +86,16 @@ pub struct Not<'ast> {
 
 // Binary Operations
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::operation_binary))]
 pub enum BinaryOperator {
     Or,
     And,
     Eq,
-    Neq,
-    Geq,
+    Ne,
+    Ge,
     Gt,
-    Leq,
+    Le,
     Lt,
     Add,
     Sub,
@@ -293,9 +294,40 @@ impl<'ast> fmt::Display for Field<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::group_tuple))]
+pub struct GroupTuple<'ast> {
+    pub x: Number<'ast>,
+    pub y: Number<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for GroupTuple<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::group_single_or_tuple))]
+pub enum GroupValue<'ast> {
+    Single(Number<'ast>),
+    Tuple(GroupTuple<'ast>),
+}
+
+impl<'ast> fmt::Display for GroupValue<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            GroupValue::Single(number) => write!(f, "{}", number),
+            GroupValue::Tuple(tuple) => write!(f, "{}", tuple),
+        }
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value_group))]
 pub struct Group<'ast> {
-    pub number: Number<'ast>,
+    pub value: GroupValue<'ast>,
     pub _type: GroupType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -303,7 +335,7 @@ pub struct Group<'ast> {
 
 impl<'ast> fmt::Display for Group<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.number)
+        write!(f, "{}", self.value)
     }
 }
 
@@ -767,10 +799,10 @@ fn precedence_climber() -> PrecClimber<Rule> {
     PrecClimber::new(vec![
         Operator::new(Rule::operation_or, Assoc::Left),
         Operator::new(Rule::operation_and, Assoc::Left),
-        Operator::new(Rule::operation_eq, Assoc::Left) | Operator::new(Rule::operation_neq, Assoc::Left),
-        Operator::new(Rule::operation_geq, Assoc::Left)
+        Operator::new(Rule::operation_eq, Assoc::Left) | Operator::new(Rule::operation_ne, Assoc::Left),
+        Operator::new(Rule::operation_ge, Assoc::Left)
             | Operator::new(Rule::operation_gt, Assoc::Left)
-            | Operator::new(Rule::operation_leq, Assoc::Left)
+            | Operator::new(Rule::operation_le, Assoc::Left)
             | Operator::new(Rule::operation_lt, Assoc::Left),
         Operator::new(Rule::operation_add, Assoc::Left) | Operator::new(Rule::operation_sub, Assoc::Left),
         Operator::new(Rule::operation_mul, Assoc::Left) | Operator::new(Rule::operation_div, Assoc::Left),
@@ -880,10 +912,10 @@ fn binary_expression<'ast>(
         Rule::operation_or => Expression::binary(BinaryOperator::Or, lhs, rhs, span),
         Rule::operation_and => Expression::binary(BinaryOperator::And, lhs, rhs, span),
         Rule::operation_eq => Expression::binary(BinaryOperator::Eq, lhs, rhs, span),
-        Rule::operation_neq => Expression::binary(BinaryOperator::Neq, lhs, rhs, span),
-        Rule::operation_geq => Expression::binary(BinaryOperator::Geq, lhs, rhs, span),
+        Rule::operation_ne => Expression::binary(BinaryOperator::Ne, lhs, rhs, span),
+        Rule::operation_ge => Expression::binary(BinaryOperator::Ge, lhs, rhs, span),
         Rule::operation_gt => Expression::binary(BinaryOperator::Gt, lhs, rhs, span),
-        Rule::operation_leq => Expression::binary(BinaryOperator::Leq, lhs, rhs, span),
+        Rule::operation_le => Expression::binary(BinaryOperator::Le, lhs, rhs, span),
         Rule::operation_lt => Expression::binary(BinaryOperator::Lt, lhs, rhs, span),
         Rule::operation_add => Expression::binary(BinaryOperator::Add, lhs, rhs, span),
         Rule::operation_sub => Expression::binary(BinaryOperator::Sub, lhs, rhs, span),
@@ -956,6 +988,7 @@ pub struct MultipleAssignmentStatement<'ast> {
     pub variables: Vec<Variable<'ast>>,
     pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -965,6 +998,7 @@ pub struct MultipleAssignmentStatement<'ast> {
 pub struct DefinitionStatement<'ast> {
     pub variable: Variable<'ast>,
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -975,6 +1009,7 @@ pub struct AssignStatement<'ast> {
     pub assignee: Assignee<'ast>,
     pub assign: OperationAssign,
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -984,6 +1019,7 @@ pub struct AssignStatement<'ast> {
 pub struct AssertEq<'ast> {
     pub left: Expression<'ast>,
     pub right: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -998,6 +1034,7 @@ pub enum AssertStatement<'ast> {
 #[pest_ast(rule(Rule::statement_expression))]
 pub struct ExpressionStatement<'ast> {
     pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1134,6 +1171,10 @@ pub struct Function<'ast> {
 #[pest_ast(rule(Rule::EOI))]
 pub struct EOI;
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::LINE_END))]
+pub struct LineEnd;
+
 // Imports
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -1159,6 +1200,17 @@ pub struct ImportSymbol<'ast> {
 pub struct Import<'ast> {
     pub source: ImportSource<'ast>,
     pub symbols: Vec<ImportSymbol<'ast>>,
+    pub line_end: LineEnd,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+// Tests
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::test))]
+pub struct Test<'ast> {
+    pub function: Function<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -1171,6 +1223,7 @@ pub struct File<'ast> {
     pub imports: Vec<Import<'ast>>,
     pub circuits: Vec<Circuit<'ast>>,
     pub functions: Vec<Function<'ast>>,
+    pub tests: Vec<Test<'ast>>,
     pub eoi: EOI,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

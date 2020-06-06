@@ -2,6 +2,7 @@
 
 #[macro_use]
 extern crate thiserror;
+extern crate log;
 
 #[macro_use]
 extern crate lazy_static;
@@ -21,6 +22,12 @@ pub mod constraints;
 pub use self::constraints::*;
 
 pub mod errors;
+
+pub mod field;
+pub use self::field::*;
+
+pub mod group;
+pub use self::group::*;
 
 pub mod imports;
 pub use self::imports::*;

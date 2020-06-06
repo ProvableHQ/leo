@@ -5,13 +5,10 @@ use crate::{
     errors::{CLIError, VerificationKeyFileError},
     files::{Manifest, ProvingKeyFile, VerificationKeyFile},
 };
-use leo_compiler::compiler::Compiler;
+use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::{generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey};
-use snarkos_curves::{
-    bls12_377::{Bls12_377, Fr},
-    edwards_bls12::EdwardsProjective,
-};
+use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_utilities::bytes::ToBytes;
 
 use clap::ArgMatches;
@@ -24,7 +21,7 @@ pub struct SetupCommand;
 impl CLI for SetupCommand {
     type Options = ();
     type Output = (
-        Compiler<Fr, EdwardsProjective>,
+        Compiler<Fq, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );

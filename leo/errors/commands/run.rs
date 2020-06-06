@@ -8,11 +8,5 @@ pub enum RunError {
     MainFileDoesNotExist(OsString),
 
     #[error("{}", _0)]
-    ManifestError(ManifestError),
-}
-
-impl From<ManifestError> for RunError {
-    fn from(error: ManifestError) -> Self {
-        RunError::ManifestError(error)
-    }
+    ManifestError(#[from] ManifestError),
 }

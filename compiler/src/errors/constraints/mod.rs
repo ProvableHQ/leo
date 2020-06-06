@@ -15,11 +15,11 @@ pub use import::*;
 pub mod integer;
 pub use integer::*;
 
-pub mod field_element;
-pub use field_element::*;
+pub mod field;
+pub use field::*;
 
-pub mod group_element;
-pub use group_element::*;
+pub mod group;
+pub use group::*;
 
 pub mod value;
 pub use value::*;

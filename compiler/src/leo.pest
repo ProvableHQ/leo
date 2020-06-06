@@ -25,11 +25,11 @@ operation_and = { "&&" }
 operation_or = { "||" }
 
 operation_eq = { "==" }
-operation_neq = { "!=" }
+operation_ne = { "!=" }
 
-operation_geq = { ">=" }
+operation_ge = { ">=" }
 operation_gt = { ">" }
-operation_leq = { "<=" }
+operation_le = { "<=" }
 operation_lt = { "<" }
 
 operation_add = { "+" }
@@ -39,9 +39,9 @@ operation_div = { "/" }
 operation_pow = { "**" }
 
 operation_compare = _{
-    operation_eq | operation_neq |
-    operation_geq | operation_gt |
-    operation_leq | operation_lt
+    operation_eq | operation_ne |
+    operation_ge | operation_gt |
+    operation_le | operation_lt
 }
 
 operation_binary = _{
@@ -92,7 +92,10 @@ value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
 value_implicit = { value_number }
 value_integer = { value_number ~ type_integer }
 value_field = { value_number ~ type_field }
-value_group = { value_number ~ type_group }
+
+group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
+group_single_or_tuple = {value_number | group_tuple}
+value_group = { group_single_or_tuple ~ type_group }
 value_boolean = { "true" | "false" }
 value = { value_field | value_group | value_boolean | value_integer | value_implicit }
 expression_primitive = { value | identifier }
@@ -170,7 +173,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 /// Asserts
 
-assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")"}
+assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
 // assert_true = {"assert"}
 
 /// Conditionals
@@ -178,16 +181,16 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ "=" ~ expression }
-statement_assign = { assignee ~ operation_assign ~ expression }
-statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" }
+statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
+statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END}
+statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
 statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
 statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 statement_assert = {
     assert_eq
 //     | assert_true |
 }
-statement_expression = { expression }
+statement_expression = { expression ~ LINE_END }
 
 statement = {
     (statement_return
@@ -198,7 +201,7 @@ statement = {
       | statement_definition
       | statement_assign
       | statement_expression
-      ) ~ LINE_END
+      )
     ) ~ NEWLINE*
 }
 
@@ -213,7 +216,7 @@ function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ 
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
-LINE_END = _{";" ~ NEWLINE*}
+LINE_END = {";" ~ NEWLINE*}
 
 /// Imports
 
@@ -223,6 +226,10 @@ import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
 import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
 
+/// Tests
+
+test = {"test" ~ function_definition}
+
 /// Program File
 
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test* ~ NEWLINE* ~ EOI }

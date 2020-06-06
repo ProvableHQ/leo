@@ -1,54 +1,54 @@
-use crate::{compile_program, get_error, get_output};
-
+use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, FunctionError, IntegerError},
     ConstrainedValue,
     InputValue,
     Integer,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::utilities::uint32::UInt32;
+
+use snarkos_models::gadgets::utilities::uint::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
-fn output_ones(program: Compiler<Fr, EdwardsProjective>) {
+fn output_ones(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(vec![
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Array(vec![
             ConstrainedValue::Integer(
                 Integer::U32(UInt32::constant(1u32))
             );
             3
-        ])]),
-        output
+        ])])
+        .to_string(),
+        output.to_string()
     );
 }
 
 // [[0, 0, 0],
 //  [0, 0, 0]]
-fn output_multi(program: Compiler<Fr, EdwardsProjective>) {
+fn output_multi(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Array(vec![
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Array(vec![
             ConstrainedValue::Array(
                 vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32))); 3]
             );
             2
-        ])]),
-        output
+        ])])
+        .to_string(),
+        output.to_string()
     )
 }
 
-fn fail_array(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_array(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
@@ -92,14 +92,14 @@ fn test_multi() {
 #[test]
 fn test_input_array() {
     let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Array(vec![InputValue::Integer(1usize); 3]))]);
+    program.set_inputs(vec![Some(InputValue::Array(vec![InputValue::Integer(1u128); 3]))]);
     output_ones(program)
 }
 
 #[test]
 fn test_input_array_fail() {
     let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Integer(1usize))]);
+    program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
     fail_array(program);
 }
 

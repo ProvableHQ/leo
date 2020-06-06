@@ -1,31 +1,28 @@
-use crate::compile_program;
-
+use crate::{compile_program, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, FunctionError, StatementError},
     types::{InputValue, Integer},
     ConstrainedValue,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint32::UInt32};
+
+use snarkos_curves::edwards_bls12::Fq;
+use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint::UInt32};
 
 const DIRECTORY_NAME: &str = "tests/mutability/";
 
-fn mut_success(program: Compiler<Fr, EdwardsProjective>) {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+fn mut_success(program: EdwardsTestCompiler) {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.compile_constraints(&mut cs).unwrap();
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(0)
-        ))]),
-        output
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))]).to_string(),
+        output.to_string()
     );
 }
 
-fn mut_fail(program: Compiler<Fr, EdwardsProjective>) {
-    let mut cs = TestConstraintSystem::<Fr>::new();
+fn mut_fail(program: EdwardsTestCompiler) {
+    let mut cs = TestConstraintSystem::<Fq>::new();
     let err = program.compile_constraints(&mut cs).unwrap_err();
 
     // It would be ideal if assert_eq!(Error1, Error2) were possible but unfortunately it is not due to

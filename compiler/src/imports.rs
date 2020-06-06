@@ -2,23 +2,22 @@
 
 use crate::Identifier;
 
-use snarkos_models::curves::{Field, Group, PrimeField};
 use std::fmt;
 
 #[derive(Clone)]
-pub struct ImportSymbol<F: Field + PrimeField, G: Group> {
-    pub symbol: Identifier<F, G>,
-    pub alias: Option<Identifier<F, G>>,
+pub struct ImportSymbol {
+    pub symbol: Identifier,
+    pub alias: Option<Identifier>,
 }
 
 #[derive(Clone)]
-pub struct Import<F: Field + PrimeField, G: Group> {
+pub struct Import {
     pub path_string: String,
-    pub symbols: Vec<ImportSymbol<F, G>>,
+    pub symbols: Vec<ImportSymbol>,
 }
 
-impl<F: Field + PrimeField, G: Group> Import<F, G> {
-    pub fn new(source: String, symbols: Vec<ImportSymbol<F, G>>) -> Import<F, G> {
+impl Import {
+    pub fn new(source: String, symbols: Vec<ImportSymbol>) -> Import {
         Import {
             path_string: source,
             symbols,
@@ -51,7 +50,7 @@ impl<F: Field + PrimeField, G: Group> Import<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: Group> fmt::Display for ImportSymbol<F, G> {
+impl fmt::Display for ImportSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {
             write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
@@ -61,13 +60,13 @@ impl<F: Field + PrimeField, G: Group> fmt::Display for ImportSymbol<F, G> {
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> fmt::Display for Import<F, G> {
+impl<'ast> fmt::Display for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: Group> fmt::Debug for Import<F, G> {
+impl<'ast> fmt::Debug for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

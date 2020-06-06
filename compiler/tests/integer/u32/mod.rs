@@ -1,69 +1,74 @@
-use crate::{compile_program, get_error, get_output};
+use crate::{
+    boolean::{output_expected_boolean, output_false, output_true},
+    compile_program,
+    get_output,
+    integer::{fail_integer, fail_synthesis, IntegerTester},
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
+use leo_compiler::{types::Integer, ConstrainedValue, InputValue};
 
-use leo_compiler::{compiler::Compiler, types::Integer, ConstrainedValue, InputValue};
-
-use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::utilities::uint32::UInt32;
+use snarkos_curves::edwards_bls12::Fq;
+use snarkos_models::gadgets::{
+    r1cs::TestConstraintSystem,
+    utilities::{alloc::AllocGadget, uint::UInt32},
+};
 
 const DIRECTORY_NAME: &str = "tests/integer/u32/";
 
-pub(crate) fn output_zero(program: Compiler<Fr, EdwardsProjective>) {
+fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
     let output = get_output(program);
-    assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(0u32)
-        ))]),
-        output
-    )
-}
 
-pub(crate) fn output_one(program: Compiler<Fr, EdwardsProjective>) {
-    let output = get_output(program);
-    assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(1u32)
-        ))]),
-        output
-    )
-}
-
-fn output_two(program: Compiler<Fr, EdwardsProjective>) {
-    let output = get_output(program);
-    assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(2u32)
-        ))]),
-        output
-    )
-}
-
-fn fail_integer(program: Compiler<Fr, EdwardsProjective>) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::InvalidInteger(_string))) => {}
-        error => panic!("Expected invalid boolean error, got {}", error),
+    match output {
+        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
+            [ConstrainedValue::Integer(Integer::U32(actual))] => assert_eq!(*actual, expected),
+            _ => panic!("program output unknown return value"),
+        },
+        _ => panic!("program output unknown return value"),
     }
 }
 
-fn fail_synthesis(program: Compiler<Fr, EdwardsProjective>) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
-        error => panic!("Expected synthesis error, got {}", error),
-    }
+pub(crate) fn output_zero(program: EdwardsTestCompiler) {
+    let output = get_output(program);
+    assert_eq!(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32)))])
+            .to_string(),
+        output.to_string()
+    )
+}
+
+pub(crate) fn output_one(program: EdwardsTestCompiler) {
+    let output = get_output(program);
+    assert_eq!(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))])
+            .to_string(),
+        output.to_string()
+    )
 }
 
 #[test]
-fn test_input_u32_bool() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_u32.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
-    fail_integer(program);
-}
+fn test_u32() {
+    test_uint!(TestU32, u32, UInt32, DIRECTORY_NAME);
 
-#[test]
-fn test_input_u32_none() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_u32.leo").unwrap();
-    program.set_inputs(vec![None]);
-    fail_synthesis(program);
+    TestU32::test_min(std::u32::MIN);
+    TestU32::test_max(std::u32::MAX);
+
+    TestU32::test_input();
+
+    TestU32::test_add();
+    // TestU32::test_sub(); //Todo: Catch subtraction overflow error in gadget
+    TestU32::test_mul();
+    TestU32::test_div();
+    TestU32::test_pow(); // takes about 2 mins
+
+    TestU32::test_eq();
+    TestU32::test_ge();
+    TestU32::test_gt();
+    TestU32::test_le();
+    TestU32::test_gt();
+
+    TestU32::test_assert_eq();
+    TestU32::test_ternary();
 }
 
 #[test]
@@ -77,22 +82,3 @@ fn test_one() {
     let program = compile_program(DIRECTORY_NAME, "one.leo").unwrap();
     output_one(program);
 }
-
-#[test]
-fn test_1_plus_1() {
-    let program = compile_program(DIRECTORY_NAME, "1+1.leo").unwrap();
-    output_two(program);
-}
-
-#[test]
-fn test_1_minus_1() {
-    let program = compile_program(DIRECTORY_NAME, "1-1.leo").unwrap();
-    output_zero(program)
-}
-
-// #[test] // Todo: Catch subtraction overflow error in gadget
-// fn test_1_minus_2() {
-//     let program = compile_program(DIRECTORY_NAME, "1-2.leo").unwrap();
-//     let error = get_error(program);
-//     println!("{}", error);
-// }

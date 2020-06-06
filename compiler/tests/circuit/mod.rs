@@ -1,7 +1,12 @@
-use crate::{compile_program, get_error, get_output, integer::u32::output_one};
-
+use crate::{
+    compile_program,
+    get_error,
+    get_output,
+    integer::u32::output_one,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
 use leo_compiler::{
-    compiler::Compiler,
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedCircuitMember,
     ConstrainedValue,
@@ -12,27 +17,28 @@ use leo_compiler::{
     Statement,
     Type,
 };
-use snarkos_curves::{bls12_377::Fr, edwards_bls12::EdwardsProjective};
-use snarkos_models::gadgets::utilities::uint32::UInt32;
+
+use snarkos_models::gadgets::utilities::uint::UInt32;
 
 const DIRECTORY_NAME: &str = "tests/circuit/";
 
 // Circ { x: 1u32 }
-fn output_circuit(program: Compiler<Fr, EdwardsProjective>) {
+fn output_circuit(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
             Identifier::new("Circ".into()),
             vec![ConstrainedCircuitMember(
                 Identifier::new("x".into()),
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
             )]
-        )]),
-        output
+        )])
+        .to_string(),
+        output.to_string()
     );
 }
 
-fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_expected_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::ExpectedCircuitMember(_string),
@@ -41,7 +47,7 @@ fn fail_expected_member(program: Compiler<Fr, EdwardsProjective>) {
     }
 }
 
-fn fail_undefined_member(program: Compiler<Fr, EdwardsProjective>) {
+fn fail_undefined_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::UndefinedMemberAccess(_, _),
@@ -151,26 +157,36 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-        ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
-            Identifier::new("Circ".into()),
-            vec![ConstrainedCircuitMember(
-                Identifier::new("new".into()),
-                ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                    Some(Identifier::new("Circ".into())),
-                    Function {
-                        function_name: Identifier::new("new".into()),
-                        inputs: vec![],
-                        returns: vec![Type::SelfType],
-                        statements: vec![Statement::Return(vec![Expression::Circuit(
-                            Identifier::new("Self".into()),
-                            vec![]
-                        )])]
-                    }
-                )))
-            )]
-        )]),
-        output
-    );
+    <<<<<<< HEAD
+            ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
+    =======
+            EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
+    >>>>>>> 8dc4682ba696f4d6bd4a7df96ed14566e9a7b7df
+                Identifier::new("Circ".into()),
+                vec![ConstrainedCircuitMember(
+                    Identifier::new("new".into()),
+                    ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
+                        Some(Identifier::new("Circ".into())),
+                        Function {
+                            function_name: Identifier::new("new".into()),
+                            inputs: vec![],
+                            returns: vec![Type::SelfType],
+                            statements: vec![Statement::Return(vec![Expression::Circuit(
+                                Identifier::new("Self".into()),
+                                vec![]
+                            )])]
+                        }
+                    )))
+                )]
+    <<<<<<< HEAD
+            )]),
+            output
+    =======
+            )])
+            .to_string(),
+            output.to_string()
+    >>>>>>> 8dc4682ba696f4d6bd4a7df96ed14566e9a7b7df
+        );
 }
 
 // All

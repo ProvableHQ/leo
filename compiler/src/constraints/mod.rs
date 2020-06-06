@@ -15,11 +15,11 @@ pub use import::*;
 pub mod integer;
 pub use integer::*;
 
-pub mod field_element;
-pub use field_element::*;
+pub(crate) mod field;
+pub(crate) use field::*;
 
-pub mod group_element;
-pub use group_element::*;
+pub(crate) mod group;
+pub(crate) use group::*;
 
 pub mod program;
 pub use program::*;
@@ -33,17 +33,18 @@ pub use statement::*;
 use crate::{
     errors::CompilerError,
     types::{InputValue, Program},
+    GroupType,
 };
 
 use snarkos_models::{
-    curves::{Field, Group, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    curves::{Field, PrimeField},
+    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
 
-pub fn generate_constraints<F: Field + PrimeField, G: Group, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program<F, G>,
-    parameters: Vec<Option<InputValue<F, G>>>,
+    program: Program,
+    parameters: Vec<Option<InputValue>>,
 ) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
@@ -63,4 +64,41 @@ pub fn generate_constraints<F: Field + PrimeField, G: Group, CS: ConstraintSyste
         }
         _ => Err(CompilerError::NoMainFunction),
     }
+}
+
+pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
+    cs: &mut TestConstraintSystem<F>,
+    program: Program,
+) -> Result<(), CompilerError> {
+    let mut resolved_program = ConstrainedProgram::<F, G, TestConstraintSystem<F>>::new();
+    let program_name = program.get_name();
+
+    let tests = program.tests.clone();
+
+    resolved_program.resolve_definitions(cs, program)?;
+
+    log::info!("Running {} tests", tests.len());
+
+    for (test_name, test_function) in tests.into_iter() {
+        let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+
+        let result = resolved_program.enforce_main_function(
+            cs,
+            program_name.clone(),
+            test_function.0,
+            vec![], // test functions should not take any inputs
+        );
+
+        if result.is_ok() {
+            log::info!(
+                "test {} passed. Constraint system satisfied: {}",
+                full_test_name,
+                cs.is_satisfied()
+            );
+        } else {
+            log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
+        }
+    }
+
+    Ok(())
 }
