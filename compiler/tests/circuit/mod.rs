@@ -157,11 +157,7 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-    <<<<<<< HEAD
-            ConstrainedValue::<Fr, EdwardsProjective>::Return(vec![ConstrainedValue::CircuitExpression(
-    =======
             EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
-    >>>>>>> 8dc4682ba696f4d6bd4a7df96ed14566e9a7b7df
                 Identifier::new("Circ".into()),
                 vec![ConstrainedCircuitMember(
                     Identifier::new("new".into()),
@@ -178,14 +174,9 @@ fn test_self() {
                         }
                     )))
                 )]
-    <<<<<<< HEAD
-            )]),
-            output
-    =======
             )])
             .to_string(),
             output.to_string()
-    >>>>>>> 8dc4682ba696f4d6bd4a7df96ed14566e9a7b7df
         );
 }
 
