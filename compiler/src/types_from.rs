@@ -7,11 +7,13 @@ use leo_ast::{
         AssignOperation,
         BinaryOperation,
     },
+    statements::{
+        ForStatement,
+    },
     types::{
         ArrayType,
         CircuitType,
         DataType,
-        ForStatement,
         Identifier,
         IntegerType,
         Visibility,

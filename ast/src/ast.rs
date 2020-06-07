@@ -5,11 +5,13 @@ use crate::{
         BinaryOperation,
         NotOperation,
     },
+    statements::{
+        ForStatement
+    },
     types::{
         ArrayType,
         CircuitType,
         DataType,
-        ForStatement,
         GroupType,
         Identifier,
         SelfType,
