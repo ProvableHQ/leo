@@ -12,13 +12,11 @@ use crate::{
         ArrayType,
         CircuitType,
         DataType,
-        GroupType,
         Identifier,
         SelfType,
         Visibility
     },
     values::{
-        NumberValue,
         Value
     }
 };
@@ -71,55 +69,6 @@ impl<'ast> fmt::Display for Type<'ast> {
         }
     }
 }
-
-// Values
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::group_tuple))]
-pub struct GroupTuple<'ast> {
-    pub x: NumberValue<'ast>,
-    pub y: NumberValue<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for GroupTuple<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::group_single_or_tuple))]
-pub enum GroupValue<'ast> {
-    Single(NumberValue<'ast>),
-    Tuple(GroupTuple<'ast>),
-}
-
-impl<'ast> fmt::Display for GroupValue<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            GroupValue::Single(number) => write!(f, "{}", number),
-            GroupValue::Tuple(tuple) => write!(f, "{}", tuple),
-        }
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_group))]
-pub struct Group<'ast> {
-    pub value: GroupValue<'ast>,
-    pub _type: GroupType,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Group<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-
 
 // Variables + Mutability
 

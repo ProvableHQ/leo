@@ -4,6 +4,9 @@ pub use boolean_value::*;
 pub mod field_value;
 pub use field_value::*;
 
+pub mod group_value;
+pub use group_value::*;
+
 pub mod integer_value;
 pub use integer_value::*;
 

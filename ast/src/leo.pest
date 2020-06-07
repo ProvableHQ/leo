@@ -11,12 +11,10 @@ visibility = { visibility_public | visibility_private }
 visibility_public = { "public" }
 visibility_private = { "private" }
 
-/// Unary Operations
+/// Operations
 
 // Declared in operations/not_operation.rs
 operation_not = { "!" }
-
-/// Binary Operations
 
 // Declared in operations/binary_operation.rs
 operation_and = { "&&" }
@@ -97,6 +95,9 @@ type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values
 
+// Declared in values/value.rs
+value = { value_field | value_group | value_boolean | value_integer | value_implicit }
+
 // Declared in values/number_value.rs
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
 
@@ -112,12 +113,10 @@ value_boolean = { "true" | "false" }
 // Declared in values/field_value.rs
 value_field = { value_number ~ type_field }
 
+// Declared in values/group_value.rs
+value_group = { group_single_or_tuple ~ type_group }
 group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
-value_group = { group_single_or_tuple ~ type_group }
-
-value = { value_field | value_group | value_boolean | value_integer | value_implicit }
-expression_primitive = { value | identifier }
 
 /// Variables + Mutability
 
@@ -187,6 +186,7 @@ expression_term = {
     | expression_array_initializer
 }
 expression_not = { operation_not ~ expression_term }
+expression_primitive = { value | identifier }
 
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }

@@ -1,4 +1,4 @@
-use crate::{ast::{Group, Rule}, values::{BooleanValue, IntegerValue, FieldValue, NumberImplicitValue}};
+use crate::{ast::Rule, values::{BooleanValue, IntegerValue, FieldValue, GroupValue, NumberImplicitValue}};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -9,7 +9,7 @@ use std::fmt;
 pub enum Value<'ast> {
     Integer(IntegerValue<'ast>),
     Field(FieldValue<'ast>),
-    Group(Group<'ast>),
+    Group(GroupValue<'ast>),
     Boolean(BooleanValue<'ast>),
     Implicit(NumberImplicitValue<'ast>),
 }

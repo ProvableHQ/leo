@@ -22,6 +22,7 @@ use leo_ast::{
     values::{
         BooleanValue,
         FieldValue,
+        GroupValue,
         IntegerValue,
         NumberValue,
         NumberImplicitValue,
@@ -142,8 +143,8 @@ impl<'ast> From<FieldValue<'ast>> for types::Expression {
 
 /// pest ast -> types::Group
 
-impl<'ast> From<ast::Group<'ast>> for types::Expression {
-    fn from(group: ast::Group<'ast>) -> Self {
+impl<'ast> From<GroupValue<'ast>> for types::Expression {
+    fn from(group: GroupValue<'ast>) -> Self {
         types::Expression::Group(group.to_string())
     }
 }
