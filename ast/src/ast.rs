@@ -1,4 +1,27 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
+use crate::{
+    operations::{
+        AssignOperation,
+        BinaryOperation,
+        NotOperation,
+    },
+    types::{
+        ArrayType,
+        CircuitType,
+        DataType,
+        FieldType,
+        ForStatement,
+        GroupType,
+        Identifier,
+        IntegerType,
+        SelfType,
+        Visibility
+    },
+    values::{
+        NumberValue,
+        Value
+    }
+};
 
 use from_pest::{ConversionError, FromPest, Void};
 use pest::{
@@ -18,7 +41,7 @@ pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
     LanguageParser::parse(Rule::file, input)
 }
 
-fn span_into_string(span: Span) -> String {
+pub(crate) fn span_into_string(span: Span) -> String {
     span.as_str().to_string()
 }
 
@@ -26,196 +49,13 @@ lazy_static! {
     static ref PRECEDENCE_CLIMBER: PrecClimber<Rule> = precedence_climber();
 }
 
-// Identifiers
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::identifier))]
-pub struct Identifier<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Identifier<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-
-// Visibility
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::visibility_public))]
-pub struct Public {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::visibility_private))]
-pub struct Private {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::visibility))]
-pub enum Visibility {
-    Public(Public),
-    Private(Private),
-}
-
-// Unary Operations
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_pre_not))]
-pub struct Not<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::operation_post_increment))]
-// pub struct Increment<'ast> {
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-//
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::operation_post_decrement))]
-// pub struct Decrement<'ast> {
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-
-// Binary Operations
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_binary))]
-pub enum BinaryOperator {
-    Or,
-    And,
-    Eq,
-    Ne,
-    Ge,
-    Gt,
-    Le,
-    Lt,
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Pow,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::assign))]
-pub struct Assign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_add_assign))]
-pub struct AddAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_sub_assign))]
-pub struct SubAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_mul_assign))]
-pub struct MulAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_div_assign))]
-pub struct DivAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_pow_assign))]
-pub struct PowAssign {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::operation_assign))]
-pub enum OperationAssign {
-    Assign(Assign),
-    AddAssign(AddAssign),
-    SubAssign(SubAssign),
-    MulAssign(MulAssign),
-    DivAssign(DivAssign),
-    PowAssign(PowAssign),
-}
-
 // Types
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u8))]
-pub struct U8Type {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u16))]
-pub struct U16Type {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u32))]
-pub struct U32Type {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u64))]
-pub struct U64Type {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u128))]
-pub struct U128Type {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_integer))]
-pub enum IntegerType {
-    U8Type(U8Type),
-    U16Type(U16Type),
-    U32Type(U32Type),
-    U64Type(U64Type),
-    U128Type(U128Type),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_field))]
-pub struct FieldType {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_group))]
-pub struct GroupType {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_bool))]
-pub struct BooleanType {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_circuit))]
-pub struct CircuitType<'ast> {
-    pub identifier: Identifier<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_self))]
-pub struct SelfType {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_basic))]
-pub enum BasicType {
-    Integer(IntegerType),
-    Field(FieldType),
-    Group(GroupType),
-    Boolean(BooleanType),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_array))]
-pub struct ArrayType<'ast> {
-    pub _type: BasicType,
-    pub dimensions: Vec<Value<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
-    Basic(BasicType),
+    Basic(DataType),
     Array(ArrayType<'ast>),
     Circuit(CircuitType<'ast>),
     SelfType(SelfType),
@@ -233,70 +73,12 @@ impl<'ast> fmt::Display for Type<'ast> {
 }
 
 // Values
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_number))]
-pub struct Number<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Number<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_implicit))]
-pub struct NumberImplicit<'ast> {
-    pub number: Number<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for NumberImplicit<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.number)
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_integer))]
-pub struct Integer<'ast> {
-    pub number: Number<'ast>,
-    pub _type: IntegerType,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Integer<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.number)
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_field))]
-pub struct Field<'ast> {
-    pub number: Number<'ast>,
-    pub _type: FieldType,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Field<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.number)
-    }
-}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::group_tuple))]
 pub struct GroupTuple<'ast> {
-    pub x: Number<'ast>,
-    pub y: Number<'ast>,
+    pub x: NumberValue<'ast>,
+    pub y: NumberValue<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -310,7 +92,7 @@ impl<'ast> fmt::Display for GroupTuple<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::group_single_or_tuple))]
 pub enum GroupValue<'ast> {
-    Single(Number<'ast>),
+    Single(NumberValue<'ast>),
     Tuple(GroupTuple<'ast>),
 }
 
@@ -353,39 +135,7 @@ impl<'ast> fmt::Display for Boolean<'ast> {
     }
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value))]
-pub enum Value<'ast> {
-    Integer(Integer<'ast>),
-    Field(Field<'ast>),
-    Group(Group<'ast>),
-    Boolean(Boolean<'ast>),
-    Implicit(NumberImplicit<'ast>),
-}
 
-impl<'ast> Value<'ast> {
-    pub fn span(&self) -> &Span<'ast> {
-        match self {
-            Value::Integer(value) => &value.span,
-            Value::Field(value) => &value.span,
-            Value::Group(value) => &value.span,
-            Value::Boolean(value) => &value.span,
-            Value::Implicit(value) => &value.span,
-        }
-    }
-}
-
-impl<'ast> fmt::Display for Value<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Value::Integer(ref value) => write!(f, "{}", value),
-            Value::Field(ref value) => write!(f, "{}", value),
-            Value::Group(ref value) => write!(f, "{}", value),
-            Value::Boolean(ref value) => write!(f, "{}", value),
-            Value::Implicit(ref value) => write!(f, "{}", value),
-        }
-    }
-}
 
 // Variables + Mutability
 
@@ -667,7 +417,7 @@ pub struct CircuitInlineExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression_not))]
 pub struct NotExpression<'ast> {
-    pub operation: Not<'ast>,
+    pub operation: NotOperation<'ast>,
     pub expression: Box<Expression<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -691,7 +441,7 @@ pub struct NotExpression<'ast> {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpression<'ast> {
-    pub operation: BinaryOperator,
+    pub operation: BinaryOperation,
     pub left: Box<Expression<'ast>>,
     pub right: Box<Expression<'ast>>,
     pub span: Span<'ast>,
@@ -724,7 +474,7 @@ pub enum Expression<'ast> {
 
 impl<'ast> Expression<'ast> {
     pub fn binary(
-        operation: BinaryOperator,
+        operation: BinaryOperation,
         left: Box<Expression<'ast>>,
         right: Box<Expression<'ast>>,
         span: Span<'ast>,
@@ -857,7 +607,7 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                     let span = next.as_span();
                     let mut inner = next.into_inner();
                     let operation = match inner.next().unwrap().as_rule() {
-                        Rule::operation_pre_not => Not::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        Rule::operation_not => NotOperation::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                         rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
                     };
                     let expression = parse_term(inner.next().unwrap());
@@ -925,19 +675,19 @@ fn binary_expression<'ast>(
     let span = start.span(&end);
 
     Box::new(match pair.as_rule() {
-        Rule::operation_or => Expression::binary(BinaryOperator::Or, lhs, rhs, span),
-        Rule::operation_and => Expression::binary(BinaryOperator::And, lhs, rhs, span),
-        Rule::operation_eq => Expression::binary(BinaryOperator::Eq, lhs, rhs, span),
-        Rule::operation_ne => Expression::binary(BinaryOperator::Ne, lhs, rhs, span),
-        Rule::operation_ge => Expression::binary(BinaryOperator::Ge, lhs, rhs, span),
-        Rule::operation_gt => Expression::binary(BinaryOperator::Gt, lhs, rhs, span),
-        Rule::operation_le => Expression::binary(BinaryOperator::Le, lhs, rhs, span),
-        Rule::operation_lt => Expression::binary(BinaryOperator::Lt, lhs, rhs, span),
-        Rule::operation_add => Expression::binary(BinaryOperator::Add, lhs, rhs, span),
-        Rule::operation_sub => Expression::binary(BinaryOperator::Sub, lhs, rhs, span),
-        Rule::operation_mul => Expression::binary(BinaryOperator::Mul, lhs, rhs, span),
-        Rule::operation_div => Expression::binary(BinaryOperator::Div, lhs, rhs, span),
-        Rule::operation_pow => Expression::binary(BinaryOperator::Pow, lhs, rhs, span),
+        Rule::operation_or => Expression::binary(BinaryOperation::Or, lhs, rhs, span),
+        Rule::operation_and => Expression::binary(BinaryOperation::And, lhs, rhs, span),
+        Rule::operation_eq => Expression::binary(BinaryOperation::Eq, lhs, rhs, span),
+        Rule::operation_ne => Expression::binary(BinaryOperation::Ne, lhs, rhs, span),
+        Rule::operation_ge => Expression::binary(BinaryOperation::Ge, lhs, rhs, span),
+        Rule::operation_gt => Expression::binary(BinaryOperation::Gt, lhs, rhs, span),
+        Rule::operation_le => Expression::binary(BinaryOperation::Le, lhs, rhs, span),
+        Rule::operation_lt => Expression::binary(BinaryOperation::Lt, lhs, rhs, span),
+        Rule::operation_add => Expression::binary(BinaryOperation::Add, lhs, rhs, span),
+        Rule::operation_sub => Expression::binary(BinaryOperation::Sub, lhs, rhs, span),
+        Rule::operation_mul => Expression::binary(BinaryOperation::Mul, lhs, rhs, span),
+        Rule::operation_div => Expression::binary(BinaryOperation::Div, lhs, rhs, span),
+        Rule::operation_pow => Expression::binary(BinaryOperation::Pow, lhs, rhs, span),
         _ => unreachable!(),
     })
 }
@@ -987,16 +737,6 @@ pub struct ConditionalStatement<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::statement_for))]
-pub struct ForStatement<'ast> {
-    pub index: Identifier<'ast>,
-    pub start: Expression<'ast>,
-    pub stop: Expression<'ast>,
-    pub statements: Vec<Statement<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_multiple_assignment))]
@@ -1023,7 +763,7 @@ pub struct DefinitionStatement<'ast> {
 #[pest_ast(rule(Rule::statement_assign))]
 pub struct AssignStatement<'ast> {
     pub assignee: Assignee<'ast>,
-    pub assign: OperationAssign,
+    pub assign: AssignOperation,
     pub expression: Expression<'ast>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]

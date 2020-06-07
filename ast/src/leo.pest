@@ -1,37 +1,32 @@
 /// Identifiers
-protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
+// Declared in types/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-
+protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
 /// Visibility
 
+// Declared in types/visibility.rs
+visibility = { visibility_public | visibility_private }
 visibility_public = { "public" }
 visibility_private = { "private" }
-visibility = { visibility_public | visibility_private }
 
 /// Unary Operations
 
-operation_pre_not = { "!" }
-expression_not = { operation_pre_not ~ expression_term }
-
-// expression_increment = { expression+ ~ "++" }
-//
-// expression_decrement = { expression ~ "--" }
+// Declared in operations/not_operation.rs
+operation_not = { "!" }
 
 /// Binary Operations
 
+// Declared in operations/binary_operation.rs
 operation_and = { "&&" }
 operation_or = { "||" }
-
 operation_eq = { "==" }
 operation_ne = { "!=" }
-
 operation_ge = { ">=" }
 operation_gt = { ">" }
 operation_le = { "<=" }
 operation_lt = { "<" }
-
 operation_add = { "+" }
 operation_sub = { "-" }
 operation_mul = { "*" }
@@ -43,12 +38,16 @@ operation_compare = _{
     operation_ge | operation_gt |
     operation_le | operation_lt
 }
-
 operation_binary = _{
     operation_compare | operation_and | operation_or |
     operation_add | operation_sub | operation_pow | operation_mul | operation_div
 }
 
+// Declared in operations/assign_operation.rs
+operation_assign = {
+    assign | operation_add_assign | operation_sub_assign |
+    operation_mul_assign | operation_div_assign | operation_pow_assign
+}
 assign = { "=" }
 operation_add_assign = { "+=" }
 operation_sub_assign = { "-=" }
@@ -56,18 +55,9 @@ operation_mul_assign = { "*=" }
 operation_div_assign = { "/=" }
 operation_pow_assign = { "**=" }
 
-operation_assign = {
-    assign | operation_add_assign | operation_sub_assign |
-    operation_mul_assign | operation_div_assign | operation_pow_assign
-}
-
 /// Types
 
-type_u8 = {"u8"}
-type_u16 = {"u16"}
-type_u32 = {"u32"}
-type_u64 = {"u64"}
-type_u128 = {"u128"}
+// Declared in types/integer.rs
 type_integer = {
     type_u8
     | type_u16
@@ -75,22 +65,48 @@ type_integer = {
     | type_u64
     | type_u128
 }
+type_u8 = { "u8" }
+type_u16 = { "u16" }
+type_u32 = { "u32" }
+type_u64 = { "u64" }
+type_u128 = { "u128" }
 
-type_field = {"field"}
-type_group = {"group"}
-type_bool = {"bool"}
-type_self = {"Self"}
-type_basic = { type_field | type_group | type_bool | type_integer }
+// Declared in types/field_type.rs
+type_field = { "field" }
+
+// Declared in types/group_type.rs
+type_group = { "group" }
+
+// Declared in types/boolean_type.rs
+type_boolean = { "bool" }
+
+// Declared in types/data_type.rs
+type_data = { type_field | type_group | type_boolean | type_integer }
+
+// Declared in types/self_type.rs
+type_self = { "Self" }
+
+// Declared in types/self_type.rs
 type_circuit = { identifier }
-type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
-_type = {type_self | type_array | type_basic | type_circuit}
+
+// Declared in types/array_type.rs
+type_array = { type_data ~ ("[" ~ value ~ "]")+ }
+
+_type = {type_self | type_array | type_data | type_circuit}
 type_list = _{(_type ~ ("," ~ _type)*)?}
 
 /// Values
 
+// Declared in values/number_value.rs
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+
+// Declared in values/number_implicit_value.rs
 value_implicit = { value_number }
+
+// Declared in values/integer_value.rs
 value_integer = { value_number ~ type_integer }
+
+// Declared in values/field_value.rs
 value_field = { value_number ~ type_field }
 
 group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
@@ -167,6 +183,7 @@ expression_term = {
     | expression_array_inline
     | expression_array_initializer
 }
+expression_not = { operation_not ~ expression_term }
 
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
@@ -180,12 +197,17 @@ assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expre
 conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 /// Statements
+
 statement_return = { "return" ~ expression_tuple }
 statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END}
 statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
 statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
+
+// Declared in types/for_statement.rs
 statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+
+
 statement_assert = {
     assert_eq
 //     | assert_true |
