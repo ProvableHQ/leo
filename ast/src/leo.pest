@@ -10,6 +10,9 @@ mutable = { "mut" }
 // Declared in common/static_.rs
 static_ = { "static" }
 
+// Declared in common/variable.rs
+variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+
 // Declared in common/visibility.rs
 visibility = { visibility_public | visibility_private }
 visibility_public = { "public" }
@@ -123,12 +126,6 @@ value_field = { value_number ~ type_field }
 value_group = { group_single_or_tuple ~ type_group }
 group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
-
-/// Variables + Mutability
-
-variable = { mutable? ~ identifier ~ (":" ~ type_)? }
-
-variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 /// Access
 
@@ -244,16 +241,17 @@ statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "
 
 // Declared in statements/multiple_assignment_statement.rs
 statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
+variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 // Declared in statements/return_statement.rs
 statement_return = { "return" ~ expression_tuple }
 
 /// Functions
 
+function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+
 input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ type_}
 input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
-
-function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 /// Imports
 
@@ -275,7 +273,7 @@ LINE_END = {";" ~ NEWLINE*}
 
 /// Tests
 
-test = {"test" ~ function_definition}
+test = { "test" ~ function_definition }
 
 /// Program File
 

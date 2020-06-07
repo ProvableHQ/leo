@@ -12,6 +12,7 @@ use leo_ast::{
     },
     common::{
         Identifier,
+        Variable as AstVariable,
         Visibility,
         Private,
     },
@@ -85,8 +86,8 @@ impl<'ast> From<Identifier<'ast>> for types::Expression {
 
 /// pest ast -> types::Variable
 
-impl<'ast> From<ast::Variable<'ast>> for types::Variable {
-    fn from(variable: ast::Variable<'ast>) -> Self {
+impl<'ast> From<AstVariable<'ast>> for types::Variable {
+    fn from(variable: AstVariable<'ast>) -> Self {
         types::Variable {
             identifier: types::Identifier::from(variable.identifier),
             mutable: variable.mutable.is_some(),
