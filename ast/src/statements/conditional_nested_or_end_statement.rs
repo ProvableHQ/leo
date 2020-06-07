@@ -4,7 +4,7 @@ use pest_ast::FromPest;
 use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::conditional_nested_or_end))]
+#[pest_ast(rule(Rule::conditional_nested_or_end_statement))]
 pub enum ConditionalNestedOrEndStatement<'ast> {
     Nested(Box<ConditionalStatement<'ast>>),
     End(Vec<Statement<'ast>>),

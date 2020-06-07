@@ -191,14 +191,6 @@ expression_primitive = { value | identifier }
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
-/// Asserts
-
-assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
-// assert_true = {"assert"}
-
-/// Conditionals
-conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
-
 /// Statements
 
 // Declared in statements/statement.rs
@@ -217,12 +209,14 @@ statement = {
 
 // Declared in statements/assert_statement.rs
 statement_assert = { assert_eq }
+assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
 
 // Declared in statements/assign_statement.rs
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
 // Declared in statements/conditional_statement.rs
-statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
+statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end_statement)?}
+conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
 statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
