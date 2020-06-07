@@ -1,5 +1,5 @@
-use crate::ast::Rule;
 use crate::errors::{FunctionError, ImportError, IntegerError, SyntaxError};
+use leo_ast::ast::Rule;
 
 use pest::error::Error;
 use std::{io, path::PathBuf};

@@ -1,11 +1,11 @@
 use crate::{
-    ast,
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::constraints::ImportError,
     new_scope,
     types::Program,
     GroupType, Import,
 };
+use leo_ast::ast;
 
 use from_pest::FromPest;
 use snarkos_models::{

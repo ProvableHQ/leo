@@ -1,6 +1,7 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
 
-use crate::{ast, types, Import, ImportSymbol};
+use crate::{types, Import, ImportSymbol};
+use leo_ast::ast;
 
 use snarkos_models::gadgets::utilities::{
     boolean::Boolean,
