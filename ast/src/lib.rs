@@ -5,6 +5,9 @@ extern crate pest_derive;
 #[macro_use]
 extern crate thiserror;
 
+pub mod access;
+pub use access::*;
+
 pub mod ast;
 pub use ast::*;
 

@@ -1,5 +1,6 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
 use crate::{
+    access::AssigneeAccess,
     circuits::Circuit,
     common::{
         Identifier,
@@ -95,64 +96,6 @@ impl<'ast> fmt::Display for RangeOrExpression<'ast> {
                     .map(|e| e.0.to_string())
                     .unwrap_or("".to_string())
             ),
-        }
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_call))]
-pub struct CallAccess<'ast> {
-    pub expressions: Vec<Expression<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_array))]
-pub struct ArrayAccess<'ast> {
-    pub expression: RangeOrExpression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_member))]
-pub struct MemberAccess<'ast> {
-    pub identifier: Identifier<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access_static_member))]
-pub struct StaticMemberAccess<'ast> {
-    pub identifier: Identifier<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::access))]
-pub enum Access<'ast> {
-    Array(ArrayAccess<'ast>),
-    Call(CallAccess<'ast>),
-    Object(MemberAccess<'ast>),
-    StaticObject(StaticMemberAccess<'ast>),
-}
-
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::assignee_access))]
-pub enum AssigneeAccess<'ast> {
-    Array(ArrayAccess<'ast>),
-    Member(MemberAccess<'ast>),
-}
-
-impl<'ast> fmt::Display for AssigneeAccess<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            AssigneeAccess::Array(ref array) => write!(f, "[{}]", array.expression),
-            AssigneeAccess::Member(ref member) => write!(f, ".{}", member.identifier),
         }
     }
 }

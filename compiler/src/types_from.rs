@@ -2,6 +2,10 @@
 
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
+    access::{
+        Access,
+        AssigneeAccess,
+    },
     ast,
     circuits::{
         Circuit,
@@ -363,13 +367,13 @@ impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 // Handle array accesses
-                ast::Access::Array(array) => types::Expression::ArrayAccess(
+                Access::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     Box::new(types::RangeOrExpression::from(array.expression)),
                 ),
 
                 // Handle function calls
-                ast::Access::Call(function) => types::Expression::FunctionCall(
+                Access::Call(function) => types::Expression::FunctionCall(
                     Box::new(acc),
                     function
                         .expressions
@@ -379,11 +383,11 @@ impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
                 ),
 
                 // Handle circuit member accesses
-                ast::Access::Object(circuit_object) => types::Expression::CircuitMemberAccess(
+                Access::Object(circuit_object) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
                     types::Identifier::from(circuit_object.identifier),
                 ),
-                ast::Access::StaticObject(circuit_object) => {
+                Access::StaticObject(circuit_object) => {
                     types::Expression::CircuitStaticFunctionAccess(
                         Box::new(acc),
                         types::Identifier::from(circuit_object.identifier),
@@ -437,13 +441,13 @@ impl<'ast> From<ast::Assignee<'ast>> for types::Expression {
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                ast::AssigneeAccess::Member(circuit_member) => {
+                AssigneeAccess::Member(circuit_member) => {
                     types::Expression::CircuitMemberAccess(
                         Box::new(acc),
                         types::Identifier::from(circuit_member.identifier),
                     )
                 }
-                ast::AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
+                AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
                     Box::new(acc),
                     Box::new(types::RangeOrExpression::from(array.expression)),
                 ),
@@ -468,11 +472,11 @@ impl<'ast> From<ast::Assignee<'ast>> for types::Assignee {
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                ast::AssigneeAccess::Array(array) => types::Assignee::Array(
+                AssigneeAccess::Array(array) => types::Assignee::Array(
                     Box::new(acc),
                     types::RangeOrExpression::from(array.expression),
                 ),
-                ast::AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
+                AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
                     Box::new(acc),
                     types::Identifier::from(circuit_field.identifier),
                 ),

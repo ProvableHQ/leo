@@ -129,20 +129,30 @@ group_single_or_tuple = {value_number | group_tuple}
 
 /// Access
 
+// Declared in access/access.rs
+access = { access_array | access_call | access_member | access_static_member}
+
+// Declared in access/array_access.rs
+access_array = { "[" ~ range_or_expression ~ "]" }
+
+// Declared in access/assignee_access.rs
+access_assignee = { access_array | access_member }
+
+// Declared in access/call_access.rs
+access_call = { "(" ~ expression_tuple ~ ")" }
+
+// Declared in access/member_access.rs
+access_member = { "." ~ identifier }
+
+// Declared in access/static_member_access.rs
+access_static_member = { "::" ~ identifier }
+
+range_or_expression = { range | expression }
+range = { from_expression? ~ ".." ~ to_expression }
 from_expression = { expression }
 to_expression = { expression }
 
-range = { from_expression? ~ ".." ~ to_expression }
-range_or_expression = { range | expression }
-
-access_array = { "[" ~ range_or_expression ~ "]" }
-access_call = { "(" ~ expression_tuple ~ ")" }
-access_member = { "." ~ identifier }
-access_static_member = { "::" ~ identifier }
-access = { access_array | access_call | access_member | access_static_member}
-
-assignee_access = { access_array | access_member }
-assignee = { identifier ~ assignee_access* }
+assignee = { identifier ~ access_assignee* }
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
