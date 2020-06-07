@@ -157,27 +157,27 @@ fn test_self() {
     //   }
     // }
     assert_eq!(
-            EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
-                Identifier::new("Circ".into()),
-                vec![ConstrainedCircuitMember(
-                    Identifier::new("new".into()),
-                    ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                        Some(Identifier::new("Circ".into())),
-                        Function {
-                            function_name: Identifier::new("new".into()),
-                            inputs: vec![],
-                            returns: vec![Type::SelfType],
-                            statements: vec![Statement::Return(vec![Expression::Circuit(
-                                Identifier::new("Self".into()),
-                                vec![]
-                            )])]
-                        }
-                    )))
-                )]
-            )])
-            .to_string(),
-            output.to_string()
-        );
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
+            Identifier::new("Circ".into()),
+            vec![ConstrainedCircuitMember(
+                Identifier::new("new".into()),
+                ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
+                    Some(Identifier::new("Circ".into())),
+                    Function {
+                        function_name: Identifier::new("new".into()),
+                        inputs: vec![],
+                        returns: vec![Type::SelfType],
+                        statements: vec![Statement::Return(vec![Expression::Circuit(
+                            Identifier::new("Self".into()),
+                            vec![]
+                        )])]
+                    }
+                )))
+            )]
+        )])
+        .to_string(),
+        output.to_string()
+    );
 }
 
 // All
