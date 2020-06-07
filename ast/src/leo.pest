@@ -201,22 +201,7 @@ conditional_nested_or_end = { statement_conditional | "{" ~ NEWLINE* ~ statement
 
 /// Statements
 
-statement_return = { "return" ~ expression_tuple }
-statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
-statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END}
-statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
-statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
-
-// Declared in types/for_statement.rs
-statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
-
-
-statement_assert = {
-    assert_eq
-//     | assert_true |
-}
-statement_expression = { expression ~ LINE_END }
-
+// Declared in statements/statement.rs
 statement = {
     (statement_return
     | statement_conditional
@@ -229,6 +214,30 @@ statement = {
       )
     ) ~ NEWLINE*
 }
+
+// Declared in statements/assert_statement.rs
+statement_assert = { assert_eq }
+
+// Declared in statements/assign_statement.rs
+statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
+
+// Declared in statements/conditional_statement.rs
+statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end)?}
+
+// Declared in statements/definition_statement.rs
+statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
+
+// Declared in statements/expression_statement.rs
+statement_expression = { expression ~ LINE_END }
+
+// Declared in statements/for_statement.rs
+statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+
+// Declared in statements/multiple_assignment_statement.rs
+statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
+
+// Declared in statements/return_statement.rs
+statement_return = { "return" ~ expression_tuple }
 
 /// Functions
 

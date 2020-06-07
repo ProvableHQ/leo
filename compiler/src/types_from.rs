@@ -12,7 +12,16 @@ use leo_ast::{
         BinaryOperation,
     },
     statements::{
+        AssertStatement,
+        AssignStatement,
+        ConditionalStatement,
+        ConditionalNestedOrEndStatement,
+        DefinitionStatement,
+        ExpressionStatement,
         ForStatement,
+        MultipleAssignmentStatement,
+        ReturnStatement,
+        Statement,
     },
     types::{
         ArrayType,
@@ -452,8 +461,8 @@ impl<'ast> From<ast::Assignee<'ast>> for types::Assignee {
 
 /// pest ast -> types::Statement
 
-impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
-    fn from(statement: ast::ReturnStatement<'ast>) -> Self {
+impl<'ast> From<ReturnStatement<'ast>> for types::Statement {
+    fn from(statement: ReturnStatement<'ast>) -> Self {
         types::Statement::Return(
             statement
                 .expressions
@@ -464,8 +473,8 @@ impl<'ast> From<ast::ReturnStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
-    fn from(statement: ast::DefinitionStatement<'ast>) -> Self {
+impl<'ast> From<DefinitionStatement<'ast>> for types::Statement {
+    fn from(statement: DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
             types::Variable::from(statement.variable),
             types::Expression::from(statement.expression),
@@ -473,8 +482,8 @@ impl<'ast> From<ast::DefinitionStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
-    fn from(statement: ast::AssignStatement<'ast>) -> Self {
+impl<'ast> From<AssignStatement<'ast>> for types::Statement {
+    fn from(statement: AssignStatement<'ast>) -> Self {
         match statement.assign {
             AssignOperation::Assign(ref _assign) => types::Statement::Assign(
                 types::Assignee::from(statement.assignee),
@@ -529,8 +538,8 @@ impl<'ast> From<ast::AssignStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::MultipleAssignmentStatement<'ast>> for types::Statement {
-    fn from(statement: ast::MultipleAssignmentStatement<'ast>) -> Self {
+impl<'ast> From<MultipleAssignmentStatement<'ast>> for types::Statement {
+    fn from(statement: MultipleAssignmentStatement<'ast>) -> Self {
         let variables = statement
             .variables
             .into_iter()
@@ -551,13 +560,13 @@ impl<'ast> From<ast::MultipleAssignmentStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::ConditionalNestedOrEnd<'ast>> for types::ConditionalNestedOrEnd {
-    fn from(statement: ast::ConditionalNestedOrEnd<'ast>) -> Self {
+impl<'ast> From<ConditionalNestedOrEndStatement<'ast>> for types::ConditionalNestedOrEnd {
+    fn from(statement: ConditionalNestedOrEndStatement<'ast>) -> Self {
         match statement {
-            ast::ConditionalNestedOrEnd::Nested(nested) => types::ConditionalNestedOrEnd::Nested(
+            ConditionalNestedOrEndStatement::Nested(nested) => types::ConditionalNestedOrEnd::Nested(
                 Box::new(types::ConditionalStatement::from(*nested)),
             ),
-            ast::ConditionalNestedOrEnd::End(statements) => types::ConditionalNestedOrEnd::End(
+            ConditionalNestedOrEndStatement::End(statements) => types::ConditionalNestedOrEnd::End(
                 statements
                     .into_iter()
                     .map(|statement| types::Statement::from(statement))
@@ -567,8 +576,8 @@ impl<'ast> From<ast::ConditionalNestedOrEnd<'ast>> for types::ConditionalNestedO
     }
 }
 
-impl<'ast> From<ast::ConditionalStatement<'ast>> for types::ConditionalStatement {
-    fn from(statement: ast::ConditionalStatement<'ast>) -> Self {
+impl<'ast> From<ConditionalStatement<'ast>> for types::ConditionalStatement {
+    fn from(statement: ConditionalStatement<'ast>) -> Self {
         types::ConditionalStatement {
             condition: types::Expression::from(statement.condition),
             statements: statement
@@ -610,10 +619,10 @@ impl<'ast> From<ForStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::AssertStatement<'ast>> for types::Statement {
-    fn from(statement: ast::AssertStatement<'ast>) -> Self {
+impl<'ast> From<AssertStatement<'ast>> for types::Statement {
+    fn from(statement: AssertStatement<'ast>) -> Self {
         match statement {
-            ast::AssertStatement::AssertEq(assert_eq) => types::Statement::AssertEq(
+            AssertStatement::AssertEq(assert_eq) => types::Statement::AssertEq(
                 types::Expression::from(assert_eq.left),
                 types::Expression::from(assert_eq.right),
             ),
@@ -621,25 +630,25 @@ impl<'ast> From<ast::AssertStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ast::ExpressionStatement<'ast>> for types::Statement {
-    fn from(statement: ast::ExpressionStatement<'ast>) -> Self {
+impl<'ast> From<ExpressionStatement<'ast>> for types::Statement {
+    fn from(statement: ExpressionStatement<'ast>) -> Self {
         types::Statement::Expression(types::Expression::from(statement.expression))
     }
 }
 
-impl<'ast> From<ast::Statement<'ast>> for types::Statement {
-    fn from(statement: ast::Statement<'ast>) -> Self {
+impl<'ast> From<Statement<'ast>> for types::Statement {
+    fn from(statement: Statement<'ast>) -> Self {
         match statement {
-            ast::Statement::Return(statement) => types::Statement::from(statement),
-            ast::Statement::Definition(statement) => types::Statement::from(statement),
-            ast::Statement::Assign(statement) => types::Statement::from(statement),
-            ast::Statement::MultipleAssignment(statement) => types::Statement::from(statement),
-            ast::Statement::Conditional(statement) => {
+            Statement::Return(statement) => types::Statement::from(statement),
+            Statement::Definition(statement) => types::Statement::from(statement),
+            Statement::Assign(statement) => types::Statement::from(statement),
+            Statement::MultipleAssignment(statement) => types::Statement::from(statement),
+            Statement::Conditional(statement) => {
                 types::Statement::Conditional(types::ConditionalStatement::from(statement))
             }
-            ast::Statement::Iteration(statement) => types::Statement::from(statement),
-            ast::Statement::Assert(statement) => types::Statement::from(statement),
-            ast::Statement::Expression(statement) => types::Statement::from(statement),
+            Statement::Iteration(statement) => types::Statement::from(statement),
+            Statement::Assert(statement) => types::Statement::from(statement),
+            Statement::Expression(statement) => types::Statement::from(statement),
         }
     }
 }
