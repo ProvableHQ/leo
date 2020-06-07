@@ -3,6 +3,10 @@
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
     ast,
+    imports::{
+        Import as AstImport,
+        ImportSymbol as AstImportSymbol,
+    },
     operations::{
         AssignOperation,
         BinaryOperation,
@@ -794,8 +798,8 @@ impl<'ast> From<ast::Function<'ast>> for types::Function {
 
 /// pest ast -> Import
 
-impl<'ast> From<ast::ImportSymbol<'ast>> for ImportSymbol {
-    fn from(symbol: ast::ImportSymbol<'ast>) -> Self {
+impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
+    fn from(symbol: AstImportSymbol<'ast>) -> Self {
         ImportSymbol {
             symbol: types::Identifier::from(symbol.value),
             alias: symbol.alias.map(|alias| types::Identifier::from(alias)),
@@ -803,8 +807,8 @@ impl<'ast> From<ast::ImportSymbol<'ast>> for ImportSymbol {
     }
 }
 
-impl<'ast> From<ast::Import<'ast>> for Import {
-    fn from(import: ast::Import<'ast>) -> Self {
+impl<'ast> From<AstImport<'ast>> for Import {
+    fn from(import: AstImport<'ast>) -> Self {
         Import {
             path_string: import.source.value,
             symbols: import

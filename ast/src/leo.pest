@@ -237,19 +237,23 @@ input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
 
 function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
+/// Imports
+
+// Declared in imports/import.rs
+import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
+
+// Declared in imports/import_source.rs
+import_source = @{(!"\"" ~ ANY)*}
+
+// Declared in imports/import_symbol.rs
+import_symbol = { identifier ~ ("as" ~ identifier)? }
+import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
+
 /// Utilities
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 LINE_END = {";" ~ NEWLINE*}
-
-/// Imports
-
-import_source = @{(!"\"" ~ ANY)*}
-import_symbol = { identifier ~ ("as" ~ identifier)? }
-import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
-
-import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
 
 /// Tests
 

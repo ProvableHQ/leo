@@ -1,5 +1,6 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
 use crate::{
+    imports::Import,
     operations::{
         AssignOperation,
         BinaryOperation,
@@ -867,36 +868,6 @@ pub struct EOI;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::LINE_END))]
 pub struct LineEnd;
-
-// Imports
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::import_source))]
-pub struct ImportSource<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::import_symbol))]
-pub struct ImportSymbol<'ast> {
-    pub value: Identifier<'ast>,
-    pub alias: Option<Identifier<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::import))]
-pub struct Import<'ast> {
-    pub source: ImportSource<'ast>,
-    pub symbols: Vec<ImportSymbol<'ast>>,
-    pub line_end: LineEnd,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
 
 // Tests
 
