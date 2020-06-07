@@ -1,4 +1,4 @@
-use leo_ast::ast::Rule;
+use crate::ast::Rule;
 
 use pest::error::Error;
 
