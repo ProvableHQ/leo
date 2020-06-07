@@ -18,6 +18,7 @@ use leo_ast::{
         Private,
     },
     values::{
+        BooleanValue,
         FieldValue,
         IntegerValue,
         NumberValue,
@@ -147,8 +148,8 @@ impl<'ast> From<ast::Group<'ast>> for types::Expression {
 
 /// pest ast -> types::Boolean
 
-impl<'ast> From<ast::Boolean<'ast>> for types::Expression {
-    fn from(boolean: ast::Boolean<'ast>) -> Self {
+impl<'ast> From<BooleanValue<'ast>> for types::Expression {
+    fn from(boolean: BooleanValue<'ast>) -> Self {
         types::Expression::Boolean(Boolean::Constant(
             boolean
                 .value

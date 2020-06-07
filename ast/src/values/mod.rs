@@ -1,3 +1,6 @@
+pub mod boolean_value;
+pub use boolean_value::*;
+
 pub mod field_value;
 pub use field_value::*;
 

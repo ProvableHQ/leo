@@ -9,11 +9,9 @@ use crate::{
         ArrayType,
         CircuitType,
         DataType,
-        FieldType,
         ForStatement,
         GroupType,
         Identifier,
-        IntegerType,
         SelfType,
         Visibility
     },
@@ -119,22 +117,6 @@ impl<'ast> fmt::Display for Group<'ast> {
         write!(f, "{}", self.value)
     }
 }
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_boolean))]
-pub struct Boolean<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Boolean<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-
 
 
 // Variables + Mutability

@@ -106,13 +106,16 @@ value_implicit = { value_number }
 // Declared in values/integer_value.rs
 value_integer = { value_number ~ type_integer }
 
+// Declared in values/boolean_value.rs
+value_boolean = { "true" | "false" }
+
 // Declared in values/field_value.rs
 value_field = { value_number ~ type_field }
 
 group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
 value_group = { group_single_or_tuple ~ type_group }
-value_boolean = { "true" | "false" }
+
 value = { value_field | value_group | value_boolean | value_integer | value_implicit }
 expression_primitive = { value | identifier }
 
