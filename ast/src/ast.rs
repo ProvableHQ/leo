@@ -1,7 +1,9 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
 use crate::{
+    circuits::Circuit,
     common::{
         Identifier,
+        Mutable,
         Visibility
     },
     expressions::{
@@ -18,18 +20,9 @@ use crate::{
         BinaryOperation,
         NotOperation,
     },
-    statements::{
-        Statement
-    },
-    types::{
-        ArrayType,
-        CircuitType,
-        DataType,
-        SelfType,
-    },
-    values::{
-        Value
-    }
+    statements::Statement,
+    types::Type,
+    values::Value,
 };
 
 use from_pest::{ConversionError, FromPest, Void};
@@ -58,34 +51,7 @@ lazy_static! {
     static ref PRECEDENCE_CLIMBER: PrecClimber<Rule> = precedence_climber();
 }
 
-// Types
-
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::_type))]
-pub enum Type<'ast> {
-    Basic(DataType),
-    Array(ArrayType<'ast>),
-    Circuit(CircuitType<'ast>),
-    SelfType(SelfType),
-}
-
-impl<'ast> fmt::Display for Type<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Type::Basic(ref _type) => write!(f, "basic"),
-            Type::Array(ref _type) => write!(f, "array"),
-            Type::Circuit(ref _type) => write!(f, "struct"),
-            Type::SelfType(ref _type) => write!(f, "Self"),
-        }
-    }
-}
-
 // Variables + Mutability
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::mutable))]
-pub struct Mutable {}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::variable))]
@@ -269,55 +235,6 @@ impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
             SpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
         }
     }
-}
-
-// Circuits
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_field_definition))]
-pub struct CircuitFieldDefinition<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub _type: Type<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::_static))]
-pub struct Static {}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_function))]
-pub struct CircuitFunction<'ast> {
-    pub _static: Option<Static>,
-    pub function: Function<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_member))]
-pub enum CircuitMember<'ast> {
-    CircuitFieldDefinition(CircuitFieldDefinition<'ast>),
-    CircuitFunction(CircuitFunction<'ast>),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_definition))]
-pub struct Circuit<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub members: Vec<CircuitMember<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_field))]
-pub struct CircuitField<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
 }
 
 // Expressions

@@ -1,4 +1,4 @@
-use crate::{ast::{Rule, CircuitField}, common::Identifier,};
+use crate::{ast::Rule, circuits::CircuitField, common::Identifier,};
 
 use pest::Span;
 use pest_ast::FromPest;

@@ -8,6 +8,9 @@ extern crate thiserror;
 pub mod ast;
 pub use ast::*;
 
+pub mod circuits;
+pub use circuits::*;
+
 pub mod common;
 pub use common::*;
 

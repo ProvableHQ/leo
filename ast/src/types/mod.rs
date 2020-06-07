@@ -21,3 +21,6 @@ pub use integer_type::*;
 
 pub mod self_type;
 pub use self_type::*;
+
+pub mod type_;
+pub use type_::*;

@@ -3,6 +3,13 @@
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
     ast,
+    circuits::{
+        Circuit,
+        CircuitField,
+        CircuitFieldDefinition,
+        CircuitFunction,
+        CircuitMember
+    },
     common::{
         Identifier,
         Visibility,
@@ -43,6 +50,7 @@ use leo_ast::{
         CircuitType,
         DataType,
         IntegerType,
+        Type as AstType
     },
     values::{
         BooleanValue,
@@ -318,8 +326,8 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::CircuitField<'ast>> for types::CircuitFieldDefinition {
-    fn from(member: ast::CircuitField<'ast>) -> Self {
+impl<'ast> From<CircuitField<'ast>> for types::CircuitFieldDefinition {
+    fn from(member: CircuitField<'ast>) -> Self {
         types::CircuitFieldDefinition {
             identifier: types::Identifier::from(member.identifier),
             expression: types::Expression::from(member.expression),
@@ -711,21 +719,21 @@ impl<'ast> From<CircuitType<'ast>> for types::Type {
     }
 }
 
-impl<'ast> From<ast::Type<'ast>> for types::Type {
-    fn from(_type: ast::Type<'ast>) -> Self {
+impl<'ast> From<AstType<'ast>> for types::Type {
+    fn from(_type: AstType<'ast>) -> Self {
         match _type {
-            ast::Type::Basic(_type) => types::Type::from(_type),
-            ast::Type::Array(_type) => types::Type::from(_type),
-            ast::Type::Circuit(_type) => types::Type::from(_type),
-            ast::Type::SelfType(_type) => types::Type::SelfType,
+            AstType::Basic(_type) => types::Type::from(_type),
+            AstType::Array(_type) => types::Type::from(_type),
+            AstType::Circuit(_type) => types::Type::from(_type),
+            AstType::SelfType(_type) => types::Type::SelfType,
         }
     }
 }
 
 /// pest ast -> types::Circuit
 
-impl<'ast> From<ast::CircuitFieldDefinition<'ast>> for types::CircuitMember {
-    fn from(circuit_value: ast::CircuitFieldDefinition<'ast>) -> Self {
+impl<'ast> From<CircuitFieldDefinition<'ast>> for types::CircuitMember {
+    fn from(circuit_value: CircuitFieldDefinition<'ast>) -> Self {
         types::CircuitMember::CircuitField(
             types::Identifier::from(circuit_value.identifier),
             types::Type::from(circuit_value._type),
@@ -733,8 +741,8 @@ impl<'ast> From<ast::CircuitFieldDefinition<'ast>> for types::CircuitMember {
     }
 }
 
-impl<'ast> From<ast::CircuitFunction<'ast>> for types::CircuitMember {
-    fn from(circuit_function: ast::CircuitFunction<'ast>) -> Self {
+impl<'ast> From<CircuitFunction<'ast>> for types::CircuitMember {
+    fn from(circuit_function: CircuitFunction<'ast>) -> Self {
         types::CircuitMember::CircuitFunction(
             circuit_function._static.is_some(),
             types::Function::from(circuit_function.function),
@@ -742,21 +750,21 @@ impl<'ast> From<ast::CircuitFunction<'ast>> for types::CircuitMember {
     }
 }
 
-impl<'ast> From<ast::CircuitMember<'ast>> for types::CircuitMember {
-    fn from(object: ast::CircuitMember<'ast>) -> Self {
+impl<'ast> From<CircuitMember<'ast>> for types::CircuitMember {
+    fn from(object: CircuitMember<'ast>) -> Self {
         match object {
-            ast::CircuitMember::CircuitFieldDefinition(circuit_value) => {
+            CircuitMember::CircuitFieldDefinition(circuit_value) => {
                 types::CircuitMember::from(circuit_value)
             }
-            ast::CircuitMember::CircuitFunction(circuit_function) => {
+            CircuitMember::CircuitFunction(circuit_function) => {
                 types::CircuitMember::from(circuit_function)
             }
         }
     }
 }
 
-impl<'ast> From<ast::Circuit<'ast>> for types::Circuit {
-    fn from(circuit: ast::Circuit<'ast>) -> Self {
+impl<'ast> From<Circuit<'ast>> for types::Circuit {
+    fn from(circuit: Circuit<'ast>) -> Self {
         let variable = types::Identifier::from(circuit.identifier);
         let members = circuit
             .members

@@ -1,10 +1,14 @@
-/// Identifiers
+/// Common
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
-/// Visibility
+// Declared in common/mutable.rs
+mutable = { "mut" }
+
+// Declared in common/static_.rs
+static_ = { "static" }
 
 // Declared in common/visibility.rs
 visibility = { visibility_public | visibility_private }
@@ -55,6 +59,9 @@ operation_pow_assign = { "**=" }
 
 /// Types
 
+// Declared in types/type_.rs
+type_ = { type_self | type_array | type_data | type_circuit }
+
 // Declared in types/integer.rs
 type_integer = {
     type_u8
@@ -90,8 +97,7 @@ type_circuit = { identifier }
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ value ~ "]")+ }
 
-_type = {type_self | type_array | type_data | type_circuit}
-type_list = _{(_type ~ ("," ~ _type)*)?}
+type_list = _{ (type_ ~ ("," ~ type_)*)? }
 
 /// Values
 
@@ -120,8 +126,8 @@ group_single_or_tuple = {value_number | group_tuple}
 
 /// Variables + Mutability
 
-mutable = { "mut" }
-variable = { mutable? ~ identifier ~ (":" ~ _type)? }
+variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+
 variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 /// Access
@@ -138,30 +144,28 @@ access_member = { "." ~ identifier }
 access_static_member = { "::" ~ identifier }
 access = { access_array | access_call | access_member | access_static_member}
 
-
 assignee_access = { access_array | access_member }
 assignee = { identifier ~ assignee_access* }
 
 spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
 
-/// Arrays
-
-inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
-
 /// Circuits
 
-circuit_field_definition = { identifier ~ ":" ~ _type ~ NEWLINE* }
-
-_static = {"static"}
-circuit_function = {_static? ~ function_definition }
-
-circuit_member = { circuit_function | circuit_field_definition }
-
+// Declared in circuits/circuit_definition.rs
 circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
+// Declared in circuits/circuit_field.rs
 circuit_field = { identifier ~ ":" ~ expression }
-circuit_field_list = _{(circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
+
+// Declared in circuits/circuit_field_definition.rs
+circuit_field_definition = { identifier ~ ":" ~ type_ ~ NEWLINE* }
+
+// Declared in circuits/circuit_function.rs
+circuit_function = { static_? ~ function_definition }
+
+// Declared in circuits/circuit_member.rs
+circuit_member = { circuit_function | circuit_field_definition }
 
 /// Conditionals
 
@@ -190,9 +194,11 @@ expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" 
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
+inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
 
 // Declared in expressions/circuit_inline_expression.rs
 expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
+circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
 
 // Declared in expressions/not_expression.rs
 expression_not = { operation_not ~ expression_term }
@@ -244,10 +250,10 @@ statement_return = { "return" ~ expression_tuple }
 
 /// Functions
 
-input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ _type}
+input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ type_}
 input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
 
-function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (_type | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 /// Imports
 
