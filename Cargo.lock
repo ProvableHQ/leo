@@ -516,12 +516,9 @@ version = "0.1.0"
 dependencies = [
  "from-pest",
  "hex",
- "lazy_static",
  "leo-ast",
  "log",
  "pest",
- "pest-ast",
- "pest_derive",
  "rand",
  "sha2",
  "snarkos-algorithms",
