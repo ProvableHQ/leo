@@ -1,4 +1,4 @@
-use crate::{ast::Rule, types::Identifier};
+use crate::{ast::Rule, common::Identifier};
 
 use pest::Span;
 use pest_ast::FromPest;

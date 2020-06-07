@@ -16,14 +16,8 @@ pub use field_type::*;
 pub mod group_type;
 pub use group_type::*;
 
-pub mod identifier;
-pub use identifier::*;
-
 pub mod integer_type;
 pub use integer_type::*;
 
 pub mod self_type;
 pub use self_type::*;
-
-pub mod visibility;
-pub use visibility::*;

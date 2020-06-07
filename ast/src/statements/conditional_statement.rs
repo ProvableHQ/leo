@@ -1,4 +1,4 @@
-use crate::{ast::{Expression, Rule}, statements::{ConditionalNestedOrEndStatement, Statement}};
+use crate::{ast::Rule, expressions::Expression, statements::{ConditionalNestedOrEndStatement, Statement}};
 
 use pest::Span;
 use pest_ast::FromPest;

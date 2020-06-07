@@ -1,5 +1,18 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
 use crate::{
+    common::{
+        Identifier,
+        Visibility
+    },
+    expressions::{
+        ArrayInlineExpression,
+        ArrayInitializerExpression,
+        CircuitInlineExpression,
+        Expression,
+        TernaryExpression,
+        NotExpression,
+        PostfixExpression
+    },
     imports::Import,
     operations::{
         BinaryOperation,
@@ -12,9 +25,7 @@ use crate::{
         ArrayType,
         CircuitType,
         DataType,
-        Identifier,
         SelfType,
-        Visibility
     },
     values::{
         Value
@@ -191,14 +202,6 @@ pub enum Access<'ast> {
     StaticObject(StaticMemberAccess<'ast>),
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_postfix))]
-pub struct PostfixExpression<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub accesses: Vec<Access<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::assignee_access))]
@@ -268,25 +271,6 @@ impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
     }
 }
 
-// Arrays
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_array_inline))]
-pub struct ArrayInlineExpression<'ast> {
-    pub expressions: Vec<SpreadOrExpression<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_array_initializer))]
-pub struct ArrayInitializerExpression<'ast> {
-    pub expression: Box<SpreadOrExpression<'ast>>,
-    pub count: Value<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
 // Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
@@ -336,160 +320,7 @@ pub struct CircuitField<'ast> {
     pub span: Span<'ast>,
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_circuit_inline))]
-pub struct CircuitInlineExpression<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub members: Vec<CircuitField<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
 // Expressions
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_not))]
-pub struct NotExpression<'ast> {
-    pub operation: NotOperation<'ast>,
-    pub expression: Box<Expression<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::expression_increment))]
-// pub struct IncrementExpression<'ast> {
-//     pub expression: Box<Expression<'ast>>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-//
-// #[derive(Clone, Debug, FromPest, PartialEq)]
-// #[pest_ast(rule(Rule::expression_decrement))]
-// pub struct DecrementExpression<'ast> {
-//     pub expression: Box<Expression<'ast>>,
-//     #[pest_ast(outer())]
-//     pub span: Span<'ast>,
-// }
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct BinaryExpression<'ast> {
-    pub operation: BinaryOperation,
-    pub left: Box<Expression<'ast>>,
-    pub right: Box<Expression<'ast>>,
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_conditional))]
-pub struct TernaryExpression<'ast> {
-    pub first: Box<Expression<'ast>>,
-    pub second: Box<Expression<'ast>>,
-    pub third: Box<Expression<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum Expression<'ast> {
-    Value(Value<'ast>),
-    Identifier(Identifier<'ast>),
-    Not(NotExpression<'ast>),
-    // Increment(IncrementExpression<'ast>),
-    // Decrement(DecrementExpression<'ast>),
-    Binary(BinaryExpression<'ast>),
-    Ternary(TernaryExpression<'ast>),
-    ArrayInline(ArrayInlineExpression<'ast>),
-    ArrayInitializer(ArrayInitializerExpression<'ast>),
-    CircuitInline(CircuitInlineExpression<'ast>),
-    Postfix(PostfixExpression<'ast>),
-}
-
-impl<'ast> Expression<'ast> {
-    pub fn binary(
-        operation: BinaryOperation,
-        left: Box<Expression<'ast>>,
-        right: Box<Expression<'ast>>,
-        span: Span<'ast>,
-    ) -> Self {
-        Expression::Binary(BinaryExpression {
-            operation,
-            left,
-            right,
-            span,
-        })
-    }
-
-    pub fn ternary(
-        first: Box<Expression<'ast>>,
-        second: Box<Expression<'ast>>,
-        third: Box<Expression<'ast>>,
-        span: Span<'ast>,
-    ) -> Self {
-        Expression::Ternary(TernaryExpression {
-            first,
-            second,
-            third,
-            span,
-        })
-    }
-
-    pub fn span(&self) -> &Span<'ast> {
-        match self {
-            Expression::Value(expression) => &expression.span(),
-            Expression::Identifier(expression) => &expression.span,
-            Expression::Not(expression) => &expression.span,
-            // Expression::Increment(expression) => &expression.span,
-            // Expression::Decrement(expression) => &expression.span,
-            Expression::Binary(expression) => &expression.span,
-            Expression::Ternary(expression) => &expression.span,
-            Expression::ArrayInline(expression) => &expression.span,
-            Expression::ArrayInitializer(expression) => &expression.span,
-            Expression::CircuitInline(expression) => &expression.span,
-            Expression::Postfix(expression) => &expression.span,
-        }
-    }
-}
-
-impl<'ast> fmt::Display for Expression<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Expression::Value(ref expression) => write!(f, "{}", expression),
-            Expression::Identifier(ref expression) => write!(f, "{}", expression),
-            Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
-            // Expression::Increment(ref expression) => write!(f, "{}++", expression.expression),
-            // Expression::Decrement(ref expression) => write!(f, "{}--", expression.expression),
-            Expression::Binary(ref expression) => {
-                write!(f, "{} == {}", expression.left, expression.right)
-            }
-            Expression::Ternary(ref expression) => write!(
-                f,
-                "if {} ? {} : {}",
-                expression.first, expression.second, expression.third
-            ),
-            Expression::ArrayInline(ref expression) => {
-                for (i, spread_or_expression) in expression.expressions.iter().enumerate() {
-                    write!(f, "{}", spread_or_expression)?;
-                    if i < expression.expressions.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "")
-            }
-            Expression::ArrayInitializer(ref expression) => {
-                write!(f, "[{} ; {}]", expression.expression, expression.count)
-            }
-            Expression::CircuitInline(ref expression) => write!(
-                f,
-                "inline circuit display not impl {}",
-                expression.identifier
-            ),
-            Expression::Postfix(ref expression) => {
-                write!(f, "Postfix display not impl {}", expression.identifier)
-            }
-        }
-    }
-}
 
 fn precedence_climber() -> PrecClimber<Rule> {
     PrecClimber::new(vec![
@@ -516,11 +347,6 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
-                Rule::expression_circuit_inline => {
-                    Expression::CircuitInline(
-                        CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                },
                 Rule::expression_array_inline => {
                     Expression::ArrayInline(
                         ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap()
@@ -529,6 +355,11 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 Rule::expression_array_initializer => {
                     Expression::ArrayInitializer(
                         ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap()
+                    )
+                },
+                Rule::expression_circuit_inline => {
+                    Expression::CircuitInline(
+                        CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
                     )
                 },
                 Rule::expression_conditional => {
@@ -546,28 +377,6 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                     let expression = parse_term(inner.next().unwrap());
                     Expression::Not(NotExpression { operation, expression, span })
                 },
-                // Rule::expression_increment => {
-                //     println!("expression increment");
-                //     let span = next.as_span();
-                //     let mut inner = next.into_inner();
-                //     let expression = parse_term(inner.next().unwrap());
-                //     // let operation = match inner.next().unwrap().as_rule() {
-                //     //     Rule::operation_post_increment => Increment::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                //     //     rule => unreachable!("`expression_increment` should yield `operation_post_increment`, found {:#?}", rule)
-                //     // };
-                //     Expression::Increment(IncrementExpression { expression, span })
-                // },
-                // Rule::expression_decrement => {
-                //     println!("expression decrement");
-                //     let span = next.as_span();
-                //     let mut inner = next.into_inner();
-                //     let expression = parse_term(inner.next().unwrap());
-                //     // let operation = match inner.next().unwrap().as_rule() {
-                //     //     Rule::operation_post_decrement => Decrement::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                //     //     rule => unreachable!("`expression_decrement` should yield `operation_post_decrement`, found {:#?}", rule)
-                //     // };
-                //     Expression::Decrement(DecrementExpression { expression, span })
-                // },
                 Rule::expression_postfix => {
                     Expression::Postfix(
                         PostfixExpression::from_pest(&mut pair.into_inner()).unwrap(),
@@ -587,7 +396,6 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                         rule => unreachable!("`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}", rule)
                     }
                 },
-
                 rule => unreachable!("`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
             }
         }

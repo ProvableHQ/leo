@@ -1,4 +1,4 @@
-use crate::ast::{Expression, Rule};
+use crate::{ast::Rule, expressions::Expression};
 
 use pest::Span;
 use pest_ast::FromPest;

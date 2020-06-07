@@ -8,8 +8,14 @@ extern crate thiserror;
 pub mod ast;
 pub use ast::*;
 
+pub mod common;
+pub use common::*;
+
 pub mod errors;
 pub use errors::*;
+
+pub mod expressions;
+pub use expressions::*;
 
 pub mod imports;
 pub use imports::*;

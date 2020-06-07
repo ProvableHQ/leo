@@ -3,6 +3,21 @@
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
     ast,
+    common::{
+        Identifier,
+        Visibility,
+        Private,
+    },
+    expressions::{
+        ArrayInitializerExpression,
+        ArrayInlineExpression,
+        BinaryExpression,
+        CircuitInlineExpression,
+        Expression,
+        NotExpression,
+        PostfixExpression,
+        TernaryExpression
+    },
     imports::{
         Import as AstImport,
         ImportSymbol as AstImportSymbol,
@@ -27,10 +42,7 @@ use leo_ast::{
         ArrayType,
         CircuitType,
         DataType,
-        Identifier,
         IntegerType,
-        Visibility,
-        Private,
     },
     values::{
         BooleanValue,
@@ -197,8 +209,8 @@ impl<'ast> From<Value<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::NotExpression<'ast>> for types::Expression {
-    fn from(expression: ast::NotExpression<'ast>) -> Self {
+impl<'ast> From<NotExpression<'ast>> for types::Expression {
+    fn from(expression: NotExpression<'ast>) -> Self {
         types::Expression::Not(Box::new(types::Expression::from(*expression.expression)))
     }
 }
@@ -216,8 +228,8 @@ impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::SpreadOrExpression {
     }
 }
 
-impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
-    fn from(expression: ast::BinaryExpression<'ast>) -> Self {
+impl<'ast> From<BinaryExpression<'ast>> for types::Expression {
+    fn from(expression: BinaryExpression<'ast>) -> Self {
         match expression.operation {
             // Boolean operations
             BinaryOperation::Or => types::Expression::Or(
@@ -276,8 +288,8 @@ impl<'ast> From<ast::BinaryExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
-    fn from(expression: ast::TernaryExpression<'ast>) -> Self {
+impl<'ast> From<TernaryExpression<'ast>> for types::Expression {
+    fn from(expression: TernaryExpression<'ast>) -> Self {
         types::Expression::IfElse(
             Box::new(types::Expression::from(*expression.first)),
             Box::new(types::Expression::from(*expression.second)),
@@ -286,8 +298,8 @@ impl<'ast> From<ast::TernaryExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::ArrayInlineExpression<'ast>> for types::Expression {
-    fn from(array: ast::ArrayInlineExpression<'ast>) -> Self {
+impl<'ast> From<ArrayInlineExpression<'ast>> for types::Expression {
+    fn from(array: ArrayInlineExpression<'ast>) -> Self {
         types::Expression::Array(
             array
                 .expressions
@@ -297,8 +309,8 @@ impl<'ast> From<ast::ArrayInlineExpression<'ast>> for types::Expression {
         )
     }
 }
-impl<'ast> From<ast::ArrayInitializerExpression<'ast>> for types::Expression {
-    fn from(array: ast::ArrayInitializerExpression<'ast>) -> Self {
+impl<'ast> From<ArrayInitializerExpression<'ast>> for types::Expression {
+    fn from(array: ArrayInitializerExpression<'ast>) -> Self {
         let count = types::Expression::get_count(array.count);
         let expression = Box::new(types::SpreadOrExpression::from(*array.expression));
 
@@ -315,8 +327,8 @@ impl<'ast> From<ast::CircuitField<'ast>> for types::CircuitFieldDefinition {
     }
 }
 
-impl<'ast> From<ast::CircuitInlineExpression<'ast>> for types::Expression {
-    fn from(expression: ast::CircuitInlineExpression<'ast>) -> Self {
+impl<'ast> From<CircuitInlineExpression<'ast>> for types::Expression {
+    fn from(expression: CircuitInlineExpression<'ast>) -> Self {
         let variable = types::Identifier::from(expression.identifier);
         let members = expression
             .members
@@ -328,8 +340,8 @@ impl<'ast> From<ast::CircuitInlineExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
-    fn from(expression: ast::PostfixExpression<'ast>) -> Self {
+impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
+    fn from(expression: PostfixExpression<'ast>) -> Self {
         let variable =
             types::Expression::Identifier(types::Identifier::from(expression.identifier));
 
@@ -372,18 +384,18 @@ impl<'ast> From<ast::PostfixExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::Expression<'ast>> for types::Expression {
-    fn from(expression: ast::Expression<'ast>) -> Self {
+impl<'ast> From<Expression<'ast>> for types::Expression {
+    fn from(expression: Expression<'ast>) -> Self {
         match expression {
-            ast::Expression::Value(value) => types::Expression::from(value),
-            ast::Expression::Identifier(variable) => types::Expression::from(variable),
-            ast::Expression::Not(expression) => types::Expression::from(expression),
-            ast::Expression::Binary(expression) => types::Expression::from(expression),
-            ast::Expression::Ternary(expression) => types::Expression::from(expression),
-            ast::Expression::ArrayInline(expression) => types::Expression::from(expression),
-            ast::Expression::ArrayInitializer(expression) => types::Expression::from(expression),
-            ast::Expression::CircuitInline(expression) => types::Expression::from(expression),
-            ast::Expression::Postfix(expression) => types::Expression::from(expression),
+            Expression::Value(value) => types::Expression::from(value),
+            Expression::Identifier(variable) => types::Expression::from(variable),
+            Expression::Not(expression) => types::Expression::from(expression),
+            Expression::Binary(expression) => types::Expression::from(expression),
+            Expression::Ternary(expression) => types::Expression::from(expression),
+            Expression::ArrayInline(expression) => types::Expression::from(expression),
+            Expression::ArrayInitializer(expression) => types::Expression::from(expression),
+            Expression::CircuitInline(expression) => types::Expression::from(expression),
+            Expression::Postfix(expression) => types::Expression::from(expression),
         }
     }
 }
