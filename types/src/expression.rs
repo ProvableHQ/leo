@@ -277,7 +277,6 @@ impl<'ast> From<Assignee<'ast>> for Expression {
     }
 }
 
-
 impl<'ast> From<BinaryExpression<'ast>> for Expression {
     fn from(expression: BinaryExpression<'ast>) -> Self {
         match expression.operation {

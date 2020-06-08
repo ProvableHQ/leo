@@ -10,7 +10,7 @@ fn test_semicolon() {
         .unwrap();
 
     match error {
-        CompilerError::SyntaxError(_) => {}
-        _ => panic!("wrong error"),
+        CompilerError::ParserError(_) => {}
+        _ => panic!("test_semicolon failed the wrong expected error, should be a ParserError"),
     }
 }

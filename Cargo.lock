@@ -400,15 +400,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
-name = "heck"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20564e78d53d2bb135c343b3f47714a56af2061f1c928fdb541dc7b9fdd94205"
-dependencies = [
- "unicode-segmentation",
-]
-
-[[package]]
 name = "hermit-abi"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -492,7 +483,6 @@ dependencies = [
  "snarkos-gadgets",
  "snarkos-models",
  "snarkos-utilities",
- "structopt",
  "thiserror",
  "toml",
 ]
@@ -514,12 +504,10 @@ dependencies = [
 name = "leo-compiler"
 version = "0.1.0"
 dependencies = [
- "from-pest",
  "hex",
  "leo-ast",
  "leo-types",
  "log",
- "pest",
  "rand",
  "sha2",
  "snarkos-algorithms",
@@ -735,32 +723,6 @@ name = "ppv-lite86"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74490b50b9fbe561ac330df47c08f3f33073d2d00c150f719147d7c54522fa1b"
-
-[[package]]
-name = "proc-macro-error"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98e9e4b82e0ef281812565ea4751049f1bdcdfccda7d3f459f2e138a40c08678"
-dependencies = [
- "proc-macro-error-attr",
- "proc-macro2 1.0.9",
- "quote 1.0.3",
- "syn 1.0.16",
- "version_check",
-]
-
-[[package]]
-name = "proc-macro-error-attr"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f5444ead4e9935abd7f27dc51f7e852a0569ac888096d5ec2499470794e2e53"
-dependencies = [
- "proc-macro2 1.0.9",
- "quote 1.0.3",
- "syn 1.0.16",
- "syn-mid",
- "version_check",
-]
 
 [[package]]
 name = "proc-macro2"
@@ -1025,7 +987,6 @@ checksum = "c7cb5678e1615754284ec264d9bb5b4c27d2018577fd90ac0ceb578591ed5ee4"
 [[package]]
 name = "snarkos-algorithms"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "blake2",
  "derivative",
@@ -1044,7 +1005,6 @@ dependencies = [
 [[package]]
 name = "snarkos-curves"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "rand",
@@ -1056,7 +1016,6 @@ dependencies = [
 [[package]]
 name = "snarkos-errors"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "bincode",
  "curl",
@@ -1069,7 +1028,6 @@ dependencies = [
 [[package]]
 name = "snarkos-gadgets"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "digest",
@@ -1083,7 +1041,6 @@ dependencies = [
 [[package]]
 name = "snarkos-models"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "derivative",
  "rand",
@@ -1096,12 +1053,10 @@ dependencies = [
 [[package]]
 name = "snarkos-profiler"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 
 [[package]]
 name = "snarkos-utilities"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#ffef82772617e849badf05fbee283d9f34812d31"
 dependencies = [
  "rand",
 ]
@@ -1123,30 +1078,6 @@ name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
-
-[[package]]
-name = "structopt"
-version = "0.3.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "863246aaf5ddd0d6928dfeb1a9ca65f505599e4e1b399935ef7e75107516b4ef"
-dependencies = [
- "clap",
- "lazy_static",
- "structopt-derive",
-]
-
-[[package]]
-name = "structopt-derive"
-version = "0.4.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d239ca4b13aee7a2142e6795cbd69e457665ff8037aed33b3effdc430d2f927a"
-dependencies = [
- "heck",
- "proc-macro-error",
- "proc-macro2 1.0.9",
- "quote 1.0.3",
- "syn 1.0.16",
-]
 
 [[package]]
 name = "subtle"
@@ -1174,17 +1105,6 @@ dependencies = [
  "proc-macro2 1.0.9",
  "quote 1.0.3",
  "unicode-xid 0.2.0",
-]
-
-[[package]]
-name = "syn-mid"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7be3539f6c128a931cf19dcee741c1af532c7fd387baa739c03dd2e96479338a"
-dependencies = [
- "proc-macro2 1.0.9",
- "quote 1.0.3",
- "syn 1.0.16",
 ]
 
 [[package]]
@@ -1266,12 +1186,6 @@ name = "ucd-trie"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f00ed7be0c1ff1e24f46c3d2af4859f7e863672ba3a6e92e7cff702bf9f06c2"
-
-[[package]]
-name = "unicode-segmentation"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e83e153d1053cbb5a118eeff7fd5be06ed99153f00dbcd8ae310c5fb2b22edc0"
 
 [[package]]
 name = "unicode-width"

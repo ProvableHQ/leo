@@ -5,7 +5,7 @@ use crate::{
     errors::CompilerError,
     GroupType,
 };
-use leo_ast::{ast, files::File};
+use leo_ast::LeoParser;
 use leo_types::{InputValue, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -14,7 +14,6 @@ use snarkos_models::{
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem, TestConstraintSystem},
 };
 
-use from_pest::FromPest;
 use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
@@ -76,36 +75,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program)
     }
 
-    // pub fn compile(&self) -> Result<File, CompilerError> {
-    //     // Read in the main file as string
-    //     let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
-    //
-    //     // Parse the file using leo.pest
-    //     let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
-    //
-    //     // Build the abstract syntax tree
-    //     let syntax_tree = File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
-    //     log::debug!("{:#?}", syntax_tree);
-    //
-    //     Ok(syntax_tree)
-    // }
-
     fn parse_program(&mut self) -> Result<(), CompilerError> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+        // Build the program syntax tree
+        let file_path = &self.main_file_path;
+        let input_file = &LeoParser::load_file(file_path)?;
+        let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
 
-        // Parse the file using leo.pest
-        let mut file = ast::parse(&unparsed_file).map_err(|error| {
-            CompilerError::from(error.with_path(&self.main_file_path.to_str().unwrap()))
-        })?;
-
-        // Build the abstract syntax tree
-        let syntax_tree =
-            File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
-        log::debug!("{:#?}", syntax_tree);
-
-        // Build program from abstract syntax tree
+        // Build program from syntax tree
         let package_name = self.package_name.clone();
 
         self.program = Program::from(syntax_tree, package_name);

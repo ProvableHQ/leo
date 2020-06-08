@@ -1,8 +1,7 @@
 use crate::errors::{FunctionError, ImportError};
-use leo_ast::{ast::Rule, SyntaxError};
+use leo_ast::{SyntaxError, ParserError};
 use leo_types::IntegerError;
 
-use pest::error::Error;
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
@@ -35,6 +34,9 @@ pub enum CompilerError {
     NoMainFunction,
 
     #[error("{}", _0)]
+    ParserError(#[from] ParserError),
+
+    #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
 
     #[error("Unable to construct abstract syntax tree")]
@@ -42,10 +44,4 @@ pub enum CompilerError {
 
     #[error("writing: {}", _0)]
     Writing(io::Error),
-}
-
-impl From<Error<Rule>> for CompilerError {
-    fn from(error: Error<Rule>) -> Self {
-        CompilerError::SyntaxError(SyntaxError::from(error))
-    }
 }
