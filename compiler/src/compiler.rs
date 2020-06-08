@@ -1,11 +1,11 @@
 //! Compiles a Leo program from a file path.
 
 use crate::{
-    ast,
     constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
     errors::CompilerError,
     GroupType, InputValue, Program,
 };
+use leo_ast::ast;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
