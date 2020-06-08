@@ -36,3 +36,27 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 toml = { version = "0.5" }
 thiserror = { version = "1.0" }
+
+[dev-dependencies]
+rusty-hook = { version = "0.11.1" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+incremental = true
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = "thin"
+incremental = true
+debug-assertions = false
+
+[profile.dev]
+opt-level = 0
+
+[profile.test]
+opt-level = 0
+debug-assertions = true
+debug = true
