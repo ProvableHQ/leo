@@ -6,7 +6,18 @@ use crate::{
     new_scope,
     GroupType,
 };
-use leo_types::{Assignee, ConditionalNestedOrEndStatement, ConditionalStatement, Statement, Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
+use leo_types::{
+    Assignee,
+    ConditionalNestedOrEndStatement,
+    ConditionalStatement,
+    Expression,
+    Identifier,
+    Integer,
+    RangeOrExpression,
+    Statement,
+    Type,
+    Variable,
+};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -21,16 +32,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         match assignee {
             Assignee::Identifier(name) => new_scope(scope, name.to_string()),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
-            Assignee::CircuitField(circuit_name, _member) => {
-                self.resolve_assignee(scope, *circuit_name)
-            }
+            Assignee::CircuitField(circuit_name, _member) => self.resolve_assignee(scope, *circuit_name),
         }
     }
 
-    fn get_mutable_assignee(
-        &mut self,
-        name: String,
-    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
+    fn get_mutable_assignee(&mut self, name: String) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
         // Check that assignee exists and is mutable
         Ok(match self.get_mut(&name) {
             Some(value) => match value {
@@ -53,8 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
-                let index =
-                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
+                let index = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
 
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
@@ -104,18 +109,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                         ConstrainedValue::Function(_circuit_identifier, function) => {
                             return Err(StatementError::ImmutableCircuitFunction(
                                 function.function_name.to_string(),
-                            ))
+                            ));
                         }
                         ConstrainedValue::Static(_value) => {
-                            return Err(StatementError::ImmutableCircuitFunction("static".into()))
+                            return Err(StatementError::ImmutableCircuitFunction("static".into()));
                         }
                         _ => object.1 = new_value.to_owned(),
                     },
-                    None => {
-                        return Err(StatementError::UndefinedCircuitObject(
-                            object_name.to_string(),
-                        ))
-                    }
+                    None => return Err(StatementError::UndefinedCircuitObject(object_name.to_string())),
                 }
             }
             _ => return Err(StatementError::UndefinedCircuit(object_name.to_string())),
@@ -136,13 +137,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
-        let new_value = self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            &vec![],
-            expression,
-        )?;
+        let new_value = self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
 
         // Mutate the old value into the new value
         match assignee {
@@ -232,10 +227,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             function,
         )? {
             ConstrainedValue::Return(values) => values,
-            value => unimplemented!(
-                "multiple assignment only implemented for functions, got {}",
-                value
-            ),
+            value => unimplemented!("multiple assignment only implemented for functions, got {}", value),
         };
 
         if variables.len() != return_values.len() {
@@ -332,30 +324,16 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         // use gadget impl
         if condition.eq(&Boolean::Constant(true)) {
-            self.iterate_or_early_return(
-                cs,
-                file_scope,
-                function_scope,
-                statement.statements,
-                return_types,
-            )
+            self.iterate_or_early_return(cs, file_scope, function_scope, statement.statements, return_types)
         } else {
             match statement.next {
                 Some(next) => match next {
-                    ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        *nested,
-                        return_types,
-                    ),
-                    ConditionalNestedOrEndStatement::End(statements) => self.iterate_or_early_return(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        statements,
-                        return_types,
-                    ),
+                    ConditionalNestedOrEndStatement::Nested(nested) => {
+                        self.enforce_conditional_statement(cs, file_scope, function_scope, *nested, return_types)
+                    }
+                    ConditionalNestedOrEndStatement::End(statements) => {
+                        self.iterate_or_early_return(cs, file_scope, function_scope, statements, return_types)
+                    }
                 },
                 None => Ok(None),
             }
@@ -410,11 +388,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 self.enforce_boolean_eq(cs, bool_1, bool_2)?
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.enforce_equal(cs, &num_2).map_err(|_| {
-                    StatementError::AssertionFailed(num_1.to_string(), num_2.to_string())
-                })?
-            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1
+                .enforce_equal(cs, &num_2)
+                .map_err(|_| StatementError::AssertionFailed(num_1.to_string(), num_2.to_string()))?,
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1
                 .enforce_equal(cs, &fe_2)
                 .map_err(|_| StatementError::AssertionFailed(fe_1.to_string(), fe_2.to_string()))?,
@@ -426,12 +402,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     self.enforce_assert_eq_statement(cs, left, right)?;
                 }
             }
-            (val_1, val_2) => {
-                return Err(StatementError::AssertEq(
-                    val_1.to_string(),
-                    val_2.to_string(),
-                ))
-            }
+            (val_1, val_2) => return Err(StatementError::AssertEq(val_1.to_string(), val_2.to_string())),
         })
     }
 
@@ -446,49 +417,21 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {
-                res = Some(self.enforce_return_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expressions,
-                    return_types,
-                )?);
+                res = Some(self.enforce_return_statement(cs, file_scope, function_scope, expressions, return_types)?);
             }
             Statement::Definition(variable, expression) => {
-                self.enforce_definition_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    variable,
-                    expression,
-                )?;
+                self.enforce_definition_statement(cs, file_scope, function_scope, variable, expression)?;
             }
             Statement::Assign(variable, expression) => {
-                self.enforce_assign_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    variable,
-                    expression,
-                )?;
+                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression)?;
             }
             Statement::MultipleAssign(variables, function) => {
-                self.enforce_multiple_definition_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    variables,
-                    function,
-                )?;
+                self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function)?;
             }
             Statement::Conditional(statement) => {
-                if let Some(early_return) = self.enforce_conditional_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    statement,
-                    return_types,
-                )? {
+                if let Some(early_return) =
+                    self.enforce_conditional_statement(cs, file_scope, function_scope, statement, return_types)?
+                {
                     res = Some(early_return)
                 }
             }
@@ -507,31 +450,15 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 }
             }
             Statement::AssertEq(left, right) => {
-                let resolved_left = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    &vec![],
-                    left,
-                )?;
-                let resolved_right = self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    &vec![],
-                    right,
-                )?;
+                let resolved_left =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], left)?;
+                let resolved_right =
+                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], right)?;
 
                 self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
             }
             Statement::Expression(expression) => {
-                match self.enforce_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    &vec![],
-                    expression.clone(),
-                )? {
+                match self.enforce_expression(cs, file_scope, function_scope, &vec![], expression.clone())? {
                     ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
                             return Err(StatementError::Unassigned(expression.to_string()));

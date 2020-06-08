@@ -12,9 +12,9 @@ pub enum ConditionalNestedOrEndStatement {
 impl<'ast> From<AstConditionalNestedOrEndStatement<'ast>> for ConditionalNestedOrEndStatement {
     fn from(statement: AstConditionalNestedOrEndStatement<'ast>) -> Self {
         match statement {
-            AstConditionalNestedOrEndStatement::Nested(nested) => ConditionalNestedOrEndStatement::Nested(
-                Box::new(ConditionalStatement::from(*nested)),
-            ),
+            AstConditionalNestedOrEndStatement::Nested(nested) => {
+                ConditionalNestedOrEndStatement::Nested(Box::new(ConditionalStatement::from(*nested)))
+            }
             AstConditionalNestedOrEndStatement::End(statements) => ConditionalNestedOrEndStatement::End(
                 statements
                     .into_iter()

@@ -38,17 +38,12 @@ pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
 
 pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::AssertionFailed(_, _),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::AssertionFailed(_, _))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }
 
-pub(crate) fn compile_program(
-    directory_name: &str,
-    file_name: &str,
-) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn compile_program(directory_name: &str, file_name: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let path = current_dir().map_err(|error| CompilerError::DirectoryError(error))?;
 
     // Sanitize the package path to the test directory

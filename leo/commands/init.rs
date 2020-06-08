@@ -1,7 +1,10 @@
-use crate::directories::{InputsDirectory, SourceDirectory};
-use crate::errors::{CLIError, InitError};
-use crate::files::{Gitignore, MainFile, Manifest};
-use crate::{cli::*, cli_types::*};
+use crate::{
+    cli::*,
+    cli_types::*,
+    directories::{InputsDirectory, SourceDirectory},
+    errors::{CLIError, InitError},
+    files::{Gitignore, MainFile, Manifest},
+};
 
 use clap::ArgMatches;
 use std::env::current_dir;
@@ -13,10 +16,10 @@ impl CLI for InitCommand {
     type Options = Option<String>;
     type Output = ();
 
-    const NAME: NameType = "init";
     const ABOUT: AboutType = "Create a new Leo package in an existing directory";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "init";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

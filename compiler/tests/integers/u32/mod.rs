@@ -1,15 +1,19 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
-    compile_program, get_output,
+    compile_program,
+    get_output,
     integers::{fail_integer, fail_synthesis, IntegerTester},
-    EdwardsConstrainedValue, EdwardsTestCompiler,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
-use leo_types::{Integer, InputValue};
+use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-use snarkos_models::gadgets::utilities::{alloc::AllocGadget, uint::UInt32};
+use snarkos_models::gadgets::{
+    r1cs::TestConstraintSystem,
+    utilities::{alloc::AllocGadget, uint::UInt32},
+};
 
 const DIRECTORY_NAME: &str = "tests/integers/u32/";
 
@@ -28,10 +32,8 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
 pub(crate) fn output_zero(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(0u32)
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32)))])
+            .to_string(),
         output.to_string()
     )
 }
@@ -39,10 +41,8 @@ pub(crate) fn output_zero(program: EdwardsTestCompiler) {
 pub(crate) fn output_one(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(1u32)
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))])
+            .to_string(),
         output.to_string()
     )
 }

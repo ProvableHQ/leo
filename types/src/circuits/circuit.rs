@@ -1,4 +1,4 @@
-use crate::{Identifier, CircuitMember};
+use crate::{CircuitMember, Identifier};
 use leo_ast::circuits::Circuit as AstCircuit;
 
 use std::fmt;

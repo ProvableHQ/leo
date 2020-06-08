@@ -1,13 +1,17 @@
 use crate::{
-    compile_program, get_error, get_output, integers::u32::output_one, EdwardsConstrainedValue,
+    compile_program,
+    get_error,
+    get_output,
+    integers::u32::output_one,
+    EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
 use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedCircuitMember, ConstrainedValue,
+    ConstrainedCircuitMember,
+    ConstrainedValue,
 };
-use leo_types::{Expression, Function, Identifier, Integer,
-                Statement, Type,};
+use leo_types::{Expression, Function, Identifier, Integer, Statement, Type};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
@@ -31,18 +35,18 @@ fn output_circuit(program: EdwardsTestCompiler) {
 
 fn fail_expected_member(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::ExpectedCircuitMember(_string)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::ExpectedCircuitMember(_string),
+        ))) => {}
         error => panic!("Expected invalid circuit member error, got {}", error),
     }
 }
 
 fn fail_undefined_member(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedMemberAccess(_, _)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedMemberAccess(_, _),
+        ))) => {}
         error => panic!("Expected undefined circuit member error, got {}", error),
     }
 }
@@ -65,9 +69,9 @@ fn test_inline_fail() {
 fn test_inline_undefined() {
     let program = compile_program(DIRECTORY_NAME, "inline_undefined.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedCircuit(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedCircuit(_),
+        ))) => {}
         error => panic!("Expected undefined circuit error, got {}", error),
     }
 }
@@ -102,9 +106,9 @@ fn test_member_function_fail() {
 fn test_member_function_invalid() {
     let program = compile_program(DIRECTORY_NAME, "member_function_invalid.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::InvalidStaticAccess(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::InvalidStaticAccess(_),
+        ))) => {}
         error => panic!("Expected invalid function error, got {}", error),
     }
 }
@@ -119,9 +123,9 @@ fn test_member_static_function() {
 fn test_member_static_function_undefined() {
     let program = compile_program(DIRECTORY_NAME, "member_static_function_undefined.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedStaticAccess(_, _)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedStaticAccess(_, _),
+        ))) => {}
         error => panic!("Expected undefined static function error, got {}", error),
     }
 }
@@ -129,9 +133,9 @@ fn test_member_static_function_undefined() {
 fn test_member_static_function_invalid() {
     let program = compile_program(DIRECTORY_NAME, "member_static_function_invalid.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::InvalidMemberAccess(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::InvalidMemberAccess(_),
+        ))) => {}
         error => panic!("Expected invalid static function error, got {}", error),
     }
 }

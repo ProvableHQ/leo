@@ -1,5 +1,9 @@
-use crate::{Identifier, Function, Type};
-use leo_ast::circuits::{CircuitFieldDefinition as AstCircuitFieldDefinition, CircuitMember as AstCircuitMember, CircuitFunction as AstCircuitFunction};
+use crate::{Function, Identifier, Type};
+use leo_ast::circuits::{
+    CircuitFieldDefinition as AstCircuitFieldDefinition,
+    CircuitFunction as AstCircuitFunction,
+    CircuitMember as AstCircuitMember,
+};
 
 use std::fmt;
 
@@ -8,7 +12,6 @@ pub enum CircuitMember {
     CircuitField(Identifier, Type),
     CircuitFunction(bool, Function),
 }
-
 
 impl<'ast> From<AstCircuitFieldDefinition<'ast>> for CircuitMember {
     fn from(circuit_value: AstCircuitFieldDefinition<'ast>) -> Self {
@@ -31,12 +34,8 @@ impl<'ast> From<AstCircuitFunction<'ast>> for CircuitMember {
 impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
     fn from(object: AstCircuitMember<'ast>) -> Self {
         match object {
-            AstCircuitMember::CircuitFieldDefinition(circuit_value) => {
-                CircuitMember::from(circuit_value)
-            }
-            AstCircuitMember::CircuitFunction(circuit_function) => {
-                CircuitMember::from(circuit_function)
-            }
+            AstCircuitMember::CircuitFieldDefinition(circuit_value) => CircuitMember::from(circuit_value),
+            AstCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
         }
     }
 }
@@ -44,9 +43,7 @@ impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitField(ref identifier, ref _type) => {
-                write!(f, "{}: {}", identifier, _type)
-            }
+            CircuitMember::CircuitField(ref identifier, ref _type) => write!(f, "{}: {}", identifier, _type),
             CircuitMember::CircuitFunction(ref _static, ref function) => {
                 if *_static {
                     write!(f, "static ")?;

@@ -4,10 +4,20 @@ use crate::{
     constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
     errors::ExpressionError,
     new_scope,
-    FieldType, GroupType,
+    FieldType,
+    GroupType,
 };
-use leo_types::{CircuitFieldDefinition,CircuitMember, Expression, RangeOrExpression,
-                SpreadOrExpression, Identifier, Integer, IntegerType, Type};
+use leo_types::{
+    CircuitFieldDefinition,
+    CircuitMember,
+    Expression,
+    Identifier,
+    Integer,
+    IntegerType,
+    RangeOrExpression,
+    SpreadOrExpression,
+    Type,
+};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -37,9 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             // Check global scope (function and circuit names)
             value.clone()
         } else {
-            return Err(ExpressionError::UndefinedIdentifier(
-                unresolved_identifier.to_string(),
-            ));
+            return Err(ExpressionError::UndefinedIdentifier(unresolved_identifier.to_string()));
         };
 
         result_value.resolve_type(expected_types)?;
@@ -72,10 +80,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_add_expression(cs, val_1, val_2)
             }
-            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
-                "{} + {}",
-                val_1, val_2,
-            ))),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!("{} + {}", val_1, val_2,))),
         }
     }
 
@@ -103,10 +108,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_sub_expression(cs, val_1, val_2)
             }
-            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
-                "{} - {}",
-                val_1, val_2,
-            ))),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!("{} - {}", val_1, val_2,))),
         }
     }
 
@@ -131,12 +133,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_mul_expression(cs, val_1, val_2)
             }
-            (val_1, val_2) => {
-                return Err(ExpressionError::IncompatibleTypes(format!(
-                    "{} * {}",
-                    val_1, val_2,
-                )))
-            }
+            (val_1, val_2) => return Err(ExpressionError::IncompatibleTypes(format!("{} * {}", val_1, val_2,))),
         }
     }
 
@@ -161,14 +158,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_div_expression(cs, val_1, val_2)
             }
-            (val_1, val_2) => {
-                return Err(ExpressionError::IncompatibleTypes(format!(
-                    "{} / {}",
-                    val_1, val_2,
-                )))
-            }
+            (val_1, val_2) => return Err(ExpressionError::IncompatibleTypes(format!("{} / {}", val_1, val_2,))),
         }
     }
+
     fn enforce_pow_expression(
         &mut self,
         cs: &mut CS,
@@ -187,10 +180,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.enforce_pow_expression(cs, val_1, val_2)
             }
-            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
-                "{} * {}",
-                val_1, val_2,
-            ))),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!("{} * {}", val_1, val_2,))),
         }
     }
 
@@ -204,9 +194,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 Ok(Self::boolean_eq(bool_1, bool_2))
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => Ok(
-                ConstrainedValue::Boolean(Boolean::Constant(num_1.eq(&num_2))),
-            ),
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                Ok(ConstrainedValue::Boolean(Boolean::Constant(num_1.eq(&num_2))))
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
             }
@@ -221,10 +211,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
                 self.evaluate_eq_expression(val_1, val_2)
             }
-            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!(
-                "{} == {}",
-                val_1, val_2,
-            ))),
+            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!("{} == {}", val_1, val_2,))),
         }
     }
 
@@ -366,15 +353,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             value => return Err(ExpressionError::IfElseConditional(value.to_string())),
         };
 
-        let resolved_second = self.enforce_branch(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            second,
-        )?;
-        let resolved_third =
-            self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
+        let resolved_second =
+            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, second)?;
+        let resolved_third = self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
 
         match (resolved_second, resolved_third) {
             (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
@@ -382,8 +363,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 Ok(ConstrainedValue::Boolean(result))
             }
             (ConstrainedValue::Integer(integer_2), ConstrainedValue::Integer(integer_3)) => {
-                let result =
-                    Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
+                let result = Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
                 Ok(ConstrainedValue::Integer(result))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
@@ -394,9 +374,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let result = G::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
                 Ok(ConstrainedValue::Group(result))
             }
-            (_, _) => {
-                unimplemented!("conditional select gadget not implemented between given types")
-            }
+            (_, _) => unimplemented!("conditional select gadget not implemented between given types"),
         }
     }
 
@@ -473,13 +451,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         index: Expression,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
-        match self.enforce_branch(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            &expected_types,
-            index,
-        )? {
+        match self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), &expected_types, index)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize()),
             value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
@@ -494,13 +466,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         array: Box<Expression>,
         index: RangeOrExpression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_branch(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            *array,
-        )? {
+        let array = match self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, *array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
         };
@@ -515,9 +481,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     Some(to_index) => to_index.to_usize(),
                     None => array.len(), // Array slice ends at array length
                 };
-                Ok(ConstrainedValue::Array(
-                    array[from_resolved..to_resolved].to_owned(),
-                ))
+                Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
             }
             RangeOrExpression::Expression(index) => {
                 let index_resolved = self.enforce_index(cs, file_scope, function_scope, index)?;
@@ -540,9 +504,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             program_identifier = file_scope.clone();
         }
 
-        if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) =
-            self.get_mut(&program_identifier)
-        {
+        if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) = self.get_mut(&program_identifier) {
             let circuit_identifier = circuit_definition.identifier.clone();
             let mut resolved_members = vec![];
             for member in circuit_definition.members.clone().into_iter() {
@@ -563,14 +525,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                                     field.expression,
                                 )?;
 
-                                resolved_members
-                                    .push(ConstrainedCircuitMember(identifier, field_value))
+                                resolved_members.push(ConstrainedCircuitMember(identifier, field_value))
                             }
-                            None => {
-                                return Err(ExpressionError::ExpectedCircuitMember(
-                                    identifier.to_string(),
-                                ))
-                            }
+                            None => return Err(ExpressionError::ExpectedCircuitMember(identifier.to_string())),
                         }
                     }
                     CircuitMember::CircuitFunction(_static, function) => {
@@ -579,14 +536,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                             ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
 
                         if _static {
-                            constrained_function_value =
-                                ConstrainedValue::Static(Box::new(constrained_function_value));
+                            constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
                         }
 
-                        resolved_members.push(ConstrainedCircuitMember(
-                            identifier,
-                            constrained_function_value,
-                        ));
+                        resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
                     }
                 };
             }
@@ -620,10 +573,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             value => return Err(ExpressionError::InvalidCircuitAccess(value.to_string())),
         };
 
-        let matched_member = members
-            .clone()
-            .into_iter()
-            .find(|member| member.0 == circuit_member);
+        let matched_member = members.clone().into_iter().find(|member| member.0 == circuit_member);
 
         match matched_member {
             Some(member) => {
@@ -635,12 +585,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                                 ConstrainedValue::Function(_, _) => {}
                                 ConstrainedValue::Static(_) => {}
                                 _ => {
-                                    let circuit_scope =
-                                        new_scope(file_scope.clone(), circuit_name.to_string());
-                                    let function_scope =
-                                        new_scope(circuit_scope, member.0.to_string());
-                                    let field =
-                                        new_scope(function_scope, stored_member.0.to_string());
+                                    let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
+                                    let function_scope = new_scope(circuit_scope, member.0.to_string());
+                                    let field = new_scope(function_scope, stored_member.0.to_string());
 
                                     self.store(field, stored_member.1.clone());
                                 }
@@ -648,7 +595,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                         }
                     }
                     ConstrainedValue::Static(value) => {
-                        return Err(ExpressionError::InvalidStaticAccess(value.to_string()))
+                        return Err(ExpressionError::InvalidStaticAccess(value.to_string()));
                     }
                     _ => {}
                 }
@@ -684,9 +631,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
-            CircuitMember::CircuitFunction(_static, function) => {
-                function.function_name == circuit_member
-            }
+            CircuitMember::CircuitFunction(_static, function) => function.function_name == circuit_member,
             _ => false,
         });
 
@@ -696,23 +641,18 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 if _static {
                     function
                 } else {
-                    return Err(ExpressionError::InvalidMemberAccess(
-                        function.function_name.to_string(),
-                    ));
+                    return Err(ExpressionError::InvalidMemberAccess(function.function_name.to_string()));
                 }
             }
             _ => {
                 return Err(ExpressionError::UndefinedStaticAccess(
                     circuit.identifier.to_string(),
                     circuit_member.to_string(),
-                ))
+                ));
             }
         };
 
-        Ok(ConstrainedValue::Function(
-            Some(circuit.identifier),
-            function,
-        ))
+        Ok(ConstrainedValue::Function(Some(circuit.identifier), function))
     }
 
     fn enforce_function_call_expression(
@@ -780,8 +720,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         expected_types: &Vec<Type>,
         expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut branch =
-            self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
+        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
 
         branch.get_inner_mut();
         branch.resolve_type(expected_types)?;
@@ -798,20 +737,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         left: Expression,
         right: Expression,
     ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
-        let resolved_left = self.enforce_branch(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            left,
-        )?;
-        let resolved_right = self.enforce_branch(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            right,
-        )?;
+        let resolved_left =
+            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, left)?;
+        let resolved_right =
+            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, right)?;
 
         Ok((resolved_left, resolved_right))
     }
@@ -826,19 +755,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
             // Variables
-            Expression::Identifier(unresolved_variable) => self.evaluate_identifier(
-                file_scope,
-                function_scope,
-                expected_types,
-                unresolved_variable,
-            ),
+            Expression::Identifier(unresolved_variable) => {
+                self.evaluate_identifier(file_scope, function_scope, expected_types, unresolved_variable)
+            }
 
             // Values
             Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
             Expression::Field(field) => Ok(ConstrainedValue::Field(FieldType::constant(field)?)),
-            Expression::Group(group_affine) => {
-                Ok(ConstrainedValue::Group(G::constant(group_affine)?))
-            }
+            Expression::Group(group_affine) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
             Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 
@@ -1012,23 +936,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             Expression::Array(array) => {
                 self.enforce_array_expression(cs, file_scope, function_scope, expected_types, array)
             }
-            Expression::ArrayAccess(array, index) => self.enforce_array_access_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_types,
-                array,
-                *index,
-            ),
+            Expression::ArrayAccess(array, index) => {
+                self.enforce_array_access_expression(cs, file_scope, function_scope, expected_types, array, *index)
+            }
 
             // Circuits
-            Expression::Circuit(circuit_name, members) => self.enforce_circuit_expression(
-                cs,
-                file_scope,
-                function_scope,
-                circuit_name,
-                members,
-            ),
+            Expression::Circuit(circuit_name, members) => {
+                self.enforce_circuit_expression(cs, file_scope, function_scope, circuit_name, members)
+            }
             Expression::CircuitMemberAccess(circuit_variable, circuit_member) => self
                 .enforce_circuit_access_expression(
                     cs,

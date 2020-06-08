@@ -1,12 +1,13 @@
 //! The proof file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::ProofFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::ProofFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static PROOF_FILE_EXTENSION: &str = ".leo.proof";
 
@@ -31,8 +32,7 @@ impl ProofFile {
     pub fn read_from(&self, path: &PathBuf) -> Result<String, ProofFileError> {
         let path = self.setup_file_path(path);
 
-        let proof =
-            fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
+        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
         Ok(proof)
     }
 
@@ -54,10 +54,7 @@ impl ProofFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(format!(
-                "{}{}",
-                self.package_name, PROOF_FILE_EXTENSION
-            )));
+            path.push(PathBuf::from(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION)));
         }
         path
     }

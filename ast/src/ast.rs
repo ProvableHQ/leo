@@ -2,18 +2,15 @@
 use crate::{
     common::Identifier,
     expressions::{
-        ArrayInlineExpression,
         ArrayInitializerExpression,
+        ArrayInlineExpression,
         CircuitInlineExpression,
         Expression,
-        TernaryExpression,
         NotExpression,
-        PostfixExpression
+        PostfixExpression,
+        TernaryExpression,
     },
-    operations::{
-        BinaryOperation,
-        NotOperation,
-    },
+    operations::{BinaryOperation, NotOperation},
     values::Value,
 };
 
@@ -22,7 +19,8 @@ use pest::{
     error::Error,
     iterators::{Pair, Pairs},
     prec_climber::{Assoc, Operator, PrecClimber},
-    Parser, Span,
+    Parser,
+    Span,
 };
 
 #[derive(Parser)]
@@ -47,16 +45,13 @@ fn precedence_climber() -> PrecClimber<Rule> {
     PrecClimber::new(vec![
         Operator::new(Rule::operation_or, Assoc::Left),
         Operator::new(Rule::operation_and, Assoc::Left),
-        Operator::new(Rule::operation_eq, Assoc::Left)
-            | Operator::new(Rule::operation_ne, Assoc::Left),
+        Operator::new(Rule::operation_eq, Assoc::Left) | Operator::new(Rule::operation_ne, Assoc::Left),
         Operator::new(Rule::operation_ge, Assoc::Left)
             | Operator::new(Rule::operation_gt, Assoc::Left)
             | Operator::new(Rule::operation_le, Assoc::Left)
             | Operator::new(Rule::operation_lt, Assoc::Left),
-        Operator::new(Rule::operation_add, Assoc::Left)
-            | Operator::new(Rule::operation_sub, Assoc::Left),
-        Operator::new(Rule::operation_mul, Assoc::Left)
-            | Operator::new(Rule::operation_div, Assoc::Left),
+        Operator::new(Rule::operation_add, Assoc::Left) | Operator::new(Rule::operation_sub, Assoc::Left),
+        Operator::new(Rule::operation_mul, Assoc::Left) | Operator::new(Rule::operation_div, Assoc::Left),
         Operator::new(Rule::operation_pow, Assoc::Left),
     ])
 }
@@ -69,55 +64,55 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
                 Rule::expression_array_inline => {
-                    Expression::ArrayInline(
-                        ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap()
-                    )
-                },
+                    Expression::ArrayInline(ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_array_initializer => {
-                    Expression::ArrayInitializer(
-                        ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap()
-                    )
-                },
+                    Expression::ArrayInitializer(ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_circuit_inline => {
-                    Expression::CircuitInline(
-                        CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                },
+                    Expression::CircuitInline(CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_conditional => {
-                    Expression::Ternary(
-                        TernaryExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
-                },
+                    Expression::Ternary(TernaryExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_not => {
                     let span = next.as_span();
                     let mut inner = next.into_inner();
                     let operation = match inner.next().unwrap().as_rule() {
-                        Rule::operation_not => NotOperation::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
-                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule)
+                        Rule::operation_not => {
+                            NotOperation::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
+                        }
+                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule),
                     };
                     let expression = parse_term(inner.next().unwrap());
-                    Expression::Not(NotExpression { operation, expression, span })
-                },
+                    Expression::Not(NotExpression {
+                        operation,
+                        expression,
+                        span,
+                    })
+                }
                 Rule::expression_postfix => {
-                    Expression::Postfix(
-                        PostfixExpression::from_pest(&mut pair.into_inner()).unwrap(),
-                    )
+                    Expression::Postfix(PostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
                 Rule::expression_primitive => {
                     let next = next.into_inner().next().unwrap();
                     match next.as_rule() {
-                        Rule::value => {
-                            Expression::Value(
-                                Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
-                            )
-                        },
+                        Rule::value => Expression::Value(
+                            Value::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
+                        ),
                         Rule::identifier => Expression::Identifier(
                             Identifier::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap(),
                         ),
-                        rule => unreachable!("`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}", rule)
+                        rule => unreachable!(
+                            "`expression_primitive` should contain one of [`value`, `identifier`], found {:#?}",
+                            rule
+                        ),
                     }
-                },
-                rule => unreachable!("`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}", rule)
+                }
+                rule => unreachable!(
+                    "`term` should contain one of ['value', 'identifier', 'expression', 'expression_not', 'expression_increment', 'expression_decrement'], found {:#?}",
+                    rule
+                ),
             }
         }
         rule => unreachable!(
@@ -155,8 +150,8 @@ fn binary_expression<'ast>(
 }
 
 impl<'ast> FromPest<'ast> for Expression<'ast> {
-    type Rule = Rule;
     type FatalError = Void;
+    type Rule = Rule;
 
     fn from_pest(pest: &mut Pairs<'ast, Rule>) -> Result<Self, ConversionError<Void>> {
         let mut clone = pest.clone();

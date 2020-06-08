@@ -68,10 +68,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_constraints(cs, self.program, self.program_inputs)
     }
 
-    pub fn compile_test_constraints(
-        self,
-        cs: &mut TestConstraintSystem<F>,
-    ) -> Result<(), CompilerError> {
+    pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
         generate_test_constraints::<F, G>(cs, self.program)
     }
 
@@ -94,12 +91,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
-    fn generate_constraints<CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-    ) -> Result<(), SynthesisError> {
-        let _result =
-            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
+    fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
+        let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

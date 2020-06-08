@@ -1,16 +1,17 @@
-use crate::commands::SetupCommand;
-use crate::errors::CLIError;
-use crate::files::{Manifest, ProofFile};
-use crate::{cli::*, cli_types::*};
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::SetupCommand,
+    errors::CLIError,
+    files::{Manifest, ProofFile},
+};
 
 use snarkos_algorithms::snark::{create_random_proof, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
 
 use clap::ArgMatches;
 use rand::thread_rng;
-use std::convert::TryFrom;
-use std::env::current_dir;
-use std::time::Instant;
+use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
 pub struct ProveCommand;
@@ -19,10 +20,10 @@ impl CLI for ProveCommand {
     type Options = ();
     type Output = Proof<Bls12_377>;
 
-    const NAME: NameType = "prove";
     const ABOUT: AboutType = "Run the program and produce a proof";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "prove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -45,10 +46,7 @@ impl CLI for ProveCommand {
         let rng = &mut thread_rng();
         let program_proof = create_random_proof(program, &parameters, rng).unwrap();
 
-        log::info!(
-            "Prover completed in {:?} milliseconds",
-            start.elapsed().as_millis()
-        );
+        log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
         // Write the proof file to the outputs directory
         let mut proof = vec![];

@@ -1,17 +1,26 @@
-use crate::boolean::{output_expected_boolean, output_false, output_true};
-use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{
+    boolean::{output_expected_boolean, output_false, output_true},
+    compile_program,
+    get_error,
+    get_output,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
-    ConstrainedValue, FieldType,
+    ConstrainedValue,
+    FieldType,
 };
 use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
-use snarkos_models::curves::{Field, PrimeField};
-use snarkos_models::gadgets::{
-    curves::field::FieldGadget,
-    r1cs::{ConstraintSystem, TestConstraintSystem},
+use snarkos_models::{
+    curves::{Field, PrimeField},
+    gadgets::{
+        curves::field::FieldGadget,
+        r1cs::{ConstraintSystem, TestConstraintSystem},
+    },
 };
 use snarkos_utilities::biginteger::BigInteger256;
 
@@ -20,10 +29,7 @@ const DIRECTORY_NAME: &str = "tests/field/";
 fn output_expected_constant(program: EdwardsTestCompiler, expected: Fq) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldType::Constant(
-            expected
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldType::Constant(expected))]).to_string(),
         output.to_string()
     );
 }
@@ -33,9 +39,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: FqGadget) {
 
     match output {
         EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Field(FieldType::Allocated(fp_gadget))] => {
-                assert_eq!(*fp_gadget, expected as FqGadget)
-            }
+            [ConstrainedValue::Field(FieldType::Allocated(fp_gadget))] => assert_eq!(*fp_gadget, expected as FqGadget),
             _ => panic!("program output unknown return value"),
         },
         _ => panic!("program output unknown return value"),
@@ -59,9 +63,7 @@ fn fail_field(program: EdwardsTestCompiler) {
 
 fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldError(FieldError::SynthesisError(
-            _string,
-        ))) => {}
+        CompilerError::FunctionError(FunctionError::FieldError(FieldError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }

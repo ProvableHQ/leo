@@ -1,4 +1,7 @@
-use crate::{ast::Rule, circuits::{CircuitFunction, CircuitFieldDefinition}};
+use crate::{
+    ast::Rule,
+    circuits::{CircuitFieldDefinition, CircuitFunction},
+};
 
 use pest_ast::FromPest;
 

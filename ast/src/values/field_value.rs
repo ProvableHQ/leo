@@ -1,4 +1,4 @@
-use crate::{ast::Rule, types::FieldType, values::NumberValue,};
+use crate::{ast::Rule, types::FieldType, values::NumberValue};
 
 use pest::Span;
 use pest_ast::FromPest;

@@ -13,9 +13,12 @@ const DIRECTORY_NAME: &str = "tests/array/";
 fn output_ones(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Array(
-            vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32))); 3]
-        )])
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Array(vec![
+            ConstrainedValue::Integer(
+                Integer::U32(UInt32::constant(1u32))
+            );
+            3
+        ])])
         .to_string(),
         output.to_string()
     );
@@ -46,9 +49,7 @@ fn fail_array(program: EdwardsTestCompiler) {
 
 fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(
-            IntegerError::SynthesisError(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }
@@ -90,12 +91,7 @@ fn test_multi() {
 #[test]
 fn test_input_array() {
     let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
-    program.set_inputs(vec![Some(InputValue::Array(vec![
-        InputValue::Integer(
-            1u128
-        );
-        3
-    ]))]);
+    program.set_inputs(vec![Some(InputValue::Array(vec![InputValue::Integer(1u128); 3]))]);
     output_ones(program)
 }
 

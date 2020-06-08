@@ -1,5 +1,9 @@
 use crate::{
-    compile_program, get_error, get_output, integers::u32::output_one, EdwardsConstrainedValue,
+    compile_program,
+    get_error,
+    get_output,
+    integers::u32::output_one,
+    EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
 use leo_compiler::{
@@ -13,10 +17,7 @@ const DIRECTORY_NAME: &str = "tests/function/";
 
 pub(crate) fn output_empty(program: EdwardsTestCompiler) {
     let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![]).to_string(),
-        output.to_string()
-    );
+    assert_eq!(EdwardsConstrainedValue::Return(vec![]).to_string(), output.to_string());
 }
 
 // (true, false)
@@ -34,9 +35,9 @@ pub(crate) fn output_multiple(program: EdwardsTestCompiler) {
 
 fn fail_undefined_identifier(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_)),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::UndefinedIdentifier(_),
+        ))) => {}
         error => panic!("Expected function undefined, got {}", error),
     }
 }
@@ -67,12 +68,11 @@ fn test_undefined() {
 fn test_global_scope_fail() {
     let program = compile_program(DIRECTORY_NAME, "scope_fail.leo").unwrap();
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::FunctionError(value)),
-        )) => match *value {
-            FunctionError::StatementError(StatementError::ExpressionError(
-                ExpressionError::UndefinedIdentifier(_),
-            )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::FunctionError(value),
+        ))) => match *value {
+            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_))) => {
+            }
             error => panic!("Expected function undefined, got {}", error),
         },
         error => panic!("Expected function undefined, got {}", error),

@@ -13,9 +13,7 @@ pub enum AssertStatement<'ast> {
 impl<'ast> fmt::Display for AssertStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            AssertStatement::AssertEq(ref assert) => {
-                write!(f, "assert_eq({}, {});", assert.left, assert.right)
-            }
+            AssertStatement::AssertEq(ref assert) => write!(f, "assert_eq({}, {});", assert.left, assert.right),
         }
     }
 }

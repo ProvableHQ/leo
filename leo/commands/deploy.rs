@@ -1,11 +1,7 @@
-use crate::commands::BuildCommand;
-use crate::errors::CLIError;
-use crate::files::Manifest;
-use crate::{cli::*, cli_types::*};
+use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError, files::Manifest};
 
 use clap::ArgMatches;
-use std::convert::TryFrom;
-use std::env::current_dir;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct DeployCommand;
@@ -14,10 +10,10 @@ impl CLI for DeployCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "deploy";
     const ABOUT: AboutType = "Deploy the current package as a program to the network (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "deploy";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

@@ -5,9 +5,7 @@ const DIRECTORY_NAME: &str = "tests/syntax/";
 
 #[test]
 fn test_semicolon() {
-    let error = compile_program(DIRECTORY_NAME, "semicolon.leo")
-        .err()
-        .unwrap();
+    let error = compile_program(DIRECTORY_NAME, "semicolon.leo").err().unwrap();
 
     match error {
         CompilerError::ParserError(_) => {}

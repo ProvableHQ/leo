@@ -1,6 +1,10 @@
 use crate::{
     boolean::{output_false, output_true},
-    compile_program, fail_enforce, get_output, EdwardsConstrainedValue, EdwardsTestCompiler,
+    compile_program,
+    fail_enforce,
+    get_output,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
 };
 use leo_compiler::{group::edwards_bls12::EdwardsGroupType, ConstrainedValue};
 use leo_types::InputValue;
@@ -21,10 +25,8 @@ const TEST_POINT_2: &str = "(100584211797438414962237006104297858121134211165396
 fn output_expected_constant(program: EdwardsTestCompiler, expected: EdwardsAffine) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Group(EdwardsGroupType::Constant(
-            expected
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Group(EdwardsGroupType::Constant(expected))])
+            .to_string(),
         output.to_string()
     )
 }
@@ -68,8 +70,7 @@ fn test_input() {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let constant_point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
     let allocated_point =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(constant_point))
-            .unwrap();
+        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(constant_point)).unwrap();
 
     output_expected_allocated(program, allocated_point);
 }
@@ -135,8 +136,7 @@ fn test_ternary() {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
     let expected_point_1 =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_1))
-            .unwrap();
+        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_1)).unwrap();
     output_expected_allocated(program_1, expected_point_1);
 
     // false -> point_2
@@ -145,7 +145,6 @@ fn test_ternary() {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
     let expected_point_2 =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_2))
-            .unwrap();
+        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_2)).unwrap();
     output_expected_allocated(program_2, expected_point_2);
 }

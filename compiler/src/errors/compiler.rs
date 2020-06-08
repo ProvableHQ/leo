@@ -1,5 +1,5 @@
 use crate::errors::{FunctionError, ImportError};
-use leo_ast::{SyntaxError, ParserError};
+use leo_ast::{ParserError, SyntaxError};
 use leo_types::IntegerError;
 
 use std::{io, path::PathBuf};

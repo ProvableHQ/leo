@@ -12,10 +12,7 @@ const DIRECTORY_NAME: &str = "tests/boolean/";
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(
-            boolean
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Boolean(Boolean::Constant(boolean))]).to_string(),
         output.to_string()
     );
 }
@@ -30,40 +27,32 @@ pub fn output_false(program: EdwardsTestCompiler) {
 
 fn fail_evaluate(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::BooleanError(
-                BooleanError::CannotEvaluate(_string),
-            )),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::BooleanError(BooleanError::CannotEvaluate(_string)),
+        ))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }
 
 fn fail_enforce(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ExpressionError(ExpressionError::BooleanError(
-                BooleanError::CannotEnforce(_string),
-            )),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::BooleanError(BooleanError::CannotEnforce(_string)),
+        ))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }
 
 fn fail_boolean(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(
-            BooleanError::InvalidBoolean(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::InvalidBoolean(_string))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
     }
 }
 
 fn fail_synthesis(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(
-            BooleanError::SynthesisError(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
 }

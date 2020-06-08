@@ -1,4 +1,8 @@
-use crate::{ast::Rule, common::{Identifier, Visibility, Mutable}, types::Type};
+use crate::{
+    ast::Rule,
+    common::{Identifier, Mutable, Visibility},
+    types::Type,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

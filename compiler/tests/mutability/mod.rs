@@ -16,10 +16,7 @@ fn mut_success(program: EdwardsTestCompiler) {
 
     assert!(cs.is_satisfied());
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(0)
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0)))]).to_string(),
         output.to_string()
     );
 }
@@ -31,9 +28,7 @@ fn mut_fail(program: EdwardsTestCompiler) {
     // It would be ideal if assert_eq!(Error1, Error2) were possible but unfortunately it is not due to
     // https://github.com/rust-lang/rust/issues/34158#issuecomment-224910299
     match err {
-        CompilerError::FunctionError(FunctionError::StatementError(
-            StatementError::ImmutableAssign(_string),
-        )) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ImmutableAssign(_string))) => {}
         err => panic!("Expected immutable assign error, got {}", err),
     }
 }
