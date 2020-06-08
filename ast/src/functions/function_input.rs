@@ -4,8 +4,8 @@ use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::input_model))]
-pub struct InputModel<'ast> {
+#[pest_ast(rule(Rule::function_input))]
+pub struct FunctionInput<'ast> {
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
     pub visibility: Option<Visibility>,

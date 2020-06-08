@@ -4,11 +4,14 @@
 assignee = { identifier ~ access_assignee* }
 
 // Declared in common/file.rs
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+
+// Declared in common/line_end.rs
+LINE_END = { ";" ~ NEWLINE* }
 
 // Declared in common/mutable.rs
 mutable = { "mut" }
@@ -268,10 +271,15 @@ statement_return = { "return" ~ expression_tuple }
 
 /// Functions
 
-function_definition = {"function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+// Declared in functions/function.rs
+function_definition = { "function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-input_model = {mutable? ~ identifier ~ ":" ~ visibility? ~ type_}
-input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
+// Declared in functions/function_input.rs
+function_input = { mutable? ~ identifier ~ ":" ~ visibility? ~ type_ }
+input_model_list = _{ (function_input ~ ("," ~ function_input)*)? }
+
+// Declared in functions/test_function.rs
+test_function = { "test" ~ function_definition }
 
 /// Imports
 
@@ -279,7 +287,7 @@ input_model_list = _{(input_model ~ ("," ~ input_model)*)?}
 import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
 
 // Declared in imports/import_source.rs
-import_source = @{(!"\"" ~ ANY)*}
+import_source = @{ (!"\"" ~ ANY)* }
 
 // Declared in imports/import_symbol.rs
 import_symbol = { identifier ~ ("as" ~ identifier)? }
@@ -289,8 +297,3 @@ import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
-LINE_END = {";" ~ NEWLINE*}
-
-/// Tests
-
-test = { "test" ~ function_definition }

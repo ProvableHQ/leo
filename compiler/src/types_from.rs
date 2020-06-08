@@ -35,8 +35,8 @@ use leo_ast::{
     },
     functions::{
         Function,
-        InputModel,
-        Test
+        FunctionInput,
+        TestFunction
     },
     imports::{
         Import as AstImport,
@@ -794,8 +794,8 @@ impl<'ast> From<Circuit<'ast>> for types::Circuit {
 
 /// pest ast -> function types::Parameters
 
-impl<'ast> From<InputModel<'ast>> for types::InputModel {
-    fn from(parameter: InputModel<'ast>) -> Self {
+impl<'ast> From<FunctionInput<'ast>> for types::InputModel {
+    fn from(parameter: FunctionInput<'ast>) -> Self {
         types::InputModel {
             identifier: types::Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
@@ -863,8 +863,8 @@ impl<'ast> From<AstImport<'ast>> for Import {
 }
 
 /// pest ast -> Test
-impl<'ast> From<Test<'ast>> for types::Test {
-    fn from(test: Test) -> Self {
+impl<'ast> From<TestFunction<'ast>> for types::Test {
+    fn from(test: TestFunction) -> Self {
         types::Test(types::Function::from(test.function))
     }
 }
