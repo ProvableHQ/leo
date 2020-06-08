@@ -5,7 +5,7 @@ use crate::{
     errors::StatementError,
     new_scope,
     types::{
-        ConditionalNestedOrEnd, ConditionalStatement,  Statement,
+        ConditionalNestedOrEndStatement, ConditionalStatement, Statement,
     },
     GroupType,
 };
@@ -345,14 +345,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         } else {
             match statement.next {
                 Some(next) => match next {
-                    ConditionalNestedOrEnd::Nested(nested) => self.enforce_conditional_statement(
+                    ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
                         cs,
                         file_scope,
                         function_scope,
                         *nested,
                         return_types,
                     ),
-                    ConditionalNestedOrEnd::End(statements) => self.iterate_or_early_return(
+                    ConditionalNestedOrEndStatement::End(statements) => self.iterate_or_early_return(
                         cs,
                         file_scope,
                         function_scope,

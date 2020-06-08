@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConditionalNestedOrEnd {
+pub enum ConditionalNestedOrEndStatement {
     Nested(Box<ConditionalStatement>),
     End(Vec<Statement>),
 }
@@ -17,7 +17,7 @@ pub enum ConditionalNestedOrEnd {
 pub struct ConditionalStatement {
     pub condition: Expression,
     pub statements: Vec<Statement>,
-    pub next: Option<ConditionalNestedOrEnd>,
+    pub next: Option<ConditionalNestedOrEndStatement>,
 }
 
 /// Program statement that defines some action (or expression) to be carried out.

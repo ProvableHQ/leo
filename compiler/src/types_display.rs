@@ -1,18 +1,18 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement,
+    Circuit, CircuitMember, ConditionalNestedOrEndStatement, ConditionalStatement,
     Function, InputModel, Statement,
 };
 
 use std::fmt;
 
 
-impl fmt::Display for ConditionalNestedOrEnd {
+impl fmt::Display for ConditionalNestedOrEndStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ConditionalNestedOrEnd::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEnd::End(ref statements) => {
+            ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
+            ConditionalNestedOrEndStatement::End(ref statements) => {
                 write!(f, "else {{\n")?;
                 for statement in statements.iter() {
                     write!(f, "\t\t{}\n", statement)?;

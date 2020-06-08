@@ -143,13 +143,13 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for types::Statement {
     }
 }
 
-impl<'ast> From<ConditionalNestedOrEndStatement<'ast>> for types::ConditionalNestedOrEnd {
+impl<'ast> From<ConditionalNestedOrEndStatement<'ast>> for types::ConditionalNestedOrEndStatement {
     fn from(statement: ConditionalNestedOrEndStatement<'ast>) -> Self {
         match statement {
-            ConditionalNestedOrEndStatement::Nested(nested) => types::ConditionalNestedOrEnd::Nested(
+            ConditionalNestedOrEndStatement::Nested(nested) => types::ConditionalNestedOrEndStatement::Nested(
                 Box::new(types::ConditionalStatement::from(*nested)),
             ),
-            ConditionalNestedOrEndStatement::End(statements) => types::ConditionalNestedOrEnd::End(
+            ConditionalNestedOrEndStatement::End(statements) => types::ConditionalNestedOrEndStatement::End(
                 statements
                     .into_iter()
                     .map(|statement| types::Statement::from(statement))
@@ -170,7 +170,7 @@ impl<'ast> From<ConditionalStatement<'ast>> for types::ConditionalStatement {
                 .collect(),
             next: statement
                 .next
-                .map(|n_or_e| Some(types::ConditionalNestedOrEnd::from(n_or_e)))
+                .map(|n_or_e| Some(types::ConditionalNestedOrEndStatement::from(n_or_e)))
                 .unwrap_or(None),
         }
     }
