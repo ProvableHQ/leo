@@ -3,34 +3,19 @@
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
     access::{
-        Access,
         AssigneeAccess,
     },
     circuits::{
         Circuit,
-        CircuitField,
-        CircuitFieldDefinition,
+        CircuitFieldDefinition as AstCircuitFieldDefinition,
         CircuitFunction,
         CircuitMember
     },
     common::{
         Assignee,
         Identifier as AstIdentifier,
-        RangeOrExpression as AstRangeOrExpression,
-        SpreadOrExpression as AstSpreadOrExpression,
-        Variable as AstVariable,
         Visibility,
         Private,
-    },
-    expressions::{
-        ArrayInitializerExpression,
-        ArrayInlineExpression,
-        BinaryExpression,
-        CircuitInlineExpression,
-        Expression,
-        NotExpression,
-        PostfixExpression,
-        TernaryExpression
     },
     files::File,
     functions::{
@@ -44,7 +29,6 @@ use leo_ast::{
     },
     operations::{
         AssignOperation,
-        BinaryOperation,
     },
     statements::{
         AssertStatement,
@@ -58,369 +42,10 @@ use leo_ast::{
         ReturnStatement,
         Statement,
     },
-    types::{
-        ArrayType,
-        CircuitType,
-        DataType,
-        Type as AstType
-    },
-    values::{
-        BooleanValue,
-        FieldValue,
-        GroupValue,
-        IntegerValue,
-        NumberImplicitValue,
-        Value
-    }
 };
-use leo_types::{Identifier, Integer, IntegerType};
+use leo_types::{Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
-use snarkos_models::gadgets::utilities::{
-    boolean::Boolean,
-};
 use std::collections::HashMap;
-
-impl<'ast> From<AstIdentifier<'ast>> for types::Expression {
-    fn from(identifier: AstIdentifier<'ast>) -> Self {
-        types::Expression::Identifier(Identifier::from(identifier))
-    }
-}
-
-/// pest ast -> types::Variable
-
-impl<'ast> From<AstVariable<'ast>> for types::Variable {
-    fn from(variable: AstVariable<'ast>) -> Self {
-        types::Variable {
-            identifier: Identifier::from(variable.identifier),
-            mutable: variable.mutable.is_some(),
-            _type: variable._type.map(|_type| types::Type::from(_type)),
-        }
-    }
-}
-
-/// pest ast - Integer
-
-impl<'ast> From<IntegerValue<'ast>> for types::Expression {
-    fn from(field: IntegerValue<'ast>) -> Self {
-        types::Expression::Integer(Integer::from(field.number, field._type))
-    }
-}
-
-impl<'ast> From<AstRangeOrExpression<'ast>> for types::RangeOrExpression {
-    fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
-        match range_or_expression {
-            AstRangeOrExpression::Range(range) => {
-                let from = range
-                    .from
-                    .map(|from| match types::Expression::from(from.0) {
-                        types::Expression::Integer(number) => number,
-                        types::Expression::Implicit(string) => {
-                            Integer::from_implicit(string)
-                        }
-                        expression => {
-                            unimplemented!("Range bounds should be integers, found {}", expression)
-                        }
-                    });
-                let to = range.to.map(|to| match types::Expression::from(to.0) {
-                    types::Expression::Integer(number) => number,
-                    types::Expression::Implicit(string) => Integer::from_implicit(string),
-                    expression => {
-                        unimplemented!("Range bounds should be integers, found {}", expression)
-                    }
-                });
-
-                types::RangeOrExpression::Range(from, to)
-            }
-            AstRangeOrExpression::Expression(expression) => {
-                types::RangeOrExpression::Expression(types::Expression::from(expression))
-            }
-        }
-    }
-}
-
-/// pest ast -> types::Field
-
-impl<'ast> From<FieldValue<'ast>> for types::Expression {
-    fn from(field: FieldValue<'ast>) -> Self {
-        types::Expression::Field(field.number.value)
-    }
-}
-
-/// pest ast -> types::Group
-
-impl<'ast> From<GroupValue<'ast>> for types::Expression {
-    fn from(group: GroupValue<'ast>) -> Self {
-        types::Expression::Group(group.to_string())
-    }
-}
-
-/// pest ast -> types::Boolean
-
-impl<'ast> From<BooleanValue<'ast>> for types::Expression {
-    fn from(boolean: BooleanValue<'ast>) -> Self {
-        types::Expression::Boolean(Boolean::Constant(
-            boolean
-                .value
-                .parse::<bool>()
-                .expect("unable to parse boolean"),
-        ))
-    }
-}
-
-/// pest ast -> types::NumberImplicit
-
-impl<'ast> From<NumberImplicitValue<'ast>> for types::Expression {
-    fn from(number: NumberImplicitValue<'ast>) -> Self {
-        types::Expression::Implicit(number.number.value)
-    }
-}
-
-/// pest ast -> types::Expression
-
-impl<'ast> From<Value<'ast>> for types::Expression {
-    fn from(value: Value<'ast>) -> Self {
-        match value {
-            Value::Integer(num) => types::Expression::from(num),
-            Value::Field(field) => types::Expression::from(field),
-            Value::Group(group) => types::Expression::from(group),
-            Value::Boolean(bool) => types::Expression::from(bool),
-            Value::Implicit(value) => types::Expression::from(value),
-        }
-    }
-}
-
-impl<'ast> From<NotExpression<'ast>> for types::Expression {
-    fn from(expression: NotExpression<'ast>) -> Self {
-        types::Expression::Not(Box::new(types::Expression::from(*expression.expression)))
-    }
-}
-
-impl<'ast> From<AstSpreadOrExpression<'ast>> for types::SpreadOrExpression {
-    fn from(s_or_e: AstSpreadOrExpression<'ast>) -> Self {
-        match s_or_e {
-            AstSpreadOrExpression::Spread(spread) => {
-                types::SpreadOrExpression::Spread(types::Expression::from(spread.expression))
-            }
-            AstSpreadOrExpression::Expression(expression) => {
-                types::SpreadOrExpression::Expression(types::Expression::from(expression))
-            }
-        }
-    }
-}
-
-impl<'ast> From<BinaryExpression<'ast>> for types::Expression {
-    fn from(expression: BinaryExpression<'ast>) -> Self {
-        match expression.operation {
-            // Boolean operations
-            BinaryOperation::Or => types::Expression::Or(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::And => types::Expression::And(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Eq => types::Expression::Eq(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Ne => {
-                types::Expression::Not(Box::new(types::Expression::from(expression)))
-            }
-            BinaryOperation::Ge => types::Expression::Ge(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Gt => types::Expression::Gt(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Le => types::Expression::Le(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Lt => types::Expression::Lt(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            // Number operations
-            BinaryOperation::Add => types::Expression::Add(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Sub => types::Expression::Sub(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Mul => types::Expression::Mul(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Div => types::Expression::Div(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-            BinaryOperation::Pow => types::Expression::Pow(
-                Box::new(types::Expression::from(*expression.left)),
-                Box::new(types::Expression::from(*expression.right)),
-            ),
-        }
-    }
-}
-
-impl<'ast> From<TernaryExpression<'ast>> for types::Expression {
-    fn from(expression: TernaryExpression<'ast>) -> Self {
-        types::Expression::IfElse(
-            Box::new(types::Expression::from(*expression.first)),
-            Box::new(types::Expression::from(*expression.second)),
-            Box::new(types::Expression::from(*expression.third)),
-        )
-    }
-}
-
-impl<'ast> From<ArrayInlineExpression<'ast>> for types::Expression {
-    fn from(array: ArrayInlineExpression<'ast>) -> Self {
-        types::Expression::Array(
-            array
-                .expressions
-                .into_iter()
-                .map(|s_or_e| Box::new(types::SpreadOrExpression::from(s_or_e)))
-                .collect(),
-        )
-    }
-}
-impl<'ast> From<ArrayInitializerExpression<'ast>> for types::Expression {
-    fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let count = types::Expression::get_count(array.count);
-        let expression = Box::new(types::SpreadOrExpression::from(*array.expression));
-
-        types::Expression::Array(vec![expression; count])
-    }
-}
-
-impl<'ast> From<CircuitField<'ast>> for types::CircuitFieldDefinition {
-    fn from(member: CircuitField<'ast>) -> Self {
-        types::CircuitFieldDefinition {
-            identifier: Identifier::from(member.identifier),
-            expression: types::Expression::from(member.expression),
-        }
-    }
-}
-
-impl<'ast> From<CircuitInlineExpression<'ast>> for types::Expression {
-    fn from(expression: CircuitInlineExpression<'ast>) -> Self {
-        let variable = Identifier::from(expression.identifier);
-        let members = expression
-            .members
-            .into_iter()
-            .map(|member| types::CircuitFieldDefinition::from(member))
-            .collect::<Vec<types::CircuitFieldDefinition>>();
-
-        types::Expression::Circuit(variable, members)
-    }
-}
-
-impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
-    fn from(expression: PostfixExpression<'ast>) -> Self {
-        let variable =
-            types::Expression::Identifier(Identifier::from(expression.identifier));
-
-        // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
-        // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
-
-        // we start with the id, and we fold the array of accesses by wrapping the current value
-        expression
-            .accesses
-            .into_iter()
-            .fold(variable, |acc, access| match access {
-                // Handle array accesses
-                Access::Array(array) => types::Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(types::RangeOrExpression::from(array.expression)),
-                ),
-
-                // Handle function calls
-                Access::Call(function) => types::Expression::FunctionCall(
-                    Box::new(acc),
-                    function
-                        .expressions
-                        .into_iter()
-                        .map(|expression| types::Expression::from(expression))
-                        .collect(),
-                ),
-
-                // Handle circuit member accesses
-                Access::Object(circuit_object) => types::Expression::CircuitMemberAccess(
-                    Box::new(acc),
-                    Identifier::from(circuit_object.identifier),
-                ),
-                Access::StaticObject(circuit_object) => {
-                    types::Expression::CircuitStaticFunctionAccess(
-                        Box::new(acc),
-                        Identifier::from(circuit_object.identifier),
-                    )
-                }
-            })
-    }
-}
-
-impl<'ast> From<Expression<'ast>> for types::Expression {
-    fn from(expression: Expression<'ast>) -> Self {
-        match expression {
-            Expression::Value(value) => types::Expression::from(value),
-            Expression::Identifier(variable) => types::Expression::from(variable),
-            Expression::Not(expression) => types::Expression::from(expression),
-            Expression::Binary(expression) => types::Expression::from(expression),
-            Expression::Ternary(expression) => types::Expression::from(expression),
-            Expression::ArrayInline(expression) => types::Expression::from(expression),
-            Expression::ArrayInitializer(expression) => types::Expression::from(expression),
-            Expression::CircuitInline(expression) => types::Expression::from(expression),
-            Expression::Postfix(expression) => types::Expression::from(expression),
-        }
-    }
-}
-
-impl<'ast> types::Expression {
-    fn get_count(count: Value<'ast>) -> usize {
-        match count {
-            Value::Integer(integer) => integer
-                .number
-                .value
-                .parse::<usize>()
-                .expect("Unable to read array size"),
-            Value::Implicit(number) => number
-                .number
-                .value
-                .parse::<usize>()
-                .expect("Unable to read array size"),
-            size => unimplemented!("Array size should be an integer {}", size),
-        }
-    }
-}
-
-// Assignee -> types::Expression for operator assign statements
-impl<'ast> From<Assignee<'ast>> for types::Expression {
-    fn from(assignee: Assignee<'ast>) -> Self {
-        let variable = types::Expression::Identifier(Identifier::from(assignee.identifier));
-
-        // we start with the id, and we fold the array of accesses by wrapping the current value
-        assignee
-            .accesses
-            .into_iter()
-            .fold(variable, |acc, access| match access {
-                AssigneeAccess::Member(circuit_member) => {
-                    types::Expression::CircuitMemberAccess(
-                        Box::new(acc),
-                        Identifier::from(circuit_member.identifier),
-                    )
-                }
-                AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(types::RangeOrExpression::from(array.expression)),
-                ),
-            })
-    }
-}
 
 /// pest ast -> types::Assignee
 
@@ -441,7 +66,7 @@ impl<'ast> From<Assignee<'ast>> for types::Assignee {
             .fold(variable, |acc, access| match access {
                 AssigneeAccess::Array(array) => types::Assignee::Array(
                     Box::new(acc),
-                    types::RangeOrExpression::from(array.expression),
+                    RangeOrExpression::from(array.expression),
                 ),
                 AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
                     Box::new(acc),
@@ -459,7 +84,7 @@ impl<'ast> From<ReturnStatement<'ast>> for types::Statement {
             statement
                 .expressions
                 .into_iter()
-                .map(|expression| types::Expression::from(expression))
+                .map(|expression| Expression::from(expression))
                 .collect(),
         )
     }
@@ -468,8 +93,8 @@ impl<'ast> From<ReturnStatement<'ast>> for types::Statement {
 impl<'ast> From<DefinitionStatement<'ast>> for types::Statement {
     fn from(statement: DefinitionStatement<'ast>) -> Self {
         types::Statement::Definition(
-            types::Variable::from(statement.variable),
-            types::Expression::from(statement.expression),
+            Variable::from(statement.variable),
+            Expression::from(statement.expression),
         )
     }
 }
@@ -479,46 +104,46 @@ impl<'ast> From<AssignStatement<'ast>> for types::Statement {
         match statement.assign {
             AssignOperation::Assign(ref _assign) => types::Statement::Assign(
                 types::Assignee::from(statement.assignee),
-                types::Expression::from(statement.expression),
+                Expression::from(statement.expression),
             ),
             operation_assign => {
                 // convert assignee into postfix expression
-                let converted = types::Expression::from(statement.assignee.clone());
+                let converted = Expression::from(statement.assignee.clone());
 
                 match operation_assign {
                     AssignOperation::AddAssign(ref _assign) => types::Statement::Assign(
                         types::Assignee::from(statement.assignee),
-                        types::Expression::Add(
+                        Expression::Add(
                             Box::new(converted),
-                            Box::new(types::Expression::from(statement.expression)),
+                            Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::SubAssign(ref _assign) => types::Statement::Assign(
                         types::Assignee::from(statement.assignee),
-                        types::Expression::Sub(
+                        Expression::Sub(
                             Box::new(converted),
-                            Box::new(types::Expression::from(statement.expression)),
+                            Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::MulAssign(ref _assign) => types::Statement::Assign(
                         types::Assignee::from(statement.assignee),
-                        types::Expression::Mul(
+                        Expression::Mul(
                             Box::new(converted),
-                            Box::new(types::Expression::from(statement.expression)),
+                            Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::DivAssign(ref _assign) => types::Statement::Assign(
                         types::Assignee::from(statement.assignee),
-                        types::Expression::Div(
+                        Expression::Div(
                             Box::new(converted),
-                            Box::new(types::Expression::from(statement.expression)),
+                            Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::PowAssign(ref _assign) => types::Statement::Assign(
                         types::Assignee::from(statement.assignee),
-                        types::Expression::Pow(
+                        Expression::Pow(
                             Box::new(converted),
-                            Box::new(types::Expression::from(statement.expression)),
+                            Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::Assign(ref _assign) => {
@@ -535,17 +160,17 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for types::Statement {
         let variables = statement
             .variables
             .into_iter()
-            .map(|typed_variable| types::Variable::from(typed_variable))
+            .map(|typed_variable| Variable::from(typed_variable))
             .collect();
 
         types::Statement::MultipleAssign(
             variables,
-            types::Expression::FunctionCall(
-                Box::new(types::Expression::from(statement.function_name)),
+            Expression::FunctionCall(
+                Box::new(Expression::from(statement.function_name)),
                 statement
                     .arguments
                     .into_iter()
-                    .map(|e| types::Expression::from(e))
+                    .map(|e| Expression::from(e))
                     .collect(),
             ),
         )
@@ -571,7 +196,7 @@ impl<'ast> From<ConditionalNestedOrEndStatement<'ast>> for types::ConditionalNes
 impl<'ast> From<ConditionalStatement<'ast>> for types::ConditionalStatement {
     fn from(statement: ConditionalStatement<'ast>) -> Self {
         types::ConditionalStatement {
-            condition: types::Expression::from(statement.condition),
+            condition: Expression::from(statement.condition),
             statements: statement
                 .statements
                 .into_iter()
@@ -587,14 +212,14 @@ impl<'ast> From<ConditionalStatement<'ast>> for types::ConditionalStatement {
 
 impl<'ast> From<ForStatement<'ast>> for types::Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
-        let from = match types::Expression::from(statement.start) {
-            types::Expression::Integer(number) => number,
-            types::Expression::Implicit(string) => Integer::from_implicit(string),
+        let from = match Expression::from(statement.start) {
+            Expression::Integer(number) => number,
+            Expression::Implicit(string) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
-        let to = match types::Expression::from(statement.stop) {
-            types::Expression::Integer(number) => number,
-            types::Expression::Implicit(string) => Integer::from_implicit(string),
+        let to = match Expression::from(statement.stop) {
+            Expression::Integer(number) => number,
+            Expression::Implicit(string) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
 
@@ -615,8 +240,8 @@ impl<'ast> From<AssertStatement<'ast>> for types::Statement {
     fn from(statement: AssertStatement<'ast>) -> Self {
         match statement {
             AssertStatement::AssertEq(assert_eq) => types::Statement::AssertEq(
-                types::Expression::from(assert_eq.left),
-                types::Expression::from(assert_eq.right),
+                Expression::from(assert_eq.left),
+                Expression::from(assert_eq.right),
             ),
         }
     }
@@ -624,7 +249,7 @@ impl<'ast> From<AssertStatement<'ast>> for types::Statement {
 
 impl<'ast> From<ExpressionStatement<'ast>> for types::Statement {
     fn from(statement: ExpressionStatement<'ast>) -> Self {
-        types::Statement::Expression(types::Expression::from(statement.expression))
+        types::Statement::Expression(Expression::from(statement.expression))
     }
 }
 
@@ -645,58 +270,13 @@ impl<'ast> From<Statement<'ast>> for types::Statement {
     }
 }
 
-/// pest ast -> Explicit types::Type for defining circuit members and function params
-
-impl From<DataType> for types::Type {
-    fn from(basic_type: DataType) -> Self {
-        match basic_type {
-            DataType::Integer(_type) => {
-                types::Type::IntegerType(IntegerType::from(_type))
-            }
-            DataType::Field(_type) => types::Type::Field,
-            DataType::Group(_type) => types::Type::Group,
-            DataType::Boolean(_type) => types::Type::Boolean,
-        }
-    }
-}
-
-impl<'ast> From<ArrayType<'ast>> for types::Type {
-    fn from(array_type: ArrayType<'ast>) -> Self {
-        let element_type = Box::new(types::Type::from(array_type._type));
-        let dimensions = array_type
-            .dimensions
-            .into_iter()
-            .map(|row| types::Expression::get_count(row))
-            .collect();
-
-        types::Type::Array(element_type, dimensions)
-    }
-}
-
-impl<'ast> From<CircuitType<'ast>> for types::Type {
-    fn from(circuit_type: CircuitType<'ast>) -> Self {
-        types::Type::Circuit(Identifier::from(circuit_type.identifier))
-    }
-}
-
-impl<'ast> From<AstType<'ast>> for types::Type {
-    fn from(_type: AstType<'ast>) -> Self {
-        match _type {
-            AstType::Basic(_type) => types::Type::from(_type),
-            AstType::Array(_type) => types::Type::from(_type),
-            AstType::Circuit(_type) => types::Type::from(_type),
-            AstType::SelfType(_type) => types::Type::SelfType,
-        }
-    }
-}
-
 /// pest ast -> types::Circuit
 
-impl<'ast> From<CircuitFieldDefinition<'ast>> for types::CircuitMember {
-    fn from(circuit_value: CircuitFieldDefinition<'ast>) -> Self {
+impl<'ast> From<AstCircuitFieldDefinition<'ast>> for types::CircuitMember {
+    fn from(circuit_value: AstCircuitFieldDefinition<'ast>) -> Self {
         types::CircuitMember::CircuitField(
             Identifier::from(circuit_value.identifier),
-            types::Type::from(circuit_value._type),
+            Type::from(circuit_value._type),
         )
     }
 }
@@ -750,7 +330,7 @@ impl<'ast> From<FunctionInput<'ast>> for types::InputModel {
             private: parameter.visibility.map_or(true, |visibility| {
                 visibility.eq(&Visibility::Private(Private {}))
             }),
-            _type: types::Type::from(parameter._type),
+            _type: Type::from(parameter._type),
         }
     }
 }
@@ -768,7 +348,7 @@ impl<'ast> From<Function<'ast>> for types::Function {
         let returns = function_definition
             .returns
             .into_iter()
-            .map(|return_type| types::Type::from(return_type))
+            .map(|return_type| Type::from(return_type))
             .collect();
         let statements = function_definition
             .statements

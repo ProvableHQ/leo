@@ -2,80 +2,9 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
-use leo_types::{Identifier, Integer, IntegerType};
+use leo_types::{Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
-use snarkos_models::gadgets::utilities::{
-    boolean::Boolean,
-};
 use std::collections::HashMap;
-
-/// A variable that is assigned to a value in the constrained program
-#[derive(Clone, PartialEq, Eq)]
-pub struct Variable {
-    pub identifier: Identifier,
-    pub mutable: bool,
-    pub _type: Option<Type>,
-}
-
-/// Range or expression enum
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum RangeOrExpression {
-    Range(Option<Integer>, Option<Integer>),
-    Expression(Expression),
-}
-
-/// Spread or expression
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SpreadOrExpression {
-    Spread(Expression),
-    Expression(Expression),
-}
-
-/// Expression that evaluates to a value
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Expression {
-    // Identifier
-    Identifier(Identifier),
-
-    // Values
-    Integer(Integer),
-    Field(String),
-    Group(String),
-    Boolean(Boolean),
-    Implicit(String),
-
-    // Number operations
-    Add(Box<Expression>, Box<Expression>),
-    Sub(Box<Expression>, Box<Expression>),
-    Mul(Box<Expression>, Box<Expression>),
-    Div(Box<Expression>, Box<Expression>),
-    Pow(Box<Expression>, Box<Expression>),
-
-    // Boolean operations
-    Not(Box<Expression>),
-    Or(Box<Expression>, Box<Expression>),
-    And(Box<Expression>, Box<Expression>),
-    Eq(Box<Expression>, Box<Expression>),
-    Ge(Box<Expression>, Box<Expression>),
-    Gt(Box<Expression>, Box<Expression>),
-    Le(Box<Expression>, Box<Expression>),
-    Lt(Box<Expression>, Box<Expression>),
-
-    // Conditionals
-    IfElse(Box<Expression>, Box<Expression>, Box<Expression>),
-
-    // Arrays
-    Array(Vec<Box<SpreadOrExpression>>),
-    ArrayAccess(Box<Expression>, Box<RangeOrExpression>), // (array name, range)
-
-    // Circuits
-    Circuit(Identifier, Vec<CircuitFieldDefinition>),
-    CircuitMemberAccess(Box<Expression>, Identifier), // (declared circuit name, circuit member name)
-    CircuitStaticFunctionAccess(Box<Expression>, Identifier), // (defined circuit name, circuit static member name)
-
-    // Functions
-    FunctionCall(Box<Expression>, Vec<Expression>),
-}
 
 /// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -83,46 +12,6 @@ pub enum Assignee {
     Identifier(Identifier),
     Array(Box<Assignee>, RangeOrExpression),
     CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
-}
-
-/// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Type {
-    IntegerType(IntegerType),
-    Field,
-    Group,
-    Boolean,
-    Array(Box<Type>, Vec<usize>),
-    Circuit(Identifier),
-    SelfType,
-}
-
-impl Type {
-    pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
-        let _type = self.clone();
-
-        if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[1..]);
-
-            return Type::Array(Box::new(_type), next);
-        }
-
-        _type
-    }
-
-    pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
-        let _type = self.clone();
-
-        if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
-
-            return Type::Array(Box::new(_type), next);
-        }
-
-        _type
-    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -152,12 +41,6 @@ pub enum Statement {
 }
 
 /// Circuits
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct CircuitFieldDefinition {
-    pub identifier: Identifier,
-    pub expression: Expression,
-}
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum CircuitMember {

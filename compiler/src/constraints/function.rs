@@ -5,9 +5,9 @@ use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
     field_from_input, group_from_input,
-    types::{Expression, Function, Program, Type},
+    types::{Function, Program},
     GroupType};
-use leo_types::{Identifier, InputValue, Integer};
+use leo_types::{Expression, Identifier, InputValue, Integer, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

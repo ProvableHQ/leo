@@ -5,12 +5,11 @@ use crate::{
     errors::StatementError,
     new_scope,
     types::{
-        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-        RangeOrExpression, Statement, Type,
+        Assignee, ConditionalNestedOrEnd, ConditionalStatement,  Statement,
     },
-    GroupType, Variable,
+    GroupType,
 };
-use leo_types::{Identifier, Integer};
+use leo_types::{Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

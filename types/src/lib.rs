@@ -1,8 +1,14 @@
 #[macro_use]
 extern crate thiserror;
 
+pub mod circuit_field_definition;
+pub use circuit_field_definition::*;
+
 pub mod errors;
 pub use errors::*;
+
+pub mod expression;
+pub use expression::*;
 
 pub mod identifier;
 pub use identifier::*;
@@ -15,3 +21,15 @@ pub use integer::*;
 
 pub mod integer_type;
 pub use integer_type::*;
+
+pub mod range_or_expression;
+pub use range_or_expression::*;
+
+pub mod spread_or_expression;
+pub use spread_or_expression::*;
+
+pub mod type_;
+pub use type_::*;
+
+pub mod variable;
+pub use variable::*;
