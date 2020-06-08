@@ -5,7 +5,7 @@ use crate::{
     errors::CompilerError,
     GroupType, InputValue, Program,
 };
-use leo_ast::ast;
+use leo_ast::{ast, files::File};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -75,7 +75,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program)
     }
 
-    // pub fn compile(&self) -> Result<ast::File, CompilerError> {
+    // pub fn compile(&self) -> Result<File, CompilerError> {
     //     // Read in the main file as string
     //     let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
     //
@@ -83,7 +83,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     //     let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
     //
     //     // Build the abstract syntax tree
-    //     let syntax_tree = ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
+    //     let syntax_tree = File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
     //     log::debug!("{:#?}", syntax_tree);
     //
     //     Ok(syntax_tree)
@@ -101,7 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         // Build the abstract syntax tree
         let syntax_tree =
-            ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
+            File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
         log::debug!("{:#?}", syntax_tree);
 
         // Build program from abstract syntax tree

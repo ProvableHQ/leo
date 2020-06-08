@@ -1,4 +1,4 @@
-use crate::{access::AssigneeAccess, ast::Rule, common::Identifier, types::Type};
+use crate::{access::AssigneeAccess, ast::Rule, common::Identifier};
 
 use pest::Span;
 use pest_ast::FromPest;

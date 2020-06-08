@@ -2,7 +2,6 @@ use crate::{ast::Rule, expressions::Expression};
 
 use pest::Span;
 use pest_ast::FromPest;
-use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::range))]

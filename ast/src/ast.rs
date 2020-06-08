@@ -1,12 +1,6 @@
 //! Abstract syntax tree (ast) representation from leo.pest.
 use crate::{
-    access::AssigneeAccess,
-    circuits::Circuit,
-    common::{
-        Identifier,
-        Mutable,
-        Visibility
-    },
+    common::Identifier,
     expressions::{
         ArrayInlineExpression,
         ArrayInitializerExpression,
@@ -16,13 +10,10 @@ use crate::{
         NotExpression,
         PostfixExpression
     },
-    imports::Import,
     operations::{
         BinaryOperation,
         NotOperation,
     },
-    statements::Statement,
-    types::Type,
     values::Value,
 };
 
@@ -33,8 +24,6 @@ use pest::{
     prec_climber::{Assoc, Operator, PrecClimber},
     Parser, Span,
 };
-use pest_ast::FromPest;
-use std::fmt;
 
 #[derive(Parser)]
 #[grammar = "leo.pest"]
@@ -181,62 +170,4 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
             _ => Err(ConversionError::NoMatch),
         }
     }
-}
-
-// Functions
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::input_model))]
-pub struct InputModel<'ast> {
-    pub mutable: Option<Mutable>,
-    pub identifier: Identifier<'ast>,
-    pub visibility: Option<Visibility>,
-    pub _type: Type<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::function_definition))]
-pub struct Function<'ast> {
-    pub function_name: Identifier<'ast>,
-    pub parameters: Vec<InputModel<'ast>>,
-    pub returns: Vec<Type<'ast>>,
-    pub statements: Vec<Statement<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-// Utilities
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::EOI))]
-pub struct EOI;
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::LINE_END))]
-pub struct LineEnd;
-
-// Tests
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::test))]
-pub struct Test<'ast> {
-    pub function: Function<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-// File
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::file))]
-pub struct File<'ast> {
-    pub imports: Vec<Import<'ast>>,
-    pub circuits: Vec<Circuit<'ast>>,
-    pub functions: Vec<Function<'ast>>,
-    pub tests: Vec<Test<'ast>>,
-    pub eoi: EOI,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
 }

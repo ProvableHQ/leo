@@ -3,6 +3,9 @@
 // Declared in common/assignee.rs
 assignee = { identifier ~ access_assignee* }
 
+// Declared in common/file.rs
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test* ~ NEWLINE* ~ EOI }
+
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
@@ -291,7 +294,3 @@ LINE_END = {";" ~ NEWLINE*}
 /// Tests
 
 test = { "test" ~ function_definition }
-
-/// Program File
-
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test* ~ NEWLINE* ~ EOI }

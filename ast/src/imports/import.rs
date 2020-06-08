@@ -1,4 +1,4 @@
-use crate::{ast::{LineEnd, Rule}, imports::{ImportSource, ImportSymbol}};
+use crate::{ast::Rule, common::LineEnd, imports::{ImportSource, ImportSymbol}};
 
 use pest::Span;
 use pest_ast::FromPest;

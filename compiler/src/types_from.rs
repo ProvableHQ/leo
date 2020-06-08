@@ -2,11 +2,11 @@
 
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
+    File,
     access::{
         Access,
         AssigneeAccess,
     },
-    ast,
     circuits::{
         Circuit,
         CircuitField,
@@ -32,6 +32,11 @@ use leo_ast::{
         NotExpression,
         PostfixExpression,
         TernaryExpression
+    },
+    functions::{
+        Function,
+        InputModel,
+        Test
     },
     imports::{
         Import as AstImport,
@@ -789,8 +794,8 @@ impl<'ast> From<Circuit<'ast>> for types::Circuit {
 
 /// pest ast -> function types::Parameters
 
-impl<'ast> From<ast::InputModel<'ast>> for types::InputModel {
-    fn from(parameter: ast::InputModel<'ast>) -> Self {
+impl<'ast> From<InputModel<'ast>> for types::InputModel {
+    fn from(parameter: InputModel<'ast>) -> Self {
         types::InputModel {
             identifier: types::Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
@@ -805,8 +810,8 @@ impl<'ast> From<ast::InputModel<'ast>> for types::InputModel {
 
 /// pest ast -> types::Function
 
-impl<'ast> From<ast::Function<'ast>> for types::Function {
-    fn from(function_definition: ast::Function<'ast>) -> Self {
+impl<'ast> From<Function<'ast>> for types::Function {
+    fn from(function_definition: Function<'ast>) -> Self {
         let function_name = types::Identifier::from(function_definition.function_name);
         let parameters = function_definition
             .parameters
@@ -858,8 +863,8 @@ impl<'ast> From<AstImport<'ast>> for Import {
 }
 
 /// pest ast -> Test
-impl<'ast> From<ast::Test<'ast>> for types::Test {
-    fn from(test: ast::Test) -> Self {
+impl<'ast> From<Test<'ast>> for types::Test {
+    fn from(test: Test) -> Self {
         types::Test(types::Function::from(test.function))
     }
 }
@@ -867,7 +872,7 @@ impl<'ast> From<ast::Test<'ast>> for types::Test {
 /// pest ast -> types::Program
 
 impl<'ast> types::Program {
-    pub fn from(file: ast::File<'ast>, name: String) -> Self {
+    pub fn from(file: File<'ast>, name: String) -> Self {
         // Compiled ast -> aleo program representation
         let imports = file
             .imports

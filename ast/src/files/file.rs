@@ -1,8 +1,7 @@
-use crate::{ast::Rule, common::Test, imports::Import, circuits::Circuit};
+use crate::{ast::Rule, common::EOI, functions::{Function, Test}, imports::Import, circuits::Circuit};
 
 use pest::Span;
 use pest_ast::FromPest;
-use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::file))]

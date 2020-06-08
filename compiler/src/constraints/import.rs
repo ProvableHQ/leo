@@ -5,7 +5,7 @@ use crate::{
     types::Program,
     GroupType, Import,
 };
-use leo_ast::ast;
+use leo_ast::{ast, files::File};
 
 use from_pest::FromPest;
 use snarkos_models::{
@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         // generate ast from file
         let syntax_tree =
-            ast::File::from_pest(&mut file).map_err(|_| ImportError::SyntaxTreeError)?;
+            File::from_pest(&mut file).map_err(|_| ImportError::SyntaxTreeError)?;
 
         // generate aleo program from file
         let mut program = Program::from(syntax_tree, import.path_string.clone());

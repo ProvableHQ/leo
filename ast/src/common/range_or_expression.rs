@@ -1,6 +1,5 @@
 use crate::{ast::Rule, common::Range, expressions::Expression};
 
-use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
 

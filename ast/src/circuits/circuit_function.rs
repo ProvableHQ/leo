@@ -1,4 +1,4 @@
-use crate::{ast::{Rule, Function}, common::Static};
+use crate::{ast::Rule, common::Static, function::Function};
 
 use pest::Span;
 use pest_ast::FromPest;

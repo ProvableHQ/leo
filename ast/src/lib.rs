@@ -23,6 +23,12 @@ pub use errors::*;
 pub mod expressions;
 pub use expressions::*;
 
+pub mod files;
+pub use files::*;
+
+pub mod functions;
+pub use functions::*;
+
 pub mod imports;
 pub use imports::*;
 
