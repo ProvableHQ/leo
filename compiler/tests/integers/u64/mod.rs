@@ -26,6 +26,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
 }
 
 #[test]
+#[ignore] //temporarily ignore memory expensive tests for travis
 fn test_u64() {
     test_uint!(Testu64, u64, UInt64, DIRECTORY_NAME);
 
