@@ -8,6 +8,15 @@ pub use errors::*;
 
 //extern crate from_pest;
 mod ast;
+pub mod assignments;
+pub mod circuits;
+pub mod common;
+pub mod expressions;
+pub mod files;
+pub mod parameters;
+pub mod sections;
+pub mod types;
+pub mod values;
 
 use from_pest::FromPest;
 use std::{fs, path::PathBuf};
@@ -25,14 +34,14 @@ impl LeoInputsParser {
     pub fn parse_file<'a>(
         file_path: &'a PathBuf,
         input_file: &'a str,
-    ) -> Result<ast::File<'a>, ParserError> {
+    ) -> Result<files::File<'a>, ParserError> {
         // Parse the file using leo.pest
         let mut file = ast::parse(input_file)
             .map_err(|error| ParserError::from(error.with_path(file_path.to_str().unwrap())))?;
 
         // Build the abstract syntax tree
         let syntax_tree =
-            ast::File::from_pest(&mut file).map_err(|_| ParserError::SyntaxTreeError)?;
+            files::File::from_pest(&mut file).map_err(|_| ParserError::SyntaxTreeError)?;
         // println!("{:?}", syntax_tree);
 
         Ok(syntax_tree)

@@ -17,7 +17,7 @@ impl From<Error<Rule>> for SyntaxError {
             Rule::type_group => "`group`".to_owned(),
             Rule::file => "an import, circuit, or function".to_owned(),
             Rule::identifier => "a variable name".to_owned(),
-            Rule::_type => "a type".to_owned(),
+            Rule::type_ => "a type".to_owned(),
 
             rule => format!("{:?}", rule),
         });

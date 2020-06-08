@@ -1,20 +1,23 @@
 /// Common
 
-file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
-
+// Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 
-
+// Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
 
+// Declared in common/visibility.rs
 visibility = { visibility_public | visibility_private }
 visibility_public = { "public" }
 visibility_private = { "private" }
 
 /// Types
 
-_type = { type_array | type_data | type_circuit }
+// Declared in types/type_.rs
+type_ = { type_array | type_data | type_circuit }
+
+// Declared in types/integer_type.rs
 type_integer = {
     type_u8
     | type_u16
@@ -28,47 +31,64 @@ type_u32 = { "u32" }
 type_u64 = { "u64" }
 type_u128 = { "u128" }
 
+// Declared in types/field_type.rs
 type_field = { "field" }
 
+// Declared in types/group_type.rs
 type_group = { "group" }
 
+// Declared in types/boolean_type.rs
 type_boolean = { "bool" }
 
+// Declared in types/data_type.rs
 type_data = { type_field | type_group | type_boolean | type_integer }
 
+// Declared in types/circuit_type.rs
 type_circuit = { identifier }
 
+// Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ value ~ "]")+ }
 
 /// Values
 
+// Declared in values/value.rs
 value = { value_field | value_group | value_boolean | value_integer | value_implicit }
 
+// Declared in values/number_value.rs
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
 
+// Declared in values/number_implicit_value.rs
 value_implicit = { value_number }
 
+// Declared in values/integer_value.rs
 value_integer = { value_number ~ type_integer }
 
+// Declared in values/boolean_value.rs
 value_boolean = { "true" | "false" }
 
+// Declared in values/field_value.rs
 value_field = { value_number ~ type_field }
 
+// Declared in values/group_value.rs
 value_group = { group_single_or_tuple ~ type_group }
 group_tuple = { "(" ~ NEWLINE* ~ value_number ~ "," ~ NEWLINE* ~ value_number ~ NEWLINE* ~")" }
 group_single_or_tuple = { value_number | group_tuple }
 
 /// Expressions
 
+// Declared in expressions/array_initializer_expression.rs
 expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
 
+// Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
 
+// Declared in expressions/circuit_inline_expression.rs
 expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
 circuit_field = { identifier ~ ":" ~ expression }
 circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
 
+// Declared in expressions/expression.rs
 expression = {
     expression_circuit_inline
     | expression_array_inline
@@ -79,14 +99,20 @@ expression = {
 
 /// Parameters
 
-parameter = { identifier ~ ":" ~ visibility? ~ _type }
+// Declared in parameters/parameters.rs
+parameter = { identifier ~ ":" ~ visibility? ~ type_ }
 
 /// Section
 
+// Declared in sections/section.rs
 section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
 
+// Declared in sections/header.rs
 header = { "[" ~ identifier ~ "]" }
 
+/// Assignments
+
+// Declared in assignment/assignment.rs
 assignment = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
 
 /// Utilities
@@ -94,4 +120,7 @@ assignment = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
+/// Files
 
+// Declared in files/file.rs
+file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
