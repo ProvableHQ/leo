@@ -13,7 +13,7 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "ast", "compiler" ]
+members = [ "ast", "compiler", "types" ]
 
 [dependencies]
 leo-compiler = { path = "compiler", version = "0.1.0" }

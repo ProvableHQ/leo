@@ -1,6 +1,7 @@
 use crate::errors::{
-    BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError,
+    BooleanError, FieldError, FunctionError, GroupError, ValueError,
 };
+use leo_types::IntegerError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::num::ParseIntError;

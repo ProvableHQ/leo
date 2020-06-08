@@ -1,13 +1,13 @@
 pub mod array;
 pub mod boolean;
-pub mod circuit;
+pub mod circuits;
 pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
-pub mod integer;
+pub mod integers;
 pub mod mutability;
-pub mod statement;
+pub mod statements;
 pub mod syntax;
 
 use leo_compiler::{

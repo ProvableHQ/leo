@@ -4,12 +4,10 @@ use crate::{
     constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
     errors::ExpressionError,
     new_scope,
-    types::{
-        CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
-        SpreadOrExpression,
-    },
-    FieldType, GroupType, Integer, IntegerType, Type,
+    FieldType, GroupType,
 };
+use leo_types::{CircuitFieldDefinition,CircuitMember, Expression, RangeOrExpression,
+                SpreadOrExpression, Identifier, Integer, IntegerType, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -2,9 +2,9 @@
 
 use crate::{
     errors::ValueError,
-    types::{Circuit, Function, Identifier, Integer, IntegerType, Type},
     FieldType, GroupType,
 };
+use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

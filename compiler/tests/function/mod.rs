@@ -1,5 +1,5 @@
 use crate::{
-    compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
+    compile_program, get_error, get_output, integers::u32::output_one, EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
 use leo_compiler::{

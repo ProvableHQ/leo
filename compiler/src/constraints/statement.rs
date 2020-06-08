@@ -4,12 +4,9 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::StatementError,
     new_scope,
-    types::{
-        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Identifier, Integer,
-        RangeOrExpression, Statement, Type,
-    },
-    GroupType, Variable,
+    GroupType,
 };
+use leo_types::{Assignee, ConditionalNestedOrEndStatement, ConditionalStatement, Statement, Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -345,14 +342,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         } else {
             match statement.next {
                 Some(next) => match next {
-                    ConditionalNestedOrEnd::Nested(nested) => self.enforce_conditional_statement(
+                    ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
                         cs,
                         file_scope,
                         function_scope,
                         *nested,
                         return_types,
                     ),
-                    ConditionalNestedOrEnd::End(statements) => self.iterate_or_early_return(
+                    ConditionalNestedOrEndStatement::End(statements) => self.iterate_or_early_return(
                         cs,
                         file_scope,
                         function_scope,

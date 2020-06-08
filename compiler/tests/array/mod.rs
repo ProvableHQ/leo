@@ -1,8 +1,9 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
-    errors::{CompilerError, FunctionError, IntegerError},
-    ConstrainedValue, InputValue, Integer,
+    errors::{CompilerError, FunctionError},
+    ConstrainedValue,
 };
+use leo_types::{InputValue, Integer, IntegerError};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
