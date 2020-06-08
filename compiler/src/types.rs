@@ -2,17 +2,10 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
-use leo_types::{Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
+use leo_types::{Assignee, Expression, Identifier, Integer, Type, Variable};
 
 use std::collections::HashMap;
 
-/// Definition assignee: v, arr[0..2], Point p.x
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Assignee {
-    Identifier(Identifier),
-    Array(Box<Assignee>, RangeOrExpression),
-    CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
-}
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConditionalNestedOrEnd {

@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate thiserror;
 
+pub mod assignee;
+pub use assignee::*;
+
 pub mod circuit_field_definition;
 pub use circuit_field_definition::*;
 

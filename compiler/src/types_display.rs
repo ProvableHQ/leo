@@ -1,23 +1,12 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement,
+    Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement,
     Function, InputModel, Statement,
 };
 
 use std::fmt;
 
-impl fmt::Display for Assignee {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Assignee::Identifier(ref variable) => write!(f, "{}", variable),
-            Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::CircuitField(ref circuit_variable, ref member) => {
-                write!(f, "{}.{}", circuit_variable, member)
-            }
-        }
-    }
-}
 
 impl fmt::Display for ConditionalNestedOrEnd {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

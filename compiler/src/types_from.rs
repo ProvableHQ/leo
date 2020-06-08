@@ -2,9 +2,6 @@
 
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
-    access::{
-        AssigneeAccess,
-    },
     circuits::{
         Circuit,
         CircuitFieldDefinition as AstCircuitFieldDefinition,
@@ -12,8 +9,6 @@ use leo_ast::{
         CircuitMember
     },
     common::{
-        Assignee,
-        Identifier as AstIdentifier,
         Visibility,
         Private,
     },
@@ -43,38 +38,9 @@ use leo_ast::{
         Statement,
     },
 };
-use leo_types::{Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
+use leo_types::{Assignee, Expression, Identifier, Integer, Type, Variable};
 
 use std::collections::HashMap;
-
-/// pest ast -> types::Assignee
-
-impl<'ast> From<AstIdentifier<'ast>> for types::Assignee {
-    fn from(variable: AstIdentifier<'ast>) -> Self {
-        types::Assignee::Identifier(Identifier::from(variable))
-    }
-}
-
-impl<'ast> From<Assignee<'ast>> for types::Assignee {
-    fn from(assignee: Assignee<'ast>) -> Self {
-        let variable = types::Assignee::from(assignee.identifier);
-
-        // we start with the id, and we fold the array of accesses by wrapping the current value
-        assignee
-            .accesses
-            .into_iter()
-            .fold(variable, |acc, access| match access {
-                AssigneeAccess::Array(array) => types::Assignee::Array(
-                    Box::new(acc),
-                    RangeOrExpression::from(array.expression),
-                ),
-                AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
-                    Box::new(acc),
-                    Identifier::from(circuit_field.identifier),
-                ),
-            })
-    }
-}
 
 /// pest ast -> types::Statement
 
@@ -103,7 +69,7 @@ impl<'ast> From<AssignStatement<'ast>> for types::Statement {
     fn from(statement: AssignStatement<'ast>) -> Self {
         match statement.assign {
             AssignOperation::Assign(ref _assign) => types::Statement::Assign(
-                types::Assignee::from(statement.assignee),
+                Assignee::from(statement.assignee),
                 Expression::from(statement.expression),
             ),
             operation_assign => {
@@ -112,35 +78,35 @@ impl<'ast> From<AssignStatement<'ast>> for types::Statement {
 
                 match operation_assign {
                     AssignOperation::AddAssign(ref _assign) => types::Statement::Assign(
-                        types::Assignee::from(statement.assignee),
+                        Assignee::from(statement.assignee),
                         Expression::Add(
                             Box::new(converted),
                             Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::SubAssign(ref _assign) => types::Statement::Assign(
-                        types::Assignee::from(statement.assignee),
+                        Assignee::from(statement.assignee),
                         Expression::Sub(
                             Box::new(converted),
                             Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::MulAssign(ref _assign) => types::Statement::Assign(
-                        types::Assignee::from(statement.assignee),
+                        Assignee::from(statement.assignee),
                         Expression::Mul(
                             Box::new(converted),
                             Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::DivAssign(ref _assign) => types::Statement::Assign(
-                        types::Assignee::from(statement.assignee),
+                        Assignee::from(statement.assignee),
                         Expression::Div(
                             Box::new(converted),
                             Box::new(Expression::from(statement.expression)),
                         ),
                     ),
                     AssignOperation::PowAssign(ref _assign) => types::Statement::Assign(
-                        types::Assignee::from(statement.assignee),
+                        Assignee::from(statement.assignee),
                         Expression::Pow(
                             Box::new(converted),
                             Box::new(Expression::from(statement.expression)),
