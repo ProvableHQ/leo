@@ -1,7 +1,6 @@
 use crate::directories::{InputsDirectory, SourceDirectory};
 use crate::errors::{CLIError, InitError};
-use crate::files::MainFile;
-use crate::manifest::Manifest;
+use crate::files::{Gitignore, MainFile, Manifest};
 use crate::{cli::*, cli_types::*};
 
 use clap::ArgMatches;
@@ -15,7 +14,7 @@ impl CLI for InitCommand {
     type Output = ();
 
     const NAME: NameType = "init";
-    const ABOUT: AboutType = "Creates a new Leo package in an existing directory";
+    const ABOUT: AboutType = "Create a new Leo package in an existing directory";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const OPTIONS: &'static [OptionType] = &[];
@@ -53,6 +52,9 @@ impl CLI for InitCommand {
 
         // Create the manifest file
         Manifest::new(&package_name).write_to(&path)?;
+
+        // Create the .gitignore file
+        Gitignore::new().write_to(&path)?;
 
         // Create the source directory
         SourceDirectory::create(&path)?;

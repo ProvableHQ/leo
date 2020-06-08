@@ -1,0 +1,13 @@
+[package]
+name = "leo-types"
+version = "0.1.0"
+authors = ["The Aleo Team <hello@aleo.org>"]
+edition = "2018"
+
+[dependencies]
+leo-ast = { path = "../ast", version = "0.1.0" }
+
+snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0" }
+snarkos-models =  { path = "../../snarkOS/models", version = "0.8.0" }
+
+thiserror = { version = "1.0" }

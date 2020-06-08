@@ -1,29 +1,47 @@
-use std::io;
-use std::path::PathBuf;
+use crate::errors::{FunctionError, ImportError};
+use leo_ast::{SyntaxError, ParserError};
+use leo_types::IntegerError;
 
-#[derive(Debug, Fail)]
+use std::{io, path::PathBuf};
+
+#[derive(Debug, Error)]
 pub enum CompilerError {
-    #[fail(display = "{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
-    #[fail(display = "creating: {}", _0)]
+    #[error("creating: {}", _0)]
     Creating(io::Error),
 
-    #[fail(display = "Cannot read from the provided file path - {:?}", _0)]
+    #[error("Attempt to access current directory failed - {:?}", _0)]
+    DirectoryError(io::Error),
+
+    #[error("{}", _0)]
+    ImportError(#[from] ImportError),
+
+    #[error("{}", _0)]
+    IntegerError(#[from] IntegerError),
+
+    #[error("{}", _0)]
+    FunctionError(#[from] FunctionError),
+
+    #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
-    #[fail(display = "Cannot parse the file")]
+    #[error("Syntax error. Cannot parse the file")]
     FileParsingError,
 
-    #[fail(display = "Unable to construct abstract syntax tree")]
+    #[error("Main function not found")]
+    NoMain,
+
+    #[error("Main must be a function")]
+    NoMainFunction,
+
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
+
+    #[error("{}", _0)]
+    SyntaxError(#[from] SyntaxError),
+
+    #[error("Unable to construct abstract syntax tree")]
     SyntaxTreeError,
 
-    #[fail(display = "writing: {}", _0)]
+    #[error("writing: {}", _0)]
     Writing(io::Error),
-}
-
-impl From<std::io::Error> for CompilerError {
-    fn from(error: std::io::Error) -> Self {
-        CompilerError::Crate("std::io", format!("{}", error))
-    }
 }

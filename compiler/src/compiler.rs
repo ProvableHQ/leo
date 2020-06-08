@@ -1,37 +1,51 @@
 //! Compiles a Leo program from a file path.
 
-use crate::{ast, errors::CompilerError, ParameterValue, Program, ResolvedProgram, ResolvedValue};
+use crate::{
+    constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
+    errors::CompilerError,
+    GroupType,
+};
+use leo_ast::LeoParser;
+use leo_types::{InputValue, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
+    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem, TestConstraintSystem},
 };
 
-use from_pest::FromPest;
 use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField> {
+pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
-    program: Program<F>,
-    parameters: Vec<Option<ParameterValue<F>>>,
-    output: Option<ResolvedValue<F>>,
+    program: Program,
+    program_inputs: Vec<Option<InputValue>>,
+    output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField> Compiler<F> {
-    pub fn init(package_name: String, main_file_path: PathBuf) -> Self {
-        Self {
+impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
+    pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
+        let mut program = Self {
             package_name,
             main_file_path,
             program: Program::new(),
-            parameters: vec![],
+            program_inputs: vec![],
             output: None,
             _engine: PhantomData,
-        }
+        };
+
+        // Generate the abstract syntax tree and assemble the program
+        program.parse_program()?;
+
+        Ok(program)
+    }
+
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
+        self.program_inputs = program_inputs;
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -47,51 +61,45 @@ impl<F: Field + PrimeField> Compiler<F> {
         Ok(hex::encode(hash))
     }
 
-    // pub fn compile(&self) -> Result<ast::File, CompilerError> {
-    //     // Read in the main file as string
-    //     let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
-    //
-    //     // Parse the file using leo.pest
-    //     let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
-    //
-    //     // Build the abstract syntax tree
-    //     let syntax_tree = ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
-    //     log::debug!("{:#?}", syntax_tree);
-    //
-    //     Ok(syntax_tree)
-    // }
+    pub fn compile_constraints<CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+    ) -> Result<ConstrainedValue<F, G>, CompilerError> {
+        generate_constraints(cs, self.program, self.program_inputs)
+    }
 
-    pub fn evaluate_program<CS: ConstraintSystem<F>>(&mut self) -> Result<(), CompilerError> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+    pub fn compile_test_constraints(
+        self,
+        cs: &mut TestConstraintSystem<F>,
+    ) -> Result<(), CompilerError> {
+        generate_test_constraints::<F, G>(cs, self.program)
+    }
 
-        // Parse the file using leo.pest
-        let mut file = ast::parse(&unparsed_file).map_err(|_| CompilerError::FileParsingError)?;
+    fn parse_program(&mut self) -> Result<(), CompilerError> {
+        // Build the program syntax tree
+        let file_path = &self.main_file_path;
+        let input_file = &LeoParser::load_file(file_path)?;
+        let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
 
-        // Build the abstract syntax tree
-        let syntax_tree =
-            ast::File::from_pest(&mut file).map_err(|_| CompilerError::SyntaxTreeError)?;
-        log::debug!("{:#?}", syntax_tree);
-
-        // Build program from abstract syntax tree
+        // Build program from syntax tree
         let package_name = self.package_name.clone();
 
-        self.program = Program::<F>::from(syntax_tree, package_name);
-        self.parameters = vec![None; self.program.num_parameters];
+        self.program = Program::from(syntax_tree, package_name);
+        self.program_inputs = vec![None; self.program.num_parameters];
 
-        log::debug!("Compilation complete\n{:#?}", self.program);
+        log::debug!("Program parsing complete\n{:#?}", self.program);
 
         Ok(())
     }
 }
 
-impl<F: Field + PrimeField> ConstraintSynthesizer<F> for Compiler<F> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
     ) -> Result<(), SynthesisError> {
-        let _res = ResolvedProgram::generate_constraints(cs, self.program, self.parameters);
+        let _result =
+            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
 
         // Write results to file or something
 

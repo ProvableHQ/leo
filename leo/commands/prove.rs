@@ -1,8 +1,7 @@
-use crate::{cli::*, cli_types::*};
 use crate::commands::SetupCommand;
 use crate::errors::CLIError;
-use crate::files::ProofFile;
-use crate::manifest::Manifest;
+use crate::files::{Manifest, ProofFile};
+use crate::{cli::*, cli_types::*};
 
 use snarkos_algorithms::snark::{create_random_proof, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
@@ -46,7 +45,10 @@ impl CLI for ProveCommand {
         let rng = &mut thread_rng();
         let program_proof = create_random_proof(program, &parameters, rng).unwrap();
 
-        log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
+        log::info!(
+            "Prover completed in {:?} milliseconds",
+            start.elapsed().as_millis()
+        );
 
         // Write the proof file to the outputs directory
         let mut proof = vec![];

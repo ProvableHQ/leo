@@ -2,17 +2,11 @@ use crate::errors::ManifestError;
 
 use std::ffi::OsString;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum BuildError {
-    #[fail(display = "main file {:?} does not exist", _0)]
+    #[error("main file {:?} does not exist", _0)]
     MainFileDoesNotExist(OsString),
 
-    #[fail(display = "{}", _0)]
-    ManifestError(ManifestError),
-}
-
-impl From<ManifestError> for BuildError {
-    fn from(error: ManifestError) -> Self {
-        BuildError::ManifestError(error)
-    }
+    #[error("{}", _0)]
+    ManifestError(#[from] ManifestError),
 }

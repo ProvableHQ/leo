@@ -1,131 +1,65 @@
 use crate::errors::*;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum CLIError {
-    #[fail(display = "{}", _0)]
-    BuildError(BuildError),
+    #[error("{}", _0)]
+    BuildError(#[from] BuildError),
 
-    #[fail(display = "{}: {}", _0, _1)]
+    #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[fail(display = "{}", _0)]
-    ChecksumFileError(ChecksumFileError),
+    #[error("{}", _0)]
+    ChecksumFileError(#[from] ChecksumFileError),
 
-    #[fail(display = "{}", _0)]
-    InitError(InitError),
+    #[error("{}", _0)]
+    GitignoreError(#[from] GitignoreError),
 
-    #[fail(display = "{}", _0)]
-    InputsDirectoryError(InputsDirectoryError),
+    #[error("{}", _0)]
+    InitError(#[from] InitError),
 
-    #[fail(display = "{}", _0)]
-    MainFileError(MainFileError),
+    #[error("{}", _0)]
+    InputsDirectoryError(#[from] InputsDirectoryError),
 
-    #[fail(display = "{}", _0)]
-    ManifestError(ManifestError),
+    #[error("{}", _0)]
+    MainFileError(#[from] MainFileError),
 
-    #[fail(display = "{}", _0)]
-    NewError(NewError),
+    #[error("{}", _0)]
+    ManifestError(#[from] ManifestError),
 
-    #[fail(display = "{}", _0)]
-    OutputsDirectoryError(OutputsDirectoryError),
+    #[error("{}", _0)]
+    NewError(#[from] NewError),
 
-    #[fail(display = "{}", _0)]
-    ProofFileError(ProofFileError),
+    #[error("{}", _0)]
+    OutputsDirectoryError(#[from] OutputsDirectoryError),
 
-    #[fail(display = "{}", _0)]
-    ProvingKeyFileError(ProvingKeyFileError),
+    #[error("{}", _0)]
+    ProofFileError(#[from] ProofFileError),
 
-    #[fail(display = "{}", _0)]
-    RunError(RunError),
+    #[error("{}", _0)]
+    ProvingKeyFileError(#[from] ProvingKeyFileError),
 
-    #[fail(display = "{}", _0)]
-    SourceDirectoryError(SourceDirectoryError),
+    #[error("{}", _0)]
+    RunError(#[from] RunError),
 
-    #[fail(display = "{}", _0)]
-    VerificationKeyFileError(VerificationKeyFileError),
-}
+    #[error("{}", _0)]
+    SourceDirectoryError(#[from] SourceDirectoryError),
 
-impl From<BuildError> for CLIError {
-    fn from(error: BuildError) -> Self {
-        CLIError::BuildError(error)
-    }
-}
+    #[error("{}", _0)]
+    TestError(#[from] TestError),
 
-impl From<ChecksumFileError> for CLIError {
-    fn from(error: ChecksumFileError) -> Self {
-        CLIError::ChecksumFileError(error)
-    }
-}
-
-impl From<InitError> for CLIError {
-    fn from(error: InitError) -> Self {
-        CLIError::InitError(error)
-    }
-}
-
-impl From<InputsDirectoryError> for CLIError {
-    fn from(error: InputsDirectoryError) -> Self {
-        CLIError::InputsDirectoryError(error)
-    }
-}
-
-impl From<MainFileError> for CLIError {
-    fn from(error: MainFileError) -> Self {
-        CLIError::MainFileError(error)
-    }
-}
-
-impl From<ManifestError> for CLIError {
-    fn from(error: ManifestError) -> Self {
-        CLIError::ManifestError(error)
-    }
-}
-
-impl From<NewError> for CLIError {
-    fn from(error: NewError) -> Self {
-        CLIError::NewError(error)
-    }
-}
-
-impl From<OutputsDirectoryError> for CLIError {
-    fn from(error: OutputsDirectoryError) -> Self {
-        CLIError::OutputsDirectoryError(error)
-    }
-}
-
-impl From<ProofFileError> for CLIError {
-    fn from(error: ProofFileError) -> Self {
-        CLIError::ProofFileError(error)
-    }
-}
-
-impl From<ProvingKeyFileError> for CLIError {
-    fn from(error: ProvingKeyFileError) -> Self {
-        CLIError::ProvingKeyFileError(error)
-    }
-}
-
-impl From<RunError> for CLIError {
-    fn from(error: RunError) -> Self {
-        CLIError::RunError(error)
-    }
-}
-
-impl From<SourceDirectoryError> for CLIError {
-    fn from(error: SourceDirectoryError) -> Self {
-        CLIError::SourceDirectoryError(error)
-    }
-}
-
-impl From<VerificationKeyFileError> for CLIError {
-    fn from(error: VerificationKeyFileError) -> Self {
-        CLIError::VerificationKeyFileError(error)
-    }
+    #[error("{}", _0)]
+    VerificationKeyFileError(#[from] VerificationKeyFileError),
 }
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
         CLIError::Crate("leo_compiler", format!("{}", error))
+    }
+}
+
+impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
+    fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
+        CLIError::Crate("snarkos_errors", format!("{}", error))
     }
 }
 

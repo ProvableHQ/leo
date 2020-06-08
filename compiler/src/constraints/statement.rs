@@ -1,134 +1,127 @@
 //! Methods to enforce constraints on statements in a resolved Leo program.
 
 use crate::{
-    constraints::{new_scope_from_variable, ResolvedProgram, ResolvedValue},
-    types::{
-        Assignee, ConditionalNestedOrEnd, ConditionalStatement, Expression, Integer,
-        RangeOrExpression, Statement, Type, Variable,
-    },
+    constraints::{ConstrainedProgram, ConstrainedValue},
+    errors::StatementError,
+    new_scope,
+    GroupType,
 };
+use leo_types::{Assignee, ConditionalNestedOrEndStatement, ConditionalStatement, Statement, Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean, utilities::uint32::UInt32},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, eq::EqGadget, uint::UInt32},
+    },
 };
 
-impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee<F>) -> String {
+impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+    fn resolve_assignee(&mut self, scope: String, assignee: Assignee) -> String {
         match assignee {
-            Assignee::Variable(name) => new_scope_from_variable(scope, &name),
+            Assignee::Identifier(name) => new_scope(scope, name.to_string()),
             Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
-            Assignee::StructMember(struct_variable, _member) => {
-                self.resolve_assignee(scope, *struct_variable)
+            Assignee::CircuitField(circuit_name, _member) => {
+                self.resolve_assignee(scope, *circuit_name)
             }
         }
     }
 
-    fn store_assignment(
+    fn get_mutable_assignee(
+        &mut self,
+        name: String,
+    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
+        // Check that assignee exists and is mutable
+        Ok(match self.get_mut(&name) {
+            Some(value) => match value {
+                ConstrainedValue::Mutable(mutable_value) => mutable_value,
+                _ => return Err(StatementError::ImmutableAssign(name)),
+            },
+            None => return Err(StatementError::UndefinedVariable(name)),
+        })
+    }
+
+    fn mutate_array(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        return_value: &mut ResolvedValue<F>,
-    ) {
-        match assignee {
-            Assignee::Variable(name) => {
-                // Store the variable in the current scope
-                let definition_name = new_scope_from_variable(function_scope.clone(), &name);
+        name: String,
+        range_or_expression: RangeOrExpression,
+        new_value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        // Resolve index so we know if we are assigning to a single value or a range of values
+        match range_or_expression {
+            RangeOrExpression::Expression(index) => {
+                let index =
+                    self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index)?;
 
-                self.store(definition_name, return_value.to_owned());
-            }
-            Assignee::Array(array, index_expression) => {
-                // Check that array exists
-                let expected_array_name = self.resolve_assignee(function_scope.clone(), *array);
-
-                // Resolve index so we know if we are assigning to a single value or a range of values
-                match index_expression {
-                    RangeOrExpression::Expression(index) => {
-                        let index = self.enforce_index(
-                            cs,
-                            file_scope.clone(),
-                            function_scope.clone(),
-                            index,
-                        );
-
-                        // Modify the single value of the array in place
-                        match self.get_mut(&expected_array_name) {
-                            Some(value) => match value {
-                                ResolvedValue::Array(old) => {
-                                    old[index] = return_value.to_owned();
-                                }
-                                _ => {
-                                    unimplemented!("Cannot assign single index to array of values ")
-                                }
-                            },
-                            None => unimplemented!(
-                                "tried to assign to unknown array {}",
-                                expected_array_name
-                            ),
-                        }
+                // Modify the single value of the array in place
+                match self.get_mutable_assignee(name)? {
+                    ConstrainedValue::Array(old) => {
+                        old[index] = new_value;
                     }
-                    RangeOrExpression::Range(from, to) => {
-                        let from_index = match from {
-                            Some(integer) => integer.to_usize(),
-                            None => 0usize,
-                        };
-                        let to_index_option = match to {
-                            Some(integer) => Some(integer.to_usize()),
-                            None => None,
-                        };
-
-                        // Modify the range of values of the array in place
-                        match self.get_mut(&expected_array_name) {
-                            Some(value) => match (value, return_value) {
-                                (ResolvedValue::Array(old), ResolvedValue::Array(new)) => {
-                                    let to_index = to_index_option.unwrap_or(old.len());
-                                    old.splice(from_index..to_index, new.iter().cloned());
-                                }
-                                _ => unimplemented!(
-                                    "Cannot assign a range of array values to single value"
-                                ),
-                            },
-                            None => unimplemented!(
-                                "tried to assign to unknown array {}",
-                                expected_array_name
-                            ),
-                        }
-                    }
+                    _ => return Err(StatementError::ArrayAssignIndex),
                 }
             }
-            Assignee::StructMember(struct_variable, struct_member) => {
-                // Check that struct exists
-                let expected_struct_name =
-                    self.resolve_assignee(function_scope.clone(), *struct_variable);
+            RangeOrExpression::Range(from, to) => {
+                let from_index = match from {
+                    Some(integer) => integer.to_usize(),
+                    None => 0usize,
+                };
+                let to_index_option = match to {
+                    Some(integer) => Some(integer.to_usize()),
+                    None => None,
+                };
 
-                match self.get_mut(&expected_struct_name) {
-                    Some(value) => match value {
-                        ResolvedValue::StructExpression(_variable, members) => {
-                            // Modify the struct member in place
-                            let matched_member =
-                                members.into_iter().find(|member| member.0 == struct_member);
-                            match matched_member {
-                                Some(mut member) => member.1 = return_value.to_owned(),
-                                None => unimplemented!(
-                                    "struct member {} does not exist in {}",
-                                    struct_member,
-                                    expected_struct_name
-                                ),
-                            }
-                        }
-                        _ => unimplemented!(
-                            "tried to assign to unknown struct {}",
-                            expected_struct_name
-                        ),
-                    },
-                    None => {
-                        unimplemented!("tried to assign to unknown struct {}", expected_struct_name)
+                // Modify the range of values of the array in place
+                match (self.get_mutable_assignee(name)?, new_value) {
+                    (ConstrainedValue::Array(old), ConstrainedValue::Array(ref new)) => {
+                        let to_index = to_index_option.unwrap_or(old.len());
+                        old.splice(from_index..to_index, new.iter().cloned());
                     }
+                    _ => return Err(StatementError::ArrayAssignRange),
                 }
             }
         }
+
+        Ok(())
+    }
+
+    fn mutute_circuit_field(
+        &mut self,
+        circuit_name: String,
+        object_name: Identifier,
+        new_value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        match self.get_mutable_assignee(circuit_name)? {
+            ConstrainedValue::CircuitExpression(_variable, members) => {
+                // Modify the circuit field in place
+                let matched_field = members.into_iter().find(|object| object.0 == object_name);
+
+                match matched_field {
+                    Some(object) => match &object.1 {
+                        ConstrainedValue::Function(_circuit_identifier, function) => {
+                            return Err(StatementError::ImmutableCircuitFunction(
+                                function.function_name.to_string(),
+                            ))
+                        }
+                        ConstrainedValue::Static(_value) => {
+                            return Err(StatementError::ImmutableCircuitFunction("static".into()))
+                        }
+                        _ => object.1 = new_value.to_owned(),
+                    },
+                    None => {
+                        return Err(StatementError::UndefinedCircuitObject(
+                            object_name.to_string(),
+                        ))
+                    }
+                }
+            }
+            _ => return Err(StatementError::UndefinedCircuit(object_name.to_string())),
+        }
+
+        Ok(())
     }
 
     fn enforce_assign_statement(
@@ -136,25 +129,60 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        expression: Expression<F>,
-    ) {
-        // Check that assignee exists
-        let name = self.resolve_assignee(function_scope.clone(), assignee.clone());
+        assignee: Assignee,
+        expression: Expression,
+    ) -> Result<(), StatementError> {
+        // Get the name of the variable we are assigning to
+        let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
-        match self.get(&name) {
-            Some(_assignee) => {
-                let result_value = &mut self.enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expression,
-                );
+        // Evaluate new value
+        let new_value = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            &vec![],
+            expression,
+        )?;
 
-                self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
+        // Mutate the old value into the new value
+        match assignee {
+            Assignee::Identifier(_identifier) => {
+                let old_value = self.get_mutable_assignee(variable_name.clone())?;
+
+                *old_value = new_value;
+
+                Ok(())
             }
-            None => unimplemented!("cannot assign to uninitialized variable {}", assignee),
+            Assignee::Array(_assignee, range_or_expression) => self.mutate_array(
+                cs,
+                file_scope,
+                function_scope,
+                variable_name,
+                range_or_expression,
+                new_value,
+            ),
+            Assignee::CircuitField(_assignee, object_name) => {
+                self.mutute_circuit_field(variable_name, object_name, new_value)
+            }
         }
+    }
+
+    fn store_definition(
+        &mut self,
+        function_scope: String,
+        variable: Variable,
+        mut value: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        // Store with given mutability
+        if variable.mutable {
+            value = ConstrainedValue::Mutable(Box::new(value));
+        }
+
+        let variable_program_identifier = new_scope(function_scope, variable.identifier.name);
+
+        self.store(variable_program_identifier, value);
+
+        Ok(())
     }
 
     fn enforce_definition_statement(
@@ -162,29 +190,22 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignee: Assignee<F>,
-        ty: Option<Type<F>>,
-        expression: Expression<F>,
-    ) {
-        let result_value = &mut self.enforce_expression(
+        variable: Variable,
+        expression: Expression,
+    ) -> Result<(), StatementError> {
+        let mut expected_types = vec![];
+        if let Some(ref _type) = variable._type {
+            expected_types.push(_type.clone());
+        }
+        let value = self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            &expected_types,
             expression,
-        );
+        )?;
 
-        match ty {
-            // Explicit type
-            Some(ty) => {
-                if result_value.match_type(&ty) {
-                    self.store_assignment(cs, file_scope, function_scope, assignee, result_value);
-                } else {
-                    unimplemented!("incompatible types {} = {}", assignee, result_value)
-                }
-            }
-            // Implicit type
-            None => self.store_assignment(cs, file_scope, function_scope, assignee, result_value),
-        }
+        self.store_definition(function_scope, variable, value)
     }
 
     fn enforce_multiple_definition_statement(
@@ -192,32 +213,42 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        assignees: Vec<Assignee<F>>,
-        function: Expression<F>,
-    ) {
-        // Expect return values from function
-        let return_values =
-            match self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), function)
-            {
-                ResolvedValue::Return(values) => values,
-                value => unimplemented!(
-                    "multiple assignment only implemented for functions, got {}",
-                    value
-                ),
-            };
+        variables: Vec<Variable>,
+        function: Expression,
+    ) -> Result<(), StatementError> {
+        let mut expected_types = vec![];
+        for variable in variables.iter() {
+            if let Some(ref _type) = variable._type {
+                expected_types.push(_type.clone());
+            }
+        }
 
-        assignees
-            .into_iter()
-            .zip(return_values.into_iter())
-            .for_each(|(assignee, mut return_value)| {
-                self.store_assignment(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    assignee,
-                    &mut return_value,
-                );
-            });
+        // Expect return values from function
+        let return_values = match self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            &expected_types,
+            function,
+        )? {
+            ConstrainedValue::Return(values) => values,
+            value => unimplemented!(
+                "multiple assignment only implemented for functions, got {}",
+                value
+            ),
+        };
+
+        if variables.len() != return_values.len() {
+            return Err(StatementError::InvalidNumberOfDefinitions(
+                variables.len(),
+                return_values.len(),
+            ));
+        }
+
+        for (variable, value) in variables.into_iter().zip(return_values.into_iter()) {
+            self.store_definition(function_scope.clone(), variable, value)?;
+        }
+        Ok(())
     }
 
     fn enforce_return_statement(
@@ -225,37 +256,32 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expressions: Vec<Expression<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> ResolvedValue<F> {
+        expressions: Vec<Expression>,
+        return_types: Vec<Type>,
+    ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Make sure we return the correct number of values
         if return_types.len() != expressions.len() {
-            unimplemented!(
-                "function expected {} return values, got {} values",
+            return Err(StatementError::InvalidNumberOfReturns(
                 return_types.len(),
                 expressions.len(),
-            )
+            ));
         }
 
-        ResolvedValue::Return(
-            expressions
-                .into_iter()
-                .zip(return_types.into_iter())
-                .map(|(expression, ty)| {
-                    let result = self.enforce_expression(
-                        cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
-                        expression,
-                    );
-                    if !result.match_type(&ty) {
-                        unimplemented!("expected return type {}, got {}", ty, result)
-                    } else {
-                        result
-                    }
-                })
-                .collect::<Vec<ResolvedValue<F>>>(),
-        )
+        let mut returns = vec![];
+        for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
+            let expected_types = vec![ty.clone()];
+            let result = self.enforce_branch(
+                cs,
+                file_scope.clone(),
+                function_scope.clone(),
+                &expected_types,
+                expression,
+            )?;
+
+            returns.push(result);
+        }
+
+        Ok(ConstrainedValue::Return(returns))
     }
 
     fn iterate_or_early_return(
@@ -263,9 +289,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statements: Vec<Statement<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+        statements: Vec<Statement>,
+        return_types: Vec<Type>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         // Evaluate statements and possibly return early
         for statement in statements.iter() {
@@ -275,13 +301,13 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 function_scope.clone(),
                 statement.clone(),
                 return_types.clone(),
-            ) {
+            )? {
                 res = Some(early_return);
                 break;
             }
         }
 
-        res
+        Ok(res)
     }
 
     fn enforce_conditional_statement(
@@ -289,17 +315,19 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: ConditionalStatement<F>,
-        return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+        statement: ConditionalStatement,
+        return_types: Vec<Type>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
+        let expected_types = vec![Type::Boolean];
         let condition = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
+            &expected_types,
             statement.condition.clone(),
-        ) {
-            ResolvedValue::Boolean(resolved) => resolved,
-            value => unimplemented!("if else conditional must resolve to boolean, got {}", value),
+        )? {
+            ConstrainedValue::Boolean(resolved) => resolved,
+            value => return Err(StatementError::IfElseConditional(value.to_string())),
         };
 
         // use gadget impl
@@ -314,14 +342,14 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         } else {
             match statement.next {
                 Some(next) => match next {
-                    ConditionalNestedOrEnd::Nested(nested) => self.enforce_conditional_statement(
+                    ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
                         cs,
                         file_scope,
                         function_scope,
                         *nested,
                         return_types,
                     ),
-                    ConditionalNestedOrEnd::End(statements) => self.iterate_or_early_return(
+                    ConditionalNestedOrEndStatement::End(statements) => self.iterate_or_early_return(
                         cs,
                         file_scope,
                         function_scope,
@@ -329,7 +357,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                         return_types,
                     ),
                 },
-                None => None,
+                None => Ok(None),
             }
         }
     }
@@ -339,19 +367,22 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        index: Variable<F>,
+        index: Identifier,
         start: Integer,
         stop: Integer,
-        statements: Vec<Statement<F>>,
-        return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+        statements: Vec<Statement>,
+        return_types: Vec<Type>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
 
         for i in start.to_usize()..stop.to_usize() {
             // Store index in current function scope.
             // For loop scope is not implemented.
-            let index_name = new_scope_from_variable(function_scope.clone(), &index);
-            self.store(index_name, ResolvedValue::U32(UInt32::constant(i as u32)));
+            let index_name = new_scope(function_scope.clone(), index.to_string());
+            self.store(
+                index_name,
+                ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
+            );
 
             // Evaluate statements and possibly return early
             if let Some(early_return) = self.iterate_or_early_return(
@@ -360,35 +391,48 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                 function_scope.clone(),
                 statements.clone(),
                 return_types.clone(),
-            ) {
+            )? {
                 res = Some(early_return);
                 break;
             }
         }
 
-        res
+        Ok(res)
     }
 
     fn enforce_assert_eq_statement(
         &mut self,
         cs: &mut CS,
-        left: ResolvedValue<F>,
-        right: ResolvedValue<F>,
-    ) {
-        match (left, right) {
-            (ResolvedValue::Boolean(bool_1), ResolvedValue::Boolean(bool_2)) => {
-                self.enforce_boolean_eq(cs, bool_1, bool_2)
+        left: ConstrainedValue<F, G>,
+        right: ConstrainedValue<F, G>,
+    ) -> Result<(), StatementError> {
+        Ok(match (left, right) {
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
+                self.enforce_boolean_eq(cs, bool_1, bool_2)?
             }
-            (ResolvedValue::U32(num_1), ResolvedValue::U32(num_2)) => {
-                Self::enforce_u32_eq(cs, num_1, num_2)
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                num_1.enforce_equal(cs, &num_2).map_err(|_| {
+                    StatementError::AssertionFailed(num_1.to_string(), num_2.to_string())
+                })?
             }
-            (ResolvedValue::FieldElement(fe_1), ResolvedValue::FieldElement(fe_2)) => {
-                self.enforce_field_eq(cs, fe_1, fe_2)
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1
+                .enforce_equal(cs, &fe_2)
+                .map_err(|_| StatementError::AssertionFailed(fe_1.to_string(), fe_2.to_string()))?,
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => ge_1
+                .enforce_equal(cs, &ge_2)
+                .map_err(|_| StatementError::AssertionFailed(ge_1.to_string(), ge_2.to_string()))?,
+            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
+                for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
+                    self.enforce_assert_eq_statement(cs, left, right)?;
+                }
             }
             (val_1, val_2) => {
-                unimplemented!("cannot enforce equality between {} == {}", val_1, val_2)
+                return Err(StatementError::AssertEq(
+                    val_1.to_string(),
+                    val_2.to_string(),
+                ))
             }
-        }
+        })
     }
 
     pub(crate) fn enforce_statement(
@@ -396,9 +440,9 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        statement: Statement<F>,
-        return_types: Vec<Type<F>>,
-    ) -> Option<ResolvedValue<F>> {
+        statement: Statement,
+        return_types: Vec<Type>,
+    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
         match statement {
             Statement::Return(expressions) => {
@@ -408,29 +452,34 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     function_scope,
                     expressions,
                     return_types,
-                ));
+                )?);
             }
-            Statement::Definition(assignee, ty, expression) => {
+            Statement::Definition(variable, expression) => {
                 self.enforce_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignee,
-                    ty,
+                    variable,
                     expression,
-                );
+                )?;
             }
             Statement::Assign(variable, expression) => {
-                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression);
+                self.enforce_assign_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    variable,
+                    expression,
+                )?;
             }
-            Statement::MultipleAssign(assignees, function) => {
+            Statement::MultipleAssign(variables, function) => {
                 self.enforce_multiple_definition_statement(
                     cs,
                     file_scope,
                     function_scope,
-                    assignees,
+                    variables,
                     function,
-                );
+                )?;
             }
             Statement::Conditional(statement) => {
                 if let Some(early_return) = self.enforce_conditional_statement(
@@ -439,7 +488,7 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     function_scope,
                     statement,
                     return_types,
-                ) {
+                )? {
                     res = Some(early_return)
                 }
             }
@@ -453,33 +502,46 @@ impl<F: Field + PrimeField, CS: ConstraintSystem<F>> ResolvedProgram<F, CS> {
                     stop,
                     statements,
                     return_types,
-                ) {
+                )? {
                     res = Some(early_return)
                 }
             }
             Statement::AssertEq(left, right) => {
-                let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), left);
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), right);
+                let resolved_left = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    &vec![],
+                    left,
+                )?;
+                let resolved_right = self.enforce_expression(
+                    cs,
+                    file_scope.clone(),
+                    function_scope.clone(),
+                    &vec![],
+                    right,
+                )?;
 
-                self.enforce_assert_eq_statement(cs, resolved_left, resolved_right);
+                self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
             }
             Statement::Expression(expression) => {
-                match self.enforce_expression(cs, file_scope, function_scope, expression.clone()) {
-                    ResolvedValue::Return(values) => {
+                match self.enforce_expression(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    &vec![],
+                    expression.clone(),
+                )? {
+                    ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
-                            unimplemented!("function return values not assigned {:#?}", values)
+                            return Err(StatementError::Unassigned(expression.to_string()));
                         }
                     }
-                    _ => unimplemented!(
-                        "expected assignment of return values for expression {}",
-                        expression
-                    ),
+                    _ => return Err(StatementError::Unassigned(expression.to_string())),
                 }
             }
         };
 
-        res
+        Ok(res)
     }
 }

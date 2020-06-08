@@ -1,0 +1,299 @@
+/// Common
+
+// Declared in common/assignee.rs
+assignee = { identifier ~ access_assignee* }
+
+// Declared in common/file.rs
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
+
+// Declared in common/identifier.rs
+identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+
+// Declared in common/line_end.rs
+LINE_END = { ";" ~ NEWLINE* }
+
+// Declared in common/mutable.rs
+mutable = { "mut" }
+
+// Declared in common/range.rs
+range = { from_expression? ~ ".." ~ to_expression }
+from_expression = { expression }
+to_expression = { expression }
+
+// Declared in common/range_or_expression.rs
+range_or_expression = { range | expression }
+
+// Declared in common/spread.rs
+spread = { "..." ~ expression }
+
+// Declared in common/spread_or_expression.rs
+spread_or_expression = { spread | expression }
+
+// Declared in common/static_.rs
+static_ = { "static" }
+
+// Declared in common/variable.rs
+variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+
+// Declared in common/visibility.rs
+visibility = { visibility_public | visibility_private }
+visibility_public = { "public" }
+visibility_private = { "private" }
+
+/// Operations
+
+// Declared in operations/not_operation.rs
+operation_not = { "!" }
+
+// Declared in operations/binary_operation.rs
+operation_and = { "&&" }
+operation_or = { "||" }
+operation_eq = { "==" }
+operation_ne = { "!=" }
+operation_ge = { ">=" }
+operation_gt = { ">" }
+operation_le = { "<=" }
+operation_lt = { "<" }
+operation_add = { "+" }
+operation_sub = { "-" }
+operation_mul = { "*" }
+operation_div = { "/" }
+operation_pow = { "**" }
+
+operation_compare = _{
+    operation_eq | operation_ne |
+    operation_ge | operation_gt |
+    operation_le | operation_lt
+}
+operation_binary = _{
+    operation_compare | operation_and | operation_or |
+    operation_add | operation_sub | operation_pow | operation_mul | operation_div
+}
+
+// Declared in operations/assign_operation.rs
+operation_assign = {
+    assign | operation_add_assign | operation_sub_assign |
+    operation_mul_assign | operation_div_assign | operation_pow_assign
+}
+assign = { "=" }
+operation_add_assign = { "+=" }
+operation_sub_assign = { "-=" }
+operation_mul_assign = { "*=" }
+operation_div_assign = { "/=" }
+operation_pow_assign = { "**=" }
+
+/// Types
+
+// Declared in types/type_.rs
+type_ = { type_self | type_array | type_data | type_circuit }
+
+// Declared in types/integer.rs
+type_integer = {
+    type_u8
+    | type_u16
+    | type_u32
+    | type_u64
+    | type_u128
+}
+type_u8 = { "u8" }
+type_u16 = { "u16" }
+type_u32 = { "u32" }
+type_u64 = { "u64" }
+type_u128 = { "u128" }
+
+// Declared in types/field_type.rs
+type_field = { "field" }
+
+// Declared in types/group_type.rs
+type_group = { "group" }
+
+// Declared in types/boolean_type.rs
+type_boolean = { "bool" }
+
+// Declared in types/data_type.rs
+type_data = { type_field | type_group | type_boolean | type_integer }
+
+// Declared in types/self_type.rs
+type_self = { "Self" }
+
+// Declared in types/self_type.rs
+type_circuit = { identifier }
+
+// Declared in types/array_type.rs
+type_array = { type_data ~ ("[" ~ value ~ "]")+ }
+
+type_list = _{ (type_ ~ ("," ~ type_)*)? }
+
+/// Values
+
+// Declared in values/value.rs
+value = { value_field | value_group | value_boolean | value_integer | value_implicit }
+
+// Declared in values/number_value.rs
+value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+
+// Declared in values/number_implicit_value.rs
+value_implicit = { value_number }
+
+// Declared in values/integer_value.rs
+value_integer = { value_number ~ type_integer }
+
+// Declared in values/boolean_value.rs
+value_boolean = { "true" | "false" }
+
+// Declared in values/field_value.rs
+value_field = { value_number ~ type_field }
+
+// Declared in values/group_value.rs
+value_group = { group_single_or_tuple ~ type_group }
+group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
+group_single_or_tuple = {value_number | group_tuple}
+
+/// Access
+
+// Declared in access/access.rs
+access = { access_array | access_call | access_member | access_static_member}
+
+// Declared in access/array_access.rs
+access_array = { "[" ~ range_or_expression ~ "]" }
+
+// Declared in access/assignee_access.rs
+access_assignee = { access_array | access_member }
+
+// Declared in access/call_access.rs
+access_call = { "(" ~ expression_tuple ~ ")" }
+
+// Declared in access/member_access.rs
+access_member = { "." ~ identifier }
+
+// Declared in access/static_member_access.rs
+access_static_member = { "::" ~ identifier }
+
+/// Circuits
+
+// Declared in circuits/circuit_definition.rs
+circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+
+// Declared in circuits/circuit_field.rs
+circuit_field = { identifier ~ ":" ~ expression }
+
+// Declared in circuits/circuit_field_definition.rs
+circuit_field_definition = { identifier ~ ":" ~ type_ ~ NEWLINE* }
+
+// Declared in circuits/circuit_function.rs
+circuit_function = { static_? ~ function_definition }
+
+// Declared in circuits/circuit_member.rs
+circuit_member = { circuit_function | circuit_field_definition }
+
+/// Conditionals
+
+expression_conditional = { "if" ~ expression ~ "?" ~ expression ~ ":" ~ expression}
+
+/// Expressions
+
+expression_term = {
+    ("(" ~ expression ~ ")")
+    | expression_array_initializer
+    | expression_array_inline
+    | expression_circuit_inline
+    | expression_conditional
+    | expression_not
+    | expression_postfix
+    | expression_primitive
+}
+expression_primitive = { value | identifier }
+expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
+
+// Declared in expressions/expression.rs
+expression = { expression_term ~ (operation_binary ~ expression_term)* }
+
+// Declared in expressions/array_initializer_expression.rs
+expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" }
+
+// Declared in expressions/array_inline_expression.rs
+expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
+inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
+
+// Declared in expressions/circuit_inline_expression.rs
+expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
+circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
+
+// Declared in expressions/not_expression.rs
+expression_not = { operation_not ~ expression_term }
+
+// Declared in expressions/postfix_expression.rs
+expression_postfix = { identifier ~ access+ }
+
+/// Statements
+
+// Declared in statements/statement.rs
+statement = {
+    (statement_return
+    | statement_conditional
+    | statement_for
+      | (statement_multiple_assignment
+      | statement_assert
+      | statement_definition
+      | statement_assign
+      | statement_expression
+      )
+    ) ~ NEWLINE*
+}
+
+// Declared in statements/assert_statement.rs
+statement_assert = { assert_eq }
+assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
+
+// Declared in statements/assign_statement.rs
+statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
+
+// Declared in statements/conditional_statement.rs
+statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end_statement)?}
+conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
+
+// Declared in statements/definition_statement.rs
+statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
+
+// Declared in statements/expression_statement.rs
+statement_expression = { expression ~ LINE_END }
+
+// Declared in statements/for_statement.rs
+statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+
+// Declared in statements/multiple_assignment_statement.rs
+statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
+variable_tuple = _{ variable ~ ("," ~ variable)* }
+
+// Declared in statements/return_statement.rs
+statement_return = { "return" ~ expression_tuple }
+
+/// Functions
+
+// Declared in functions/function.rs
+function_definition = { "function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+
+// Declared in functions/function_input.rs
+function_input = { mutable? ~ identifier ~ ":" ~ visibility? ~ type_ }
+input_model_list = _{ (function_input ~ ("," ~ function_input)*)? }
+
+// Declared in functions/test_function.rs
+test_function = { "test" ~ function_definition }
+
+/// Imports
+
+// Declared in imports/import.rs
+import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
+
+// Declared in imports/import_source.rs
+import_source = @{ (!"\"" ~ ANY)* }
+
+// Declared in imports/import_symbol.rs
+import_symbol = { identifier ~ ("as" ~ identifier)? }
+import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
+
+/// Utilities
+
+COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }

@@ -13,7 +13,7 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "benchmark", "compiler", "leo-inputs" ]
+members = [ "ast", "compiler", "types" ]
 
 [dependencies]
 leo-compiler = { path = "compiler", version = "0.1.0" }
@@ -23,18 +23,17 @@ snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
 snarkos-curves = { path = "../snarkOS/curves", version = "0.8.0" }
 snarkos-errors = { path = "../snarkOS/errors", version = "0.8.0" }
 snarkos-gadgets = { path = "../snarkOS/gadgets", version = "0.8.0" }
-snarkos-models = { path = "../snarkOS/models", version = "0.8.0" }
+snarkos-models =  { path = "../snarkOS/models", version = "0.8.0" }
 snarkos-utilities = { path = "../snarkOS/utilities", version = "0.8.0" }
 
 clap = { version = "2.33.0" }
 colored = { version = "1.9" }
 env_logger = { version = "0.7" }
-failure = { version = "0.1.5" }
 from-pest = { version = "0.3.1" }
 log = { version = "0.4" }
 rand = { version = "0.7" }
 rand_core = { version = "0.5.1" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-structopt = { version = "0.3.14" }
 toml = { version = "0.5" }
+thiserror = { version = "1.0" }
