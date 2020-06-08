@@ -1,17 +1,13 @@
-use leo_inputs::{self, inputs_ast};
+use leo_inputs::{self, LeoInputsParser};
 
-use from_pest::FromPest;
-use std::fs;
+use std::env::current_dir;
 
 fn main() {
-    // Read in file as string
-    let unparsed_file = fs::read_to_string("input.leo").expect("cannot read file");
+    let mut path = current_dir().unwrap();
+    path.push("input.leo");
 
-    // Parse the file using leo.pest
-    let mut file = inputs_ast::parse(&unparsed_file).expect("unsuccessful parse");
+    let input_file = &LeoInputsParser::load_file(&path).expect("cannot read file");
+    let syntax_tree = LeoInputsParser::parse_file(&path, input_file).unwrap();
 
-    // Build the abstract syntax tree
-    let syntax_tree = inputs_ast::File::from_pest(&mut file).expect("infallible");
-
-    println!("tree: {:?}", syntax_tree);
+    println!("tree: {:#?}", syntax_tree);
 }
