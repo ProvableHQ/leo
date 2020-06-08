@@ -1,6 +1,7 @@
 use crate::errors::{
-    BooleanError, ExpressionError, FieldError, GroupError, IntegerError, StatementError, ValueError,
+    BooleanError, ExpressionError, FieldError, GroupError, StatementError, ValueError,
 };
+use leo_types::IntegerError;
 
 #[derive(Debug, Error)]
 pub enum FunctionError {

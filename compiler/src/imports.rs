@@ -1,6 +1,6 @@
 //! The Import type for a Leo program.
 
-use crate::Identifier;
+use leo_types::Identifier;
 
 use std::fmt;
 

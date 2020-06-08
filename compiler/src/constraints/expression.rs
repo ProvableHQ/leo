@@ -5,11 +5,12 @@ use crate::{
     errors::ExpressionError,
     new_scope,
     types::{
-        CircuitFieldDefinition, CircuitMember, Expression, Identifier, RangeOrExpression,
+        CircuitFieldDefinition, CircuitMember, Expression, RangeOrExpression,
         SpreadOrExpression,
     },
-    FieldType, GroupType, Integer, IntegerType, Type,
+    FieldType, GroupType, Type,
 };
+use leo_types::{Identifier, Integer, IntegerType};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

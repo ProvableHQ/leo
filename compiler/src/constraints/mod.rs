@@ -12,9 +12,6 @@ pub use expression::*;
 pub mod import;
 pub use import::*;
 
-pub mod integer;
-pub use integer::*;
-
 pub(crate) mod field;
 pub(crate) use field::*;
 
@@ -32,9 +29,10 @@ pub use statement::*;
 
 use crate::{
     errors::CompilerError,
-    types::{InputValue, Program},
+    types::Program,
     GroupType,
 };
+use leo_types::InputValue;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

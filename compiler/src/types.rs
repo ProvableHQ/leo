@@ -2,28 +2,12 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
+use leo_types::{Identifier, Integer, IntegerType};
 
 use snarkos_models::gadgets::utilities::{
     boolean::Boolean,
-    uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
 use std::collections::HashMap;
-
-/// An identifier in the constrained program.
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Identifier {
-    pub name: String,
-}
-
-impl Identifier {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-
-    pub fn is_self(&self) -> bool {
-        self.name == "Self"
-    }
-}
 
 /// A variable that is assigned to a value in the constrained program
 #[derive(Clone, PartialEq, Eq)]
@@ -31,16 +15,6 @@ pub struct Variable {
     pub identifier: Identifier,
     pub mutable: bool,
     pub _type: Option<Type>,
-}
-
-/// An integer type enum wrapping the integer value. Used only in expressions.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
-pub enum Integer {
-    U8(UInt8),
-    U16(UInt16),
-    U32(UInt32),
-    U64(UInt64),
-    U128(UInt128),
 }
 
 /// Range or expression enum
@@ -109,16 +83,6 @@ pub enum Assignee {
     Identifier(Identifier),
     Array(Box<Assignee>, RangeOrExpression),
     CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
-}
-
-/// Explicit integer type
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum IntegerType {
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
 }
 
 /// Explicit type used for defining a variable or expression type
@@ -215,15 +179,6 @@ pub struct InputModel {
     pub mutable: bool,
     pub private: bool,
     pub _type: Type,
-}
-
-#[derive(Clone, PartialEq, Eq)]
-pub enum InputValue {
-    Integer(u128),
-    Field(String),
-    Group(String),
-    Boolean(bool),
-    Array(Vec<InputValue>),
 }
 
 #[derive(Clone, PartialEq, Eq)]

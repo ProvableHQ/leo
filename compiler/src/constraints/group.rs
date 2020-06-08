@@ -1,4 +1,5 @@
-use crate::{errors::GroupError, ConstrainedValue, GroupType, InputValue};
+use crate::{errors::GroupError, ConstrainedValue, GroupType};
+use leo_types::InputValue;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

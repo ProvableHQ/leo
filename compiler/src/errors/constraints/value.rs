@@ -1,4 +1,5 @@
-use crate::errors::{FieldError, GroupError, IntegerError};
+use crate::errors::{FieldError, GroupError};
+use leo_types::IntegerError;
 
 use std::{num::ParseIntError, str::ParseBoolError};
 

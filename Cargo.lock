@@ -517,6 +517,7 @@ dependencies = [
  "from-pest",
  "hex",
  "leo-ast",
+ "leo-types",
  "log",
  "pest",
  "rand",
@@ -527,6 +528,16 @@ dependencies = [
  "snarkos-gadgets",
  "snarkos-models",
  "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-types"
+version = "0.1.0"
+dependencies = [
+ "leo-ast",
+ "snarkos-errors",
+ "snarkos-models",
  "thiserror",
 ]
 

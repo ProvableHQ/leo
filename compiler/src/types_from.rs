@@ -2,7 +2,6 @@
 
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
-    File,
     access::{
         Access,
         AssigneeAccess,
@@ -16,7 +15,7 @@ use leo_ast::{
     },
     common::{
         Assignee,
-        Identifier,
+        Identifier as AstIdentifier,
         RangeOrExpression as AstRangeOrExpression,
         SpreadOrExpression as AstSpreadOrExpression,
         Variable as AstVariable,
@@ -33,6 +32,7 @@ use leo_ast::{
         PostfixExpression,
         TernaryExpression
     },
+    files::File,
     functions::{
         Function,
         FunctionInput,
@@ -62,7 +62,6 @@ use leo_ast::{
         ArrayType,
         CircuitType,
         DataType,
-        IntegerType,
         Type as AstType
     },
     values::{
@@ -70,29 +69,20 @@ use leo_ast::{
         FieldValue,
         GroupValue,
         IntegerValue,
-        NumberValue,
         NumberImplicitValue,
         Value
     }
 };
+use leo_types::{Identifier, Integer, IntegerType};
 
 use snarkos_models::gadgets::utilities::{
     boolean::Boolean,
-    uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
 use std::collections::HashMap;
 
-/// pest ast -> types::Identifier
-
-impl<'ast> From<Identifier<'ast>> for types::Identifier {
-    fn from(identifier: Identifier<'ast>) -> Self {
-        types::Identifier::new(identifier.value)
-    }
-}
-
-impl<'ast> From<Identifier<'ast>> for types::Expression {
-    fn from(identifier: Identifier<'ast>) -> Self {
-        types::Expression::Identifier(types::Identifier::from(identifier))
+impl<'ast> From<AstIdentifier<'ast>> for types::Expression {
+    fn from(identifier: AstIdentifier<'ast>) -> Self {
+        types::Expression::Identifier(Identifier::from(identifier))
     }
 }
 
@@ -101,49 +91,18 @@ impl<'ast> From<Identifier<'ast>> for types::Expression {
 impl<'ast> From<AstVariable<'ast>> for types::Variable {
     fn from(variable: AstVariable<'ast>) -> Self {
         types::Variable {
-            identifier: types::Identifier::from(variable.identifier),
+            identifier: Identifier::from(variable.identifier),
             mutable: variable.mutable.is_some(),
             _type: variable._type.map(|_type| types::Type::from(_type)),
         }
     }
 }
 
-/// pest ast - types::Integer
-
-impl<'ast> types::Integer {
-    pub(crate) fn from(number: NumberValue<'ast>, _type: IntegerType) -> Self {
-        match _type {
-            IntegerType::U8Type(_u8) => types::Integer::U8(UInt8::constant(
-                number.value.parse::<u8>().expect("unable to parse u8"),
-            )),
-            IntegerType::U16Type(_u16) => types::Integer::U16(UInt16::constant(
-                number.value.parse::<u16>().expect("unable to parse u16"),
-            )),
-            IntegerType::U32Type(_u32) => types::Integer::U32(UInt32::constant(
-                number
-                    .value
-                    .parse::<u32>()
-                    .expect("unable to parse integers.u32"),
-            )),
-            IntegerType::U64Type(_u64) => types::Integer::U64(UInt64::constant(
-                number.value.parse::<u64>().expect("unable to parse u64"),
-            )),
-            IntegerType::U128Type(_u128) => types::Integer::U128(UInt128::constant(
-                number.value.parse::<u128>().expect("unable to parse u128"),
-            )),
-        }
-    }
-
-    pub(crate) fn from_implicit(number: String) -> Self {
-        types::Integer::U128(UInt128::constant(
-            number.parse::<u128>().expect("unable to parse u128"),
-        ))
-    }
-}
+/// pest ast - Integer
 
 impl<'ast> From<IntegerValue<'ast>> for types::Expression {
     fn from(field: IntegerValue<'ast>) -> Self {
-        types::Expression::Integer(types::Integer::from(field.number, field._type))
+        types::Expression::Integer(Integer::from(field.number, field._type))
     }
 }
 
@@ -156,7 +115,7 @@ impl<'ast> From<AstRangeOrExpression<'ast>> for types::RangeOrExpression {
                     .map(|from| match types::Expression::from(from.0) {
                         types::Expression::Integer(number) => number,
                         types::Expression::Implicit(string) => {
-                            types::Integer::from_implicit(string)
+                            Integer::from_implicit(string)
                         }
                         expression => {
                             unimplemented!("Range bounds should be integers, found {}", expression)
@@ -164,7 +123,7 @@ impl<'ast> From<AstRangeOrExpression<'ast>> for types::RangeOrExpression {
                     });
                 let to = range.to.map(|to| match types::Expression::from(to.0) {
                     types::Expression::Integer(number) => number,
-                    types::Expression::Implicit(string) => types::Integer::from_implicit(string),
+                    types::Expression::Implicit(string) => Integer::from_implicit(string),
                     expression => {
                         unimplemented!("Range bounds should be integers, found {}", expression)
                     }
@@ -342,7 +301,7 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for types::Expression {
 impl<'ast> From<CircuitField<'ast>> for types::CircuitFieldDefinition {
     fn from(member: CircuitField<'ast>) -> Self {
         types::CircuitFieldDefinition {
-            identifier: types::Identifier::from(member.identifier),
+            identifier: Identifier::from(member.identifier),
             expression: types::Expression::from(member.expression),
         }
     }
@@ -350,7 +309,7 @@ impl<'ast> From<CircuitField<'ast>> for types::CircuitFieldDefinition {
 
 impl<'ast> From<CircuitInlineExpression<'ast>> for types::Expression {
     fn from(expression: CircuitInlineExpression<'ast>) -> Self {
-        let variable = types::Identifier::from(expression.identifier);
+        let variable = Identifier::from(expression.identifier);
         let members = expression
             .members
             .into_iter()
@@ -364,7 +323,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for types::Expression {
 impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
     fn from(expression: PostfixExpression<'ast>) -> Self {
         let variable =
-            types::Expression::Identifier(types::Identifier::from(expression.identifier));
+            types::Expression::Identifier(Identifier::from(expression.identifier));
 
         // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
         // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
@@ -393,12 +352,12 @@ impl<'ast> From<PostfixExpression<'ast>> for types::Expression {
                 // Handle circuit member accesses
                 Access::Object(circuit_object) => types::Expression::CircuitMemberAccess(
                     Box::new(acc),
-                    types::Identifier::from(circuit_object.identifier),
+                    Identifier::from(circuit_object.identifier),
                 ),
                 Access::StaticObject(circuit_object) => {
                     types::Expression::CircuitStaticFunctionAccess(
                         Box::new(acc),
-                        types::Identifier::from(circuit_object.identifier),
+                        Identifier::from(circuit_object.identifier),
                     )
                 }
             })
@@ -442,7 +401,7 @@ impl<'ast> types::Expression {
 // Assignee -> types::Expression for operator assign statements
 impl<'ast> From<Assignee<'ast>> for types::Expression {
     fn from(assignee: Assignee<'ast>) -> Self {
-        let variable = types::Expression::Identifier(types::Identifier::from(assignee.identifier));
+        let variable = types::Expression::Identifier(Identifier::from(assignee.identifier));
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
         assignee
@@ -452,7 +411,7 @@ impl<'ast> From<Assignee<'ast>> for types::Expression {
                 AssigneeAccess::Member(circuit_member) => {
                     types::Expression::CircuitMemberAccess(
                         Box::new(acc),
-                        types::Identifier::from(circuit_member.identifier),
+                        Identifier::from(circuit_member.identifier),
                     )
                 }
                 AssigneeAccess::Array(array) => types::Expression::ArrayAccess(
@@ -465,9 +424,9 @@ impl<'ast> From<Assignee<'ast>> for types::Expression {
 
 /// pest ast -> types::Assignee
 
-impl<'ast> From<Identifier<'ast>> for types::Assignee {
-    fn from(variable: Identifier<'ast>) -> Self {
-        types::Assignee::Identifier(types::Identifier::from(variable))
+impl<'ast> From<AstIdentifier<'ast>> for types::Assignee {
+    fn from(variable: AstIdentifier<'ast>) -> Self {
+        types::Assignee::Identifier(Identifier::from(variable))
     }
 }
 
@@ -486,7 +445,7 @@ impl<'ast> From<Assignee<'ast>> for types::Assignee {
                 ),
                 AssigneeAccess::Member(circuit_field) => types::Assignee::CircuitField(
                     Box::new(acc),
-                    types::Identifier::from(circuit_field.identifier),
+                    Identifier::from(circuit_field.identifier),
                 ),
             })
     }
@@ -630,17 +589,17 @@ impl<'ast> From<ForStatement<'ast>> for types::Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         let from = match types::Expression::from(statement.start) {
             types::Expression::Integer(number) => number,
-            types::Expression::Implicit(string) => types::Integer::from_implicit(string),
+            types::Expression::Implicit(string) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
         let to = match types::Expression::from(statement.stop) {
             types::Expression::Integer(number) => number,
-            types::Expression::Implicit(string) => types::Integer::from_implicit(string),
+            types::Expression::Implicit(string) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
 
         types::Statement::For(
-            types::Identifier::from(statement.index),
+            Identifier::from(statement.index),
             from,
             to,
             statement
@@ -688,23 +647,11 @@ impl<'ast> From<Statement<'ast>> for types::Statement {
 
 /// pest ast -> Explicit types::Type for defining circuit members and function params
 
-impl From<IntegerType> for types::IntegerType {
-    fn from(integer_type: IntegerType) -> Self {
-        match integer_type {
-            IntegerType::U8Type(_type) => types::IntegerType::U8,
-            IntegerType::U16Type(_type) => types::IntegerType::U16,
-            IntegerType::U32Type(_type) => types::IntegerType::U32,
-            IntegerType::U64Type(_type) => types::IntegerType::U64,
-            IntegerType::U128Type(_type) => types::IntegerType::U128,
-        }
-    }
-}
-
 impl From<DataType> for types::Type {
     fn from(basic_type: DataType) -> Self {
         match basic_type {
             DataType::Integer(_type) => {
-                types::Type::IntegerType(types::IntegerType::from(_type))
+                types::Type::IntegerType(IntegerType::from(_type))
             }
             DataType::Field(_type) => types::Type::Field,
             DataType::Group(_type) => types::Type::Group,
@@ -728,7 +675,7 @@ impl<'ast> From<ArrayType<'ast>> for types::Type {
 
 impl<'ast> From<CircuitType<'ast>> for types::Type {
     fn from(circuit_type: CircuitType<'ast>) -> Self {
-        types::Type::Circuit(types::Identifier::from(circuit_type.identifier))
+        types::Type::Circuit(Identifier::from(circuit_type.identifier))
     }
 }
 
@@ -748,7 +695,7 @@ impl<'ast> From<AstType<'ast>> for types::Type {
 impl<'ast> From<CircuitFieldDefinition<'ast>> for types::CircuitMember {
     fn from(circuit_value: CircuitFieldDefinition<'ast>) -> Self {
         types::CircuitMember::CircuitField(
-            types::Identifier::from(circuit_value.identifier),
+            Identifier::from(circuit_value.identifier),
             types::Type::from(circuit_value._type),
         )
     }
@@ -778,7 +725,7 @@ impl<'ast> From<CircuitMember<'ast>> for types::CircuitMember {
 
 impl<'ast> From<Circuit<'ast>> for types::Circuit {
     fn from(circuit: Circuit<'ast>) -> Self {
-        let variable = types::Identifier::from(circuit.identifier);
+        let variable = Identifier::from(circuit.identifier);
         let members = circuit
             .members
             .into_iter()
@@ -797,7 +744,7 @@ impl<'ast> From<Circuit<'ast>> for types::Circuit {
 impl<'ast> From<FunctionInput<'ast>> for types::InputModel {
     fn from(parameter: FunctionInput<'ast>) -> Self {
         types::InputModel {
-            identifier: types::Identifier::from(parameter.identifier),
+            identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
             // private by default
             private: parameter.visibility.map_or(true, |visibility| {
@@ -812,7 +759,7 @@ impl<'ast> From<FunctionInput<'ast>> for types::InputModel {
 
 impl<'ast> From<Function<'ast>> for types::Function {
     fn from(function_definition: Function<'ast>) -> Self {
-        let function_name = types::Identifier::from(function_definition.function_name);
+        let function_name = Identifier::from(function_definition.function_name);
         let parameters = function_definition
             .parameters
             .into_iter()
@@ -843,8 +790,8 @@ impl<'ast> From<Function<'ast>> for types::Function {
 impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
     fn from(symbol: AstImportSymbol<'ast>) -> Self {
         ImportSymbol {
-            symbol: types::Identifier::from(symbol.value),
-            alias: symbol.alias.map(|alias| types::Identifier::from(alias)),
+            symbol: Identifier::from(symbol.value),
+            alias: symbol.alias.map(|alias| Identifier::from(alias)),
         }
     }
 }
@@ -887,29 +834,29 @@ impl<'ast> types::Program {
 
         file.circuits.into_iter().for_each(|circuit| {
             circuits.insert(
-                types::Identifier::from(circuit.identifier.clone()),
+                Identifier::from(circuit.identifier.clone()),
                 types::Circuit::from(circuit),
             );
         });
         file.functions.into_iter().for_each(|function_def| {
             functions.insert(
-                types::Identifier::from(function_def.function_name.clone()),
+                Identifier::from(function_def.function_name.clone()),
                 types::Function::from(function_def),
             );
         });
         file.tests.into_iter().for_each(|test_def| {
             tests.insert(
-                types::Identifier::from(test_def.function.function_name.clone()),
+                Identifier::from(test_def.function.function_name.clone()),
                 types::Test::from(test_def),
             );
         });
 
-        if let Some(main_function) = functions.get(&types::Identifier::new("main".into())) {
+        if let Some(main_function) = functions.get(&Identifier::new("main".into())) {
             num_parameters = main_function.inputs.len();
         }
 
         types::Program {
-            name: types::Identifier::new(name),
+            name: Identifier::new(name),
             num_parameters,
             imports,
             circuits,

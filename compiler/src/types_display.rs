@@ -2,22 +2,12 @@
 
 use crate::{
     Assignee, Circuit, CircuitMember, ConditionalNestedOrEnd, ConditionalStatement, Expression,
-    Function, Identifier, InputModel, InputValue, Integer, IntegerType, RangeOrExpression,
+    Function, InputModel, RangeOrExpression,
     SpreadOrExpression, Statement, Type, Variable,
 };
 
 use std::fmt;
 
-impl fmt::Display for Identifier {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)
-    }
-}
-impl fmt::Debug for Identifier {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)
-    }
-}
 
 impl fmt::Display for Variable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -32,12 +22,6 @@ impl fmt::Display for Variable {
         }
 
         write!(f, "")
-    }
-}
-
-impl fmt::Display for Integer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.to_usize(), self.get_type())
     }
 }
 
@@ -234,18 +218,6 @@ impl fmt::Display for Statement {
     }
 }
 
-impl fmt::Display for IntegerType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            IntegerType::U8 => write!(f, "u8"),
-            IntegerType::U16 => write!(f, "u16"),
-            IntegerType::U32 => write!(f, "u32"),
-            IntegerType::U64 => write!(f, "u64"),
-            IntegerType::U128 => write!(f, "u128"),
-        }
-    }
-}
-
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -320,26 +292,6 @@ impl fmt::Display for InputModel {
     }
 }
 
-impl fmt::Display for InputValue {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            InputValue::Integer(ref integer) => write!(f, "{}", integer),
-            InputValue::Field(ref field) => write!(f, "{}", field),
-            InputValue::Group(ref group) => write!(f, "{}", group),
-            InputValue::Boolean(ref bool) => write!(f, "{}", bool),
-            InputValue::Array(ref array) => {
-                write!(f, "[")?;
-                for (i, e) in array.iter().enumerate() {
-                    write!(f, "{}", e)?;
-                    if i < array.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "]")
-            }
-        }
-    }
-}
 
 impl Function {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {

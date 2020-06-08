@@ -3,9 +3,9 @@
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::BooleanError,
-    types::InputValue,
     GroupType,
 };
+use leo_types::InputValue;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

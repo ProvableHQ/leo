@@ -1,10 +1,7 @@
-//! Methods to enforce constraints on integers in a resolved Leo program.
+//! Conversion of integer declarations to constraints in Leo.
 
-use crate::{
-    errors::IntegerError,
-    types::{InputValue, Integer},
-    IntegerType,
-};
+use crate::{errors::IntegerError, IntegerType, InputValue};
+use leo_ast::{types::IntegerType as AstIntegerType, values::NumberValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -21,6 +18,49 @@ use snarkos_models::{
     },
 };
 
+use std::fmt;
+
+/// An integer type enum wrapping the integer value. Used only in expressions.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
+pub enum Integer {
+    U8(UInt8),
+    U16(UInt16),
+    U32(UInt32),
+    U64(UInt64),
+    U128(UInt128),
+}
+
+impl<'ast> Integer {
+    pub fn from(number: NumberValue<'ast>, _type: AstIntegerType) -> Self {
+        match _type {
+            AstIntegerType::U8Type(_u8) => Integer::U8(UInt8::constant(
+                number.value.parse::<u8>().expect("unable to parse u8"),
+            )),
+            AstIntegerType::U16Type(_u16) => Integer::U16(UInt16::constant(
+                number.value.parse::<u16>().expect("unable to parse u16"),
+            )),
+            AstIntegerType::U32Type(_u32) => Integer::U32(UInt32::constant(
+                number
+                    .value
+                    .parse::<u32>()
+                    .expect("unable to parse integers.u32"),
+            )),
+            AstIntegerType::U64Type(_u64) => Integer::U64(UInt64::constant(
+                number.value.parse::<u64>().expect("unable to parse u64"),
+            )),
+            AstIntegerType::U128Type(_u128) => Integer::U128(UInt128::constant(
+                number.value.parse::<u128>().expect("unable to parse u128"),
+            )),
+        }
+    }
+
+    pub fn from_implicit(number: String) -> Self {
+        Integer::U128(UInt128::constant(
+            number.parse::<u128>().expect("unable to parse u128"),
+        ))
+    }
+}
+
 impl Integer {
     pub fn to_usize(&self) -> usize {
         match self {
@@ -32,7 +72,7 @@ impl Integer {
         }
     }
 
-    pub(crate) fn get_type(&self) -> IntegerType {
+    pub fn get_type(&self) -> IntegerType {
         match self {
             Integer::U8(_u8) => IntegerType::U8,
             Integer::U16(_u16) => IntegerType::U16,
@@ -42,7 +82,7 @@ impl Integer {
         }
     }
 
-    pub(crate) fn from_input<F: Field, CS: ConstraintSystem<F>>(
+    pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         integer_type: IntegerType,
         name: String,
@@ -125,7 +165,7 @@ impl Integer {
         })
     }
 
-    pub(crate) fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -202,7 +242,7 @@ impl Integer {
         })
     }
 
-    pub(crate) fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -279,7 +319,7 @@ impl Integer {
         })
     }
 
-    pub(crate) fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -356,7 +396,7 @@ impl Integer {
         })
     }
 
-    pub(crate) fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -433,7 +473,7 @@ impl Integer {
         })
     }
 
-    pub(crate) fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -577,5 +617,11 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
 
     fn cost() -> usize {
         unimplemented!("Cannot calculate cost.")
+    }
+}
+
+impl fmt::Display for Integer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}", self.to_usize(), self.get_type())
     }
 }
