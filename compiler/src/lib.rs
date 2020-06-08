@@ -2,17 +2,6 @@
 
 #[macro_use]
 extern crate thiserror;
-extern crate log;
-
-#[macro_use]
-extern crate lazy_static;
-
-extern crate from_pest;
-extern crate pest;
-extern crate pest_ast;
-
-#[macro_use]
-extern crate pest_derive;
 
 pub mod compiler;
 
