@@ -13,6 +13,9 @@ pub use errors::*;
 pub mod expression;
 pub use expression::*;
 
+pub mod functions;
+pub use functions::*;
+
 pub mod input_value;
 pub use input_value::*;
 

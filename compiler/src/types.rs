@@ -2,7 +2,7 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
-use leo_types::{Identifier, Statement, Type};
+use leo_types::{Identifier, Function, TestFunction, Type};
 
 use std::collections::HashMap;
 
@@ -20,35 +20,6 @@ pub struct Circuit {
     pub members: Vec<CircuitMember>,
 }
 
-/// Function parameters
-
-#[derive(Clone, PartialEq, Eq)]
-pub struct InputModel {
-    pub identifier: Identifier,
-    pub mutable: bool,
-    pub private: bool,
-    pub _type: Type,
-}
-
-#[derive(Clone, PartialEq, Eq)]
-pub struct Function {
-    pub function_name: Identifier,
-    pub inputs: Vec<InputModel>,
-    pub returns: Vec<Type>,
-    pub statements: Vec<Statement>,
-}
-
-impl Function {
-    pub fn get_name(&self) -> String {
-        self.function_name.name.clone()
-    }
-}
-
-/// Tests
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Test(pub Function);
-
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
@@ -57,7 +28,7 @@ pub struct Program {
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
-    pub tests: HashMap<Identifier, Test>,
+    pub tests: HashMap<Identifier, TestFunction>,
 }
 
 impl<'ast> Program {
