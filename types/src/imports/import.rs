@@ -1,19 +1,27 @@
-//! The Import type for a Leo program.
+//! The import type for a Leo program.
 
-use leo_types::Identifier;
+use crate::ImportSymbol;
+use leo_ast::imports::Import as AstImport;
 
 use std::fmt;
-
-#[derive(Clone)]
-pub struct ImportSymbol {
-    pub symbol: Identifier,
-    pub alias: Option<Identifier>,
-}
 
 #[derive(Clone)]
 pub struct Import {
     pub path_string: String,
     pub symbols: Vec<ImportSymbol>,
+}
+
+impl<'ast> From<AstImport<'ast>> for Import {
+    fn from(import: AstImport<'ast>) -> Self {
+        Import {
+            path_string: import.source.value,
+            symbols: import
+                .symbols
+                .into_iter()
+                .map(|symbol| ImportSymbol::from(symbol))
+                .collect(),
+        }
+    }
 }
 
 impl Import {
@@ -46,16 +54,6 @@ impl Import {
                 }
             }
             write!(f, "\n}}")
-        }
-    }
-}
-
-impl fmt::Display for ImportSymbol {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.alias.is_some() {
-            write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
-        } else {
-            write!(f, "\t{}", self.symbol)
         }
     }
 }

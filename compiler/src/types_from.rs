@@ -1,40 +1,12 @@
 //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
 
-use crate::{types, Import, ImportSymbol};
+use crate::{types};
 use leo_ast::{
     files::File,
-    imports::{
-        Import as AstImport,
-        ImportSymbol as AstImportSymbol,
-    },
 };
-use leo_types::{Circuit, Function, Identifier, TestFunction};
+use leo_types::{Circuit, Function, Import, Identifier, TestFunction};
 
 use std::collections::HashMap;
-
-/// pest ast -> Import
-
-impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
-    fn from(symbol: AstImportSymbol<'ast>) -> Self {
-        ImportSymbol {
-            symbol: Identifier::from(symbol.value),
-            alias: symbol.alias.map(|alias| Identifier::from(alias)),
-        }
-    }
-}
-
-impl<'ast> From<AstImport<'ast>> for Import {
-    fn from(import: AstImport<'ast>) -> Self {
-        Import {
-            path_string: import.source.value,
-            symbols: import
-                .symbols
-                .into_iter()
-                .map(|symbol| ImportSymbol::from(symbol))
-                .collect(),
-        }
-    }
-}
 
 /// pest ast -> types::Program
 

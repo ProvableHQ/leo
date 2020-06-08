@@ -1,8 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::Import;
-use leo_types::{Circuit, Identifier, Function, TestFunction};
+use leo_types::{Circuit, Identifier,Import, Function, TestFunction};
 
 use std::collections::HashMap;
 
