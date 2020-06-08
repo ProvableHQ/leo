@@ -29,10 +29,9 @@ pub use statement::*;
 
 use crate::{
     errors::CompilerError,
-    types::Program,
     GroupType,
 };
-use leo_types::InputValue;
+use leo_types::{InputValue, Program};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

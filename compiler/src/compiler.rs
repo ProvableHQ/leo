@@ -3,10 +3,10 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
     errors::CompilerError,
-    GroupType, Program,
+    GroupType,
 };
 use leo_ast::{ast, files::File};
-use leo_types::InputValue;
+use leo_types::{InputValue, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

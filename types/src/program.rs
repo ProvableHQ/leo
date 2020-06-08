@@ -1,16 +1,26 @@
-//! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
+//! A typed Leo program consists of import, circuit, and function definitions.
+//! Each defined type consists of typed statements and expressions.
 
-use crate::{types};
+use crate::{Circuit, Identifier, Import, Function, TestFunction};
 use leo_ast::{
     files::File,
 };
-use leo_types::{Circuit, Function, Import, Identifier, TestFunction};
 
 use std::collections::HashMap;
 
-/// pest ast -> types::Program
+/// A simple program with statement expressions, program arguments and program returns.
+#[derive(Debug, Clone)]
+pub struct Program {
+    pub name: Identifier,
+    pub num_parameters: usize,
+    pub imports: Vec<Import>,
+    pub circuits: HashMap<Identifier, Circuit>,
+    pub functions: HashMap<Identifier, Function>,
+    pub tests: HashMap<Identifier, TestFunction>,
+}
 
-impl<'ast> types::Program {
+impl<'ast> Program {
+    //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
     pub fn from(file: File<'ast>, name: String) -> Self {
         // Compiled ast -> aleo program representation
         let imports = file
@@ -47,7 +57,7 @@ impl<'ast> types::Program {
             num_parameters = main_function.inputs.len();
         }
 
-        types::Program {
+        Self {
             name: Identifier::new(name),
             num_parameters,
             imports,
@@ -55,5 +65,27 @@ impl<'ast> types::Program {
             functions,
             tests,
         }
+    }
+}
+
+impl Program {
+    pub fn new() -> Self {
+        Self {
+            name: Identifier::new("".into()),
+            num_parameters: 0,
+            imports: vec![],
+            circuits: HashMap::new(),
+            functions: HashMap::new(),
+            tests: HashMap::new(),
+        }
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.name.clone()
+    }
+
+    pub fn name(mut self, name: String) -> Self {
+        self.name = Identifier::new(name);
+        self
     }
 }
