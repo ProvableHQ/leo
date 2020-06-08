@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate thiserror;
 
-pub mod circuit_field_definition;
-pub use circuit_field_definition::*;
+pub mod circuits;
+pub use circuits::*;
 
 pub mod common;
 pub use common::*;

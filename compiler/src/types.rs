@@ -2,23 +2,9 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
-use leo_types::{Identifier, Function, TestFunction, Type};
+use leo_types::{Circuit, Identifier, Function, TestFunction};
 
 use std::collections::HashMap;
-
-/// Circuits
-
-#[derive(Clone, PartialEq, Eq)]
-pub enum CircuitMember {
-    CircuitField(Identifier, Type),
-    CircuitFunction(bool, Function),
-}
-
-#[derive(Clone, PartialEq, Eq)]
-pub struct Circuit {
-    pub identifier: Identifier,
-    pub members: Vec<CircuitMember>,
-}
 
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]

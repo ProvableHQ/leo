@@ -4,10 +4,9 @@ use crate::{
     constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
     errors::ExpressionError,
     new_scope,
-    types::CircuitMember,
     FieldType, GroupType,
 };
-use leo_types::{CircuitFieldDefinition, Expression, RangeOrExpression,
+use leo_types::{CircuitFieldDefinition,CircuitMember, Expression, RangeOrExpression,
                 SpreadOrExpression, Identifier, Integer, IntegerType, Type};
 
 use snarkos_models::{

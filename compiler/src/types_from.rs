@@ -2,70 +2,15 @@
 
 use crate::{types, Import, ImportSymbol};
 use leo_ast::{
-    circuits::{
-        Circuit,
-        CircuitFieldDefinition as AstCircuitFieldDefinition,
-        CircuitFunction,
-        CircuitMember
-    },
     files::File,
     imports::{
         Import as AstImport,
         ImportSymbol as AstImportSymbol,
     },
 };
-use leo_types::{Function, Identifier, TestFunction, Type};
+use leo_types::{Circuit, Function, Identifier, TestFunction};
 
 use std::collections::HashMap;
-
-/// pest ast -> types::Circuit
-
-impl<'ast> From<AstCircuitFieldDefinition<'ast>> for types::CircuitMember {
-    fn from(circuit_value: AstCircuitFieldDefinition<'ast>) -> Self {
-        types::CircuitMember::CircuitField(
-            Identifier::from(circuit_value.identifier),
-            Type::from(circuit_value._type),
-        )
-    }
-}
-
-impl<'ast> From<CircuitFunction<'ast>> for types::CircuitMember {
-    fn from(circuit_function: CircuitFunction<'ast>) -> Self {
-        types::CircuitMember::CircuitFunction(
-            circuit_function._static.is_some(),
-            Function::from(circuit_function.function),
-        )
-    }
-}
-
-impl<'ast> From<CircuitMember<'ast>> for types::CircuitMember {
-    fn from(object: CircuitMember<'ast>) -> Self {
-        match object {
-            CircuitMember::CircuitFieldDefinition(circuit_value) => {
-                types::CircuitMember::from(circuit_value)
-            }
-            CircuitMember::CircuitFunction(circuit_function) => {
-                types::CircuitMember::from(circuit_function)
-            }
-        }
-    }
-}
-
-impl<'ast> From<Circuit<'ast>> for types::Circuit {
-    fn from(circuit: Circuit<'ast>) -> Self {
-        let variable = Identifier::from(circuit.identifier);
-        let members = circuit
-            .members
-            .into_iter()
-            .map(|member| types::CircuitMember::from(member))
-            .collect();
-
-        types::Circuit {
-            identifier: variable,
-            members,
-        }
-    }
-}
 
 /// pest ast -> Import
 
@@ -110,7 +55,7 @@ impl<'ast> types::Program {
         file.circuits.into_iter().for_each(|circuit| {
             circuits.insert(
                 Identifier::from(circuit.identifier.clone()),
-                types::Circuit::from(circuit),
+                Circuit::from(circuit),
             );
         });
         file.functions.into_iter().for_each(|function_def| {

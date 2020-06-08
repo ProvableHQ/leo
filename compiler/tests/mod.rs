@@ -1,6 +1,6 @@
 pub mod array;
 pub mod boolean;
-pub mod circuit;
+pub mod circuits;
 pub mod field;
 pub mod function;
 pub mod group;
