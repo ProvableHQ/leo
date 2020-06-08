@@ -2,8 +2,9 @@ use crate::boolean::{output_expected_boolean, output_false, output_true};
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FieldError, FunctionError},
-    ConstrainedValue, FieldType, InputValue,
+    ConstrainedValue, FieldType,
 };
+use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;

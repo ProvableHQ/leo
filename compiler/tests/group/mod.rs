@@ -2,7 +2,8 @@ use crate::{
     boolean::{output_false, output_true},
     compile_program, fail_enforce, get_output, EdwardsConstrainedValue, EdwardsTestCompiler,
 };
-use leo_compiler::{group::edwards_bls12::EdwardsGroupType, ConstrainedValue, InputValue};
+use leo_compiler::{group::edwards_bls12::EdwardsGroupType, ConstrainedValue};
+use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::{EdwardsAffine, Fq};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;

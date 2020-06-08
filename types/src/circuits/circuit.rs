@@ -18,7 +18,7 @@ impl<'ast> From<AstCircuit<'ast>> for Circuit {
             .map(|member| CircuitMember::from(member))
             .collect();
 
-        Circuit {
+        Self {
             identifier: variable,
             members,
         }

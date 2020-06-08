@@ -2,7 +2,8 @@
 pub mod macros;
 
 use crate::{get_error, EdwardsTestCompiler};
-use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
+use leo_compiler::errors::{CompilerError, FunctionError};
+use leo_types::IntegerError;
 
 pub trait IntegerTester {
     /// Tests use of the integer in a function input

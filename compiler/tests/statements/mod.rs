@@ -1,13 +1,13 @@
 use crate::{
     compile_program,
-    integer::u32::{output_one, output_zero},
+    integers::u32::{output_one, output_zero},
 };
-use leo_compiler::InputValue;
+use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
-const DIRECTORY_NAME: &str = "tests/statement/";
+const DIRECTORY_NAME: &str = "tests/statements/";
 
 // Ternary if {bool}? {expression} : {expression};
 

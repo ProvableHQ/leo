@@ -1,16 +1,17 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
     compile_program, get_output,
-    integer::{fail_integer, fail_synthesis, IntegerTester},
+    integers::{fail_integer, fail_synthesis, IntegerTester},
     EdwardsConstrainedValue, EdwardsTestCompiler,
 };
-use leo_compiler::{types::Integer, ConstrainedValue, InputValue};
+use leo_compiler::ConstrainedValue;
+use leo_types::{Integer, InputValue};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 use snarkos_models::gadgets::utilities::{alloc::AllocGadget, uint::UInt64};
 
-const DIRECTORY_NAME: &str = "tests/integer/u64/";
+const DIRECTORY_NAME: &str = "tests/integers/u64/";
 
 fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
     let output = get_output(program);

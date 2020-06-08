@@ -5,7 +5,7 @@ pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
-pub mod integer;
+pub mod integers;
 pub mod mutability;
 pub mod statements;
 pub mod syntax;

@@ -1,4 +1,4 @@
-use crate::{compile_program, integer::u32::output_one};
+use crate::{compile_program, integers::u32::output_one};
 
 const DIRECTORY_NAME: &str = "tests/import/";
 

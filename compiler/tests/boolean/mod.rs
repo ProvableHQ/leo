@@ -1,8 +1,9 @@
 use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedValue, InputValue,
+    ConstrainedValue,
 };
+use leo_types::InputValue;
 
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 

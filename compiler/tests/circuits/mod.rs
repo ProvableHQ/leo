@@ -1,16 +1,17 @@
 use crate::{
-    compile_program, get_error, get_output, integer::u32::output_one, EdwardsConstrainedValue,
+    compile_program, get_error, get_output, integers::u32::output_one, EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
 use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedCircuitMember, ConstrainedValue, Expression, Function, Identifier, Integer,
-    Statement, Type,
+    ConstrainedCircuitMember, ConstrainedValue,
 };
+use leo_types::{Expression, Function, Identifier, Integer,
+                Statement, Type,};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
-const DIRECTORY_NAME: &str = "tests/circuit/";
+const DIRECTORY_NAME: &str = "tests/circuits/";
 
 // Circ { x: 1u32 }
 fn output_circuit(program: EdwardsTestCompiler) {
