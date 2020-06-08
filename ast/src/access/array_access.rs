@@ -1,4 +1,4 @@
-use crate::ast::{RangeOrExpression, Rule};
+use crate::{ast::Rule, common::RangeOrExpression};
 
 use pest::Span;
 use pest_ast::FromPest;

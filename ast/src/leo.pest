@@ -7,6 +7,20 @@ protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
 // Declared in common/mutable.rs
 mutable = { "mut" }
 
+// Declared in common/range.rs
+range = { from_expression? ~ ".." ~ to_expression }
+from_expression = { expression }
+to_expression = { expression }
+
+// Declared in common/range_or_expression.rs
+range_or_expression = { range | expression }
+
+// Declared in common/spread.rs
+spread = { "..." ~ expression }
+
+// Declared in common/spread_or_expression.rs
+spread_or_expression = { spread | expression }
+
 // Declared in common/static_.rs
 static_ = { "static" }
 
@@ -147,15 +161,7 @@ access_member = { "." ~ identifier }
 // Declared in access/static_member_access.rs
 access_static_member = { "::" ~ identifier }
 
-range_or_expression = { range | expression }
-range = { from_expression? ~ ".." ~ to_expression }
-from_expression = { expression }
-to_expression = { expression }
-
 assignee = { identifier ~ access_assignee* }
-
-spread = { "..." ~ expression }
-spread_or_expression = { spread | expression }
 
 /// Circuits
 

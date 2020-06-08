@@ -16,6 +16,8 @@ use leo_ast::{
     },
     common::{
         Identifier,
+        RangeOrExpression as AstRangeOrExpression,
+        SpreadOrExpression as AstSpreadOrExpression,
         Variable as AstVariable,
         Visibility,
         Private,
@@ -139,10 +141,10 @@ impl<'ast> From<IntegerValue<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::RangeOrExpression<'ast>> for types::RangeOrExpression {
-    fn from(range_or_expression: ast::RangeOrExpression<'ast>) -> Self {
+impl<'ast> From<AstRangeOrExpression<'ast>> for types::RangeOrExpression {
+    fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
-            ast::RangeOrExpression::Range(range) => {
+            AstRangeOrExpression::Range(range) => {
                 let from = range
                     .from
                     .map(|from| match types::Expression::from(from.0) {
@@ -164,7 +166,7 @@ impl<'ast> From<ast::RangeOrExpression<'ast>> for types::RangeOrExpression {
 
                 types::RangeOrExpression::Range(from, to)
             }
-            ast::RangeOrExpression::Expression(expression) => {
+            AstRangeOrExpression::Expression(expression) => {
                 types::RangeOrExpression::Expression(types::Expression::from(expression))
             }
         }
@@ -228,13 +230,13 @@ impl<'ast> From<NotExpression<'ast>> for types::Expression {
     }
 }
 
-impl<'ast> From<ast::SpreadOrExpression<'ast>> for types::SpreadOrExpression {
-    fn from(s_or_e: ast::SpreadOrExpression<'ast>) -> Self {
+impl<'ast> From<AstSpreadOrExpression<'ast>> for types::SpreadOrExpression {
+    fn from(s_or_e: AstSpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            ast::SpreadOrExpression::Spread(spread) => {
+            AstSpreadOrExpression::Spread(spread) => {
                 types::SpreadOrExpression::Spread(types::Expression::from(spread.expression))
             }
-            ast::SpreadOrExpression::Expression(expression) => {
+            AstSpreadOrExpression::Expression(expression) => {
                 types::SpreadOrExpression::Expression(types::Expression::from(expression))
             }
         }

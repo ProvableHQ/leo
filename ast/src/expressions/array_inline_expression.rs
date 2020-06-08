@@ -1,4 +1,4 @@
-use crate::{ast::{Rule, SpreadOrExpression}};
+use crate::{ast::Rule, common::SpreadOrExpression};
 
 use pest::Span;
 use pest_ast::FromPest;

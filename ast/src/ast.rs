@@ -55,52 +55,6 @@ lazy_static! {
 // Access
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::from_expression))]
-pub struct FromExpression<'ast>(pub Expression<'ast>);
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::to_expression))]
-pub struct ToExpression<'ast>(pub Expression<'ast>);
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::range))]
-pub struct Range<'ast> {
-    pub from: Option<FromExpression<'ast>>,
-    pub to: Option<ToExpression<'ast>>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::range_or_expression))]
-pub enum RangeOrExpression<'ast> {
-    Range(Range<'ast>),
-    Expression(Expression<'ast>),
-}
-
-impl<'ast> fmt::Display for RangeOrExpression<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            RangeOrExpression::Expression(ref expression) => write!(f, "{}", expression),
-            RangeOrExpression::Range(ref range) => write!(
-                f,
-                "{}..{}",
-                range
-                    .from
-                    .as_ref()
-                    .map(|e| e.0.to_string())
-                    .unwrap_or("".to_string()),
-                range
-                    .to
-                    .as_ref()
-                    .map(|e| e.0.to_string())
-                    .unwrap_or("".to_string())
-            ),
-        }
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::assignee))]
 pub struct Assignee<'ast> {
     pub identifier: Identifier<'ast>,
@@ -119,36 +73,6 @@ impl<'ast> fmt::Display for Assignee<'ast> {
             }
         }
         write!(f, "")
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::spread))]
-pub struct Spread<'ast> {
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-impl<'ast> fmt::Display for Spread<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "...{}", self.expression)
-    }
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::spread_or_expression))]
-pub enum SpreadOrExpression<'ast> {
-    Spread(Spread<'ast>),
-    Expression(Expression<'ast>),
-}
-
-impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            SpreadOrExpression::Spread(ref spread) => write!(f, "{}", spread),
-            SpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
-        }
     }
 }
 
