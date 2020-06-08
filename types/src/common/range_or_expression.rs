@@ -42,7 +42,7 @@ impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     }
 }
 
-impl<'ast> fmt::Display for RangeOrExpression {
+impl fmt::Display for RangeOrExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             RangeOrExpression::Range(ref from, ref to) => write!(

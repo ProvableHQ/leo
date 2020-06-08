@@ -58,13 +58,13 @@ impl Import {
     }
 }
 
-impl<'ast> fmt::Display for Import {
+impl fmt::Display for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl<'ast> fmt::Debug for Import {
+impl fmt::Debug for Import {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
