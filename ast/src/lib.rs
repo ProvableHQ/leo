@@ -9,7 +9,7 @@ pub mod errors;
 pub use errors::*;
 
 pub mod access;
-pub mod ast;
+mod ast;
 pub mod circuits;
 pub mod common;
 pub mod expressions;
