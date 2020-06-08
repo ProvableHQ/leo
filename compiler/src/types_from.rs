@@ -15,6 +15,7 @@ use leo_ast::{
         CircuitMember
     },
     common::{
+        Assignee,
         Identifier,
         RangeOrExpression as AstRangeOrExpression,
         SpreadOrExpression as AstSpreadOrExpression,
@@ -433,9 +434,9 @@ impl<'ast> types::Expression {
     }
 }
 
-// ast::Assignee -> types::Expression for operator assign statements
-impl<'ast> From<ast::Assignee<'ast>> for types::Expression {
-    fn from(assignee: ast::Assignee<'ast>) -> Self {
+// Assignee -> types::Expression for operator assign statements
+impl<'ast> From<Assignee<'ast>> for types::Expression {
+    fn from(assignee: Assignee<'ast>) -> Self {
         let variable = types::Expression::Identifier(types::Identifier::from(assignee.identifier));
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
@@ -465,8 +466,8 @@ impl<'ast> From<Identifier<'ast>> for types::Assignee {
     }
 }
 
-impl<'ast> From<ast::Assignee<'ast>> for types::Assignee {
-    fn from(assignee: ast::Assignee<'ast>) -> Self {
+impl<'ast> From<Assignee<'ast>> for types::Assignee {
+    fn from(assignee: Assignee<'ast>) -> Self {
         let variable = types::Assignee::from(assignee.identifier);
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
