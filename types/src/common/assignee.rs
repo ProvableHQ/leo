@@ -21,7 +21,7 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
     fn from(assignee: AstAssignee<'ast>) -> Self {
         let variable = Assignee::from(assignee.identifier);
 
-        // we start with the id, and we fold the array of accesses by wrapping the current value
+        // We start with the id, and we fold the array of accesses by wrapping the current value
         assignee
             .accesses
             .into_iter()

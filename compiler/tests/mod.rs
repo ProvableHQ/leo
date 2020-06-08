@@ -7,7 +7,7 @@ pub mod group;
 pub mod import;
 pub mod integer;
 pub mod mutability;
-pub mod statement;
+pub mod statements;
 pub mod syntax;
 
 use leo_compiler::{

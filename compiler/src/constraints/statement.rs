@@ -4,12 +4,9 @@ use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
     errors::StatementError,
     new_scope,
-    types::{
-        ConditionalNestedOrEndStatement, ConditionalStatement, Statement,
-    },
     GroupType,
 };
-use leo_types::{Assignee, Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
+use leo_types::{Assignee, ConditionalNestedOrEndStatement, ConditionalStatement, Statement, Expression, Identifier, Integer, RangeOrExpression, Type, Variable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

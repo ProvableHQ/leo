@@ -2,36 +2,9 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::Import;
-use leo_types::{Assignee, Expression, Identifier, Integer, Type, Variable};
+use leo_types::{Identifier, Statement, Type};
 
 use std::collections::HashMap;
-
-
-#[derive(Clone, PartialEq, Eq)]
-pub enum ConditionalNestedOrEndStatement {
-    Nested(Box<ConditionalStatement>),
-    End(Vec<Statement>),
-}
-
-#[derive(Clone, PartialEq, Eq)]
-pub struct ConditionalStatement {
-    pub condition: Expression,
-    pub statements: Vec<Statement>,
-    pub next: Option<ConditionalNestedOrEndStatement>,
-}
-
-/// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone, PartialEq, Eq)]
-pub enum Statement {
-    Return(Vec<Expression>),
-    Definition(Variable, Expression),
-    Assign(Assignee, Expression),
-    MultipleAssign(Vec<Variable>, Expression),
-    Conditional(ConditionalStatement),
-    For(Identifier, Integer, Integer, Vec<Statement>),
-    AssertEq(Expression, Expression),
-    Expression(Expression),
-}
 
 /// Circuits
 

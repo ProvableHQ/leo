@@ -1,85 +1,11 @@
 //! Format display functions for Leo types.
 
 use crate::{
-    Circuit, CircuitMember, ConditionalNestedOrEndStatement, ConditionalStatement,
-    Function, InputModel, Statement,
+    Circuit, CircuitMember,
+    Function, InputModel,
 };
 
 use std::fmt;
-
-
-impl fmt::Display for ConditionalNestedOrEndStatement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref statements) => {
-                write!(f, "else {{\n")?;
-                for statement in statements.iter() {
-                    write!(f, "\t\t{}\n", statement)?;
-                }
-                write!(f, "\t}}")
-            }
-        }
-    }
-}
-
-impl fmt::Display for ConditionalStatement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {{\n", self.condition)?;
-        for statement in self.statements.iter() {
-            write!(f, "\t\t{}\n", statement)?;
-        }
-        match self.next.clone() {
-            Some(n_or_e) => write!(f, "\t}} {}", n_or_e),
-            None => write!(f, "\t}}"),
-        }
-    }
-}
-
-impl fmt::Display for Statement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Statement::Return(ref statements) => {
-                write!(f, "return (")?;
-                for (i, value) in statements.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < statements.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ")\n")
-            }
-            Statement::Definition(ref variable, ref expression) => {
-                write!(f, "let {} = {};", variable, expression)
-            }
-            Statement::Assign(ref variable, ref statement) => {
-                write!(f, "{} = {};", variable, statement)
-            }
-            Statement::MultipleAssign(ref assignees, ref function) => {
-                write!(f, "let (")?;
-                for (i, id) in assignees.iter().enumerate() {
-                    write!(f, "{}", id)?;
-                    if i < assignees.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ") = {};", function)
-            }
-            Statement::Conditional(ref statement) => write!(f, "{}", statement),
-            Statement::For(ref var, ref start, ref stop, ref list) => {
-                write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
-                for l in list {
-                    write!(f, "\t\t{}\n", l)?;
-                }
-                write!(f, "\t}}")
-            }
-            Statement::AssertEq(ref left, ref right) => {
-                write!(f, "assert_eq({}, {});", left, right)
-            }
-            Statement::Expression(ref expression) => write!(f, "{};", expression),
-        }
-    }
-}
 
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
