@@ -4,15 +4,14 @@ use crate::{
     new_scope,
     GroupType,
 };
-use leo_ast::{ast, files::File};
+use leo_ast::LeoParser;
 use leo_types::{Import, Program};
 
-use from_pest::FromPest;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-use std::{env::current_dir, fs};
+use std::env::current_dir;
 
 impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
     pub fn enforce_import(
@@ -35,16 +34,12 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         println!("Compiling import - {:?}", main_file_path);
 
-        // Resolve program file path
-        let unparsed_file = fs::read_to_string(main_file_path.clone())
-            .map_err(|_| ImportError::FileReadError(main_file_path))?;
-        let mut file = ast::parse(&unparsed_file).map_err(|_| ImportError::FileParsingError)?;
+        // Build the abstract syntax tree
+        let file_path = &main_file_path;
+        let input_file = &LeoParser::load_file(file_path)?;
+        let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
 
-        // generate ast from file
-        let syntax_tree =
-            File::from_pest(&mut file).map_err(|_| ImportError::SyntaxTreeError)?;
-
-        // generate aleo program from file
+        // Generate aleo program from file
         let mut program = Program::from(syntax_tree, import.path_string.clone());
 
         // Use same namespace as calling function for imported symbols

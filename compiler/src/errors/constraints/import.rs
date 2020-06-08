@@ -1,3 +1,5 @@
+use leo_ast::ParserError;
+
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
@@ -10,6 +12,9 @@ pub enum ImportError {
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
+
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
 
     #[error("Unable to construct abstract syntax tree")]
     SyntaxTreeError,
