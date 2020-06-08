@@ -6,5 +6,3 @@ extern crate pest_ast;
 extern crate pest_derive;
 
 pub mod inputs_ast;
-
-pub(crate) mod inputs_display;

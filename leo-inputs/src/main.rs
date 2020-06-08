@@ -13,5 +13,5 @@ fn main() {
     // Build the abstract syntax tree
     let syntax_tree = inputs_ast::File::from_pest(&mut file).expect("infallible");
 
-    println!("tree: {}", syntax_tree);
+    println!("tree: {:?}", syntax_tree);
 }

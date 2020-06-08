@@ -1,4 +1,4 @@
 [main]
-a: private u32  = 5
-b: public fe    = 1fe
-c: private bool = true
+a: private u32  = 5;
+b: public field = 1field;
+c: private bool = true;

@@ -35,38 +35,30 @@ pub enum Visibility {
 // Types
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_u32))]
-pub struct U32Type<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_field))]
-pub struct FieldType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
+pub struct FieldType {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_group))]
+pub struct GroupType {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_boolean))]
+pub struct BooleanType {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_data))]
+pub enum DataType {
+    Integer(IntegerType),
+    Field(FieldType),
+    Group(GroupType),
+    Boolean(BooleanType),
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_bool))]
-pub struct BooleanType<'ast> {
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_basic))]
-pub enum BasicType<'ast> {
-    U32(U32Type<'ast>),
-    Field(FieldType<'ast>),
-    Boolean(BooleanType<'ast>),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::type_struct))]
-pub struct StructType<'ast> {
-    pub variable: Variable<'ast>,
+#[pest_ast(rule(Rule::type_circuit))]
+pub struct CircuitType<'ast> {
+    pub variable: Identifier<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -74,8 +66,8 @@ pub struct StructType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub _type: BasicType<'ast>,
-    pub count: Value<'ast>,
+    pub _type: DataType,
+    pub dimensions: Vec<Value<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -83,45 +75,107 @@ pub struct ArrayType<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::_type))]
 pub enum Type<'ast> {
-    Basic(BasicType<'ast>),
+    Data(DataType),
     Array(ArrayType<'ast>),
-    Struct(StructType<'ast>),
+    Circuit(CircuitType<'ast>),
 }
 
 // Values
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value_number))]
-pub struct Number<'ast> {
+pub struct NumberValue<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::value_u32))]
-pub struct U32<'ast> {
-    pub number: Number<'ast>,
-    pub _type: Option<U32Type<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value_field))]
-pub struct Field<'ast> {
-    pub number: Number<'ast>,
-    pub _type: FieldType<'ast>,
+pub struct FieldValue<'ast> {
+    pub number: NumberValue<'ast>,
+    pub _type: FieldType,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::value_group))]
+pub struct GroupValue<'ast> {
+    pub value: GroupRepresentation<'ast>,
+    pub _type: GroupType,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::group_single_or_tuple))]
+pub enum GroupRepresentation<'ast> {
+    Single(NumberValue<'ast>),
+    Tuple(GroupTuple<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::group_tuple))]
+pub struct GroupTuple<'ast> {
+    pub x: NumberValue<'ast>,
+    pub y: NumberValue<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value_boolean))]
-pub struct Boolean<'ast> {
+pub struct BooleanValue<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub value: String,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_integer))]
+pub enum IntegerType {
+    U8Type(U8Type),
+    U16Type(U16Type),
+    U32Type(U32Type),
+    U64Type(U64Type),
+    U128Type(U128Type),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u8))]
+pub struct U8Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u16))]
+pub struct U16Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u32))]
+pub struct U32Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u64))]
+pub struct U64Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::type_u128))]
+pub struct U128Type {}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::value_integer))]
+pub struct IntegerValue<'ast> {
+    pub number: NumberValue<'ast>,
+    pub _type: IntegerType,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::value_implicit))]
+pub struct NumberImplicitValue<'ast> {
+    pub number: NumberValue<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -129,16 +183,17 @@ pub struct Boolean<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::value))]
 pub enum Value<'ast> {
-    Field(Field<'ast>),
-    Boolean(Boolean<'ast>),
-    U32(U32<'ast>),
+    Integer(IntegerValue<'ast>),
+    Field(FieldValue<'ast>),
+    Group(GroupValue<'ast>),
+    Boolean(BooleanValue<'ast>),
+    Implicit(NumberImplicitValue<'ast>),
 }
-
-// Variables
+// Identifier
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::variable))]
-pub struct Variable<'ast> {
+#[pest_ast(rule(Rule::identifier))]
+pub struct Identifier<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub value: String,
     #[pest_ast(outer())]
@@ -164,22 +219,22 @@ pub struct ArrayInitializerExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-// Structs
+// Circuits
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::inline_struct_member))]
-pub struct InlineStructMember<'ast> {
-    pub variable: Variable<'ast>,
+#[pest_ast(rule(Rule::circuit_field))]
+pub struct CircuitField<'ast> {
+    pub variable: Identifier<'ast>,
     pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::expression_inline_struct))]
-pub struct StructInlineExpression<'ast> {
-    pub variable: Variable<'ast>,
-    pub members: Vec<InlineStructMember<'ast>>,
+#[pest_ast(rule(Rule::expression_circuit_inline))]
+pub struct CircuitInlineExpression<'ast> {
+    pub variable: Identifier<'ast>,
+    pub members: Vec<CircuitField<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
@@ -189,52 +244,26 @@ pub struct StructInlineExpression<'ast> {
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::expression))]
 pub enum Expression<'ast> {
-    StructInline(StructInlineExpression<'ast>),
+    CircuitInline(CircuitInlineExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
     ArrayInitializer(ArrayInitializerExpression<'ast>),
     Value(Value<'ast>),
-    Variable(Variable<'ast>),
+    Variable(Identifier<'ast>),
 }
 
-// Functions
+// Parameters
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::parameter))]
 pub struct Parameter<'ast> {
-    pub variable: Variable<'ast>,
+    pub variable: Identifier<'ast>,
     pub visibility: Option<Visibility>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::function_name))]
-pub struct FunctionName<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
 // Sections
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::header))]
-pub struct Header<'ast> {
-    pub function_name: FunctionName<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::assignment))]
-pub struct Assignment<'ast> {
-    pub parameter: Parameter<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::section))]
@@ -245,11 +274,33 @@ pub struct Section<'ast> {
     pub span: Span<'ast>,
 }
 
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::header))]
+pub struct Header<'ast> {
+    pub name: Identifier<'ast>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::assignment))]
+pub struct Assignment<'ast> {
+    pub parameter: Parameter<'ast>,
+    pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
 // Utilities
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::EOI))]
 pub struct EOI;
+
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::LINE_END))]
+pub struct LineEnd;
 
 // File
 

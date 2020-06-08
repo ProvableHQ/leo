@@ -1,73 +1,97 @@
-/// Visibility
+/// Common
 
+file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
+
+identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+
+
+LINE_END = { ";" ~ NEWLINE* }
+
+visibility = { visibility_public | visibility_private }
 visibility_public = { "public" }
 visibility_private = { "private" }
-visibility = { visibility_public | visibility_private }
 
 /// Types
 
-type_u32 = {"u32"}
-type_field = {"fe"}
-type_bool = {"bool"}
-type_basic = { type_u32 | type_field | type_bool }
-type_struct = { variable }
-type_array = {type_basic ~ ("[" ~ value ~ "]")+ }
-_type = { type_array | type_basic | type_struct }
+_type = { type_array | type_data | type_circuit }
+type_integer = {
+    type_u8
+    | type_u16
+    | type_u32
+    | type_u64
+    | type_u128
+}
+type_u8 = { "u8" }
+type_u16 = { "u16" }
+type_u32 = { "u32" }
+type_u64 = { "u64" }
+type_u128 = { "u128" }
+
+type_field = { "field" }
+
+type_group = { "group" }
+
+type_boolean = { "bool" }
+
+type_data = { type_field | type_group | type_boolean | type_integer }
+
+type_circuit = { identifier }
+
+type_array = { type_data ~ ("[" ~ value ~ "]")+ }
 
 /// Values
 
+value = { value_field | value_group | value_boolean | value_integer | value_implicit }
+
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
-value_u32 = { value_number ~ type_u32? }
-value_field = { value_number ~ type_field }
+
+value_implicit = { value_number }
+
+value_integer = { value_number ~ type_integer }
+
 value_boolean = { "true" | "false" }
-value = { value_field | value_boolean | value_u32 }
 
-/// Variables
+value_field = { value_number ~ type_field }
 
-protected_name = { visibility | "return" }
-variable = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-
-/// Arrays
-
-inline_array_inner = _{(expression ~ ("," ~ NEWLINE* ~ expression)*)?}
-expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
-expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
-
-/// Structs
-
-inline_struct_member = { variable ~ ":" ~ expression }
-inline_struct_member_list = _{(inline_struct_member ~ ("," ~ NEWLINE* ~ inline_struct_member)*)? ~ ","? }
-expression_inline_struct = { variable ~ "{" ~ NEWLINE* ~ inline_struct_member_list ~ NEWLINE* ~ "}" }
+value_group = { group_single_or_tuple ~ type_group }
+group_tuple = { "(" ~ NEWLINE* ~ value_number ~ "," ~ NEWLINE* ~ value_number ~ NEWLINE* ~")" }
+group_single_or_tuple = { value_number | group_tuple }
 
 /// Expressions
 
+expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
+
+expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
+inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
+
+expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
+circuit_field = { identifier ~ ":" ~ expression }
+circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
+
 expression = {
-    expression_inline_struct
+    expression_circuit_inline
     | expression_array_inline
     | expression_array_initializer
     | value
-    | variable
+    | identifier
 }
 
-/// Functions
+/// Parameters
 
-parameter = { variable ~ ":" ~ visibility? ~ _type }
-
-function_name = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
+parameter = { identifier ~ ":" ~ visibility? ~ _type }
 
 /// Section
 
-header = { "[" ~ function_name ~ "]" }
-assignment = { parameter ~ "=" ~ expression  }
-// assignment = { parameter ~ "="  }
-
 section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
+
+header = { "[" ~ identifier ~ "]" }
+
+assignment = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
 
 /// Utilities
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
-/// Program File
 
-file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
