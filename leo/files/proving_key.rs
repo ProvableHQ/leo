@@ -1,12 +1,13 @@
 //! The proving key file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::ProvingKeyFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::ProvingKeyFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static PROVING_KEY_FILE_EXTENSION: &str = ".leo.pk";
 

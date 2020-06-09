@@ -27,13 +27,9 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
 
     // Check visibility of parameter
     let group_value = if private {
-        G::alloc(cs.ns(|| name), || {
-            group_option.ok_or(SynthesisError::AssignmentMissing)
-        })?
+        G::alloc(cs.ns(|| name), || group_option.ok_or(SynthesisError::AssignmentMissing))?
     } else {
-        G::alloc_input(cs.ns(|| name), || {
-            group_option.ok_or(SynthesisError::AssignmentMissing)
-        })?
+        G::alloc_input(cs.ns(|| name), || group_option.ok_or(SynthesisError::AssignmentMissing))?
     };
 
     Ok(ConstrainedValue::Group(group_value))

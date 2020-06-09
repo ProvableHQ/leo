@@ -1,5 +1,4 @@
-use crate::cli_types::*;
-use crate::errors::CLIError;
+use crate::{cli_types::*, errors::CLIError};
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
@@ -31,9 +30,7 @@ pub trait CLI {
                     .conflicts_with_all(a.1)
                     .possible_values(a.2)
                     .requires_all(a.3),
-                false => Arg::from_usage(a.0)
-                    .conflicts_with_all(a.1)
-                    .requires_all(a.3),
+                false => Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
             })
             .collect::<Vec<Arg<'static, 'static>>>();
         let subcommands = Self::SUBCOMMANDS
@@ -48,9 +45,7 @@ pub trait CLI {
                                     .conflicts_with_all(a.1)
                                     .possible_values(a.2)
                                     .requires_all(a.3),
-                                false => Arg::from_usage(a.0)
-                                    .conflicts_with_all(a.1)
-                                    .requires_all(a.3),
+                                false => Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
                             })
                             .collect::<Vec<Arg<'static, 'static>>>(),
                     )

@@ -14,12 +14,7 @@ use snarkos_models::{
 use std::env::current_dir;
 
 impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub fn enforce_import(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        import: Import,
-    ) -> Result<(), ImportError> {
+    pub fn enforce_import(&mut self, cs: &mut CS, scope: String, import: Import) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 
         // Sanitize the package path to the imports directory
@@ -64,19 +59,17 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     .find(|(circuit_name, _circuit_def)| symbol.symbol == *circuit_name);
 
                 let value = match matched_circuit {
-                    Some((_circuit_name, circuit_def)) => {
-                        ConstrainedValue::CircuitDefinition(circuit_def)
-                    }
+                    Some((_circuit_name, circuit_def)) => ConstrainedValue::CircuitDefinition(circuit_def),
                     None => {
                         // see if the imported symbol is a function
-                        let matched_function = program.functions.clone().into_iter().find(
-                            |(function_name, _function)| symbol.symbol.name == *function_name.name,
-                        );
+                        let matched_function = program
+                            .functions
+                            .clone()
+                            .into_iter()
+                            .find(|(function_name, _function)| symbol.symbol.name == *function_name.name);
 
                         match matched_function {
-                            Some((_function_name, function)) => {
-                                ConstrainedValue::Function(None, function)
-                            }
+                            Some((_function_name, function)) => ConstrainedValue::Function(None, function),
                             None => unimplemented!(
                                 "cannot find imported symbol {} in imported file {}",
                                 symbol,
@@ -88,8 +81,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
                 // take the alias if it is present
                 let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
-                let resolved_circuit_name =
-                    new_scope(program_name.to_string(), resolved_name.to_string());
+                let resolved_circuit_name = new_scope(program_name.to_string(), resolved_name.to_string());
 
                 // store imported circuit under resolved name
                 self.store(resolved_circuit_name, value);
@@ -99,9 +91,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             program
                 .imports
                 .into_iter()
-                .map(|nested_import| {
-                    self.enforce_import(cs, program_name.name.clone(), nested_import)
-                })
+                .map(|nested_import| self.enforce_import(cs, program_name.name.clone(), nested_import))
                 .collect::<Result<Vec<_>, ImportError>>()?;
 
             Ok(())

@@ -1,7 +1,6 @@
 use crate::errors::SourceDirectoryError;
 
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 pub(crate) static SOURCE_DIRECTORY_NAME: &str = "src/";
 
@@ -32,9 +31,9 @@ impl SourceDirectory {
             let file_path = file_entry.path();
 
             // Verify that the entry is structured as a valid file
-            let file_type = file_entry.file_type().map_err(|error| {
-                SourceDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error)
-            })?;
+            let file_type = file_entry
+                .file_type()
+                .map_err(|error| SourceDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
             if !file_type.is_file() {
                 return Err(SourceDirectoryError::InvalidFileType(
                     file_path.as_os_str().to_owned(),
@@ -43,9 +42,9 @@ impl SourceDirectory {
             }
 
             // Verify that the file has the default file extension
-            let file_extension = file_path.extension().ok_or_else(|| {
-                SourceDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned())
-            })?;
+            let file_extension = file_path
+                .extension()
+                .ok_or_else(|| SourceDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
             if file_extension != SOURCE_FILE_EXTENSION {
                 return Err(SourceDirectoryError::InvalidFileExtension(
                     file_path.as_os_str().to_owned(),

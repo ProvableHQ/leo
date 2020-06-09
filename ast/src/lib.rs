@@ -18,11 +18,11 @@ pub mod functions;
 pub mod imports;
 pub mod operations;
 pub mod statements;
-pub mod values;
 pub mod types;
+pub mod values;
 
 use from_pest::FromPest;
-use std::{path::PathBuf, fs};
+use std::{fs, path::PathBuf};
 
 pub struct LeoParser;
 
@@ -35,9 +35,8 @@ impl LeoParser {
     /// Parses the input file and constructs a syntax tree.
     pub fn parse_file<'a>(file_path: &'a PathBuf, input_file: &'a str) -> Result<files::File<'a>, ParserError> {
         // Parse the file using leo.pest
-        let mut file = ast::parse(input_file).map_err(|error| {
-            ParserError::from(error.with_path(file_path.to_str().unwrap()))
-        })?;
+        let mut file =
+            ast::parse(input_file).map_err(|error| ParserError::from(error.with_path(file_path.to_str().unwrap())))?;
 
         // Build the abstract syntax tree
         let syntax_tree = files::File::from_pest(&mut file).map_err(|_| ParserError::SyntaxTreeError)?;

@@ -1,27 +1,39 @@
-use crate::{compile_program, integers::u32::output_one};
+use crate::{integers::u32::output_one, parse_program};
 
-const DIRECTORY_NAME: &str = "tests/import/";
+// Import tests rely on knowledge of local directories. They should be run locally only.
 
 #[test]
+#[ignore]
 fn test_basic() {
-    let program = compile_program(DIRECTORY_NAME, "basic.leo").unwrap();
+    let bytes = include_bytes!("basic.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
+#[ignore]
 fn test_multiple() {
-    let program = compile_program(DIRECTORY_NAME, "multiple.leo").unwrap();
+    let bytes = include_bytes!("multiple.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
+#[ignore]
 fn test_star() {
-    let program = compile_program(DIRECTORY_NAME, "star.leo").unwrap();
+    let bytes = include_bytes!("star.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
+#[ignore]
 fn test_alias() {
-    let program = compile_program(DIRECTORY_NAME, "alias.leo").unwrap();
+    let bytes = include_bytes!("alias.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }

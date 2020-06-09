@@ -1,12 +1,13 @@
 //! The verification key file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::VerificationKeyFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::VerificationKeyFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".leo.vk";
 
@@ -35,11 +36,7 @@ impl VerificationKeyFile {
     }
 
     /// Writes the given verification key to a file.
-    pub fn write_to(
-        &self,
-        path: &PathBuf,
-        verification_key: &[u8],
-    ) -> Result<(), VerificationKeyFileError> {
+    pub fn write_to(&self, path: &PathBuf, verification_key: &[u8]) -> Result<(), VerificationKeyFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;

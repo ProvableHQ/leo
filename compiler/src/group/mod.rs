@@ -10,7 +10,8 @@ use snarkos_models::{
             alloc::AllocGadget,
             eq::{ConditionalEqGadget, EqGadget},
             select::CondSelectGadget,
-            ToBitsGadget, ToBytesGadget,
+            ToBitsGadget,
+            ToBytesGadget,
         },
     },
 };

@@ -1,11 +1,13 @@
-use crate::directories::{InputsDirectory, SourceDirectory};
-use crate::errors::{CLIError, NewError};
-use crate::files::{Gitignore, MainFile, Manifest};
-use crate::{cli::*, cli_types::*};
+use crate::{
+    cli::*,
+    cli_types::*,
+    directories::{InputsDirectory, SourceDirectory},
+    errors::{CLIError, NewError},
+    files::{Gitignore, MainFile, Manifest},
+};
 
 use clap::ArgMatches;
-use std::env::current_dir;
-use std::fs;
+use std::{env::current_dir, fs};
 
 #[derive(Debug)]
 pub struct NewCommand;
@@ -14,7 +16,6 @@ impl CLI for NewCommand {
     type Options = Option<String>;
     type Output = ();
 
-    const NAME: NameType = "new";
     const ABOUT: AboutType = "Create a new Leo package in a new directory";
     const ARGUMENTS: &'static [ArgumentType] = &[
         // (name, description, required, index)
@@ -26,6 +27,7 @@ impl CLI for NewCommand {
         ),
     ];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "new";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 

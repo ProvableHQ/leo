@@ -1,4 +1,9 @@
-use crate::{ast::Rule, common::{Assignee, LineEnd}, expressions::Expression, operations::AssignOperation};
+use crate::{
+    ast::Rule,
+    common::{Assignee, LineEnd},
+    expressions::Expression,
+    operations::AssignOperation,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

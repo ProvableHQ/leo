@@ -1,0 +1,5 @@
+[hooks]
+pre-commit = "cargo +nightly fmt --all -- --check"
+
+[logging]
+verbose = false

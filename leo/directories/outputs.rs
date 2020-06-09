@@ -1,7 +1,6 @@
 use crate::errors::OutputsDirectoryError;
 
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 pub(crate) static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
 

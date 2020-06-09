@@ -1,9 +1,6 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
-use crate::{
-    errors::ValueError,
-    FieldType, GroupType,
-};
+use crate::{errors::ValueError, FieldType, GroupType};
 use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Type};
 
 use snarkos_models::{
@@ -16,10 +13,7 @@ use snarkos_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(
-    pub Identifier,
-    pub ConstrainedValue<F, G>,
-);
+pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<F, G>);
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
@@ -42,10 +36,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
-    pub(crate) fn from_other(
-        value: String,
-        other: &ConstrainedValue<F, G>,
-    ) -> Result<Self, ValueError> {
+    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
         ConstrainedValue::from_type(value, &other_type)
@@ -62,9 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             })),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
-            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(
-                value.parse::<bool>()?,
-            ))),
+            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?))),
             Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }
@@ -137,9 +126,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
             ConstrainedValue::CircuitDefinition(ref _definition) => {
                 unimplemented!("cannot return circuit definition in program")
             }
-            ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "{}", function)
-            }
+            ConstrainedValue::Function(ref _circuit_option, ref function) => write!(f, "{}", function),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),

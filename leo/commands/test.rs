@@ -1,16 +1,17 @@
-use crate::directories::source::SOURCE_DIRECTORY_NAME;
-use crate::errors::{CLIError, TestError};
-use crate::files::{MainFile, Manifest, MAIN_FILE_NAME};
-use crate::{cli::*, cli_types::*};
-use leo_compiler::compiler::Compiler;
-use leo_compiler::group::edwards_bls12::EdwardsGroupType;
+use crate::{
+    cli::*,
+    cli_types::*,
+    directories::source::SOURCE_DIRECTORY_NAME,
+    errors::{CLIError, TestError},
+    files::{MainFile, Manifest, MAIN_FILE_NAME},
+};
+use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 use clap::ArgMatches;
-use std::convert::TryFrom;
-use std::env::current_dir;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct TestCommand;
@@ -19,10 +20,10 @@ impl CLI for TestCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "test";
     const ABOUT: AboutType = "Compile and run all tests in the current package";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "test";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -47,9 +48,7 @@ impl CLI for TestCommand {
 
         // Verify the main file exists
         if !MainFile::exists_at(&package_path) {
-            return Err(
-                TestError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into(),
-            );
+            return Err(TestError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into());
         }
 
         // Construct the path to the main file in the source directory
@@ -58,8 +57,7 @@ impl CLI for TestCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program =
-            Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
 
         // Generate the program on the constraint system and verify correctness
         {

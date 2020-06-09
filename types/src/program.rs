@@ -1,10 +1,8 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Identifier, Import, Function, TestFunction};
-use leo_ast::{
-    files::File,
-};
+use crate::{Circuit, Function, Identifier, Import, TestFunction};
+use leo_ast::files::File;
 
 use std::collections::HashMap;
 
@@ -35,10 +33,7 @@ impl<'ast> Program {
         let mut num_parameters = 0usize;
 
         file.circuits.into_iter().for_each(|circuit| {
-            circuits.insert(
-                Identifier::from(circuit.identifier.clone()),
-                Circuit::from(circuit),
-            );
+            circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
         });
         file.functions.into_iter().for_each(|function_def| {
             functions.insert(

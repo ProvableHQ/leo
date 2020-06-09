@@ -38,13 +38,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         // Check visibility of input
         let number = if private {
-            Boolean::alloc(cs.ns(|| name), || {
-                bool_value.ok_or(SynthesisError::AssignmentMissing)
-            })?
+            Boolean::alloc(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?
         } else {
-            Boolean::alloc_input(cs.ns(|| name), || {
-                bool_value.ok_or(SynthesisError::AssignmentMissing)
-            })?
+            Boolean::alloc_input(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?
         };
 
         Ok(ConstrainedValue::Boolean(number))
@@ -54,9 +50,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         ConstrainedValue::Boolean(bool)
     }
 
-    pub(crate) fn evaluate_not(
-        value: ConstrainedValue<F, G>,
-    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
+    pub(crate) fn evaluate_not(value: ConstrainedValue<F, G>) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match value {
             ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
             value => Err(BooleanError::CannotEvaluate(format!("!{}", value))),
@@ -70,9 +64,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
-            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
-                ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?),
-            ),
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
+                Ok(ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?))
+            }
             (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
                 "{} || {}",
                 left_value, right_value
@@ -87,9 +81,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
-            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(
-                ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?),
-            ),
+            (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
+                Ok(ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?))
+            }
             (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
                 "{} && {}",
                 left_value, right_value

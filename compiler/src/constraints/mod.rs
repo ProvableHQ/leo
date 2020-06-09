@@ -27,10 +27,7 @@ pub use value::*;
 pub mod statement;
 pub use statement::*;
 
-use crate::{
-    errors::CompilerError,
-    GroupType,
-};
+use crate::{errors::CompilerError, GroupType};
 use leo_types::{InputValue, Program};
 
 use snarkos_models::{
@@ -55,8 +52,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result =
-                resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
+            let result = resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
             log::debug!("{}", result);
             Ok(result)
         }

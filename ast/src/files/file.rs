@@ -1,4 +1,10 @@
-use crate::{ast::Rule, common::EOI, functions::{Function, TestFunction}, imports::Import, circuits::Circuit};
+use crate::{
+    ast::Rule,
+    circuits::Circuit,
+    common::EOI,
+    functions::{Function, TestFunction},
+    imports::Import,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

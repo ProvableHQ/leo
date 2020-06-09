@@ -1,5 +1,8 @@
 use crate::{Identifier, Type};
-use leo_ast::{common::{Visibility, Private}, functions::FunctionInput as AstFunctionInput};
+use leo_ast::{
+    common::{Private, Visibility},
+    functions::FunctionInput as AstFunctionInput,
+};
 
 use std::fmt;
 
@@ -17,9 +20,9 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
             identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
             // private by default
-            private: parameter.visibility.map_or(true, |visibility| {
-                visibility.eq(&Visibility::Private(Private {}))
-            }),
+            private: parameter
+                .visibility
+                .map_or(true, |visibility| visibility.eq(&Visibility::Private(Private {}))),
             _type: Type::from(parameter._type),
         }
     }

@@ -1,4 +1,4 @@
-use crate::{ast::Rule, types::GroupType, values::NumberValue,};
+use crate::{ast::Rule, types::GroupType, values::NumberValue};
 
 use pest::Span;
 use pest_ast::FromPest;

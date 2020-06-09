@@ -1,6 +1,9 @@
-use crate::commands::{ProveCommand, SetupCommand};
-use crate::errors::CLIError;
-use crate::{cli::*, cli_types::*};
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::{ProveCommand, SetupCommand},
+    errors::CLIError,
+};
 
 use snarkos_algorithms::snark::verify_proof;
 
@@ -14,10 +17,10 @@ impl CLI for RunCommand {
     type Options = ();
     type Output = ();
 
-    const NAME: NameType = "run";
     const ABOUT: AboutType = "Run a program with inputs";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "run";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -42,10 +45,7 @@ impl CLI for RunCommand {
         verifying += start.elapsed();
 
         println!(" ");
-        println!(
-            "  Verifier time   : {:?} milliseconds",
-            verifying.as_millis()
-        );
+        println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
         println!("  Verifier output : {}", is_success);
         println!(" ");
 

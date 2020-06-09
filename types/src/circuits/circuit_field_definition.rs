@@ -1,4 +1,4 @@
-use crate::{Identifier, Expression};
+use crate::{Expression, Identifier};
 use leo_ast::circuits::CircuitField;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

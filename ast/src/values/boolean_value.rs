@@ -1,4 +1,4 @@
-use crate::ast::{Rule, span_into_string};
+use crate::ast::{span_into_string, Rule};
 
 use pest::Span;
 use pest_ast::FromPest;

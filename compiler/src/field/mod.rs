@@ -3,11 +3,10 @@
 use crate::errors::FieldError;
 
 use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::gadgets::curves::FieldGadget;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
-        curves::FpGadget,
+        curves::{FieldGadget, FpGadget},
         r1cs::ConstraintSystem,
         utilities::{
             alloc::AllocGadget,
@@ -15,12 +14,12 @@ use snarkos_models::{
             eq::{ConditionalEqGadget, EqGadget},
             select::CondSelectGadget,
             uint::UInt8,
-            ToBitsGadget, ToBytesGadget,
+            ToBitsGadget,
+            ToBytesGadget,
         },
     },
 };
-use std::borrow::Borrow;
-use std::cmp::Ordering;
+use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: Field + PrimeField> {
@@ -55,9 +54,9 @@ impl<F: Field + PrimeField> FieldType<F> {
             }
 
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(
-                FieldType::Allocated(allocated_value.add_constant(cs, constant_value)?),
-            ),
+            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
+                Ok(FieldType::Allocated(allocated_value.add_constant(cs, constant_value)?))
+            }
         }
     }
 
@@ -74,9 +73,9 @@ impl<F: Field + PrimeField> FieldType<F> {
             }
 
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(
-                FieldType::Allocated(allocated_value.sub_constant(cs, constant_value)?),
-            ),
+            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
+                Ok(FieldType::Allocated(allocated_value.sub_constant(cs, constant_value)?))
+            }
         }
     }
 
@@ -93,22 +92,16 @@ impl<F: Field + PrimeField> FieldType<F> {
             }
 
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(
-                FieldType::Allocated(allocated_value.mul_by_constant(cs, constant_value)?),
-            ),
+            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
+                allocated_value.mul_by_constant(cs, constant_value)?,
+            )),
         }
     }
 
-    pub fn div<CS: ConstraintSystem<F>>(
-        &self,
-        mut cs: CS,
-        other: &Self,
-    ) -> Result<Self, FieldError> {
+    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, FieldError> {
         let inverse = match other {
             FieldType::Constant(constant) => {
-                let constant_inverse = constant
-                    .inverse()
-                    .ok_or(FieldError::NoInverse(constant.to_string()))?;
+                let constant_inverse = constant.inverse().ok_or(FieldError::NoInverse(constant.to_string()))?;
                 FieldType::Constant(constant_inverse)
             }
             FieldType::Allocated(allocated) => {
@@ -134,25 +127,16 @@ impl<F: Field + PrimeField> FieldType<F> {
         F::from_str(&field_string).map_err(|_| SynthesisError::AssignmentMissing)
     }
 
-    pub fn allocated<CS: ConstraintSystem<F>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<FpGadget<F>, SynthesisError> {
+    pub fn allocated<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<FpGadget<F>, SynthesisError> {
         match self {
-            FieldType::Constant(constant) => {
-                FpGadget::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant))
-            }
+            FieldType::Constant(constant) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
             FieldType::Allocated(allocated) => Ok(allocated.clone()),
         }
     }
 }
 
 impl<F: Field + PrimeField> AllocGadget<String, F> for FieldType<F> {
-    fn alloc<
-        Fn: FnOnce() -> Result<T, SynthesisError>,
-        T: Borrow<String>,
-        CS: ConstraintSystem<F>,
-    >(
+    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
         cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
@@ -161,11 +145,7 @@ impl<F: Field + PrimeField> AllocGadget<String, F> for FieldType<F> {
         Ok(FieldType::Allocated(value))
     }
 
-    fn alloc_input<
-        Fn: FnOnce() -> Result<T, SynthesisError>,
-        T: Borrow<String>,
-        CS: ConstraintSystem<F>,
-    >(
+    fn alloc_input<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
         cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
@@ -239,11 +219,7 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for FieldType<F> {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(&mut cs)?;
             let second_gadget = second.allocated(&mut cs)?;
@@ -264,10 +240,7 @@ impl<F: Field + PrimeField> ToBitsGadget<F> for FieldType<F> {
         self_gadget.to_bits(cs)
     }
 
-    fn to_bits_strict<CS: ConstraintSystem<F>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits_strict(cs)
     }
@@ -279,10 +252,7 @@ impl<F: Field + PrimeField> ToBytesGadget<F> for FieldType<F> {
         self_gadget.to_bytes(cs)
     }
 
-    fn to_bytes_strict<CS: ConstraintSystem<F>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<Vec<UInt8>, SynthesisError> {
+    fn to_bytes_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bytes_strict(cs)
     }
