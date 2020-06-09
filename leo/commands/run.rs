@@ -36,6 +36,7 @@ impl CLI for RunCommand {
 
         let mut verifying = Duration::new(0, 0);
 
+        // fetch public inputs here
         // let _inputs: Vec<_> = [1u32; 1].to_vec();
 
         let start = Instant::now();

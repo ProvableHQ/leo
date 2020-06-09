@@ -1,4 +1,4 @@
-use crate::{ast::{Rule}, common::EOI, sections::Section };
+use crate::{ast::Rule, common::EOI, sections::Section};
 
 use pest::Span;
 use pest_ast::FromPest;

@@ -19,8 +19,8 @@ pub use functions::*;
 pub mod imports;
 pub use imports::*;
 
-pub mod input_value;
-pub use input_value::*;
+pub mod inputs;
+pub use inputs::*;
 
 pub mod integer;
 pub use integer::*;

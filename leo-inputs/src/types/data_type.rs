@@ -1,4 +1,7 @@
-use crate::{ast::Rule, types::{IntegerType, FieldType, GroupType, BooleanType}};
+use crate::{
+    ast::Rule,
+    types::{BooleanType, FieldType, GroupType, IntegerType},
+};
 
 use pest_ast::FromPest;
 

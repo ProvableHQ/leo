@@ -551,6 +551,7 @@ version = "0.1.0"
 dependencies = [
  "hex",
  "leo-ast",
+ "leo-inputs",
  "leo-types",
  "log",
  "rand",
@@ -568,7 +569,6 @@ name = "leo-inputs"
 version = "0.1.0"
 dependencies = [
  "from-pest",
- "leo-compiler",
  "pest",
  "pest-ast",
  "pest_derive",
@@ -585,6 +585,7 @@ name = "leo-types"
 version = "0.1.0"
 dependencies = [
  "leo-ast",
+ "leo-inputs",
  "snarkos-errors",
  "snarkos-models",
  "thiserror",

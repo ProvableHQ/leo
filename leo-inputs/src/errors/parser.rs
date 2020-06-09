@@ -1,12 +1,15 @@
 use crate::{ast::Rule, errors::SyntaxError};
 
 use pest::error::Error;
-use std::path::PathBuf;
+use std::{path::PathBuf, str::ParseBoolError};
 
 #[derive(Debug, Error)]
-pub enum ParserError {
+pub enum InputParserError {
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
+
+    #[error("{}", _0)]
+    ParseBoolError(#[from] ParseBoolError),
 
     #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
@@ -15,8 +18,8 @@ pub enum ParserError {
     SyntaxTreeError,
 }
 
-impl From<Error<Rule>> for ParserError {
+impl From<Error<Rule>> for InputParserError {
     fn from(error: Error<Rule>) -> Self {
-        ParserError::SyntaxError(SyntaxError::from(error))
+        InputParserError::SyntaxError(SyntaxError::from(error))
     }
 }

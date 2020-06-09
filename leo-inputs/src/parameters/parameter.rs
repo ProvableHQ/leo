@@ -1,4 +1,8 @@
-use crate::{ast::Rule, common::{Identifier, Visibility}, types::Type};
+use crate::{
+    ast::Rule,
+    common::{Identifier, Visibility},
+    types::Type,
+};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -8,7 +12,7 @@ use pest_ast::FromPest;
 pub struct Parameter<'ast> {
     pub variable: Identifier<'ast>,
     pub visibility: Option<Visibility>,
-    pub _type: Type<'ast>,
+    pub type_: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

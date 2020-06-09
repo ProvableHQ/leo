@@ -1,4 +1,4 @@
-use crate::{ast::Rule, common::Identifier, expressions::*, values::Value,};
+use crate::{ast::Rule, common::Identifier, expressions::*, values::Value};
 
 use pest_ast::FromPest;
 use std::fmt;
@@ -30,11 +30,9 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
-            Expression::CircuitInline(ref expression) => write!(
-                f,
-                "inline circuit display not impl {}",
-                expression.identifier
-            ),
+            Expression::CircuitInline(ref expression) => {
+                write!(f, "inline circuit display not impl {}", expression.identifier)
+            }
         }
     }
 }

@@ -34,11 +34,18 @@ impl CLI for ProveCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (program, parameters, _) = SetupCommand::output(options)?;
+        let (mut program, parameters, _) = SetupCommand::output(options)?;
 
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
+
+        // Fetch private inputs here
+        program.parse_inputs(&path)?;
+        // let _res = LeoInputsParser::get_private(&path).unwrap();
+        // let inputs_path = path.clone().push("/inputs")
+        // LeoInputsParser::load_file()
+        // program.set_inputs();
 
         // Start the timer
         let start = Instant::now();

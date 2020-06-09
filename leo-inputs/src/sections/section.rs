@@ -1,4 +1,4 @@
-use crate::{ast::Rule, sections::Header, assignments::Assignment};
+use crate::{assignments::Assignment, ast::Rule, sections::Header};
 
 use pest::Span;
 use pest_ast::FromPest;
