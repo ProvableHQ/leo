@@ -1,27 +1,33 @@
-use crate::{compile_program, integers::u32::output_one};
-
-const DIRECTORY_NAME: &str = "tests/import/";
+use crate::{integers::u32::output_one, parse_program};
 
 #[test]
 fn test_basic() {
-    let program = compile_program(DIRECTORY_NAME, "basic.leo").unwrap();
+    let bytes = include_bytes!("basic.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
 fn test_multiple() {
-    let program = compile_program(DIRECTORY_NAME, "multiple.leo").unwrap();
+    let bytes = include_bytes!("multiple.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
 fn test_star() {
-    let program = compile_program(DIRECTORY_NAME, "star.leo").unwrap();
+    let bytes = include_bytes!("star.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
 fn test_alias() {
-    let program = compile_program(DIRECTORY_NAME, "alias.leo").unwrap();
+    let bytes = include_bytes!("alias.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }

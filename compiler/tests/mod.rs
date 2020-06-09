@@ -4,7 +4,7 @@ pub mod circuits;
 pub mod field;
 pub mod function;
 pub mod group;
-// pub mod import;
+pub mod import;
 pub mod integers;
 // pub mod mutability;
 // pub mod statements;
