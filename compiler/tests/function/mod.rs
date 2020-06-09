@@ -1,8 +1,8 @@
 use crate::{
-    compile_program,
     get_error,
     get_output,
     integers::u32::output_one,
+    parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
@@ -12,8 +12,6 @@ use leo_compiler::{
 };
 
 use snarkos_models::gadgets::utilities::boolean::Boolean;
-
-const DIRECTORY_NAME: &str = "tests/function/";
 
 pub(crate) fn output_empty(program: EdwardsTestCompiler) {
     let output = get_output(program);
@@ -46,19 +44,25 @@ fn fail_undefined_identifier(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_empty() {
-    let program = compile_program(DIRECTORY_NAME, "empty.leo").unwrap();
+    let bytes = include_bytes!("empty.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_empty(program);
 }
 
 #[test]
 fn test_return() {
-    let program = compile_program(DIRECTORY_NAME, "return.leo").unwrap();
+    let bytes = include_bytes!("return.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
 #[test]
 fn test_undefined() {
-    let program = compile_program(DIRECTORY_NAME, "undefined.leo").unwrap();
+    let bytes = include_bytes!("undefined.leo");
+    let program = parse_program(bytes).unwrap();
+
     fail_undefined_identifier(program);
 }
 
@@ -66,7 +70,9 @@ fn test_undefined() {
 
 #[test]
 fn test_global_scope_fail() {
-    let program = compile_program(DIRECTORY_NAME, "scope_fail.leo").unwrap();
+    let bytes = include_bytes!("scope_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::FunctionError(value),
@@ -81,7 +87,9 @@ fn test_global_scope_fail() {
 
 #[test]
 fn test_value_unchanged() {
-    let program = compile_program(DIRECTORY_NAME, "value_unchanged.leo").unwrap();
+    let bytes = include_bytes!("value_unchanged.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }
 
@@ -89,11 +97,15 @@ fn test_value_unchanged() {
 
 #[test]
 fn test_multiple_returns() {
-    let program = compile_program(DIRECTORY_NAME, "multiple.leo").unwrap();
+    let bytes = include_bytes!("multiple.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_multiple(program);
 }
 #[test]
 fn test_multiple_returns_main() {
-    let program = compile_program(DIRECTORY_NAME, "multiple_main.leo").unwrap();
+    let bytes = include_bytes!("multiple_main.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_multiple(program);
 }
