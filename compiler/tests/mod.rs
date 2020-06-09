@@ -1,11 +1,11 @@
 pub mod array;
 pub mod boolean;
-// pub mod circuits;
+pub mod circuits;
 // pub mod field;
 // pub mod function;
 // pub mod group;
 // pub mod import;
-// pub mod integers;
+pub mod integers;
 // pub mod mutability;
 // pub mod statements;
 pub mod syntax;
