@@ -1,8 +1,8 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
-    compile_program,
     get_output,
     integers::{fail_integer, fail_synthesis, IntegerTester},
+    parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
@@ -14,8 +14,6 @@ use snarkos_models::gadgets::{
     r1cs::TestConstraintSystem,
     utilities::{alloc::AllocGadget, uint::UInt16},
 };
-
-const DIRECTORY_NAME: &str = "tests/integers/u16/";
 
 fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt16) {
     let output = get_output(program);
@@ -31,7 +29,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt16) {
 
 #[test]
 fn test_u16() {
-    test_uint!(Testu16, u16, UInt16, DIRECTORY_NAME);
+    test_uint!(Testu16, u16, UInt16);
 
     Testu16::test_min(std::u16::MIN);
     Testu16::test_max(std::u16::MAX);
