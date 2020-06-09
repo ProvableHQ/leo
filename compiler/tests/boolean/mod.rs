@@ -1,4 +1,4 @@
-use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{get_error, get_output, parse_program, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
@@ -6,8 +6,6 @@ use leo_compiler::{
 use leo_types::InputValue;
 
 use snarkos_models::gadgets::utilities::boolean::Boolean;
-
-const DIRECTORY_NAME: &str = "tests/boolean/";
 
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);
@@ -59,27 +57,37 @@ fn fail_synthesis(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_true() {
-    let program = compile_program(DIRECTORY_NAME, "true.leo").unwrap();
+    let bytes = include_bytes!("true.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program);
 }
 
 #[test]
 fn test_false() {
-    let program = compile_program(DIRECTORY_NAME, "false.leo").unwrap();
+    let bytes = include_bytes!("false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }
 
 #[test]
 fn test_input_bool_field() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_bool.leo").unwrap();
+    let bytes = include_bytes!("input_bool.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
+
     fail_boolean(program);
 }
 
 #[test]
 fn test_input_bool_none() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_bool.leo").unwrap();
+    let bytes = include_bytes!("input_bool.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![None]);
+
     fail_synthesis(program);
 }
 
@@ -87,19 +95,25 @@ fn test_input_bool_none() {
 
 #[test]
 fn test_not_true() {
-    let program = compile_program(DIRECTORY_NAME, "not_true.leo").unwrap();
+    let bytes = include_bytes!("not_true.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }
 
 #[test]
 fn test_not_false() {
-    let program = compile_program(DIRECTORY_NAME, "not_false.leo").unwrap();
+    let bytes = include_bytes!("not_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program);
 }
 
 #[test]
 fn test_not_u32() {
-    let program = compile_program(DIRECTORY_NAME, "not_u32.leo").unwrap();
+    let bytes = include_bytes!("not_u32.leo");
+    let program = parse_program(bytes).unwrap();
+
     fail_evaluate(program);
 }
 
@@ -107,25 +121,33 @@ fn test_not_u32() {
 
 #[test]
 fn test_true_or_true() {
-    let program = compile_program(DIRECTORY_NAME, "true_||_true.leo").unwrap();
+    let bytes = include_bytes!("true_||_true.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program);
 }
 
 #[test]
 fn test_true_or_false() {
-    let program = compile_program(DIRECTORY_NAME, "true_||_false.leo").unwrap();
+    let bytes = include_bytes!("true_||_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program);
 }
 
 #[test]
 fn test_false_or_false() {
-    let program = compile_program(DIRECTORY_NAME, "false_||_false.leo").unwrap();
+    let bytes = include_bytes!("false_||_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }
 
 #[test]
 fn test_true_or_u32() {
-    let program = compile_program(DIRECTORY_NAME, "true_||_u32.leo").unwrap();
+    let bytes = include_bytes!("true_||_u32.leo");
+    let program = parse_program(bytes).unwrap();
+
     fail_enforce(program);
 }
 
@@ -133,25 +155,33 @@ fn test_true_or_u32() {
 
 #[test]
 fn test_true_and_true() {
-    let program = compile_program(DIRECTORY_NAME, "true_&&_true.leo").unwrap();
+    let bytes = include_bytes!("true_&&_true.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program);
 }
 
 #[test]
 fn test_true_and_false() {
-    let program = compile_program(DIRECTORY_NAME, "true_&&_false.leo").unwrap();
+    let bytes = include_bytes!("true_&&_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }
 
 #[test]
 fn test_false_and_false() {
-    let program = compile_program(DIRECTORY_NAME, "false_&&_false.leo").unwrap();
+    let bytes = include_bytes!("false_&&_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }
 
 #[test]
 fn test_true_and_u32() {
-    let program = compile_program(DIRECTORY_NAME, "true_&&_u32.leo").unwrap();
+    let bytes = include_bytes!("true_&&_u32.leo");
+    let program = parse_program(bytes).unwrap();
+
     fail_enforce(program);
 }
 
@@ -159,6 +189,8 @@ fn test_true_and_u32() {
 
 #[test]
 fn test_all() {
-    let program = compile_program(DIRECTORY_NAME, "all.leo").unwrap();
+    let bytes = include_bytes!("all.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program);
 }

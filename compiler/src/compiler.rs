@@ -28,6 +28,17 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
+    pub fn new() -> Self {
+        Self {
+            package_name: "".to_string(),
+            main_file_path: PathBuf::new(),
+            program: Program::new(),
+            program_inputs: vec![],
+            output: None,
+            _engine: PhantomData,
+        }
+    }
+
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
         let mut program = Self {
             package_name,
@@ -39,7 +50,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         };
 
         // Generate the abstract syntax tree and assemble the program
-        program.parse_program()?;
+        let program_string = program.load_program()?;
+        program.parse_program(&program_string)?;
 
         Ok(program)
     }
@@ -72,11 +84,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program)
     }
 
-    fn parse_program(&mut self) -> Result<(), CompilerError> {
-        // Build the program syntax tree
+    fn load_program(&mut self) -> Result<String, CompilerError> {
+        // Load the program syntax tree from the file path
         let file_path = &self.main_file_path;
-        let input_file = &LeoParser::load_file(file_path)?;
-        let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
+        Ok(LeoParser::load_file(file_path)?)
+    }
+
+    pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
+        // Parse the program syntax tree
+        let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
 
         // Build program from syntax tree
         let package_name = self.package_name.clone();

@@ -1,14 +1,14 @@
-use crate::compile_program;
+use crate::parse_program;
+use leo_ast::ParserError;
 use leo_compiler::errors::CompilerError;
-
-const DIRECTORY_NAME: &str = "tests/syntax/";
 
 #[test]
 fn test_semicolon() {
-    let error = compile_program(DIRECTORY_NAME, "semicolon.leo").err().unwrap();
+    let bytes = include_bytes!("semicolon.leo");
+    let error = parse_program(bytes).err().unwrap();
 
     match error {
-        CompilerError::ParserError(_) => {}
+        CompilerError::ParserError(ParserError::SyntaxError(_)) => {}
         _ => panic!("test_semicolon failed the wrong expected error, should be a ParserError"),
     }
 }
