@@ -1,4 +1,4 @@
-use crate::{compile_program, get_error, get_output, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{get_error, get_output, parse_program, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{CompilerError, FunctionError},
     ConstrainedValue,
@@ -6,8 +6,6 @@ use leo_compiler::{
 use leo_types::{InputValue, Integer, IntegerError};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
-
-const DIRECTORY_NAME: &str = "tests/array/";
 
 // [1, 1, 1]
 fn output_ones(program: EdwardsTestCompiler) {
@@ -58,31 +56,41 @@ fn fail_synthesis(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_inline() {
-    let program = compile_program(DIRECTORY_NAME, "inline.leo").unwrap();
+    let bytes = include_bytes!("inline.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_ones(program);
 }
 
 #[test]
 fn test_initializer() {
-    let program = compile_program(DIRECTORY_NAME, "initializer.leo").unwrap();
+    let bytes = include_bytes!("initializer.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_ones(program);
 }
 
 #[test]
 fn test_spread() {
-    let program = compile_program(DIRECTORY_NAME, "spread.leo").unwrap();
+    let bytes = include_bytes!("spread.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_ones(program);
 }
 
 #[test]
 fn test_slice() {
-    let program = compile_program(DIRECTORY_NAME, "slice.leo").unwrap();
+    let bytes = include_bytes!("slice.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_ones(program);
 }
 
 #[test]
 fn test_multi() {
-    let program = compile_program(DIRECTORY_NAME, "multi.leo").unwrap();
+    let bytes = include_bytes!("multi.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_multi(program);
 }
 
@@ -90,21 +98,30 @@ fn test_multi() {
 
 #[test]
 fn test_input_array() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
+    let bytes = include_bytes!("input.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![Some(InputValue::Array(vec![InputValue::Integer(1u128); 3]))]);
+
     output_ones(program)
 }
 
 #[test]
 fn test_input_array_fail() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
+    let bytes = include_bytes!("input.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
+
     fail_array(program);
 }
 
 #[test]
 fn test_input_field_none() {
-    let mut program = compile_program(DIRECTORY_NAME, "input_array.leo").unwrap();
+    let bytes = include_bytes!("input.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![None]);
+
     fail_synthesis(program)
 }

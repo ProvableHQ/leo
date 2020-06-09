@@ -1,4 +1,4 @@
-// pub mod array;
+pub mod array;
 pub mod boolean;
 // pub mod circuits;
 // pub mod field;
