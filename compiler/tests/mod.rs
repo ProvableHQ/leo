@@ -3,7 +3,7 @@ pub mod boolean;
 pub mod circuits;
 pub mod field;
 pub mod function;
-// pub mod group;
+pub mod group;
 // pub mod import;
 pub mod integers;
 // pub mod mutability;
@@ -12,7 +12,7 @@ pub mod syntax;
 
 use leo_compiler::{
     compiler::Compiler,
-    errors::CompilerError,
+    errors::{CompilerError, FunctionError, StatementError},
     group::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
 };
@@ -35,12 +35,12 @@ pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
     program.compile_constraints(&mut cs).unwrap_err()
 }
 
-// pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
-//     match get_error(program) {
-//         CompilerError::FunctionError(FunctionError::StatementError(StatementError::AssertionFailed(_, _))) => {}
-//         error => panic!("Expected evaluate error, got {}", error),
-//     }
-// }
+pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
+    match get_error(program) {
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::AssertionFailed(_, _))) => {}
+        error => panic!("Expected evaluate error, got {}", error),
+    }
+}
 
 pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
     let program_string = String::from_utf8_lossy(bytes);

@@ -1,8 +1,8 @@
 use crate::{
     boolean::{output_false, output_true},
-    compile_program,
     fail_enforce,
     get_output,
+    parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
@@ -16,8 +16,6 @@ use snarkos_models::{
     gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
 };
 use std::str::FromStr;
-
-const DIRECTORY_NAME: &str = "tests/group/";
 
 const TEST_POINT_1: &str = "(7374112779530666882856915975292384652154477718021969292781165691637980424078, 3435195339177955418892975564890903138308061187980579490487898366607011481796)";
 const TEST_POINT_2: &str = "(1005842117974384149622370061042978581211342111653966059496918451529532134799, 79389132189982034519597104273449021362784864778548730890166152019533697186)";
@@ -51,20 +49,26 @@ fn output_zero(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_zero() {
-    let program = compile_program(DIRECTORY_NAME, "zero.leo").unwrap();
+    let bytes = include_bytes!("zero.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_zero(program);
 }
 
 #[test]
 fn test_point() {
     let point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let program = compile_program(DIRECTORY_NAME, "point.leo").unwrap();
+    let bytes = include_bytes!("point.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_expected_constant(program, point);
 }
 
 #[test]
 fn test_input() {
-    let mut program = compile_program(DIRECTORY_NAME, "input.leo").unwrap();
+    let bytes = include_bytes!("input.leo");
+    let mut program = parse_program(bytes).unwrap();
+
     program.set_inputs(vec![Some(InputValue::Group(TEST_POINT_1.into()))]);
 
     let mut cs = TestConstraintSystem::<Fq>::new();
@@ -84,7 +88,9 @@ fn test_add() {
 
     let sum = point_1.add(&point_2);
 
-    let program = compile_program(DIRECTORY_NAME, "add.leo").unwrap();
+    let bytes = include_bytes!("add.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_expected_constant(program, sum);
 }
 
@@ -97,37 +103,48 @@ fn test_sub() {
 
     let sum = point_1.sub(&point_2);
 
-    let program = compile_program(DIRECTORY_NAME, "sub.leo").unwrap();
+    let bytes = include_bytes!("sub.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_expected_constant(program, sum);
 }
 
 #[test]
 fn test_eq_true() {
-    let program = compile_program(DIRECTORY_NAME, "eq_true.leo").unwrap();
+    let bytes = include_bytes!("eq_true.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_true(program)
 }
 
 #[test]
 fn test_eq_false() {
-    let program = compile_program(DIRECTORY_NAME, "eq_false.leo").unwrap();
+    let bytes = include_bytes!("eq_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_false(program)
 }
 
 #[test]
 fn test_assert_eq_pass() {
-    let program = compile_program(DIRECTORY_NAME, "assert_eq_true.leo").unwrap();
+    let bytes = include_bytes!("assert_eq_true.leo");
+    let program = parse_program(bytes).unwrap();
     let _res = get_output(program);
 }
 
 #[test]
 fn test_assert_eq_fail() {
-    let program = compile_program(DIRECTORY_NAME, "assert_eq_false.leo").unwrap();
+    let bytes = include_bytes!("assert_eq_false.leo");
+    let program = parse_program(bytes).unwrap();
+
     fail_enforce(program);
 }
 
 #[test]
 fn test_ternary() {
-    let mut program_1 = compile_program(DIRECTORY_NAME, "ternary.leo").unwrap();
+    let bytes = include_bytes!("ternary.leo");
+    let mut program_1 = parse_program(bytes).unwrap();
+
     let mut program_2 = program_1.clone();
 
     // true -> point_1
