@@ -1,4 +1,4 @@
-use crate::{common::Identifier, expressions::*, operations::BinaryOperation, values::Value,};
+use crate::{common::Identifier, expressions::*, operations::BinaryOperation, values::Value};
 
 use pest::Span;
 use std::fmt;
@@ -66,9 +66,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::Value(ref expression) => write!(f, "{}", expression),
             Expression::Identifier(ref expression) => write!(f, "{}", expression),
             Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
-            Expression::Binary(ref expression) => {
-                write!(f, "{} == {}", expression.left, expression.right)
-            }
+            Expression::Binary(ref expression) => write!(f, "{} == {}", expression.left, expression.right),
             Expression::Ternary(ref expression) => write!(
                 f,
                 "if {} ? {} : {}",
@@ -86,14 +84,10 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Expression::ArrayInitializer(ref expression) => {
                 write!(f, "[{} ; {}]", expression.expression, expression.count)
             }
-            Expression::CircuitInline(ref expression) => write!(
-                f,
-                "inline circuit display not impl {}",
-                expression.identifier
-            ),
-            Expression::Postfix(ref expression) => {
-                write!(f, "Postfix display not impl {}", expression.identifier)
+            Expression::CircuitInline(ref expression) => {
+                write!(f, "inline circuit display not impl {}", expression.identifier)
             }
+            Expression::Postfix(ref expression) => write!(f, "Postfix display not impl {}", expression.identifier),
         }
     }
 }

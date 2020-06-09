@@ -1,5 +1,8 @@
 use crate::{Identifier, RangeOrExpression};
-use leo_ast::{common::{Identifier as AstIdentifier, Assignee as AstAssignee}, access::AssigneeAccess};
+use leo_ast::{
+    access::AssigneeAccess,
+    common::{Assignee as AstAssignee, Identifier as AstIdentifier},
+};
 
 use std::fmt;
 
@@ -26,14 +29,12 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                AssigneeAccess::Array(array) => Assignee::Array(
-                    Box::new(acc),
-                    RangeOrExpression::from(array.expression),
-                ),
-                AssigneeAccess::Member(circuit_field) => Assignee::CircuitField(
-                    Box::new(acc),
-                    Identifier::from(circuit_field.identifier),
-                ),
+                AssigneeAccess::Array(array) => {
+                    Assignee::Array(Box::new(acc), RangeOrExpression::from(array.expression))
+                }
+                AssigneeAccess::Member(circuit_field) => {
+                    Assignee::CircuitField(Box::new(acc), Identifier::from(circuit_field.identifier))
+                }
             })
     }
 }
@@ -43,9 +44,7 @@ impl fmt::Display for Assignee {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::CircuitField(ref circuit_variable, ref member) => {
-                write!(f, "{}.{}", circuit_variable, member)
-            }
+            Assignee::CircuitField(ref circuit_variable, ref member) => write!(f, "{}.{}", circuit_variable, member),
         }
     }
 }

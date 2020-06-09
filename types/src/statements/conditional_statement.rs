@@ -1,4 +1,4 @@
-use crate::{Expression, Statement, ConditionalNestedOrEndStatement};
+use crate::{ConditionalNestedOrEndStatement, Expression, Statement};
 use leo_ast::statements::ConditionalStatement as AstConditionalStatement;
 
 use std::fmt;

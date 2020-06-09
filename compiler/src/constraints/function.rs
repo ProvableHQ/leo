@@ -4,8 +4,10 @@
 use crate::{
     constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
     errors::{FunctionError, ImportError},
-    field_from_input, group_from_input,
-    GroupType};
+    field_from_input,
+    group_from_input,
+    GroupType,
+};
 use leo_types::{Expression, Function, Identifier, InputValue, Integer, Program, Type};
 
 use snarkos_models::{
@@ -35,19 +37,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
-            Expression::Identifier(identifier) => Ok(self.evaluate_identifier(
-                caller_scope,
-                function_name,
-                &expected_types,
-                identifier,
-            )?),
-            expression => Ok(self.enforce_expression(
-                cs,
-                scope,
-                function_name,
-                &expected_types,
-                expression,
-            )?),
+            Expression::Identifier(identifier) => {
+                Ok(self.evaluate_identifier(caller_scope, function_name, &expected_types, identifier)?)
+            }
+            expression => Ok(self.enforce_expression(cs, scope, function_name, &expected_types, expression)?),
         }
     }
 
@@ -65,9 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Self::check_arguments_length(function.inputs.len(), inputs.len())?;
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in
-            function.inputs.clone().iter().zip(inputs.into_iter())
-        {
+        for (input_model, input_expression) in function.inputs.clone().iter().zip(inputs.into_iter()) {
             // First evaluate input expression
             let mut input_value = self.enforce_input(
                 cs,
@@ -83,8 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             }
 
             // Store input as variable with {function_name}_{input_name}
-            let input_program_identifier =
-                new_scope(function_name.clone(), input_model.identifier.name.clone());
+            let input_program_identifier = new_scope(function_name.clone(), input_model.identifier.name.clone());
             self.store(input_program_identifier, input_value);
         }
 
@@ -149,18 +139,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     let value_name = new_scope(name.clone(), i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(
-                        self.allocate_main_function_input(
-                            cs, value_type, value_name, private, None,
-                        )?,
-                    );
+                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, private, None)?);
                 }
             }
-            _ => {
-                return Err(FunctionError::InvalidArray(
-                    input_value.unwrap().to_string(),
-                ))
-            }
+            _ => return Err(FunctionError::InvalidArray(input_value.unwrap().to_string())),
         }
 
         Ok(ConstrainedValue::Array(array_value))
@@ -185,9 +167,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             Type::Field => Ok(field_from_input(cs, name, private, input_value)?),
             Type::Group => Ok(group_from_input(cs, name, private, input_value)?),
             Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
-            Type::Array(_type, dimensions) => {
-                self.allocate_array(cs, name, private, *_type, dimensions, input_value)
-            }
+            Type::Array(_type, dimensions) => self.allocate_array(cs, name, private, *_type, dimensions, input_value),
             _ => unimplemented!("main function input not implemented for type"),
         }
     }
@@ -206,9 +186,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
-        for (input_model, input_option) in
-            function.inputs.clone().into_iter().zip(inputs.into_iter())
-        {
+        for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
             let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
             let input_value = self.allocate_main_function_input(
                 cs,
@@ -229,11 +207,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         self.enforce_function(cs, scope, function_name, function, input_variables)
     }
 
-    pub(crate) fn resolve_definitions(
-        &mut self,
-        cs: &mut CS,
-        program: Program,
-    ) -> Result<(), ImportError> {
+    pub(crate) fn resolve_definitions(&mut self, cs: &mut CS, program: Program) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 
         // evaluate and store all imports
@@ -244,30 +218,16 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
-        program
-            .circuits
-            .into_iter()
-            .for_each(|(identifier, circuit)| {
-                let resolved_circuit_name =
-                    new_scope(program_name.to_string(), identifier.to_string());
-                self.store(
-                    resolved_circuit_name,
-                    ConstrainedValue::CircuitDefinition(circuit),
-                );
-            });
+        program.circuits.into_iter().for_each(|(identifier, circuit)| {
+            let resolved_circuit_name = new_scope(program_name.to_string(), identifier.to_string());
+            self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
+        });
 
         // evaluate and store all function definitions
-        program
-            .functions
-            .into_iter()
-            .for_each(|(function_name, function)| {
-                let resolved_function_name =
-                    new_scope(program_name.to_string(), function_name.to_string());
-                self.store(
-                    resolved_function_name,
-                    ConstrainedValue::Function(None, function),
-                );
-            });
+        program.functions.into_iter().for_each(|(function_name, function)| {
+            let resolved_function_name = new_scope(program_name.to_string(), function_name.to_string());
+            self.store(resolved_function_name, ConstrainedValue::Function(None, function));
+        });
 
         Ok(())
     }

@@ -13,9 +13,7 @@ pub enum SpreadOrExpression {
 impl<'ast> From<AstSpreadOrExpression<'ast>> for SpreadOrExpression {
     fn from(s_or_e: AstSpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            AstSpreadOrExpression::Spread(spread) => {
-                SpreadOrExpression::Spread(Expression::from(spread.expression))
-            }
+            AstSpreadOrExpression::Spread(spread) => SpreadOrExpression::Spread(Expression::from(spread.expression)),
             AstSpreadOrExpression::Expression(expression) => {
                 SpreadOrExpression::Expression(Expression::from(expression))
             }

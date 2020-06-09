@@ -1,17 +1,19 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
-    compile_program, get_output,
+    get_output,
     integers::{fail_integer, fail_synthesis, IntegerTester},
-    EdwardsConstrainedValue, EdwardsTestCompiler,
+    parse_program,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
-use leo_types::{Integer, InputValue};
+use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-use snarkos_models::gadgets::utilities::{alloc::AllocGadget, uint::UInt32};
-
-const DIRECTORY_NAME: &str = "tests/integers/u32/";
+use snarkos_models::gadgets::{
+    r1cs::TestConstraintSystem,
+    utilities::{alloc::AllocGadget, uint::UInt32},
+};
 
 fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
     let output = get_output(program);
@@ -28,10 +30,8 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
 pub(crate) fn output_zero(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(0u32)
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32)))])
+            .to_string(),
         output.to_string()
     )
 }
@@ -39,17 +39,15 @@ pub(crate) fn output_zero(program: EdwardsTestCompiler) {
 pub(crate) fn output_one(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(
-            UInt32::constant(1u32)
-        ))])
-        .to_string(),
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))])
+            .to_string(),
         output.to_string()
     )
 }
 
 #[test]
 fn test_u32() {
-    test_uint!(TestU32, u32, UInt32, DIRECTORY_NAME);
+    test_uint!(TestU32, u32, UInt32);
 
     TestU32::test_min(std::u32::MIN);
     TestU32::test_max(std::u32::MAX);
@@ -74,12 +72,16 @@ fn test_u32() {
 
 #[test]
 fn test_zero() {
-    let program = compile_program(DIRECTORY_NAME, "zero.leo").unwrap();
+    let bytes = include_bytes!("zero.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_zero(program);
 }
 
 #[test]
 fn test_one() {
-    let program = compile_program(DIRECTORY_NAME, "one.leo").unwrap();
+    let bytes = include_bytes!("one.leo");
+    let program = parse_program(bytes).unwrap();
+
     output_one(program);
 }

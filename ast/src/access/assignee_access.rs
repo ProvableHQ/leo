@@ -1,4 +1,7 @@
-use crate::{access::{ArrayAccess, MemberAccess}, ast::Rule};
+use crate::{
+    access::{ArrayAccess, MemberAccess},
+    ast::Rule,
+};
 
 use pest_ast::FromPest;
 use std::fmt;

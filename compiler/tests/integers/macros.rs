@@ -1,12 +1,13 @@
 macro_rules! test_uint {
-    ($name: ident, $_type: ty, $gadget: ty, $directory: expr) => {
+    ($name: ident, $_type: ty, $gadget: ty) => {
         pub struct $name {}
 
         impl $name {
             fn test_min(min: $_type) {
                 let min_allocated = <$gadget>::constant(min);
 
-                let program = compile_program($directory, "min.leo").unwrap();
+                let bytes = include_bytes!("min.leo");
+                let program = parse_program(bytes).unwrap();
 
                 output_expected_allocated(program, min_allocated);
             }
@@ -14,7 +15,8 @@ macro_rules! test_uint {
             fn test_max(max: $_type) {
                 let max_allocated = <$gadget>::constant(max);
 
-                let program = compile_program($directory, "max.leo").unwrap();
+                let bytes = include_bytes!("max.leo");
+                let program = parse_program(bytes).unwrap();
 
                 output_expected_allocated(program, max_allocated);
             }
@@ -26,18 +28,21 @@ macro_rules! test_uint {
                 let num: $_type = rand::random();
                 let expected = <$gadget>::constant(num);
 
-                let mut program = compile_program($directory, "input.leo").unwrap();
+                let bytes = include_bytes!("input.leo");
+                let mut program = parse_program(bytes).unwrap();
+
                 program.set_inputs(vec![Some(InputValue::Integer(num as u128))]);
 
                 output_expected_allocated(program, expected);
 
                 // invalid input
-                let mut program = compile_program($directory, "input.leo").unwrap();
+                let mut program = parse_program(bytes).unwrap();
+
                 program.set_inputs(vec![Some(InputValue::Boolean(true))]);
                 fail_integer(program);
 
                 // None input
-                let mut program = compile_program($directory, "input.leo").unwrap();
+                let mut program = parse_program(bytes).unwrap();
                 program.set_inputs(vec![None]);
                 fail_synthesis(program);
             }
@@ -52,7 +57,9 @@ macro_rules! test_uint {
                     let cs = TestConstraintSystem::<Fq>::new();
                     let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
 
-                    let mut program = compile_program($directory, "add.leo").unwrap();
+                    let bytes = include_bytes!("add.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -72,7 +79,9 @@ macro_rules! test_uint {
                     let cs = TestConstraintSystem::<Fq>::new();
                     let difference_allocated = <$gadget>::alloc(cs, || Ok(difference)).unwrap();
 
-                    let mut program = compile_program($directory, "sub.leo").unwrap();
+                    let bytes = include_bytes!("sub.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -92,7 +101,9 @@ macro_rules! test_uint {
                     let cs = TestConstraintSystem::<Fq>::new();
                     let product_allocated = <$gadget>::alloc(cs, || Ok(product)).unwrap();
 
-                    let mut program = compile_program($directory, "mul.leo").unwrap();
+                    let bytes = include_bytes!("mul.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -112,7 +123,9 @@ macro_rules! test_uint {
                     let cs = TestConstraintSystem::<Fq>::new();
                     let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
 
-                    let mut program = compile_program($directory, "div.leo").unwrap();
+                    let bytes = include_bytes!("div.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -133,7 +146,9 @@ macro_rules! test_uint {
                 let cs = TestConstraintSystem::<Fq>::new();
                 let result_allocated = <$gadget>::alloc(cs, || Ok(result)).unwrap();
 
-                let mut program = compile_program($directory, "pow.leo").unwrap();
+                let bytes = include_bytes!("pow.leo");
+                let mut program = parse_program(bytes).unwrap();
+
                 program.set_inputs(vec![
                     Some(InputValue::Integer(r1 as u128)),
                     Some(InputValue::Integer(r2 as u128)),
@@ -148,7 +163,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "eq.leo").unwrap();
+                    let bytes = include_bytes!("eq.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -161,7 +178,8 @@ macro_rules! test_uint {
 
                     let result = r1.eq(&r2);
 
-                    let mut program = compile_program($directory, "eq.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -176,7 +194,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "ge.leo").unwrap();
+                    let bytes = include_bytes!("ge.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -189,7 +209,8 @@ macro_rules! test_uint {
 
                     let result = r1.ge(&r2);
 
-                    let mut program = compile_program($directory, "ge.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -204,7 +225,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "gt.leo").unwrap();
+                    let bytes = include_bytes!("gt.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -217,7 +240,8 @@ macro_rules! test_uint {
 
                     let result = r1.gt(&r2);
 
-                    let mut program = compile_program($directory, "gt.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -232,7 +256,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "le.leo").unwrap();
+                    let bytes = include_bytes!("le.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -245,7 +271,8 @@ macro_rules! test_uint {
 
                     let result = r1.le(&r2);
 
-                    let mut program = compile_program($directory, "le.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -260,7 +287,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "lt.leo").unwrap();
+                    let bytes = include_bytes!("lt.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -273,7 +302,8 @@ macro_rules! test_uint {
 
                     let result = r1.lt(&r2);
 
-                    let mut program = compile_program($directory, "lt.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -288,7 +318,9 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
 
                     // test equal
-                    let mut program = compile_program($directory, "assert_eq.leo").unwrap();
+                    let bytes = include_bytes!("assert_eq.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r1 as u128)),
@@ -303,7 +335,8 @@ macro_rules! test_uint {
                         continue;
                     }
 
-                    let mut program = compile_program($directory, "assert_eq.leo").unwrap();
+                    let mut program = parse_program(bytes).unwrap();
+
                     program.set_inputs(vec![
                         Some(InputValue::Integer(r1 as u128)),
                         Some(InputValue::Integer(r2 as u128)),
@@ -322,7 +355,9 @@ macro_rules! test_uint {
                 let g1 = <$gadget>::constant(r1);
                 let g2 = <$gadget>::constant(r2);
 
-                let mut program_1 = compile_program($directory, "ternary.leo").unwrap();
+                let bytes = include_bytes!("ternary.leo");
+                let mut program_1 = parse_program(bytes).unwrap();
+
                 let mut program_2 = program_1.clone();
 
                 // true -> field 1

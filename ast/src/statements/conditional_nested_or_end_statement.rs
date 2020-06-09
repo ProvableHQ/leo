@@ -1,4 +1,7 @@
-use crate::{ast::Rule, statements::{ConditionalStatement, Statement}};
+use crate::{
+    ast::Rule,
+    statements::{ConditionalStatement, Statement},
+};
 
 use pest_ast::FromPest;
 use std::fmt;
@@ -14,9 +17,7 @@ impl<'ast> fmt::Display for ConditionalNestedOrEndStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref statements) => {
-                write!(f, "else {{\n \t{:#?}\n }}", statements)
-            }
+            ConditionalNestedOrEndStatement::End(ref statements) => write!(f, "else {{\n \t{:#?}\n }}", statements),
         }
     }
 }

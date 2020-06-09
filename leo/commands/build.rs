@@ -1,15 +1,17 @@
-use crate::directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory};
-use crate::errors::{BuildError, CLIError};
-use crate::files::{ChecksumFile, MainFile, Manifest, MAIN_FILE_NAME};
-use crate::{cli::*, cli_types::*};
+use crate::{
+    cli::*,
+    cli_types::*,
+    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory},
+    errors::{BuildError, CLIError},
+    files::{ChecksumFile, MainFile, Manifest, MAIN_FILE_NAME},
+};
 use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use clap::ArgMatches;
-use std::convert::TryFrom;
-use std::env::current_dir;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct BuildCommand;
@@ -18,10 +20,10 @@ impl CLI for BuildCommand {
     type Options = ();
     type Output = (Compiler<Fq, EdwardsGroupType>, bool);
 
-    const NAME: NameType = "build";
     const ABOUT: AboutType = "Compile the current package as a program";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
+    const NAME: NameType = "build";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -46,9 +48,7 @@ impl CLI for BuildCommand {
 
         // Verify the main file exists
         if !MainFile::exists_at(&package_path) {
-            return Err(
-                BuildError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into(),
-            );
+            return Err(BuildError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into());
         }
 
         // Create the outputs directory
@@ -60,8 +60,7 @@ impl CLI for BuildCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program =
-            Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
         let program_checksum = program.checksum()?;
 
         // Generate the program on the constraint system and verify correctness

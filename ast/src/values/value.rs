@@ -1,4 +1,7 @@
-use crate::{ast::Rule, values::{BooleanValue, IntegerValue, FieldValue, GroupValue, NumberImplicitValue}};
+use crate::{
+    ast::Rule,
+    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue},
+};
 
 use pest::Span;
 use pest_ast::FromPest;

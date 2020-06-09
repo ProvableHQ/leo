@@ -1,7 +1,6 @@
 use crate::errors::ManifestError;
 
-use std::ffi::OsString;
-use std::io;
+use std::{ffi::OsString, io};
 
 #[derive(Debug, Error)]
 pub enum InitError {

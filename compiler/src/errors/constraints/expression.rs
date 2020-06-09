@@ -1,6 +1,4 @@
-use crate::errors::{
-    BooleanError, FieldError, FunctionError, GroupError, ValueError,
-};
+use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, ValueError};
 use leo_types::IntegerError;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -47,10 +45,7 @@ pub enum ExpressionError {
     #[error("Spread should contain an array, got {}", _0)]
     InvalidSpread(String),
 
-    #[error(
-        "Array {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Array {} must be declared before it is used in an inline expression", _0)]
     UndefinedArray(String),
 
     // Circuits
@@ -66,10 +61,7 @@ pub enum ExpressionError {
     #[error("Static member {} must be accessed using `::` syntax", _0)]
     InvalidStaticAccess(String),
 
-    #[error(
-        "Circuit {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Circuit {} must be declared before it is used in an inline expression", _0)]
     UndefinedCircuit(String),
 
     #[error("Circuit {} has no member {}", _0, _1)]
@@ -85,10 +77,7 @@ pub enum ExpressionError {
     #[error("{}", _0)]
     FunctionError(#[from] Box<FunctionError>),
 
-    #[error(
-        "Function {} must be declared before it is used in an inline expression",
-        _0
-    )]
+    #[error("Function {} must be declared before it is used in an inline expression", _0)]
     UndefinedFunction(String),
 
     // Conditionals

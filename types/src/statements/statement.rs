@@ -1,14 +1,17 @@
-use crate::{Assignee, Expression, Identifier, Integer, Variable, ConditionalStatement};
-use leo_ast::{operations::AssignOperation, statements::{
-    ReturnStatement,
-    AssignStatement,
-    Statement as AstStatement,
-    AssertStatement,
-    ExpressionStatement,
-    DefinitionStatement,
-    ForStatement,
-    MultipleAssignmentStatement
-}};
+use crate::{Assignee, ConditionalStatement, Expression, Identifier, Integer, Variable};
+use leo_ast::{
+    operations::AssignOperation,
+    statements::{
+        AssertStatement,
+        AssignStatement,
+        DefinitionStatement,
+        ExpressionStatement,
+        ForStatement,
+        MultipleAssignmentStatement,
+        ReturnStatement,
+        Statement as AstStatement,
+    },
+};
 
 use std::fmt;
 
@@ -60,42 +63,25 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                 match operation_assign {
                     AssignOperation::AddAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Add(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
-                        ),
+                        Expression::Add(Box::new(converted), Box::new(Expression::from(statement.expression))),
                     ),
                     AssignOperation::SubAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Sub(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
-                        ),
+                        Expression::Sub(Box::new(converted), Box::new(Expression::from(statement.expression))),
                     ),
                     AssignOperation::MulAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Mul(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
-                        ),
+                        Expression::Mul(Box::new(converted), Box::new(Expression::from(statement.expression))),
                     ),
                     AssignOperation::DivAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Div(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
-                        ),
+                        Expression::Div(Box::new(converted), Box::new(Expression::from(statement.expression))),
                     ),
                     AssignOperation::PowAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Pow(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
-                        ),
+                        Expression::Pow(Box::new(converted), Box::new(Expression::from(statement.expression))),
                     ),
-                    AssignOperation::Assign(ref _assign) => {
-                        unimplemented!("cannot assign twice to assign statement")
-                    }
+                    AssignOperation::Assign(ref _assign) => unimplemented!("cannot assign twice to assign statement"),
                 }
             }
         }
@@ -114,16 +100,11 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
             variables,
             Expression::FunctionCall(
                 Box::new(Expression::from(statement.function_name)),
-                statement
-                    .arguments
-                    .into_iter()
-                    .map(|e| Expression::from(e))
-                    .collect(),
+                statement.arguments.into_iter().map(|e| Expression::from(e)).collect(),
             ),
         )
     }
 }
-
 
 impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
@@ -154,10 +135,9 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
 impl<'ast> From<AssertStatement<'ast>> for Statement {
     fn from(statement: AssertStatement<'ast>) -> Self {
         match statement {
-            AssertStatement::AssertEq(assert_eq) => Statement::AssertEq(
-                Expression::from(assert_eq.left),
-                Expression::from(assert_eq.right),
-            ),
+            AssertStatement::AssertEq(assert_eq) => {
+                Statement::AssertEq(Expression::from(assert_eq.left), Expression::from(assert_eq.right))
+            }
         }
     }
 }
@@ -175,9 +155,7 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
             AstStatement::Definition(statement) => Statement::from(statement),
             AstStatement::Assign(statement) => Statement::from(statement),
             AstStatement::MultipleAssignment(statement) => Statement::from(statement),
-            AstStatement::Conditional(statement) => {
-                Statement::Conditional(ConditionalStatement::from(statement))
-            }
+            AstStatement::Conditional(statement) => Statement::Conditional(ConditionalStatement::from(statement)),
             AstStatement::Iteration(statement) => Statement::from(statement),
             AstStatement::Assert(statement) => Statement::from(statement),
             AstStatement::Expression(statement) => Statement::from(statement),
@@ -198,12 +176,8 @@ impl fmt::Display for Statement {
                 }
                 write!(f, ")\n")
             }
-            Statement::Definition(ref variable, ref expression) => {
-                write!(f, "let {} = {};", variable, expression)
-            }
-            Statement::Assign(ref variable, ref statement) => {
-                write!(f, "{} = {};", variable, statement)
-            }
+            Statement::Definition(ref variable, ref expression) => write!(f, "let {} = {};", variable, expression),
+            Statement::Assign(ref variable, ref statement) => write!(f, "{} = {};", variable, statement),
             Statement::MultipleAssign(ref assignees, ref function) => {
                 write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
@@ -222,9 +196,7 @@ impl fmt::Display for Statement {
                 }
                 write!(f, "\t}}")
             }
-            Statement::AssertEq(ref left, ref right) => {
-                write!(f, "assert_eq({}, {});", left, right)
-            }
+            Statement::AssertEq(ref left, ref right) => write!(f, "assert_eq({}, {});", left, right),
             Statement::Expression(ref expression) => write!(f, "{};", expression),
         }
     }

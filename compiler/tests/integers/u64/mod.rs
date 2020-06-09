@@ -1,17 +1,19 @@
 use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
-    compile_program, get_output,
+    get_output,
     integers::{fail_integer, fail_synthesis, IntegerTester},
-    EdwardsConstrainedValue, EdwardsTestCompiler,
+    parse_program,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
-use leo_types::{Integer, InputValue};
+use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-use snarkos_models::gadgets::utilities::{alloc::AllocGadget, uint::UInt64};
-
-const DIRECTORY_NAME: &str = "tests/integers/u64/";
+use snarkos_models::gadgets::{
+    r1cs::TestConstraintSystem,
+    utilities::{alloc::AllocGadget, uint::UInt64},
+};
 
 fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
     let output = get_output(program);
@@ -26,8 +28,9 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
 }
 
 #[test]
+#[ignore] //temporarily ignore memory expensive tests for travis
 fn test_u64() {
-    test_uint!(Testu64, u64, UInt64, DIRECTORY_NAME);
+    test_uint!(Testu64, u64, UInt64);
 
     Testu64::test_min(std::u64::MIN);
     Testu64::test_max(std::u64::MAX);

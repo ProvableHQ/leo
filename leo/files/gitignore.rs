@@ -3,9 +3,7 @@
 use crate::errors::GitignoreError;
 
 use serde::Deserialize;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{fs::File, io::Write, path::PathBuf};
 
 pub static GITIGNORE_FILE_NAME: &str = ".gitignore";
 

@@ -1,6 +1,6 @@
 //! Conversion of integer declarations to constraints in Leo.
 
-use crate::{errors::IntegerError, IntegerType, InputValue};
+use crate::{errors::IntegerError, InputValue, IntegerType};
 use leo_ast::{types::IntegerType as AstIntegerType, values::NumberValue};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -33,17 +33,14 @@ pub enum Integer {
 impl<'ast> Integer {
     pub fn from(number: NumberValue<'ast>, _type: AstIntegerType) -> Self {
         match _type {
-            AstIntegerType::U8Type(_u8) => Integer::U8(UInt8::constant(
-                number.value.parse::<u8>().expect("unable to parse u8"),
-            )),
+            AstIntegerType::U8Type(_u8) => {
+                Integer::U8(UInt8::constant(number.value.parse::<u8>().expect("unable to parse u8")))
+            }
             AstIntegerType::U16Type(_u16) => Integer::U16(UInt16::constant(
                 number.value.parse::<u16>().expect("unable to parse u16"),
             )),
             AstIntegerType::U32Type(_u32) => Integer::U32(UInt32::constant(
-                number
-                    .value
-                    .parse::<u32>()
-                    .expect("unable to parse integers.u32"),
+                number.value.parse::<u32>().expect("unable to parse integers.u32"),
             )),
             AstIntegerType::U64Type(_u64) => Integer::U64(UInt64::constant(
                 number.value.parse::<u64>().expect("unable to parse u64"),
@@ -55,9 +52,7 @@ impl<'ast> Integer {
     }
 
     pub fn from_implicit(number: String) -> Self {
-        Integer::U128(UInt128::constant(
-            number.parse::<u128>().expect("unable to parse u128"),
-        ))
+        Integer::U128(UInt128::constant(number.parse::<u128>().expect("unable to parse u128")))
     }
 }
 
@@ -105,60 +100,48 @@ impl Integer {
             IntegerType::U8 => {
                 let u8_option = integer_option.map(|integer| integer as u8);
                 let u8_result = match private {
-                    true => UInt8::alloc(cs.ns(|| name), || {
-                        u8_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt8::alloc_input(cs.ns(|| name), || {
-                        u8_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
+                    true => UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?,
+                    false => UInt8::alloc_input(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?,
                 };
                 Integer::U8(u8_result)
             }
             IntegerType::U16 => {
                 let u16_option = integer_option.map(|integer| integer as u16);
                 let u16_result = match private {
-                    true => UInt16::alloc(cs.ns(|| name), || {
-                        u16_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt16::alloc_input(cs.ns(|| name), || {
-                        u16_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
+                    true => UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?,
+                    false => {
+                        UInt16::alloc_input(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?
+                    }
                 };
                 Integer::U16(u16_result)
             }
             IntegerType::U32 => {
                 let u32_option = integer_option.map(|integer| integer as u32);
                 let u32_result = match private {
-                    true => UInt32::alloc(cs.ns(|| name), || {
-                        u32_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt32::alloc_input(cs.ns(|| name), || {
-                        u32_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
+                    true => UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?,
+                    false => {
+                        UInt32::alloc_input(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?
+                    }
                 };
                 Integer::U32(u32_result)
             }
             IntegerType::U64 => {
                 let u64_option = integer_option.map(|integer| integer as u64);
                 let u64_result = match private {
-                    true => UInt64::alloc(cs.ns(|| name), || {
-                        u64_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt64::alloc_input(cs.ns(|| name), || {
-                        u64_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
+                    true => UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?,
+                    false => {
+                        UInt64::alloc_input(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?
+                    }
                 };
                 Integer::U64(u64_result)
             }
             IntegerType::U128 => {
                 let u128_option = integer_option.map(|integer| integer as u128);
                 let u128_result = match private {
-                    true => UInt128::alloc(cs.ns(|| name), || {
-                        u128_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
-                    false => UInt128::alloc_input(cs.ns(|| name), || {
-                        u128_option.ok_or(SynthesisError::AssignmentMissing)
-                    })?,
+                    true => UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?,
+                    false => {
+                        UInt128::alloc_input(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?
+                    }
                 };
                 Integer::U128(u128_result)
             }
@@ -173,72 +156,40 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let result = UInt8::addmany(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} + {}",
-                            left_u8.value.unwrap(),
-                            right_u8.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} + {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
                     &[left_u8, right_u8],
                 )?;
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let result = UInt16::addmany(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} + {}",
-                            left_u16.value.unwrap(),
-                            right_u16.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} + {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
                     &[left_u16, right_u16],
                 )?;
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let result = UInt32::addmany(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} + {}",
-                            left_u32.value.unwrap(),
-                            right_u32.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} + {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
                     &[left_u32, right_u32],
                 )?;
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let result = UInt64::addmany(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} + {}",
-                            left_u64.value.unwrap(),
-                            right_u64.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} + {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
                     &[left_u64, right_u64],
                 )?;
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let result = UInt128::addmany(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} + {}",
-                            left_u128.value.unwrap(),
-                            right_u128.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} + {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
                     &[left_u128, right_u128],
                 )?;
                 Integer::U128(result)
             }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right)))
-            }
+            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right))),
         })
     }
 
@@ -250,72 +201,40 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let result = left_u8.sub(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} - {}",
-                            left_u8.value.unwrap(),
-                            right_u8.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} - {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
                     &right_u8,
                 )?;
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let result = left_u16.sub(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} - {}",
-                            left_u16.value.unwrap(),
-                            right_u16.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} - {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
                     &right_u16,
                 )?;
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let result = left_u32.sub(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} - {}",
-                            left_u32.value.unwrap(),
-                            right_u32.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} - {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
                     &right_u32,
                 )?;
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let result = left_u64.sub(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} - {}",
-                            left_u64.value.unwrap(),
-                            right_u64.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} - {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
                     &right_u64,
                 )?;
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let result = left_u128.sub(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} - {}",
-                            left_u128.value.unwrap(),
-                            right_u128.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} - {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
                     &right_u128,
                 )?;
                 Integer::U128(result)
             }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right)))
-            }
+            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right))),
         })
     }
 
@@ -327,72 +246,40 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let result = left_u8.mul(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} * {}",
-                            left_u8.value.unwrap(),
-                            right_u8.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} * {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
                     &right_u8,
                 )?;
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let result = left_u16.mul(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} * {}",
-                            left_u16.value.unwrap(),
-                            right_u16.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} * {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
                     &right_u16,
                 )?;
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let result = left_u32.mul(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} * {}",
-                            left_u32.value.unwrap(),
-                            right_u32.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} * {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
                     &right_u32,
                 )?;
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let result = left_u64.mul(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} * {}",
-                            left_u64.value.unwrap(),
-                            right_u64.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} * {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
                     &right_u64,
                 )?;
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let result = left_u128.mul(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} * {}",
-                            left_u128.value.unwrap(),
-                            right_u128.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} * {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
                     &right_u128,
                 )?;
                 Integer::U128(result)
             }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right)))
-            }
+            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right))),
         })
     }
 
@@ -404,72 +291,40 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let result = left_u8.div(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ÷ {}",
-                            left_u8.value.unwrap(),
-                            right_u8.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ÷ {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
                     &right_u8,
                 )?;
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let result = left_u16.div(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ÷ {}",
-                            left_u16.value.unwrap(),
-                            right_u16.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ÷ {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
                     &right_u16,
                 )?;
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let result = left_u32.div(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ÷ {}",
-                            left_u32.value.unwrap(),
-                            right_u32.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ÷ {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
                     &right_u32,
                 )?;
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let result = left_u64.div(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ÷ {}",
-                            left_u64.value.unwrap(),
-                            right_u64.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ÷ {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
                     &right_u64,
                 )?;
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let result = left_u128.div(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ÷ {}",
-                            left_u128.value.unwrap(),
-                            right_u128.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ÷ {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
                     &right_u128,
                 )?;
                 Integer::U128(result)
             }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!("{} ÷ {}", left, right)))
-            }
+            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ÷ {}", left, right))),
         })
     }
 
@@ -481,75 +336,40 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let result = left_u8.pow(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ** {}",
-                            left_u8.value.unwrap(),
-                            right_u8.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ** {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
                     &right_u8,
                 )?;
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let result = left_u16.pow(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ** {}",
-                            left_u16.value.unwrap(),
-                            right_u16.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ** {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
                     &right_u16,
                 )?;
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let result = left_u32.pow(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ** {}",
-                            left_u32.value.unwrap(),
-                            right_u32.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ** {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
                     &right_u32,
                 )?;
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let result = left_u64.pow(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ** {}",
-                            left_u64.value.unwrap(),
-                            right_u64.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ** {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
                     &right_u64,
                 )?;
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let result = left_u128.pow(
-                    cs.ns(|| {
-                        format!(
-                            "enforce {} ** {}",
-                            left_u128.value.unwrap(),
-                            right_u128.value.unwrap()
-                        )
-                    }),
+                    cs.ns(|| format!("enforce {} ** {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
                     &right_u128,
                 )?;
                 Integer::U128(result)
             }
-            (left, right) => {
-                return Err(IntegerError::CannotEnforce(format!(
-                    "{} ** {}",
-                    left, right
-                )))
-            }
+            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ** {}", left, right))),
         })
     }
 }
@@ -564,9 +384,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         match (self, other) {
-            (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                left_u8.conditional_enforce_equal(cs, right_u8, condition)
-            }
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.conditional_enforce_equal(cs, right_u8, condition),
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 left_u16.conditional_enforce_equal(cs, right_u16, condition)
             }
@@ -596,18 +414,18 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         match (first, second) {
-            (Integer::U8(u8_first), Integer::U8(u8_second)) => Ok(Integer::U8(
-                UInt8::conditionally_select(cs, cond, u8_first, u8_second)?,
-            )),
-            (Integer::U16(u16_first), Integer::U16(u18_second)) => Ok(Integer::U16(
-                UInt16::conditionally_select(cs, cond, u16_first, u18_second)?,
-            )),
-            (Integer::U32(u32_first), Integer::U32(u32_second)) => Ok(Integer::U32(
-                UInt32::conditionally_select(cs, cond, u32_first, u32_second)?,
-            )),
-            (Integer::U64(u64_first), Integer::U64(u64_second)) => Ok(Integer::U64(
-                UInt64::conditionally_select(cs, cond, u64_first, u64_second)?,
-            )),
+            (Integer::U8(u8_first), Integer::U8(u8_second)) => {
+                Ok(Integer::U8(UInt8::conditionally_select(cs, cond, u8_first, u8_second)?))
+            }
+            (Integer::U16(u16_first), Integer::U16(u18_second)) => Ok(Integer::U16(UInt16::conditionally_select(
+                cs, cond, u16_first, u18_second,
+            )?)),
+            (Integer::U32(u32_first), Integer::U32(u32_second)) => Ok(Integer::U32(UInt32::conditionally_select(
+                cs, cond, u32_first, u32_second,
+            )?)),
+            (Integer::U64(u64_first), Integer::U64(u64_second)) => Ok(Integer::U64(UInt64::conditionally_select(
+                cs, cond, u64_first, u64_second,
+            )?)),
             (Integer::U128(u128_first), Integer::U128(u128_second)) => Ok(Integer::U128(
                 UInt128::conditionally_select(cs, cond, u128_first, u128_second)?,
             )),

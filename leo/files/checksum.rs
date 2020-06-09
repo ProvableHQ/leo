@@ -1,12 +1,13 @@
 //! The build checksum file.
 
-use crate::directories::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::errors::ChecksumFileError;
+use crate::{directories::outputs::OUTPUTS_DIRECTORY_NAME, errors::ChecksumFileError};
 
 use serde::Deserialize;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static CHECKSUM_FILE_EXTENSION: &str = ".leo.checksum";
 
@@ -31,10 +32,7 @@ impl ChecksumFile {
     pub fn read_from(&self, path: &PathBuf) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(
-            fs::read_to_string(&path)
-                .map_err(|_| ChecksumFileError::FileReadError(path.clone()))?,
-        )
+        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.clone()))?)
     }
 
     /// Writes the given checksum to a file.

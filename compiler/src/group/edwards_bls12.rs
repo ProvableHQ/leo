@@ -17,7 +17,8 @@ use snarkos_models::{
             eq::{ConditionalEqGadget, EqGadget},
             select::CondSelectGadget,
             uint::UInt8,
-            ToBitsGadget, ToBytesGadget,
+            ToBitsGadget,
+            ToBytesGadget,
         },
     },
 };
@@ -43,23 +44,18 @@ impl GroupType<Fq> for EdwardsGroupType {
             }
 
             (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
-                let result = <EdwardsBlsGadget as GroupGadget<
-                    GroupAffine<EdwardsParameters>,
-                    Fq,
-                >>::add(self_value, cs, other_value)?;
+                let result = <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::add(
+                    self_value,
+                    cs,
+                    other_value,
+                )?;
                 Ok(EdwardsGroupType::Allocated(result))
             }
 
-            (
-                EdwardsGroupType::Constant(constant_value),
-                EdwardsGroupType::Allocated(allocated_value),
-            )
-            | (
-                EdwardsGroupType::Allocated(allocated_value),
-                EdwardsGroupType::Constant(constant_value),
-            ) => Ok(EdwardsGroupType::Allocated(
-                allocated_value.add_constant(cs, constant_value)?,
-            )),
+            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => Ok(
+                EdwardsGroupType::Allocated(allocated_value.add_constant(cs, constant_value)?),
+            ),
         }
     }
 
@@ -70,23 +66,18 @@ impl GroupType<Fq> for EdwardsGroupType {
             }
 
             (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
-                let result = <EdwardsBlsGadget as GroupGadget<
-                    GroupAffine<EdwardsParameters>,
-                    Fq,
-                >>::sub(self_value, cs, other_value)?;
+                let result = <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::sub(
+                    self_value,
+                    cs,
+                    other_value,
+                )?;
                 Ok(EdwardsGroupType::Allocated(result))
             }
 
-            (
-                EdwardsGroupType::Constant(constant_value),
-                EdwardsGroupType::Allocated(allocated_value),
-            )
-            | (
-                EdwardsGroupType::Allocated(allocated_value),
-                EdwardsGroupType::Constant(constant_value),
-            ) => Ok(EdwardsGroupType::Allocated(
-                allocated_value.sub_constant(cs, constant_value)?,
-            )),
+            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => Ok(
+                EdwardsGroupType::Allocated(allocated_value.sub_constant(cs, constant_value)?),
+            ),
         }
     }
 }
@@ -114,10 +105,7 @@ impl EdwardsGroupType {
         Self::edwards_affine_from_str(affine_string).map_err(|_| SynthesisError::AssignmentMissing)
     }
 
-    pub fn allocated<CS: ConstraintSystem<Fq>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<EdwardsBlsGadget, SynthesisError> {
+    pub fn allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<EdwardsBlsGadget, SynthesisError> {
         match self {
             EdwardsGroupType::Constant(constant) => {
                 <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
@@ -131,35 +119,24 @@ impl EdwardsGroupType {
 }
 
 impl AllocGadget<String, Fq> for EdwardsGroupType {
-    fn alloc<
-        Fn: FnOnce() -> Result<T, SynthesisError>,
-        T: Borrow<String>,
-        CS: ConstraintSystem<Fq>,
-    >(
+    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<Fq>>(
         cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
-        let value = <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
-            cs,
-            || Self::alloc_x_helper(value_gen),
-        )?;
+        let value = <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(cs, || {
+            Self::alloc_x_helper(value_gen)
+        })?;
 
         Ok(EdwardsGroupType::Allocated(value))
     }
 
-    fn alloc_input<
-        Fn: FnOnce() -> Result<T, SynthesisError>,
-        T: Borrow<String>,
-        CS: ConstraintSystem<Fq>,
-    >(
+    fn alloc_input<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<Fq>>(
         cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
-        let value =
-            <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc_input(
-                cs,
-                || Self::alloc_x_helper(value_gen),
-            )?;
+        let value = <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc_input(cs, || {
+            Self::alloc_x_helper(value_gen)
+        })?;
 
         Ok(EdwardsGroupType::Allocated(value))
     }
@@ -176,18 +153,12 @@ impl PartialEq for EdwardsGroupType {
                 self_value.eq(other_value)
             }
 
-            (
-                EdwardsGroupType::Constant(constant_value),
-                EdwardsGroupType::Allocated(allocated_value),
-            )
-            | (
-                EdwardsGroupType::Allocated(allocated_value),
-                EdwardsGroupType::Constant(constant_value),
-            ) => <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::get_value(
-                allocated_value,
-            )
-            .map(|allocated_value| allocated_value == *constant_value)
-            .unwrap_or(false),
+            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+                <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::get_value(allocated_value)
+                    .map(|allocated_value| allocated_value == *constant_value)
+                    .unwrap_or(false)
+            }
         }
     }
 }
@@ -214,22 +185,11 @@ impl ConditionalEqGadget<Fq> for EdwardsGroupType {
             }
             // a - a
             (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
-                <EdwardsBlsGadget>::conditional_enforce_equal(
-                    self_value,
-                    cs,
-                    other_value,
-                    condition,
-                )
+                <EdwardsBlsGadget>::conditional_enforce_equal(self_value, cs, other_value, condition)
             }
             // c - a = a - c
-            (
-                EdwardsGroupType::Constant(constant_value),
-                EdwardsGroupType::Allocated(allocated_value),
-            )
-            | (
-                EdwardsGroupType::Allocated(allocated_value),
-                EdwardsGroupType::Constant(constant_value),
-            ) => {
+            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
                 let x = FpGadget::from(&mut cs, &constant_value.x);
                 let y = FpGadget::from(&mut cs, &constant_value.y);
                 let constant_gadget = EdwardsBlsGadget::new(x, y);
@@ -252,16 +212,11 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(&mut cs)?;
             let second_gadget = second.allocated(&mut cs)?;
-            let result =
-                EdwardsBlsGadget::conditionally_select(cs, cond, &first_gadget, &second_gadget)?;
+            let result = EdwardsBlsGadget::conditionally_select(cs, cond, &first_gadget, &second_gadget)?;
 
             Ok(EdwardsGroupType::Allocated(result))
         }
@@ -273,18 +228,12 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
 }
 
 impl ToBitsGadget<Fq> for EdwardsGroupType {
-    fn to_bits<CS: ConstraintSystem<Fq>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits(cs)
     }
 
-    fn to_bits_strict<CS: ConstraintSystem<Fq>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits_strict(cs)
     }
@@ -296,10 +245,7 @@ impl ToBytesGadget<Fq> for EdwardsGroupType {
         self_gadget.to_bytes(cs)
     }
 
-    fn to_bytes_strict<CS: ConstraintSystem<Fq>>(
-        &self,
-        mut cs: CS,
-    ) -> Result<Vec<UInt8>, SynthesisError> {
+    fn to_bytes_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bytes_strict(cs)
     }

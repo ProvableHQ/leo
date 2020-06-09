@@ -1,8 +1,6 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
-use crate::{
-    constraints::ConstrainedValue, errors::FieldError, FieldType, GroupType,
-};
+use crate::{constraints::ConstrainedValue, errors::FieldError, FieldType, GroupType};
 use leo_types::InputValue;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -31,13 +29,9 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
 
     // Check visibility of parameter
     let field_value = if private {
-        FieldType::alloc(cs.ns(|| name), || {
-            field_option.ok_or(SynthesisError::AssignmentMissing)
-        })?
+        FieldType::alloc(cs.ns(|| name), || field_option.ok_or(SynthesisError::AssignmentMissing))?
     } else {
-        FieldType::alloc_input(cs.ns(|| name), || {
-            field_option.ok_or(SynthesisError::AssignmentMissing)
-        })?
+        FieldType::alloc_input(cs.ns(|| name), || field_option.ok_or(SynthesisError::AssignmentMissing))?
     };
 
     Ok(ConstrainedValue::Field(field_value))

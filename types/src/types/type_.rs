@@ -1,5 +1,5 @@
-use crate::{Expression, IntegerType, Identifier};
-use leo_ast::types::{DataType, ArrayType, CircuitType, Type as AstType};
+use crate::{Expression, Identifier, IntegerType};
+use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
 
 use std::fmt;
 
@@ -20,9 +20,7 @@ pub enum Type {
 impl From<DataType> for Type {
     fn from(basic_type: DataType) -> Self {
         match basic_type {
-            DataType::Integer(_type) => {
-                Type::IntegerType(IntegerType::from(_type))
-            }
+            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
             DataType::Field(_type) => Type::Field,
             DataType::Group(_type) => Type::Group,
             DataType::Boolean(_type) => Type::Boolean,

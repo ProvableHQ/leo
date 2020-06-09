@@ -1,36 +1,22 @@
-use crate::{CircuitFieldDefinition, Identifier, Integer, SpreadOrExpression, RangeOrExpression};
+use crate::{CircuitFieldDefinition, Identifier, Integer, RangeOrExpression, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
-    common::{
-        Assignee,
-        Identifier as AstIdentifier,
-    },
+    common::{Assignee, Identifier as AstIdentifier},
     expressions::{
-        Expression as AstExpression,
-        CircuitInlineExpression,
-        PostfixExpression,
         ArrayInitializerExpression,
         ArrayInlineExpression,
-        TernaryExpression,
         BinaryExpression,
-        NotExpression
+        CircuitInlineExpression,
+        Expression as AstExpression,
+        NotExpression,
+        PostfixExpression,
+        TernaryExpression,
     },
-    operations::{
-        BinaryOperation,
-    },
-    values::{
-        Value,
-        FieldValue,
-        BooleanValue,
-        GroupValue,
-        NumberImplicitValue,
-        IntegerValue
-    }
+    operations::BinaryOperation,
+    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
 };
 
-use snarkos_models::gadgets::utilities::{
-    boolean::Boolean,
-};
+use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 use std::fmt;
 
@@ -88,11 +74,7 @@ impl<'ast> Expression {
                 .value
                 .parse::<usize>()
                 .expect("Unable to read array size"),
-            Value::Implicit(number) => number
-                .number
-                .value
-                .parse::<usize>()
-                .expect("Unable to read array size"),
+            Value::Implicit(number) => number.number.value.parse::<usize>().expect("Unable to read array size"),
             size => unimplemented!("Array size should be an integer {}", size),
         }
     }
@@ -157,9 +139,7 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitMemberAccess(ref circuit_name, ref member) => {
-                write!(f, "{}.{}", circuit_name, member)
-            }
+            Expression::CircuitMemberAccess(ref circuit_name, ref member) => write!(f, "{}.{}", circuit_name, member),
             Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member) => {
                 write!(f, "{}::{}", circuit_name, member)
             }
@@ -179,7 +159,6 @@ impl<'ast> fmt::Display for Expression {
     }
 }
 
-
 impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
     fn from(expression: CircuitInlineExpression<'ast>) -> Self {
         let variable = Identifier::from(expression.identifier);
@@ -195,8 +174,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<PostfixExpression<'ast>> for Expression {
     fn from(expression: PostfixExpression<'ast>) -> Self {
-        let variable =
-            Expression::Identifier(Identifier::from(expression.identifier));
+        let variable = Expression::Identifier(Identifier::from(expression.identifier));
 
         // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
         // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
@@ -207,10 +185,9 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 // Handle array accesses
-                Access::Array(array) => Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(RangeOrExpression::from(array.expression)),
-                ),
+                Access::Array(array) => {
+                    Expression::ArrayAccess(Box::new(acc), Box::new(RangeOrExpression::from(array.expression)))
+                }
 
                 // Handle function calls
                 Access::Call(function) => Expression::FunctionCall(
@@ -223,15 +200,11 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                 ),
 
                 // Handle circuit member accesses
-                Access::Object(circuit_object) => Expression::CircuitMemberAccess(
-                    Box::new(acc),
-                    Identifier::from(circuit_object.identifier),
-                ),
+                Access::Object(circuit_object) => {
+                    Expression::CircuitMemberAccess(Box::new(acc), Identifier::from(circuit_object.identifier))
+                }
                 Access::StaticObject(circuit_object) => {
-                    Expression::CircuitStaticFunctionAccess(
-                        Box::new(acc),
-                        Identifier::from(circuit_object.identifier),
-                    )
+                    Expression::CircuitStaticFunctionAccess(Box::new(acc), Identifier::from(circuit_object.identifier))
                 }
             })
     }
@@ -264,15 +237,11 @@ impl<'ast> From<Assignee<'ast>> for Expression {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 AssigneeAccess::Member(circuit_member) => {
-                    Expression::CircuitMemberAccess(
-                        Box::new(acc),
-                        Identifier::from(circuit_member.identifier),
-                    )
+                    Expression::CircuitMemberAccess(Box::new(acc), Identifier::from(circuit_member.identifier))
                 }
-                AssigneeAccess::Array(array) => Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(RangeOrExpression::from(array.expression)),
-                ),
+                AssigneeAccess::Array(array) => {
+                    Expression::ArrayAccess(Box::new(acc), Box::new(RangeOrExpression::from(array.expression)))
+                }
             })
     }
 }
@@ -293,9 +262,7 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
             ),
-            BinaryOperation::Ne => {
-                Expression::Not(Box::new(Expression::from(expression)))
-            }
+            BinaryOperation::Ne => Expression::Not(Box::new(Expression::from(expression))),
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
@@ -368,7 +335,6 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     }
 }
 
-
 impl<'ast> From<Value<'ast>> for Expression {
     fn from(value: Value<'ast>) -> Self {
         match value {
@@ -387,7 +353,6 @@ impl<'ast> From<NotExpression<'ast>> for Expression {
     }
 }
 
-
 impl<'ast> From<FieldValue<'ast>> for Expression {
     fn from(field: FieldValue<'ast>) -> Self {
         Expression::Field(field.number.value)
@@ -403,10 +368,7 @@ impl<'ast> From<GroupValue<'ast>> for Expression {
 impl<'ast> From<BooleanValue<'ast>> for Expression {
     fn from(boolean: BooleanValue<'ast>) -> Self {
         Expression::Boolean(Boolean::Constant(
-            boolean
-                .value
-                .parse::<bool>()
-                .expect("unable to parse boolean"),
+            boolean.value.parse::<bool>().expect("unable to parse boolean"),
         ))
     }
 }
@@ -416,7 +378,6 @@ impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
         Expression::Implicit(number.number.value)
     }
 }
-
 
 impl<'ast> From<IntegerValue<'ast>> for Expression {
     fn from(field: IntegerValue<'ast>) -> Self {

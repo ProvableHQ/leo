@@ -1,4 +1,4 @@
-use crate::{Identifier, FunctionInput, Statement, Type};
+use crate::{FunctionInput, Identifier, Statement, Type};
 use leo_ast::functions::Function as AstFunction;
 
 use std::fmt;
