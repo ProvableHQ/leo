@@ -1,9 +1,5 @@
 use crate::InputValue;
-use leo_inputs::{
-    common::visibility::{Private, Visibility},
-    files::File,
-    InputParserError,
-};
+use leo_inputs::{common::visibility::Visibility, files::File, InputParserError};
 
 #[derive(Clone)]
 pub struct Inputs {

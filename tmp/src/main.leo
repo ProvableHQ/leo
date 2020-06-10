@@ -1,4 +1,4 @@
 // The 'tmp' main function.
-function main(x: private bool) -> bool {
-    return x
+function main(a: bool[2]) -> bool {
+    return a[0]
 }

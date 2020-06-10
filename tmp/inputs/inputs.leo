@@ -1,2 +1,2 @@
 [main]
-x: private bool = true;
+a: private bool[2] = [true; 2];

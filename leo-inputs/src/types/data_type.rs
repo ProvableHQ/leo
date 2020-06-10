@@ -13,3 +13,14 @@ pub enum DataType {
     Group(GroupType),
     Boolean(BooleanType),
 }
+
+impl std::fmt::Display for DataType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            DataType::Integer(_) => write!(f, "integer"),
+            DataType::Field(_) => write!(f, "field"),
+            DataType::Group(_) => write!(f, "group"),
+            DataType::Boolean(_) => write!(f, "bool"),
+        }
+    }
+}

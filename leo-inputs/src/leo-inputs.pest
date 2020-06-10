@@ -47,7 +47,7 @@ type_data = { type_field | type_group | type_boolean | type_integer }
 type_circuit = { identifier }
 
 // Declared in types/array_type.rs
-type_array = { type_data ~ ("[" ~ value ~ "]")+ }
+type_array = { type_data ~ ("[" ~ value_number ~ "]")+ }
 
 /// Values
 
@@ -77,7 +77,7 @@ group_single_or_tuple = { value_number | group_tuple }
 /// Expressions
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ expression ~ ";" ~ value ~ "]" }
+expression_array_initializer = { "[" ~ expression ~ ";" ~ value_number ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}

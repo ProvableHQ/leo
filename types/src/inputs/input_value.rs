@@ -1,8 +1,8 @@
 use leo_inputs::{
     errors::InputParserError,
-    expressions::Expression,
-    types::{DataType, Type},
-    values::{BooleanValue, Value},
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
+    types::{ArrayType, DataType, Type},
+    values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
 use std::fmt;
 
@@ -21,29 +21,130 @@ impl<'ast> InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
+    fn from_number(number: NumberValue<'ast>) -> Result<Self, InputParserError> {
+        let integer = number.value.parse::<u128>()?;
+        Ok(InputValue::Integer(integer))
+    }
+
+    fn from_group(group: GroupValue<'ast>) -> Self {
+        InputValue::Group(group.to_string())
+    }
+
+    fn from_field(field: FieldValue<'ast>) -> Self {
+        InputValue::Field(field.number.value)
+    }
+
+    fn from_implicit(data_type: DataType, implicit: NumberImplicitValue<'ast>) -> Result<Self, InputParserError> {
+        match data_type {
+            DataType::Boolean(_) => Err(InputParserError::IncompatibleTypes(
+                "bool".to_string(),
+                "implicit number".to_string(),
+            )),
+            DataType::Integer(_) => InputValue::from_number(implicit.number),
+            DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
+            DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
+        }
+    }
+
     fn from_value(data_type: DataType, value: Value<'ast>) -> Result<Self, InputParserError> {
         match (data_type, value) {
-            (DataType::Boolean(_), Value::Boolean(value)) => InputValue::from_boolean(value),
-            (DataType::Integer(_), Value::Integer(_)) => unimplemented!(),
-            (DataType::Group(_), Value::Group(_)) => unimplemented!(),
-            (DataType::Field(_), Value::Field(_)) => unimplemented!(),
-            (data_type, Value::Implicit(_)) => unimplemented!(), //do something with data type
-            (_, _) => unimplemented!("incompatible types"),
+            (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
+            (DataType::Integer(_), Value::Integer(integer)) => InputValue::from_number(integer.number),
+            (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
+            (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
+            (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
+            (data_type, value) => Err(InputParserError::IncompatibleTypes(
+                data_type.to_string(),
+                value.to_string(),
+            )),
         }
     }
 
     pub(crate) fn from_expression(type_: Type<'ast>, expression: Expression<'ast>) -> Result<Self, InputParserError> {
-        // evaluate expression
         match (type_, expression) {
-            (Type::Basic(_), Expression::Variable(ref variable)) => unimplemented!("variable inputs not supported"),
             (Type::Basic(data_type), Expression::Value(value)) => InputValue::from_value(data_type, value),
-            (Type::Array(array_type), Expression::ArrayInline(_)) => unimplemented!(),
-            (Type::Array(array_type), Expression::ArrayInitializer(_)) => unimplemented!(),
-            (Type::Circuit(circuit_type), Expression::CircuitInline(_)) => unimplemented!(),
-            (_, _) => unimplemented!("incompatible types"),
+            (Type::Array(array_type), Expression::ArrayInline(inline)) => {
+                InputValue::from_array_inline(array_type, inline)
+            }
+            (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
+                InputValue::from_array_initializer(array_type, initializer)
+            }
+            (Type::Circuit(_), Expression::CircuitInline(_)) => unimplemented!("circuit input values not implemented"),
+            (Type::Basic(_), Expression::Variable(_)) => unimplemented!("variable inputs not supported"),
+            (type_, value) => Err(InputParserError::IncompatibleTypes(
+                type_.to_string(),
+                value.to_string(),
+            )),
+        }
+    }
+
+    pub(crate) fn from_array_inline(
+        mut array_type: ArrayType,
+        inline: ArrayInlineExpression,
+    ) -> Result<Self, InputParserError> {
+        match array_type.next_dimension() {
+            Some(number) => {
+                let outer_dimension = number.value.parse::<usize>()?;
+
+                if outer_dimension != inline.expressions.len() {
+                    return Err(InputParserError::InvalidArrayLength(
+                        outer_dimension,
+                        inline.expressions.len(),
+                    ));
+                }
+            }
+            None => return Err(InputParserError::UndefinedArrayDimension),
         }
 
-        // check type
+        let inner_array_type = if array_type.dimensions.len() == 0 {
+            // this is a single array
+            Type::Basic(array_type._type)
+        } else {
+            Type::Array(array_type)
+        };
+
+        let mut values = vec![];
+        for expression in inline.expressions.into_iter() {
+            let value = InputValue::from_expression(inner_array_type.clone(), expression)?;
+
+            values.push(value)
+        }
+
+        Ok(InputValue::Array(values))
+    }
+
+    pub(crate) fn from_array_initializer(
+        mut array_type: ArrayType,
+        initializer: ArrayInitializerExpression,
+    ) -> Result<Self, InputParserError> {
+        let initializer_count = initializer.count.value.parse::<usize>()?;
+
+        match array_type.next_dimension() {
+            Some(number) => {
+                let outer_dimension = number.value.parse::<usize>()?;
+
+                if outer_dimension != initializer_count {
+                    return Err(InputParserError::InvalidArrayLength(outer_dimension, initializer_count));
+                }
+            }
+            None => return Err(InputParserError::UndefinedArrayDimension),
+        }
+
+        let inner_array_type = if array_type.dimensions.len() == 0 {
+            // this is a single array
+            Type::Basic(array_type._type)
+        } else {
+            Type::Array(array_type)
+        };
+
+        let mut values = vec![];
+        for _ in 0..initializer_count {
+            let value = InputValue::from_expression(inner_array_type.clone(), *initializer.expression.clone())?;
+
+            values.push(value)
+        }
+
+        Ok(InputValue::Array(values))
     }
 }
 
