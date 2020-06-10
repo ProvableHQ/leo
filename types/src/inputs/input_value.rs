@@ -1,14 +1,16 @@
+use crate::InputFields;
 use leo_inputs::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
-    types::{ArrayType, DataType, Type},
+    types::{ArrayType, DataType, IntegerType, Type},
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
+use snarkos_models::curves::PairingEngine;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue {
-    Integer(u128),
+    Integer(IntegerType, u128),
     Field(String),
     Group(String),
     Boolean(bool),
@@ -21,9 +23,9 @@ impl<'ast> InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
-    fn from_number(number: NumberValue<'ast>) -> Result<Self, InputParserError> {
+    fn from_number(integer_type: IntegerType, number: NumberValue<'ast>) -> Result<Self, InputParserError> {
         let integer = number.value.parse::<u128>()?;
-        Ok(InputValue::Integer(integer))
+        Ok(InputValue::Integer(integer_type, integer))
     }
 
     fn from_group(group: GroupValue<'ast>) -> Self {
@@ -40,7 +42,7 @@ impl<'ast> InputValue {
                 "bool".to_string(),
                 "implicit number".to_string(),
             )),
-            DataType::Integer(_) => InputValue::from_number(implicit.number),
+            DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.number),
             DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
         }
@@ -49,7 +51,9 @@ impl<'ast> InputValue {
     fn from_value(data_type: DataType, value: Value<'ast>) -> Result<Self, InputParserError> {
         match (data_type, value) {
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
-            (DataType::Integer(_), Value::Integer(integer)) => InputValue::from_number(integer.number),
+            (DataType::Integer(integer_type), Value::Integer(integer)) => {
+                InputValue::from_number(integer_type, integer.number)
+            }
             (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
             (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
             (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
@@ -69,8 +73,8 @@ impl<'ast> InputValue {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
-            (Type::Circuit(_), Expression::CircuitInline(_)) => unimplemented!("circuit input values not implemented"),
-            (Type::Basic(_), Expression::Variable(_)) => unimplemented!("variable inputs not supported"),
+            (Type::Circuit(_), Expression::CircuitInline(_)) => unimplemented!("circuit input values not supported"),
+            (Type::Basic(_), Expression::Variable(_)) => unimplemented!("variable input values not supported"),
             (type_, value) => Err(InputParserError::IncompatibleTypes(
                 type_.to_string(),
                 value.to_string(),
@@ -146,15 +150,25 @@ impl<'ast> InputValue {
 
         Ok(InputValue::Array(values))
     }
+
+    pub(crate) fn to_input_fields<E: PairingEngine>(&self) -> Result<InputFields<E>, InputParserError> {
+        match self {
+            InputValue::Boolean(boolean) => Ok(InputFields::from_boolean(boolean)),
+            InputValue::Integer(type_, number) => InputFields::from_integer(type_, number),
+            InputValue::Group(_) => unimplemented!(),
+            InputValue::Field(_) => unimplemented!(),
+            InputValue::Array(_) => unimplemented!(),
+        }
+    }
 }
 
 impl fmt::Display for InputValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            InputValue::Integer(ref integer) => write!(f, "{}", integer),
-            InputValue::Field(ref field) => write!(f, "{}", field),
+            InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
+            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
             InputValue::Group(ref group) => write!(f, "{}", group),
-            InputValue::Boolean(ref bool) => write!(f, "{}", bool),
+            InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {

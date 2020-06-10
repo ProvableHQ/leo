@@ -16,6 +16,7 @@ use snarkos_models::{
 };
 
 use sha2::{Digest, Sha256};
+use snarkos_models::curves::PairingEngine;
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
@@ -58,7 +59,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
-        self.program_inputs.set_private_inputs(program_inputs);
+        self.program_inputs.set_inputs(program_inputs);
+    }
+
+    pub fn get_public_inputs<E: PairingEngine>(&self) -> Result<Vec<E::Fr>, CompilerError> {
+        Ok(self.program_inputs.get_public_inputs::<E>()?)
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -78,7 +83,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self,
         cs: &mut CS,
     ) -> Result<ConstrainedValue<F, G>, CompilerError> {
-        generate_constraints(cs, self.program, self.program_inputs.get_private_inputs())
+        generate_constraints(cs, self.program, self.program_inputs.get_inputs())
     }
 
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
@@ -99,7 +104,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = self.package_name.clone();
 
         self.program = Program::from(syntax_tree, package_name);
-        self.program_inputs.set_private_inputs_size(self.program.num_parameters);
+        self.program_inputs.set_inputs_size(self.program.num_parameters);
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
 
@@ -116,7 +121,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // println!("{:?}", syntax_tree);
 
         // Check number of private parameters here
-
         self.program_inputs = Inputs::from_inputs_file(syntax_tree)?;
 
         Ok(())
@@ -125,8 +129,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let _result =
-            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_private_inputs()).unwrap();
+        let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).unwrap();
 
         // Write results to file or something
 

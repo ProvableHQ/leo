@@ -10,7 +10,9 @@ use snarkos_algorithms::snark::{create_random_proof, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
 
 use clap::ArgMatches;
+use leo_compiler::{compiler::Compiler, edwards_bls12::EdwardsGroupType};
 use rand::thread_rng;
+use snarkos_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
@@ -18,7 +20,7 @@ pub struct ProveCommand;
 
 impl CLI for ProveCommand {
     type Options = ();
-    type Output = Proof<Bls12_377>;
+    type Output = (Compiler<Fq, EdwardsGroupType>, Proof<Bls12_377>);
 
     const ABOUT: AboutType = "Run the program and produce a proof";
     const ARGUMENTS: &'static [ArgumentType] = &[];
@@ -42,16 +44,12 @@ impl CLI for ProveCommand {
 
         // Fetch private inputs here
         program.parse_inputs(&path)?;
-        // let _res = LeoInputsParser::get_private(&path).unwrap();
-        // let inputs_path = path.clone().push("/inputs")
-        // LeoInputsParser::load_file()
-        // program.set_inputs();
 
         // Start the timer
         let start = Instant::now();
 
         let rng = &mut thread_rng();
-        let program_proof = create_random_proof(program, &parameters, rng).unwrap();
+        let program_proof = create_random_proof(program.clone(), &parameters, rng).unwrap();
 
         log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
@@ -62,6 +60,6 @@ impl CLI for ProveCommand {
 
         log::info!("Completed program proving");
 
-        Ok(program_proof)
+        Ok((program, program_proof))
     }
 }

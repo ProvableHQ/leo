@@ -5,6 +5,7 @@ use leo_compiler::{
 };
 use leo_types::{InputValue, Integer};
 
+use crate::array::input_value_u32_one;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint::UInt32};
 
@@ -84,7 +85,7 @@ fn test_function_input() {
     let bytes = include_bytes!("function_input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Integer(1))]);
+    program.set_inputs(vec![Some(input_value_u32_one())]);
     mut_fail(program);
 }
 
@@ -93,6 +94,6 @@ fn test_function_input_mut() {
     let bytes = include_bytes!("function_input_mut.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Integer(1))]);
+    program.set_inputs(vec![Some(input_value_u32_one())]);
     mut_success(program);
 }

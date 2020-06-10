@@ -1,2 +1,2 @@
 [main]
-a: private bool[2] = [true; 2];
+a: public u128 = 120;
