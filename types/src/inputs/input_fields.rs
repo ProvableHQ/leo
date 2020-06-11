@@ -42,16 +42,8 @@ impl<E: PairingEngine> InputFields<E> {
 
     pub(crate) fn from_group(group: &str) -> Result<Self, InputParserError> {
         let s = group.trim();
-        // if s.is_empty() {
-        //     return Err(());
-        // }
-        // if s.len() < 3 {
-        //     return Err(());
-        // }
-        // if !(s.starts_with('(') && s.ends_with(')')) {
-        //     return Err(());
-        // }
         let mut fields = vec![];
+
         for substr in s.split(|c| c == '(' || c == ')' || c == ',' || c == ' ') {
             if !substr.is_empty() {
                 let mut input_fields = InputFields::<E>::from_field(&substr)?;
