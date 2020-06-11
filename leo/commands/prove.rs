@@ -9,8 +9,10 @@ use crate::{
 use snarkos_algorithms::snark::{create_random_proof, PreparedVerifyingKey, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
 
+use crate::{directories::INPUTS_DIRECTORY_NAME, files::INPUTS_FILE_NAME};
 use clap::ArgMatches;
 use leo_compiler::{compiler::Compiler, edwards_bls12::EdwardsGroupType};
+use leo_inputs::LeoInputsParser;
 use rand::thread_rng;
 use snarkos_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, env::current_dir, time::Instant};
@@ -46,8 +48,14 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
+        // Construct the path to the inputs file in the inputs directory
+        let mut inputs_file_path = path.clone();
+        inputs_file_path.push(INPUTS_DIRECTORY_NAME);
+        inputs_file_path.push(INPUTS_FILE_NAME);
+
         // Fetch private inputs here
-        program.parse_inputs(&path)?;
+        let inputs_file_string = LeoInputsParser::load_file(&inputs_file_path)?;
+        program.parse_inputs(&inputs_file_path, &inputs_file_string)?;
 
         // Start the timer
         let start = Instant::now();

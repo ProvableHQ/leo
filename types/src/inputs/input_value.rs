@@ -5,6 +5,7 @@ use leo_inputs::{
     types::{ArrayType, DataType, IntegerType, Type},
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
+
 use snarkos_models::curves::PairingEngine;
 use std::fmt;
 

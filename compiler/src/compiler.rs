@@ -92,8 +92,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     fn load_program(&mut self) -> Result<String, CompilerError> {
         // Load the program syntax tree from the file path
-        let file_path = &self.main_file_path;
-        Ok(LeoParser::load_file(file_path)?)
+        Ok(LeoParser::load_file(&self.main_file_path)?)
     }
 
     pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
@@ -111,16 +110,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(())
     }
 
-    pub fn parse_inputs(&mut self, file_path: &PathBuf) -> Result<(), CompilerError> {
-        let mut path = file_path.clone();
-        path.push("inputs");
-        path.push("inputs.leo");
+    pub fn parse_inputs(&mut self, input_file_path: &PathBuf, input_file_string: &str) -> Result<(), CompilerError> {
+        let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
 
-        let input_file = &LeoInputsParser::load_file(&path)?;
-        let syntax_tree = LeoInputsParser::parse_file(&path, input_file)?;
-        // println!("{:?}", syntax_tree);
-
-        // Check number of private parameters here
+        // Check number/order of private parameters here
         self.program_inputs = Inputs::from_inputs_file(syntax_tree)?;
 
         Ok(())

@@ -1,5 +1,6 @@
 use crate::InputValue;
 use leo_inputs::{types::IntegerType, InputParserError};
+
 use snarkos_models::curves::{Field, PairingEngine};
 use std::str::FromStr;
 
