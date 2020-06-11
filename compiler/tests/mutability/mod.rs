@@ -3,7 +3,7 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use leo_types::{InputValue, Integer};
+use leo_types::Integer;
 
 use crate::array::input_value_u32_one;
 use snarkos_curves::edwards_bls12::Fq;

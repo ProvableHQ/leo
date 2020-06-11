@@ -3,7 +3,6 @@ use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use leo_types::InputValue;
 
 use crate::array::input_value_u32_one;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
