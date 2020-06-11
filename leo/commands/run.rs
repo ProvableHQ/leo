@@ -1,9 +1,4 @@
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::{ProveCommand, SetupCommand},
-    errors::CLIError,
-};
+use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
 
 use snarkos_algorithms::snark::verify_proof;
 use snarkos_curves::bls12_377::Bls12_377;
@@ -32,8 +27,7 @@ impl CLI for RunCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (_program, _parameters, prepared_verifying_key) = SetupCommand::output(options)?;
-        let (program, proof) = ProveCommand::output(options)?;
+        let (program, proof, prepared_verifying_key) = ProveCommand::output(options)?;
 
         let mut verifying = Duration::new(0, 0);
 
