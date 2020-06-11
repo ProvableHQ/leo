@@ -31,3 +31,15 @@ pub struct U64Type {}
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::type_u128))]
 pub struct U128Type {}
+
+impl std::fmt::Display for IntegerType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            IntegerType::U8Type(_) => write!(f, "u8"),
+            IntegerType::U16Type(_) => write!(f, "u16"),
+            IntegerType::U32Type(_) => write!(f, "u32"),
+            IntegerType::U64Type(_) => write!(f, "u64"),
+            IntegerType::U128Type(_) => write!(f, "u128"),
+        }
+    }
+}

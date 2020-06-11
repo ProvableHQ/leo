@@ -11,6 +11,9 @@ pub enum InputParserError {
     #[error("expected type {}, got {}", _0, _1)]
     IncompatibleTypes(String, String),
 
+    #[error("Program input value {} not found", _0)]
+    InputNotFound(String),
+
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 

@@ -13,8 +13,8 @@ pub enum Type<'ast> {
 impl<'ast> fmt::Display for Type<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::Basic(ref _type) => write!(f, "basic"),
-            Type::Array(ref _type) => write!(f, "array"),
+            Type::Basic(ref basic) => write!(f, "{}", basic),
+            Type::Array(ref array) => write!(f, "{}", array),
         }
     }
 }

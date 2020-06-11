@@ -103,7 +103,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = self.package_name.clone();
 
         self.program = Program::from(syntax_tree, package_name);
-        self.program_inputs.set_inputs_size(self.program.num_parameters);
+        self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
 
@@ -114,7 +114,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
 
         // Check number/order of private parameters here
-        self.program_inputs = Inputs::from_inputs_file(syntax_tree)?;
+        self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
 
         Ok(())
     }

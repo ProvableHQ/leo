@@ -28,8 +28,8 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
     }
 }
 
-impl fmt::Display for FunctionInput {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl FunctionInput {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: private bool
         if self.mutable {
             write!(f, "mut ")?;
@@ -41,5 +41,17 @@ impl fmt::Display for FunctionInput {
             write!(f, "public ")?;
         }
         write!(f, "{}", self._type)
+    }
+}
+
+impl fmt::Display for FunctionInput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Debug for FunctionInput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
     }
 }

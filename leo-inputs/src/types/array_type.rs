@@ -17,3 +17,13 @@ impl<'ast> ArrayType<'ast> {
         self.dimensions.pop()
     }
 }
+
+impl<'ast> std::fmt::Display for ArrayType<'ast> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self._type)?;
+        for row in &self.dimensions {
+            write!(f, "[{}]", row)?;
+        }
+        write!(f, "")
+    }
+}

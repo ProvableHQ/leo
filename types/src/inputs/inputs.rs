@@ -1,6 +1,7 @@
-use crate::InputValue;
+use crate::{FunctionInput, InputValue};
 use leo_inputs::{common::visibility::Visibility, files::File, InputParserError};
 
+use leo_inputs::common::Private;
 use snarkos_models::curves::PairingEngine;
 
 #[derive(Clone)]
@@ -29,20 +30,43 @@ impl Inputs {
         self.program_inputs = vec![None; size];
     }
 
-    pub fn from_inputs_file(file: File) -> Result<Self, InputParserError> {
+    pub fn from_inputs_file(file: File, expected_inputs: Vec<FunctionInput>) -> Result<Self, InputParserError> {
         let mut private = vec![];
         let mut public = vec![];
 
         for section in file.sections.into_iter() {
-            for assignment in section.assignments.into_iter() {
-                let value = InputValue::from_expression(assignment.parameter.type_, assignment.expression)?;
-                if let Some(Visibility::Public(_)) = assignment.parameter.visibility {
-                    // Collect public inputs here
-                    public.push(value.clone());
-                }
+            if section.header.name.value.eq("main") {
+                for input in &expected_inputs {
+                    // find input with matching name
+                    let matched_input = section.assignments.clone().into_iter().find(|assignment| {
+                        let visibility = assignment
+                            .parameter
+                            .visibility
+                            .as_ref()
+                            .map_or(true, |visibility| visibility.eq(&Visibility::Private(Private {})));
 
-                // push value to vector
-                private.push(Some(value));
+                        // name match
+                        assignment.parameter.variable.value.eq(&input.identifier.name)
+                                // visibility match
+                                && visibility.eq(&input.private)
+                                // type match
+                                && assignment.parameter.type_.to_string().eq(&input._type.to_string())
+                    });
+
+                    match matched_input {
+                        Some(assignment) => {
+                            let value = InputValue::from_expression(assignment.parameter.type_, assignment.expression)?;
+                            if let Some(Visibility::Public(_)) = assignment.parameter.visibility {
+                                // Collect public inputs here
+                                public.push(value.clone());
+                            }
+
+                            // push value to vector
+                            private.push(Some(value));
+                        }
+                        None => return Err(InputParserError::InputNotFound(input.to_string())),
+                    }
+                }
             }
         }
 

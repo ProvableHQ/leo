@@ -5,6 +5,7 @@ pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
+pub mod inputs;
 pub mod integers;
 pub mod mutability;
 pub mod statements;
@@ -54,11 +55,11 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 }
 
 pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
-    let program_string = String::from_utf8_lossy(bytes);
+    let inputs_string = String::from_utf8_lossy(bytes);
 
     let mut compiler = EdwardsTestCompiler::new();
 
-    compiler.parse_inputs(&PathBuf::new(), &program_string)?;
+    compiler.parse_inputs(&PathBuf::new(), &inputs_string)?;
 
     Ok(compiler)
 }

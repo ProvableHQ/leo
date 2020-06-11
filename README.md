@@ -388,7 +388,7 @@ Public and private inputs for a Leo program are specified in the `inputs/` direc
 ## Sections
 A Leo input file is made up of sections. Sections are defined by a section header in brackets followed by one or more input definitions. 
 
-Section headers specify the target file which must have a main function with matching input names and types defined in the same order.
+Section headers specify the target file which must have a main function with matching input names and types.
 
 `inputs/inputs.leo`
 
