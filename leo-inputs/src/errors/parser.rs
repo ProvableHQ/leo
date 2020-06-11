@@ -20,6 +20,9 @@ pub enum InputParserError {
     #[error("{}", _0)]
     ParseIntError(#[from] ParseIntError),
 
+    #[error("cannot parse {} as field", _0)]
+    ParseFieldError(String),
+
     #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
 

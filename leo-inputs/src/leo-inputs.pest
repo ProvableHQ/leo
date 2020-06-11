@@ -15,7 +15,7 @@ visibility_private = { "private" }
 /// Types
 
 // Declared in types/type_.rs
-type_ = { type_array | type_data | type_circuit }
+type_ = { type_array | type_data }
 
 // Declared in types/integer_type.rs
 type_integer = {
@@ -42,9 +42,6 @@ type_boolean = { "bool" }
 
 // Declared in types/data_type.rs
 type_data = { type_field | type_group | type_boolean | type_integer }
-
-// Declared in types/circuit_type.rs
-type_circuit = { identifier }
 
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ value_number ~ "]")+ }
@@ -83,18 +80,11 @@ expression_array_initializer = { "[" ~ expression ~ ";" ~ value_number ~ "]" }
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
 
-// Declared in expressions/circuit_inline_expression.rs
-expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
-circuit_field = { identifier ~ ":" ~ expression }
-circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
-
 // Declared in expressions/expression.rs
 expression = {
-    expression_circuit_inline
-    | expression_array_inline
+    expression_array_inline
     | expression_array_initializer
     | value
-    | identifier
 }
 
 /// Parameters

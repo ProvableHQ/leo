@@ -37,7 +37,6 @@ impl Inputs {
                 let value = InputValue::from_expression(assignment.parameter.type_, assignment.expression)?;
                 if let Some(Visibility::Public(_)) = assignment.parameter.visibility {
                     // Collect public inputs here
-
                     public.push(value.clone());
                 }
 

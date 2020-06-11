@@ -9,7 +9,6 @@ pub use errors::*;
 //extern crate from_pest;
 pub mod assignments;
 mod ast;
-pub mod circuits;
 pub mod common;
 pub mod expressions;
 pub mod files;

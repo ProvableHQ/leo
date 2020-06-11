@@ -8,7 +8,6 @@ use std::fmt;
 pub enum Type<'ast> {
     Basic(DataType),
     Array(ArrayType<'ast>),
-    Circuit(CircuitType<'ast>),
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
@@ -16,7 +15,6 @@ impl<'ast> fmt::Display for Type<'ast> {
         match *self {
             Type::Basic(ref _type) => write!(f, "basic"),
             Type::Array(ref _type) => write!(f, "array"),
-            Type::Circuit(ref _type) => write!(f, "struct"),
         }
     }
 }

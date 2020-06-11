@@ -1,2 +1,2 @@
 [main]
-a: public u128 = 120;
+a: public group = (0, 1)group;

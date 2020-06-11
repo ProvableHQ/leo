@@ -73,8 +73,6 @@ impl<'ast> InputValue {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
-            (Type::Circuit(_), Expression::CircuitInline(_)) => unimplemented!("circuit input values not supported"),
-            (Type::Basic(_), Expression::Variable(_)) => unimplemented!("variable input values not supported"),
             (type_, value) => Err(InputParserError::IncompatibleTypes(
                 type_.to_string(),
                 value.to_string(),
@@ -154,10 +152,10 @@ impl<'ast> InputValue {
     pub(crate) fn to_input_fields<E: PairingEngine>(&self) -> Result<InputFields<E>, InputParserError> {
         match self {
             InputValue::Boolean(boolean) => Ok(InputFields::from_boolean(boolean)),
-            InputValue::Integer(type_, number) => InputFields::from_integer(type_, number),
-            InputValue::Group(_) => unimplemented!(),
-            InputValue::Field(_) => unimplemented!(),
-            InputValue::Array(_) => unimplemented!(),
+            InputValue::Integer(type_, number) => Ok(InputFields::from_integer(type_, number)),
+            InputValue::Group(group) => InputFields::from_group(group),
+            InputValue::Field(field) => InputFields::from_field(field),
+            InputValue::Array(array) => InputFields::from_array(array),
         }
     }
 }

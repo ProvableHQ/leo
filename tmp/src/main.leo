@@ -1,4 +1,4 @@
 // The 'tmp' main function.
-function main(a: public u128) -> u128 {
+function main(a: public group) -> group {
     return a
 }

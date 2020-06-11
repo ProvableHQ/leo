@@ -49,7 +49,7 @@ impl CLI for ProveCommand {
         let start = Instant::now();
 
         let rng = &mut thread_rng();
-        let program_proof = create_random_proof(program.clone(), &parameters, rng).unwrap();
+        let program_proof = create_random_proof(program.clone(), &parameters, rng)?;
 
         log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
