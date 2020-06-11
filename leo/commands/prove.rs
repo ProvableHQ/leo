@@ -53,7 +53,7 @@ impl CLI for ProveCommand {
         inputs_file_path.push(INPUTS_DIRECTORY_NAME);
         inputs_file_path.push(INPUTS_FILE_NAME);
 
-        // Fetch private inputs here
+        // Fetch program inputs here
         let inputs_file_string = LeoInputsParser::load_file(&inputs_file_path)?;
         program.parse_inputs(&inputs_file_path, &inputs_file_string)?;
 

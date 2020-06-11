@@ -381,6 +381,49 @@ test function expect_fail() {
 }
 ```
 
+# Leo Inputs
+
+Public and private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
+
+## Sections
+A Leo input file is made up of sections. Sections are defined by a section header in brackets followed by one or more input definitions. 
+
+Section headers specify the target file which must have a main function with matching input names and types defined in the same order.
+
+`inputs/inputs.leo`
+
+```rust
+[main] // <- section header
+a: private u32 = 1; // <- private input
+b: public u32  = 2; // <- public input
+```
+
+`src/main.leo`
+
+```rust
+function main(a: private u32, b: public u32) -> u32 {
+    let c: u32 = a + b;
+    return c
+}
+```
+
+## Input Definitions
+
+### Supported types
+```rust
+[main]
+a: bool  = true;       // <- booleans
+b: u8    = 2;          // <- integers
+c: field = 0;          // <- fields
+d: group = (0, 1)group // <- group tuples
+```
+
+### Arrays
+```rust
+[main]
+a: private u8[4]    = [0u8; 4];      // <- single
+b: private u8[2][3] = [[0u8; 2]; 3]; // <- multi-dimensional
+```
 
 # Leo CLI
 
@@ -395,6 +438,7 @@ leo new {$NAME}
 This will create a new directory with a given package name. The new package will have a directory structure as follows:
 ```
 - inputs # Your program inputs
+    - inputs.leo # Your program inputs for main.leo
 - outputs # Your program outputs
 - src
     - lib.leo # Your program library
@@ -454,6 +498,8 @@ To execute the program and produce an execution proof, run:
 leo prove
 ```
 Leo starts by checking the `target` directory for an existing `.leo.pk` file. If it doesn't exist, it will proceed to run `leo setup` and then continue.
+
+Next any input files in the `inputs` directory are parsed and all input values are passed to the program.
 
 Once again, Leo uses cryptographic randomness from your machine to produce the proof. The proof is stored in the `target` directory as `.leo.proof`:
 
