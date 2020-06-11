@@ -1,6 +1,9 @@
 pub mod checksum;
 pub use self::checksum::*;
 
+pub mod inputs;
+pub use self::inputs::*;
+
 pub mod gitignore;
 pub use self::gitignore::*;
 

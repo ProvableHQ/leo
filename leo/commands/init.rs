@@ -6,6 +6,7 @@ use crate::{
     files::{Gitignore, MainFile, Manifest},
 };
 
+use crate::files::InputsFile;
 use clap::ArgMatches;
 use std::env::current_dir;
 
@@ -64,6 +65,12 @@ impl CLI for InitCommand {
 
         // Create the inputs directory
         InputsDirectory::create(&path)?;
+
+        // Verify the inputs file does not exist
+        if !InputsFile::exists_at(&path) {
+            // Create the main file in the source directory
+            InputsFile::new(&package_name).write_to(&path)?;
+        }
 
         // Verify the main file does not exist
         if !MainFile::exists_at(&path) {

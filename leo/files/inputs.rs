@@ -1,18 +1,18 @@
-//! The `main.leo` file.
+//! The `inputs.leo` file.
 
-use crate::{directories::source::SOURCE_DIRECTORY_NAME, errors::MainFileError};
+use crate::{directories::inputs::INPUTS_DIRECTORY_NAME, errors::MainFileError};
 
 use serde::Deserialize;
 use std::{fs::File, io::Write, path::PathBuf};
 
-pub static MAIN_FILE_NAME: &str = "main.leo";
+pub static INPUTS_FILE_NAME: &str = "inputs.leo";
 
 #[derive(Deserialize)]
-pub struct MainFile {
+pub struct InputsFile {
     pub package_name: String,
 }
 
-impl MainFile {
+impl InputsFile {
     pub fn new(package_name: &str) -> Self {
         Self {
             package_name: package_name.to_string(),
@@ -22,10 +22,10 @@ impl MainFile {
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(MAIN_FILE_NAME));
+            path.push(PathBuf::from(INPUTS_FILE_NAME));
         }
         path.exists()
     }
@@ -33,10 +33,10 @@ impl MainFile {
     pub fn write_to(self, path: &PathBuf) -> Result<(), MainFileError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(MAIN_FILE_NAME));
+            path.push(PathBuf::from(INPUTS_FILE_NAME));
         }
 
         let mut file = File::create(&path)?;
@@ -45,11 +45,10 @@ impl MainFile {
 
     fn template(&self) -> String {
         format!(
-            r#"// The '{}' main function.
-function main(a: private u32, b: public u32) -> u32 {{
-    let c: u32 = a + b;
-    return c
-}}
+            r#"// The inputs for {}/src/main.leo
+[main]
+a: private u32 = 1;
+b: public u32 = 2;
 "#,
             self.package_name
         )
