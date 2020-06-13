@@ -8,7 +8,7 @@ use snarkos_models::{
         r1cs::ConstraintSystem,
         utilities::{
             alloc::AllocGadget,
-            eq::{ConditionalEqGadget, EqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             ToBitsGadget,
             ToBytesGadget,
@@ -24,6 +24,7 @@ pub trait GroupType<F: Field>:
     + Clone
     + Debug
     + Display
+    + EvaluateEqGadget<F>
     + EqGadget<F>
     + ConditionalEqGadget<F>
     + AllocGadget<String, F>

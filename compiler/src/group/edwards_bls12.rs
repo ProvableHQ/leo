@@ -14,7 +14,7 @@ use snarkos_models::{
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
             ToBitsGadget,
@@ -164,6 +164,40 @@ impl PartialEq for EdwardsGroupType {
 }
 
 impl Eq for EdwardsGroupType {}
+
+impl EvaluateEqGadget<Fq> for EdwardsGroupType {
+    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        match (self, other) {
+            (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
+                Ok(Boolean::Constant(self_value == other_value))
+            }
+
+            (EdwardsGroupType::Allocated(self_value), EdwardsGroupType::Allocated(other_value)) => {
+                let bool_option =
+                    <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::get_value(self_value)
+                        .and_then(|a| {
+                            <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::get_value(
+                                other_value,
+                            )
+                            .map(|b| a.eq(&b))
+                        });
+                Boolean::alloc(&mut cs.ns(|| "evaluate_equal"), || {
+                    bool_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+            }
+
+            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+                let bool_option =
+                    <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::get_value(allocated_value)
+                        .map(|a| a.eq(constant_value));
+                Boolean::alloc(&mut cs.ns(|| "evaluate_equal"), || {
+                    bool_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+            }
+        }
+    }
+}
 
 impl EqGadget<Fq> for EdwardsGroupType {}
 

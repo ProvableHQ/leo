@@ -200,10 +200,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 num_1.evaluate_equal(expression_namespace, &num_2)?
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Boolean::Constant(fe_1.eq(&fe_2)) //TODO impl evaluate eq gadget
+                fe_1.evaluate_equal(expression_namespace, &fe_2)?
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Boolean::Constant(ge_1.eq(&ge_2)) //TODO impl evaluate eq gadget
+                ge_1.evaluate_equal(expression_namespace, &ge_2)?
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
