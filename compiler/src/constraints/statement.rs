@@ -333,7 +333,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(res)
     }
 
-    /// Enforces a conditional statement with one or more branches.
+    /// Enforces a statements.conditional statement with one or more branches.
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator bit` down to all child statements within each branch.
     /// The `indicator bit` will select that branch while keeping the constraint system satisfied.
@@ -382,7 +382,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     return_types,
                 ),
             },
-            None => Ok(None), // this is an if with no else, have to pass conditional down to next statements somehow
+            None => Ok(None), // this is an if with no else, have to pass statements.conditional down to next statements somehow
         }
     }
 

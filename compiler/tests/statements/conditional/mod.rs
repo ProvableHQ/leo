@@ -19,7 +19,7 @@ fn empty_output_satisfied(program: EdwardsTestCompiler) {
     assert_eq!(EdwardsConstrainedValue::Return(vec![]).to_string(), output.to_string());
 }
 
-// Tests a conditional enforceBit() program
+// Tests a statements.conditional enforceBit() program
 //
 // function main(bit: private u8) {
 //     if bit == 1u8 {

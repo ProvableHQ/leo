@@ -17,7 +17,7 @@ function main() -> u32 {
 Function mutateNoLet(b: bool) {
   let mut a = 5;
   if b {
-    // must be turned into conditional expression
+    // must be turned into statements.conditional expression
     a = 0;
     // a = if b ? 0 : a;
   } else {

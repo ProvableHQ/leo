@@ -37,7 +37,7 @@ pub enum StatementError {
     #[error("Assertion {:?} == {:?} failed", _0, _1)]
     AssertionFailed(String, String),
 
-    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
+    #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
 
     #[error("Cannot assign to immutable variable {}", _0)]

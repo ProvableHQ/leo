@@ -336,7 +336,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    /// Enforce ternary conditional expression
+    /// Enforce ternary statements.conditional expression
     fn enforce_conditional_expression(
         &mut self,
         cs: &mut CS,
@@ -379,7 +379,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 let result = G::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
                 Ok(ConstrainedValue::Group(result))
             }
-            (_, _) => unimplemented!("conditional select gadget not implemented between given types"),
+            (_, _) => unimplemented!("statements.conditional select gadget not implemented between given types"),
         }
     }
 
