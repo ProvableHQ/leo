@@ -7,6 +7,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
+use leo_inputs::types::{IntegerType, U128Type};
 use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -30,7 +31,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt128) {
 #[test]
 #[ignore] // temporarily ignore memory expensive tests for travis
 fn test_u128() {
-    test_uint!(TestU128, u128, UInt128);
+    test_uint!(TestU128, u128, IntegerType::U128Type(U128Type {}), UInt128);
 
     TestU128::test_min(std::u128::MIN);
     TestU128::test_max(std::u128::MAX);

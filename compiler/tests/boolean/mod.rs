@@ -3,8 +3,8 @@ use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use leo_types::InputValue;
 
+use crate::array::input_value_u32_one;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
@@ -76,7 +76,7 @@ fn test_input_bool_field() {
     let bytes = include_bytes!("input_bool.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
+    program.set_inputs(vec![Some(input_value_u32_one())]);
 
     fail_boolean(program);
 }

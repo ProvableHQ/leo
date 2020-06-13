@@ -1,5 +1,6 @@
 use crate::errors::{FunctionError, ImportError};
 use leo_ast::{ParserError, SyntaxError};
+use leo_inputs::InputParserError;
 use leo_types::IntegerError;
 
 use std::{io, path::PathBuf};
@@ -14,6 +15,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
+
+    #[error("{}", _0)]
+    InputParserError(#[from] InputParserError),
 
     #[error("{}", _0)]
     IntegerError(#[from] IntegerError),

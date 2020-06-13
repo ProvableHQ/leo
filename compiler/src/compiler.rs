@@ -6,7 +6,8 @@ use crate::{
     GroupType,
 };
 use leo_ast::LeoParser;
-use leo_types::{InputValue, Program};
+use leo_inputs::LeoInputsParser;
+use leo_types::{InputValue, Inputs, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -15,6 +16,7 @@ use snarkos_models::{
 };
 
 use sha2::{Digest, Sha256};
+use snarkos_models::curves::PairingEngine;
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
@@ -22,7 +24,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program,
-    program_inputs: Vec<Option<InputValue>>,
+    program_inputs: Inputs,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
@@ -33,7 +35,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             package_name: "".to_string(),
             main_file_path: PathBuf::new(),
             program: Program::new(),
-            program_inputs: vec![],
+            program_inputs: Inputs::new(),
             output: None,
             _engine: PhantomData,
         }
@@ -44,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             package_name,
             main_file_path,
             program: Program::new(),
-            program_inputs: vec![],
+            program_inputs: Inputs::new(),
             output: None,
             _engine: PhantomData,
         };
@@ -57,7 +59,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
-        self.program_inputs = program_inputs;
+        self.program_inputs.set_inputs(program_inputs);
+    }
+
+    pub fn get_public_inputs<E: PairingEngine>(&self) -> Result<Vec<E::Fr>, CompilerError> {
+        Ok(self.program_inputs.get_public_inputs::<E>()?)
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -77,7 +83,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self,
         cs: &mut CS,
     ) -> Result<ConstrainedValue<F, G>, CompilerError> {
-        generate_constraints(cs, self.program, self.program_inputs)
+        generate_constraints(cs, self.program, self.program_inputs.get_inputs())
     }
 
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
@@ -86,8 +92,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     fn load_program(&mut self) -> Result<String, CompilerError> {
         // Load the program syntax tree from the file path
-        let file_path = &self.main_file_path;
-        Ok(LeoParser::load_file(file_path)?)
+        Ok(LeoParser::load_file(&self.main_file_path)?)
     }
 
     pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
@@ -98,9 +103,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = self.package_name.clone();
 
         self.program = Program::from(syntax_tree, package_name);
-        self.program_inputs = vec![None; self.program.num_parameters];
+        self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
+
+        Ok(())
+    }
+
+    pub fn parse_inputs(&mut self, input_file_path: &PathBuf, input_file_string: &str) -> Result<(), CompilerError> {
+        let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
+
+        // Check number/order of private parameters here
+        self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
 
         Ok(())
     }
@@ -108,7 +122,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs).unwrap();
+        let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).unwrap();
 
         // Write results to file or something
 

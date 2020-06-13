@@ -5,6 +5,7 @@ use leo_compiler::{
 };
 use leo_types::{InputValue, Integer, IntegerError};
 
+use leo_inputs::types::{IntegerType, U32Type};
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
 // [1, 1, 1]
@@ -50,6 +51,10 @@ fn fail_synthesis(program: EdwardsTestCompiler) {
         CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
         error => panic!("Expected synthesis error, got {}", error),
     }
+}
+
+pub(crate) fn input_value_u32_one() -> InputValue {
+    InputValue::Integer(IntegerType::U32Type(U32Type {}), 1)
 }
 
 // Expressions
@@ -101,7 +106,7 @@ fn test_input_array() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Array(vec![InputValue::Integer(1u128); 3]))]);
+    program.set_inputs(vec![Some(InputValue::Array(vec![input_value_u32_one(); 3]))]);
 
     output_ones(program)
 }
@@ -111,7 +116,7 @@ fn test_input_array_fail() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Integer(1u128))]);
+    program.set_inputs(vec![Some(input_value_u32_one())]);
 
     fail_array(program);
 }

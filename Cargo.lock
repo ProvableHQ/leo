@@ -515,6 +515,7 @@ dependencies = [
  "env_logger",
  "from-pest",
  "leo-compiler",
+ "leo-inputs",
  "log",
  "rand",
  "rand_core",
@@ -550,6 +551,7 @@ version = "0.1.0"
 dependencies = [
  "hex",
  "leo-ast",
+ "leo-inputs",
  "leo-types",
  "log",
  "rand",
@@ -563,10 +565,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-inputs"
+version = "0.1.0"
+dependencies = [
+ "from-pest",
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+ "thiserror",
+]
+
+[[package]]
 name = "leo-types"
 version = "0.1.0"
 dependencies = [
  "leo-ast",
+ "leo-inputs",
  "snarkos-errors",
  "snarkos-models",
  "thiserror",
