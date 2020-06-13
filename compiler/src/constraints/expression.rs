@@ -185,17 +185,20 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     }
 
     /// Evaluate Boolean operations
-    fn evaluate_eq_expression(
+    fn evaluate_eq_expression<CSM: ConstraintSystem<F>>(
         &mut self,
-        cs: &mut CS,
+        cs: &mut CSM,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        let mut expression_namespace = cs.ns(|| format!("evaluate {} == {}", left.to_string(), right.to_string()));
         let result_bool = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                bool_1.evaluate_equal(cs, &bool_2)?
+                bool_1.evaluate_equal(expression_namespace, &bool_2)?
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.evaluate_equal(cs, &num_2)?,
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                num_1.evaluate_equal(expression_namespace, &num_2)?
+            }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Boolean::Constant(fe_1.eq(&fe_2)) //TODO impl evaluate eq gadget
             }
@@ -204,11 +207,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
-                return self.evaluate_eq_expression(cs, val_1, val_2);
+                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
-                return self.evaluate_eq_expression(cs, val_1, val_2);
+                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2);
             }
             (val_1, val_2) => return Err(ExpressionError::IncompatibleTypes(format!("{} == {}", val_1, val_2,))),
         };

@@ -342,11 +342,15 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statement: ConditionalStatement,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
+        let statement_string = statement.to_string();
+        let outer_indicator = indicator.unwrap_or(Boolean::Constant(true));
+
         let expected_types = vec![Type::Boolean];
-        let indicator = match self.enforce_expression(
+        let inner_indicator = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -357,27 +361,45 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             value => return Err(StatementError::IfElseConditional(value.to_string())),
         };
 
+        // Determine nested branch selection
+        let branch_1_indicator = Boolean::and(
+            &mut cs.ns(|| format!("statement branch 1 indicator {}", statement_string)),
+            &outer_indicator,
+            &inner_indicator,
+        )?;
+
         // Execute branch 1
         self.evaluate_branch(
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            Some(indicator),
+            Some(branch_1_indicator),
             statement.statements,
             return_types.clone(),
         )?;
 
         // Execute branch 2
+        let branch_2_indicator = Boolean::and(
+            &mut cs.ns(|| format!("statement branch 2 indicator {}", statement_string)),
+            &outer_indicator,
+            &inner_indicator.not(),
+        )?;
+
         match statement.next {
             Some(next) => match next {
-                ConditionalNestedOrEndStatement::Nested(nested) => {
-                    self.enforce_conditional_statement(cs, file_scope, function_scope, *nested, return_types)
-                }
+                ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    Some(branch_2_indicator),
+                    *nested,
+                    return_types,
+                ),
                 ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
                     cs,
                     file_scope,
                     function_scope,
-                    Some(indicator.not()),
+                    Some(branch_2_indicator),
                     statements,
                     return_types,
                 ),
@@ -465,9 +487,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function)?;
             }
             Statement::Conditional(statement) => {
-                if let Some(early_return) =
-                    self.enforce_conditional_statement(cs, file_scope, function_scope, statement, return_types)?
-                {
+                if let Some(early_return) = self.enforce_conditional_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    statement,
+                    return_types,
+                )? {
                     res = Some(early_return)
                 }
             }
