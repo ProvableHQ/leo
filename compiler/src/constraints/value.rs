@@ -3,11 +3,17 @@
 use crate::{errors::ValueError, FieldType, GroupType};
 use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Type};
 
+use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::utilities::{
-        boolean::Boolean,
-        uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{
+            boolean::Boolean,
+            eq::ConditionalEqGadget,
+            select::CondSelectGadget,
+            uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+        },
     },
 };
 use std::fmt;
@@ -137,5 +143,120 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
 impl<F: Field + PrimeField, G: GroupType<F>> fmt::Debug for ConstrainedValue<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
+    }
+}
+
+impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for ConstrainedValue<F, G> {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        mut cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        match (self, other) {
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => bool_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
+                bool_2,
+                &condition,
+            ),
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
+                num_2,
+                &condition,
+            ),
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => field_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
+                field_2,
+                &condition,
+            ),
+            (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => group_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
+                group_2,
+                &condition,
+            ),
+            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
+                for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
+                    left.conditional_enforce_equal(
+                        cs.ns(|| format!("array[{}] equal {} == {}", i, left.to_string(), right.to_string())),
+                        right,
+                        &condition,
+                    )?;
+                }
+                Ok(())
+            }
+            (_, _) => return Err(SynthesisError::Unsatisfiable),
+        }
+    }
+
+    fn cost() -> usize {
+        unimplemented!()
+    }
+}
+
+impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValue<F, G> {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        mut cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        Ok(match (first, second) {
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
+                ConstrainedValue::Boolean(Boolean::conditionally_select(
+                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
+                    cond,
+                    bool_1,
+                    bool_2,
+                )?)
+            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                ConstrainedValue::Integer(Integer::conditionally_select(
+                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
+                    cond,
+                    num_1,
+                    num_2,
+                )?)
+            }
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                ConstrainedValue::Field(FieldType::conditionally_select(
+                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
+                    cond,
+                    field_1,
+                    field_2,
+                )?)
+            }
+            (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
+                ConstrainedValue::Group(G::conditionally_select(
+                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
+                    cond,
+                    group_1,
+                    group_2,
+                )?)
+            }
+            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
+                let mut array = vec![];
+                for (i, (first, second)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
+                    array.push(Self::conditionally_select(
+                        cs.ns(|| {
+                            format!(
+                                "array[{}] = if cond ? {} else {}",
+                                i,
+                                first.to_string(),
+                                second.to_string()
+                            )
+                        }),
+                        cond,
+                        first,
+                        second,
+                    )?);
+                }
+                ConstrainedValue::Array(array)
+            }
+            (_, _) => return Err(SynthesisError::Unsatisfiable),
+        })
+    }
+
+    fn cost() -> usize {
+        unimplemented!() //lower bound 1, upper bound 128 or length of static array
     }
 }

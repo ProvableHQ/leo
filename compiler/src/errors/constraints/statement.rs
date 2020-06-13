@@ -49,6 +49,9 @@ pub enum StatementError {
     #[error("Function return statement expected {} return values, got {}", _0, _1)]
     InvalidNumberOfReturns(usize, usize),
 
+    #[error("Conditional select gadget failed to select between {} or {}", _0, _1)]
+    SelectFail(String, String),
+
     #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
 

@@ -1,6 +1,14 @@
-use crate::{get_output, parse_program, EdwardsConstrainedValue, EdwardsTestCompiler};
-use leo_inputs::types::{IntegerType, U8Type};
+use crate::{
+    boolean::{output_false, output_true},
+    get_output,
+    integers::u32::{output_one, output_zero},
+    parse_program,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
+use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::InputValue;
+
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
@@ -28,18 +36,35 @@ fn conditional_basic() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U8Type(U8Type {}), 1))]);
+    program_1_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1))]);
     empty_output_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U8Type(U8Type {}), 0))]);
+    program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0))]);
     empty_output_satisfied(program_0_pass);
 
     // Check that an input value of 2 does not satisfy the constraint system
 
-    program_2_fail.set_inputs(vec![Some(InputValue::Integer(IntegerType::U8Type(U8Type {}), 2))]);
+    program_2_fail.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2))]);
     let mut cs = TestConstraintSystem::<Fq>::new();
     let _output = program_2_fail.compile_constraints(&mut cs).unwrap();
     assert!(!cs.is_satisfied());
+}
+
+#[test]
+fn conditional_mutate() {
+    let bytes = include_bytes!("conditional_mutate.leo");
+    let mut program_1_true = parse_program(bytes).unwrap();
+    let mut program_0_pass = program_1_true.clone();
+
+    // Check that an input value of 1 satisfies the constraint system
+
+    program_1_true.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1))]);
+    output_one(program_1_true);
+
+    // Check that an input value of 0 satisfies the constraint system
+
+    program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0))]);
+    output_zero(program_0_pass);
 }

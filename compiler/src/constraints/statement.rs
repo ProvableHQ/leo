@@ -23,7 +23,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint::UInt32},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget, uint::UInt32},
     },
 };
 
@@ -52,10 +52,13 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         name: String,
         range_or_expression: RangeOrExpression,
         new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
@@ -64,7 +67,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
                     ConstrainedValue::Array(old) => {
-                        old[index] = new_value;
+                        let selected_value =
+                            ConstrainedValue::conditionally_select(cs, &condition, &new_value, &old[index]).map_err(
+                                |_| StatementError::SelectFail(new_value.to_string(), old[index].to_string()),
+                            )?;
+                        old[index] = selected_value;
                     }
                     _ => return Err(StatementError::ArrayAssignIndex),
                 }
@@ -79,14 +86,20 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     None => None,
                 };
 
-                // Modify the range of values of the array in place
-                match (self.get_mutable_assignee(name)?, new_value) {
-                    (ConstrainedValue::Array(old), ConstrainedValue::Array(ref new)) => {
-                        let to_index = to_index_option.unwrap_or(old.len());
-                        old.splice(from_index..to_index, new.iter().cloned());
+                // Modify the range of values of the array
+                let old_array = self.get_mutable_assignee(name)?;
+                let new_array = match (old_array.clone(), new_value) {
+                    (ConstrainedValue::Array(mut mutable), ConstrainedValue::Array(new)) => {
+                        let to_index = to_index_option.unwrap_or(mutable.len());
+
+                        mutable.splice(from_index..to_index, new.iter().cloned());
+                        ConstrainedValue::Array(mutable)
                     }
                     _ => return Err(StatementError::ArrayAssignRange),
-                }
+                };
+                let selected_array = ConstrainedValue::conditionally_select(cs, &condition, &new_array, old_array)
+                    .map_err(|_| StatementError::SelectFail(new_array.to_string(), old_array.to_string()))?;
+                *old_array = selected_array;
             }
         }
 
@@ -95,10 +108,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
 
     fn mutute_circuit_field(
         &mut self,
+        cs: &mut CS,
+        indicator: Option<Boolean>,
         circuit_name: String,
         object_name: Identifier,
         new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+
         match self.get_mutable_assignee(circuit_name)? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit field in place
@@ -114,7 +131,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                         ConstrainedValue::Static(_value) => {
                             return Err(StatementError::ImmutableCircuitFunction("static".into()));
                         }
-                        _ => object.1 = new_value.to_owned(),
+                        _ => {
+                            let selected_value = ConstrainedValue::conditionally_select(
+                                cs, &condition, &new_value, &object.1,
+                            )
+                            .map_err(|_| StatementError::SelectFail(new_value.to_string(), object.1.to_string()))?;
+
+                            object.1 = selected_value.to_owned();
+                        }
                     },
                     None => return Err(StatementError::UndefinedCircuitObject(object_name.to_string())),
                 }
@@ -130,6 +154,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         assignee: Assignee,
         expression: Expression,
     ) -> Result<(), StatementError> {
@@ -142,9 +167,12 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         // Mutate the old value into the new value
         match assignee {
             Assignee::Identifier(_identifier) => {
+                let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone())?;
+                let selected_value = ConstrainedValue::conditionally_select(cs, &condition, &new_value, old_value)
+                    .map_err(|_| StatementError::SelectFail(new_value.to_string(), old_value.to_string()))?;
 
-                *old_value = new_value;
+                *old_value = selected_value;
 
                 Ok(())
             }
@@ -152,12 +180,13 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 cs,
                 file_scope,
                 function_scope,
+                indicator,
                 variable_name,
                 range_or_expression,
                 new_value,
             ),
             Assignee::CircuitField(_assignee, object_name) => {
-                self.mutute_circuit_field(variable_name, object_name, new_value)
+                self.mutute_circuit_field(cs, indicator, variable_name, object_name, new_value)
             }
         }
     }
@@ -404,36 +433,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: &ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
-
-        let result = match (left, right) {
-            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => bool_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
-                bool_2,
-                &condition,
-            ),
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
-                num_2,
-                &condition,
-            ),
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
-                fe_2,
-                &condition,
-            ),
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => ge_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
-                ge_2,
-                &condition,
-            ),
-            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
-                for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
-                    self.enforce_assert_eq_statement(cs, indicator.clone(), left, right)?;
-                }
-                Ok(())
-            }
-            (val_1, val_2) => return Err(StatementError::AssertEq(val_1.to_string(), val_2.to_string())),
-        };
+        let result = left.conditional_enforce_equal(cs, right, &condition);
 
         Ok(result.map_err(|_| StatementError::AssertionFailed(left.to_string(), right.to_string()))?)
     }
@@ -456,7 +456,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 self.enforce_definition_statement(cs, file_scope, function_scope, variable, expression)?;
             }
             Statement::Assign(variable, expression) => {
-                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression)?;
+                self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression)?;
             }
             Statement::MultipleAssign(variables, function) => {
                 self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function)?;
