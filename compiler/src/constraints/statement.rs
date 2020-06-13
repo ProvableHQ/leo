@@ -404,19 +404,28 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: &ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
+
         let result = match (left, right) {
-            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                bool_1.conditional_enforce_equal(cs, bool_2, &condition)
-            }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.conditional_enforce_equal(cs, num_2, &condition)
-            }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                fe_1.conditional_enforce_equal(cs, fe_2, &condition)
-            }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                ge_1.conditional_enforce_equal(cs, ge_2, &condition)
-            }
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => bool_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
+                bool_2,
+                &condition,
+            ),
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
+                num_2,
+                &condition,
+            ),
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
+                fe_2,
+                &condition,
+            ),
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => ge_1.conditional_enforce_equal(
+                cs.ns(|| format!("{} == {}", left.to_string(), right.to_string())),
+                ge_2,
+                &condition,
+            ),
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
                     self.enforce_assert_eq_statement(cs, indicator.clone(), left, right)?;
