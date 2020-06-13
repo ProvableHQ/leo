@@ -87,6 +87,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 cs,
                 scope.clone(),
                 function_name.clone(),
+                None,
                 statement.clone(),
                 function.returns.clone(),
             )? {

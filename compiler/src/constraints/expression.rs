@@ -23,7 +23,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, select::CondSelectGadget},
+        utilities::{boolean::Boolean, eq::EvaluateEqGadget, select::CondSelectGadget},
     },
 };
 
@@ -187,34 +187,36 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     /// Evaluate Boolean operations
     fn evaluate_eq_expression(
         &mut self,
+        cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match (left, right) {
+        let result_bool = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                Ok(Self::boolean_eq(bool_1, bool_2))
+                bool_1.evaluate_equal(cs, &bool_2)?
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(num_1.eq(&num_2))))
-            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.evaluate_equal(cs, &num_2)?,
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(fe_1.eq(&fe_2))))
+                Boolean::Constant(fe_1.eq(&fe_2)) //TODO impl evaluate eq gadget
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(ge_1.eq(&ge_2))))
+                Boolean::Constant(ge_1.eq(&ge_2)) //TODO impl evaluate eq gadget
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;
-                self.evaluate_eq_expression(val_1, val_2)
+                return self.evaluate_eq_expression(cs, val_1, val_2);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1)?;
-                self.evaluate_eq_expression(val_1, val_2)
+                return self.evaluate_eq_expression(cs, val_1, val_2);
             }
-            (val_1, val_2) => Err(ExpressionError::IncompatibleTypes(format!("{} == {}", val_1, val_2,))),
-        }
+            (val_1, val_2) => return Err(ExpressionError::IncompatibleTypes(format!("{} == {}", val_1, val_2,))),
+        };
+
+        Ok(ConstrainedValue::Boolean(result_bool))
     }
 
+    //TODO: unsafe for allocated values
     fn evaluate_ge_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
@@ -244,6 +246,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
+    //TODO: unsafe for allocated values
     fn evaluate_gt_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
@@ -273,6 +276,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
+    //TODO: unsafe for allocated values
     fn evaluate_le_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
@@ -302,6 +306,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
+    //TODO: unsafe for allocated values
     fn evaluate_lt_expression(
         &mut self,
         left: ConstrainedValue<F, G>,
@@ -354,8 +359,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         };
 
         let resolved_second =
-            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, second)?;
-        let resolved_third = self.enforce_branch(cs, file_scope, function_scope, expected_types, third)?;
+            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, second)?;
+        let resolved_third = self.enforce_expression_value(cs, file_scope, function_scope, expected_types, third)?;
 
         match (resolved_second, resolved_third) {
             (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
@@ -451,7 +456,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         index: Expression,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
-        match self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), &expected_types, index)? {
+        match self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &expected_types, index)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize()),
             value => Err(ExpressionError::InvalidIndex(value.to_string())),
         }
@@ -466,7 +471,13 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         array: Box<Expression>,
         index: RangeOrExpression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, *array)? {
+        let array = match self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            *array,
+        )? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::InvalidArrayAccess(value.to_string())),
         };
@@ -562,7 +573,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         circuit_identifier: Box<Expression>,
         circuit_member: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (circuit_name, members) = match self.enforce_branch(
+        let (circuit_name, members) = match self.enforce_expression_value(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -712,7 +723,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     /// Enforce a branch of a binary expression.
     /// We don't care about mutability because we are not changing any variables.
     /// We try to resolve unresolved types here if the type is given explicitly.
-    pub(crate) fn enforce_branch(
+    pub(crate) fn enforce_expression_value(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -738,9 +749,9 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         right: Expression,
     ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
         let resolved_left =
-            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, left)?;
+            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, left)?;
         let resolved_right =
-            self.enforce_branch(cs, file_scope.clone(), function_scope.clone(), expected_types, right)?;
+            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, right)?;
 
         Ok((resolved_left, resolved_right))
     }
@@ -763,7 +774,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
             Expression::Field(field) => Ok(ConstrainedValue::Field(FieldType::constant(field)?)),
             Expression::Group(group_affine) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
-            Expression::Boolean(bool) => Ok(Self::get_boolean_constant(bool)),
+            Expression::Boolean(bool) => Ok(ConstrainedValue::Boolean(bool)),
             Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
 
             // Binary operations
@@ -870,7 +881,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     *right,
                 )?;
 
-                Ok(self.evaluate_eq_expression(resolved_left, resolved_right)?)
+                Ok(self.evaluate_eq_expression(cs, resolved_left, resolved_right)?)
             }
             Expression::Ge(left, right) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(

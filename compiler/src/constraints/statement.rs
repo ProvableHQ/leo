@@ -23,7 +23,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EqGadget, uint::UInt32},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint::UInt32},
     },
 };
 
@@ -262,7 +262,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
             let expected_types = vec![ty.clone()];
-            let result = self.enforce_branch(
+            let result = self.enforce_expression_value(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
@@ -276,11 +276,12 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(ConstrainedValue::Return(returns))
     }
 
-    fn iterate_or_early_return(
+    fn evaluate_branch(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
@@ -291,6 +292,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
+                indicator.clone(),
                 statement.clone(),
                 return_types.clone(),
             )? {
@@ -302,6 +304,10 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(res)
     }
 
+    /// Enforces a conditional statement with one or more branches.
+    /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
+    /// At program execution, we will pass an `indicator bit` down to all child statements within each branch.
+    /// The `indicator bit` will select that branch while keeping the constraint system satisfied.
     fn enforce_conditional_statement(
         &mut self,
         cs: &mut CS,
@@ -311,7 +317,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let expected_types = vec![Type::Boolean];
-        let condition = match self.enforce_expression(
+        let indicator = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -322,21 +328,32 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             value => return Err(StatementError::IfElseConditional(value.to_string())),
         };
 
-        // use gadget impl
-        if condition.eq(&Boolean::Constant(true)) {
-            self.iterate_or_early_return(cs, file_scope, function_scope, statement.statements, return_types)
-        } else {
-            match statement.next {
-                Some(next) => match next {
-                    ConditionalNestedOrEndStatement::Nested(nested) => {
-                        self.enforce_conditional_statement(cs, file_scope, function_scope, *nested, return_types)
-                    }
-                    ConditionalNestedOrEndStatement::End(statements) => {
-                        self.iterate_or_early_return(cs, file_scope, function_scope, statements, return_types)
-                    }
-                },
-                None => Ok(None),
-            }
+        // Execute branch 1
+        self.evaluate_branch(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            Some(indicator),
+            statement.statements,
+            return_types.clone(),
+        )?;
+
+        // Execute branch 2
+        match statement.next {
+            Some(next) => match next {
+                ConditionalNestedOrEndStatement::Nested(nested) => {
+                    self.enforce_conditional_statement(cs, file_scope, function_scope, *nested, return_types)
+                }
+                ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    Some(indicator.not()),
+                    statements,
+                    return_types,
+                ),
+            },
+            None => Ok(None), // this is an if with no else, have to pass conditional down to next statements somehow
         }
     }
 
@@ -363,10 +380,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             );
 
             // Evaluate statements and possibly return early
-            if let Some(early_return) = self.iterate_or_early_return(
+            if let Some(early_return) = self.evaluate_branch(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
+                None,
                 statements.clone(),
                 return_types.clone(),
             )? {
@@ -381,29 +399,34 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     fn enforce_assert_eq_statement(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<F, G>,
-        right: ConstrainedValue<F, G>,
+        indicator: Option<Boolean>,
+        left: &ConstrainedValue<F, G>,
+        right: &ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
-        Ok(match (left, right) {
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+        let result = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                self.enforce_boolean_eq(cs, bool_1, bool_2)?
+                bool_1.conditional_enforce_equal(cs, bool_2, &condition)
             }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1
-                .enforce_equal(cs, &num_2)
-                .map_err(|_| StatementError::AssertionFailed(num_1.to_string(), num_2.to_string()))?,
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1
-                .enforce_equal(cs, &fe_2)
-                .map_err(|_| StatementError::AssertionFailed(fe_1.to_string(), fe_2.to_string()))?,
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => ge_1
-                .enforce_equal(cs, &ge_2)
-                .map_err(|_| StatementError::AssertionFailed(ge_1.to_string(), ge_2.to_string()))?,
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                num_1.conditional_enforce_equal(cs, num_2, &condition)
+            }
+            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
+                fe_1.conditional_enforce_equal(cs, fe_2, &condition)
+            }
+            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
+                ge_1.conditional_enforce_equal(cs, ge_2, &condition)
+            }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
-                    self.enforce_assert_eq_statement(cs, left, right)?;
+                    self.enforce_assert_eq_statement(cs, indicator.clone(), left, right)?;
                 }
+                Ok(())
             }
             (val_1, val_2) => return Err(StatementError::AssertEq(val_1.to_string(), val_2.to_string())),
-        })
+        };
+
+        Ok(result.map_err(|_| StatementError::AssertionFailed(left.to_string(), right.to_string()))?)
     }
 
     pub(crate) fn enforce_statement(
@@ -411,6 +434,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statement: Statement,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
@@ -451,11 +475,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
             }
             Statement::AssertEq(left, right) => {
                 let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], left)?;
+                    self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &vec![], left)?;
                 let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], right)?;
+                    self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &vec![], right)?;
 
-                self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
+                self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right)?;
             }
             Statement::Expression(expression) => {
                 match self.enforce_expression(cs, file_scope, function_scope, &vec![], expression.clone())? {

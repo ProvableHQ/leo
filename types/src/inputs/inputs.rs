@@ -31,7 +31,7 @@ impl Inputs {
     }
 
     pub fn from_inputs_file(file: File, expected_inputs: Vec<FunctionInput>) -> Result<Self, InputParserError> {
-        let mut private = vec![];
+        let mut program_inputs = vec![];
         let mut public = vec![];
 
         for section in file.sections.into_iter() {
@@ -62,7 +62,7 @@ impl Inputs {
                             }
 
                             // push value to vector
-                            private.push(Some(value));
+                            program_inputs.push(Some(value));
                         }
                         None => return Err(InputParserError::InputNotFound(input.to_string())),
                     }
@@ -70,10 +70,7 @@ impl Inputs {
             }
         }
 
-        Ok(Self {
-            program_inputs: private,
-            public,
-        })
+        Ok(Self { program_inputs, public })
     }
 
     pub fn get_public_inputs<E: PairingEngine>(&self) -> Result<Vec<E::Fr>, InputParserError> {
