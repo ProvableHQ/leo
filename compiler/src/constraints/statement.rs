@@ -391,6 +391,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         index: Identifier,
         start: Integer,
         stop: Integer,
@@ -408,12 +409,14 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
             );
 
+            cs.ns(|| format!("loop {} = {}", index.to_string(), i));
+
             // Evaluate statements and possibly return early
             if let Some(early_return) = self.evaluate_branch(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
-                None,
+                indicator,
                 statements.clone(),
                 return_types.clone(),
             )? {
@@ -473,6 +476,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope,
                     function_scope,
+                    indicator,
                     index,
                     start,
                     stop,

@@ -9,6 +9,7 @@ use crate::{
 use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
+use crate::integers::u32::output_number;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
@@ -29,7 +30,7 @@ fn empty_output_satisfied(program: EdwardsTestCompiler) {
 // }
 #[test]
 fn conditional_basic() {
-    let bytes = include_bytes!("conditional_basic.leo");
+    let bytes = include_bytes!("assert.leo");
     let mut program_1_pass = parse_program(bytes).unwrap();
     let mut program_0_pass = program_1_pass.clone();
     let mut program_2_fail = program_1_pass.clone();
@@ -54,7 +55,7 @@ fn conditional_basic() {
 
 #[test]
 fn conditional_mutate() {
-    let bytes = include_bytes!("conditional_mutate.leo");
+    let bytes = include_bytes!("mutate.leo");
     let mut program_1_true = parse_program(bytes).unwrap();
     let mut program_0_pass = program_1_true.clone();
 
@@ -67,4 +68,21 @@ fn conditional_mutate() {
 
     program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0))]);
     output_zero(program_0_pass);
+}
+
+#[test]
+fn conditional_for_loop() {
+    let bytes = include_bytes!("for_loop.leo");
+    let mut program_true_6 = parse_program(bytes).unwrap();
+    let mut program_false_0 = program_true_6.clone();
+
+    // Check that an input value of 1 satisfies the constraint system
+
+    program_true_6.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    output_number(program_true_6, 6u32);
+
+    // Check that an input value of 0 satisfies the constraint system
+
+    program_false_0.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    output_zero(program_false_0);
 }

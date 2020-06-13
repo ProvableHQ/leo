@@ -28,22 +28,21 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
     }
 }
 
-pub(crate) fn output_zero(program: EdwardsTestCompiler) {
+pub(crate) fn output_number(program: EdwardsTestCompiler, number: u32) {
     let output = get_output(program);
     assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(0u32)))])
+        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(number)))])
             .to_string(),
         output.to_string()
     )
 }
 
+pub(crate) fn output_zero(program: EdwardsTestCompiler) {
+    output_number(program, 0u32);
+}
+
 pub(crate) fn output_one(program: EdwardsTestCompiler) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))])
-            .to_string(),
-        output.to_string()
-    )
+    output_number(program, 1u32);
 }
 
 #[test]
