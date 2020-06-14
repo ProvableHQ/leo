@@ -1,4 +1,15 @@
 # The Leo Programming Language
+
+```mermaid
+gantt
+    title Test Diagram
+
+    section Section
+    A task           :a1, 2014-01-01, 30d
+    Another task     :after a1  , 20d
+
+```
+
 * Programs should be formatted:
     1. Import definitions
     2. Circuit definitions
