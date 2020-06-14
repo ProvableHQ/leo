@@ -1,2 +1,12 @@
-name: Compile Mermaid Markdown
-uses: neenjaw/compile-mermaid-markdown-action@0.2.0
+name: Markdown Compiler
+
+on: [push]
+
+jobs:
+  compile:
+    name: Compile Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile mermaid
+        uses: neenjaw/compile-mermaid-markdown-action@0.2.0
