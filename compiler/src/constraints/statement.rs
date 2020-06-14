@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         indicator: Option<Boolean>,
         name: String,
         range_or_expression: RangeOrExpression,
-        new_value: ConstrainedValue<F, G>,
+        mut new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
@@ -67,10 +67,13 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
                     ConstrainedValue::Array(old) => {
+                        new_value.resolve_type(&vec![old[index].to_type()])?;
+
                         let selected_value =
                             ConstrainedValue::conditionally_select(cs, &condition, &new_value, &old[index]).map_err(
                                 |_| StatementError::SelectFail(new_value.to_string(), old[index].to_string()),
                             )?;
+
                         old[index] = selected_value;
                     }
                     _ => return Err(StatementError::ArrayAssignIndex),
@@ -112,7 +115,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         indicator: Option<Boolean>,
         circuit_name: String,
         object_name: Identifier,
-        new_value: ConstrainedValue<F, G>,
+        mut new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
@@ -132,6 +135,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                             return Err(StatementError::ImmutableCircuitFunction("static".into()));
                         }
                         _ => {
+                            new_value.resolve_type(&vec![object.1.to_type()])?;
+
                             let selected_value = ConstrainedValue::conditionally_select(
                                 cs, &condition, &new_value, &object.1,
                             )
@@ -162,13 +167,15 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
-        let new_value = self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
+        let mut new_value =
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
 
         // Mutate the old value into the new value
         match assignee {
             Assignee::Identifier(_identifier) => {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone())?;
+                new_value.resolve_type(&vec![old_value.to_type()])?;
                 let selected_value = ConstrainedValue::conditionally_select(cs, &condition, &new_value, old_value)
                     .map_err(|_| StatementError::SelectFail(new_value.to_string(), old_value.to_string()))?;
 
@@ -514,10 +521,8 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                 }
             }
             Statement::AssertEq(left, right) => {
-                let resolved_left =
-                    self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &vec![], left)?;
-                let resolved_right =
-                    self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &vec![], right)?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right)?;
 
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right)?;
             }

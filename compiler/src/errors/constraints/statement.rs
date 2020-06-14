@@ -1,4 +1,4 @@
-use crate::errors::{BooleanError, ExpressionError};
+use crate::errors::{BooleanError, ExpressionError, ValueError};
 
 use snarkos_errors::gadgets::SynthesisError;
 
@@ -57,4 +57,7 @@ pub enum StatementError {
 
     #[error("Expected assignment of return values for expression {}", _0)]
     Unassigned(String),
+
+    #[error("{}", _0)]
+    ValueError(#[from] ValueError),
 }

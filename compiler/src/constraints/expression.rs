@@ -751,10 +751,12 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         left: Expression,
         right: Expression,
     ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
-        let resolved_left =
+        let mut resolved_left =
             self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, left)?;
-        let resolved_right =
+        let mut resolved_right =
             self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, right)?;
+
+        resolved_left.resolve_types(&mut resolved_right, expected_types)?;
 
         Ok((resolved_left, resolved_right))
     }
@@ -879,7 +881,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    &vec![],
                     *left,
                     *right,
                 )?;
@@ -891,7 +893,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    &vec![],
                     *left,
                     *right,
                 )?;
@@ -903,7 +905,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    &vec![],
                     *left,
                     *right,
                 )?;
@@ -915,7 +917,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    &vec![],
                     *left,
                     *right,
                 )?;
@@ -927,7 +929,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    &vec![],
                     *left,
                     *right,
                 )?;

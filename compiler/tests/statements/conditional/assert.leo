@@ -1,7 +1,7 @@
 function main(bit: private u32) {
-    if bit == 1u32 {
-      assert_eq!(bit, 1u32);
+    if bit == 1 {
+      assert_eq!(bit, 1);
     } else {
-      assert_eq!(bit, 0u32);
+      assert_eq!(bit, 0);
     }
 }

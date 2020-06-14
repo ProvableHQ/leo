@@ -28,7 +28,7 @@ fn empty_output_satisfied(program: EdwardsTestCompiler) {
 //     }
 // }
 #[test]
-fn conditional_basic() {
+fn test_assert() {
     let bytes = include_bytes!("assert.leo");
     let mut program_1_pass = parse_program(bytes).unwrap();
     let mut program_0_pass = program_1_pass.clone();
@@ -53,7 +53,7 @@ fn conditional_basic() {
 }
 
 #[test]
-fn conditional_mutate() {
+fn test_mutate() {
     let bytes = include_bytes!("mutate.leo");
     let mut program_1_true = parse_program(bytes).unwrap();
     let mut program_0_pass = program_1_true.clone();
@@ -70,7 +70,7 @@ fn conditional_mutate() {
 }
 
 #[test]
-fn conditional_for_loop() {
+fn test_for_loop() {
     let bytes = include_bytes!("for_loop.leo");
     let mut program_true_6 = parse_program(bytes).unwrap();
     let mut program_false_0 = program_true_6.clone();
@@ -87,7 +87,7 @@ fn conditional_for_loop() {
 }
 
 #[test]
-fn conditional_chain() {
+fn test_chain() {
     let bytes = include_bytes!("chain.leo");
     let mut program_1_1 = parse_program(bytes).unwrap();
     let mut program_2_2 = program_1_1.clone();
@@ -107,7 +107,7 @@ fn conditional_chain() {
 }
 
 #[test]
-fn conditional_nested() {
+fn test_nested() {
     let bytes = include_bytes!("nested.leo");
     let mut program_true_true_3 = parse_program(bytes).unwrap();
     let mut program_true_false_1 = program_true_true_3.clone();

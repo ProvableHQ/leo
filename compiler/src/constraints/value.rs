@@ -85,6 +85,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         Ok(())
     }
 
+    /// Expect both `self` and `other` to resolve to the same type
+    pub(crate) fn resolve_types(&mut self, other: &mut Self, types: &Vec<Type>) -> Result<(), ValueError> {
+        if !types.is_empty() {
+            self.resolve_type(types)?;
+            return other.resolve_type(types);
+        }
+
+        match (&self, &other) {
+            (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type()]),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type()]),
+            _ => Ok(()),
+        }
+    }
+
     pub(crate) fn get_inner_mut(&mut self) {
         if let ConstrainedValue::Mutable(inner) = self {
             *self = *inner.clone()
