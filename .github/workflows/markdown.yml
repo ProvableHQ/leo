@@ -28,6 +28,7 @@ jobs:
           output: '.resources'
         env:
           HIDE_CODEBLOCKS: 1
+          ABSOLUTE_IMAGE_LINKS: 1
 
       - name: Show changes
         run: git status
