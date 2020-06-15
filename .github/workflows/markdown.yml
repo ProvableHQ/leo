@@ -10,7 +10,7 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 2
 
@@ -40,6 +40,6 @@ jobs:
           git commit -m "Add markdown changes" -a
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
