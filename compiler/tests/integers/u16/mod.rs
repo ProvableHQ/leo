@@ -7,6 +7,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
+use leo_inputs::types::{IntegerType, U16Type};
 use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -29,7 +30,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt16) {
 
 #[test]
 fn test_u16() {
-    test_uint!(Testu16, u16, UInt16);
+    test_uint!(Testu16, u16, IntegerType::U16Type(U16Type {}), UInt16);
 
     Testu16::test_min(std::u16::MIN);
     Testu16::test_max(std::u16::MAX);

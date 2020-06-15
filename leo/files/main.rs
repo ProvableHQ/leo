@@ -46,9 +46,9 @@ impl MainFile {
     fn template(&self) -> String {
         format!(
             r#"// The '{}' main function.
-function main() -> u32 {{
-    let a: u32 = 1 + 1;
-    return a
+function main(a: private u32, b: public u32) -> u32 {{
+    let c: u32 = a + b;
+    return c
 }}
 "#,
             self.package_name

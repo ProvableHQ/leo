@@ -7,6 +7,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
+use leo_inputs::types::{IntegerType, U64Type};
 use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -30,7 +31,7 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
 #[test]
 #[ignore] //temporarily ignore memory expensive tests for travis
 fn test_u64() {
-    test_uint!(Testu64, u64, UInt64);
+    test_uint!(Testu64, u64, IntegerType::U64Type(U64Type {}), UInt64);
 
     Testu64::test_min(std::u64::MIN);
     Testu64::test_max(std::u64::MAX);

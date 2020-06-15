@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Function, Identifier, Import, TestFunction};
+use crate::{Circuit, Function, FunctionInput, Identifier, Import, TestFunction};
 use leo_ast::files::File;
 
 use std::collections::HashMap;
@@ -10,7 +10,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct Program {
     pub name: Identifier,
-    pub num_parameters: usize,
+    pub expected_inputs: Vec<FunctionInput>,
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
@@ -30,7 +30,7 @@ impl<'ast> Program {
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
         let mut tests = HashMap::new();
-        let mut num_parameters = 0usize;
+        let mut expected_inputs = vec![];
 
         file.circuits.into_iter().for_each(|circuit| {
             circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
@@ -49,12 +49,12 @@ impl<'ast> Program {
         });
 
         if let Some(main_function) = functions.get(&Identifier::new("main".into())) {
-            num_parameters = main_function.inputs.len();
+            expected_inputs = main_function.inputs.clone();
         }
 
         Self {
             name: Identifier::new(name),
-            num_parameters,
+            expected_inputs,
             imports,
             circuits,
             functions,
@@ -67,7 +67,7 @@ impl Program {
     pub fn new() -> Self {
         Self {
             name: Identifier::new("".into()),
-            num_parameters: 0,
+            expected_inputs: vec![],
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),

@@ -7,6 +7,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_compiler::ConstrainedValue;
+use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::{InputValue, Integer};
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -47,7 +48,7 @@ pub(crate) fn output_one(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_u32() {
-    test_uint!(TestU32, u32, UInt32);
+    test_uint!(TestU32, u32, IntegerType::U32Type(U32Type {}), UInt32);
 
     TestU32::test_min(std::u32::MIN);
     TestU32::test_max(std::u32::MAX);

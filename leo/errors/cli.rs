@@ -57,6 +57,12 @@ impl From<leo_compiler::errors::CompilerError> for CLIError {
     }
 }
 
+impl From<leo_inputs::errors::InputParserError> for CLIError {
+    fn from(error: leo_inputs::errors::InputParserError) -> Self {
+        CLIError::Crate("leo_inputs", format!("{}", error))
+    }
+}
+
 impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
     fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
         CLIError::Crate("snarkos_errors", format!("{}", error))
