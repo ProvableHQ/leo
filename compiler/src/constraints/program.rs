@@ -2,26 +2,21 @@
 
 use crate::{constraints::ConstrainedValue, GroupType};
 
-use snarkos_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
-use std::{collections::HashMap, marker::PhantomData};
+use snarkos_models::curves::{Field, PrimeField};
+use std::collections::HashMap;
 
-pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> {
+pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
     pub identifiers: HashMap<String, ConstrainedValue<F, G>>,
-    pub _cs: PhantomData<CS>,
 }
 
 pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn new() -> Self {
         Self {
             identifiers: HashMap::new(),
-            _cs: PhantomData::<CS>,
         }
     }
 

@@ -15,7 +15,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
@@ -25,7 +25,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_input(
+    fn enforce_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    pub(crate) fn enforce_function(
+    pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -103,7 +103,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(return_values)
     }
 
-    fn allocate_array(
+    fn allocate_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         name: String,
@@ -149,7 +149,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(ConstrainedValue::Array(array_value))
     }
 
-    fn allocate_main_function_input(
+    fn allocate_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         _type: Type,
@@ -173,7 +173,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    pub(crate) fn enforce_main_function(
+    pub(crate) fn enforce_main_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         scope: String,
@@ -208,7 +208,11 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         self.enforce_function(cs, scope, function_name, function, input_variables)
     }
 
-    pub(crate) fn resolve_definitions(&mut self, cs: &mut CS, program: Program) -> Result<(), ImportError> {
+    pub(crate) fn resolve_definitions<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        program: Program,
+    ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 
         // evaluate and store all imports

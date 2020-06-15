@@ -27,7 +27,7 @@ use snarkos_models::{
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     fn resolve_assignee(&mut self, scope: String, assignee: Assignee) -> String {
         match assignee {
             Assignee::Identifier(name) => new_scope(scope, name.to_string()),
@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         })
     }
 
-    fn mutate_array(
+    fn mutate_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -109,7 +109,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(())
     }
 
-    fn mutute_circuit_field(
+    fn mutute_circuit_field<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: Option<Boolean>,
@@ -154,7 +154,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(())
     }
 
-    fn enforce_assign_statement(
+    fn enforce_assign_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -216,7 +216,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(())
     }
 
-    fn enforce_definition_statement(
+    fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -239,7 +239,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         self.store_definition(function_scope, variable, value)
     }
 
-    fn enforce_multiple_definition_statement(
+    fn enforce_multiple_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -279,7 +279,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(())
     }
 
-    fn enforce_return_statement(
+    fn enforce_return_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -312,7 +312,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(ConstrainedValue::Return(returns))
     }
 
-    fn evaluate_branch(
+    fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -344,7 +344,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator bit` down to all child statements within each branch.
     /// The `indicator bit` will select that branch while keeping the constraint system satisfied.
-    fn enforce_conditional_statement(
+    fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -415,7 +415,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_for_statement(
+    fn enforce_for_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -457,7 +457,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(res)
     }
 
-    fn enforce_assert_eq_statement(
+    fn enforce_assert_eq_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: Option<Boolean>,
@@ -470,7 +470,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(result.map_err(|_| StatementError::AssertionFailed(left.to_string(), right.to_string()))?)
     }
 
-    pub(crate) fn enforce_statement(
+    pub(crate) fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
