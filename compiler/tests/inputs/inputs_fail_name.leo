@@ -1,2 +1,2 @@
 [main]
-bad_name: private bool = true;
+bad_name: bool = true;

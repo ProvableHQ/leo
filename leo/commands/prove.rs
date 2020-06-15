@@ -11,10 +11,8 @@ use snarkos_curves::bls12_377::Bls12_377;
 
 use crate::{directories::INPUTS_DIRECTORY_NAME, files::INPUTS_FILE_NAME};
 use clap::ArgMatches;
-use leo_compiler::{compiler::Compiler, edwards_bls12::EdwardsGroupType};
 use leo_inputs::LeoInputsParser;
 use rand::thread_rng;
-use snarkos_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
@@ -22,11 +20,7 @@ pub struct ProveCommand;
 
 impl CLI for ProveCommand {
     type Options = ();
-    type Output = (
-        Compiler<Fq, EdwardsGroupType>,
-        Proof<Bls12_377>,
-        PreparedVerifyingKey<Bls12_377>,
-    );
+    type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     const ABOUT: AboutType = "Run the program and produce a proof";
     const ARGUMENTS: &'static [ArgumentType] = &[];
@@ -72,6 +66,6 @@ impl CLI for ProveCommand {
 
         log::info!("Completed program proving");
 
-        Ok((program, program_proof, prepared_verifying_key))
+        Ok((program_proof, prepared_verifying_key))
     }
 }

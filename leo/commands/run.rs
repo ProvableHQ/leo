@@ -1,7 +1,6 @@
 use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
 
 use snarkos_algorithms::snark::verify_proof;
-use snarkos_curves::bls12_377::Bls12_377;
 
 use clap::ArgMatches;
 use std::time::{Duration, Instant};
@@ -27,16 +26,13 @@ impl CLI for RunCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (program, proof, prepared_verifying_key) = ProveCommand::output(options)?;
+        let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
 
         let mut verifying = Duration::new(0, 0);
 
-        // fetch public inputs
-        let inputs: Vec<_> = program.get_public_inputs::<Bls12_377>().unwrap();
-
         let start = Instant::now();
 
-        let is_success = verify_proof(&prepared_verifying_key, &proof, &inputs).unwrap();
+        let is_success = verify_proof(&prepared_verifying_key, &proof, &vec![]).unwrap();
 
         verifying += start.elapsed();
 

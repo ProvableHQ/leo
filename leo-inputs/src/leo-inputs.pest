@@ -2,15 +2,11 @@
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+protected_name = { "let" | "for"| "if" | "else" | "as" | "return" }
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
 
-// Declared in common/visibility.rs
-visibility = { visibility_public | visibility_private }
-visibility_public = { "public" }
-visibility_private = { "private" }
 
 /// Types
 
@@ -89,7 +85,7 @@ expression = {
 /// Parameters
 
 // Declared in parameters/parameters.rs
-parameter = { identifier ~ ":" ~ visibility? ~ type_ }
+parameter = { identifier ~ ":" ~ type_ }
 
 /// Section
 

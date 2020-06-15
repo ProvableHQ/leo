@@ -20,7 +20,7 @@ fn empty_output_satisfied(program: EdwardsTestCompiler) {
 
 // Tests a statements.conditional enforceBit() program
 //
-// function main(bit: private u8) {
+// function main(bit: u8) {
 //     if bit == 1u8 {
 //       assert_eq!(bit, 1u8);
 //     } else {

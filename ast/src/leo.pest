@@ -8,7 +8,7 @@ file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ 
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-protected_name = { visibility | "let" | "for"| "if" | "else" | "as" | "return" }
+protected_name = { "let" | "for"| "if" | "else" | "as" | "return" }
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
@@ -35,11 +35,6 @@ static_ = { "static" }
 
 // Declared in common/variable.rs
 variable = { mutable? ~ identifier ~ (":" ~ type_)? }
-
-// Declared in common/visibility.rs
-visibility = { visibility_public | visibility_private }
-visibility_public = { "public" }
-visibility_private = { "private" }
 
 /// Operations
 
@@ -275,7 +270,7 @@ statement_return = { "return" ~ expression_tuple }
 function_definition = { "function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/function_input.rs
-function_input = { mutable? ~ identifier ~ ":" ~ visibility? ~ type_ }
+function_input = { mutable? ~ identifier ~ ":" ~ type_ }
 input_model_list = _{ (function_input ~ ("," ~ function_input)*)? }
 
 // Declared in functions/test_function.rs

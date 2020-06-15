@@ -10,7 +10,6 @@ use snarkos_models::{
 pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: String,
-    private: bool,
     input_value: Option<InputValue>,
 ) -> Result<ConstrainedValue<F, G>, GroupError> {
     // Check that the parameter value is the correct type
@@ -25,12 +24,7 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
         None => None,
     };
 
-    // Check visibility of parameter
-    let group_value = if private {
-        G::alloc(cs.ns(|| name), || group_option.ok_or(SynthesisError::AssignmentMissing))?
-    } else {
-        G::alloc_input(cs.ns(|| name), || group_option.ok_or(SynthesisError::AssignmentMissing))?
-    };
+    let group_value = G::alloc(cs.ns(|| name), || group_option.ok_or(SynthesisError::AssignmentMissing))?;
 
     Ok(ConstrainedValue::Group(group_value))
 }

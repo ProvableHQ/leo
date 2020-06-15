@@ -1,4 +1,4 @@
-function main(bit: private u32) -> u32 {
+function main(bit: u32) -> u32 {
   let mut a = 5u32;
 
   if bit == 1 {

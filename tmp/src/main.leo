@@ -1,4 +1,4 @@
-function test(p: public bool) {
+function test(p: bool) {
 
 }
 

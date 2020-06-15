@@ -30,6 +30,3 @@ pub use static_::*;
 
 pub mod variable;
 pub use variable::*;
-
-pub mod visibility;
-pub use visibility::*;

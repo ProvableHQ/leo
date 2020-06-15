@@ -16,7 +16,6 @@ use snarkos_models::{
 };
 
 use sha2::{Digest, Sha256};
-use snarkos_models::curves::PairingEngine;
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
@@ -60,10 +59,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
         self.program_inputs.set_inputs(program_inputs);
-    }
-
-    pub fn get_public_inputs<E: PairingEngine>(&self) -> Result<Vec<E::Fr>, CompilerError> {
-        Ok(self.program_inputs.get_public_inputs::<E>()?)
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -113,7 +108,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_inputs(&mut self, input_file_path: &PathBuf, input_file_string: &str) -> Result<(), CompilerError> {
         let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
 
-        // Check number/order of private parameters here
+        // Check number/order of parameters here
         self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
 
         Ok(())

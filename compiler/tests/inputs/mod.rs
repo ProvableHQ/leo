@@ -48,18 +48,6 @@ fn test_inputs_fail_type() {
 }
 
 #[test]
-fn test_inputs_fail_visibility() {
-    let program_bytes = include_bytes!("main.leo");
-    let input_bytes = include_bytes!("inputs_fail_visibility.leo");
-    let input_string = String::from_utf8_lossy(input_bytes);
-
-    let mut program = parse_program(program_bytes).unwrap();
-    let error = program.parse_inputs(&PathBuf::new(), &input_string).unwrap_err();
-
-    fail_input_parser(error);
-}
-
-#[test]
 fn test_inputs_multiple() {
     let program_bytes = include_bytes!("main_multiple.leo");
     let input_bytes = include_bytes!("inputs_multiple.leo");

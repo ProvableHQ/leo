@@ -21,7 +21,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         name: String,
-        private: bool,
         input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
@@ -36,12 +35,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             None => None,
         };
 
-        // Check visibility of input
-        let number = if private {
-            Boolean::alloc(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?
-        } else {
-            Boolean::alloc_input(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?
-        };
+        let number = Boolean::alloc(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?;
 
         Ok(ConstrainedValue::Boolean(number))
     }

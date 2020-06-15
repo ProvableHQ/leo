@@ -47,8 +47,8 @@ impl InputsFile {
         format!(
             r#"// The inputs for {}/src/main.leo
 [main]
-a: private u32 = 1;
-b: public u32 = 2;
+a: u32 = 1;
+b: u32 = 2;
 "#,
             self.package_name
         )

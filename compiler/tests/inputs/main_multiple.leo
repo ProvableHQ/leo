@@ -1,3 +1,3 @@
-function main(a: public bool, b: private bool) -> bool {
+function main(a: bool, b: bool) -> bool {
   return a || b
 }

@@ -107,7 +107,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         name: String,
-        private: bool,
         array_type: Type,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue>,
@@ -125,13 +124,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let value_name = new_scope(name.clone(), i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(
-                        cs,
-                        value_type,
-                        value_name,
-                        private,
-                        Some(value),
-                    )?)
+                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, Some(value))?)
                 }
             }
             None => {
@@ -140,7 +133,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let value_name = new_scope(name.clone(), i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, private, None)?);
+                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, None)?);
                 }
             }
             _ => return Err(FunctionError::InvalidArray(input_value.unwrap().to_string())),
@@ -154,7 +147,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         _type: Type,
         name: String,
-        private: bool,
         input_value: Option<InputValue>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
@@ -162,13 +154,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 integer_type,
                 name,
-                private,
                 input_value,
             )?)),
-            Type::Field => Ok(field_from_input(cs, name, private, input_value)?),
-            Type::Group => Ok(group_from_input(cs, name, private, input_value)?),
-            Type::Boolean => Ok(self.bool_from_input(cs, name, private, input_value)?),
-            Type::Array(_type, dimensions) => self.allocate_array(cs, name, private, *_type, dimensions, input_value),
+            Type::Field => Ok(field_from_input(cs, name, input_value)?),
+            Type::Group => Ok(group_from_input(cs, name, input_value)?),
+            Type::Boolean => Ok(self.bool_from_input(cs, name, input_value)?),
+            Type::Array(_type, dimensions) => self.allocate_array(cs, name, *_type, dimensions, input_value),
             _ => unimplemented!("main function input not implemented for type"),
         }
     }
@@ -189,13 +180,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut input_variables = vec![];
         for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
             let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-            let input_value = self.allocate_main_function_input(
-                cs,
-                input_model._type,
-                input_name.clone(),
-                input_model.private,
-                input_option,
-            )?;
+            let input_value =
+                self.allocate_main_function_input(cs, input_model._type, input_name.clone(), input_option)?;
 
             // Store a new variable for every allocated main function input
             self.store(input_name.clone(), input_value);

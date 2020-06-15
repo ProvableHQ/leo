@@ -146,7 +146,7 @@ function main() -> u32 {
 ** **Experimental** **
 The current constraint system is not optimized for statement branching. Please use the ternary expression above until this feature is stable.
 ```rust
-function main(a: private bool, b: private bool) -> u32 {
+function main(a: bool, b: bool) -> u32 {
   let mut res = 0u32;
   if (a) {
     res = 1;
@@ -218,18 +218,8 @@ function main() -> u32[3] {
 ```
 
 ### Main function inputs
-Main function inputs are allocated as public or private variables in the program's constaint system.
-```rust
-function main(a: private field) -> field {
-  return a
-}
-```
-```rust
-function main(a: public field) -> field {
-  return a
-}
-```
-Private by default. Below `a` is implicitly private.
+Main function inputs are allocated private variables in the program's constraint system.
+`a` is implicitly private.
 ```rust
 function main(a: field) -> field {
   return a
@@ -383,7 +373,7 @@ test function expect_fail() {
 
 # Leo Inputs
 
-Public and private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
+Private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
 
 ## Sections
 A Leo input file is made up of sections. Sections are defined by a section header in brackets followed by one or more input definitions. 
@@ -394,14 +384,14 @@ Section headers specify the target file which must have a main function with mat
 
 ```rust
 [main] // <- section header
-a: private u32 = 1; // <- private input
-b: public u32  = 2; // <- public input
+a: u32 = 1;
+b: u32 = 2;
 ```
 
 `src/main.leo`
 
 ```rust
-function main(a: private u32, b: public u32) -> u32 {
+function main(a: u32, b: u32) -> u32 {
     let c: u32 = a + b;
     return c
 }
@@ -421,8 +411,8 @@ d: group = (0, 1)group // <- group tuples
 ### Arrays
 ```rust
 [main]
-a: private u8[4]    = [0u8; 4];      // <- single
-b: private u8[2][3] = [[0u8; 2]; 3]; // <- multi-dimensional
+a: u8[4]    = [0u8; 4];      // <- single
+b: u8[2][3] = [[0u8; 2]; 3]; // <- multi-dimensional
 ```
 
 # Leo CLI
