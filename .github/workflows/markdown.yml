@@ -1,0 +1,47 @@
+name: Markdown Compiler
+
+on:
+  push:
+    paths:
+      - '**/*.md'
+
+jobs:
+  build:
+    name: Run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: getfile
+        run: echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -e '.*\.md$' | xargs)"
+
+      - name: MD files changed
+        run: echo ${{ steps.getfile.outputs.files }}
+
+      - name: Compile mermaid
+        uses: neenjaw/compile-mermaid-markdown-action@master
+        with:
+          files: ${{ steps.getfile.outputs.files }}
+          output: '.resources'
+        env:
+          HIDE_CODEBLOCKS: 1
+          ABSOLUTE_IMAGE_LINKS: 1
+
+      - name: Show changes
+        run: git status
+
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Add markdown changes"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
