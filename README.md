@@ -5,8 +5,8 @@ gantt
     title Test Diagram
 
     section Section
-    A task           :a1, 2014-01-01, 30d
-    Another task     :after a1, 20d
+    A task          :a1, 2014-01-01, 30d
+    Another task    :after a1, 20d
 ```
 
 * Programs should be formatted:
