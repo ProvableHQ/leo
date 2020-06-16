@@ -23,7 +23,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EqGadget, uint::UInt32},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget, uint::UInt32},
     },
 };
 
@@ -52,10 +52,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         name: String,
         range_or_expression: RangeOrExpression,
-        new_value: ConstrainedValue<F, G>,
+        mut new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
@@ -64,7 +67,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name)? {
                     ConstrainedValue::Array(old) => {
-                        old[index] = new_value;
+                        new_value.resolve_type(&vec![old[index].to_type()])?;
+
+                        let selected_value =
+                            ConstrainedValue::conditionally_select(cs, &condition, &new_value, &old[index]).map_err(
+                                |_| StatementError::SelectFail(new_value.to_string(), old[index].to_string()),
+                            )?;
+
+                        old[index] = selected_value;
                     }
                     _ => return Err(StatementError::ArrayAssignIndex),
                 }
@@ -79,26 +89,36 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None => None,
                 };
 
-                // Modify the range of values of the array in place
-                match (self.get_mutable_assignee(name)?, new_value) {
-                    (ConstrainedValue::Array(old), ConstrainedValue::Array(ref new)) => {
-                        let to_index = to_index_option.unwrap_or(old.len());
-                        old.splice(from_index..to_index, new.iter().cloned());
+                // Modify the range of values of the array
+                let old_array = self.get_mutable_assignee(name)?;
+                let new_array = match (old_array.clone(), new_value) {
+                    (ConstrainedValue::Array(mut mutable), ConstrainedValue::Array(new)) => {
+                        let to_index = to_index_option.unwrap_or(mutable.len());
+
+                        mutable.splice(from_index..to_index, new.iter().cloned());
+                        ConstrainedValue::Array(mutable)
                     }
                     _ => return Err(StatementError::ArrayAssignRange),
-                }
+                };
+                let selected_array = ConstrainedValue::conditionally_select(cs, &condition, &new_array, old_array)
+                    .map_err(|_| StatementError::SelectFail(new_array.to_string(), old_array.to_string()))?;
+                *old_array = selected_array;
             }
         }
 
         Ok(())
     }
 
-    fn mutute_circuit_field(
+    fn mutute_circuit_field<CS: ConstraintSystem<F>>(
         &mut self,
+        cs: &mut CS,
+        indicator: Option<Boolean>,
         circuit_name: String,
         object_name: Identifier,
-        new_value: ConstrainedValue<F, G>,
+        mut new_value: ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+
         match self.get_mutable_assignee(circuit_name)? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit field in place
@@ -114,7 +134,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         ConstrainedValue::Static(_value) => {
                             return Err(StatementError::ImmutableCircuitFunction("static".into()));
                         }
-                        _ => object.1 = new_value.to_owned(),
+                        _ => {
+                            new_value.resolve_type(&vec![object.1.to_type()])?;
+
+                            let selected_value = ConstrainedValue::conditionally_select(
+                                cs, &condition, &new_value, &object.1,
+                            )
+                            .map_err(|_| StatementError::SelectFail(new_value.to_string(), object.1.to_string()))?;
+
+                            object.1 = selected_value.to_owned();
+                        }
                     },
                     None => return Err(StatementError::UndefinedCircuitObject(object_name.to_string())),
                 }
@@ -130,6 +159,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         assignee: Assignee,
         expression: Expression,
     ) -> Result<(), StatementError> {
@@ -137,14 +167,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
-        let new_value = self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
+        let mut new_value =
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
 
         // Mutate the old value into the new value
         match assignee {
             Assignee::Identifier(_identifier) => {
+                let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone())?;
+                new_value.resolve_type(&vec![old_value.to_type()])?;
+                let selected_value = ConstrainedValue::conditionally_select(cs, &condition, &new_value, old_value)
+                    .map_err(|_| StatementError::SelectFail(new_value.to_string(), old_value.to_string()))?;
 
-                *old_value = new_value;
+                *old_value = selected_value;
 
                 Ok(())
             }
@@ -152,12 +187,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope,
                 function_scope,
+                indicator,
                 variable_name,
                 range_or_expression,
                 new_value,
             ),
             Assignee::CircuitField(_assignee, object_name) => {
-                self.mutute_circuit_field(variable_name, object_name, new_value)
+                self.mutute_circuit_field(cs, indicator, variable_name, object_name, new_value)
             }
         }
     }
@@ -262,7 +298,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
             let expected_types = vec![ty.clone()];
-            let result = self.enforce_branch(
+            let result = self.enforce_expression_value(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
@@ -276,11 +312,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(ConstrainedValue::Return(returns))
     }
 
-    fn iterate_or_early_return<CS: ConstraintSystem<F>>(
+    fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
@@ -291,6 +328,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
+                indicator.clone(),
                 statement.clone(),
                 return_types.clone(),
             )? {
@@ -302,16 +340,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(res)
     }
 
+    /// Enforces a statements.conditional statement with one or more branches.
+    /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
+    /// At program execution, we will pass an `indicator bit` down to all child statements within each branch.
+    /// The `indicator bit` will select that branch while keeping the constraint system satisfied.
     fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statement: ConditionalStatement,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
+        let statement_string = statement.to_string();
+        let outer_indicator = indicator.unwrap_or(Boolean::Constant(true));
+
         let expected_types = vec![Type::Boolean];
-        let condition = match self.enforce_expression(
+        let inner_indicator = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -322,21 +368,50 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(StatementError::IfElseConditional(value.to_string())),
         };
 
-        // use gadget impl
-        if condition.eq(&Boolean::Constant(true)) {
-            self.iterate_or_early_return(cs, file_scope, function_scope, statement.statements, return_types)
-        } else {
-            match statement.next {
-                Some(next) => match next {
-                    ConditionalNestedOrEndStatement::Nested(nested) => {
-                        self.enforce_conditional_statement(cs, file_scope, function_scope, *nested, return_types)
-                    }
-                    ConditionalNestedOrEndStatement::End(statements) => {
-                        self.iterate_or_early_return(cs, file_scope, function_scope, statements, return_types)
-                    }
-                },
-                None => Ok(None),
-            }
+        // Determine nested branch selection
+        let branch_1_indicator = Boolean::and(
+            &mut cs.ns(|| format!("statement branch 1 indicator {}", statement_string)),
+            &outer_indicator,
+            &inner_indicator,
+        )?;
+
+        // Execute branch 1
+        self.evaluate_branch(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            Some(branch_1_indicator),
+            statement.statements,
+            return_types.clone(),
+        )?;
+
+        // Execute branch 2
+        let branch_2_indicator = Boolean::and(
+            &mut cs.ns(|| format!("statement branch 2 indicator {}", statement_string)),
+            &outer_indicator,
+            &inner_indicator.not(),
+        )?;
+
+        match statement.next {
+            Some(next) => match next {
+                ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    Some(branch_2_indicator),
+                    *nested,
+                    return_types,
+                ),
+                ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    Some(branch_2_indicator),
+                    statements,
+                    return_types,
+                ),
+            },
+            None => Ok(None), // this is an if with no else, have to pass statements.conditional down to next statements somehow
         }
     }
 
@@ -345,6 +420,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         index: Identifier,
         start: Integer,
         stop: Integer,
@@ -362,11 +438,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
             );
 
+            cs.ns(|| format!("loop {} = {}", index.to_string(), i));
+
             // Evaluate statements and possibly return early
-            if let Some(early_return) = self.iterate_or_early_return(
+            if let Some(early_return) = self.evaluate_branch(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
+                indicator,
                 statements.clone(),
                 return_types.clone(),
             )? {
@@ -381,29 +460,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     fn enforce_assert_eq_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        left: ConstrainedValue<F, G>,
-        right: ConstrainedValue<F, G>,
+        indicator: Option<Boolean>,
+        left: &ConstrainedValue<F, G>,
+        right: &ConstrainedValue<F, G>,
     ) -> Result<(), StatementError> {
-        Ok(match (left, right) {
-            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                self.enforce_boolean_eq(cs, bool_1, bool_2)?
-            }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1
-                .enforce_equal(cs, &num_2)
-                .map_err(|_| StatementError::AssertionFailed(num_1.to_string(), num_2.to_string()))?,
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => fe_1
-                .enforce_equal(cs, &fe_2)
-                .map_err(|_| StatementError::AssertionFailed(fe_1.to_string(), fe_2.to_string()))?,
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => ge_1
-                .enforce_equal(cs, &ge_2)
-                .map_err(|_| StatementError::AssertionFailed(ge_1.to_string(), ge_2.to_string()))?,
-            (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
-                for (left, right) in arr_1.into_iter().zip(arr_2.into_iter()) {
-                    self.enforce_assert_eq_statement(cs, left, right)?;
-                }
-            }
-            (val_1, val_2) => return Err(StatementError::AssertEq(val_1.to_string(), val_2.to_string())),
-        })
+        let condition = indicator.unwrap_or(Boolean::Constant(true));
+        let result = left.conditional_enforce_equal(cs, right, &condition);
+
+        Ok(result.map_err(|_| StatementError::AssertionFailed(left.to_string(), right.to_string()))?)
     }
 
     pub(crate) fn enforce_statement<CS: ConstraintSystem<F>>(
@@ -411,6 +475,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        indicator: Option<Boolean>,
         statement: Statement,
         return_types: Vec<Type>,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
@@ -423,15 +488,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_definition_statement(cs, file_scope, function_scope, variable, expression)?;
             }
             Statement::Assign(variable, expression) => {
-                self.enforce_assign_statement(cs, file_scope, function_scope, variable, expression)?;
+                self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression)?;
             }
             Statement::MultipleAssign(variables, function) => {
                 self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function)?;
             }
             Statement::Conditional(statement) => {
-                if let Some(early_return) =
-                    self.enforce_conditional_statement(cs, file_scope, function_scope, statement, return_types)?
-                {
+                if let Some(early_return) = self.enforce_conditional_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    statement,
+                    return_types,
+                )? {
                     res = Some(early_return)
                 }
             }
@@ -440,6 +510,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope,
                     function_scope,
+                    indicator,
                     index,
                     start,
                     stop,
@@ -450,12 +521,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 }
             }
             Statement::AssertEq(left, right) => {
-                let resolved_left =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], left)?;
-                let resolved_right =
-                    self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], right)?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right)?;
 
-                self.enforce_assert_eq_statement(cs, resolved_left, resolved_right)?;
+                self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right)?;
             }
             Statement::Expression(expression) => {
                 match self.enforce_expression(cs, file_scope, function_scope, &vec![], expression.clone())? {

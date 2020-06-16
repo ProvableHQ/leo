@@ -12,7 +12,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget},
+        utilities::{alloc::AllocGadget, boolean::Boolean},
     },
 };
 
@@ -44,10 +44,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         Ok(ConstrainedValue::Boolean(number))
-    }
-
-    pub(crate) fn get_boolean_constant(bool: Boolean) -> ConstrainedValue<F, G> {
-        ConstrainedValue::Boolean(bool)
     }
 
     pub(crate) fn evaluate_not(value: ConstrainedValue<F, G>) -> Result<ConstrainedValue<F, G>, BooleanError> {
@@ -89,18 +85,5 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 left_value, right_value
             ))),
         }
-    }
-
-    pub(crate) fn boolean_eq(left: Boolean, right: Boolean) -> ConstrainedValue<F, G> {
-        ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
-    }
-
-    pub(crate) fn enforce_boolean_eq<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        left: Boolean,
-        right: Boolean,
-    ) -> Result<(), BooleanError> {
-        Ok(left.enforce_equal(cs.ns(|| format!("enforce bool equal")), &right)?)
     }
 }

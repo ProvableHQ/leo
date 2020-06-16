@@ -81,7 +81,7 @@ pub enum ExpressionError {
     UndefinedFunction(String),
 
     // Conditionals
-    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
+    #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
 
     #[error("{}", _0)]

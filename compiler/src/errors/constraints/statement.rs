@@ -1,4 +1,4 @@
-use crate::errors::{BooleanError, ExpressionError};
+use crate::errors::{BooleanError, ExpressionError, ValueError};
 
 use snarkos_errors::gadgets::SynthesisError;
 
@@ -37,7 +37,7 @@ pub enum StatementError {
     #[error("Assertion {:?} == {:?} failed", _0, _1)]
     AssertionFailed(String, String),
 
-    #[error("If, else conditional must resolve to a boolean, got {}", _0)]
+    #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
 
     #[error("Cannot assign to immutable variable {}", _0)]
@@ -49,9 +49,15 @@ pub enum StatementError {
     #[error("Function return statement expected {} return values, got {}", _0, _1)]
     InvalidNumberOfReturns(usize, usize),
 
+    #[error("Conditional select gadget failed to select between {} or {}", _0, _1)]
+    SelectFail(String, String),
+
     #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
 
     #[error("Expected assignment of return values for expression {}", _0)]
     Unassigned(String),
+
+    #[error("{}", _0)]
+    ValueError(#[from] ValueError),
 }

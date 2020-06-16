@@ -7,6 +7,8 @@ use leo_types::InputValue;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
+pub mod conditional;
+
 // Ternary if {bool}? {expression} : {expression};
 
 #[test]

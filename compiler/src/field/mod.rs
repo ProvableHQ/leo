@@ -11,7 +11,7 @@ use snarkos_models::{
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
             ToBitsGadget,
@@ -172,6 +172,22 @@ impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
         let other_value = other.get_value();
 
         Option::from(self_value.cmp(&other_value))
+    }
+}
+
+impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        match (self, other) {
+            (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.eq(second))),
+            (FieldType::Allocated(allocated), FieldType::Constant(constant))
+            | (FieldType::Constant(constant), FieldType::Allocated(allocated)) => {
+                let bool_option = allocated.value.map(|f| f.eq(constant));
+                Boolean::alloc(&mut cs.ns(|| "evaluate_equal"), || {
+                    bool_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+            }
+            (FieldType::Allocated(first), FieldType::Allocated(second)) => first.evaluate_equal(cs, second),
+        }
     }
 }
 

@@ -12,3 +12,16 @@ function fibonacci(i: u32) -> u32 {
 function main() -> u32 {
     return fibonacci(1)
 }
+
+
+Function mutateNoLet(b: bool) {
+  let mut a = 5;
+  if b {
+    // must be turned into statements.conditional expression
+    a = 0;
+    // a = if b ? 0 : a;
+  } else {
+    a = 3;
+    // a = if b ? a : 3;
+  }
+}

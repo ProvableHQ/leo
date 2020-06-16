@@ -118,11 +118,6 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let quotient = r1.wrapping_div(r2);
-
-                    let cs = TestConstraintSystem::<Fq>::new();
-                    let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
-
                     let bytes = include_bytes!("div.leo");
                     let mut program = parse_program(bytes).unwrap();
 
@@ -131,7 +126,16 @@ macro_rules! test_uint {
                         Some(InputValue::Integer($integer_type, r2 as u128)),
                     ]);
 
-                    output_expected_allocated(program, quotient_allocated);
+                    // expect an error when dividing by zero
+                    if r2 == 0 {
+                        let _err = get_error(program);
+                    } else {
+                        let cs = TestConstraintSystem::<Fq>::new();
+                        let quotient = r1.wrapping_div(r2);
+                        let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
+
+                        output_expected_allocated(program, quotient_allocated);
+                    }
                 }
             }
 

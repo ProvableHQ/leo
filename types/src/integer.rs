@@ -18,6 +18,7 @@ use snarkos_models::{
     },
 };
 
+use snarkos_models::gadgets::utilities::eq::EvaluateEqGadget;
 use std::fmt;
 
 /// An integer type enum wrapping the integer value. Used only in expressions.
@@ -374,6 +375,19 @@ impl Integer {
     }
 }
 
+impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        match (self, other) {
+            (Integer::U8(left_u8), Integer::U8(right_u8)) => left_u8.evaluate_equal(cs, right_u8),
+            (Integer::U16(left_u16), Integer::U16(right_u16)) => left_u16.evaluate_equal(cs, right_u16),
+            (Integer::U32(left_u32), Integer::U32(right_u32)) => left_u32.evaluate_equal(cs, right_u32),
+            (Integer::U64(left_u64), Integer::U64(right_u64)) => left_u64.evaluate_equal(cs, right_u64),
+            (Integer::U128(left_u128), Integer::U128(right_u128)) => left_u128.evaluate_equal(cs, right_u128),
+            (_, _) => Err(SynthesisError::AssignmentMissing),
+        }
+    }
+}
+
 impl<F: Field + PrimeField> EqGadget<F> for Integer {}
 
 impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
@@ -440,6 +454,16 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
 
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.to_usize(), self.get_type())
+        let option = match self {
+            Integer::U8(u8) => u8.value.map(|num| num as usize),
+            Integer::U16(u16) => u16.value.map(|num| num as usize),
+            Integer::U32(u32) => u32.value.map(|num| num as usize),
+            Integer::U64(u64) => u64.value.map(|num| num as usize),
+            Integer::U128(u128) => u128.value.map(|num| num as usize),
+        };
+        match option {
+            Some(number) => write!(f, "{}{}", number, self.get_type()),
+            None => write!(f, "[input]{}", self.get_type()),
+        }
     }
 }

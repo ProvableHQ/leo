@@ -87,6 +87,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 scope.clone(),
                 function_name.clone(),
+                None,
                 statement.clone(),
                 function.returns.clone(),
             )? {
