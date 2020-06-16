@@ -239,7 +239,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )?;
 
         if let Declare::Let = declare {
-            value = value.allocate_value(cs)?;
+            value.allocate_value(cs)?;
         }
 
         self.store_definition(function_scope, variable, value)

@@ -11,7 +11,7 @@ identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPH
 protected_name = {
     "for"| "if" | "else" | "as" | "return"
      | declare | mutable | static_ | value_boolean
-     | type_self | type_array | type_data
+     | type_array | type_data
 }
 
 // Declared in common/line_end.rs

@@ -107,45 +107,72 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, ValueError> {
-        Ok(match self {
-            ConstrainedValue::Boolean(ref boolean) => {
+    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS) -> Result<(), ValueError> {
+        match self {
+            // allocated values
+            ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
-                let allocated = Boolean::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
 
-                ConstrainedValue::Boolean(allocated)
+                *boolean = Boolean::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
             }
-            ConstrainedValue::Integer(ref integer) => {
+            ConstrainedValue::Integer(integer) => {
                 let integer_type = integer.get_type();
                 let option = integer.get_value();
                 let name = format!("clone {}", integer);
-                let allocated = Integer::allocate_type(&mut cs, integer_type, name, option)?;
 
-                ConstrainedValue::Integer(allocated)
+                *integer = Integer::allocate_type(&mut cs, integer_type, name, option)?;
             }
-            ConstrainedValue::Field(ref field) => {
+            ConstrainedValue::Field(field) => {
                 let option = field.get_value().map(|v| format!("{}", v));
-                let allocated = FieldType::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
 
-                ConstrainedValue::Field(allocated)
+                *field = FieldType::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
             }
-            ConstrainedValue::Group(ref group) => {
-                let string = format!("{}", group);
-                let allocated = G::alloc(cs, || Ok(string))?;
+            ConstrainedValue::Group(group) => {
+                let string = format!("{}", group); // may need to implement u256 -> decimal formatting
 
-                ConstrainedValue::Group(allocated)
+                *group = G::alloc(cs, || Ok(string))?;
             }
-            ConstrainedValue::Array(ref array) => {
-                let allocated = array
-                    .iter()
+            // value wrappers
+            ConstrainedValue::Array(array) => {
+                array
+                    .iter_mut()
                     .enumerate()
-                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate {}", i))))
-                    .collect::<Result<Vec<ConstrainedValue<F, G>>, ValueError>>()?;
-
-                ConstrainedValue::Array(allocated)
+                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate array member {}", i))))
+                    .collect::<Result<(), ValueError>>()?;
             }
-            _ => unimplemented!("cannot allocate non-primitive value"),
-        })
+            ConstrainedValue::CircuitExpression(_id, members) => {
+                members
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, member)| {
+                        member
+                            .1
+                            .allocate_value(cs.ns(|| format!("allocate circuit member {}", i)))
+                    })
+                    .collect::<Result<(), ValueError>>()?;
+            }
+            ConstrainedValue::Return(array) => {
+                array
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate return member {}", i))))
+                    .collect::<Result<(), ValueError>>()?;
+            }
+            ConstrainedValue::Mutable(value) => {
+                value.allocate_value(cs)?;
+            }
+            ConstrainedValue::Static(value) => {
+                value.allocate_value(cs)?;
+            }
+            // empty wrappers
+            ConstrainedValue::CircuitDefinition(_) => {}
+            ConstrainedValue::Function(_, _) => {}
+            ConstrainedValue::Unresolved(_) => {
+                return Err(ValueError::SynthesisError(SynthesisError::AssignmentMissing));
+            }
+        }
+
+        Ok(())
     }
 }
 

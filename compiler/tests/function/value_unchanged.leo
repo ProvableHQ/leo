@@ -12,7 +12,7 @@ function bad_mutate(mut x: u32) {
 }
 
 function main() -> u32 {
-    let a = 1;
+    let a = 1u32;
     bad_mutate(a);
 
     return a // <- returns 1
