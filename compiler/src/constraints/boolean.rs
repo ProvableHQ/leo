@@ -16,8 +16,8 @@ use snarkos_models::{
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub(crate) fn bool_from_input(
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    pub(crate) fn bool_from_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         name: String,
@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    pub(crate) fn enforce_or(
+    pub(crate) fn enforce_or<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -74,7 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    pub(crate) fn enforce_and(
+    pub(crate) fn enforce_and<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -95,7 +95,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         ConstrainedValue::Boolean(Boolean::Constant(left.eq(&right)))
     }
 
-    pub(crate) fn enforce_boolean_eq(
+    pub(crate) fn enforce_boolean_eq<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: Boolean,

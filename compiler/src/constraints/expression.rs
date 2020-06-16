@@ -27,7 +27,7 @@ use snarkos_models::{
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
     pub(crate) fn evaluate_identifier(
         &mut self,
@@ -56,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     }
 
     /// Enforce numerical operations
-    fn enforce_add_expression(
+    fn enforce_add_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -84,7 +84,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_sub_expression(
+    fn enforce_sub_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -112,7 +112,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_mul_expression(
+    fn enforce_mul_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -137,7 +137,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_div_expression(
+    fn enforce_div_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -162,7 +162,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_pow_expression(
+    fn enforce_pow_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
@@ -332,7 +332,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     }
 
     /// Enforce ternary conditional expression
-    fn enforce_conditional_expression(
+    fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -379,7 +379,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     }
 
     /// Enforce array expressions
-    fn enforce_array_expression(
+    fn enforce_array_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -443,7 +443,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(ConstrainedValue::Array(result))
     }
 
-    pub(crate) fn enforce_index(
+    pub(crate) fn enforce_index<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -457,7 +457,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_array_access_expression(
+    fn enforce_array_access_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -490,7 +490,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_circuit_expression(
+    fn enforce_circuit_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -553,7 +553,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_circuit_access_expression(
+    fn enforce_circuit_access_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -608,7 +608,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         }
     }
 
-    fn enforce_circuit_static_access_expression(
+    fn enforce_circuit_static_access_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -655,7 +655,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(ConstrainedValue::Function(Some(circuit.identifier), function))
     }
 
-    fn enforce_function_call_expression(
+    fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -712,7 +712,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
     /// Enforce a branch of a binary expression.
     /// We don't care about mutability because we are not changing any variables.
     /// We try to resolve unresolved types here if the type is given explicitly.
-    pub(crate) fn enforce_branch(
+    pub(crate) fn enforce_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -728,7 +728,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok(branch)
     }
 
-    pub(crate) fn enforce_binary_expression(
+    pub(crate) fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -745,7 +745,7 @@ impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> Constraine
         Ok((resolved_left, resolved_right))
     }
 
-    pub(crate) fn enforce_expression(
+    pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,

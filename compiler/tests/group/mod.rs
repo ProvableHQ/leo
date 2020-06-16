@@ -12,7 +12,7 @@ use leo_types::InputValue;
 use snarkos_curves::edwards_bls12::{EdwardsAffine, Fq};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::Group,
+    curves::Zero,
     gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
 };
 use std::str::FromStr;
