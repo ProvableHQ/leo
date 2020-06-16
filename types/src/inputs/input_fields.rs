@@ -1,7 +1,7 @@
 use crate::InputValue;
 use leo_inputs::{types::IntegerType, InputParserError};
 
-use snarkos_models::curves::{Field, PairingEngine};
+use snarkos_models::curves::{One, PairingEngine, Zero};
 use std::str::FromStr;
 
 pub struct InputFields<E: PairingEngine>(pub Vec<E::Fr>);
