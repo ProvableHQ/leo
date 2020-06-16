@@ -8,7 +8,11 @@ file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ 
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-protected_name = { "let" | "for"| "if" | "else" | "as" | "return" }
+protected_name = {
+    "for"| "if" | "else" | "as" | "return"
+     | declare | mutable | static_ | value_boolean
+     | type_self | type_array | type_data
+}
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
@@ -35,6 +39,11 @@ static_ = { "static" }
 
 // Declared in common/variable.rs
 variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+
+// Declared in common/declare.rs
+declare = { let_ | const_ }
+const_ = { "const" }
+let_ = { "let" }
 
 /// Operations
 
@@ -249,7 +258,7 @@ statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NE
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
-statement_definition = { "let" ~ variable ~ "=" ~ expression ~ LINE_END}
+statement_definition = { declare ~ variable ~ "=" ~ expression ~ LINE_END}
 
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
@@ -258,7 +267,7 @@ statement_expression = { expression ~ LINE_END }
 statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/multiple_assignment_statement.rs
-statement_multiple_assignment = { "let" ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
+statement_multiple_assignment = { declare ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
 variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 // Declared in statements/return_statement.rs

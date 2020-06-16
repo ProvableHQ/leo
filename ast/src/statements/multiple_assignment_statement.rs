@@ -4,6 +4,7 @@ use crate::{
     expressions::Expression,
 };
 
+use crate::common::Declare;
 use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
@@ -11,6 +12,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_multiple_assignment))]
 pub struct MultipleAssignmentStatement<'ast> {
+    pub declare: Declare,
     pub variables: Vec<Variable<'ast>>,
     pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,
