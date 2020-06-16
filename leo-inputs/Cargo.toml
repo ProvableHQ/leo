@@ -5,11 +5,11 @@ authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
 [dependencies]
-snarkos-algorithms = { path = "../../snarkOS/algorithms", version = "0.8.0" }
-snarkos-curves = { path = "../../snarkOS/curves", version = "0.8.0" }
-snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0" }
-snarkos-gadgets = { path = "../../snarkOS/gadgets", version = "0.8.0" }
-snarkos-models = { path = "../../snarkOS/models", version = "0.8.0" }
+snarkos-algorithms = { path = "../../snarkOS/algorithms", version = "0.8.0", default-features = false }
+snarkos-curves = { path = "../../snarkOS/curves", version = "0.8.0", default-features = false }
+snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0", default-features = false }
+snarkos-gadgets = { path = "../../snarkOS/gadgets", version = "0.8.0", default-features = false }
+snarkos-models = { path = "../../snarkOS/models", version = "0.8.0", default-features = false }
 
 from-pest = { version = "0.3.1" }
 pest = { version = "2.0" }

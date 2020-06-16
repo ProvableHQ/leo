@@ -19,11 +19,11 @@ members = [ "ast", "compiler", "leo-inputs", "types" ]
 leo-compiler = { path = "compiler", version = "0.1.0" }
 leo-inputs = { path = "leo-inputs", version = "0.1.0"}
 
-snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0" }
-snarkos-curves = { path = "../snarkOS/curves", version = "0.8.0" }
-snarkos-errors = { path = "../snarkOS/errors", version = "0.8.0" }
-snarkos-gadgets = { path = "../snarkOS/gadgets", version = "0.8.0" }
-snarkos-models =  { path = "../snarkOS/models", version = "0.8.0" }
+snarkos-algorithms = { path = "../snarkOS/algorithms", version = "0.8.0", default-features = false }
+snarkos-curves = { path = "../snarkOS/curves", version = "0.8.0", default-features = false }
+snarkos-errors = { path = "../snarkOS/errors", version = "0.8.0", default-features = false }
+snarkos-gadgets = { path = "../snarkOS/gadgets", version = "0.8.0", default-features = false }
+snarkos-models =  { path = "../snarkOS/models", version = "0.8.0", default-features = false }
 snarkos-utilities = { path = "../snarkOS/utilities", version = "0.8.0" }
 
 clap = { version = "2.33.0" }
