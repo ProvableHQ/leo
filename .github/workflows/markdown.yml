@@ -40,6 +40,7 @@ jobs:
           git commit -m "Add markdown changes" -a
 
       - name: Push changes
-        uses: ad-m/github-push-action
+        uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
