@@ -16,7 +16,7 @@ use leo_types::InputValue;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::{
-    curves::{Field, PrimeField},
+    curves::{One, PrimeField, Zero},
     gadgets::{
         curves::field::FieldGadget,
         r1cs::{ConstraintSystem, TestConstraintSystem},
