@@ -1,6 +1,7 @@
 use crate::errors::{FieldError, GroupError};
 use leo_types::IntegerError;
 
+use snarkos_errors::gadgets::SynthesisError;
 use std::{num::ParseIntError, str::ParseBoolError};
 
 #[derive(Debug, Error)]
@@ -19,4 +20,7 @@ pub enum ValueError {
 
     #[error("{}", _0)]
     ParseIntError(#[from] ParseIntError),
+
+    #[error("{}", _0)]
+    SynthesisError(#[from] SynthesisError),
 }

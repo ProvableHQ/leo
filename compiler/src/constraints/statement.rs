@@ -230,13 +230,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         if let Some(ref _type) = variable._type {
             expected_types.push(_type.clone());
         }
-        let value = self.enforce_expression(
+        let mut value = self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
             &expected_types,
             expression,
         )?;
+
+        if let Declare::Let = declare {
+            value = value.allocate_value(cs)?;
+        }
 
         self.store_definition(function_scope, variable, value)
     }

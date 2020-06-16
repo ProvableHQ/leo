@@ -58,14 +58,18 @@ impl<'ast> Integer {
 }
 
 impl Integer {
-    pub fn to_usize(&self) -> usize {
+    pub fn get_value(&self) -> Option<u128> {
         match self {
-            Integer::U8(u8) => u8.value.unwrap() as usize,
-            Integer::U16(u16) => u16.value.unwrap() as usize,
-            Integer::U32(u32) => u32.value.unwrap() as usize,
-            Integer::U64(u64) => u64.value.unwrap() as usize,
-            Integer::U128(u128) => u128.value.unwrap() as usize,
+            Integer::U8(u8) => u8.value.map(|v| v as u128),
+            Integer::U16(u16) => u16.value.map(|v| v as u128),
+            Integer::U32(u32) => u32.value.map(|v| v as u128),
+            Integer::U64(u64) => u64.value.map(|v| v as u128),
+            Integer::U128(u128) => u128.value.map(|v| v as u128),
         }
+    }
+
+    pub fn to_usize(&self) -> usize {
+        self.get_value().unwrap() as usize
     }
 
     pub fn get_type(&self) -> IntegerType {
@@ -78,6 +82,47 @@ impl Integer {
         }
     }
 
+    pub fn allocate_type<F: Field, CS: ConstraintSystem<F>>(
+        cs: &mut CS,
+        integer_type: IntegerType,
+        name: String,
+        option: Option<u128>,
+    ) -> Result<Self, IntegerError> {
+        Ok(match integer_type {
+            IntegerType::U8 => {
+                let u8_option = option.map(|integer| integer as u8);
+                let u8_result = UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                Integer::U8(u8_result)
+            }
+            IntegerType::U16 => {
+                let u16_option = option.map(|integer| integer as u16);
+                let u16_result = UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                Integer::U16(u16_result)
+            }
+            IntegerType::U32 => {
+                let u32_option = option.map(|integer| integer as u32);
+                let u32_result = UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                Integer::U32(u32_result)
+            }
+            IntegerType::U64 => {
+                let u64_option = option.map(|integer| integer as u64);
+                let u64_result = UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                Integer::U64(u64_result)
+            }
+            IntegerType::U128 => {
+                let u128_option = option.map(|integer| integer as u128);
+                let u128_result =
+                    UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                Integer::U128(u128_result)
+            }
+        })
+    }
+
     pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         integer_type: IntegerType,
@@ -85,7 +130,7 @@ impl Integer {
         integer_value: Option<InputValue>,
     ) -> Result<Self, IntegerError> {
         // Check that the input value is the correct type
-        let integer_option = match integer_value {
+        let option = match integer_value {
             Some(input) => {
                 if let InputValue::Integer(_type_, integer) = input {
                     Some(integer)
@@ -96,39 +141,7 @@ impl Integer {
             None => None,
         };
 
-        Ok(match integer_type {
-            IntegerType::U8 => {
-                let u8_option = integer_option.map(|integer| integer as u8);
-                let u8_result = UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?;
-
-                Integer::U8(u8_result)
-            }
-            IntegerType::U16 => {
-                let u16_option = integer_option.map(|integer| integer as u16);
-                let u16_result = UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?;
-
-                Integer::U16(u16_result)
-            }
-            IntegerType::U32 => {
-                let u32_option = integer_option.map(|integer| integer as u32);
-                let u32_result = UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?;
-
-                Integer::U32(u32_result)
-            }
-            IntegerType::U64 => {
-                let u64_option = integer_option.map(|integer| integer as u64);
-                let u64_result = UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?;
-
-                Integer::U64(u64_result)
-            }
-            IntegerType::U128 => {
-                let u128_option = integer_option.map(|integer| integer as u128);
-                let u128_result =
-                    UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?;
-
-                Integer::U128(u128_result)
-            }
-        })
+        Self::allocate_type(cs, integer_type, name, option)
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(

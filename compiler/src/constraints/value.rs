@@ -9,6 +9,7 @@ use snarkos_models::{
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
+            alloc::AllocGadget,
             boolean::Boolean,
             eq::ConditionalEqGadget,
             select::CondSelectGadget,
@@ -104,6 +105,47 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         if let ConstrainedValue::Mutable(inner) = self {
             *self = *inner.clone()
         }
+    }
+
+    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, ValueError> {
+        Ok(match self {
+            ConstrainedValue::Boolean(ref boolean) => {
+                let option = boolean.get_value();
+                let allocated = Boolean::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                ConstrainedValue::Boolean(allocated)
+            }
+            ConstrainedValue::Integer(ref integer) => {
+                let integer_type = integer.get_type();
+                let option = integer.get_value();
+                let name = format!("clone {}", integer);
+                let allocated = Integer::allocate_type(&mut cs, integer_type, name, option)?;
+
+                ConstrainedValue::Integer(allocated)
+            }
+            ConstrainedValue::Field(ref field) => {
+                let option = field.get_value().map(|v| format!("{}", v));
+                let allocated = FieldType::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+
+                ConstrainedValue::Field(allocated)
+            }
+            ConstrainedValue::Group(ref group) => {
+                let string = format!("{}", group);
+                let allocated = G::alloc(cs, || Ok(string))?;
+
+                ConstrainedValue::Group(allocated)
+            }
+            ConstrainedValue::Array(ref array) => {
+                let allocated = array
+                    .iter()
+                    .enumerate()
+                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate {}", i))))
+                    .collect::<Result<Vec<ConstrainedValue<F, G>>, ValueError>>()?;
+
+                ConstrainedValue::Array(allocated)
+            }
+            _ => unimplemented!("cannot allocate non-primitive value"),
+        })
     }
 }
 
