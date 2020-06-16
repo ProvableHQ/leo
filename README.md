@@ -602,4 +602,3 @@ cargo install --path .
 - Change `target` directory to some other directory to avoid collision.
 - Figure out how `leo prove` should take in assignments.
 - Come up with a serialization format for `.leo.pk`, `.leo.vk`, and `.leo.proof`.
-
