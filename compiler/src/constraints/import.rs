@@ -13,8 +13,13 @@ use snarkos_models::{
 };
 use std::env::current_dir;
 
-impl<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>> ConstrainedProgram<F, G, CS> {
-    pub fn enforce_import(&mut self, cs: &mut CS, scope: String, import: Import) -> Result<(), ImportError> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    pub fn enforce_import<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        scope: String,
+        import: Import,
+    ) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 
         // Sanitize the package path to the imports directory

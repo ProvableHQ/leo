@@ -64,7 +64,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     cs: &mut TestConstraintSystem<F>,
     program: Program,
 ) -> Result<(), CompilerError> {
-    let mut resolved_program = ConstrainedProgram::<F, G, TestConstraintSystem<F>>::new();
+    let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
 
     let tests = program.tests.clone();
