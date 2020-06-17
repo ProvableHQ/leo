@@ -1,6 +1,6 @@
 use snarkos_errors::gadgets::SynthesisError;
 
-use leo_inputs::SyntaxError as InputsSyntaxError;
+use leo_inputs::SyntaxError as InputSyntaxError;
 use leo_types::InputValue;
 use pest::error::{Error, ErrorVariant};
 use std::str::ParseBoolError;
@@ -20,18 +20,18 @@ pub enum BooleanError {
     SynthesisError(#[from] SynthesisError),
 
     #[error("{}", _0)]
-    SyntaxError(#[from] InputsSyntaxError),
+    SyntaxError(#[from] InputSyntaxError),
 }
 
 impl<'ast> From<InputValue<'ast>> for BooleanError {
     fn from(value: InputValue<'ast>) -> Self {
         let error = Error::new_from_span(
             ErrorVariant::CustomError {
-                message: format!("expected boolean input, got {}", value.to_string()),
+                message: format!("expected boolean input, actual {}", value.to_string()),
             },
             value.span().to_owned(),
         );
 
-        BooleanError::SyntaxError(InputsSyntaxError::from(error))
+        BooleanError::SyntaxError(InputSyntaxError::from(error))
     }
 }

@@ -1,5 +1,6 @@
 use crate::{ast::Rule, types::FieldType, values::NumberValue};
 
+use crate::values::NumberImplicitValue;
 use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
@@ -8,9 +9,19 @@ use std::fmt;
 #[pest_ast(rule(Rule::value_field))]
 pub struct FieldValue<'ast> {
     pub number: NumberValue<'ast>,
-    pub _type: FieldType,
+    pub type_: FieldType<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
+}
+
+impl<'ast> FieldValue<'ast> {
+    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: FieldType<'ast>) -> Self {
+        Self {
+            number: number.number,
+            type_,
+            span: number.span,
+        }
+    }
 }
 
 impl<'ast> fmt::Display for FieldValue<'ast> {

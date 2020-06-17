@@ -21,7 +21,7 @@ pub struct SetupCommand;
 impl CLI for SetupCommand {
     type Options = ();
     type Output = (
-        Compiler<Fq, EdwardsGroupType>,
+        Compiler<'static, Fq, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );

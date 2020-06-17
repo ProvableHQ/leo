@@ -6,7 +6,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_))]
 pub enum Type<'ast> {
-    Basic(DataType),
+    Basic(DataType<'ast>),
     Array(ArrayType<'ast>),
 }
 

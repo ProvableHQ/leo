@@ -18,7 +18,8 @@ fn test_inputs_pass() {
     let input_string = String::from_utf8_lossy(input_bytes);
 
     let mut program = parse_program(program_bytes).unwrap();
-    program.parse_inputs(&PathBuf::new(), &input_string).unwrap();
+    let path = PathBuf::new();
+    program.parse_inputs(&path, &input_string).unwrap();
 
     output_true(program);
 }
@@ -30,7 +31,8 @@ fn test_inputs_fail_name() {
     let input_string = String::from_utf8_lossy(input_bytes);
 
     let mut program = parse_program(program_bytes).unwrap();
-    let error = program.parse_inputs(&PathBuf::new(), &input_string).unwrap_err();
+    let path = PathBuf::new();
+    let error = program.parse_inputs(&path, &input_string).unwrap_err();
 
     fail_input_parser(error);
 }
@@ -42,7 +44,8 @@ fn test_inputs_fail_type() {
     let input_string = String::from_utf8_lossy(input_bytes);
 
     let mut program = parse_program(program_bytes).unwrap();
-    let error = program.parse_inputs(&PathBuf::new(), &input_string).unwrap_err();
+    let path = PathBuf::new();
+    let error = program.parse_inputs(&path, &input_string).unwrap_err();
 
     fail_input_parser(error);
 }
@@ -54,7 +57,8 @@ fn test_inputs_multiple() {
     let input_string = String::from_utf8_lossy(input_bytes);
 
     let mut program = parse_program(program_bytes).unwrap();
-    program.parse_inputs(&PathBuf::new(), &input_string).unwrap();
+    let path = PathBuf::new();
+    program.parse_inputs(&path, &input_string).unwrap();
 
     output_true(program);
 }

@@ -2,7 +2,7 @@ use leo_inputs::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
     types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
+    values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, Value},
 };
 
 use leo_inputs::values::IntegerValue;
@@ -16,7 +16,6 @@ pub enum InputValue<'ast> {
     Group(GroupValue<'ast>),
     Boolean(BooleanValue<'ast>),
     Array(Vec<InputValue<'ast>>),
-    Unresolved(DataType, NumberImplicitValue<'ast>),
 }
 
 impl<'ast> InputValue<'ast> {
@@ -27,21 +26,39 @@ impl<'ast> InputValue<'ast> {
             InputValue::Group(value) => &value.span,
             InputValue::Boolean(value) => &value.span,
             InputValue::Array(_) => unimplemented!(), // create new span from start and end
-            InputValue::Unresolved(_, _) => unimplemented!(),
         }
     }
 
-    fn from_value(data_type: DataType, value: Value<'ast>) -> Result<Self, InputParserError> {
+    fn from_typed_integer(
+        integer_type: IntegerType<'ast>,
+        integer: IntegerValue<'ast>,
+    ) -> Result<Self, InputParserError> {
+        if integer_type != integer.type_ {
+            return Err(InputParserError::integer_type_mismatch(integer_type, integer));
+        }
+
+        Ok(InputValue::Integer(integer))
+    }
+
+    fn from_implicit(data_type: DataType<'ast>, number: NumberImplicitValue<'ast>) -> Result<Self, InputParserError> {
+        match data_type {
+            DataType::Integer(type_) => Ok(InputValue::Integer(IntegerValue::from_implicit(number, type_))),
+            DataType::Field(type_) => Ok(InputValue::Field(FieldValue::from_implicit(number, type_))),
+            DataType::Boolean(_) => unimplemented!("cannot have an implicit boolean"),
+            DataType::Group(_) => unimplemented!("group inputs must be explicitly typed"),
+        }
+    }
+
+    fn from_value(data_type: DataType<'ast>, value: Value<'ast>) -> Result<Self, InputParserError> {
         match (data_type, value) {
             (DataType::Boolean(_), Value::Boolean(boolean)) => Ok(InputValue::Boolean(boolean)),
-            (DataType::Integer(integer_type), Value::Integer(integer)) => Ok(InputValue::Integer(integer)),
+            (DataType::Integer(integer_type), Value::Integer(integer)) => {
+                Self::from_typed_integer(integer_type, integer)
+            }
             (DataType::Group(_), Value::Group(group)) => Ok(InputValue::Group(group)),
             (DataType::Field(_), Value::Field(field)) => Ok(InputValue::Field(field)),
-            (data_type, Value::Implicit(implicit)) => Ok(InputValue::Unresolved(data_type, implicit)),
-            (data_type, value) => Err(InputParserError::IncompatibleTypes(
-                data_type.to_string(),
-                value.to_string(),
-            )),
+            (data_type, Value::Implicit(number)) => InputValue::from_implicit(data_type, number),
+            (data_type, value) => Err(InputParserError::data_type_mismatch(data_type, value)),
         }
     }
 
@@ -54,10 +71,7 @@ impl<'ast> InputValue<'ast> {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
-            (type_, value) => Err(InputParserError::IncompatibleTypes(
-                type_.to_string(),
-                value.to_string(),
-            )),
+            (type_, expression) => Err(InputParserError::expression_type_mismatch(type_, expression)),
         }
     }
 
@@ -65,18 +79,11 @@ impl<'ast> InputValue<'ast> {
         mut array_type: ArrayType<'ast>,
         inline: ArrayInlineExpression<'ast>,
     ) -> Result<Self, InputParserError> {
-        match array_type.next_dimension() {
-            Some(number) => {
-                let outer_dimension = number.value.parse::<usize>()?;
-
-                if outer_dimension != inline.expressions.len() {
-                    return Err(InputParserError::InvalidArrayLength(
-                        outer_dimension,
-                        inline.expressions.len(),
-                    ));
-                }
+        if let Some(number) = array_type.next_dimension() {
+            let outer_dimension = number.value.parse::<usize>()?;
+            if outer_dimension != inline.expressions.len() {
+                return Err(InputParserError::array_inline_length(number, inline));
             }
-            None => return Err(InputParserError::UndefinedArrayDimension),
         }
 
         let inner_array_type = if array_type.dimensions.len() == 0 {
@@ -102,15 +109,12 @@ impl<'ast> InputValue<'ast> {
     ) -> Result<Self, InputParserError> {
         let initializer_count = initializer.count.value.parse::<usize>()?;
 
-        match array_type.next_dimension() {
-            Some(number) => {
-                let outer_dimension = number.value.parse::<usize>()?;
+        if let Some(number) = array_type.next_dimension() {
+            let outer_dimension = number.value.parse::<usize>()?;
 
-                if outer_dimension != initializer_count {
-                    return Err(InputParserError::InvalidArrayLength(outer_dimension, initializer_count));
-                }
+            if outer_dimension != initializer_count {
+                return Err(InputParserError::array_init_length(number, initializer));
             }
-            None => return Err(InputParserError::UndefinedArrayDimension),
         }
 
         let inner_array_type = if array_type.dimensions.len() == 0 {
@@ -148,7 +152,6 @@ impl<'ast> fmt::Display for InputValue<'ast> {
                 }
                 write!(f, "]")
             }
-            InputValue::Unresolved(ref type_, ref number) => write!(f, "{}{}", number, type_),
         }
     }
 }

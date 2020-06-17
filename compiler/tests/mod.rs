@@ -5,7 +5,7 @@ pub mod boolean;
 // pub mod function;
 // pub mod group;
 // pub mod import;
-// pub mod inputs;
+pub mod inputs;
 // pub mod integers;
 // pub mod mutability;
 // pub mod statements;
@@ -73,7 +73,7 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 pub(crate) fn input_value_u32_one() -> InputValue<'static> {
     let input = "1";
     let span = Span::new(input, 0, input.len()).unwrap();
-    let type_ = IntegerType::U32Type(U32Type {});
+    let type_ = IntegerType::U32Type(U32Type { span: span.clone() });
 
     InputValue::Integer(IntegerValue {
         number: NumberValue {
