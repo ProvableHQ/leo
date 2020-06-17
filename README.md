@@ -56,7 +56,7 @@ function main() -> bool {
 ```
 
 ## Numbers
-* The definition of a number must include an explict type.
+* The definition of a number must include an explicit type.
 * After assignment, you can choose to explicitly add the type or let the compiler interpret implicitly.
 * Type casting is not supported.
 * Comparators are not supported.
@@ -159,7 +159,14 @@ function main() -> u32[3][2] {
 
 ## Conditionals
 
+Branching in Leo is different than traditional programming languages. Leo developers should keep in mind that every program compiles to a circuit which represents
+all possible evaluations.
+
 ### If Else Ternary Expression
+Ternary `if [cond] ? [first] : [second];` expressions are the cheapest form of conditional. 
+Since `first` and `second` are expressions, we can resolve their values before proceeding execution.
+In the underlying circuit, this is a single bit multiplexer.
+
 ```rust
 function main() -> u32 {
   let y = if 3==3 ? 1 : 5;
@@ -168,14 +175,15 @@ function main() -> u32 {
 ```
 
 ### If Else Conditional Statement
-** **Experimental** **
-The current constraint system is not optimized for statement branching. Please use the ternary expression above until this feature is stable.
+Leo supports the traditional `if [cond] { [first] } else { [second] }` which can be chained using `else if`.
+Since `first` and `second` are one or more statements, they resolve to separate circuits which will all be evaluated.
+In the underlying circuit this can be thought of as a demultiplexer.
 ```rust
-function main(a: private bool, b: private bool) -> u32 {
+function main(a: bool, b: bool) -> u32 {
   let mut res = 0u32;
-  if (a) {
+  if a {
     res = 1;
-  } else if (b) {
+  } else if b {
     res = 2;
   } else {
     res = 3;
@@ -242,25 +250,15 @@ function main() -> u32[3] {
 }
 ```
 
-### Main function inputs
-Main function inputs are allocated as public or private variables in the program's constaint system.
-```rust
-function main(a: private field) -> field {
-  return a
-}
-```
-```rust
-function main(a: public field) -> field {
-  return a
-}
-```
-Private by default. Below `a` is implicitly private.
+### Function inputs
+Main function inputs are allocated private variables in the program's constraint system.
+`a` is implicitly private.
 ```rust
 function main(a: field) -> field {
   return a
 }
 ```
-Function inputs are passed by value.
+Normal function inputs are passed by value.
 ```rust
 function test(mut a: u32) {
     a = 0;
@@ -408,7 +406,7 @@ test function expect_fail() {
 
 # Leo Inputs
 
-Public and private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
+Private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
 
 ## Sections
 A Leo input file is made up of sections. Sections are defined by a section header in brackets followed by one or more input definitions. 
@@ -419,14 +417,14 @@ Section headers specify the target file which must have a main function with mat
 
 ```rust
 [main] // <- section header
-a: private u32 = 1; // <- private input
-b: public u32  = 2; // <- public input
+a: u32 = 1;
+b: u32 = 2;
 ```
 
 `src/main.leo`
 
 ```rust
-function main(a: private u32, b: public u32) -> u32 {
+function main(a: u32, b: u32) -> u32 {
     let c: u32 = a + b;
     return c
 }
@@ -446,8 +444,8 @@ d: group = (0, 1)group // <- group tuples
 ### Arrays
 ```rust
 [main]
-a: private u8[4]    = [0u8; 4];      // <- single
-b: private u8[2][3] = [[0u8; 2]; 3]; // <- multi-dimensional
+a: u8[4]    = [0u8; 4];      // <- single
+b: u8[2][3] = [[0u8; 2]; 3]; // <- multi-dimensional
 ```
 
 # Leo CLI

@@ -1,2 +1,2 @@
 [main]
-b: private u8 = 1;
+b: u8 = 1;

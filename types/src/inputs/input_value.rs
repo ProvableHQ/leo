@@ -1,4 +1,3 @@
-use crate::InputFields;
 use leo_inputs::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
@@ -6,7 +5,6 @@ use leo_inputs::{
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
 
-use snarkos_models::curves::PairingEngine;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
@@ -148,16 +146,6 @@ impl<'ast> InputValue {
         }
 
         Ok(InputValue::Array(values))
-    }
-
-    pub(crate) fn to_input_fields<E: PairingEngine>(&self) -> Result<InputFields<E>, InputParserError> {
-        match self {
-            InputValue::Boolean(boolean) => Ok(InputFields::from_boolean(boolean)),
-            InputValue::Integer(type_, number) => Ok(InputFields::from_integer(type_, number)),
-            InputValue::Group(group) => InputFields::from_group(group),
-            InputValue::Field(field) => InputFields::from_field(field),
-            InputValue::Array(array) => InputFields::from_array(array),
-        }
     }
 }
 

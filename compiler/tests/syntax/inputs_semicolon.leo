@@ -1,2 +1,2 @@
 [main]
-a: private u32 = 5
+a: u32 = 5

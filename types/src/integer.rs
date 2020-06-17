@@ -82,7 +82,6 @@ impl Integer {
         cs: &mut CS,
         integer_type: IntegerType,
         name: String,
-        private: bool,
         integer_value: Option<InputValue>,
     ) -> Result<Self, IntegerError> {
         // Check that the input value is the correct type
@@ -100,50 +99,33 @@ impl Integer {
         Ok(match integer_type {
             IntegerType::U8 => {
                 let u8_option = integer_option.map(|integer| integer as u8);
-                let u8_result = match private {
-                    true => UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?,
-                    false => UInt8::alloc_input(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?,
-                };
+                let u8_result = UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?;
+
                 Integer::U8(u8_result)
             }
             IntegerType::U16 => {
                 let u16_option = integer_option.map(|integer| integer as u16);
-                let u16_result = match private {
-                    true => UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?,
-                    false => {
-                        UInt16::alloc_input(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?
-                    }
-                };
+                let u16_result = UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?;
+
                 Integer::U16(u16_result)
             }
             IntegerType::U32 => {
                 let u32_option = integer_option.map(|integer| integer as u32);
-                let u32_result = match private {
-                    true => UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?,
-                    false => {
-                        UInt32::alloc_input(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?
-                    }
-                };
+                let u32_result = UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?;
+
                 Integer::U32(u32_result)
             }
             IntegerType::U64 => {
                 let u64_option = integer_option.map(|integer| integer as u64);
-                let u64_result = match private {
-                    true => UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?,
-                    false => {
-                        UInt64::alloc_input(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?
-                    }
-                };
+                let u64_result = UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?;
+
                 Integer::U64(u64_result)
             }
             IntegerType::U128 => {
                 let u128_option = integer_option.map(|integer| integer as u128);
-                let u128_result = match private {
-                    true => UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?,
-                    false => {
-                        UInt128::alloc_input(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?
-                    }
-                };
+                let u128_result =
+                    UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?;
+
                 Integer::U128(u128_result)
             }
         })

@@ -17,7 +17,7 @@ circuit PedersenHash {
     }
 }
 
-function main(parameters: private group[512]) -> group {
+function main(parameters: group[512]) -> group {
     let pedersen = PedersenHash::new(parameters);
 
     let input: bool[512] = [true; 512]; // use mock private key until `.bits()` function is implemented

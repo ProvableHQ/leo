@@ -1,3 +1,3 @@
 [main]
-b: private bool = true;
-a: public bool = false;
+b: bool = true;
+a: bool = false;

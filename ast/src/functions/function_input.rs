@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    common::{Identifier, Mutable, Visibility},
+    common::{Identifier, Mutable},
     types::Type,
 };
 
@@ -12,7 +12,6 @@ use pest_ast::FromPest;
 pub struct FunctionInput<'ast> {
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
-    pub visibility: Option<Visibility>,
     pub _type: Type<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
