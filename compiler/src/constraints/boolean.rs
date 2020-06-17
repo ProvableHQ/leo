@@ -26,10 +26,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Check that the input value is the correct type
         let bool_value = match input_value {
             Some(input) => {
-                if let InputValue::Boolean(bool) = input {
+                if let InputValue::Boolean(ast) = input {
+                    let bool = ast.value.parse::<bool>()?;
+
                     Some(bool)
                 } else {
-                    return Err(BooleanError::InvalidBoolean(input.to_string()));
+                    return Err(BooleanError::from(input));
                 }
             }
             None => None,

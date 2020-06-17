@@ -4,11 +4,11 @@ use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::value_integer))]
 pub struct IntegerValue<'ast> {
     pub number: NumberValue<'ast>,
-    pub _type: IntegerType,
+    pub type_: IntegerType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

@@ -3,8 +3,9 @@ use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
+use leo_inputs::syntax::SyntaxError;
 
-use crate::array::input_value_u32_one;
+use crate::input_value_u32_one;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
@@ -43,7 +44,7 @@ fn fail_enforce(program: EdwardsTestCompiler) {
 
 fn fail_boolean(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::InvalidBoolean(_string))) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SyntaxError(SyntaxError::Error))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
     }
 }

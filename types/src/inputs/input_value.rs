@@ -5,57 +5,39 @@ use leo_inputs::{
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
 
+use leo_inputs::values::IntegerValue;
+use pest::Span;
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
-pub enum InputValue {
-    Integer(IntegerType, u128),
-    Field(String),
-    Group(String),
-    Boolean(bool),
-    Array(Vec<InputValue>),
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum InputValue<'ast> {
+    Integer(IntegerValue<'ast>),
+    Field(FieldValue<'ast>),
+    Group(GroupValue<'ast>),
+    Boolean(BooleanValue<'ast>),
+    Array(Vec<InputValue<'ast>>),
+    Unresolved(DataType, NumberImplicitValue<'ast>),
 }
 
-impl<'ast> InputValue {
-    fn from_boolean(boolean: BooleanValue<'ast>) -> Result<Self, InputParserError> {
-        let boolean = boolean.value.parse::<bool>()?;
-        Ok(InputValue::Boolean(boolean))
-    }
-
-    fn from_number(integer_type: IntegerType, number: NumberValue<'ast>) -> Result<Self, InputParserError> {
-        let integer = number.value.parse::<u128>()?;
-        Ok(InputValue::Integer(integer_type, integer))
-    }
-
-    fn from_group(group: GroupValue<'ast>) -> Self {
-        InputValue::Group(group.to_string())
-    }
-
-    fn from_field(field: FieldValue<'ast>) -> Self {
-        InputValue::Field(field.number.value)
-    }
-
-    fn from_implicit(data_type: DataType, implicit: NumberImplicitValue<'ast>) -> Result<Self, InputParserError> {
-        match data_type {
-            DataType::Boolean(_) => Err(InputParserError::IncompatibleTypes(
-                "bool".to_string(),
-                "implicit number".to_string(),
-            )),
-            DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.number),
-            DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
-            DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
+impl<'ast> InputValue<'ast> {
+    pub fn span(&self) -> &Span<'ast> {
+        match self {
+            InputValue::Integer(value) => &value.span,
+            InputValue::Field(value) => &value.span,
+            InputValue::Group(value) => &value.span,
+            InputValue::Boolean(value) => &value.span,
+            InputValue::Array(_) => unimplemented!(), // create new span from start and end
+            InputValue::Unresolved(_, _) => unimplemented!(),
         }
     }
 
     fn from_value(data_type: DataType, value: Value<'ast>) -> Result<Self, InputParserError> {
         match (data_type, value) {
-            (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
-            (DataType::Integer(integer_type), Value::Integer(integer)) => {
-                InputValue::from_number(integer_type, integer.number)
-            }
-            (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
-            (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
-            (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
+            (DataType::Boolean(_), Value::Boolean(boolean)) => Ok(InputValue::Boolean(boolean)),
+            (DataType::Integer(integer_type), Value::Integer(integer)) => Ok(InputValue::Integer(integer)),
+            (DataType::Group(_), Value::Group(group)) => Ok(InputValue::Group(group)),
+            (DataType::Field(_), Value::Field(field)) => Ok(InputValue::Field(field)),
+            (data_type, Value::Implicit(implicit)) => Ok(InputValue::Unresolved(data_type, implicit)),
             (data_type, value) => Err(InputParserError::IncompatibleTypes(
                 data_type.to_string(),
                 value.to_string(),
@@ -80,8 +62,8 @@ impl<'ast> InputValue {
     }
 
     pub(crate) fn from_array_inline(
-        mut array_type: ArrayType,
-        inline: ArrayInlineExpression,
+        mut array_type: ArrayType<'ast>,
+        inline: ArrayInlineExpression<'ast>,
     ) -> Result<Self, InputParserError> {
         match array_type.next_dimension() {
             Some(number) => {
@@ -115,8 +97,8 @@ impl<'ast> InputValue {
     }
 
     pub(crate) fn from_array_initializer(
-        mut array_type: ArrayType,
-        initializer: ArrayInitializerExpression,
+        mut array_type: ArrayType<'ast>,
+        initializer: ArrayInitializerExpression<'ast>,
     ) -> Result<Self, InputParserError> {
         let initializer_count = initializer.count.value.parse::<usize>()?;
 
@@ -149,11 +131,11 @@ impl<'ast> InputValue {
     }
 }
 
-impl fmt::Display for InputValue {
+impl<'ast> fmt::Display for InputValue<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
-            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
+            InputValue::Integer(ref number) => write!(f, "{}", number),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Array(ref array) => {
@@ -166,6 +148,7 @@ impl fmt::Display for InputValue {
                 }
                 write!(f, "]")
             }
+            InputValue::Unresolved(ref type_, ref number) => write!(f, "{}{}", number, type_),
         }
     }
 }

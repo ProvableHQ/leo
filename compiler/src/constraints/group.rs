@@ -15,8 +15,8 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
     // Check that the parameter value is the correct type
     let group_option = match input_value {
         Some(input) => {
-            if let InputValue::Group(group_string) = input {
-                Some(group_string)
+            if let InputValue::Group(ast) = input {
+                Some(ast.value.to_string())
             } else {
                 return Err(GroupError::Invalid(input.to_string()));
             }

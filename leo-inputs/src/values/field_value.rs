@@ -4,7 +4,7 @@ use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::value_field))]
 pub struct FieldValue<'ast> {
     pub number: NumberValue<'ast>,

@@ -28,7 +28,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     _engine: PhantomData<F>,
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
+impl<'ast, F: Field + PrimeField, G: GroupType<F>> Compiler<'ast, F, G> {
     pub fn new() -> Self {
         Self {
             package_name: "".to_string(),
@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<'ast>>>) {
         self.program_inputs.set_inputs(program_inputs);
     }
 
@@ -105,7 +105,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(())
     }
 
-    pub fn parse_inputs(&mut self, input_file_path: &PathBuf, input_file_string: &str) -> Result<(), CompilerError> {
+    pub fn parse_inputs(
+        &mut self,
+        input_file_path: &'ast PathBuf,
+        input_file_string: &'ast str,
+    ) -> Result<(), CompilerError> {
         let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
 
         // Check number/order of parameters here
@@ -115,7 +119,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
+impl<'ast, F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'ast, F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).unwrap();
 

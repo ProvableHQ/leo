@@ -132,7 +132,9 @@ impl Integer {
         // Check that the input value is the correct type
         let option = match integer_value {
             Some(input) => {
-                if let InputValue::Integer(_type_, integer) = input {
+                if let InputValue::Integer(ast) = input {
+                    let integer = ast.number.value.parse::<u128>()?;
+
                     Some(integer)
                 } else {
                     return Err(IntegerError::InvalidInteger(input.to_string()));

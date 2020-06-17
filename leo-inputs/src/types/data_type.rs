@@ -5,7 +5,7 @@ use crate::{
 
 use pest_ast::FromPest;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::type_data))]
 pub enum DataType {
     Integer(IntegerType),
