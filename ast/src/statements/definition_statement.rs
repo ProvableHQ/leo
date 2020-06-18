@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    common::{LineEnd, Variable},
+    common::{Declare, LineEnd, Variable},
     expressions::Expression,
 };
 
@@ -11,6 +11,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
+    pub declare: Declare,
     pub variable: Variable<'ast>,
     pub expression: Expression<'ast>,
     pub line_end: LineEnd,

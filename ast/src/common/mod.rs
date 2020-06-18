@@ -1,6 +1,9 @@
 pub mod assignee;
 pub use assignee::*;
 
+pub mod declare;
+pub use declare::*;
+
 pub mod eoi;
 pub use eoi::*;
 

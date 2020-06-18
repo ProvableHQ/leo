@@ -10,6 +10,7 @@ use leo_types::{
     Assignee,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
+    Declare,
     Expression,
     Identifier,
     Integer,
@@ -221,6 +222,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        declare: Declare,
         variable: Variable,
         expression: Expression,
     ) -> Result<(), StatementError> {
@@ -228,13 +230,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         if let Some(ref _type) = variable._type {
             expected_types.push(_type.clone());
         }
-        let value = self.enforce_expression(
+        let mut value = self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
             &expected_types,
             expression,
         )?;
+
+        if let Declare::Let = declare {
+            value.allocate_value(cs)?;
+        }
 
         self.store_definition(function_scope, variable, value)
     }
@@ -484,8 +490,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Statement::Return(expressions) => {
                 res = Some(self.enforce_return_statement(cs, file_scope, function_scope, expressions, return_types)?);
             }
-            Statement::Definition(variable, expression) => {
-                self.enforce_definition_statement(cs, file_scope, function_scope, variable, expression)?;
+            Statement::Definition(declare, variable, expression) => {
+                self.enforce_definition_statement(cs, file_scope, function_scope, declare, variable, expression)?;
             }
             Statement::Assign(variable, expression) => {
                 self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression)?;

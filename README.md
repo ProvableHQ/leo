@@ -29,6 +29,27 @@ graph LR
     2. Circuit definitions
     3. Function definitions
 
+## Defining Variables
+Leo supports `let` and `const` keywords for variable definition.
+
+```let a = true;``` defines an **allocated** program variable `a` with boolean value `true`.
+
+```const a = true;``` defines a **constant** program variable `a` with boolean value `true`.
+
+**Allocated** variables define private variables in the constraint system. Their value is constrained in the circuit on initialization.
+
+**Constant** variables do not define a variable in the constraint system. Their value is constrained in the circuit on computation with an **allocated** variable. 
+**Constant** variables can be mutable. They do not have the same functionality as `const` variables in other languages.
+```rust
+function addOne() -> {
+    let a = 0u8;   // allocated, value enforced on this line
+    const b = 1u8; // constant, value not enforced yet
+
+    return a + b   // allocated, computed value is enforced to be the sum of both values
+}
+```
+Computations are expressed in terms of arithmetic circuits, in particular rank-1 quadratic constraint systems. Thus computing on an allocated variable always results in another allocated variable. 
+
 ## Mutability
 * All defined variables in Leo are immutable by default.
 * Variables can be made mutable with the `mut` keyword.

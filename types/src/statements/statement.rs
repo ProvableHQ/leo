@@ -1,4 +1,4 @@
-use crate::{Assignee, ConditionalStatement, Expression, Identifier, Integer, Variable};
+use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Integer, Variable};
 use leo_ast::{
     operations::AssignOperation,
     statements::{
@@ -19,7 +19,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq)]
 pub enum Statement {
     Return(Vec<Expression>),
-    Definition(Variable, Expression),
+    Definition(Declare, Variable, Expression),
     Assign(Assignee, Expression),
     MultipleAssign(Vec<Variable>, Expression),
     Conditional(ConditionalStatement),
@@ -43,6 +43,7 @@ impl<'ast> From<ReturnStatement<'ast>> for Statement {
 impl<'ast> From<DefinitionStatement<'ast>> for Statement {
     fn from(statement: DefinitionStatement<'ast>) -> Self {
         Statement::Definition(
+            Declare::from(statement.declare),
             Variable::from(statement.variable),
             Expression::from(statement.expression),
         )
@@ -176,7 +177,9 @@ impl fmt::Display for Statement {
                 }
                 write!(f, ")\n")
             }
-            Statement::Definition(ref variable, ref expression) => write!(f, "let {} = {};", variable, expression),
+            Statement::Definition(ref declare, ref variable, ref expression) => {
+                write!(f, "{} {} = {};", declare, variable, expression)
+            }
             Statement::Assign(ref variable, ref statement) => write!(f, "{} = {};", variable, statement),
             Statement::MultipleAssign(ref assignees, ref function) => {
                 write!(f, "let (")?;

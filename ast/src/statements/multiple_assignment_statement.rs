@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    common::{Identifier, LineEnd, Variable},
+    common::{Declare, Identifier, LineEnd, Variable},
     expressions::Expression,
 };
 
@@ -11,6 +11,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::statement_multiple_assignment))]
 pub struct MultipleAssignmentStatement<'ast> {
+    pub declare: Declare,
     pub variables: Vec<Variable<'ast>>,
     pub function_name: Identifier<'ast>,
     pub arguments: Vec<Expression<'ast>>,

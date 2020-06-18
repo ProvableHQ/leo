@@ -9,6 +9,7 @@ use snarkos_models::{
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
+            alloc::AllocGadget,
             boolean::Boolean,
             eq::ConditionalEqGadget,
             select::CondSelectGadget,
@@ -104,6 +105,74 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         if let ConstrainedValue::Mutable(inner) = self {
             *self = *inner.clone()
         }
+    }
+
+    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS) -> Result<(), ValueError> {
+        match self {
+            // allocated values
+            ConstrainedValue::Boolean(boolean) => {
+                let option = boolean.get_value();
+
+                *boolean = Boolean::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+            }
+            ConstrainedValue::Integer(integer) => {
+                let integer_type = integer.get_type();
+                let option = integer.get_value();
+                let name = format!("clone {}", integer);
+
+                *integer = Integer::allocate_type(&mut cs, integer_type, name, option)?;
+            }
+            ConstrainedValue::Field(field) => {
+                let option = field.get_value().map(|v| format!("{}", v));
+
+                *field = FieldType::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+            }
+            ConstrainedValue::Group(group) => {
+                let string = format!("{}", group); // may need to implement u256 -> decimal formatting
+
+                *group = G::alloc(cs, || Ok(string))?;
+            }
+            // value wrappers
+            ConstrainedValue::Array(array) => {
+                array
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate array member {}", i))))
+                    .collect::<Result<(), ValueError>>()?;
+            }
+            ConstrainedValue::CircuitExpression(_id, members) => {
+                members
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, member)| {
+                        member
+                            .1
+                            .allocate_value(cs.ns(|| format!("allocate circuit member {}", i)))
+                    })
+                    .collect::<Result<(), ValueError>>()?;
+            }
+            ConstrainedValue::Return(array) => {
+                array
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate return member {}", i))))
+                    .collect::<Result<(), ValueError>>()?;
+            }
+            ConstrainedValue::Mutable(value) => {
+                value.allocate_value(cs)?;
+            }
+            ConstrainedValue::Static(value) => {
+                value.allocate_value(cs)?;
+            }
+            // empty wrappers
+            ConstrainedValue::CircuitDefinition(_) => {}
+            ConstrainedValue::Function(_, _) => {}
+            ConstrainedValue::Unresolved(_) => {
+                return Err(ValueError::SynthesisError(SynthesisError::AssignmentMissing));
+            }
+        }
+
+        Ok(())
     }
 }
 
