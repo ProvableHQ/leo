@@ -1,10 +1,9 @@
 use crate::{
     ast::Rule,
-    common::{LineEnd, Variable},
+    common::{Declare, LineEnd, Variable},
     expressions::Expression,
 };
 
-use crate::common::Declare;
 use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
