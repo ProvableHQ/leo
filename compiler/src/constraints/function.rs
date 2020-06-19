@@ -8,7 +8,7 @@ use crate::{
     group_from_input,
     GroupType,
 };
-use leo_types::{Expression, Function, Identifier, InputValue, Integer, Program, Type};
+use leo_types::{Expression, Function, InputValue, Integer, Program, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -186,9 +186,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Store a new variable for every allocated main function input
             self.store(input_name.clone(), input_value);
 
-            input_variables.push(Expression::Identifier(Identifier::new(
-                input_model.identifier.name.clone(),
-            )));
+            input_variables.push(Expression::Identifier(input_model.identifier));
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)
@@ -205,18 +203,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         program
             .imports
             .into_iter()
-            .map(|import| self.enforce_import(cs, program_name.name.clone(), import))
+            .map(|import| self.enforce_import(cs, program_name.clone(), import))
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
         program.circuits.into_iter().for_each(|(identifier, circuit)| {
-            let resolved_circuit_name = new_scope(program_name.to_string(), identifier.to_string());
+            let resolved_circuit_name = new_scope(program_name.clone(), identifier.to_string());
             self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
         });
 
         // evaluate and store all function definitions
         program.functions.into_iter().for_each(|(function_name, function)| {
-            let resolved_function_name = new_scope(program_name.to_string(), function_name.to_string());
+            let resolved_function_name = new_scope(program_name.clone(), function_name.to_string());
             self.store(resolved_function_name, ConstrainedValue::Function(None, function));
         });
 

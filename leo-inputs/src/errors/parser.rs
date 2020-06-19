@@ -33,7 +33,7 @@ pub enum InputParserError {
 }
 
 impl InputParserError {
-    fn syntax_error_span<'ast>(message: String, span: Span<'ast>) -> Self {
+    fn syntax_error_span(message: String, span: Span) -> Self {
         let error = Error::new_from_span(ErrorVariant::CustomError { message }, span);
 
         InputParserError::SyntaxError(InputSyntaxError::from(error))

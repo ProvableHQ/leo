@@ -9,7 +9,7 @@ pub mod inputs;
 // pub mod integers;
 // pub mod mutability;
 // pub mod statements;
-// pub mod syntax;
+pub mod syntax;
 
 use leo_compiler::{
     compiler::Compiler,

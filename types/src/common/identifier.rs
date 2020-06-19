@@ -9,10 +9,6 @@ pub struct Identifier {
 }
 
 impl Identifier {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-
     pub fn is_self(&self) -> bool {
         self.name == "Self"
     }
@@ -20,7 +16,7 @@ impl Identifier {
 
 impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     fn from(identifier: AstIdentifier<'ast>) -> Self {
-        Identifier::new(identifier.value)
+        Self { name: identifier.value }
     }
 }
 
