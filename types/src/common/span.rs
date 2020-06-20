@@ -1,6 +1,6 @@
 use pest::{Position, Span as AstSpan};
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Span {
     /// text of input string
     pub text: String,

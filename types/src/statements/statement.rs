@@ -67,27 +67,47 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                 match operation_assign {
                     AssignOperation::AddAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Add(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Add(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
                         Span::from(statement.span),
                     ),
                     AssignOperation::SubAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Sub(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Sub(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
                         Span::from(statement.span),
                     ),
                     AssignOperation::MulAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Mul(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Mul(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
                         Span::from(statement.span),
                     ),
                     AssignOperation::DivAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Div(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Div(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
                         Span::from(statement.span),
                     ),
                     AssignOperation::PowAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Pow(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Pow(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
                         Span::from(statement.span),
                     ),
                     AssignOperation::Assign(ref _assign) => unimplemented!("cannot assign twice to assign statement"),
@@ -110,6 +130,7 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
             Expression::FunctionCall(
                 Box::new(Expression::from(statement.function_name)),
                 statement.arguments.into_iter().map(|e| Expression::from(e)).collect(),
+                Span::from(statement.span.clone()),
             ),
             Span::from(statement.span),
         )

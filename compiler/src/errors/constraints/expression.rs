@@ -6,19 +6,11 @@ use std::num::ParseIntError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
-    // Identifiers
-    #[error("Identifier \"{}\" not found", _0)]
-    UndefinedIdentifier(String),
-
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 
-    // Types
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
-
-    #[error("{}", _0)]
-    IncompatibleTypes(String),
 
     #[error("{}", _0)]
     IntegerError(#[from] IntegerError),
@@ -35,54 +27,8 @@ pub enum ExpressionError {
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
 
-    // Arrays
-    #[error("Cannot access array {}", _0)]
-    InvalidArrayAccess(String),
-
-    #[error("Index must resolve to an integer, got {}", _0)]
-    InvalidIndex(String),
-
-    #[error("Expected array length {}, got {}", _0, _1)]
-    InvalidLength(usize, usize),
-
-    #[error("Spread should contain an array, got {}", _0)]
-    InvalidSpread(String),
-
-    #[error("Array {} must be declared before it is used in an inline expression", _0)]
-    UndefinedArray(String),
-
-    // Circuits
-    #[error("Expected circuit member {}", _0)]
-    ExpectedCircuitMember(String),
-
-    #[error("Cannot access circuit {}", _0)]
-    InvalidCircuitAccess(String),
-
-    #[error("Non-static member {} must be accessed using `.` syntax", _0)]
-    InvalidMemberAccess(String),
-
-    #[error("Static member {} must be accessed using `::` syntax", _0)]
-    InvalidStaticAccess(String),
-
-    #[error("Circuit {} must be declared before it is used in an inline expression", _0)]
-    UndefinedCircuit(String),
-
-    #[error("Circuit {} has no member {}", _0, _1)]
-    UndefinedMemberAccess(String, String),
-
-    #[error("Circuit {} has no static member {}", _0, _1)]
-    UndefinedStaticAccess(String, String),
-
-    // Functions
-    #[error("Inline function call to {} did not return", _0)]
-    FunctionDidNotReturn(String),
-
     #[error("{}", _0)]
     FunctionError(#[from] Box<FunctionError>),
-
-    #[error("Function {} must be declared before it is used in an inline expression", _0)]
-    UndefinedFunction(String),
-
     // Conditionals
     #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
     IfElseConditional(String),
@@ -96,9 +42,105 @@ impl ExpressionError {
         ExpressionError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn conditional_boolean(actual: String, span: Span) -> Self {
+        let message = format!("If, else conditional must resolve to a boolean, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_circuit_member(expected: String, span: Span) -> Self {
+        let message = format!("Expected circuit member `{}`, not found", expected);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unexpected_array(expected: String, actual: String, span: Span) -> Self {
+        let message = format!("expected type `{}`, found array with elements `{}`", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn incompatible_types(operation: String, span: Span) -> Self {
+        let message = format!("no implementation for `{}`", operation);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_index(actual: String, span: Span) -> Self {
+        let message = format!("Index must resolve to an integer, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_length(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!("Expected array length {}, found one with length {}", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_spread(actual: String, span: Span) -> Self {
+        let message = format!("Spread should contain an array, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_member_access(member: String, span: Span) -> Self {
+        let message = format!("Non-static member `{}` must be accessed using `.` syntax", member);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_static_access(member: String, span: Span) -> Self {
+        let message = format!("Static member `{}` must be accessed using `::` syntax", member);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn function_no_return(function: String, span: Span) -> Self {
+        let message = format!("Inline function call to `{}` did not return", function);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_array(actual: String, span: Span) -> Self {
+        let message = format!("Array `{}` must be declared before it is used in an expression", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_circuit(actual: String, span: Span) -> Self {
+        let message = format!(
+            "Circuit `{}` must be declared before it is used in an expression",
+            actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn undefined_identifier(identifier: Identifier) -> Self {
         let message = format!("cannot find value `{}` in this scope", identifier.name);
 
         Self::new_from_span(message, identifier.span)
+    }
+
+    pub fn undefined_function(function: String, span: Span) -> Self {
+        let message = format!(
+            "Function `{}` must be declared before it is used in an inline expression",
+            function
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_member_access(circuit: String, member: String, span: Span) -> Self {
+        let message = format!("Circuit `{}` has no member `{}`", circuit, member);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_static_access(circuit: String, member: String, span: Span) -> Self {
+        let message = format!("Circuit `{}` has no static member `{}`", circuit, member);
+
+        Self::new_from_span(message, span)
     }
 }

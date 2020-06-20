@@ -39,20 +39,20 @@ impl StatementError {
     }
 
     pub fn assertion_failed(left: String, right: String, span: Span) -> Self {
-        let message = format!("Assertion {} == {} failed", left, right);
+        let message = format!("Assertion `{} == {}` failed", left, right);
 
         Self::new_from_span(message, span)
     }
 
     pub fn conditional_boolean(actual: String, span: Span) -> Self {
-        let message = format!("If, else conditional must resolve to a boolean, got {}", actual);
+        let message = format!("If, else conditional must resolve to a boolean, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: Span) -> Self {
         let message = format!(
-            "Multiple definition statement expected {} return values, got {}",
+            "Multiple definition statement expected {} return values, found {} values",
             expected, actual
         );
 
@@ -61,7 +61,7 @@ impl StatementError {
 
     pub fn invalid_number_of_returns(expected: usize, actual: usize, span: Span) -> Self {
         let message = format!(
-            "Function return statement expected {} return values, got {}",
+            "Function return statement expected {} return values, found {} values",
             expected, actual
         );
 
@@ -69,20 +69,20 @@ impl StatementError {
     }
 
     pub fn immutable_assign(name: String, span: Span) -> Self {
-        let message = format!("Cannot assign to immutable variable {}", name);
+        let message = format!("Cannot assign to immutable variable `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
     pub fn immutable_circuit_function(name: String, span: Span) -> Self {
-        let message = format!("Cannot mutate circuit function, {}", name);
+        let message = format!("Cannot mutate circuit function, `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
     pub fn select_fail(first: String, second: String, span: Span) -> Self {
         let message = format!(
-            "Conditional select gadget failed to select between {} or {}",
+            "Conditional select gadget failed to select between `{}` or `{}`",
             first, second
         );
 
@@ -90,25 +90,25 @@ impl StatementError {
     }
 
     pub fn unassigned(name: String, span: Span) -> Self {
-        let message = format!("Expected assignment of return values for expression {}", name);
+        let message = format!("Expected assignment of return values for expression `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
     pub fn undefined_variable(name: String, span: Span) -> Self {
-        let message = format!("Attempted to assign to unknown variable {}", name);
+        let message = format!("Attempted to assign to unknown variable `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
     pub fn undefined_circuit(name: String, span: Span) -> Self {
-        let message = format!("Attempted to assign to unknown circuit {}", name);
+        let message = format!("Attempted to assign to unknown circuit `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
     pub fn undefined_circuit_object(name: String, span: Span) -> Self {
-        let message = format!("Attempted to assign to unknown circuit object {}", name);
+        let message = format!("Attempted to assign to unknown circuit object `{}`", name);
 
         Self::new_from_span(message, span)
     }
