@@ -11,17 +11,14 @@ pub struct Circuit {
 
 impl<'ast> From<AstCircuit<'ast>> for Circuit {
     fn from(circuit: AstCircuit<'ast>) -> Self {
-        let variable = Identifier::from(circuit.identifier);
+        let circuit_name = Identifier::from(circuit.identifier);
         let members = circuit
             .members
             .into_iter()
             .map(|member| CircuitMember::from(member))
             .collect();
 
-        Self {
-            circuit_name: variable,
-            members,
-        }
+        Self { circuit_name, members }
     }
 }
 
