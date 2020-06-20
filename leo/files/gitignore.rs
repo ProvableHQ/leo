@@ -35,8 +35,7 @@ impl Gitignore {
 
     fn template(&self) -> String {
         format!(
-            r#"/output
-/.leo
+            r#"outputs/
 "#,
         )
     }
