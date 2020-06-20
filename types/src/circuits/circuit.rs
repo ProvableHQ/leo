@@ -5,29 +5,26 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Circuit {
-    pub identifier: Identifier,
+    pub circuit_name: Identifier,
     pub members: Vec<CircuitMember>,
 }
 
 impl<'ast> From<AstCircuit<'ast>> for Circuit {
     fn from(circuit: AstCircuit<'ast>) -> Self {
-        let variable = Identifier::from(circuit.identifier);
+        let circuit_name = Identifier::from(circuit.identifier);
         let members = circuit
             .members
             .into_iter()
             .map(|member| CircuitMember::from(member))
             .collect();
 
-        Self {
-            identifier: variable,
-            members,
-        }
+        Self { circuit_name, members }
     }
 }
 
 impl Circuit {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "circuit {} {{ \n", self.identifier)?;
+        write!(f, "circuit {} {{ \n", self.circuit_name)?;
         for field in self.members.iter() {
             write!(f, "    {}\n", field)?;
         }

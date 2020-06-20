@@ -99,6 +99,14 @@ fn test_member_field_fail() {
 }
 
 #[test]
+fn test_member_field_and_function() {
+    let bytes = include_bytes!("member_field_and_function.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_one(program);
+}
+
+#[test]
 fn test_member_function() {
     let bytes = include_bytes!("member_function.leo");
     let program = parse_program(bytes).unwrap();
