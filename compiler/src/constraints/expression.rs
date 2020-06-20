@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Check global scope (function and circuit names)
             value.clone()
         } else {
-            return Err(ExpressionError::UndefinedIdentifier(unresolved_identifier.to_string()));
+            return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
 
         result_value.resolve_type(expected_types)?;

@@ -1,3 +1,4 @@
+use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
 
 use std::fmt;
@@ -6,6 +7,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Identifier {
     pub name: String,
+    pub span: Span,
 }
 
 impl Identifier {
@@ -16,7 +18,10 @@ impl Identifier {
 
 impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     fn from(identifier: AstIdentifier<'ast>) -> Self {
-        Self { name: identifier.value }
+        Self {
+            name: identifier.value,
+            span: Span::from(identifier.span),
+        }
     }
 }
 

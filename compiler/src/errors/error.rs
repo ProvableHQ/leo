@@ -86,6 +86,12 @@ impl fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {
+    fn description(&self) -> &str {
+        &self.message
+    }
+}
+
 #[test]
 fn test_error() {
     let err = Error {
@@ -106,29 +112,6 @@ fn test_error() {
             "     |         ^",
             "     |",
             "     = undefined value `x`",
-        ]
-        .join("\n")
-    );
-}
-
-#[test]
-fn test_from_span() {
-    use pest::Span as AstSpan;
-
-    let text = "aaaa";
-    let ast_span = AstSpan::new(text, 0, text.len()).unwrap();
-    let span = Span::from(ast_span);
-    let err = Error::new_from_span("test message".to_string(), span);
-
-    assert_eq!(
-        format!("{}", err),
-        vec![
-            "    -->  1:0",
-            "     |",
-            "   1 | aaaa",
-            "     | ^^^^",
-            "     |",
-            "     = test message",
         ]
         .join("\n")
     );

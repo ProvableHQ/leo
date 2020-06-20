@@ -1,6 +1,6 @@
 use crate::{get_error, parse_program};
 use leo_ast::ParserError;
-use leo_compiler::errors::CompilerError;
+use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_inputs::InputParserError;
 
 #[test]
@@ -21,7 +21,25 @@ fn test_undefined() {
 
     let error = get_error(program);
 
-    println!("{}", error);
+    match error {
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::Error(error),
+        ))) => {
+            assert_eq!(
+                format!("{}", error),
+                vec![
+                    "    -->  2:10",
+                    "     |",
+                    "   2 |    return a",
+                    "     |           ^",
+                    "     |",
+                    "     = cannot find value `a` in this scope",
+                ]
+                .join("\n")
+            );
+        }
+        _ => panic!("expected an undefined identifier error"),
+    }
 }
 
 // #[test]

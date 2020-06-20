@@ -1,14 +1,13 @@
-use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, ValueError};
-use leo_types::IntegerError;
+use crate::errors::{BooleanError, Error, FieldError, FunctionError, GroupError, ValueError};
+use leo_types::{Identifier, IntegerError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::num::ParseIntError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
-    // Identifiers
-    #[error("Identifier \"{}\" not found", _0)]
-    UndefinedIdentifier(String),
+    #[error("{}", _0)]
+    Error(#[from] Error),
 
     // Types
     #[error("{}", _0)]
@@ -86,4 +85,16 @@ pub enum ExpressionError {
 
     #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
+}
+
+impl ExpressionError {
+    fn new_from_span(message: String, span: Span) -> Self {
+        ExpressionError::Error(Error::new_from_span(message, span))
+    }
+
+    pub fn undefined_identifier(identifier: Identifier) -> Self {
+        let message = format!("cannot find value `{}` in this scope", identifier.name);
+
+        Self::new_from_span(message, identifier.span)
+    }
 }
