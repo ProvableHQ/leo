@@ -3,6 +3,7 @@
 use crate::{constraints::ConstrainedValue, GroupType};
 
 use snarkos_models::curves::{Field, PrimeField};
+
 use std::collections::HashMap;
 
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
