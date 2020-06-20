@@ -61,9 +61,11 @@ impl Error {
     }
 }
 
-fn underline(start: usize, mut end: usize) -> String {
+fn underline(mut start: usize, mut end: usize) -> String {
     if start > end {
-        panic!("underline start column is greater than end column")
+        let tmp = start;
+        start = end;
+        end = tmp;
     }
 
     let mut underline = String::new();

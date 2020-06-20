@@ -8,7 +8,7 @@ pub mod boolean;
 pub mod inputs;
 // pub mod integers;
 // pub mod mutability;
-// pub mod statements;
+pub mod statements;
 pub mod syntax;
 
 use leo_compiler::{
@@ -45,7 +45,7 @@ pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
 
 pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::AssertionFailed(_, _))) => {}
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::Error(_))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }
 }

@@ -7,6 +7,20 @@ use leo_inputs::syntax::SyntaxError;
 
 use crate::input_value_u32_one;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
+// use leo_types::InputValue;
+// use pest::Span;
+// use leo_inputs::types::BooleanType;
+// use leo_inputs::values::BooleanValue;
+//
+// pub fn input_value_bool(bool: bool) -> InputValue<'static> {
+//     let input = bool.to_string();
+//     let span = Span::new(&input, 0, input.len()).unwrap();
+//
+//     InputValue::Boolean(BooleanValue {
+//         value: input,
+//         span,
+//     })
+// }
 
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);

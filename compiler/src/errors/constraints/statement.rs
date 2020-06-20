@@ -1,63 +1,115 @@
-use crate::errors::{BooleanError, ExpressionError, ValueError};
+use crate::errors::{BooleanError, Error as FormattedError, ExpressionError, ValueError};
+use leo_types::Span;
 
 use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum StatementError {
     #[error("{}", _0)]
+    Error(#[from] FormattedError),
+
+    #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
 
     #[error("{}", _0)]
     ExpressionError(#[from] ExpressionError),
 
-    #[error("Attempted to assign to unknown variable {}", _0)]
-    UndefinedVariable(String),
-
-    // Arrays
-    #[error("Cannot assign single index to array of values")]
-    ArrayAssignIndex,
-
-    #[error("Cannot assign range of array values to single value")]
-    ArrayAssignRange,
-
-    // Circuits
-    #[error("Cannot mutate circuit function, {}", _0)]
-    ImmutableCircuitFunction(String),
-
-    #[error("Attempted to assign to unknown circuit {}", _0)]
-    UndefinedCircuit(String),
-
-    #[error("Attempted to assign to unknown circuit {}", _0)]
-    UndefinedCircuitObject(String),
-
-    // Statements
-    #[error("Cannot assert equality between {} == {}", _0, _1)]
-    AssertEq(String, String),
-
-    #[error("Assertion {:?} == {:?} failed", _0, _1)]
-    AssertionFailed(String, String),
-
-    #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
-    IfElseConditional(String),
-
-    #[error("Cannot assign to immutable variable {}", _0)]
-    ImmutableAssign(String),
-
-    #[error("Multiple definition statement expected {} return values, got {}", _0, _1)]
-    InvalidNumberOfDefinitions(usize, usize),
-
-    #[error("Function return statement expected {} return values, got {}", _0, _1)]
-    InvalidNumberOfReturns(usize, usize),
-
-    #[error("Conditional select gadget failed to select between {} or {}", _0, _1)]
-    SelectFail(String, String),
-
     #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
 
-    #[error("Expected assignment of return values for expression {}", _0)]
-    Unassigned(String),
-
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+}
+
+impl StatementError {
+    fn new_from_span(message: String, span: Span) -> Self {
+        StatementError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn array_assign_index(span: Span) -> Self {
+        let message = format!("Cannot assign single index to array of values");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_assign_range(span: Span) -> Self {
+        let message = format!("Cannot assign range of array values to single value");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn assertion_failed(left: String, right: String, span: Span) -> Self {
+        let message = format!("Assertion {} == {} failed", left, right);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn conditional_boolean(actual: String, span: Span) -> Self {
+        let message = format!("If, else conditional must resolve to a boolean, got {}", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "Multiple definition statement expected {} return values, got {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_number_of_returns(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "Function return statement expected {} return values, got {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn immutable_assign(name: String, span: Span) -> Self {
+        let message = format!("Cannot assign to immutable variable {}", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn immutable_circuit_function(name: String, span: Span) -> Self {
+        let message = format!("Cannot mutate circuit function, {}", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn select_fail(first: String, second: String, span: Span) -> Self {
+        let message = format!(
+            "Conditional select gadget failed to select between {} or {}",
+            first, second
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unassigned(name: String, span: Span) -> Self {
+        let message = format!("Expected assignment of return values for expression {}", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_variable(name: String, span: Span) -> Self {
+        let message = format!("Attempted to assign to unknown variable {}", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_circuit(name: String, span: Span) -> Self {
+        let message = format!("Attempted to assign to unknown circuit {}", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_circuit_object(name: String, span: Span) -> Self {
+        let message = format!("Attempted to assign to unknown circuit object {}", name);
+
+        Self::new_from_span(message, span)
+    }
 }

@@ -53,7 +53,8 @@ pub enum CLIError {
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
-        CLIError::Crate("leo_compiler", format!("{}", error))
+        log::error!("{}", error);
+        CLIError::Crate("leo_compiler", "Program failed due to previous error".into())
     }
 }
 

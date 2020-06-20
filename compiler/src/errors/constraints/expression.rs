@@ -1,4 +1,4 @@
-use crate::errors::{BooleanError, Error, FieldError, FunctionError, GroupError, ValueError};
+use crate::errors::{BooleanError, Error as FormattedError, FieldError, FunctionError, GroupError, ValueError};
 use leo_types::{Identifier, IntegerError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -6,8 +6,12 @@ use std::num::ParseIntError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
+    // Identifiers
+    #[error("Identifier \"{}\" not found", _0)]
+    UndefinedIdentifier(String),
+
     #[error("{}", _0)]
-    Error(#[from] Error),
+    Error(#[from] FormattedError),
 
     // Types
     #[error("{}", _0)]
@@ -89,7 +93,7 @@ pub enum ExpressionError {
 
 impl ExpressionError {
     fn new_from_span(message: String, span: Span) -> Self {
-        ExpressionError::Error(Error::new_from_span(message, span))
+        ExpressionError::Error(FormattedError::new_from_span(message, span))
     }
 
     pub fn undefined_identifier(identifier: Identifier) -> Self {
