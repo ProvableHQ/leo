@@ -17,8 +17,8 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
     // Check that the parameter value is the correct type
     let field_option = match input_value {
         Some(input) => {
-            if let InputValue::Field(ast) = input {
-                Some(ast.number.value)
+            if let InputValue::Field(string) = input {
+                Some(string)
             } else {
                 return Err(FieldError::Invalid(input.to_string()));
             }

@@ -1,4 +1,4 @@
-use crate::{get_error, parse_program};
+use crate::{get_error, parse_inputs, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_inputs::InputParserError;
@@ -42,13 +42,13 @@ fn test_undefined() {
     }
 }
 
-// #[test]
-// fn inputs_syntax_error() {
-//     let bytes = include_bytes!("inputs_semicolon.leo");
-//     let error = parse_inputs(bytes).err().unwrap();
-//
-//     match error {
-//         CompilerError::InputParserError(InputParserError::SyntaxError(_)) => {}
-//         _ => panic!("inputs syntax error should be a ParserError"),
-//     }
-// }
+#[test]
+fn inputs_syntax_error() {
+    let bytes = include_bytes!("inputs_semicolon.leo");
+    let error = parse_inputs(bytes).err().unwrap();
+
+    match error {
+        CompilerError::InputParserError(InputParserError::SyntaxError(_)) => {}
+        _ => panic!("inputs syntax error should be a ParserError"),
+    }
+}

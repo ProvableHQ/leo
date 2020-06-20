@@ -12,13 +12,13 @@ use std::fmt;
 #[pest_ast(rule(Rule::value_integer))]
 pub struct IntegerValue<'ast> {
     pub number: NumberValue<'ast>,
-    pub type_: IntegerType<'ast>,
+    pub type_: IntegerType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> IntegerValue<'ast> {
-    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: IntegerType<'ast>) -> Self {
+    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: IntegerType) -> Self {
         Self {
             number: number.number,
             type_,

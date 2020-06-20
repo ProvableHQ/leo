@@ -11,7 +11,7 @@ use leo_compiler::{
     ConstrainedCircuitMember,
     ConstrainedValue,
 };
-use leo_types::{Expression, Function, Identifier, Integer, Statement, Type};
+use leo_types::{Expression, Function, Identifier, Integer, Span, Statement, Type};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
@@ -20,9 +20,25 @@ fn output_circuit(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
-            Identifier::new("Circ".into()),
+            Identifier {
+                name: "Circ".to_string(),
+                span: Span {
+                    text: "".to_string(),
+                    line: 0,
+                    start: 0,
+                    end: 0
+                }
+            },
             vec![ConstrainedCircuitMember(
-                Identifier::new("x".into()),
+                Identifier {
+                    name: "x".to_string(),
+                    span: Span {
+                        text: "".to_string(),
+                        line: 0,
+                        start: 0,
+                        end: 0
+                    }
+                },
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(1u32)))
             )]
         )])
@@ -34,7 +50,7 @@ fn output_circuit(program: EdwardsTestCompiler) {
 fn fail_expected_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::ExpectedCircuitMember(_string),
+            ExpressionError::Error(_string),
         ))) => {}
         error => panic!("Expected invalid circuit member error, got {}", error),
     }
@@ -43,7 +59,7 @@ fn fail_expected_member(program: EdwardsTestCompiler) {
 fn fail_undefined_member(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::UndefinedMemberAccess(_, _),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected undefined circuit member error, got {}", error),
     }
@@ -74,7 +90,7 @@ fn test_inline_undefined() {
 
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::UndefinedCircuit(_),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected undefined circuit error, got {}", error),
     }
@@ -121,7 +137,7 @@ fn test_member_function_invalid() {
 
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::InvalidStaticAccess(_),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected invalid function error, got {}", error),
     }
@@ -142,7 +158,7 @@ fn test_member_static_function_undefined() {
 
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::UndefinedStaticAccess(_, _),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected undefined static function error, got {}", error),
     }
@@ -155,7 +171,7 @@ fn test_member_static_function_invalid() {
 
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::InvalidMemberAccess(_),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected invalid static function error, got {}", error),
     }
@@ -176,19 +192,79 @@ fn test_self() {
     // }
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
-            Identifier::new("Circ".into()),
+            Identifier {
+                name: "Circ".to_string(),
+                span: Span {
+                    text: "".to_string(),
+                    line: 0,
+                    start: 0,
+                    end: 0
+                }
+            },
             vec![ConstrainedCircuitMember(
-                Identifier::new("new".into()),
+                Identifier {
+                    name: "new".to_string(),
+                    span: Span {
+                        text: "".to_string(),
+                        line: 0,
+                        start: 0,
+                        end: 0
+                    }
+                },
                 ConstrainedValue::Static(Box::new(ConstrainedValue::Function(
-                    Some(Identifier::new("Circ".into())),
+                    Some(Identifier {
+                        name: "new".to_string(),
+                        span: Span {
+                            text: "".to_string(),
+                            line: 0,
+                            start: 0,
+                            end: 0
+                        }
+                    }),
                     Function {
-                        function_name: Identifier::new("new".into()),
+                        function_name: Identifier {
+                            name: "new".to_string(),
+                            span: Span {
+                                text: "".to_string(),
+                                line: 0,
+                                start: 0,
+                                end: 0
+                            }
+                        },
                         inputs: vec![],
                         returns: vec![Type::SelfType],
-                        statements: vec![Statement::Return(vec![Expression::Circuit(
-                            Identifier::new("Self".into()),
-                            vec![]
-                        )])]
+                        statements: vec![Statement::Return(
+                            vec![Expression::Circuit(
+                                Identifier {
+                                    name: "Self".to_string(),
+                                    span: Span {
+                                        text: "".to_string(),
+                                        line: 0,
+                                        start: 0,
+                                        end: 0
+                                    }
+                                },
+                                vec![],
+                                Span {
+                                    text: "".to_string(),
+                                    line: 0,
+                                    start: 0,
+                                    end: 0
+                                }
+                            )],
+                            Span {
+                                text: "".to_string(),
+                                line: 0,
+                                start: 0,
+                                end: 0
+                            }
+                        )],
+                        span: Span {
+                            text: "".to_string(),
+                            line: 0,
+                            start: 0,
+                            end: 0
+                        }
                     }
                 )))
             )]
@@ -202,6 +278,8 @@ fn test_self() {
 
 // #[test]
 // fn test_pedersen_mock() {
-//     let program = compile_program(DIRECTORY_NAME, "pedersen_mock.leo").unwrap();
+//     let bytes = include_bytes!("pedersen_mock.leo");
+//     let program = parse_program(bytes).unwrap();
+//
 //     output_zero(program);
 // }

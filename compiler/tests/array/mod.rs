@@ -3,9 +3,9 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError},
     ConstrainedValue,
 };
+use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::{InputValue, Integer, IntegerError};
 
-use leo_inputs::types::{IntegerType, U32Type};
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
 // [1, 1, 1]
@@ -41,7 +41,7 @@ fn output_multi(program: EdwardsTestCompiler) {
 
 fn fail_array(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::InvalidArray(_string)) => {}
+        CompilerError::FunctionError(FunctionError::Error(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
     }
 }

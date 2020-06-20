@@ -9,13 +9,13 @@ use std::fmt;
 #[pest_ast(rule(Rule::value_field))]
 pub struct FieldValue<'ast> {
     pub number: NumberValue<'ast>,
-    pub type_: FieldType<'ast>,
+    pub type_: FieldType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> FieldValue<'ast> {
-    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: FieldType<'ast>) -> Self {
+    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: FieldType) -> Self {
         Self {
             number: number.number,
             type_,

@@ -6,7 +6,7 @@ use pest_ast::FromPest;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub _type: DataType<'ast>,
+    pub _type: DataType,
     pub dimensions: Vec<NumberValue<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

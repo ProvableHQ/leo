@@ -34,7 +34,7 @@ pub(crate) fn output_multiple(program: EdwardsTestCompiler) {
 fn fail_undefined_identifier(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::UndefinedIdentifier(_),
+            ExpressionError::Error(_),
         ))) => {}
         error => panic!("Expected function undefined, got {}", error),
     }
@@ -77,8 +77,7 @@ fn test_global_scope_fail() {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::FunctionError(value),
         ))) => match *value {
-            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::UndefinedIdentifier(_))) => {
-            }
+            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::Error(_))) => {}
             error => panic!("Expected function undefined, got {}", error),
         },
         error => panic!("Expected function undefined, got {}", error),

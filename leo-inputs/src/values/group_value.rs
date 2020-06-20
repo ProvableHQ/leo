@@ -8,7 +8,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::value_group))]
 pub struct GroupValue<'ast> {
     pub value: GroupTuple<'ast>,
-    pub _type: GroupType<'ast>,
+    pub _type: GroupType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

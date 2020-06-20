@@ -19,16 +19,16 @@ use sha2::{Digest, Sha256};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 #[derive(Clone)]
-pub struct Compiler<'ast, F: Field + PrimeField, G: GroupType<F>> {
+pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
     program: Program,
-    program_inputs: Inputs<'ast>,
+    program_inputs: Inputs,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
 
-impl<'ast, F: Field + PrimeField, G: GroupType<F>> Compiler<'ast, F, G> {
+impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn new() -> Self {
         Self {
             package_name: "".to_string(),
@@ -57,7 +57,7 @@ impl<'ast, F: Field + PrimeField, G: GroupType<F>> Compiler<'ast, F, G> {
         Ok(program)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue<'ast>>>) {
+    pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {
         self.program_inputs.set_inputs(program_inputs);
     }
 
@@ -105,7 +105,7 @@ impl<'ast, F: Field + PrimeField, G: GroupType<F>> Compiler<'ast, F, G> {
         Ok(())
     }
 
-    pub fn parse_inputs(
+    pub fn parse_inputs<'ast>(
         &mut self,
         input_file_path: &'ast PathBuf,
         input_file_string: &'ast str,
@@ -119,7 +119,7 @@ impl<'ast, F: Field + PrimeField, G: GroupType<F>> Compiler<'ast, F, G> {
     }
 }
 
-impl<'ast, F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'ast, F, G> {
+impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let _result =
             generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).map_err(|e| {

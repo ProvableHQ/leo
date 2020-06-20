@@ -1,10 +1,11 @@
-use crate::{ast::Rule, errors::SyntaxError as InputSyntaxError};
-
 use crate::{
+    ast::Rule,
+    errors::SyntaxError as InputSyntaxError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
-    types::{DataType, IntegerType, Type},
-    values::{IntegerValue, NumberValue, Value},
+    types::{DataType, Type},
+    values::{NumberImplicitValue, NumberValue, Value},
 };
+
 use pest::{
     error::{Error, ErrorVariant},
     Span,
@@ -33,38 +34,44 @@ pub enum InputParserError {
 }
 
 impl InputParserError {
-    fn syntax_error_span(message: String, span: Span) -> Self {
+    fn new_from_span(message: String, span: Span) -> Self {
         let error = Error::new_from_span(ErrorVariant::CustomError { message }, span);
 
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
-    pub fn integer_type_mismatch<'ast>(integer_type: IntegerType<'ast>, integer_value: IntegerValue<'ast>) -> Self {
-        let message = format!(
-            "expected `{}`, found `{}`",
-            integer_type.to_string(),
-            integer_value.type_.to_string()
-        );
-        let span = integer_value.type_.span().to_owned();
+    // pub fn integer_type_mismatch(integer_type: IntegerType, integer_value: IntegerValue) -> Self {
+    //     let message = format!(
+    //         "expected `{}`, found `{}`",
+    //         integer_type.to_string(),
+    //         integer_value.type_.to_string()
+    //     );
+    //     let span = integer_value.type_.span().to_owned();
+    //
+    //     InputParserError::syntax_error_span(message, span)
+    // }
 
-        InputParserError::syntax_error_span(message, span)
+    pub fn implicit_boolean(data_type: DataType, implicit: NumberImplicitValue) -> Self {
+        let message = format!("expected `{}`, found `{}`", data_type.to_string(), implicit.to_string());
+
+        Self::new_from_span(message, implicit.span)
     }
 
-    pub fn data_type_mismatch<'ast>(data_type: DataType<'ast>, value: Value<'ast>) -> Self {
+    pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type.to_string(), value.to_string());
         let span = value.span().to_owned();
 
-        InputParserError::syntax_error_span(message, span)
+        Self::new_from_span(message, span)
     }
 
-    pub fn expression_type_mismatch<'ast>(type_: Type<'ast>, expression: Expression<'ast>) -> Self {
+    pub fn expression_type_mismatch(type_: Type, expression: Expression) -> Self {
         let message = format!("expected `{}`, found `{}`", type_.to_string(), expression.to_string());
         let span = expression.span().to_owned();
 
-        InputParserError::syntax_error_span(message, span)
+        Self::new_from_span(message, span)
     }
 
-    pub fn array_inline_length<'ast>(number: NumberValue<'ast>, array: ArrayInlineExpression<'ast>) -> Self {
+    pub fn array_inline_length(number: NumberValue, array: ArrayInlineExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
             number.to_string(),
@@ -72,10 +79,10 @@ impl InputParserError {
         );
         let span = array.span.to_owned();
 
-        InputParserError::syntax_error_span(message, span)
+        Self::new_from_span(message, span)
     }
 
-    pub fn array_init_length<'ast>(number: NumberValue<'ast>, array: ArrayInitializerExpression<'ast>) -> Self {
+    pub fn array_init_length(number: NumberValue, array: ArrayInitializerExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
             number.to_string(),
@@ -83,7 +90,7 @@ impl InputParserError {
         );
         let span = array.span.to_owned();
 
-        InputParserError::syntax_error_span(message, span)
+        Self::new_from_span(message, span)
     }
 }
 

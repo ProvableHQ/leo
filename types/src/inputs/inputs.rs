@@ -2,11 +2,11 @@ use crate::{FunctionInput, InputValue};
 use leo_inputs::{files::File, InputParserError};
 
 #[derive(Clone)]
-pub struct Inputs<'ast> {
-    program_inputs: Vec<Option<InputValue<'ast>>>,
+pub struct Inputs {
+    program_inputs: Vec<Option<InputValue>>,
 }
 
-impl<'ast> Inputs<'ast> {
+impl Inputs {
     pub fn new() -> Self {
         Self { program_inputs: vec![] }
     }
@@ -15,7 +15,7 @@ impl<'ast> Inputs<'ast> {
         self.program_inputs.clone()
     }
 
-    pub fn set_inputs(&mut self, inputs: Vec<Option<InputValue<'ast>>>) {
+    pub fn set_inputs(&mut self, inputs: Vec<Option<InputValue>>) {
         self.program_inputs = inputs;
     }
 
@@ -23,7 +23,7 @@ impl<'ast> Inputs<'ast> {
         self.program_inputs = vec![None; size];
     }
 
-    pub fn from_inputs_file(file: File<'ast>, expected_inputs: Vec<FunctionInput>) -> Result<Self, InputParserError> {
+    pub fn from_inputs_file(file: File, expected_inputs: Vec<FunctionInput>) -> Result<Self, InputParserError> {
         let mut program_inputs = vec![];
 
         for section in file.sections.into_iter() {

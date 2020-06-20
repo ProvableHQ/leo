@@ -3,24 +3,9 @@ use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use leo_inputs::syntax::SyntaxError;
+use leo_types::InputValue;
 
-use crate::input_value_u32_one;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
-// use leo_types::InputValue;
-// use pest::Span;
-// use leo_inputs::types::BooleanType;
-// use leo_inputs::values::BooleanValue;
-//
-// pub fn input_value_bool(bool: bool) -> InputValue<'static> {
-//     let input = bool.to_string();
-//     let span = Span::new(&input, 0, input.len()).unwrap();
-//
-//     InputValue::Boolean(BooleanValue {
-//         value: input,
-//         span,
-//     })
-// }
 
 pub fn output_expected_boolean(program: EdwardsTestCompiler, boolean: bool) {
     let output = get_output(program);
@@ -58,7 +43,7 @@ fn fail_enforce(program: EdwardsTestCompiler) {
 
 fn fail_boolean(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SyntaxError(SyntaxError::Error))) => {}
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SynthesisError(_))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
     }
 }
@@ -91,7 +76,7 @@ fn test_input_bool_field() {
     let bytes = include_bytes!("input_bool.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(input_value_u32_one())]);
+    program.set_inputs(vec![Some(InputValue::Field("1field".to_string()))]);
 
     fail_boolean(program);
 }

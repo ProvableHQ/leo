@@ -4,7 +4,7 @@ use leo_ast::common::Identifier as AstIdentifier;
 use std::fmt;
 
 /// An identifier in the constrained program.
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Hash)]
 pub struct Identifier {
     pub name: String,
     pub span: Span,
@@ -35,3 +35,11 @@ impl fmt::Debug for Identifier {
         write!(f, "{}", self.name)
     }
 }
+
+impl PartialEq for Identifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Identifier {}
