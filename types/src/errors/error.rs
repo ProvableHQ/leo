@@ -1,4 +1,4 @@
-use leo_types::Span;
+use crate::Span;
 
 use std::fmt;
 

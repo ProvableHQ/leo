@@ -1,6 +1,6 @@
 //! Conversion of integer declarations to constraints in Leo.
 
-use crate::{errors::IntegerError, InputValue, IntegerType};
+use crate::{errors::IntegerError, InputValue, IntegerType, Span};
 use leo_ast::{types::IntegerType as AstIntegerType, values::NumberValue};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -87,36 +87,61 @@ impl Integer {
         integer_type: IntegerType,
         name: String,
         option: Option<u128>,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
             IntegerType::U8 => {
+                let u8_name = format!("{}: u8", name);
+                let u8_name_unique = format!("`{}` {}:{}", u8_name, span.line, span.start);
                 let u8_option = option.map(|integer| integer as u8);
-                let u8_result = UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u8_result = UInt8::alloc(cs.ns(|| u8_name_unique), || {
+                    u8_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u8_name, span))?;
 
                 Integer::U8(u8_result)
             }
             IntegerType::U16 => {
+                let u16_name = format!("{}: u16", name);
+                let u16_name_unique = format!("`{}` {}:{}", u16_name, span.line, span.start);
                 let u16_option = option.map(|integer| integer as u16);
-                let u16_result = UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u16_result = UInt16::alloc(cs.ns(|| u16_name_unique), || {
+                    u16_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u16_name, span))?;
 
                 Integer::U16(u16_result)
             }
             IntegerType::U32 => {
+                let u32_name = format!("{}: u32", name);
+                let u32_name_unique = format!("`{}` {}:{}", u32_name, span.line, span.start);
                 let u32_option = option.map(|integer| integer as u32);
-                let u32_result = UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u32_result = UInt32::alloc(cs.ns(|| u32_name_unique), || {
+                    u32_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u32_name, span))?;
 
                 Integer::U32(u32_result)
             }
             IntegerType::U64 => {
+                let u64_name = format!("{}: u64", name);
+                let u64_name_unique = format!("`{}` {}:{}", u64_name, span.line, span.start);
                 let u64_option = option.map(|integer| integer as u64);
-                let u64_result = UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u64_result = UInt64::alloc(cs.ns(|| u64_name_unique), || {
+                    u64_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u64_name, span))?;
 
                 Integer::U64(u64_result)
             }
             IntegerType::U128 => {
+                let u128_name = format!("{}: u128", name);
+                let u128_name_unique = format!("`{}` {}:{}", u128_name, span.line, span.start);
                 let u128_option = option.map(|integer| integer as u128);
-                let u128_result =
-                    UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u128_result = UInt128::alloc(cs.ns(|| u128_name_unique), || {
+                    u128_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u128_name, span))?;
 
                 Integer::U128(u128_result)
             }
@@ -128,6 +153,7 @@ impl Integer {
         integer_type: IntegerType,
         name: String,
         integer_value: Option<InputValue>,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         // Check that the input value is the correct type
         let option = match integer_value {
@@ -135,13 +161,13 @@ impl Integer {
                 if let InputValue::Integer(_type_, number) = input {
                     Some(number)
                 } else {
-                    return Err(IntegerError::InvalidInteger(input.to_string()));
+                    return Err(IntegerError::invalid_integer(input.to_string(), span));
                 }
             }
             None => None,
         };
 
-        Self::allocate_type(cs, integer_type, name, option)
+        Self::allocate_type(cs, integer_type, name, option, span)
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(

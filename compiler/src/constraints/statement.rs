@@ -235,7 +235,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         declare: Declare,
         variable: Variable,
         expression: Expression,
-        _span: Span,
+        span: Span,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         if let Some(ref _type) = variable._type {
@@ -250,7 +250,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )?;
 
         if let Declare::Let = declare {
-            value.allocate_value(cs)?;
+            value.allocate_value(cs, span)?;
         }
 
         self.store_definition(function_scope, variable, value)

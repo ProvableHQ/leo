@@ -1,10 +1,17 @@
-use crate::{get_error, get_output, parse_program, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{
+    get_error,
+    get_output,
+    integers::fail_integer,
+    parse_program,
+    EdwardsConstrainedValue,
+    EdwardsTestCompiler,
+};
 use leo_compiler::{
     errors::{CompilerError, FunctionError},
     ConstrainedValue,
 };
 use leo_inputs::types::{IntegerType, U32Type};
-use leo_types::{InputValue, Integer, IntegerError};
+use leo_types::{InputValue, Integer};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
@@ -43,13 +50,6 @@ fn fail_array(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::Error(_string)) => {}
         error => panic!("Expected invalid array error, got {}", error),
-    }
-}
-
-fn fail_synthesis(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
-        error => panic!("Expected synthesis error, got {}", error),
     }
 }
 
@@ -128,5 +128,5 @@ fn test_input_field_none() {
 
     program.set_inputs(vec![None]);
 
-    fail_synthesis(program)
+    fail_integer(program)
 }

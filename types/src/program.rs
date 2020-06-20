@@ -59,9 +59,9 @@ impl<'ast> Program {
 }
 
 impl Program {
-    pub fn new() -> Self {
+    pub fn new(name: String) -> Self {
         Self {
-            name: "".into(),
+            name,
             expected_inputs: vec![],
             imports: vec![],
             circuits: HashMap::new(),

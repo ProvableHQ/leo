@@ -43,10 +43,15 @@ pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
     }
 }
 
-pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
-    let program_string = String::from_utf8_lossy(bytes);
+fn new_compiler() -> EdwardsTestCompiler {
+    let program_name = "test".to_string();
 
-    let mut compiler = EdwardsTestCompiler::new();
+    EdwardsTestCompiler::new(program_name)
+}
+
+pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+    let program_string = String::from_utf8_lossy(bytes);
 
     compiler.parse_program(&program_string)?;
 
@@ -54,9 +59,8 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 }
 
 pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
     let inputs_string = String::from_utf8_lossy(bytes);
-
-    let mut compiler = EdwardsTestCompiler::new();
 
     compiler.parse_inputs(&inputs_string)?;
 

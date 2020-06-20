@@ -44,7 +44,7 @@ macro_rules! test_uint {
                 // None input
                 let mut program = parse_program(bytes).unwrap();
                 program.set_inputs(vec![None]);
-                fail_synthesis(program);
+                fail_integer(program);
             }
 
             fn test_add() {

@@ -1,13 +1,5 @@
-use crate::errors::{
-    BooleanError,
-    Error as FormattedError,
-    ExpressionError,
-    FieldError,
-    GroupError,
-    StatementError,
-    ValueError,
-};
-use leo_types::{IntegerError, Span};
+use crate::errors::{BooleanError, ExpressionError, FieldError, GroupError, StatementError, ValueError};
+use leo_types::{Error as FormattedError, IntegerError, Span};
 
 #[derive(Debug, Error)]
 pub enum FunctionError {

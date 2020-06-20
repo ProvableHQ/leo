@@ -1,7 +1,7 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{errors::ValueError, FieldType, GroupType};
-use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Type};
+use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -107,7 +107,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS) -> Result<(), ValueError> {
+    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS, span: Span) -> Result<(), ValueError> {
         match self {
             // allocated values
             ConstrainedValue::Boolean(boolean) => {
@@ -120,7 +120,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 let option = integer.get_value();
                 let name = format!("clone {}", integer);
 
-                *integer = Integer::allocate_type(&mut cs, integer_type, name, option)?;
+                *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }
             ConstrainedValue::Field(field) => {
                 let option = field.get_value().map(|v| format!("{}", v));
@@ -137,7 +137,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 array
                     .iter_mut()
                     .enumerate()
-                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate array member {}", i))))
+                    .map(|(i, value)| {
+                        value.allocate_value(cs.ns(|| format!("allocate array member {}", i)), span.clone())
+                    })
                     .collect::<Result<(), ValueError>>()?;
             }
             ConstrainedValue::CircuitExpression(_id, members) => {
@@ -147,7 +149,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .map(|(i, member)| {
                         member
                             .1
-                            .allocate_value(cs.ns(|| format!("allocate circuit member {}", i)))
+                            .allocate_value(cs.ns(|| format!("allocate circuit member {}", i)), span.clone())
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -155,14 +157,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 array
                     .iter_mut()
                     .enumerate()
-                    .map(|(i, value)| value.allocate_value(cs.ns(|| format!("allocate return member {}", i))))
+                    .map(|(i, value)| {
+                        value.allocate_value(cs.ns(|| format!("allocate return member {}", i)), span.clone())
+                    })
                     .collect::<Result<(), ValueError>>()?;
             }
             ConstrainedValue::Mutable(value) => {
-                value.allocate_value(cs)?;
+                value.allocate_value(cs, span)?;
             }
             ConstrainedValue::Static(value) => {
-                value.allocate_value(cs)?;
+                value.allocate_value(cs, span)?;
             }
             // empty wrappers
             ConstrainedValue::CircuitDefinition(_) => {}

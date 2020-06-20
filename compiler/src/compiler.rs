@@ -29,11 +29,11 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
-    pub fn new() -> Self {
+    pub fn new(package_name: String) -> Self {
         Self {
-            package_name: "".to_string(),
+            package_name: package_name.clone(),
             main_file_path: PathBuf::new(),
-            program: Program::new(),
+            program: Program::new(package_name),
             program_inputs: Inputs::new(),
             output: None,
             _engine: PhantomData,
@@ -41,20 +41,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
-        let mut program = Self {
-            package_name,
-            main_file_path,
-            program: Program::new(),
-            program_inputs: Inputs::new(),
-            output: None,
-            _engine: PhantomData,
-        };
+        let mut program = Self::new(package_name);
+        program.set_path(main_file_path);
 
         // Generate the abstract syntax tree and assemble the program
         let program_string = program.load_program()?;
         program.parse_program(&program_string)?;
 
         Ok(program)
+    }
+
+    pub fn set_path(&mut self, main_file_path: PathBuf) {
+        self.main_file_path = main_file_path
     }
 
     pub fn set_inputs(&mut self, program_inputs: Vec<Option<InputValue>>) {

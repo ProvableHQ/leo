@@ -1,5 +1,5 @@
-use crate::errors::{BooleanError, Error as FormattedError, FieldError, FunctionError, GroupError, ValueError};
-use leo_types::{Identifier, IntegerError, Span};
+use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, ValueError};
+use leo_types::{Error as FormattedError, Identifier, IntegerError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::num::ParseIntError;
@@ -40,13 +40,13 @@ impl ExpressionError {
     }
 
     pub fn conditional_boolean(actual: String, span: Span) -> Self {
-        let message = format!("If, else conditional must resolve to a boolean, found `{}`", actual);
+        let message = format!("if, else conditional must resolve to a boolean, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn expected_circuit_member(expected: String, span: Span) -> Self {
-        let message = format!("Expected circuit member `{}`, not found", expected);
+        let message = format!("expected circuit member `{}`, not found", expected);
 
         Self::new_from_span(message, span)
     }
@@ -64,50 +64,50 @@ impl ExpressionError {
     }
 
     pub fn invalid_index(actual: String, span: Span) -> Self {
-        let message = format!("Index must resolve to an integer, found `{}`", actual);
+        let message = format!("index must resolve to an integer, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn invalid_length(expected: usize, actual: usize, span: Span) -> Self {
-        let message = format!("Expected array length {}, found one with length {}", expected, actual);
+        let message = format!("expected array length {}, found one with length {}", expected, actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn invalid_spread(actual: String, span: Span) -> Self {
-        let message = format!("Spread should contain an array, found `{}`", actual);
+        let message = format!("spread should contain an array, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn invalid_member_access(member: String, span: Span) -> Self {
-        let message = format!("Non-static member `{}` must be accessed using `.` syntax", member);
+        let message = format!("non-static member `{}` must be accessed using `.` syntax", member);
 
         Self::new_from_span(message, span)
     }
 
     pub fn invalid_static_access(member: String, span: Span) -> Self {
-        let message = format!("Static member `{}` must be accessed using `::` syntax", member);
+        let message = format!("static member `{}` must be accessed using `::` syntax", member);
 
         Self::new_from_span(message, span)
     }
 
     pub fn function_no_return(function: String, span: Span) -> Self {
-        let message = format!("Inline function call to `{}` did not return", function);
+        let message = format!("inline function call to `{}` did not return", function);
 
         Self::new_from_span(message, span)
     }
 
     pub fn undefined_array(actual: String, span: Span) -> Self {
-        let message = format!("Array `{}` must be declared before it is used in an expression", actual);
+        let message = format!("array `{}` must be declared before it is used in an expression", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn undefined_circuit(actual: String, span: Span) -> Self {
         let message = format!(
-            "Circuit `{}` must be declared before it is used in an expression",
+            "circuit `{}` must be declared before it is used in an expression",
             actual
         );
 
@@ -122,7 +122,7 @@ impl ExpressionError {
 
     pub fn undefined_function(function: String, span: Span) -> Self {
         let message = format!(
-            "Function `{}` must be declared before it is used in an inline expression",
+            "function `{}` must be declared before it is used in an inline expression",
             function
         );
 

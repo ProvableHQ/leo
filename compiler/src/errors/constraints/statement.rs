@@ -1,5 +1,5 @@
-use crate::errors::{BooleanError, Error as FormattedError, ExpressionError, ValueError};
-use leo_types::Span;
+use crate::errors::{BooleanError, ExpressionError, ValueError};
+use leo_types::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 

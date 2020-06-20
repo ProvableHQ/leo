@@ -44,7 +44,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());
 
-    resolved_program.resolve_definitions(cs, program)?;
+    resolved_program.resolve_definitions(program)?;
 
     let main = resolved_program
         .get(&main_function_name)
@@ -69,7 +69,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
     let tests = program.tests.clone();
 
-    resolved_program.resolve_definitions(cs, program)?;
+    resolved_program.resolve_definitions(program)?;
 
     log::info!("Running {} tests", tests.len());
 

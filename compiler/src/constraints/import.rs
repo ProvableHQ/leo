@@ -7,19 +7,11 @@ use crate::{
 use leo_ast::LeoParser;
 use leo_types::{Import, Program};
 
-use snarkos_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkos_models::curves::{Field, PrimeField};
 use std::env::current_dir;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn enforce_import<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        import: Import,
-    ) -> Result<(), ImportError> {
+    pub fn enforce_import(&mut self, scope: String, import: Import) -> Result<(), ImportError> {
         let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
 
         // Sanitize the package path to the imports directory
@@ -48,7 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // * -> import all imports, circuits, functions in the current scope
         if import.is_star() {
             // recursively evaluate program statements
-            self.resolve_definitions(cs, program).unwrap();
+            self.resolve_definitions(program).unwrap();
 
             Ok(())
         } else {
@@ -96,7 +88,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             program
                 .imports
                 .into_iter()
-                .map(|nested_import| self.enforce_import(cs, program_name.clone(), nested_import))
+                .map(|nested_import| self.enforce_import(program_name.clone(), nested_import))
                 .collect::<Result<Vec<_>, ImportError>>()?;
 
             Ok(())

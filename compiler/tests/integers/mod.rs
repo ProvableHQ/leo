@@ -48,15 +48,8 @@ pub trait IntegerTester {
 
 pub(crate) fn fail_integer(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::InvalidInteger(_string))) => {}
+        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::Error(_string))) => {}
         error => panic!("Expected invalid boolean error, got {}", error),
-    }
-}
-
-pub(crate) fn fail_synthesis(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::SynthesisError(_string))) => {}
-        error => panic!("Expected synthesis error, got {}", error),
     }
 }
 

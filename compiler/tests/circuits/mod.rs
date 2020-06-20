@@ -278,8 +278,12 @@ fn test_self() {
 
 // #[test]
 // fn test_pedersen_mock() {
+// use crate::integers::u32::output_zero;
 //     let bytes = include_bytes!("pedersen_mock.leo");
 //     let program = parse_program(bytes).unwrap();
 //
-//     output_zero(program);
+//     let err = get_error(program);
+//
+//     println!("{}", err);
+//     // output_zero(program);
 // }

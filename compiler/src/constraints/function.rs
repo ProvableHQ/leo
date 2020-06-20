@@ -169,6 +169,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 integer_type,
                 name,
                 input_value,
+                span,
             )?)),
             Type::Field => Ok(field_from_input(cs, name, input_value)?),
             Type::Group => Ok(group_from_input(cs, name, input_value)?),
@@ -193,16 +194,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
         for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
-            let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
             let input_value = self.allocate_main_function_input(
                 cs,
                 input_model._type,
-                input_name.clone(),
+                input_model.identifier.name.clone(),
                 input_option,
                 function.span.clone(),
             )?;
 
             // Store a new variable for every allocated main function input
+            let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
             self.store(input_name.clone(), input_value);
 
             input_variables.push(Expression::Identifier(input_model.identifier));
@@ -211,18 +212,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         self.enforce_function(cs, scope, function_name, function, input_variables)
     }
 
-    pub(crate) fn resolve_definitions<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        program: Program,
-    ) -> Result<(), ImportError> {
+    pub(crate) fn resolve_definitions(&mut self, program: Program) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 
         // evaluate and store all imports
         program
             .imports
             .into_iter()
-            .map(|import| self.enforce_import(cs, program_name.clone(), import))
+            .map(|import| self.enforce_import(program_name.clone(), import))
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
