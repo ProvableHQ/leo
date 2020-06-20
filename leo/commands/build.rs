@@ -18,7 +18,7 @@ pub struct BuildCommand;
 
 impl CLI for BuildCommand {
     type Options = ();
-    type Output = (Compiler<'static, Fq, EdwardsGroupType>, bool);
+    type Output = (Compiler<Fq, EdwardsGroupType>, bool);
 
     const ABOUT: AboutType = "Compile the current package as a program";
     const ARGUMENTS: &'static [ArgumentType] = &[];

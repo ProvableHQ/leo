@@ -3,10 +3,9 @@ use crate::{
     cli_types::*,
     directories::{InputsDirectory, SourceDirectory},
     errors::{CLIError, InitError},
-    files::{Gitignore, MainFile, Manifest},
+    files::{Gitignore, InputsFile, MainFile, Manifest},
 };
 
-use crate::files::InputsFile;
 use clap::ArgMatches;
 use std::env::current_dir;
 

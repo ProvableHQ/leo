@@ -2,16 +2,16 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::SetupCommand,
+    directories::INPUTS_DIRECTORY_NAME,
     errors::CLIError,
-    files::{Manifest, ProofFile},
+    files::{Manifest, ProofFile, INPUTS_FILE_NAME},
 };
+use leo_inputs::LeoInputsParser;
 
 use snarkos_algorithms::snark::{create_random_proof, PreparedVerifyingKey, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
 
-use crate::{directories::INPUTS_DIRECTORY_NAME, files::INPUTS_FILE_NAME};
 use clap::ArgMatches;
-use leo_inputs::LeoInputsParser;
 use rand::thread_rng;
 use std::{convert::TryFrom, env::current_dir, time::Instant};
 
