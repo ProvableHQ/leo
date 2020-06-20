@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static PROOF_FILE_EXTENSION: &str = ".leo.proof";
+pub static PROOF_FILE_EXTENSION: &str = ".proof";
 
 #[derive(Deserialize)]
 pub struct ProofFile {

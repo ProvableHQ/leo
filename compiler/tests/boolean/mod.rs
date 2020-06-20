@@ -121,7 +121,7 @@ fn test_not_u32() {
 
 #[test]
 fn test_true_or_true() {
-    let bytes = include_bytes!("true_||_true.leo");
+    let bytes = include_bytes!("true_or_true.leo");
     let program = parse_program(bytes).unwrap();
 
     output_true(program);
@@ -129,7 +129,7 @@ fn test_true_or_true() {
 
 #[test]
 fn test_true_or_false() {
-    let bytes = include_bytes!("true_||_false.leo");
+    let bytes = include_bytes!("true_or_false.leo");
     let program = parse_program(bytes).unwrap();
 
     output_true(program);
@@ -137,7 +137,7 @@ fn test_true_or_false() {
 
 #[test]
 fn test_false_or_false() {
-    let bytes = include_bytes!("false_||_false.leo");
+    let bytes = include_bytes!("false_or_false.leo");
     let program = parse_program(bytes).unwrap();
 
     output_false(program);
@@ -145,7 +145,7 @@ fn test_false_or_false() {
 
 #[test]
 fn test_true_or_u32() {
-    let bytes = include_bytes!("true_||_u32.leo");
+    let bytes = include_bytes!("true_or_u32.leo");
     let program = parse_program(bytes).unwrap();
 
     fail_enforce(program);
@@ -155,7 +155,7 @@ fn test_true_or_u32() {
 
 #[test]
 fn test_true_and_true() {
-    let bytes = include_bytes!("true_&&_true.leo");
+    let bytes = include_bytes!("true_and_true.leo");
     let program = parse_program(bytes).unwrap();
 
     output_true(program);
@@ -163,7 +163,7 @@ fn test_true_and_true() {
 
 #[test]
 fn test_true_and_false() {
-    let bytes = include_bytes!("true_&&_false.leo");
+    let bytes = include_bytes!("true_and_false.leo");
     let program = parse_program(bytes).unwrap();
 
     output_false(program);
@@ -171,7 +171,7 @@ fn test_true_and_false() {
 
 #[test]
 fn test_false_and_false() {
-    let bytes = include_bytes!("false_&&_false.leo");
+    let bytes = include_bytes!("false_and_false.leo");
     let program = parse_program(bytes).unwrap();
 
     output_false(program);
@@ -179,7 +179,7 @@ fn test_false_and_false() {
 
 #[test]
 fn test_true_and_u32() {
-    let bytes = include_bytes!("true_&&_u32.leo");
+    let bytes = include_bytes!("true_and_u32.leo");
     let program = parse_program(bytes).unwrap();
 
     fail_enforce(program);

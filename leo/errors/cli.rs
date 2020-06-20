@@ -21,6 +21,9 @@ pub enum CLIError {
     InputsDirectoryError(#[from] InputsDirectoryError),
 
     #[error("{}", _0)]
+    InputsFileError(#[from] InputsFileError),
+
+    #[error("{}", _0)]
     MainFileError(#[from] MainFileError),
 
     #[error("{}", _0)]

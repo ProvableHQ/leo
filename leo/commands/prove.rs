@@ -2,11 +2,9 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::SetupCommand,
-    directories::INPUTS_DIRECTORY_NAME,
     errors::CLIError,
-    files::{Manifest, ProofFile, INPUTS_FILE_NAME},
+    files::{InputsFile, Manifest, ProofFile},
 };
-use leo_inputs::LeoInputsParser;
 
 use snarkos_algorithms::snark::{create_random_proof, PreparedVerifyingKey, Proof};
 use snarkos_curves::bls12_377::Bls12_377;
@@ -42,14 +40,9 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        // Construct the path to the inputs file in the inputs directory
-        let mut inputs_file_path = path.clone();
-        inputs_file_path.push(INPUTS_DIRECTORY_NAME);
-        inputs_file_path.push(INPUTS_FILE_NAME);
-
         // Fetch program inputs here
-        let inputs_file_string = LeoInputsParser::load_file(&inputs_file_path)?;
-        program.parse_inputs(&inputs_file_path, &inputs_file_string)?;
+        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+        program.parse_inputs(&inputs_string)?;
 
         // Start the timer
         let start = Instant::now();

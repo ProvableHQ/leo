@@ -101,6 +101,7 @@ fn test_multiple_returns() {
 
     output_multiple(program);
 }
+
 #[test]
 fn test_multiple_returns_main() {
     let bytes = include_bytes!("multiple_main.leo");

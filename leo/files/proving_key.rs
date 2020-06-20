@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static PROVING_KEY_FILE_EXTENSION: &str = ".leo.pk";
+pub static PROVING_KEY_FILE_EXTENSION: &str = ".lpk";
 
 #[derive(Deserialize)]
 pub struct ProvingKeyFile {
