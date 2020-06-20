@@ -40,17 +40,6 @@ impl InputParserError {
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
-    // pub fn integer_type_mismatch(integer_type: IntegerType, integer_value: IntegerValue) -> Self {
-    //     let message = format!(
-    //         "expected `{}`, found `{}`",
-    //         integer_type.to_string(),
-    //         integer_value.type_.to_string()
-    //     );
-    //     let span = integer_value.type_.span().to_owned();
-    //
-    //     InputParserError::syntax_error_span(message, span)
-    // }
-
     pub fn implicit_boolean(data_type: DataType, implicit: NumberImplicitValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type.to_string(), implicit.to_string());
 

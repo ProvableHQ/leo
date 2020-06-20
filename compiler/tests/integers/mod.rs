@@ -61,8 +61,8 @@ pub(crate) fn fail_synthesis(program: EdwardsTestCompiler) {
 }
 
 // must be below macro definitions!
-// pub mod u128;
-// pub mod u16;
+pub mod u128;
+pub mod u16;
 pub mod u32;
-// pub mod u64;
-// pub mod u8;
+pub mod u64;
+pub mod u8;
