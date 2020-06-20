@@ -5,7 +5,7 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Circuit {
-    pub identifier: Identifier,
+    pub circuit_name: Identifier,
     pub members: Vec<CircuitMember>,
 }
 
@@ -19,7 +19,7 @@ impl<'ast> From<AstCircuit<'ast>> for Circuit {
             .collect();
 
         Self {
-            identifier: variable,
+            circuit_name: variable,
             members,
         }
     }
@@ -27,7 +27,7 @@ impl<'ast> From<AstCircuit<'ast>> for Circuit {
 
 impl Circuit {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "circuit {} {{ \n", self.identifier)?;
+        write!(f, "circuit {} {{ \n", self.circuit_name)?;
         for field in self.members.iter() {
             write!(f, "    {}\n", field)?;
         }
