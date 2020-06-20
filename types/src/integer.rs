@@ -174,44 +174,70 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = UInt8::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &[left_u8, right_u8],
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} + {} {}:{}",
+                    left_u8.value.unwrap(),
+                    right_u8.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = UInt8::addmany(cs.ns(|| unique_namespace), &[left_u8, right_u8])?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = UInt16::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &[left_u16, right_u16],
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} + {} {}:{}",
+                    left_u16.value.unwrap(),
+                    right_u16.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = UInt16::addmany(cs.ns(|| unique_namespace), &[left_u16, right_u16])?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = UInt32::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &[left_u32, right_u32],
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} + {} {}:{}",
+                    left_u32.value.unwrap(),
+                    right_u32.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = UInt32::addmany(cs.ns(|| unique_namespace), &[left_u32, right_u32])?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = UInt64::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &[left_u64, right_u64],
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} + {} {}:{}",
+                    left_u64.value.unwrap(),
+                    right_u64.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = UInt64::addmany(cs.ns(|| unique_namespace), &[left_u64, right_u64])?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = UInt128::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &[left_u128, right_u128],
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} + {} {}:{}",
+                    left_u128.value.unwrap(),
+                    right_u128.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = UInt128::addmany(cs.ns(|| unique_namespace), &[left_u128, right_u128])?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_enforce(format!("+"), span)),
         })
     }
 
@@ -219,44 +245,70 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} - {} {}:{}",
+                    left_u8.value.unwrap(),
+                    right_u8.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u8.sub(cs.ns(|| unique_namespace), &right_u8)?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} - {} {}:{}",
+                    left_u16.value.unwrap(),
+                    right_u16.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u16.sub(cs.ns(|| unique_namespace), &right_u16)?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} - {} {}:{}",
+                    left_u32.value.unwrap(),
+                    right_u32.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u32.sub(cs.ns(|| unique_namespace), &right_u32)?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} - {} {}:{}",
+                    left_u64.value.unwrap(),
+                    right_u64.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u64.sub(cs.ns(|| unique_namespace), &right_u64)?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} - {} {}:{}",
+                    left_u128.value.unwrap(),
+                    right_u128.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u128.sub(cs.ns(|| unique_namespace), &right_u128)?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_enforce(format!("-"), span)),
         })
     }
 
@@ -264,44 +316,70 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} * {} {}:{}",
+                    left_u8.value.unwrap(),
+                    right_u8.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u8.mul(cs.ns(|| unique_namespace), &right_u8)?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} * {} {}:{}",
+                    left_u16.value.unwrap(),
+                    right_u16.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u16.mul(cs.ns(|| unique_namespace), &right_u16)?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} * {} {}:{}",
+                    left_u32.value.unwrap(),
+                    right_u32.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u32.mul(cs.ns(|| unique_namespace), &right_u32)?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} * {} {}:{}",
+                    left_u64.value.unwrap(),
+                    right_u64.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u64.mul(cs.ns(|| unique_namespace), &right_u64)?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} * {} {}:{}",
+                    left_u128.value.unwrap(),
+                    right_u128.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u128.mul(cs.ns(|| unique_namespace), &right_u128)?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_enforce(format!("*"), span)),
         })
     }
 
@@ -309,44 +387,70 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} / {} {}:{}",
+                    left_u8.value.unwrap(),
+                    right_u8.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u8.div(cs.ns(|| unique_namespace), &right_u8)?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} / {} {}:{}",
+                    left_u16.value.unwrap(),
+                    right_u16.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u16.div(cs.ns(|| unique_namespace), &right_u16)?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} / {} {}:{}",
+                    left_u32.value.unwrap(),
+                    right_u32.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u32.div(cs.ns(|| unique_namespace), &right_u32)?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} / {} {}:{}",
+                    left_u64.value.unwrap(),
+                    right_u64.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u64.div(cs.ns(|| unique_namespace), &right_u64)?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} / {} {}:{}",
+                    left_u128.value.unwrap(),
+                    right_u128.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u128.div(cs.ns(|| unique_namespace), &right_u128)?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ÷ {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_enforce(format!("÷"), span)),
         })
     }
 
@@ -354,44 +458,70 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} ** {} {}:{}",
+                    left_u8.value.unwrap(),
+                    right_u8.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u8.pow(cs.ns(|| unique_namespace), &right_u8)?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} ** {} {}:{}",
+                    left_u16.value.unwrap(),
+                    right_u16.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u16.pow(cs.ns(|| unique_namespace), &right_u16)?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} ** {} {}:{}",
+                    left_u32.value.unwrap(),
+                    right_u32.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u32.pow(cs.ns(|| unique_namespace), &right_u32)?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} ** {} {}:{}",
+                    left_u64.value.unwrap(),
+                    right_u64.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u64.pow(cs.ns(|| unique_namespace), &right_u64)?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let unique_namespace = format!(
+                    "enforce {} ** {} {}:{}",
+                    left_u128.value.unwrap(),
+                    right_u128.value.unwrap(),
+                    span.line,
+                    span.start
+                );
+                let result = left_u128.pow(cs.ns(|| unique_namespace), &right_u128)?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ** {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_enforce(format!("**"), span)),
         })
     }
 }

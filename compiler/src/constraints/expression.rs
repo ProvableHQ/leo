@@ -66,7 +66,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.add(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.add(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2)?))
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2)?))
@@ -130,7 +130,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2)?))
@@ -161,7 +161,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.div(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.div(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
                 Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2)?))
@@ -192,7 +192,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2)?;

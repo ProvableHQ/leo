@@ -66,6 +66,37 @@ pub enum Expression {
     FunctionCall(Box<Expression>, Vec<Expression>, Span),
 }
 
+impl Expression {
+    pub fn set_span(&mut self, new_span: &Span) {
+        match self {
+            Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Mul(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Div(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Pow(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::Or(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::And(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Eq(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Ge(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Gt(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Le(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Lt(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::IfElse(_, _, _, old_span) => *old_span = new_span.clone(),
+            Expression::Array(_, old_span) => *old_span = new_span.clone(),
+            Expression::ArrayAccess(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::Circuit(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::FunctionCall(_, _, old_span) => *old_span = new_span.clone(),
+            _ => {}
+        }
+    }
+}
+
 impl<'ast> Expression {
     pub(crate) fn get_count(count: Value<'ast>) -> usize {
         match count {
