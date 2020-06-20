@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static CHECKSUM_FILE_EXTENSION: &str = ".leo.checksum";
+pub static CHECKSUM_FILE_EXTENSION: &str = ".sum";
 
 #[derive(Deserialize)]
 pub struct ChecksumFile {
