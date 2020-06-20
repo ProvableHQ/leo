@@ -16,7 +16,7 @@ graph LR
     
     Pass2 -- statements --> Pass4(Synthesizer)
     
-    Pass4 -- constraints --> Pass5(Circuit)
+    Pass4 -- constraints --> Pass5(Program)
 ```
 
 </details>

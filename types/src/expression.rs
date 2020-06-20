@@ -163,14 +163,14 @@ impl<'ast> fmt::Display for Expression {
 
 impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
     fn from(expression: CircuitInlineExpression<'ast>) -> Self {
-        let variable = Identifier::from(expression.identifier);
+        let circuit_name = Identifier::from(expression.identifier);
         let members = expression
             .members
             .into_iter()
             .map(|member| CircuitFieldDefinition::from(member))
             .collect::<Vec<CircuitFieldDefinition>>();
 
-        Expression::Circuit(variable, members, Span::from(expression.span))
+        Expression::Circuit(circuit_name, members, Span::from(expression.span))
     }
 }
 

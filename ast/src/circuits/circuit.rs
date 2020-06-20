@@ -4,7 +4,7 @@ use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::circuit_definition))]
+#[pest_ast(rule(Rule::circuit))]
 pub struct Circuit<'ast> {
     pub identifier: Identifier<'ast>,
     pub members: Vec<CircuitMember<'ast>>,
