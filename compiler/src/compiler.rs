@@ -105,8 +105,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(())
     }
 
-    pub fn parse_inputs(&mut self, input_file_path: &PathBuf, input_file_string: &str) -> Result<(), CompilerError> {
-        let syntax_tree = LeoInputsParser::parse_file(input_file_path, input_file_string)?;
+    pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
+        let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
 
         // Check number/order of parameters here
         self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;

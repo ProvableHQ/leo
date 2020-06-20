@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".leo.vk";
+pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".lvk";
 
 #[derive(Deserialize)]
 pub struct VerificationKeyFile {

@@ -3,7 +3,7 @@ use crate::{
     cli_types::*,
     directories::{InputsDirectory, SourceDirectory},
     errors::{CLIError, NewError},
-    files::{Gitignore, MainFile, Manifest},
+    files::{Gitignore, InputsFile, MainFile, Manifest},
 };
 
 use clap::ArgMatches;
@@ -76,6 +76,9 @@ impl CLI for NewCommand {
 
         // Create the inputs directory
         InputsDirectory::create(&path)?;
+
+        // Create the inputs file in the inputs directory
+        InputsFile::new(&package_name).write_to(&path)?;
 
         // Create the main file in the source directory
         MainFile::new(&package_name).write_to(&path)?;
