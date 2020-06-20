@@ -355,8 +355,10 @@ function main() -> Circ {
 ## Imports
 Both struct and function imports are supported.
 
+```leo
 import all: `*`
 import alias: `symbol as alias`
+```
 
 `src/simple_import.leo`
 ```rust
