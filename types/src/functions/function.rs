@@ -1,4 +1,4 @@
-use crate::{FunctionInput, Identifier, Statement, Type};
+use crate::{FunctionInput, Identifier, Span, Statement, Type};
 use leo_ast::functions::Function as AstFunction;
 
 use std::fmt;
@@ -9,6 +9,7 @@ pub struct Function {
     pub inputs: Vec<FunctionInput>,
     pub returns: Vec<Type>,
     pub statements: Vec<Statement>,
+    pub span: Span,
 }
 
 impl<'ast> From<AstFunction<'ast>> for Function {
@@ -35,6 +36,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
             inputs: parameters,
             returns,
             statements,
+            span: Span::from(function_definition.span),
         }
     }
 }

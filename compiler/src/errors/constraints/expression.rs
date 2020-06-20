@@ -7,10 +7,10 @@ use std::num::ParseIntError;
 #[derive(Debug, Error)]
 pub enum ExpressionError {
     #[error("{}", _0)]
-    Error(#[from] FormattedError),
+    BooleanError(#[from] BooleanError),
 
     #[error("{}", _0)]
-    BooleanError(#[from] BooleanError),
+    Error(#[from] FormattedError),
 
     #[error("{}", _0)]
     IntegerError(#[from] IntegerError),
@@ -19,22 +19,19 @@ pub enum ExpressionError {
     FieldError(#[from] FieldError),
 
     #[error("{}", _0)]
+    FunctionError(#[from] Box<FunctionError>),
+
+    #[error("{}", _0)]
     GroupError(#[from] GroupError),
 
     #[error("{}", _0)]
     ParseIntError(#[from] ParseIntError),
 
     #[error("{}", _0)]
-    ValueError(#[from] ValueError),
-
-    #[error("{}", _0)]
-    FunctionError(#[from] Box<FunctionError>),
-    // Conditionals
-    #[error("If, else statements.conditional must resolve to a boolean, got {}", _0)]
-    IfElseConditional(String),
-
-    #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
+
+    #[error("{}", _0)]
+    ValueError(#[from] ValueError),
 }
 
 impl ExpressionError {
