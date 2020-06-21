@@ -43,13 +43,13 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
-    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>) -> Result<Self, ValueError> {
+    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>, span: Span) -> Result<Self, ValueError> {
         let other_type = other.to_type();
 
-        ConstrainedValue::from_type(value, &other_type)
+        ConstrainedValue::from_type(value, &other_type, span)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
                 IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
@@ -58,10 +58,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 IntegerType::U64 => Integer::U64(UInt64::constant(value.parse::<u64>()?)),
                 IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
             })),
-            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value)?)),
+            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?))),
-            Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type),
+            Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type, span),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }
     }
@@ -76,10 +76,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if !types.is_empty() {
-                *self = ConstrainedValue::from_type(string.clone(), &types[0])?
+                *self = ConstrainedValue::from_type(string.clone(), &types[0], span)?
             }
         }
 
@@ -87,16 +87,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     }
 
     /// Expect both `self` and `other` to resolve to the same type
-    pub(crate) fn resolve_types(&mut self, other: &mut Self, types: &Vec<Type>) -> Result<(), ValueError> {
+    pub(crate) fn resolve_types(&mut self, other: &mut Self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
         if !types.is_empty() {
-            self.resolve_type(types)?;
-            return other.resolve_type(types);
+            self.resolve_type(types, span.clone())?;
+            return other.resolve_type(types, span);
         }
 
         match (&self, &other) {
             (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type()]),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type()]),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type()], span),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type()], span),
             _ => Ok(()),
         }
     }

@@ -28,10 +28,10 @@ pub enum Expression {
 
     // Values
     Integer(Integer),
-    Field(String),
-    Group(String),
+    Field(String, Span),
+    Group(String, Span),
     Boolean(Boolean),
-    Implicit(String),
+    Implicit(String, Span),
 
     // Number operations
     Add(Box<Expression>, Box<Expression>, Span),
@@ -69,6 +69,9 @@ pub enum Expression {
 impl Expression {
     pub fn set_span(&mut self, new_span: &Span) {
         match self {
+            Expression::Field(_, old_span) => *old_span = new_span.clone(),
+            Expression::Group(_, old_span) => *old_span = new_span.clone(),
+
             Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Mul(_, _, old_span) => *old_span = new_span.clone(),
@@ -119,10 +122,10 @@ impl<'ast> fmt::Display for Expression {
 
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
-            Expression::Field(ref field) => write!(f, "{}", field),
-            Expression::Group(ref group) => write!(f, "{}", group),
+            Expression::Field(ref field, ref _span) => write!(f, "{}", field),
+            Expression::Group(ref group, ref _span) => write!(f, "{}", group),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
-            Expression::Implicit(ref value) => write!(f, "{}", value),
+            Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
 
             // Number operations
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
@@ -413,13 +416,13 @@ impl<'ast> From<NotExpression<'ast>> for Expression {
 
 impl<'ast> From<FieldValue<'ast>> for Expression {
     fn from(field: FieldValue<'ast>) -> Self {
-        Expression::Field(field.number.value)
+        Expression::Field(field.number.value, Span::from(field.span))
     }
 }
 
 impl<'ast> From<GroupValue<'ast>> for Expression {
     fn from(group: GroupValue<'ast>) -> Self {
-        Expression::Group(group.to_string())
+        Expression::Group(group.to_string(), Span::from(group.span))
     }
 }
 
@@ -433,7 +436,7 @@ impl<'ast> From<BooleanValue<'ast>> for Expression {
 
 impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
     fn from(number: NumberImplicitValue<'ast>) -> Self {
-        Expression::Implicit(number.number.value)
+        Expression::Implicit(number.number.value, Span::from(number.span))
     }
 }
 

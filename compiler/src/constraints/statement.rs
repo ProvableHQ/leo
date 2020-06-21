@@ -74,7 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name, span.clone())? {
                     ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(&vec![old[index].to_type()])?;
+                        new_value.resolve_type(&vec![old[index].to_type()], span.clone())?;
 
                         let selected_value =
                             ConstrainedValue::conditionally_select(cs, &condition, &new_value, &old[index]).map_err(
@@ -144,7 +144,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             return Err(StatementError::immutable_circuit_function("static".into(), span));
                         }
                         _ => {
-                            new_value.resolve_type(&vec![object.1.to_type()])?;
+                            new_value.resolve_type(&vec![object.1.to_type()], span.clone())?;
 
                             let selected_value =
                                 ConstrainedValue::conditionally_select(cs, &condition, &new_value, &object.1).map_err(
@@ -185,7 +185,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Assignee::Identifier(_identifier) => {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
-                new_value.resolve_type(&vec![old_value.to_type()])?;
+                new_value.resolve_type(&vec![old_value.to_type()], span.clone())?;
                 let selected_value = ConstrainedValue::conditionally_select(cs, &condition, &new_value, old_value)
                     .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
 
@@ -325,6 +325,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope.clone(),
                 &expected_types,
                 expression,
+                span.clone(),
             )?;
 
             returns.push(result);
@@ -556,7 +557,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             Statement::AssertEq(left, right, span) => {
                 let (resolved_left, resolved_right) =
-                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right)?;
+                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right, span.clone())?;
 
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
             }

@@ -392,7 +392,7 @@ impl Integer {
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
                 let unique_namespace = format!(
-                    "enforce {} / {} {}:{}",
+                    "enforce {} ÷ {} {}:{}",
                     left_u8.value.unwrap(),
                     right_u8.value.unwrap(),
                     span.line,
@@ -404,7 +404,7 @@ impl Integer {
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
                 let unique_namespace = format!(
-                    "enforce {} / {} {}:{}",
+                    "enforce {} ÷ {} {}:{}",
                     left_u16.value.unwrap(),
                     right_u16.value.unwrap(),
                     span.line,
@@ -416,7 +416,7 @@ impl Integer {
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
                 let unique_namespace = format!(
-                    "enforce {} / {} {}:{}",
+                    "enforce {} ÷ {} {}:{}",
                     left_u32.value.unwrap(),
                     right_u32.value.unwrap(),
                     span.line,
@@ -428,7 +428,7 @@ impl Integer {
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
                 let unique_namespace = format!(
-                    "enforce {} / {} {}:{}",
+                    "enforce {} ÷ {} {}:{}",
                     left_u64.value.unwrap(),
                     right_u64.value.unwrap(),
                     span.line,
@@ -440,7 +440,7 @@ impl Integer {
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
                 let unique_namespace = format!(
-                    "enforce {} / {} {}:{}",
+                    "enforce {} ÷ {} {}:{}",
                     left_u128.value.unwrap(),
                     right_u128.value.unwrap(),
                     span.line,

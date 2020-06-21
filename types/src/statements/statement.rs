@@ -151,12 +151,12 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         let from = match Expression::from(statement.start) {
             Expression::Integer(number) => number,
-            Expression::Implicit(string) => Integer::from_implicit(string),
+            Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
         let to = match Expression::from(statement.stop) {
             Expression::Integer(number) => number,
-            Expression::Implicit(string) => Integer::from_implicit(string),
+            Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
 
