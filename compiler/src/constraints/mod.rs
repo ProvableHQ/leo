@@ -1,7 +1,7 @@
 //! Module containing methods to enforce constraints in an Leo program
 
-pub mod boolean;
-pub use boolean::*;
+pub(crate) mod boolean;
+pub(crate) use boolean::*;
 
 pub mod function;
 pub use function::*;

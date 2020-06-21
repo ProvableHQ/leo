@@ -58,6 +58,46 @@ impl<'ast> Integer {
 }
 
 impl Integer {
+    pub fn new_constant(integer_type: &IntegerType, string: String, span: Span) -> Result<Self, IntegerError> {
+        match integer_type {
+            IntegerType::U8 => {
+                let number = string
+                    .parse::<u8>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U8(UInt8::constant(number)))
+            }
+            IntegerType::U16 => {
+                let number = string
+                    .parse::<u16>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U16(UInt16::constant(number)))
+            }
+            IntegerType::U32 => {
+                let number = string
+                    .parse::<u32>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U32(UInt32::constant(number)))
+            }
+            IntegerType::U64 => {
+                let number = string
+                    .parse::<u64>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U64(UInt64::constant(number)))
+            }
+            IntegerType::U128 => {
+                let number = string
+                    .parse::<u128>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U128(UInt128::constant(number)))
+            }
+        }
+    }
+
     pub fn get_value(&self) -> Option<u128> {
         match self {
             Integer::U8(u8) => u8.value.map(|v| v as u128),

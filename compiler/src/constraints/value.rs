@@ -1,20 +1,14 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
-use crate::{errors::ValueError, FieldType, GroupType};
-use leo_types::{Circuit, Function, Identifier, Integer, IntegerType, Span, Type};
+use crate::{errors::ValueError, new_bool_constant, FieldType, GroupType};
+use leo_types::{Circuit, Function, Identifier, Integer, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::ConditionalEqGadget,
-            select::CondSelectGadget,
-            uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
-        },
+        utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
     },
 };
 use std::fmt;
@@ -51,16 +45,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
     pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
         match _type {
-            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(match integer_type {
-                IntegerType::U8 => Integer::U8(UInt8::constant(value.parse::<u8>()?)),
-                IntegerType::U16 => Integer::U16(UInt16::constant(value.parse::<u16>()?)),
-                IntegerType::U32 => Integer::U32(UInt32::constant(value.parse::<u32>()?)),
-                IntegerType::U64 => Integer::U64(UInt64::constant(value.parse::<u64>()?)),
-                IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
-            })),
+            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
+                integer_type,
+                value,
+                span,
+            )?)),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value, span)?)),
-            Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?))),
+            Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
             Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type, span),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }

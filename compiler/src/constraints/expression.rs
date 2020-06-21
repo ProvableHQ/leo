@@ -2,7 +2,10 @@
 
 use crate::{
     constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
+    enforce_and,
+    enforce_or,
     errors::ExpressionError,
+    evaluate_not,
     new_scope,
     FieldType,
     GroupType,
@@ -968,7 +971,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Boolean operations
-            Expression::Not(expression, span) => Ok(Self::evaluate_not(
+            Expression::Not(expression, span) => Ok(evaluate_not(
                 self.enforce_expression(cs, file_scope, function_scope, expected_types, *expression)?,
                 span,
             )?),
@@ -983,7 +986,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.enforce_or(cs, resolved_left, resolved_right, span)?)
+                Ok(enforce_or(cs, resolved_left, resolved_right, span)?)
             }
             Expression::And(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -996,7 +999,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.enforce_and(cs, resolved_left, resolved_right, span)?)
+                Ok(enforce_and(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Eq(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
