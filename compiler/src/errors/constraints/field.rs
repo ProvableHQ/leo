@@ -6,9 +6,6 @@ use snarkos_errors::gadgets::SynthesisError;
 pub enum FieldError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    SynthesisError(#[from] SynthesisError),
 }
 
 impl FieldError {

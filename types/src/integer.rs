@@ -185,7 +185,8 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = UInt8::addmany(cs.ns(|| unique_namespace), &[left_u8, right_u8])?;
+                let result = UInt8::addmany(cs.ns(|| unique_namespace), &[left_u8, right_u8])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
 
                 Integer::U8(result)
             }
@@ -197,7 +198,8 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = UInt16::addmany(cs.ns(|| unique_namespace), &[left_u16, right_u16])?;
+                let result = UInt16::addmany(cs.ns(|| unique_namespace), &[left_u16, right_u16])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
 
                 Integer::U16(result)
             }
@@ -209,7 +211,8 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = UInt32::addmany(cs.ns(|| unique_namespace), &[left_u32, right_u32])?;
+                let result = UInt32::addmany(cs.ns(|| unique_namespace), &[left_u32, right_u32])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
 
                 Integer::U32(result)
             }
@@ -221,7 +224,8 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = UInt64::addmany(cs.ns(|| unique_namespace), &[left_u64, right_u64])?;
+                let result = UInt64::addmany(cs.ns(|| unique_namespace), &[left_u64, right_u64])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
 
                 Integer::U64(result)
             }
@@ -233,11 +237,12 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = UInt128::addmany(cs.ns(|| unique_namespace), &[left_u128, right_u128])?;
+                let result = UInt128::addmany(cs.ns(|| unique_namespace), &[left_u128, right_u128])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
 
                 Integer::U128(result)
             }
-            (_, _) => return Err(IntegerError::cannot_enforce(format!("+"), span)),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("+"), span)),
         })
     }
 
@@ -256,7 +261,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u8.sub(cs.ns(|| unique_namespace), &right_u8)?;
+                let result = left_u8
+                    .sub(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
 
                 Integer::U8(result)
             }
@@ -268,7 +275,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u16.sub(cs.ns(|| unique_namespace), &right_u16)?;
+                let result = left_u16
+                    .sub(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
 
                 Integer::U16(result)
             }
@@ -280,7 +289,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u32.sub(cs.ns(|| unique_namespace), &right_u32)?;
+                let result = left_u32
+                    .sub(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
 
                 Integer::U32(result)
             }
@@ -292,7 +303,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u64.sub(cs.ns(|| unique_namespace), &right_u64)?;
+                let result = left_u64
+                    .sub(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
 
                 Integer::U64(result)
             }
@@ -304,11 +317,13 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u128.sub(cs.ns(|| unique_namespace), &right_u128)?;
+                let result = left_u128
+                    .sub(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
 
                 Integer::U128(result)
             }
-            (_, _) => return Err(IntegerError::cannot_enforce(format!("-"), span)),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("-"), span)),
         })
     }
 
@@ -327,7 +342,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u8.mul(cs.ns(|| unique_namespace), &right_u8)?;
+                let result = left_u8
+                    .mul(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
 
                 Integer::U8(result)
             }
@@ -339,7 +356,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u16.mul(cs.ns(|| unique_namespace), &right_u16)?;
+                let result = left_u16
+                    .mul(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
 
                 Integer::U16(result)
             }
@@ -351,7 +370,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u32.mul(cs.ns(|| unique_namespace), &right_u32)?;
+                let result = left_u32
+                    .mul(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
 
                 Integer::U32(result)
             }
@@ -363,7 +384,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u64.mul(cs.ns(|| unique_namespace), &right_u64)?;
+                let result = left_u64
+                    .mul(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
 
                 Integer::U64(result)
             }
@@ -375,11 +398,13 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u128.mul(cs.ns(|| unique_namespace), &right_u128)?;
+                let result = left_u128
+                    .mul(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
 
                 Integer::U128(result)
             }
-            (_, _) => return Err(IntegerError::cannot_enforce(format!("*"), span)),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("*"), span)),
         })
     }
 
@@ -398,7 +423,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u8.div(cs.ns(|| unique_namespace), &right_u8)?;
+                let result = left_u8
+                    .div(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
 
                 Integer::U8(result)
             }
@@ -410,7 +437,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u16.div(cs.ns(|| unique_namespace), &right_u16)?;
+                let result = left_u16
+                    .div(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
 
                 Integer::U16(result)
             }
@@ -422,7 +451,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u32.div(cs.ns(|| unique_namespace), &right_u32)?;
+                let result = left_u32
+                    .div(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
 
                 Integer::U32(result)
             }
@@ -434,7 +465,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u64.div(cs.ns(|| unique_namespace), &right_u64)?;
+                let result = left_u64
+                    .div(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
 
                 Integer::U64(result)
             }
@@ -446,11 +479,13 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u128.div(cs.ns(|| unique_namespace), &right_u128)?;
+                let result = left_u128
+                    .div(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
 
                 Integer::U128(result)
             }
-            (_, _) => return Err(IntegerError::cannot_enforce(format!("÷"), span)),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("÷"), span)),
         })
     }
 
@@ -469,7 +504,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u8.pow(cs.ns(|| unique_namespace), &right_u8)?;
+                let result = left_u8
+                    .pow(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
 
                 Integer::U8(result)
             }
@@ -481,7 +518,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u16.pow(cs.ns(|| unique_namespace), &right_u16)?;
+                let result = left_u16
+                    .pow(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
 
                 Integer::U16(result)
             }
@@ -493,7 +532,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u32.pow(cs.ns(|| unique_namespace), &right_u32)?;
+                let result = left_u32
+                    .pow(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
 
                 Integer::U32(result)
             }
@@ -505,7 +546,9 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u64.pow(cs.ns(|| unique_namespace), &right_u64)?;
+                let result = left_u64
+                    .pow(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
 
                 Integer::U64(result)
             }
@@ -517,11 +560,13 @@ impl Integer {
                     span.line,
                     span.start
                 );
-                let result = left_u128.pow(cs.ns(|| unique_namespace), &right_u128)?;
+                let result = left_u128
+                    .pow(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
 
                 Integer::U128(result)
             }
-            (_, _) => return Err(IntegerError::cannot_enforce(format!("**"), span)),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("**"), span)),
         })
     }
 }

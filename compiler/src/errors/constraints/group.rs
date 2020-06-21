@@ -6,9 +6,6 @@ use snarkos_errors::gadgets::SynthesisError;
 pub enum GroupError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    SynthesisError(#[from] SynthesisError),
 }
 
 impl GroupError {
