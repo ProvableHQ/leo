@@ -5,7 +5,7 @@ use crate::{
     errors::BooleanError,
     GroupType,
 };
-use leo_types::InputValue;
+use leo_types::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -22,6 +22,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         name: String,
         input_value: Option<InputValue>,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         // Check that the input value is the correct type
         let bool_value = match input_value {
@@ -29,21 +30,29 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if let InputValue::Boolean(bool) = input {
                     Some(bool)
                 } else {
-                    return Err(BooleanError::SynthesisError(SynthesisError::AssignmentMissing));
+                    return Err(BooleanError::invalid_boolean(name, span));
                 }
             }
             None => None,
         };
 
-        let number = Boolean::alloc(cs.ns(|| name), || bool_value.ok_or(SynthesisError::AssignmentMissing))?;
+        let boolean_name = format!("{}: bool", name);
+        let boolean_name_unique = format!("`{}` {}:{}", boolean_name, span.line, span.start);
+        let number = Boolean::alloc(cs.ns(|| boolean_name_unique), || {
+            bool_value.ok_or(SynthesisError::AssignmentMissing)
+        })
+        .map_err(|_| BooleanError::missing_boolean(boolean_name, span))?;
 
         Ok(ConstrainedValue::Boolean(number))
     }
 
-    pub(crate) fn evaluate_not(value: ConstrainedValue<F, G>) -> Result<ConstrainedValue<F, G>, BooleanError> {
+    pub(crate) fn evaluate_not(
+        value: ConstrainedValue<F, G>,
+        span: Span,
+    ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match value {
             ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
-            value => Err(BooleanError::CannotEvaluate(format!("!{}", value))),
+            value => Err(BooleanError::cannot_evaluate(format!("!{}", value), span)),
         }
     }
 
@@ -52,15 +61,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
             (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::or(cs, &left_bool, &right_bool)?))
+                Ok(ConstrainedValue::Boolean(
+                    Boolean::or(cs, &left_bool, &right_bool)
+                        .map_err(|e| BooleanError::cannot_enforce(format!("||"), e, span))?,
+                ))
             }
-            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
-                "{} || {}",
-                left_value, right_value
-            ))),
+            (left_value, right_value) => Err(BooleanError::cannot_evaluate(
+                format!("{} || {}", left_value, right_value),
+                span,
+            )),
         }
     }
 
@@ -69,15 +82,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, BooleanError> {
         match (left, right) {
             (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => {
-                Ok(ConstrainedValue::Boolean(Boolean::and(cs, &left_bool, &right_bool)?))
+                Ok(ConstrainedValue::Boolean(
+                    Boolean::and(cs, &left_bool, &right_bool)
+                        .map_err(|e| BooleanError::cannot_enforce(format!("&&"), e, span))?,
+                ))
             }
-            (left_value, right_value) => Err(BooleanError::CannotEnforce(format!(
-                "{} && {}",
-                left_value, right_value
-            ))),
+            (left_value, right_value) => Err(BooleanError::cannot_evaluate(
+                format!("{} && {}", left_value, right_value),
+                span,
+            )),
         }
     }
 }

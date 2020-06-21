@@ -41,7 +41,7 @@ pub enum Expression {
     Pow(Box<Expression>, Box<Expression>, Span),
 
     // Boolean operations
-    Not(Box<Expression>),
+    Not(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),
@@ -78,6 +78,7 @@ impl Expression {
             Expression::Div(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Pow(_, _, old_span) => *old_span = new_span.clone(),
 
+            Expression::Not(_, old_span) => *old_span = new_span.clone(),
             Expression::Or(_, _, old_span) => *old_span = new_span.clone(),
             Expression::And(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Eq(_, _, old_span) => *old_span = new_span.clone(),
@@ -135,7 +136,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Pow(ref left, ref right, ref _span) => write!(f, "{} ** {}", left, right),
 
             // Boolean operations
-            Expression::Not(ref expression) => write!(f, "!{}", expression),
+            Expression::Not(ref expression, ref _span) => write!(f, "!{}", expression),
             Expression::Or(ref lhs, ref rhs, ref _span) => write!(f, "{} || {}", lhs, rhs),
             Expression::And(ref lhs, ref rhs, ref _span) => write!(f, "{} && {}", lhs, rhs),
             Expression::Eq(ref lhs, ref rhs, ref _span) => write!(f, "{} == {}", lhs, rhs),
@@ -312,7 +313,10 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.right)),
                 Span::from(expression.span),
             ),
-            BinaryOperation::Ne => Expression::Not(Box::new(Expression::from(expression))),
+            BinaryOperation::Ne => Expression::Not(
+                Box::new(Expression::from(expression.clone())),
+                Span::from(expression.span),
+            ),
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
@@ -410,7 +414,10 @@ impl<'ast> From<Value<'ast>> for Expression {
 
 impl<'ast> From<NotExpression<'ast>> for Expression {
     fn from(expression: NotExpression<'ast>) -> Self {
-        Expression::Not(Box::new(Expression::from(*expression.expression)))
+        Expression::Not(
+            Box::new(Expression::from(*expression.expression)),
+            Span::from(expression.span),
+        )
     }
 }
 
