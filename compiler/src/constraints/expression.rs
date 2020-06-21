@@ -217,27 +217,35 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut expression_namespace = cs.ns(|| format!("evaluate {} == {}", left.to_string(), right.to_string()));
-        let result_bool = match (left, right) {
+        let mut unique_namespace = cs.ns(|| {
+            format!(
+                "evaluate {} == {} {}:{}",
+                left.to_string(),
+                right.to_string(),
+                span.line,
+                span.start
+            )
+        });
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                bool_1.evaluate_equal(expression_namespace, &bool_2)?
+                bool_1.evaluate_equal(unique_namespace, &bool_2)
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.evaluate_equal(expression_namespace, &num_2)?
+                num_1.evaluate_equal(unique_namespace, &num_2)
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                fe_1.evaluate_equal(expression_namespace, &fe_2)?
+                fe_1.evaluate_equal(unique_namespace, &fe_2)
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                ge_1.evaluate_equal(expression_namespace, &ge_2)?
+                ge_1.evaluate_equal(unique_namespace, &ge_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2, span);
+                return self.evaluate_eq_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2, span);
+                return self.evaluate_eq_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, val_2) => {
                 return Err(ExpressionError::incompatible_types(
@@ -247,7 +255,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         };
 
-        Ok(ConstrainedValue::Boolean(result_bool))
+        let boolean =
+            constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate equals"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
     //TODO: unsafe for allocated values
@@ -408,21 +419,39 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let resolved_third =
             self.enforce_expression_value(cs, file_scope, function_scope, expected_types, third, span.clone())?;
 
+        let unique_namespace = cs.ns(|| {
+            format!(
+                "select {} or {} {}:{}",
+                resolved_second.to_string(),
+                resolved_third.to_string(),
+                span.line,
+                span.start
+            )
+        });
+
         match (resolved_second, resolved_third) {
             (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
-                let result = Boolean::conditionally_select(cs, &resolved_first, &bool_2, &bool_3)?;
+                let result = Boolean::conditionally_select(unique_namespace, &resolved_first, &bool_2, &bool_3)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Boolean(result))
             }
             (ConstrainedValue::Integer(integer_2), ConstrainedValue::Integer(integer_3)) => {
-                let result = Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
+                let result = Integer::conditionally_select(unique_namespace, &resolved_first, &integer_2, &integer_3)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Integer(result))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = FieldType::conditionally_select(cs, &resolved_first, &fe_1, &fe_2)?;
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                let result = FieldType::conditionally_select(unique_namespace, &resolved_first, &field_1, &field_2)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Field(result))
             }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                let result = G::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
+            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+                let result = G::conditionally_select(unique_namespace, &resolved_first, &point_1, &point_2)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Group(result))
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(

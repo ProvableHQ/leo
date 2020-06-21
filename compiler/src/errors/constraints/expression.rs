@@ -2,7 +2,6 @@ use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, ValueEr
 use leo_types::{Error as FormattedError, Identifier, IntegerError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
-use std::num::ParseIntError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -25,18 +24,21 @@ pub enum ExpressionError {
     GroupError(#[from] GroupError),
 
     #[error("{}", _0)]
-    ParseIntError(#[from] ParseIntError),
-
-    #[error("{}", _0)]
-    SynthesisError(#[from] SynthesisError),
-
-    #[error("{}", _0)]
     ValueError(#[from] ValueError),
 }
 
 impl ExpressionError {
     fn new_from_span(message: String, span: Span) -> Self {
         ExpressionError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
+        let message = format!(
+            "the gadget operation `{}` failed due to synthesis error `{}`",
+            operation, error,
+        );
+
+        Self::new_from_span(message, span)
     }
 
     pub fn conditional_boolean(actual: String, span: Span) -> Self {
