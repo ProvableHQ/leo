@@ -72,7 +72,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2)?))
+                Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -104,7 +104,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2)?))
+                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -867,7 +867,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Values
             Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
-            Expression::Group(group_affine, _span) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
+            Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
             Expression::Boolean(bool) => Ok(ConstrainedValue::Boolean(bool)),
             Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
 

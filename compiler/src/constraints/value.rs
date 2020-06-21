@@ -59,7 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 IntegerType::U128 => Integer::U128(UInt128::constant(value.parse::<u128>()?)),
             })),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-            Type::Group => Ok(ConstrainedValue::Group(G::constant(value)?)),
+            Type::Group => Ok(ConstrainedValue::Group(G::constant(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(Boolean::Constant(value.parse::<bool>()?))),
             Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type, span),
             _ => Ok(ConstrainedValue::Unresolved(value)),
