@@ -1,4 +1,4 @@
-use crate::Identifier;
+use crate::{Identifier, Span};
 use leo_ast::imports::ImportSymbol as AstImportSymbol;
 
 use std::fmt;
@@ -7,6 +7,7 @@ use std::fmt;
 pub struct ImportSymbol {
     pub symbol: Identifier,
     pub alias: Option<Identifier>,
+    pub span: Span,
 }
 
 impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
@@ -14,6 +15,7 @@ impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
         ImportSymbol {
             symbol: Identifier::from(symbol.value),
             alias: symbol.alias.map(|alias| Identifier::from(alias)),
+            span: Span::from(symbol.span),
         }
     }
 }
