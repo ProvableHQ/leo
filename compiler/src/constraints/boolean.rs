@@ -74,16 +74,17 @@ pub(crate) fn enforce_or<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintS
     right: ConstrainedValue<F, G>,
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, BooleanError> {
-    match (left, right) {
-        (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(ConstrainedValue::Boolean(
-            Boolean::or(cs, &left_bool, &right_bool)
-                .map_err(|e| BooleanError::cannot_enforce(format!("||"), e, span))?,
-        )),
-        (left_value, right_value) => Err(BooleanError::cannot_evaluate(
-            format!("{} || {}", left_value, right_value),
-            span,
-        )),
+    let name = format!("{} || {}", left, right);
+
+    if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
+        let name_unique = format!("{} {}:{}", name, span.line, span.start);
+        let result = Boolean::or(cs.ns(|| name_unique), &left_bool, &right_bool)
+            .map_err(|e| BooleanError::cannot_enforce(format!("||"), e, span))?;
+
+        return Ok(ConstrainedValue::Boolean(result));
     }
+
+    Err(BooleanError::cannot_evaluate(name, span))
 }
 
 pub(crate) fn enforce_and<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -92,14 +93,15 @@ pub(crate) fn enforce_and<F: Field + PrimeField, G: GroupType<F>, CS: Constraint
     right: ConstrainedValue<F, G>,
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, BooleanError> {
-    match (left, right) {
-        (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) => Ok(ConstrainedValue::Boolean(
-            Boolean::and(cs, &left_bool, &right_bool)
-                .map_err(|e| BooleanError::cannot_enforce(format!("&&"), e, span))?,
-        )),
-        (left_value, right_value) => Err(BooleanError::cannot_evaluate(
-            format!("{} && {}", left_value, right_value),
-            span,
-        )),
+    let name = format!("{} && {}", left, right);
+
+    if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
+        let name_unique = format!("{} {}:{}", name, span.line, span.start);
+        let result = Boolean::and(cs.ns(|| name_unique), &left_bool, &right_bool)
+            .map_err(|e| BooleanError::cannot_enforce(format!("&&"), e, span))?;
+
+        return Ok(ConstrainedValue::Boolean(result));
     }
+
+    Err(BooleanError::cannot_evaluate(name, span))
 }

@@ -11,6 +11,7 @@ use leo_compiler::{
     ConstrainedValue,
 };
 
+use crate::boolean::output_true;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 pub(crate) fn output_empty(program: EdwardsTestCompiler) {
@@ -108,4 +109,14 @@ fn test_multiple_returns_main() {
     let program = parse_program(bytes).unwrap();
 
     output_multiple(program);
+}
+
+// Repeated calls
+
+#[test]
+fn test_repeated_function_call() {
+    let bytes = include_bytes!("repeated.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_true(program);
 }

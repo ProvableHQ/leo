@@ -229,15 +229,20 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                 ),
 
                 // Handle function calls
-                Access::Call(function) => Expression::FunctionCall(
-                    Box::new(acc),
-                    function
-                        .expressions
-                        .into_iter()
-                        .map(|expression| Expression::from(expression))
-                        .collect(),
-                    Span::from(function.span),
-                ),
+                Access::Call(function) => {
+                    println!("old {:?}", function.span);
+                    let span = Span::from(function.span);
+                    println!("span {:?}", span);
+                    Expression::FunctionCall(
+                        Box::new(acc),
+                        function
+                            .expressions
+                            .into_iter()
+                            .map(|expression| Expression::from(expression))
+                            .collect(),
+                        span,
+                    )
+                }
 
                 // Handle circuit member accesses
                 Access::Object(circuit_object) => Expression::CircuitMemberAccess(

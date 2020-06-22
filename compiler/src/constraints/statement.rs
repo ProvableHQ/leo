@@ -76,10 +76,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     ConstrainedValue::Array(old) => {
                         new_value.resolve_type(&vec![old[index].to_type()], span.clone())?;
 
-                        let mut unique_namespace =
-                            cs.ns(|| format!("select {} {}:{}", new_value.to_string(), span.line, span.start));
+                        let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                         let selected_value = ConstrainedValue::conditionally_select(
-                            &mut unique_namespace,
+                            cs.ns(|| name_unique),
                             &condition,
                             &new_value,
                             &old[index],
@@ -114,10 +113,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     }
                     _ => return Err(StatementError::array_assign_range(span)),
                 };
-                let mut unique_namespace =
-                    cs.ns(|| format!("select {} {}:{}", new_array.to_string(), span.line, span.start));
+                let name_unique = format!("select {} {}:{}", new_array, span.line, span.start);
                 let selected_array =
-                    ConstrainedValue::conditionally_select(&mut unique_namespace, &condition, &new_array, old_array)
+                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_array, old_array)
                         .map_err(|_| StatementError::select_fail(new_array.to_string(), old_array.to_string(), span))?;
 
                 *old_array = selected_array;
@@ -157,10 +155,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         _ => {
                             new_value.resolve_type(&vec![object.1.to_type()], span.clone())?;
 
-                            let mut unique_namespace =
-                                cs.ns(|| format!("select {} {}:{}", new_value.to_string(), span.line, span.start));
+                            let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                             let selected_value = ConstrainedValue::conditionally_select(
-                                &mut unique_namespace,
+                                cs.ns(|| name_unique),
                                 &condition,
                                 &new_value,
                                 &object.1,
@@ -206,10 +203,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 new_value.resolve_type(&vec![old_value.to_type()], span.clone())?;
 
-                let mut unique_namespace =
-                    cs.ns(|| format!("select {} {}:{}", new_value.to_string(), span.line, span.start));
+                let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                 let selected_value =
-                    ConstrainedValue::conditionally_select(&mut unique_namespace, &condition, &new_value, old_value)
+                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
                         .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
 
                 *old_value = selected_value;
@@ -482,16 +478,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope(function_scope.clone(), index.to_string());
+
             self.store(
                 index_name,
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
             );
 
-            let mut unique_namespace = cs.ns(|| format!("for loop iteration {} {}:{}", i, span.line, span.start));
-
             // Evaluate statements and possibly return early
+            let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
             if let Some(early_return) = self.evaluate_branch(
-                &mut unique_namespace,
+                &mut cs.ns(|| name_unique),
                 file_scope.clone(),
                 function_scope.clone(),
                 indicator,
@@ -515,16 +511,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
-        let unique_namespace = cs.ns(|| {
-            format!(
-                "assert {} == {} {}:{}",
-                left.to_string(),
-                right.to_string(),
-                span.line,
-                span.start
-            )
-        });
-        let result = left.conditional_enforce_equal(unique_namespace, right, &condition);
+        let name_unique = format!("assert {} == {} {}:{}", left, right, span.line, span.start);
+        let result = left.conditional_enforce_equal(cs.ns(|| name_unique), right, &condition);
 
         Ok(result.map_err(|_| StatementError::assertion_failed(left.to_string(), right.to_string(), span))?)
     }

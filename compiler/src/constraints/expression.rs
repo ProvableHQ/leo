@@ -805,7 +805,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::undefined_function(value.to_string(), span)),
         };
 
-        match self.enforce_function(cs, outer_scope, function_scope, function_call, arguments) {
+        let name_unique = format!(
+            "function call {} {}:{}",
+            function_call.get_name(),
+            span.line,
+            span.start,
+        );
+
+        match self.enforce_function(
+            &mut cs.ns(|| name_unique),
+            outer_scope,
+            function_scope,
+            function_call,
+            arguments,
+        ) {
             Ok(ConstrainedValue::Return(return_values)) => {
                 if return_values.len() == 1 {
                     Ok(return_values[0].clone())
