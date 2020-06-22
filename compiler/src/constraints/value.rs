@@ -1,6 +1,14 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
-use crate::{errors::ValueError, new_bool_constant, FieldType, GroupType};
+use crate::{
+    allocate_bool,
+    allocate_field,
+    allocate_group,
+    errors::ValueError,
+    new_bool_constant,
+    FieldType,
+    GroupType,
+};
 use leo_types::{Circuit, Function, Identifier, Integer, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -8,7 +16,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
     },
 };
 use std::fmt;
@@ -104,25 +112,28 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // allocated values
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
+                let name = option.map(|b| b.to_string()).unwrap_or(format!("[allocated]"));
 
-                *boolean = Boolean::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+                *boolean = allocate_bool(&mut cs, name, option, span)?;
             }
             ConstrainedValue::Integer(integer) => {
                 let integer_type = integer.get_type();
                 let option = integer.get_value();
-                let name = format!("clone {}", integer);
+                let name = option.map(|n| n.to_string()).unwrap_or(format!("[allocated]"));
 
                 *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }
             ConstrainedValue::Field(field) => {
                 let option = field.get_value().map(|v| format!("{}", v));
+                let name = option.clone().map(|f| f.to_string()).unwrap_or(format!("[allocated]"));
 
-                *field = FieldType::alloc(cs, || option.ok_or(SynthesisError::AssignmentMissing))?;
+                *field = allocate_field(&mut cs, name, option, span)?;
             }
             ConstrainedValue::Group(group) => {
-                let string = format!("{}", group); // may need to implement u256 -> decimal formatting
+                let name = format!("{}", group); // may need to implement u256 -> decimal formatting
+                let option = Some(name.clone());
 
-                *group = G::alloc(cs, || Ok(string))?;
+                *group = allocate_group(&mut cs, name, option, span)?;
             }
             // value wrappers
             ConstrainedValue::Array(array) => {

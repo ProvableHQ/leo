@@ -9,6 +9,21 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::alloc::AllocGadget},
 };
 
+pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    cs: &mut CS,
+    name: String,
+    option: Option<String>,
+    span: Span,
+) -> Result<FieldType<F>, FieldError> {
+    let field_name = format!("{}: field", name);
+    let field_name_unique = format!("`{}` {}:{}", field_name, span.line, span.start);
+
+    FieldType::alloc(cs.ns(|| field_name_unique), || {
+        option.ok_or(SynthesisError::AssignmentMissing)
+    })
+    .map_err(|_| FieldError::missing_field(field_name, span))
+}
+
 pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: String,
@@ -16,7 +31,7 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, FieldError> {
     // Check that the parameter value is the correct type
-    let field_option = match input_value {
+    let option = match input_value {
         Some(input) => {
             if let InputValue::Field(string) = input {
                 Some(string)
@@ -27,12 +42,7 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
         None => None,
     };
 
-    let field_name = format!("{}: field", name);
-    let field_name_unique = format!("`{}` {}:{}", field_name, span.line, span.start);
-    let field_value = FieldType::alloc(cs.ns(|| field_name_unique), || {
-        field_option.ok_or(SynthesisError::AssignmentMissing)
-    })
-    .map_err(|_| FieldError::missing_field(field_name, span))?;
+    let field = allocate_field(cs, name, option, span)?;
 
-    Ok(ConstrainedValue::Field(field_value))
+    Ok(ConstrainedValue::Field(field))
 }
