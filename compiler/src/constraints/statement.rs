@@ -411,11 +411,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         // Determine nested branch 1 selection
+        let outer_indicator_string = outer_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let inner_indicator_string = inner_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let branch_1_name = format!(
+            "branch indicator 1 {} && {}",
+            outer_indicator_string, inner_indicator_string
+        );
         let branch_1_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch indicator 1 {} {}:{}", statement_string, span.line, span.start)),
+            &mut cs.ns(|| format!("branch 1 {} {}:{}", statement_string, span.line, span.start)),
             &outer_indicator,
             &inner_indicator,
-        )?;
+        )
+        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
 
         // Execute branch 1
         self.evaluate_branch(
@@ -428,11 +441,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )?;
 
         // Determine nested branch 2 selection
+        let inner_indicator = inner_indicator.not();
+        let inner_indicator_string = inner_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let branch_2_name = format!(
+            "branch indicator 2 {} && {}",
+            outer_indicator_string, inner_indicator_string
+        );
         let branch_2_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch indicator 2 {} {}:{}", statement_string, span.line, span.start)),
+            &mut cs.ns(|| format!("branch 2 {} {}:{}", statement_string, span.line, span.start)),
             &outer_indicator,
-            &inner_indicator.not(),
-        )?;
+            &inner_indicator,
+        )
+        .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
 
         // Execute branch 2
         match statement.next {

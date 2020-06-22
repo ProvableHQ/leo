@@ -1,21 +1,16 @@
 use crate::errors::{BooleanError, ExpressionError, ValueError};
 use leo_types::{Error as FormattedError, Span};
 
-use snarkos_errors::gadgets::SynthesisError;
-
 #[derive(Debug, Error)]
 pub enum StatementError {
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
-
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
 
     #[error("{}", _0)]
-    ExpressionError(#[from] ExpressionError),
+    Error(#[from] FormattedError),
 
     #[error("{}", _0)]
-    SynthesisError(#[from] SynthesisError),
+    ExpressionError(#[from] ExpressionError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
@@ -50,6 +45,27 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn immutable_assign(name: String, span: Span) -> Self {
+        let message = format!("Cannot assign to immutable variable `{}`", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn immutable_circuit_function(name: String, span: Span) -> Self {
+        let message = format!("Cannot mutate circuit function, `{}`", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn indicator_calculation(name: String, span: Span) -> Self {
+        let message = format!(
+            "Constraint system failed to evaluate branch selection indicator `{}`",
+            name
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: Span) -> Self {
         let message = format!(
             "Multiple definition statement expected {} return values, found {} values",
@@ -64,18 +80,6 @@ impl StatementError {
             "Function return statement expected {} return values, found {} values",
             expected, actual
         );
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn immutable_assign(name: String, span: Span) -> Self {
-        let message = format!("Cannot assign to immutable variable `{}`", name);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn immutable_circuit_function(name: String, span: Span) -> Self {
-        let message = format!("Cannot mutate circuit function, `{}`", name);
 
         Self::new_from_span(message, span)
     }

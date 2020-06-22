@@ -174,8 +174,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // empty wrappers
             ConstrainedValue::CircuitDefinition(_) => {}
             ConstrainedValue::Function(_, _) => {}
-            ConstrainedValue::Unresolved(_) => {
-                return Err(ValueError::SynthesisError(SynthesisError::AssignmentMissing));
+            ConstrainedValue::Unresolved(value) => {
+                return Err(ValueError::implicit(value.to_string(), span));
             }
         }
 
