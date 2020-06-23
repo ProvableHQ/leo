@@ -193,7 +193,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
             ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
-            ConstrainedValue::Boolean(ref value) => write!(f, "{}", value.get_value().unwrap()),
+            ConstrainedValue::Boolean(ref value) => write!(
+                f,
+                "{}",
+                value
+                    .get_value()
+                    .map(|v| v.to_string())
+                    .unwrap_or(format!("[allocated]"))
+            ),
             ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
