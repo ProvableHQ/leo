@@ -230,9 +230,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
 
                 // Handle function calls
                 Access::Call(function) => {
-                    println!("old {:?}", function.span);
                     let span = Span::from(function.span);
-                    println!("span {:?}", span);
                     Expression::FunctionCall(
                         Box::new(acc),
                         function

@@ -34,7 +34,6 @@ impl LeoInputsParser {
 
         // Build the abstract syntax tree
         let syntax_tree = files::File::from_pest(&mut file).map_err(|_| InputParserError::SyntaxTreeError)?;
-        // println!("{:?}", syntax_tree);
 
         Ok(syntax_tree)
     }

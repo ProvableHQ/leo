@@ -74,7 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name, span.clone())? {
                     ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(&vec![old[index].to_type()], span.clone())?;
+                        new_value.resolve_type(&vec![old[index].to_type(span.clone())?], span.clone())?;
 
                         let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                         let selected_value = ConstrainedValue::conditionally_select(
@@ -94,11 +94,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             RangeOrExpression::Range(from, to) => {
                 let from_index = match from {
-                    Some(integer) => integer.to_usize(),
+                    Some(integer) => integer.to_usize(span.clone())?,
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(integer.to_usize()),
+                    Some(integer) => Some(integer.to_usize(span.clone())?),
                     None => None,
                 };
 
@@ -153,7 +153,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             return Err(StatementError::immutable_circuit_function("static".into(), span));
                         }
                         _ => {
-                            new_value.resolve_type(&vec![object.1.to_type()], span.clone())?;
+                            new_value.resolve_type(&vec![object.1.to_type(span.clone())?], span.clone())?;
 
                             let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                             let selected_value = ConstrainedValue::conditionally_select(
@@ -201,7 +201,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
 
-                new_value.resolve_type(&vec![old_value.to_type()], span.clone())?;
+                new_value.resolve_type(&vec![old_value.to_type(span.clone())?], span.clone())?;
 
                 let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                 let selected_value =
@@ -496,8 +496,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
+        let from = start.to_usize(span.clone())?;
+        let to = stop.to_usize(span.clone())?;
 
-        for i in start.to_usize()..stop.to_usize() {
+        for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope(function_scope.clone(), index.to_string());

@@ -1,5 +1,5 @@
 use crate::errors::{BooleanError, ExpressionError, ValueError};
-use leo_types::{Error as FormattedError, Span};
+use leo_types::{Error as FormattedError, IntegerError, Span};
 
 #[derive(Debug, Error)]
 pub enum StatementError {
@@ -11,6 +11,9 @@ pub enum StatementError {
 
     #[error("{}", _0)]
     ExpressionError(#[from] ExpressionError),
+
+    #[error("{}", _0)]
+    IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),

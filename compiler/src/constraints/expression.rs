@@ -554,7 +554,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             index,
             span.clone(),
         )? {
-            ConstrainedValue::Integer(number) => Ok(number.to_usize()),
+            ConstrainedValue::Integer(number) => Ok(number.to_usize(span.clone())?),
             value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }
     }
@@ -584,11 +584,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match index {
             RangeOrExpression::Range(from, to) => {
                 let from_resolved = match from {
-                    Some(from_index) => from_index.to_usize(),
+                    Some(from_index) => from_index.to_usize(span.clone())?,
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {
-                    Some(to_index) => to_index.to_usize(),
+                    Some(to_index) => to_index.to_usize(span.clone())?,
                     None => array.len(), // Array slice ends at array length
                 };
                 Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))

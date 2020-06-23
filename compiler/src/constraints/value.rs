@@ -46,7 +46,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>, span: Span) -> Result<Self, ValueError> {
-        let other_type = other.to_type();
+        let other_type = other.to_type(span.clone())?;
 
         ConstrainedValue::from_type(value, &other_type, span)
     }
@@ -66,14 +66,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn to_type(&self) -> Type {
-        match self {
+    pub(crate) fn to_type(&self, span: Span) -> Result<Type, ValueError> {
+        Ok(match self {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
-            _ => unimplemented!("to type only implemented for primitives"),
-        }
+            value => return Err(ValueError::implicit(value.to_string(), span)),
+        })
     }
 
     pub(crate) fn resolve_type(&mut self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
@@ -95,8 +95,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
         match (&self, &other) {
             (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type()], span),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type()], span),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type(span.clone())?], span),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type(span.clone())?], span),
             _ => Ok(()),
         }
     }
@@ -141,7 +141,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .iter_mut()
                     .enumerate()
                     .map(|(i, value)| {
-                        value.allocate_value(cs.ns(|| format!("allocate array member {}", i)), span.clone())
+                        let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
+
+                        value.allocate_value(cs.ns(|| unique_name), span.clone())
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -150,9 +152,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .iter_mut()
                     .enumerate()
                     .map(|(i, member)| {
-                        member
-                            .1
-                            .allocate_value(cs.ns(|| format!("allocate circuit member {}", i)), span.clone())
+                        let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
+
+                        member.1.allocate_value(cs.ns(|| unique_name), span.clone())
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -161,7 +163,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .iter_mut()
                     .enumerate()
                     .map(|(i, value)| {
-                        value.allocate_value(cs.ns(|| format!("allocate return member {}", i)), span.clone())
+                        let unique_name = format!("allocate return member {} {}:{}", i, span.line, span.start);
+
+                        value.allocate_value(cs.ns(|| unique_name), span.clone())
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -220,10 +224,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "]")
             }
-            ConstrainedValue::CircuitDefinition(ref _definition) => {
-                unimplemented!("cannot return circuit definition in program")
+            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.identifier),
+            ConstrainedValue::Function(ref _circuit_option, ref function) => {
+                write!(f, "function {{ {}() }}", function.function_name)
             }
-            ConstrainedValue::Function(ref _circuit_option, ref function) => write!(f, "{}", function),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
@@ -343,6 +347,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 }
                 ConstrainedValue::Array(array)
             }
+            (ConstrainedValue::Mutable(first), _) => Self::conditionally_select(cs, cond, first, second)?,
+            (_, ConstrainedValue::Mutable(second)) => Self::conditionally_select(cs, cond, first, second)?,
             (_, _) => return Err(SynthesisError::Unsatisfiable),
         })
     }

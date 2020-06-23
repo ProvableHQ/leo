@@ -1,4 +1,5 @@
 use crate::{error::Error as FormattedError, Span};
+
 use snarkos_errors::gadgets::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -26,6 +27,13 @@ impl IntegerError {
             "the integer binary operation `{}` can only be enforced on integers of the same type",
             operation
         );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_index(span: Span) -> Self {
+        let message =
+            format!("index must be a constant value integer. allocated indices produce a circuit of unknown size");
 
         Self::new_from_span(message, span)
     }

@@ -1,7 +1,8 @@
 use crate::{
+    boolean::output_true,
     get_error,
     get_output,
-    integers::u32::output_one,
+    integers::u32::{output_number, output_one},
     parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
@@ -11,7 +12,6 @@ use leo_compiler::{
     ConstrainedValue,
 };
 
-use crate::boolean::output_true;
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 pub(crate) fn output_empty(program: EdwardsTestCompiler) {
@@ -119,4 +119,19 @@ fn test_repeated_function_call() {
     let program = parse_program(bytes).unwrap();
 
     output_true(program);
+}
+#[test]
+fn test_iteration() {
+    let bytes = include_bytes!("iteration.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_number(program, 10);
+}
+
+#[test]
+fn test_repeated_iteration() {
+    let bytes = include_bytes!("repeated_iteration.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_number(program, 20u32);
 }
