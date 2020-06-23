@@ -4,7 +4,7 @@
 assignee = { identifier ~ access_assignee* }
 
 // Declared in common/file.rs
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit_definition* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -177,7 +177,7 @@ access_static_member = { "::" ~ identifier }
 /// Circuits
 
 // Declared in circuits/circuit_definition.rs
-circuit_definition = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in circuits/circuit_field.rs
 circuit_field = { identifier ~ ":" ~ expression }

@@ -616,7 +616,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) = self.get_mut(&program_identifier) {
-            let circuit_identifier = circuit_definition.identifier.clone();
+            let circuit_identifier = circuit_definition.circuit_name.clone();
             let mut resolved_members = vec![];
             for member in circuit_definition.members.clone().into_iter() {
                 match member {
@@ -764,14 +764,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             _ => {
                 return Err(ExpressionError::undefined_member_access(
-                    circuit.identifier.to_string(),
+                    circuit.circuit_name.to_string(),
                     circuit_member.to_string(),
                     span,
                 ));
             }
         };
 
-        Ok(ConstrainedValue::Function(Some(circuit.identifier), function))
+        Ok(ConstrainedValue::Function(Some(circuit.circuit_name), function))
     }
 
     fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
