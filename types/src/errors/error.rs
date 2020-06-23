@@ -2,6 +2,8 @@ use crate::Span;
 
 use std::{fmt, path::PathBuf};
 
+pub const INDENT: &'static str = "    ";
+
 /// Formatted compiler error type
 ///     --> file.leo 2:8
 ///      |
@@ -42,7 +44,6 @@ impl Error {
     }
 
     pub fn format(&self) -> String {
-        let indent = "    ".to_string();
         let path = self.path.as_ref().map(|path| format!("{}:", path)).unwrap_or_default();
         let underline = underline(self.start, self.end);
 
@@ -53,8 +54,8 @@ impl Error {
              {indent     } | {underline}\n\
              {indent     } |\n\
              {indent     } = {message}",
-            indent = indent,
-            width = indent.len(),
+            indent = INDENT,
+            width = INDENT.len(),
             path = path,
             line = self.line,
             start = self.start,

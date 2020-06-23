@@ -18,10 +18,10 @@ pub enum CompilerError {
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
-    #[error("Main function not found")]
+    #[error("`main` function not found")]
     NoMain,
 
-    #[error("Main must be a function")]
+    #[error("`main` must be a function")]
     NoMainFunction,
 
     #[error("{}", _0)]
