@@ -224,7 +224,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "]")
             }
-            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.identifier),
+            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit_name),
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
                 write!(f, "function {{ {}() }}", function.function_name)
             }
