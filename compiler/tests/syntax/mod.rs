@@ -25,10 +25,11 @@ fn test_undefined() {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::Error(error),
         ))) => {
+            println!("{}", error);
             assert_eq!(
                 format!("{}", error),
                 vec![
-                    "    -->  2:10",
+                    "    --> \"/test/src/main.leo\": 2:10",
                     "     |",
                     "   2 |    return a",
                     "     |           ^",

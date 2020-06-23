@@ -1,6 +1,6 @@
 use crate::Span;
 
-use std::fmt;
+use std::{fmt, path::PathBuf};
 
 /// Formatted compiler error type
 ///     --> file.leo 2:8
@@ -35,6 +35,10 @@ impl Error {
             text: span.text,
             message,
         }
+    }
+
+    pub fn set_path(&mut self, path: PathBuf) {
+        self.path = Some(format!("{:?}", path));
     }
 
     pub fn format(&self) -> String {

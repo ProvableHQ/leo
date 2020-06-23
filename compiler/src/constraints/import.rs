@@ -40,9 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // * -> import all imports, circuits, functions in the current scope
         if import.is_star() {
             // recursively evaluate program statements
-            self.resolve_definitions(program).unwrap();
-
-            Ok(())
+            self.resolve_definitions(program)
         } else {
             let program_name = program.name.clone();
 
@@ -67,7 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                         match matched_function {
                             Some((_function_name, function)) => ConstrainedValue::Function(None, function),
-                            None => return Err(ImportError::unknown_symbol(symbol, program_name)),
+                            None => return Err(ImportError::unknown_symbol(symbol, program_name, file_path)),
                         }
                     }
                 };

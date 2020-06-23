@@ -1,7 +1,7 @@
 use leo_ast::ParserError;
 use leo_types::{Error as FormattedError, ImportSymbol, Span};
 
-use std::io;
+use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum ImportError {
@@ -23,9 +23,12 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
-    pub fn unknown_symbol(symbol: ImportSymbol, file: String) -> Self {
+    pub fn unknown_symbol(symbol: ImportSymbol, file: String, file_path: &PathBuf) -> Self {
         let message = format!("cannot find imported symbol `{}` in imported file `{}`", symbol, file);
+        let mut error = FormattedError::new_from_span(message, symbol.span);
 
-        Self::new_from_span(message, symbol.span)
+        error.path = Some(format!("{:?}", file_path));
+
+        ImportError::Error(error)
     }
 }

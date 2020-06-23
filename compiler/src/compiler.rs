@@ -76,7 +76,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self,
         cs: &mut CS,
     ) -> Result<ConstrainedValue<F, G>, CompilerError> {
-        generate_constraints(cs, self.program, self.program_inputs.get_inputs())
+        let path = self.main_file_path;
+        generate_constraints(cs, self.program, self.program_inputs.get_inputs()).map_err(|mut error| {
+            error.set_path(path);
+
+            error
+        })
     }
 
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {

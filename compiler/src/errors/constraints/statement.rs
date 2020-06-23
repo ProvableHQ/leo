@@ -1,5 +1,6 @@
 use crate::errors::{BooleanError, ExpressionError, ValueError};
 use leo_types::{Error as FormattedError, IntegerError, Span};
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum StatementError {
@@ -20,6 +21,16 @@ pub enum StatementError {
 }
 
 impl StatementError {
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            StatementError::BooleanError(error) => error.set_path(path),
+            StatementError::Error(error) => error.set_path(path),
+            StatementError::ExpressionError(error) => error.set_path(path),
+            StatementError::IntegerError(error) => error.set_path(path),
+            StatementError::ValueError(error) => error.set_path(path),
+        }
+    }
+
     fn new_from_span(message: String, span: Span) -> Self {
         StatementError::Error(FormattedError::new_from_span(message, span))
     }

@@ -49,7 +49,7 @@ fn output_multi(program: EdwardsTestCompiler) {
 fn fail_array(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::Error(_string)) => {}
-        error => panic!("Expected invalid array error, got {}", error),
+        error => panic!("Expected function error, found {}", error),
     }
 }
 

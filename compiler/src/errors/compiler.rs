@@ -27,3 +27,12 @@ pub enum CompilerError {
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
 }
+
+impl CompilerError {
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            CompilerError::FunctionError(error) => error.set_path(path),
+            _ => {}
+        }
+    }
+}

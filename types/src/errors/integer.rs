@@ -1,6 +1,7 @@
 use crate::{error::Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum IntegerError {
@@ -9,6 +10,12 @@ pub enum IntegerError {
 }
 
 impl IntegerError {
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            IntegerError::Error(error) => error.set_path(path),
+        }
+    }
+
     fn new_from_span(message: String, span: Span) -> Self {
         IntegerError::Error(FormattedError::new_from_span(message, span))
     }

@@ -20,6 +20,7 @@ use leo_compiler::{
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
+use std::path::PathBuf;
 
 pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
 pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
@@ -45,8 +46,11 @@ pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
 
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
+    let path = PathBuf::from("/test/src/main.leo");
+    let mut compiler = EdwardsTestCompiler::new(program_name);
+    compiler.set_path(path);
 
-    EdwardsTestCompiler::new(program_name)
+    compiler
 }
 
 pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {

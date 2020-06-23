@@ -1,6 +1,7 @@
 use leo_types::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum BooleanError {
@@ -9,6 +10,12 @@ pub enum BooleanError {
 }
 
 impl BooleanError {
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            BooleanError::Error(error) => error.set_path(path),
+        }
+    }
+
     fn new_from_span(message: String, span: Span) -> Self {
         BooleanError::Error(FormattedError::new_from_span(message, span))
     }
