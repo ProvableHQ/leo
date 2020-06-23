@@ -72,6 +72,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
+            ConstrainedValue::Array(types) => {
+                let array_type = types[0].to_type(span.clone())?;
+                let count = types.len();
+
+                // nested array type
+                if let Type::Array(inner_type, inner_dimensions) = &array_type {
+                    let mut dimensions = inner_dimensions.clone();
+                    dimensions.push(count);
+                    return Ok(Type::Array(inner_type.clone(), dimensions));
+                }
+
+                Type::Array(Box::new(array_type), vec![count])
+            }
+            ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
     }
@@ -256,33 +270,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         match (self, other) {
-            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => bool_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
-                bool_2,
-                &condition,
-            ),
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => num_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
-                num_2,
-                &condition,
-            ),
-            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => field_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
-                field_2,
-                &condition,
-            ),
-            (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => group_1.conditional_enforce_equal(
-                cs.ns(|| format!("{} == {}", self.to_string(), other.to_string())),
-                group_2,
-                &condition,
-            ),
+            (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
+                bool_1.conditional_enforce_equal(cs, bool_2, &condition)
+            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                num_1.conditional_enforce_equal(cs, num_2, &condition)
+            }
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.conditional_enforce_equal(cs, field_2, &condition)
+            }
+            (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
+                group_1.conditional_enforce_equal(cs, group_2, &condition)
+            }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
-                    left.conditional_enforce_equal(
-                        cs.ns(|| format!("array[{}] equal {} == {}", i, left.to_string(), right.to_string())),
-                        right,
-                        &condition,
-                    )?;
+                    left.conditional_enforce_equal(cs.ns(|| format!("array[{}]", i)), right, &condition)?;
                 }
                 Ok(())
             }
@@ -304,49 +306,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
     ) -> Result<Self, SynthesisError> {
         Ok(match (first, second) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                ConstrainedValue::Boolean(Boolean::conditionally_select(
-                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
-                    cond,
-                    bool_1,
-                    bool_2,
-                )?)
+                ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                ConstrainedValue::Integer(Integer::conditionally_select(
-                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
-                    cond,
-                    num_1,
-                    num_2,
-                )?)
+                ConstrainedValue::Integer(Integer::conditionally_select(cs, cond, num_1, num_2)?)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-                ConstrainedValue::Field(FieldType::conditionally_select(
-                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
-                    cond,
-                    field_1,
-                    field_2,
-                )?)
+                ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, field_1, field_2)?)
             }
             (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
-                ConstrainedValue::Group(G::conditionally_select(
-                    cs.ns(|| format!("if cond ? {} else {}", first.to_string(), second.to_string())),
-                    cond,
-                    group_1,
-                    group_2,
-                )?)
+                ConstrainedValue::Group(G::conditionally_select(cs, cond, group_1, group_2)?)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 let mut array = vec![];
                 for (i, (first, second)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
                     array.push(Self::conditionally_select(
-                        cs.ns(|| {
-                            format!(
-                                "array[{}] = if cond ? {} else {}",
-                                i,
-                                first.to_string(),
-                                second.to_string()
-                            )
-                        }),
+                        cs.ns(|| format!("array[{}]", i,)),
                         cond,
                         first,
                         second,

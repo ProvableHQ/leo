@@ -25,7 +25,6 @@ fn test_undefined() {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::Error(error),
         ))) => {
-            println!("{}", error);
             assert_eq!(
                 format!("{}", error),
                 vec![

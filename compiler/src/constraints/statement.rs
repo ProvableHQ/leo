@@ -21,6 +21,7 @@ use leo_types::{
     Variable,
 };
 
+use crate::errors::ValueError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -317,6 +318,27 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(())
     }
 
+    fn check_return_types(expected: &Vec<Type>, actual: &Vec<Type>, span: Span) -> Result<(), StatementError> {
+        expected
+            .iter()
+            .zip(actual.iter())
+            .map(|(type_1, type_2)| {
+                if type_1.ne(type_2) {
+                    // catch return Self type
+                    if type_1.is_self() && type_2.is_circuit() {
+                        Ok(())
+                    } else {
+                        Err(StatementError::arguments_type(type_1, type_2, span.clone()))
+                    }
+                } else {
+                    Ok(())
+                }
+            })
+            .collect::<Result<Vec<()>, StatementError>>()?;
+
+        Ok(())
+    }
+
     fn enforce_return_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -336,7 +358,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         let mut returns = vec![];
-        for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
+        for (expression, ty) in expressions.into_iter().zip(return_types.clone().into_iter()) {
             let expected_types = vec![ty.clone()];
             let result = self.enforce_expression_value(
                 cs,
@@ -349,6 +371,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             returns.push(result);
         }
+
+        let actual_types = returns
+            .iter()
+            .map(|value| value.to_type(span.clone()))
+            .collect::<Result<Vec<Type>, ValueError>>()?;
+
+        Self::check_return_types(&return_types, &actual_types, span)?;
 
         Ok(ConstrainedValue::Return(returns))
     }

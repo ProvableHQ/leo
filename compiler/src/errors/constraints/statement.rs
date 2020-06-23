@@ -1,5 +1,5 @@
 use crate::errors::{BooleanError, ExpressionError, ValueError};
-use leo_types::{Error as FormattedError, IntegerError, Span};
+use leo_types::{Error as FormattedError, IntegerError, Span, Type};
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
@@ -33,6 +33,12 @@ impl StatementError {
 
     fn new_from_span(message: String, span: Span) -> Self {
         StatementError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn arguments_type(expected: &Type, actual: &Type, span: Span) -> Self {
+        let message = format!("expected return argument type `{}`, found type `{}`", expected, actual);
+
+        Self::new_from_span(message, span)
     }
 
     pub fn array_assign_index(span: Span) -> Self {

@@ -220,15 +220,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut unique_namespace = cs.ns(|| {
-            format!(
-                "evaluate {} == {} {}:{}",
-                left.to_string(),
-                right.to_string(),
-                span.line,
-                span.start
-            )
-        });
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} == {} {}:{}", left, right, span.line, span.start));
         let constraint_result = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 bool_1.evaluate_equal(unique_namespace, &bool_2)
@@ -425,10 +417,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let unique_namespace = cs.ns(|| {
             format!(
                 "select {} or {} {}:{}",
-                resolved_second.to_string(),
-                resolved_third.to_string(),
-                span.line,
-                span.start
+                resolved_second, resolved_third, span.line, span.start
             )
         });
 
