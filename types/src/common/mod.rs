@@ -10,6 +10,9 @@ pub use identifier::*;
 pub mod range_or_expression;
 pub use range_or_expression::*;
 
+pub mod span;
+pub use span::*;
+
 pub mod spread_or_expression;
 pub use spread_or_expression::*;
 

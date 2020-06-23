@@ -4,7 +4,7 @@ use pest::Span;
 use pest_ast::FromPest;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::value_group))]
 pub struct GroupValue<'ast> {
     pub value: GroupTuple<'ast>,
@@ -19,7 +19,7 @@ impl<'ast> fmt::Display for GroupValue<'ast> {
     }
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::group_tuple))]
 pub struct GroupTuple<'ast> {
     pub x: NumberValue<'ast>,

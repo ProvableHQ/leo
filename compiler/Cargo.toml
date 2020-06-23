@@ -16,6 +16,7 @@ snarkos-models =  { path = "../../snarkOS/models", version = "0.8.0", default-fe
 
 hex = { version = "0.4.2" }
 log = { version = "0.4" }
+pest = { version = "2.0" }
 rand = { version = "0.7" }
 sha2 = { version = "0.8" }
 thiserror = { version = "1.0" }

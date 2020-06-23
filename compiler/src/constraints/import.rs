@@ -86,7 +86,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 // take the alias if it is present
                 let resolved_name = symbol.alias.unwrap_or(symbol.symbol);
-                let resolved_circuit_name = new_scope(program_name.to_string(), resolved_name.to_string());
+                let resolved_circuit_name = new_scope(program_name.clone(), resolved_name.to_string());
 
                 // store imported circuit under resolved name
                 self.store(resolved_circuit_name, value);
@@ -96,7 +96,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             program
                 .imports
                 .into_iter()
-                .map(|nested_import| self.enforce_import(cs, program_name.name.clone(), nested_import))
+                .map(|nested_import| self.enforce_import(cs, program_name.clone(), nested_import))
                 .collect::<Result<Vec<_>, ImportError>>()?;
 
             Ok(())

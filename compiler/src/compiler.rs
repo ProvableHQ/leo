@@ -117,7 +117,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let _result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).unwrap();
+        let _result =
+            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).map_err(|e| {
+                log::error!("{}", e);
+                SynthesisError::Unsatisfiable
+            })?;
 
         // Write results to file or something
 

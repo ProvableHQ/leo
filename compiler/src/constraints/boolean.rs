@@ -29,7 +29,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if let InputValue::Boolean(bool) = input {
                     Some(bool)
                 } else {
-                    return Err(BooleanError::InvalidBoolean(input.to_string()));
+                    return Err(BooleanError::SynthesisError(SynthesisError::AssignmentMissing));
                 }
             }
             None => None,

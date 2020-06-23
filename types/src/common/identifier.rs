@@ -1,18 +1,16 @@
+use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
 
 use std::fmt;
 
 /// An identifier in the constrained program.
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Hash)]
 pub struct Identifier {
     pub name: String,
+    pub span: Span,
 }
 
 impl Identifier {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-
     pub fn is_self(&self) -> bool {
         self.name == "Self"
     }
@@ -20,7 +18,10 @@ impl Identifier {
 
 impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     fn from(identifier: AstIdentifier<'ast>) -> Self {
-        Identifier::new(identifier.value)
+        Self {
+            name: identifier.value,
+            span: Span::from(identifier.span),
+        }
     }
 }
 
@@ -34,3 +35,11 @@ impl fmt::Debug for Identifier {
         write!(f, "{}", self.name)
     }
 }
+
+impl PartialEq for Identifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Identifier {}

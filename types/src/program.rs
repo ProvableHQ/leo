@@ -9,7 +9,7 @@ use std::collections::HashMap;
 /// A simple program with statement expressions, program arguments and program returns.
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub name: Identifier,
+    pub name: String,
     pub expected_inputs: Vec<FunctionInput>,
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
@@ -36,24 +36,19 @@ impl<'ast> Program {
             circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
         });
         file.functions.into_iter().for_each(|function_def| {
-            functions.insert(
-                Identifier::from(function_def.function_name.clone()),
-                Function::from(function_def),
-            );
+            let function = Function::from(function_def);
+            if function.function_name.name.eq("main") {
+                expected_inputs = function.inputs.clone();
+            }
+            functions.insert(function.function_name.clone(), function);
         });
         file.tests.into_iter().for_each(|test_def| {
-            tests.insert(
-                Identifier::from(test_def.function.function_name.clone()),
-                TestFunction::from(test_def),
-            );
+            let test = TestFunction::from(test_def);
+            tests.insert(test.0.function_name.clone(), test);
         });
 
-        if let Some(main_function) = functions.get(&Identifier::new("main".into())) {
-            expected_inputs = main_function.inputs.clone();
-        }
-
         Self {
-            name: Identifier::new(name),
+            name,
             expected_inputs,
             imports,
             circuits,
@@ -66,7 +61,7 @@ impl<'ast> Program {
 impl Program {
     pub fn new() -> Self {
         Self {
-            name: Identifier::new("".into()),
+            name: "".into(),
             expected_inputs: vec![],
             imports: vec![],
             circuits: HashMap::new(),
@@ -76,11 +71,11 @@ impl Program {
     }
 
     pub fn get_name(&self) -> String {
-        self.name.name.clone()
+        self.name.to_string()
     }
 
     pub fn name(mut self, name: String) -> Self {
-        self.name = Identifier::new(name);
+        self.name = name;
         self
     }
 }

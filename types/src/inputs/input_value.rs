@@ -16,38 +16,35 @@ pub enum InputValue {
     Array(Vec<InputValue>),
 }
 
-impl<'ast> InputValue {
-    fn from_boolean(boolean: BooleanValue<'ast>) -> Result<Self, InputParserError> {
+impl InputValue {
+    fn from_boolean(boolean: BooleanValue) -> Result<Self, InputParserError> {
         let boolean = boolean.value.parse::<bool>()?;
         Ok(InputValue::Boolean(boolean))
     }
 
-    fn from_number(integer_type: IntegerType, number: NumberValue<'ast>) -> Result<Self, InputParserError> {
+    fn from_number(integer_type: IntegerType, number: NumberValue) -> Result<Self, InputParserError> {
         let integer = number.value.parse::<u128>()?;
         Ok(InputValue::Integer(integer_type, integer))
     }
 
-    fn from_group(group: GroupValue<'ast>) -> Self {
+    fn from_group(group: GroupValue) -> Self {
         InputValue::Group(group.to_string())
     }
 
-    fn from_field(field: FieldValue<'ast>) -> Self {
+    fn from_field(field: FieldValue) -> Self {
         InputValue::Field(field.number.value)
     }
 
-    fn from_implicit(data_type: DataType, implicit: NumberImplicitValue<'ast>) -> Result<Self, InputParserError> {
+    fn from_implicit(data_type: DataType, implicit: NumberImplicitValue) -> Result<Self, InputParserError> {
         match data_type {
-            DataType::Boolean(_) => Err(InputParserError::IncompatibleTypes(
-                "bool".to_string(),
-                "implicit number".to_string(),
-            )),
+            DataType::Boolean(_) => Err(InputParserError::implicit_boolean(data_type, implicit)),
             DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.number),
             DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
         }
     }
 
-    fn from_value(data_type: DataType, value: Value<'ast>) -> Result<Self, InputParserError> {
+    fn from_value(data_type: DataType, value: Value) -> Result<Self, InputParserError> {
         match (data_type, value) {
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
@@ -56,14 +53,11 @@ impl<'ast> InputValue {
             (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
             (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
             (data_type, Value::Implicit(implicit)) => InputValue::from_implicit(data_type, implicit),
-            (data_type, value) => Err(InputParserError::IncompatibleTypes(
-                data_type.to_string(),
-                value.to_string(),
-            )),
+            (data_type, value) => Err(InputParserError::data_type_mismatch(data_type, value)),
         }
     }
 
-    pub(crate) fn from_expression(type_: Type<'ast>, expression: Expression<'ast>) -> Result<Self, InputParserError> {
+    pub(crate) fn from_expression(type_: Type, expression: Expression) -> Result<Self, InputParserError> {
         match (type_, expression) {
             (Type::Basic(data_type), Expression::Value(value)) => InputValue::from_value(data_type, value),
             (Type::Array(array_type), Expression::ArrayInline(inline)) => {
@@ -72,10 +66,7 @@ impl<'ast> InputValue {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
-            (type_, value) => Err(InputParserError::IncompatibleTypes(
-                type_.to_string(),
-                value.to_string(),
-            )),
+            (type_, expression) => Err(InputParserError::expression_type_mismatch(type_, expression)),
         }
     }
 
@@ -83,19 +74,13 @@ impl<'ast> InputValue {
         mut array_type: ArrayType,
         inline: ArrayInlineExpression,
     ) -> Result<Self, InputParserError> {
-        match array_type.next_dimension() {
-            Some(number) => {
-                let outer_dimension = number.value.parse::<usize>()?;
+        if let Some(number) = array_type.next_dimension() {
+            let outer_dimension = number.value.parse::<usize>()?;
 
-                if outer_dimension != inline.expressions.len() {
-                    return Err(InputParserError::InvalidArrayLength(
-                        outer_dimension,
-                        inline.expressions.len(),
-                    ));
-                }
+            if outer_dimension != inline.expressions.len() {
+                return Err(InputParserError::array_inline_length(number, inline));
             }
-            None => return Err(InputParserError::UndefinedArrayDimension),
-        }
+        };
 
         let inner_array_type = if array_type.dimensions.len() == 0 {
             // this is a single array
@@ -120,15 +105,12 @@ impl<'ast> InputValue {
     ) -> Result<Self, InputParserError> {
         let initializer_count = initializer.count.value.parse::<usize>()?;
 
-        match array_type.next_dimension() {
-            Some(number) => {
-                let outer_dimension = number.value.parse::<usize>()?;
+        if let Some(number) = array_type.next_dimension() {
+            let outer_dimension = number.value.parse::<usize>()?;
 
-                if outer_dimension != initializer_count {
-                    return Err(InputParserError::InvalidArrayLength(outer_dimension, initializer_count));
-                }
+            if outer_dimension != initializer_count {
+                return Err(InputParserError::array_init_length(number, initializer));
             }
-            None => return Err(InputParserError::UndefinedArrayDimension),
         }
 
         let inner_array_type = if array_type.dimensions.len() == 0 {

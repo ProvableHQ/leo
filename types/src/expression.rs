@@ -1,4 +1,4 @@
-use crate::{CircuitFieldDefinition, Identifier, Integer, RangeOrExpression, SpreadOrExpression};
+use crate::{CircuitFieldDefinition, Identifier, Integer, RangeOrExpression, Span, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
@@ -34,36 +34,36 @@ pub enum Expression {
     Implicit(String),
 
     // Number operations
-    Add(Box<Expression>, Box<Expression>),
-    Sub(Box<Expression>, Box<Expression>),
-    Mul(Box<Expression>, Box<Expression>),
-    Div(Box<Expression>, Box<Expression>),
-    Pow(Box<Expression>, Box<Expression>),
+    Add(Box<Expression>, Box<Expression>, Span),
+    Sub(Box<Expression>, Box<Expression>, Span),
+    Mul(Box<Expression>, Box<Expression>, Span),
+    Div(Box<Expression>, Box<Expression>, Span),
+    Pow(Box<Expression>, Box<Expression>, Span),
 
     // Boolean operations
     Not(Box<Expression>),
-    Or(Box<Expression>, Box<Expression>),
-    And(Box<Expression>, Box<Expression>),
-    Eq(Box<Expression>, Box<Expression>),
-    Ge(Box<Expression>, Box<Expression>),
-    Gt(Box<Expression>, Box<Expression>),
-    Le(Box<Expression>, Box<Expression>),
-    Lt(Box<Expression>, Box<Expression>),
+    Or(Box<Expression>, Box<Expression>, Span),
+    And(Box<Expression>, Box<Expression>, Span),
+    Eq(Box<Expression>, Box<Expression>, Span),
+    Ge(Box<Expression>, Box<Expression>, Span),
+    Gt(Box<Expression>, Box<Expression>, Span),
+    Le(Box<Expression>, Box<Expression>, Span),
+    Lt(Box<Expression>, Box<Expression>, Span),
 
     // Conditionals
-    IfElse(Box<Expression>, Box<Expression>, Box<Expression>),
+    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span),
 
     // Arrays
-    Array(Vec<Box<SpreadOrExpression>>),
-    ArrayAccess(Box<Expression>, Box<RangeOrExpression>), // (array name, range)
+    Array(Vec<Box<SpreadOrExpression>>, Span),
+    ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span), // (array name, range)
 
     // Circuits
-    Circuit(Identifier, Vec<CircuitFieldDefinition>),
-    CircuitMemberAccess(Box<Expression>, Identifier), // (declared circuit name, circuit member name)
-    CircuitStaticFunctionAccess(Box<Expression>, Identifier), // (defined circuit name, circuit static member name)
+    Circuit(Identifier, Vec<CircuitFieldDefinition>, Span),
+    CircuitMemberAccess(Box<Expression>, Identifier, Span), // (declared circuit name, circuit member name)
+    CircuitStaticFunctionAccess(Box<Expression>, Identifier, Span), // (defined circuit name, circuit static member name)
 
     // Functions
-    FunctionCall(Box<Expression>, Vec<Expression>),
+    FunctionCall(Box<Expression>, Vec<Expression>, Span),
 }
 
 impl<'ast> Expression {
@@ -94,29 +94,29 @@ impl<'ast> fmt::Display for Expression {
             Expression::Implicit(ref value) => write!(f, "{}", value),
 
             // Number operations
-            Expression::Add(ref left, ref right) => write!(f, "{} + {}", left, right),
-            Expression::Sub(ref left, ref right) => write!(f, "{} - {}", left, right),
-            Expression::Mul(ref left, ref right) => write!(f, "{} * {}", left, right),
-            Expression::Div(ref left, ref right) => write!(f, "{} / {}", left, right),
-            Expression::Pow(ref left, ref right) => write!(f, "{} ** {}", left, right),
+            Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
+            Expression::Sub(ref left, ref right, ref _span) => write!(f, "{} - {}", left, right),
+            Expression::Mul(ref left, ref right, ref _span) => write!(f, "{} * {}", left, right),
+            Expression::Div(ref left, ref right, ref _span) => write!(f, "{} / {}", left, right),
+            Expression::Pow(ref left, ref right, ref _span) => write!(f, "{} ** {}", left, right),
 
             // Boolean operations
             Expression::Not(ref expression) => write!(f, "!{}", expression),
-            Expression::Or(ref lhs, ref rhs) => write!(f, "{} || {}", lhs, rhs),
-            Expression::And(ref lhs, ref rhs) => write!(f, "{} && {}", lhs, rhs),
-            Expression::Eq(ref lhs, ref rhs) => write!(f, "{} == {}", lhs, rhs),
-            Expression::Ge(ref lhs, ref rhs) => write!(f, "{} >= {}", lhs, rhs),
-            Expression::Gt(ref lhs, ref rhs) => write!(f, "{} > {}", lhs, rhs),
-            Expression::Le(ref lhs, ref rhs) => write!(f, "{} <= {}", lhs, rhs),
-            Expression::Lt(ref lhs, ref rhs) => write!(f, "{} < {}", lhs, rhs),
+            Expression::Or(ref lhs, ref rhs, ref _span) => write!(f, "{} || {}", lhs, rhs),
+            Expression::And(ref lhs, ref rhs, ref _span) => write!(f, "{} && {}", lhs, rhs),
+            Expression::Eq(ref lhs, ref rhs, ref _span) => write!(f, "{} == {}", lhs, rhs),
+            Expression::Ge(ref lhs, ref rhs, ref _span) => write!(f, "{} >= {}", lhs, rhs),
+            Expression::Gt(ref lhs, ref rhs, ref _span) => write!(f, "{} > {}", lhs, rhs),
+            Expression::Le(ref lhs, ref rhs, ref _span) => write!(f, "{} <= {}", lhs, rhs),
+            Expression::Lt(ref lhs, ref rhs, ref _span) => write!(f, "{} < {}", lhs, rhs),
 
             // Conditionals
-            Expression::IfElse(ref first, ref second, ref third) => {
+            Expression::IfElse(ref first, ref second, ref third, ref _span) => {
                 write!(f, "if {} then {} else {} fi", first, second, third)
             }
 
             // Arrays
-            Expression::Array(ref array) => {
+            Expression::Array(ref array, ref _span) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
                     write!(f, "{}", e)?;
@@ -126,10 +126,10 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "]")
             }
-            Expression::ArrayAccess(ref array, ref index) => write!(f, "{}[{}]", array, index),
+            Expression::ArrayAccess(ref array, ref index, ref _span) => write!(f, "{}[{}]", array, index),
 
             // Circuits
-            Expression::Circuit(ref var, ref members) => {
+            Expression::Circuit(ref var, ref members, ref _span) => {
                 write!(f, "{} {{", var)?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.identifier, member.expression)?;
@@ -139,13 +139,15 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "}}")
             }
-            Expression::CircuitMemberAccess(ref circuit_name, ref member) => write!(f, "{}.{}", circuit_name, member),
-            Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member) => {
+            Expression::CircuitMemberAccess(ref circuit_name, ref member, ref _span) => {
+                write!(f, "{}.{}", circuit_name, member)
+            }
+            Expression::CircuitStaticFunctionAccess(ref circuit_name, ref member, ref _span) => {
                 write!(f, "{}::{}", circuit_name, member)
             }
 
             // Function calls
-            Expression::FunctionCall(ref function, ref arguments) => {
+            Expression::FunctionCall(ref function, ref arguments, ref _span) => {
                 write!(f, "{}(", function,)?;
                 for (i, param) in arguments.iter().enumerate() {
                     write!(f, "{}", param)?;
@@ -168,7 +170,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
             .map(|member| CircuitFieldDefinition::from(member))
             .collect::<Vec<CircuitFieldDefinition>>();
 
-        Expression::Circuit(circuit_name, members)
+        Expression::Circuit(circuit_name, members, Span::from(expression.span))
     }
 }
 
@@ -185,9 +187,11 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 // Handle array accesses
-                Access::Array(array) => {
-                    Expression::ArrayAccess(Box::new(acc), Box::new(RangeOrExpression::from(array.expression)))
-                }
+                Access::Array(array) => Expression::ArrayAccess(
+                    Box::new(acc),
+                    Box::new(RangeOrExpression::from(array.expression)),
+                    Span::from(array.span),
+                ),
 
                 // Handle function calls
                 Access::Call(function) => Expression::FunctionCall(
@@ -197,15 +201,20 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                         .into_iter()
                         .map(|expression| Expression::from(expression))
                         .collect(),
+                    Span::from(function.span),
                 ),
 
                 // Handle circuit member accesses
-                Access::Object(circuit_object) => {
-                    Expression::CircuitMemberAccess(Box::new(acc), Identifier::from(circuit_object.identifier))
-                }
-                Access::StaticObject(circuit_object) => {
-                    Expression::CircuitStaticFunctionAccess(Box::new(acc), Identifier::from(circuit_object.identifier))
-                }
+                Access::Object(circuit_object) => Expression::CircuitMemberAccess(
+                    Box::new(acc),
+                    Identifier::from(circuit_object.identifier),
+                    Span::from(circuit_object.span),
+                ),
+                Access::StaticObject(circuit_object) => Expression::CircuitStaticFunctionAccess(
+                    Box::new(acc),
+                    Identifier::from(circuit_object.identifier),
+                    Span::from(circuit_object.span),
+                ),
             })
     }
 }
@@ -236,12 +245,16 @@ impl<'ast> From<Assignee<'ast>> for Expression {
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                AssigneeAccess::Member(circuit_member) => {
-                    Expression::CircuitMemberAccess(Box::new(acc), Identifier::from(circuit_member.identifier))
-                }
-                AssigneeAccess::Array(array) => {
-                    Expression::ArrayAccess(Box::new(acc), Box::new(RangeOrExpression::from(array.expression)))
-                }
+                AssigneeAccess::Member(circuit_member) => Expression::CircuitMemberAccess(
+                    Box::new(acc),
+                    Identifier::from(circuit_member.identifier),
+                    Span::from(circuit_member.span),
+                ),
+                AssigneeAccess::Array(array) => Expression::ArrayAccess(
+                    Box::new(acc),
+                    Box::new(RangeOrExpression::from(array.expression)),
+                    Span::from(array.span),
+                ),
             })
     }
 }
@@ -253,52 +266,64 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
             BinaryOperation::Or => Expression::Or(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::And => Expression::And(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Eq => Expression::Eq(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Ne => Expression::Not(Box::new(Expression::from(expression))),
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Gt => Expression::Gt(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Le => Expression::Le(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Lt => Expression::Lt(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             // Number operations
             BinaryOperation::Add => Expression::Add(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Sub => Expression::Sub(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Mul => Expression::Mul(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Div => Expression::Div(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
             BinaryOperation::Pow => Expression::Pow(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
+                Span::from(expression.span),
             ),
         }
     }
@@ -310,6 +335,7 @@ impl<'ast> From<TernaryExpression<'ast>> for Expression {
             Box::new(Expression::from(*expression.first)),
             Box::new(Expression::from(*expression.second)),
             Box::new(Expression::from(*expression.third)),
+            Span::from(expression.span),
         )
     }
 }
@@ -322,6 +348,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
                 .into_iter()
                 .map(|s_or_e| Box::new(SpreadOrExpression::from(s_or_e)))
                 .collect(),
+            Span::from(array.span),
         )
     }
 }
@@ -331,7 +358,7 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
         let count = Expression::get_count(array.count);
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
-        Expression::Array(vec![expression; count])
+        Expression::Array(vec![expression; count], Span::from(array.span))
     }
 }
 

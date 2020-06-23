@@ -608,6 +608,7 @@ dependencies = [
  "leo-inputs",
  "leo-types",
  "log",
+ "pest",
  "rand",
  "sha2 0.8.2",
  "snarkos-curves",
@@ -640,6 +641,7 @@ version = "0.1.0"
 dependencies = [
  "leo-ast",
  "leo-inputs",
+ "pest",
  "snarkos-errors",
  "snarkos-models",
  "thiserror",

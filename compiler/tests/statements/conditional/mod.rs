@@ -1,6 +1,6 @@
 use crate::{
     get_output,
-    integers::u32::{output_one, output_zero},
+    integers::u32::{output_number, output_one, output_zero},
     parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
@@ -8,7 +8,6 @@ use crate::{
 use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
-use crate::integers::u32::output_number;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 

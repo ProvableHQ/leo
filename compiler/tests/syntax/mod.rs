@@ -1,6 +1,6 @@
-use crate::{parse_inputs, parse_program};
+use crate::{get_error, parse_inputs, parse_program};
 use leo_ast::ParserError;
-use leo_compiler::errors::CompilerError;
+use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_inputs::InputParserError;
 
 #[test]
@@ -11,6 +11,34 @@ fn test_semicolon() {
     match error {
         CompilerError::ParserError(ParserError::SyntaxError(_)) => {}
         _ => panic!("test_semicolon failed the wrong expected error, should be a ParserError"),
+    }
+}
+
+#[test]
+fn test_undefined() {
+    let bytes = include_bytes!("undefined.leo");
+    let program = parse_program(bytes).unwrap();
+
+    let error = get_error(program);
+
+    match error {
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::Error(error),
+        ))) => {
+            assert_eq!(
+                format!("{}", error),
+                vec![
+                    "    -->  2:10",
+                    "     |",
+                    "   2 |    return a",
+                    "     |           ^",
+                    "     |",
+                    "     = cannot find value `a` in this scope",
+                ]
+                .join("\n")
+            );
+        }
+        _ => panic!("expected an undefined identifier error"),
     }
 }
 

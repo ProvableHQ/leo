@@ -8,7 +8,7 @@ use crate::{
     group_from_input,
     GroupType,
 };
-use leo_types::{Expression, Function, Identifier, InputValue, Integer, Program, Type};
+use leo_types::{Expression, Function, InputValue, Integer, Program, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -16,10 +16,10 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    fn check_arguments_length(expected: usize, actual: usize) -> Result<(), FunctionError> {
+    fn check_arguments_length(expected: usize, actual: usize, span: Span) -> Result<(), FunctionError> {
         // Make sure we are given the correct number of arguments
         if expected != actual {
-            Err(FunctionError::ArgumentsLength(expected, actual))
+            Err(FunctionError::arguments_length(expected, actual, span))
         } else {
             Ok(())
         }
@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
-        Self::check_arguments_length(function.inputs.len(), inputs.len())?;
+        Self::check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
 
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.inputs.clone().iter().zip(inputs.into_iter()) {
@@ -97,7 +97,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         if let ConstrainedValue::Return(ref returns) = return_values {
-            Self::check_arguments_length(function.returns.len(), returns.len())?;
+            Self::check_arguments_length(function.returns.len(), returns.len(), function.span.clone())?;
         }
 
         Ok(return_values)
@@ -110,6 +110,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         array_type: Type,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue>,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
@@ -117,14 +118,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match input_value {
             Some(InputValue::Array(arr)) => {
                 // Check the dimension of the array
-                Self::check_arguments_length(expected_length, arr.len())?;
+                Self::check_arguments_length(expected_length, arr.len(), span.clone())?;
 
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = new_scope(name.clone(), i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, Some(value))?)
+                    array_value.push(self.allocate_main_function_input(
+                        cs,
+                        value_type,
+                        value_name,
+                        Some(value),
+                        span.clone(),
+                    )?)
                 }
             }
             None => {
@@ -133,10 +140,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let value_name = new_scope(name.clone(), i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(cs, value_type, value_name, None)?);
+                    array_value.push(self.allocate_main_function_input(
+                        cs,
+                        value_type,
+                        value_name,
+                        None,
+                        span.clone(),
+                    )?);
                 }
             }
-            _ => return Err(FunctionError::InvalidArray(input_value.unwrap().to_string())),
+            _ => return Err(FunctionError::invalid_array(input_value.unwrap().to_string(), span)),
         }
 
         Ok(ConstrainedValue::Array(array_value))
@@ -148,6 +161,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         _type: Type,
         name: String,
         input_value: Option<InputValue>,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(
@@ -159,7 +173,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Type::Field => Ok(field_from_input(cs, name, input_value)?),
             Type::Group => Ok(group_from_input(cs, name, input_value)?),
             Type::Boolean => Ok(self.bool_from_input(cs, name, input_value)?),
-            Type::Array(_type, dimensions) => self.allocate_array(cs, name, *_type, dimensions, input_value),
+            Type::Array(_type, dimensions) => self.allocate_array(cs, name, *_type, dimensions, input_value, span),
             _ => unimplemented!("main function input not implemented for type"),
         }
     }
@@ -174,21 +188,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
         // Make sure we are given the correct number of inputs
-        Self::check_arguments_length(function.inputs.len(), inputs.len())?;
+        Self::check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
         for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
             let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-            let input_value =
-                self.allocate_main_function_input(cs, input_model._type, input_name.clone(), input_option)?;
+            let input_value = self.allocate_main_function_input(
+                cs,
+                input_model._type,
+                input_name.clone(),
+                input_option,
+                function.span.clone(),
+            )?;
 
             // Store a new variable for every allocated main function input
             self.store(input_name.clone(), input_value);
 
-            input_variables.push(Expression::Identifier(Identifier::new(
-                input_model.identifier.name.clone(),
-            )));
+            input_variables.push(Expression::Identifier(input_model.identifier));
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)
@@ -205,18 +222,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         program
             .imports
             .into_iter()
-            .map(|import| self.enforce_import(cs, program_name.name.clone(), import))
+            .map(|import| self.enforce_import(cs, program_name.clone(), import))
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
         program.circuits.into_iter().for_each(|(identifier, circuit)| {
-            let resolved_circuit_name = new_scope(program_name.to_string(), identifier.to_string());
+            let resolved_circuit_name = new_scope(program_name.clone(), identifier.to_string());
             self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
         });
 
         // evaluate and store all function definitions
         program.functions.into_iter().for_each(|(function_name, function)| {
-            let resolved_function_name = new_scope(program_name.to_string(), function_name.to_string());
+            let resolved_function_name = new_scope(program_name.clone(), function_name.to_string());
             self.store(resolved_function_name, ConstrainedValue::Function(None, function));
         });
 

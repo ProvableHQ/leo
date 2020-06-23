@@ -1,4 +1,4 @@
-use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Integer, Variable};
+use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Integer, Span, Variable};
 use leo_ast::{
     operations::AssignOperation,
     statements::{
@@ -18,14 +18,14 @@ use std::fmt;
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq)]
 pub enum Statement {
-    Return(Vec<Expression>),
-    Definition(Declare, Variable, Expression),
-    Assign(Assignee, Expression),
-    MultipleAssign(Vec<Variable>, Expression),
-    Conditional(ConditionalStatement),
-    For(Identifier, Integer, Integer, Vec<Statement>),
-    AssertEq(Expression, Expression),
-    Expression(Expression),
+    Return(Vec<Expression>, Span),
+    Definition(Declare, Variable, Expression, Span),
+    Assign(Assignee, Expression, Span),
+    MultipleAssign(Vec<Variable>, Expression, Span),
+    Conditional(ConditionalStatement, Span),
+    For(Identifier, Integer, Integer, Vec<Statement>, Span),
+    AssertEq(Expression, Expression, Span),
+    Expression(Expression, Span),
 }
 
 impl<'ast> From<ReturnStatement<'ast>> for Statement {
@@ -36,6 +36,7 @@ impl<'ast> From<ReturnStatement<'ast>> for Statement {
                 .into_iter()
                 .map(|expression| Expression::from(expression))
                 .collect(),
+            Span::from(statement.span),
         )
     }
 }
@@ -46,6 +47,7 @@ impl<'ast> From<DefinitionStatement<'ast>> for Statement {
             Declare::from(statement.declare),
             Variable::from(statement.variable),
             Expression::from(statement.expression),
+            Span::from(statement.span),
         )
     }
 }
@@ -56,6 +58,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
             AssignOperation::Assign(ref _assign) => Statement::Assign(
                 Assignee::from(statement.assignee),
                 Expression::from(statement.expression),
+                Span::from(statement.span),
             ),
             operation_assign => {
                 // convert assignee into postfix expression
@@ -64,23 +67,48 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                 match operation_assign {
                     AssignOperation::AddAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Add(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Add(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
                     ),
                     AssignOperation::SubAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Sub(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Sub(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
                     ),
                     AssignOperation::MulAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Mul(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Mul(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
                     ),
                     AssignOperation::DivAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Div(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Div(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
                     ),
                     AssignOperation::PowAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
-                        Expression::Pow(Box::new(converted), Box::new(Expression::from(statement.expression))),
+                        Expression::Pow(
+                            Box::new(converted),
+                            Box::new(Expression::from(statement.expression)),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
                     ),
                     AssignOperation::Assign(ref _assign) => unimplemented!("cannot assign twice to assign statement"),
                 }
@@ -102,7 +130,9 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
             Expression::FunctionCall(
                 Box::new(Expression::from(statement.function_name)),
                 statement.arguments.into_iter().map(|e| Expression::from(e)).collect(),
+                Span::from(statement.span.clone()),
             ),
+            Span::from(statement.span),
         )
     }
 }
@@ -129,6 +159,7 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
                 .into_iter()
                 .map(|statement| Statement::from(statement))
                 .collect(),
+            Span::from(statement.span),
         )
     }
 }
@@ -136,16 +167,18 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
 impl<'ast> From<AssertStatement<'ast>> for Statement {
     fn from(statement: AssertStatement<'ast>) -> Self {
         match statement {
-            AssertStatement::AssertEq(assert_eq) => {
-                Statement::AssertEq(Expression::from(assert_eq.left), Expression::from(assert_eq.right))
-            }
+            AssertStatement::AssertEq(assert_eq) => Statement::AssertEq(
+                Expression::from(assert_eq.left),
+                Expression::from(assert_eq.right),
+                Span::from(assert_eq.span),
+            ),
         }
     }
 }
 
 impl<'ast> From<ExpressionStatement<'ast>> for Statement {
     fn from(statement: ExpressionStatement<'ast>) -> Self {
-        Statement::Expression(Expression::from(statement.expression))
+        Statement::Expression(Expression::from(statement.expression), Span::from(statement.span))
     }
 }
 
@@ -156,7 +189,10 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
             AstStatement::Definition(statement) => Statement::from(statement),
             AstStatement::Assign(statement) => Statement::from(statement),
             AstStatement::MultipleAssignment(statement) => Statement::from(statement),
-            AstStatement::Conditional(statement) => Statement::Conditional(ConditionalStatement::from(statement)),
+            AstStatement::Conditional(statement) => {
+                let span = Span::from(statement.span.clone());
+                Statement::Conditional(ConditionalStatement::from(statement), span)
+            }
             AstStatement::Iteration(statement) => Statement::from(statement),
             AstStatement::Assert(statement) => Statement::from(statement),
             AstStatement::Expression(statement) => Statement::from(statement),
@@ -167,7 +203,7 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Statement::Return(ref statements) => {
+            Statement::Return(ref statements, ref _span) => {
                 write!(f, "return (")?;
                 for (i, value) in statements.iter().enumerate() {
                     write!(f, "{}", value)?;
@@ -177,11 +213,11 @@ impl fmt::Display for Statement {
                 }
                 write!(f, ")\n")
             }
-            Statement::Definition(ref declare, ref variable, ref expression) => {
+            Statement::Definition(ref declare, ref variable, ref expression, ref _span) => {
                 write!(f, "{} {} = {};", declare, variable, expression)
             }
-            Statement::Assign(ref variable, ref statement) => write!(f, "{} = {};", variable, statement),
-            Statement::MultipleAssign(ref assignees, ref function) => {
+            Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
+            Statement::MultipleAssign(ref assignees, ref function, ref _span) => {
                 write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;
@@ -191,16 +227,16 @@ impl fmt::Display for Statement {
                 }
                 write!(f, ") = {};", function)
             }
-            Statement::Conditional(ref statement) => write!(f, "{}", statement),
-            Statement::For(ref var, ref start, ref stop, ref list) => {
+            Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
+            Statement::For(ref var, ref start, ref stop, ref list, ref _span) => {
                 write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
                 for l in list {
                     write!(f, "\t\t{}\n", l)?;
                 }
                 write!(f, "\t}}")
             }
-            Statement::AssertEq(ref left, ref right) => write!(f, "assert_eq({}, {});", left, right),
-            Statement::Expression(ref expression) => write!(f, "{};", expression),
+            Statement::AssertEq(ref left, ref right, ref _span) => write!(f, "assert_eq({}, {});", left, right),
+            Statement::Expression(ref expression, ref _span) => write!(f, "{};", expression),
         }
     }
 }

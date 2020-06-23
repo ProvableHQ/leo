@@ -1,4 +1,5 @@
 use crate::{
+    get_error,
     integers::u32::{output_one, output_zero},
     parse_program,
 };
@@ -57,4 +58,14 @@ fn test_assertion_basic() {
     let _output = program_input_false.compile_constraints(&mut cs_unsatisfied).unwrap();
 
     assert!(!cs_unsatisfied.is_satisfied());
+}
+
+#[test]
+fn test_num_returns_fail() {
+    let bytes = include_bytes!("num_returns_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    let error = get_error(program);
+
+    println!("{}", error);
 }
