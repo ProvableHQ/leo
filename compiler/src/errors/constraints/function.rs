@@ -58,4 +58,10 @@ impl FunctionError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn return_arguments_length(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!("function expected {} returns, found {} returns", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
 }
