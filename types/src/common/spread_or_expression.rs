@@ -1,10 +1,11 @@
 use crate::Expression;
 use leo_ast::common::SpreadOrExpression as AstSpreadOrExpression;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Spread or expression
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpreadOrExpression {
     Spread(Expression),
     Expression(Expression),

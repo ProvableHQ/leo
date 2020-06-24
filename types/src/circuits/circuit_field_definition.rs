@@ -1,7 +1,9 @@
 use crate::{Expression, Identifier};
 use leo_ast::circuits::CircuitField;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitFieldDefinition {
     pub identifier: Identifier,
     pub expression: Expression,

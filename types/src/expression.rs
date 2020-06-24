@@ -16,10 +16,11 @@ use leo_ast::{
     values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
 };
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Expression that evaluates to a value
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
     // Identifier
     Identifier(Identifier),

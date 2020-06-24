@@ -21,7 +21,7 @@ LINE_END = { ";" ~ NEWLINE* }
 mutable = { "mut" }
 
 // Declared in common/range.rs
-range = { value_number? ~ ".." ~ value_number? }
+range = { expression? ~ ".." ~ expression? }
 
 // Declared in common/range_or_expression.rs
 range_or_expression = { range | expression }
