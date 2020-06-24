@@ -1,4 +1,4 @@
-use crate::{CircuitFieldDefinition, Identifier, Integer, RangeOrExpression, Span, SpreadOrExpression};
+use crate::{CircuitFieldDefinition, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
@@ -25,7 +25,7 @@ pub enum Expression {
     Identifier(Identifier),
 
     // Values
-    Integer(Integer),
+    Integer(IntegerType, String, Span),
     Field(String, Span),
     Group(String, Span),
     Boolean(String, Span),
@@ -120,7 +120,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Identifier(ref variable) => write!(f, "{}", variable),
 
             // Values
-            Expression::Integer(ref integer) => write!(f, "{}", integer),
+            Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
             Expression::Field(ref field, ref _span) => write!(f, "{}", field),
             Expression::Group(ref group, ref _span) => write!(f, "{}", group),
             Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
@@ -447,8 +447,12 @@ impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
 }
 
 impl<'ast> From<IntegerValue<'ast>> for Expression {
-    fn from(field: IntegerValue<'ast>) -> Self {
-        Expression::Integer(Integer::from(field.number, field._type))
+    fn from(integer: IntegerValue<'ast>) -> Self {
+        Expression::Integer(
+            IntegerType::from(integer._type),
+            integer.number.value,
+            Span::from(integer.span),
+        )
     }
 }
 

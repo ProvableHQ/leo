@@ -150,12 +150,12 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
 impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         let from = match Expression::from(statement.start) {
-            Expression::Integer(number) => number,
+            Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
             Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
         let to = match Expression::from(statement.stop) {
-            Expression::Integer(number) => number,
+            Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
             Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };

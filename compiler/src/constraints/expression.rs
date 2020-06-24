@@ -900,7 +900,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Values
-            Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
+            Expression::Integer(type_, integer, span) => {
+                Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
+            }
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
             Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),

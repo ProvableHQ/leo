@@ -550,6 +550,7 @@ dependencies = [
  "leo-ast",
  "leo-inputs",
  "pest",
+ "serde",
  "snarkos-errors",
  "snarkos-models",
  "thiserror",

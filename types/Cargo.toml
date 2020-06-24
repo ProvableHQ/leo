@@ -12,4 +12,5 @@ snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0", default-fea
 snarkos-models =  { path = "../../snarkOS/models", version = "0.8.0", default-features = false }
 
 pest = { version = "2.0" }
+serde = { version = "1.0" }
 thiserror = { version = "1.0" }

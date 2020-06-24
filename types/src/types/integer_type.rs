@@ -1,9 +1,10 @@
 use leo_ast::types::IntegerType as AstIntegerType;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit integer type
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IntegerType {
     U8,
     U16,

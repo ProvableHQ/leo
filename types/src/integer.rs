@@ -1,7 +1,6 @@
 //! Conversion of integer declarations to constraints in Leo.
 
 use crate::{errors::IntegerError, InputValue, IntegerType, Span};
-use leo_ast::{types::IntegerType as AstIntegerType, values::NumberValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -11,17 +10,15 @@ use snarkos_models::{
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
         },
     },
 };
-
-use snarkos_models::gadgets::utilities::eq::EvaluateEqGadget;
 use std::fmt;
 
-/// An integer type enum wrapping the integer value. Used only in expressions.
+/// An integer type enum wrapping the integer value.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
 pub enum Integer {
     U8(UInt8),
@@ -31,33 +28,11 @@ pub enum Integer {
     U128(UInt128),
 }
 
-impl<'ast> Integer {
-    pub fn from(number: NumberValue<'ast>, _type: AstIntegerType) -> Self {
-        match _type {
-            AstIntegerType::U8Type(_u8) => {
-                Integer::U8(UInt8::constant(number.value.parse::<u8>().expect("unable to parse u8")))
-            }
-            AstIntegerType::U16Type(_u16) => Integer::U16(UInt16::constant(
-                number.value.parse::<u16>().expect("unable to parse u16"),
-            )),
-            AstIntegerType::U32Type(_u32) => Integer::U32(UInt32::constant(
-                number.value.parse::<u32>().expect("unable to parse integers.u32"),
-            )),
-            AstIntegerType::U64Type(_u64) => Integer::U64(UInt64::constant(
-                number.value.parse::<u64>().expect("unable to parse u64"),
-            )),
-            AstIntegerType::U128Type(_u128) => Integer::U128(UInt128::constant(
-                number.value.parse::<u128>().expect("unable to parse u128"),
-            )),
-        }
-    }
-
+impl Integer {
     pub fn from_implicit(number: String) -> Self {
         Integer::U128(UInt128::constant(number.parse::<u128>().expect("unable to parse u128")))
     }
-}
 
-impl Integer {
     pub fn new_constant(integer_type: &IntegerType, string: String, span: Span) -> Result<Self, IntegerError> {
         match integer_type {
             IntegerType::U8 => {

@@ -3,9 +3,10 @@
 use crate::{ImportSymbol, Span};
 use leo_ast::imports::Import as AstImport;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Import {
     pub path_string: String,
     pub symbols: Vec<ImportSymbol>,

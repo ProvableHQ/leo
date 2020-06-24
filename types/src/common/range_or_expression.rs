@@ -15,12 +15,12 @@ impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
         match range_or_expression {
             AstRangeOrExpression::Range(range) => {
                 let from = range.from.map(|from| match Expression::from(from.0) {
-                    Expression::Integer(number) => number,
+                    Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
                     Expression::Implicit(string, _span) => Integer::from_implicit(string),
                     expression => unimplemented!("Range bounds should be integers, found {}", expression),
                 });
                 let to = range.to.map(|to| match Expression::from(to.0) {
-                    Expression::Integer(number) => number,
+                    Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
                     Expression::Implicit(string, _span) => Integer::from_implicit(string),
                     expression => unimplemented!("Range bounds should be integers, found {}", expression),
                 });
