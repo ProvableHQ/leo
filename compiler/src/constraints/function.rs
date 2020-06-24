@@ -145,8 +145,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             results.append(&mut result);
         }
 
-        println!("{:?}", results);
-
         // Conditionally select a result based on returned indicators
         let mut return_values = ConstrainedValue::Return(vec![]);
 
