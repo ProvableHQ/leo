@@ -1,29 +1,32 @@
-use crate::{Expression, Integer};
-use leo_ast::common::RangeOrExpression as AstRangeOrExpression;
+use crate::{Error as FormattedError, Expression, Span};
+use leo_ast::{common::RangeOrExpression as AstRangeOrExpression, values::NumberValue};
 
 use std::fmt;
 
 /// Range or expression enum
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RangeOrExpression {
-    Range(Option<Integer>, Option<Integer>),
+    Range(Option<usize>, Option<usize>),
     Expression(Expression),
+}
+
+pub fn unwrap_bound(bound: Option<NumberValue>) -> Option<usize> {
+    bound.map(|number| {
+        let message = format!("Range bounds should be integers");
+        let error = FormattedError::new_from_span(message, Span::from(number.span.clone()));
+
+        let result = number.value.parse::<usize>().expect(&error.to_string());
+
+        result
+    })
 }
 
 impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
             AstRangeOrExpression::Range(range) => {
-                let from = range.from.map(|from| match Expression::from(from.0) {
-                    Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
-                    Expression::Implicit(string, _span) => Integer::from_implicit(string),
-                    expression => unimplemented!("Range bounds should be integers, found {}", expression),
-                });
-                let to = range.to.map(|to| match Expression::from(to.0) {
-                    Expression::Integer(type_, integer, span) => Integer::new_constant(&type_, integer, span).unwrap(),
-                    Expression::Implicit(string, _span) => Integer::from_implicit(string),
-                    expression => unimplemented!("Range bounds should be integers, found {}", expression),
-                });
+                let from = unwrap_bound(range.from);
+                let to = unwrap_bound(range.to);
 
                 RangeOrExpression::Range(from, to)
             }

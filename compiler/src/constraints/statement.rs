@@ -95,11 +95,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             RangeOrExpression::Range(from, to) => {
                 let from_index = match from {
-                    Some(integer) => integer.to_usize(span.clone())?,
+                    Some(integer) => integer,
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(integer.to_usize(span.clone())?),
+                    Some(integer) => Some(integer),
                     None => None,
                 };
 

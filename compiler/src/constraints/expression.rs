@@ -574,11 +574,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match index {
             RangeOrExpression::Range(from, to) => {
                 let from_resolved = match from {
-                    Some(from_index) => from_index.to_usize(span.clone())?,
+                    Some(from_index) => from_index,
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {
-                    Some(to_index) => to_index.to_usize(span.clone())?,
+                    Some(to_index) => to_index,
                     None => array.len(), // Array slice ends at array length
                 };
                 Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
