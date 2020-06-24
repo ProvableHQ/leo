@@ -16,8 +16,6 @@ use leo_ast::{
     values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
 };
 
-use snarkos_models::gadgets::utilities::boolean::Boolean;
-
 use std::fmt;
 
 /// Expression that evaluates to a value
@@ -30,7 +28,7 @@ pub enum Expression {
     Integer(Integer),
     Field(String, Span),
     Group(String, Span),
-    Boolean(Boolean),
+    Boolean(String, Span),
     Implicit(String, Span),
 
     // Number operations
@@ -125,7 +123,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Integer(ref integer) => write!(f, "{}", integer),
             Expression::Field(ref field, ref _span) => write!(f, "{}", field),
             Expression::Group(ref group, ref _span) => write!(f, "{}", group),
-            Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
+            Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
             Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
 
             // Number operations
@@ -438,9 +436,7 @@ impl<'ast> From<GroupValue<'ast>> for Expression {
 
 impl<'ast> From<BooleanValue<'ast>> for Expression {
     fn from(boolean: BooleanValue<'ast>) -> Self {
-        Expression::Boolean(Boolean::Constant(
-            boolean.value.parse::<bool>().expect("unable to parse boolean"),
-        ))
+        Expression::Boolean(boolean.value, Span::from(boolean.span))
     }
 }
 

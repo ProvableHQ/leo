@@ -6,6 +6,7 @@ use crate::{
     enforce_or,
     errors::ExpressionError,
     evaluate_not,
+    new_bool_constant,
     new_scope,
     FieldType,
     GroupType,
@@ -902,7 +903,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
             Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
-            Expression::Boolean(bool) => Ok(ConstrainedValue::Boolean(bool)),
+            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
 
             // Binary operations
