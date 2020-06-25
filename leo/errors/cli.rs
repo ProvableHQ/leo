@@ -3,67 +3,180 @@ use crate::errors::*;
 #[derive(Debug, Error)]
 pub enum CLIError {
     #[error("{}", _0)]
-    BuildError(#[from] BuildError),
+    BuildError(BuildError),
 
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
     #[error("{}", _0)]
-    ChecksumFileError(#[from] ChecksumFileError),
+    ChecksumFileError(ChecksumFileError),
 
     #[error("{}", _0)]
-    GitignoreError(#[from] GitignoreError),
+    GitignoreError(GitignoreError),
 
     #[error("{}", _0)]
-    InitError(#[from] InitError),
+    InitError(InitError),
 
     #[error("{}", _0)]
-    InputsDirectoryError(#[from] InputsDirectoryError),
+    InputsDirectoryError(InputsDirectoryError),
 
     #[error("{}", _0)]
-    InputsFileError(#[from] InputsFileError),
+    InputsFileError(InputsFileError),
 
     #[error("{}", _0)]
-    MainFileError(#[from] MainFileError),
+    MainFileError(MainFileError),
 
     #[error("{}", _0)]
-    ManifestError(#[from] ManifestError),
+    ManifestError(ManifestError),
 
     #[error("{}", _0)]
-    NewError(#[from] NewError),
+    NewError(NewError),
 
     #[error("{}", _0)]
-    OutputsDirectoryError(#[from] OutputsDirectoryError),
+    OutputsDirectoryError(OutputsDirectoryError),
 
     #[error("{}", _0)]
-    ProofFileError(#[from] ProofFileError),
+    ProofFileError(ProofFileError),
 
     #[error("{}", _0)]
-    ProvingKeyFileError(#[from] ProvingKeyFileError),
+    ProvingKeyFileError(ProvingKeyFileError),
 
     #[error("{}", _0)]
-    RunError(#[from] RunError),
+    RunError(RunError),
 
     #[error("{}", _0)]
-    SourceDirectoryError(#[from] SourceDirectoryError),
+    SourceDirectoryError(SourceDirectoryError),
 
     #[error("{}", _0)]
-    TestError(#[from] TestError),
+    TestError(TestError),
 
     #[error("{}", _0)]
-    VerificationKeyFileError(#[from] VerificationKeyFileError),
+    VerificationKeyFileError(VerificationKeyFileError),
+}
+
+impl From<BuildError> for CLIError {
+    fn from(error: BuildError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::BuildError(error)
+    }
+}
+
+impl From<ChecksumFileError> for CLIError {
+    fn from(error: ChecksumFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ChecksumFileError(error)
+    }
+}
+
+impl From<GitignoreError> for CLIError {
+    fn from(error: GitignoreError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::GitignoreError(error)
+    }
+}
+
+impl From<InitError> for CLIError {
+    fn from(error: InitError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::InitError(error)
+    }
+}
+
+impl From<InputsDirectoryError> for CLIError {
+    fn from(error: InputsDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::InputsDirectoryError(error)
+    }
+}
+
+impl From<InputsFileError> for CLIError {
+    fn from(error: InputsFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::InputsFileError(error)
+    }
+}
+
+impl From<MainFileError> for CLIError {
+    fn from(error: MainFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::MainFileError(error)
+    }
+}
+
+impl From<ManifestError> for CLIError {
+    fn from(error: ManifestError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ManifestError(error)
+    }
+}
+
+impl From<NewError> for CLIError {
+    fn from(error: NewError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::NewError(error)
+    }
+}
+
+impl From<OutputsDirectoryError> for CLIError {
+    fn from(error: OutputsDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::OutputsDirectoryError(error)
+    }
+}
+
+impl From<ProofFileError> for CLIError {
+    fn from(error: ProofFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ProofFileError(error)
+    }
+}
+
+impl From<ProvingKeyFileError> for CLIError {
+    fn from(error: ProvingKeyFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ProvingKeyFileError(error)
+    }
+}
+
+impl From<RunError> for CLIError {
+    fn from(error: RunError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::RunError(error)
+    }
+}
+
+impl From<SourceDirectoryError> for CLIError {
+    fn from(error: SourceDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::SourceDirectoryError(error)
+    }
+}
+
+impl From<TestError> for CLIError {
+    fn from(error: TestError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::TestError(error)
+    }
+}
+
+impl From<VerificationKeyFileError> for CLIError {
+    fn from(error: VerificationKeyFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::VerificationKeyFileError(error)
+    }
 }
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
-        log::error!("{}", error);
+        log::error!("{}\n", error);
         CLIError::Crate("leo_compiler", "Program failed due to previous error".into())
     }
 }
 
 impl From<leo_inputs::errors::InputParserError> for CLIError {
     fn from(error: leo_inputs::errors::InputParserError) -> Self {
-        CLIError::Crate("leo_inputs", format!("{}", error))
+        log::error!("{}\n", error);
+        CLIError::Crate("leo_inputs", "Program failed due to previous error".into())
     }
 }
 

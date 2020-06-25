@@ -1,4 +1,4 @@
-use crate::{Identifier, Type};
+use crate::{Identifier, Span, Type};
 use leo_ast::functions::FunctionInput as AstFunctionInput;
 
 use std::fmt;
@@ -8,6 +8,7 @@ pub struct FunctionInput {
     pub identifier: Identifier,
     pub mutable: bool,
     pub _type: Type,
+    pub span: Span,
 }
 
 impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
@@ -16,6 +17,7 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
             identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
             _type: Type::from(parameter._type),
+            span: Span::from(parameter.span),
         }
     }
 }

@@ -54,15 +54,8 @@ fn output_one(program: EdwardsTestCompiler) {
 
 fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldError(FieldError::Invalid(_string))) => {}
+        CompilerError::FunctionError(FunctionError::FieldError(FieldError::Error(_string))) => {}
         error => panic!("Expected invalid field error, got {}", error),
-    }
-}
-
-fn fail_synthesis(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldError(FieldError::SynthesisError(_string))) => {}
-        error => panic!("Expected synthesis error, got {}", error),
     }
 }
 
@@ -110,7 +103,7 @@ fn test_input_fail_none() {
     let mut program = parse_program(bytes).unwrap();
 
     program.set_inputs(vec![None]);
-    fail_synthesis(program);
+    fail_field(program);
 }
 
 #[test]

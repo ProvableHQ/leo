@@ -1,4 +1,5 @@
 use crate::{errors::GroupError, GroupType};
+use leo_types::Span;
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -31,13 +32,14 @@ pub enum EdwardsGroupType {
 }
 
 impl GroupType<Fq> for EdwardsGroupType {
-    fn constant(string: String) -> Result<Self, GroupError> {
-        let value = Self::edwards_affine_from_str(string)?;
+    fn constant(string: String, span: Span) -> Result<Self, GroupError> {
+        let value =
+            Self::edwards_affine_from_str(string.clone()).map_err(|_| GroupError::invalid_group(string, span))?;
 
         Ok(EdwardsGroupType::Constant(value))
     }
 
-    fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError> {
+    fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(EdwardsGroupType::Constant(self_value.add(other_value)))
@@ -48,18 +50,24 @@ impl GroupType<Fq> for EdwardsGroupType {
                     self_value,
                     cs,
                     other_value,
-                )?;
+                )
+                .map_err(|e| GroupError::cannot_enforce(format!("+"), e, span))?;
+
                 Ok(EdwardsGroupType::Allocated(result))
             }
 
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
-            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => Ok(
-                EdwardsGroupType::Allocated(allocated_value.add_constant(cs, constant_value)?),
-            ),
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+                Ok(EdwardsGroupType::Allocated(
+                    allocated_value
+                        .add_constant(cs, constant_value)
+                        .map_err(|e| GroupError::cannot_enforce(format!("+"), e, span))?,
+                ))
+            }
         }
     }
 
-    fn sub<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError> {
+    fn sub<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(EdwardsGroupType::Constant(self_value.sub(other_value)))
@@ -70,24 +78,30 @@ impl GroupType<Fq> for EdwardsGroupType {
                     self_value,
                     cs,
                     other_value,
-                )?;
+                )
+                .map_err(|e| GroupError::cannot_enforce(format!("-"), e, span))?;
+
                 Ok(EdwardsGroupType::Allocated(result))
             }
 
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
-            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => Ok(
-                EdwardsGroupType::Allocated(allocated_value.sub_constant(cs, constant_value)?),
-            ),
+            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+                Ok(EdwardsGroupType::Allocated(
+                    allocated_value
+                        .sub_constant(cs, constant_value)
+                        .map_err(|e| GroupError::cannot_enforce(format!("-"), e, span))?,
+                ))
+            }
         }
     }
 }
 
 impl EdwardsGroupType {
-    pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, SynthesisError> {
         // 0 or (0, 1)
         match Fq::from_str(&string).ok() {
-            Some(x) => EdwardsAffine::get_point_from_x(x, false).ok_or(GroupError::Invalid(string)),
-            None => EdwardsAffine::from_str(&string).map_err(|_| GroupError::Invalid(string)),
+            Some(x) => EdwardsAffine::get_point_from_x(x, false).ok_or(SynthesisError::AssignmentMissing),
+            None => EdwardsAffine::from_str(&string).map_err(|_| SynthesisError::AssignmentMissing),
         }
     }
 
@@ -102,7 +116,7 @@ impl EdwardsGroupType {
             _ => Err(SynthesisError::AssignmentMissing),
         }?;
 
-        Self::edwards_affine_from_str(affine_string).map_err(|_| SynthesisError::AssignmentMissing)
+        Self::edwards_affine_from_str(affine_string)
     }
 
     pub fn allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<EdwardsBlsGadget, SynthesisError> {

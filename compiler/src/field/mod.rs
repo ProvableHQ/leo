@@ -1,6 +1,7 @@
 //! A data type that represents a field value
 
 use crate::errors::FieldError;
+use leo_types::Span;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -35,82 +36,100 @@ impl<F: Field + PrimeField> FieldType<F> {
         }
     }
 
-    pub fn constant(string: String) -> Result<Self, FieldError> {
-        let value = F::from_str(&string).map_err(|_| FieldError::Invalid(string))?;
+    pub fn constant(string: String, span: Span) -> Result<Self, FieldError> {
+        let value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span))?;
 
         Ok(FieldType::Constant(value))
     }
 
-    pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
+    pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
                 Ok(FieldType::Constant(self_value.add(other_value)))
             }
 
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
-                let result = self_value.add(cs, other_value)?;
-
-                Ok(FieldType::Allocated(result))
-            }
-
-            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
-                Ok(FieldType::Allocated(allocated_value.add_constant(cs, constant_value)?))
-            }
-        }
-    }
-
-    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        match (self, other) {
-            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
-                Ok(FieldType::Constant(self_value.sub(other_value)))
-            }
-
-            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
-                let result = self_value.sub(cs, other_value)?;
-
-                Ok(FieldType::Allocated(result))
-            }
-
-            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
-                Ok(FieldType::Allocated(allocated_value.sub_constant(cs, constant_value)?))
-            }
-        }
-    }
-
-    pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, FieldError> {
-        match (self, other) {
-            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
-                Ok(FieldType::Constant(self_value.mul(other_value)))
-            }
-
-            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
-                let result = self_value.mul(cs, other_value)?;
+                let result = self_value
+                    .add(cs, other_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
 
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
-                allocated_value.mul_by_constant(cs, constant_value)?,
+                allocated_value
+                    .add_constant(cs, constant_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?,
             )),
         }
     }
 
-    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, FieldError> {
+    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+        match (self, other) {
+            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
+                Ok(FieldType::Constant(self_value.sub(other_value)))
+            }
+
+            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
+                let result = self_value
+                    .sub(cs, other_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("-"), e, span))?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
+            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
+                allocated_value
+                    .sub_constant(cs, constant_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?,
+            )),
+        }
+    }
+
+    pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+        match (self, other) {
+            (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
+                Ok(FieldType::Constant(self_value.mul(other_value)))
+            }
+
+            (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
+                let result = self_value
+                    .mul(cs, other_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("*"), e, span))?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
+            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
+                allocated_value
+                    .mul_by_constant(cs, constant_value)
+                    .map_err(|e| FieldError::cannot_enforce(format!("*"), e, span))?,
+            )),
+        }
+    }
+
+    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
         let inverse = match other {
             FieldType::Constant(constant) => {
-                let constant_inverse = constant.inverse().ok_or(FieldError::NoInverse(constant.to_string()))?;
+                let constant_inverse = constant
+                    .inverse()
+                    .ok_or(FieldError::no_inverse(constant.to_string(), span.clone()))?;
+
                 FieldType::Constant(constant_inverse)
             }
             FieldType::Allocated(allocated) => {
-                let allocated_inverse = allocated.inverse(&mut cs)?;
+                let allocated_inverse = allocated
+                    .inverse(&mut cs)
+                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span.clone()))?;
+
                 FieldType::Allocated(allocated_inverse)
             }
         };
 
-        self.mul(cs, &inverse)
+        self.mul(cs, &inverse, span)
     }
 
     pub fn alloc_helper<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>>(

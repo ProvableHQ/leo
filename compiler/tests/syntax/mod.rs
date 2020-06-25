@@ -28,7 +28,7 @@ fn test_undefined() {
             assert_eq!(
                 format!("{}", error),
                 vec![
-                    "    -->  2:10",
+                    "    --> \"/test/src/main.leo\": 2:10",
                     "     |",
                     "   2 |    return a",
                     "     |           ^",

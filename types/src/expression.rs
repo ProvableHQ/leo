@@ -28,10 +28,10 @@ pub enum Expression {
 
     // Values
     Integer(Integer),
-    Field(String),
-    Group(String),
+    Field(String, Span),
+    Group(String, Span),
     Boolean(Boolean),
-    Implicit(String),
+    Implicit(String, Span),
 
     // Number operations
     Add(Box<Expression>, Box<Expression>, Span),
@@ -41,7 +41,7 @@ pub enum Expression {
     Pow(Box<Expression>, Box<Expression>, Span),
 
     // Boolean operations
-    Not(Box<Expression>),
+    Not(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),
@@ -66,6 +66,41 @@ pub enum Expression {
     FunctionCall(Box<Expression>, Vec<Expression>, Span),
 }
 
+impl Expression {
+    pub fn set_span(&mut self, new_span: &Span) {
+        match self {
+            Expression::Field(_, old_span) => *old_span = new_span.clone(),
+            Expression::Group(_, old_span) => *old_span = new_span.clone(),
+
+            Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Mul(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Div(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Pow(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::Not(_, old_span) => *old_span = new_span.clone(),
+            Expression::Or(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::And(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Eq(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Ge(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Gt(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Le(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Lt(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::IfElse(_, _, _, old_span) => *old_span = new_span.clone(),
+            Expression::Array(_, old_span) => *old_span = new_span.clone(),
+            Expression::ArrayAccess(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::Circuit(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::FunctionCall(_, _, old_span) => *old_span = new_span.clone(),
+            _ => {}
+        }
+    }
+}
+
 impl<'ast> Expression {
     pub(crate) fn get_count(count: Value<'ast>) -> usize {
         match count {
@@ -88,10 +123,10 @@ impl<'ast> fmt::Display for Expression {
 
             // Values
             Expression::Integer(ref integer) => write!(f, "{}", integer),
-            Expression::Field(ref field) => write!(f, "{}", field),
-            Expression::Group(ref group) => write!(f, "{}", group),
+            Expression::Field(ref field, ref _span) => write!(f, "{}", field),
+            Expression::Group(ref group, ref _span) => write!(f, "{}", group),
             Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
-            Expression::Implicit(ref value) => write!(f, "{}", value),
+            Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
 
             // Number operations
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
@@ -101,7 +136,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Pow(ref left, ref right, ref _span) => write!(f, "{} ** {}", left, right),
 
             // Boolean operations
-            Expression::Not(ref expression) => write!(f, "!{}", expression),
+            Expression::Not(ref expression, ref _span) => write!(f, "!{}", expression),
             Expression::Or(ref lhs, ref rhs, ref _span) => write!(f, "{} || {}", lhs, rhs),
             Expression::And(ref lhs, ref rhs, ref _span) => write!(f, "{} && {}", lhs, rhs),
             Expression::Eq(ref lhs, ref rhs, ref _span) => write!(f, "{} == {}", lhs, rhs),
@@ -194,15 +229,18 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                 ),
 
                 // Handle function calls
-                Access::Call(function) => Expression::FunctionCall(
-                    Box::new(acc),
-                    function
-                        .expressions
-                        .into_iter()
-                        .map(|expression| Expression::from(expression))
-                        .collect(),
-                    Span::from(function.span),
-                ),
+                Access::Call(function) => {
+                    let span = Span::from(function.span);
+                    Expression::FunctionCall(
+                        Box::new(acc),
+                        function
+                            .expressions
+                            .into_iter()
+                            .map(|expression| Expression::from(expression))
+                            .collect(),
+                        span,
+                    )
+                }
 
                 // Handle circuit member accesses
                 Access::Object(circuit_object) => Expression::CircuitMemberAccess(
@@ -278,7 +316,10 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.right)),
                 Span::from(expression.span),
             ),
-            BinaryOperation::Ne => Expression::Not(Box::new(Expression::from(expression))),
+            BinaryOperation::Ne => Expression::Not(
+                Box::new(Expression::from(expression.clone())),
+                Span::from(expression.span),
+            ),
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
@@ -376,19 +417,22 @@ impl<'ast> From<Value<'ast>> for Expression {
 
 impl<'ast> From<NotExpression<'ast>> for Expression {
     fn from(expression: NotExpression<'ast>) -> Self {
-        Expression::Not(Box::new(Expression::from(*expression.expression)))
+        Expression::Not(
+            Box::new(Expression::from(*expression.expression)),
+            Span::from(expression.span),
+        )
     }
 }
 
 impl<'ast> From<FieldValue<'ast>> for Expression {
     fn from(field: FieldValue<'ast>) -> Self {
-        Expression::Field(field.number.value)
+        Expression::Field(field.number.value, Span::from(field.span))
     }
 }
 
 impl<'ast> From<GroupValue<'ast>> for Expression {
     fn from(group: GroupValue<'ast>) -> Self {
-        Expression::Group(group.to_string())
+        Expression::Group(group.to_string(), Span::from(group.span))
     }
 }
 
@@ -402,7 +446,7 @@ impl<'ast> From<BooleanValue<'ast>> for Expression {
 
 impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
     fn from(number: NumberImplicitValue<'ast>) -> Self {
-        Expression::Implicit(number.number.value)
+        Expression::Implicit(number.number.value, Span::from(number.span))
     }
 }
 

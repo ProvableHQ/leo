@@ -15,6 +15,22 @@ pub enum Type {
     SelfType,
 }
 
+impl Type {
+    pub fn is_self(&self) -> bool {
+        if let Type::SelfType = self {
+            return true;
+        }
+        false
+    }
+
+    pub fn is_circuit(&self) -> bool {
+        if let Type::Circuit(_) = self {
+            return true;
+        }
+        false
+    }
+}
+
 /// pest ast -> Explicit Type for defining circuit members and function params
 
 impl From<DataType> for Type {
@@ -60,29 +76,29 @@ impl<'ast> From<AstType<'ast>> for Type {
 
 impl Type {
     pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
-        let _type = self.clone();
+        let type_ = self.clone();
 
         if dimensions.len() > 1 {
             let mut next = vec![];
             next.extend_from_slice(&dimensions[1..]);
 
-            return Type::Array(Box::new(_type), next);
+            return Type::Array(Box::new(type_), next);
         }
 
-        _type
+        type_
     }
 
     pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
-        let _type = self.clone();
+        let type_ = self.clone();
 
         if dimensions.len() > 1 {
             let mut next = vec![];
             next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
 
-            return Type::Array(Box::new(_type), next);
+            return Type::Array(Box::new(type_), next);
         }
 
-        _type
+        type_
     }
 }
 
@@ -93,8 +109,8 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Boolean => write!(f, "bool"),
-            Type::Circuit(ref variable) => write!(f, "{}", variable),
-            Type::SelfType => write!(f, "Self"),
+            Type::Circuit(ref variable) => write!(f, "circuit {}", variable),
+            Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => {
                 write!(f, "{}", *array)?;
                 for row in dimensions {

@@ -1,21 +1,34 @@
 use leo_ast::ParserError;
+use leo_types::{Error as FormattedError, ImportSymbol, Span};
 
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum ImportError {
-    #[error("Attempt to access current directory failed - {:?}", _0)]
-    DirectoryError(io::Error),
-
-    #[error("Syntax error. Cannot parse the file")]
-    FileParsingError,
-
-    #[error("Cannot read from the provided file path - {:?}", _0)]
-    FileReadError(PathBuf),
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
+}
 
-    #[error("Unable to construct abstract syntax tree")]
-    SyntaxTreeError,
+impl ImportError {
+    fn new_from_span(message: String, span: Span) -> Self {
+        ImportError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn directory_error(error: io::Error, span: Span) -> Self {
+        let message = format!("attempt to access current directory failed - {:?}", error);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unknown_symbol(symbol: ImportSymbol, file: String, file_path: &PathBuf) -> Self {
+        let message = format!("cannot find imported symbol `{}` in imported file `{}`", symbol, file);
+        let mut error = FormattedError::new_from_span(message, symbol.span);
+
+        error.path = Some(format!("{:?}", file_path));
+
+        ImportError::Error(error)
+    }
 }

@@ -2,7 +2,7 @@ use crate::{
     boolean::{output_expected_boolean, output_false, output_true},
     get_error,
     get_output,
-    integers::{fail_integer, fail_synthesis, IntegerTester},
+    integers::{fail_integer, IntegerTester},
     parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,

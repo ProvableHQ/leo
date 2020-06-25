@@ -30,24 +30,34 @@ pub enum Statement {
 
 impl<'ast> From<ReturnStatement<'ast>> for Statement {
     fn from(statement: ReturnStatement<'ast>) -> Self {
+        let span = Span::from(statement.span);
         Statement::Return(
             statement
                 .expressions
                 .into_iter()
-                .map(|expression| Expression::from(expression))
+                .map(|expression| {
+                    let mut expression = Expression::from(expression);
+                    expression.set_span(&span);
+
+                    expression
+                })
                 .collect(),
-            Span::from(statement.span),
+            span,
         )
     }
 }
 
 impl<'ast> From<DefinitionStatement<'ast>> for Statement {
     fn from(statement: DefinitionStatement<'ast>) -> Self {
+        let span = Span::from(statement.span);
+        let mut expression = Expression::from(statement.expression);
+        expression.set_span(&span);
+
         Statement::Definition(
             Declare::from(statement.declare),
             Variable::from(statement.variable),
-            Expression::from(statement.expression),
-            Span::from(statement.span),
+            expression,
+            span,
         )
     }
 }
@@ -141,12 +151,12 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         let from = match Expression::from(statement.start) {
             Expression::Integer(number) => number,
-            Expression::Implicit(string) => Integer::from_implicit(string),
+            Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
         let to = match Expression::from(statement.stop) {
             Expression::Integer(number) => number,
-            Expression::Implicit(string) => Integer::from_implicit(string),
+            Expression::Implicit(string, _span) => Integer::from_implicit(string),
             expression => unimplemented!("Range bounds should be integers, found {}", expression),
         };
 
@@ -178,7 +188,12 @@ impl<'ast> From<AssertStatement<'ast>> for Statement {
 
 impl<'ast> From<ExpressionStatement<'ast>> for Statement {
     fn from(statement: ExpressionStatement<'ast>) -> Self {
-        Statement::Expression(Expression::from(statement.expression), Span::from(statement.span))
+        let span = Span::from(statement.span);
+        let mut expression = Expression::from(statement.expression);
+
+        expression.set_span(&span);
+
+        Statement::Expression(expression, span)
     }
 }
 

@@ -1,13 +1,6 @@
-use crate::errors::{
-    BooleanError,
-    Error as FormattedError,
-    ExpressionError,
-    FieldError,
-    GroupError,
-    StatementError,
-    ValueError,
-};
-use leo_types::{IntegerError, Span};
+use crate::errors::{BooleanError, ExpressionError, FieldError, GroupError, StatementError, ValueError};
+use leo_types::{Error as FormattedError, IntegerError, Span};
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum FunctionError {
@@ -37,6 +30,19 @@ pub enum FunctionError {
 }
 
 impl FunctionError {
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            FunctionError::BooleanError(error) => error.set_path(path),
+            FunctionError::ExpressionError(error) => error.set_path(path),
+            FunctionError::Error(error) => error.set_path(path),
+            FunctionError::FieldError(error) => error.set_path(path),
+            FunctionError::GroupError(error) => error.set_path(path),
+            FunctionError::IntegerError(error) => error.set_path(path),
+            FunctionError::StatementError(error) => error.set_path(path),
+            FunctionError::ValueError(error) => error.set_path(path),
+        }
+    }
+
     fn new_from_span(message: String, span: Span) -> Self {
         FunctionError::Error(FormattedError::new_from_span(message, span))
     }

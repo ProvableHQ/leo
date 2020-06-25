@@ -1,6 +1,6 @@
 //! The import type for a Leo program.
 
-use crate::ImportSymbol;
+use crate::{ImportSymbol, Span};
 use leo_ast::imports::Import as AstImport;
 
 use std::fmt;
@@ -9,6 +9,7 @@ use std::fmt;
 pub struct Import {
     pub path_string: String,
     pub symbols: Vec<ImportSymbol>,
+    pub span: Span,
 }
 
 impl<'ast> From<AstImport<'ast>> for Import {
@@ -20,18 +21,12 @@ impl<'ast> From<AstImport<'ast>> for Import {
                 .into_iter()
                 .map(|symbol| ImportSymbol::from(symbol))
                 .collect(),
+            span: Span::from(import.span),
         }
     }
 }
 
 impl Import {
-    pub fn new(source: String, symbols: Vec<ImportSymbol>) -> Import {
-        Import {
-            path_string: source,
-            symbols,
-        }
-    }
-
     pub fn path_string_full(&self) -> String {
         format!("{}.leo", self.path_string)
     }

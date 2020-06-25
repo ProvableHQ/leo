@@ -20,6 +20,7 @@ use leo_compiler::{
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
+use std::path::PathBuf;
 
 pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
 pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
@@ -43,10 +44,18 @@ pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
     }
 }
 
-pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
-    let program_string = String::from_utf8_lossy(bytes);
+fn new_compiler() -> EdwardsTestCompiler {
+    let program_name = "test".to_string();
+    let path = PathBuf::from("/test/src/main.leo");
+    let mut compiler = EdwardsTestCompiler::new(program_name);
+    compiler.set_path(path);
 
-    let mut compiler = EdwardsTestCompiler::new();
+    compiler
+}
+
+pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+    let program_string = String::from_utf8_lossy(bytes);
 
     compiler.parse_program(&program_string)?;
 
@@ -54,9 +63,8 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 }
 
 pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
     let inputs_string = String::from_utf8_lossy(bytes);
-
-    let mut compiler = EdwardsTestCompiler::new();
 
     compiler.parse_inputs(&inputs_string)?;
 

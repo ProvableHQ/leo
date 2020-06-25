@@ -1,6 +1,7 @@
 //! A data type that represents members in the group formed by the set of affine points on a curve.
 
 use crate::errors::GroupError;
+use leo_types::Span;
 
 use snarkos_models::{
     curves::Field,
@@ -32,9 +33,9 @@ pub trait GroupType<F: Field>:
     + ToBitsGadget<F>
     + ToBytesGadget<F>
 {
-    fn constant(string: String) -> Result<Self, GroupError>;
+    fn constant(string: String, span: Span) -> Result<Self, GroupError>;
 
-    fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError>;
+    fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;
 
-    fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, GroupError>;
+    fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;
 }

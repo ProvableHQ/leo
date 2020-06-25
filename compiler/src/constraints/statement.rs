@@ -21,6 +21,7 @@ use leo_types::{
     Variable,
 };
 
+use crate::errors::ValueError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -74,12 +75,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name, span.clone())? {
                     ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(&vec![old[index].to_type()])?;
+                        new_value.resolve_type(&vec![old[index].to_type(span.clone())?], span.clone())?;
 
-                        let selected_value =
-                            ConstrainedValue::conditionally_select(cs, &condition, &new_value, &old[index]).map_err(
-                                |_| StatementError::select_fail(new_value.to_string(), old[index].to_string(), span),
-                            )?;
+                        let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
+                        let selected_value = ConstrainedValue::conditionally_select(
+                            cs.ns(|| name_unique),
+                            &condition,
+                            &new_value,
+                            &old[index],
+                        )
+                        .map_err(|_| {
+                            StatementError::select_fail(new_value.to_string(), old[index].to_string(), span)
+                        })?;
 
                         old[index] = selected_value;
                     }
@@ -88,11 +95,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             RangeOrExpression::Range(from, to) => {
                 let from_index = match from {
-                    Some(integer) => integer.to_usize(),
+                    Some(integer) => integer.to_usize(span.clone())?,
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(integer.to_usize()),
+                    Some(integer) => Some(integer.to_usize(span.clone())?),
                     None => None,
                 };
 
@@ -107,8 +114,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     }
                     _ => return Err(StatementError::array_assign_range(span)),
                 };
-                let selected_array = ConstrainedValue::conditionally_select(cs, &condition, &new_array, old_array)
-                    .map_err(|_| StatementError::select_fail(new_array.to_string(), old_array.to_string(), span))?;
+                let name_unique = format!("select {} {}:{}", new_array, span.line, span.start);
+                let selected_array =
+                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_array, old_array)
+                        .map_err(|_| StatementError::select_fail(new_array.to_string(), old_array.to_string(), span))?;
+
                 *old_array = selected_array;
             }
         }
@@ -144,12 +154,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             return Err(StatementError::immutable_circuit_function("static".into(), span));
                         }
                         _ => {
-                            new_value.resolve_type(&vec![object.1.to_type()])?;
+                            new_value.resolve_type(&vec![object.1.to_type(span.clone())?], span.clone())?;
 
-                            let selected_value =
-                                ConstrainedValue::conditionally_select(cs, &condition, &new_value, &object.1).map_err(
-                                    |_| StatementError::select_fail(new_value.to_string(), object.1.to_string(), span),
-                                )?;
+                            let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
+                            let selected_value = ConstrainedValue::conditionally_select(
+                                cs.ns(|| name_unique),
+                                &condition,
+                                &new_value,
+                                &object.1,
+                            )
+                            .map_err(|_| {
+                                StatementError::select_fail(new_value.to_string(), object.1.to_string(), span)
+                            })?;
 
                             object.1 = selected_value.to_owned();
                         }
@@ -185,9 +201,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Assignee::Identifier(_identifier) => {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
-                new_value.resolve_type(&vec![old_value.to_type()])?;
-                let selected_value = ConstrainedValue::conditionally_select(cs, &condition, &new_value, old_value)
-                    .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
+
+                new_value.resolve_type(&vec![old_value.to_type(span.clone())?], span.clone())?;
+
+                let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
+                let selected_value =
+                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
+                        .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
 
                 *old_value = selected_value;
 
@@ -235,7 +255,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         declare: Declare,
         variable: Variable,
         expression: Expression,
-        _span: Span,
+        span: Span,
     ) -> Result<(), StatementError> {
         let mut expected_types = vec![];
         if let Some(ref _type) = variable._type {
@@ -250,7 +270,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )?;
 
         if let Declare::Let = declare {
-            value.allocate_value(cs)?;
+            value.allocate_value(cs, span)?;
         }
 
         self.store_definition(function_scope, variable, value)
@@ -298,6 +318,27 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(())
     }
 
+    fn check_return_types(expected: &Vec<Type>, actual: &Vec<Type>, span: Span) -> Result<(), StatementError> {
+        expected
+            .iter()
+            .zip(actual.iter())
+            .map(|(type_1, type_2)| {
+                if type_1.ne(type_2) {
+                    // catch return Self type
+                    if type_1.is_self() && type_2.is_circuit() {
+                        Ok(())
+                    } else {
+                        Err(StatementError::arguments_type(type_1, type_2, span.clone()))
+                    }
+                } else {
+                    Ok(())
+                }
+            })
+            .collect::<Result<Vec<()>, StatementError>>()?;
+
+        Ok(())
+    }
+
     fn enforce_return_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -317,7 +358,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         let mut returns = vec![];
-        for (expression, ty) in expressions.into_iter().zip(return_types.into_iter()) {
+        for (expression, ty) in expressions.into_iter().zip(return_types.clone().into_iter()) {
             let expected_types = vec![ty.clone()];
             let result = self.enforce_expression_value(
                 cs,
@@ -325,10 +366,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope.clone(),
                 &expected_types,
                 expression,
+                span.clone(),
             )?;
 
             returns.push(result);
         }
+
+        let actual_types = returns
+            .iter()
+            .map(|value| value.to_type(span.clone()))
+            .collect::<Result<Vec<Type>, ValueError>>()?;
+
+        Self::check_return_types(&return_types, &actual_types, span)?;
 
         Ok(ConstrainedValue::Return(returns))
     }
@@ -390,12 +439,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(StatementError::conditional_boolean(value.to_string(), span)),
         };
 
-        // Determine nested branch selection
+        // Determine nested branch 1 selection
+        let outer_indicator_string = outer_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let inner_indicator_string = inner_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let branch_1_name = format!(
+            "branch indicator 1 {} && {}",
+            outer_indicator_string, inner_indicator_string
+        );
         let branch_1_indicator = Boolean::and(
-            &mut cs.ns(|| format!("statement branch 1 indicator {}", statement_string)),
+            &mut cs.ns(|| format!("branch 1 {} {}:{}", statement_string, span.line, span.start)),
             &outer_indicator,
             &inner_indicator,
-        )?;
+        )
+        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
 
         // Execute branch 1
         self.evaluate_branch(
@@ -407,13 +469,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return_types.clone(),
         )?;
 
-        // Execute branch 2
+        // Determine nested branch 2 selection
+        let inner_indicator = inner_indicator.not();
+        let inner_indicator_string = inner_indicator
+            .get_value()
+            .map(|b| b.to_string())
+            .unwrap_or(format!("[allocated]"));
+        let branch_2_name = format!(
+            "branch indicator 2 {} && {}",
+            outer_indicator_string, inner_indicator_string
+        );
         let branch_2_indicator = Boolean::and(
-            &mut cs.ns(|| format!("statement branch 2 indicator {}", statement_string)),
+            &mut cs.ns(|| format!("branch 2 {} {}:{}", statement_string, span.line, span.start)),
             &outer_indicator,
-            &inner_indicator.not(),
-        )?;
+            &inner_indicator,
+        )
+        .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
 
+        // Execute branch 2
         match statement.next {
             Some(next) => match next {
                 ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
@@ -434,7 +507,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     return_types,
                 ),
             },
-            None => Ok(None), // this is an if with no else, have to pass statements.conditional down to next statements somehow
+            None => Ok(None),
         }
     }
 
@@ -449,24 +522,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         stop: Integer,
         statements: Vec<Statement>,
         return_types: Vec<Type>,
-        _span: Span,
+        span: Span,
     ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
         let mut res = None;
+        let from = start.to_usize(span.clone())?;
+        let to = stop.to_usize(span.clone())?;
 
-        for i in start.to_usize()..stop.to_usize() {
+        for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let index_name = new_scope(function_scope.clone(), index.to_string());
+
             self.store(
                 index_name,
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
             );
 
-            cs.ns(|| format!("loop {} = {}", index.to_string(), i));
-
             // Evaluate statements and possibly return early
+            let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
             if let Some(early_return) = self.evaluate_branch(
-                cs,
+                &mut cs.ns(|| name_unique),
                 file_scope.clone(),
                 function_scope.clone(),
                 indicator,
@@ -490,7 +565,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
-        let result = left.conditional_enforce_equal(cs, right, &condition);
+        let name_unique = format!("assert {} == {} {}:{}", left, right, span.line, span.start);
+        let result = left.conditional_enforce_equal(cs.ns(|| name_unique), right, &condition);
 
         Ok(result.map_err(|_| StatementError::assertion_failed(left.to_string(), right.to_string(), span))?)
     }
@@ -556,7 +632,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             Statement::AssertEq(left, right, span) => {
                 let (resolved_left, resolved_right) =
-                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right)?;
+                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right, span.clone())?;
 
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
             }

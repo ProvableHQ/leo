@@ -21,7 +21,7 @@ LINE_END = { ";" ~ NEWLINE* }
 mutable = { "mut" }
 
 // Declared in common/range.rs
-range = { from_expression? ~ ".." ~ to_expression }
+range = { from_expression? ~ ".." ~ to_expression? }
 from_expression = { expression }
 to_expression = { expression }
 

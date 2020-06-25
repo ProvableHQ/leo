@@ -23,35 +23,19 @@ pub fn output_false(program: EdwardsTestCompiler) {
     output_expected_boolean(program, false)
 }
 
-fn fail_evaluate(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::BooleanError(BooleanError::CannotEvaluate(_string)),
-        ))) => {}
-        error => panic!("Expected evaluate error, got {}", error),
-    }
-}
-
-fn fail_enforce(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::BooleanError(BooleanError::CannotEnforce(_string)),
-        ))) => {}
-        error => panic!("Expected evaluate error, got {}", error),
-    }
-}
-
 fn fail_boolean(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SynthesisError(_))) => {}
-        error => panic!("Expected invalid boolean error, got {}", error),
+        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::Error(_))) => {}
+        error => panic!("Expected boolean error, got {}", error),
     }
 }
 
-fn fail_synthesis(program: EdwardsTestCompiler) {
+fn fail_boolean_statement(program: EdwardsTestCompiler) {
     match get_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::SynthesisError(_string))) => {}
-        error => panic!("Expected synthesis error, got {}", error),
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::BooleanError(BooleanError::Error(_)),
+        ))) => {}
+        _ => panic!("Expected boolean error, got {}"),
     }
 }
 
@@ -88,7 +72,7 @@ fn test_input_bool_none() {
 
     program.set_inputs(vec![None]);
 
-    fail_synthesis(program);
+    fail_boolean(program);
 }
 
 // Boolean not !
@@ -114,7 +98,7 @@ fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_evaluate(program);
+    fail_boolean_statement(program)
 }
 
 // Boolean or ||
@@ -148,7 +132,7 @@ fn test_true_or_u32() {
     let bytes = include_bytes!("true_or_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_enforce(program);
+    fail_boolean_statement(program);
 }
 
 // Boolean and &&
@@ -182,7 +166,7 @@ fn test_true_and_u32() {
     let bytes = include_bytes!("true_and_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_enforce(program);
+    fail_boolean_statement(program);
 }
 
 // All

@@ -2,7 +2,10 @@
 
 use crate::{
     constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
+    enforce_and,
+    enforce_or,
     errors::ExpressionError,
+    evaluate_not,
     new_scope,
     FieldType,
     GroupType,
@@ -51,7 +54,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
 
-        result_value.resolve_type(expected_types)?;
+        result_value.resolve_type(expected_types, unresolved_identifier.span.clone())?;
 
         Ok(result_value)
     }
@@ -66,20 +69,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.add(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.add(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2)?))
+                Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2)?))
+                Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.enforce_add_expression(cs, val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.enforce_add_expression(cs, val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -98,20 +101,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2)?))
+                Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2)?))
+                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.enforce_sub_expression(cs, val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.enforce_sub_expression(cs, val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -130,17 +133,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2)?))
+                Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.enforce_mul_expression(cs, val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.enforce_mul_expression(cs, val_1, val_2, span)
             }
             (val_1, val_2) => {
@@ -161,17 +164,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.div(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.div(cs, num_2, span)?))
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2)?))
+                Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.enforce_div_expression(cs, val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.enforce_div_expression(cs, val_1, val_2, span)
             }
             (val_1, val_2) => {
@@ -192,14 +195,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2)?))
+                Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.enforce_pow_expression(cs, val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.enforce_pow_expression(cs, val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -217,27 +220,27 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut expression_namespace = cs.ns(|| format!("evaluate {} == {}", left.to_string(), right.to_string()));
-        let result_bool = match (left, right) {
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} == {} {}:{}", left, right, span.line, span.start));
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                bool_1.evaluate_equal(expression_namespace, &bool_2)?
+                bool_1.evaluate_equal(unique_namespace, &bool_2)
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.evaluate_equal(expression_namespace, &num_2)?
+                num_1.evaluate_equal(unique_namespace, &num_2)
             }
             (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                fe_1.evaluate_equal(expression_namespace, &fe_2)?
+                fe_1.evaluate_equal(unique_namespace, &fe_2)
             }
             (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                ge_1.evaluate_equal(expression_namespace, &ge_2)?
+                ge_1.evaluate_equal(unique_namespace, &ge_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
-                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2, span);
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
+                return self.evaluate_eq_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
-                return self.evaluate_eq_expression(&mut expression_namespace, val_1, val_2, span);
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
+                return self.evaluate_eq_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, val_2) => {
                 return Err(ExpressionError::incompatible_types(
@@ -247,7 +250,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         };
 
-        Ok(ConstrainedValue::Boolean(result_bool))
+        let boolean =
+            constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate equals"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
     //TODO: unsafe for allocated values
@@ -267,11 +273,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.evaluate_ge_expression(val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.evaluate_ge_expression(val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -298,11 +304,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.evaluate_gt_expression(val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.evaluate_gt_expression(val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -329,11 +335,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.evaluate_le_expression(val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.evaluate_le_expression(val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -360,11 +366,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
-                let val_1 = ConstrainedValue::from_other(string, &val_2)?;
+                let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
                 self.evaluate_lt_expression(val_1, val_2, span)
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
-                let val_2 = ConstrainedValue::from_other(string, &val_1)?;
+                let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
                 self.evaluate_lt_expression(val_1, val_2, span)
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -397,25 +403,47 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
         };
 
-        let resolved_second =
-            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, second)?;
-        let resolved_third = self.enforce_expression_value(cs, file_scope, function_scope, expected_types, third)?;
+        let resolved_second = self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            second,
+            span.clone(),
+        )?;
+        let resolved_third =
+            self.enforce_expression_value(cs, file_scope, function_scope, expected_types, third, span.clone())?;
+
+        let unique_namespace = cs.ns(|| {
+            format!(
+                "select {} or {} {}:{}",
+                resolved_second, resolved_third, span.line, span.start
+            )
+        });
 
         match (resolved_second, resolved_third) {
             (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
-                let result = Boolean::conditionally_select(cs, &resolved_first, &bool_2, &bool_3)?;
+                let result = Boolean::conditionally_select(unique_namespace, &resolved_first, &bool_2, &bool_3)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Boolean(result))
             }
             (ConstrainedValue::Integer(integer_2), ConstrainedValue::Integer(integer_3)) => {
-                let result = Integer::conditionally_select(cs, &resolved_first, &integer_2, &integer_3)?;
+                let result = Integer::conditionally_select(unique_namespace, &resolved_first, &integer_2, &integer_3)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Integer(result))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = FieldType::conditionally_select(cs, &resolved_first, &fe_1, &fe_2)?;
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                let result = FieldType::conditionally_select(unique_namespace, &resolved_first, &field_1, &field_2)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Field(result))
             }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                let result = G::conditionally_select(cs, &resolved_first, &ge_1, &ge_2)?;
+            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+                let result = G::conditionally_select(unique_namespace, &resolved_first, &point_1, &point_2)
+                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
+
                 Ok(ConstrainedValue::Group(result))
             }
             (val_1, val_2) => Err(ExpressionError::incompatible_types(
@@ -507,8 +535,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
-        match self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), &expected_types, index)? {
-            ConstrainedValue::Integer(number) => Ok(number.to_usize()),
+        match self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            &expected_types,
+            index,
+            span.clone(),
+        )? {
+            ConstrainedValue::Integer(number) => Ok(number.to_usize(span.clone())?),
             value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }
     }
@@ -529,6 +564,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             function_scope.clone(),
             expected_types,
             *array,
+            span.clone(),
         )? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
@@ -537,11 +573,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match index {
             RangeOrExpression::Range(from, to) => {
                 let from_resolved = match from {
-                    Some(from_index) => from_index.to_usize(),
+                    Some(from_index) => from_index.to_usize(span.clone())?,
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {
-                    Some(to_index) => to_index.to_usize(),
+                    Some(to_index) => to_index.to_usize(span.clone())?,
                     None => array.len(), // Array slice ends at array length
                 };
                 Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
@@ -633,6 +669,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             function_scope.clone(),
             expected_types,
             *circuit_identifier.clone(),
+            span.clone(),
         )? {
             ConstrainedValue::CircuitExpression(name, members) => (name, members),
             value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
@@ -757,7 +794,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::undefined_function(value.to_string(), span)),
         };
 
-        match self.enforce_function(cs, outer_scope, function_scope, function_call, arguments) {
+        let name_unique = format!(
+            "function call {} {}:{}",
+            function_call.get_name(),
+            span.line,
+            span.start,
+        );
+
+        match self.enforce_function(
+            &mut cs.ns(|| name_unique),
+            outer_scope,
+            function_scope,
+            function_call,
+            arguments,
+        ) {
             Ok(ConstrainedValue::Return(return_values)) => {
                 if return_values.len() == 1 {
                     Ok(return_values[0].clone())
@@ -773,9 +823,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_number_implicit(
         expected_types: &Vec<Type>,
         value: String,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         if expected_types.len() == 1 {
-            return Ok(ConstrainedValue::from_type(value, &expected_types[0])?);
+            return Ok(ConstrainedValue::from_type(value, &expected_types[0], span)?);
         }
 
         Ok(ConstrainedValue::Unresolved(value))
@@ -791,11 +842,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         expected_types: &Vec<Type>,
         expression: Expression,
+        span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
 
         branch.get_inner_mut();
-        branch.resolve_type(expected_types)?;
+        branch.resolve_type(expected_types, span)?;
 
         Ok(branch)
     }
@@ -808,13 +860,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         expected_types: &Vec<Type>,
         left: Expression,
         right: Expression,
+        span: Span,
     ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
-        let mut resolved_left =
-            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, left)?;
-        let mut resolved_right =
-            self.enforce_expression_value(cs, file_scope.clone(), function_scope.clone(), expected_types, right)?;
+        let mut resolved_left = self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            left,
+            span.clone(),
+        )?;
+        let mut resolved_right = self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            right,
+            span.clone(),
+        )?;
 
-        resolved_left.resolve_types(&mut resolved_right, expected_types)?;
+        resolved_left.resolve_types(&mut resolved_right, expected_types, span)?;
 
         Ok((resolved_left, resolved_right))
     }
@@ -835,10 +900,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Values
             Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
-            Expression::Field(field) => Ok(ConstrainedValue::Field(FieldType::constant(field)?)),
-            Expression::Group(group_affine) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
+            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
+            Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
             Expression::Boolean(bool) => Ok(ConstrainedValue::Boolean(bool)),
-            Expression::Implicit(value) => Self::enforce_number_implicit(expected_types, value),
+            Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
 
             // Binary operations
             Expression::Add(left, right, span) => {
@@ -849,6 +914,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 self.enforce_add_expression(cs, resolved_left, resolved_right, span)
@@ -861,6 +927,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 self.enforce_sub_expression(cs, resolved_left, resolved_right, span)
@@ -873,6 +940,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 self.enforce_mul_expression(cs, resolved_left, resolved_right, span)
@@ -885,6 +953,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 self.enforce_div_expression(cs, resolved_left, resolved_right, span)
@@ -897,20 +966,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 self.enforce_pow_expression(cs, resolved_left, resolved_right, span)
             }
 
             // Boolean operations
-            Expression::Not(expression) => Ok(Self::evaluate_not(self.enforce_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_types,
-                *expression,
-            )?)?),
-            Expression::Or(left, right, _span) => {
+            Expression::Not(expression, span) => Ok(evaluate_not(
+                self.enforce_expression(cs, file_scope, function_scope, expected_types, *expression)?,
+                span,
+            )?),
+            Expression::Or(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
@@ -918,11 +985,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
-                Ok(self.enforce_or(cs, resolved_left, resolved_right)?)
+                Ok(enforce_or(cs, resolved_left, resolved_right, span)?)
             }
-            Expression::And(left, right, _span) => {
+            Expression::And(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope.clone(),
@@ -930,9 +998,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_types,
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
-                Ok(self.enforce_and(cs, resolved_left, resolved_right)?)
+                Ok(enforce_and(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Eq(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -942,6 +1011,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &vec![],
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 Ok(self.evaluate_eq_expression(cs, resolved_left, resolved_right, span)?)
@@ -954,6 +1024,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &vec![],
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 Ok(self.evaluate_ge_expression(resolved_left, resolved_right, span)?)
@@ -966,6 +1037,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &vec![],
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 Ok(self.evaluate_gt_expression(resolved_left, resolved_right, span)?)
@@ -978,6 +1050,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &vec![],
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 Ok(self.evaluate_le_expression(resolved_left, resolved_right, span)?)
@@ -990,6 +1063,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &vec![],
                     *left,
                     *right,
+                    span.clone(),
                 )?;
 
                 Ok(self.evaluate_lt_expression(resolved_left, resolved_right, span)?)

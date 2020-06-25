@@ -65,7 +65,5 @@ fn test_num_returns_fail() {
     let bytes = include_bytes!("num_returns_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    let error = get_error(program);
-
-    println!("{}", error);
+    let _ = get_error(program);
 }

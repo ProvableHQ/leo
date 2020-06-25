@@ -1,7 +1,8 @@
 use crate::{
+    boolean::output_true,
     get_error,
     get_output,
-    integers::u32::output_one,
+    integers::u32::{output_number, output_one},
     parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
@@ -108,4 +109,29 @@ fn test_multiple_returns_main() {
     let program = parse_program(bytes).unwrap();
 
     output_multiple(program);
+}
+
+// Repeated calls
+
+#[test]
+fn test_repeated_function_call() {
+    let bytes = include_bytes!("repeated.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_true(program);
+}
+#[test]
+fn test_iteration() {
+    let bytes = include_bytes!("iteration.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_number(program, 10);
+}
+
+#[test]
+fn test_repeated_iteration() {
+    let bytes = include_bytes!("repeated_iteration.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_number(program, 20u32);
 }

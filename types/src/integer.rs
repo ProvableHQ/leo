@@ -1,6 +1,6 @@
 //! Conversion of integer declarations to constraints in Leo.
 
-use crate::{errors::IntegerError, InputValue, IntegerType};
+use crate::{errors::IntegerError, InputValue, IntegerType, Span};
 use leo_ast::{types::IntegerType as AstIntegerType, values::NumberValue};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -58,6 +58,46 @@ impl<'ast> Integer {
 }
 
 impl Integer {
+    pub fn new_constant(integer_type: &IntegerType, string: String, span: Span) -> Result<Self, IntegerError> {
+        match integer_type {
+            IntegerType::U8 => {
+                let number = string
+                    .parse::<u8>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U8(UInt8::constant(number)))
+            }
+            IntegerType::U16 => {
+                let number = string
+                    .parse::<u16>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U16(UInt16::constant(number)))
+            }
+            IntegerType::U32 => {
+                let number = string
+                    .parse::<u32>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U32(UInt32::constant(number)))
+            }
+            IntegerType::U64 => {
+                let number = string
+                    .parse::<u64>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U64(UInt64::constant(number)))
+            }
+            IntegerType::U128 => {
+                let number = string
+                    .parse::<u128>()
+                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+
+                Ok(Integer::U128(UInt128::constant(number)))
+            }
+        }
+    }
+
     pub fn get_value(&self) -> Option<u128> {
         match self {
             Integer::U8(u8) => u8.value.map(|v| v as u128),
@@ -68,8 +108,9 @@ impl Integer {
         }
     }
 
-    pub fn to_usize(&self) -> usize {
-        self.get_value().unwrap() as usize
+    pub fn to_usize(&self, span: Span) -> Result<usize, IntegerError> {
+        let value = self.get_value().ok_or(IntegerError::invalid_index(span))?;
+        Ok(value as usize)
     }
 
     pub fn get_type(&self) -> IntegerType {
@@ -87,36 +128,61 @@ impl Integer {
         integer_type: IntegerType,
         name: String,
         option: Option<u128>,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
             IntegerType::U8 => {
+                let u8_name = format!("{}: u8", name);
+                let u8_name_unique = format!("`{}` {}:{}", u8_name, span.line, span.start);
                 let u8_option = option.map(|integer| integer as u8);
-                let u8_result = UInt8::alloc(cs.ns(|| name), || u8_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u8_result = UInt8::alloc(cs.ns(|| u8_name_unique), || {
+                    u8_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u8_name, span))?;
 
                 Integer::U8(u8_result)
             }
             IntegerType::U16 => {
+                let u16_name = format!("{}: u16", name);
+                let u16_name_unique = format!("`{}` {}:{}", u16_name, span.line, span.start);
                 let u16_option = option.map(|integer| integer as u16);
-                let u16_result = UInt16::alloc(cs.ns(|| name), || u16_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u16_result = UInt16::alloc(cs.ns(|| u16_name_unique), || {
+                    u16_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u16_name, span))?;
 
                 Integer::U16(u16_result)
             }
             IntegerType::U32 => {
+                let u32_name = format!("{}: u32", name);
+                let u32_name_unique = format!("`{}` {}:{}", u32_name, span.line, span.start);
                 let u32_option = option.map(|integer| integer as u32);
-                let u32_result = UInt32::alloc(cs.ns(|| name), || u32_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u32_result = UInt32::alloc(cs.ns(|| u32_name_unique), || {
+                    u32_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u32_name, span))?;
 
                 Integer::U32(u32_result)
             }
             IntegerType::U64 => {
+                let u64_name = format!("{}: u64", name);
+                let u64_name_unique = format!("`{}` {}:{}", u64_name, span.line, span.start);
                 let u64_option = option.map(|integer| integer as u64);
-                let u64_result = UInt64::alloc(cs.ns(|| name), || u64_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u64_result = UInt64::alloc(cs.ns(|| u64_name_unique), || {
+                    u64_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u64_name, span))?;
 
                 Integer::U64(u64_result)
             }
             IntegerType::U128 => {
+                let u128_name = format!("{}: u128", name);
+                let u128_name_unique = format!("`{}` {}:{}", u128_name, span.line, span.start);
                 let u128_option = option.map(|integer| integer as u128);
-                let u128_result =
-                    UInt128::alloc(cs.ns(|| name), || u128_option.ok_or(SynthesisError::AssignmentMissing))?;
+                let u128_result = UInt128::alloc(cs.ns(|| u128_name_unique), || {
+                    u128_option.ok_or(SynthesisError::AssignmentMissing)
+                })
+                .map_err(|_| IntegerError::missing_integer(u128_name, span))?;
 
                 Integer::U128(u128_result)
             }
@@ -128,6 +194,7 @@ impl Integer {
         integer_type: IntegerType,
         name: String,
         integer_value: Option<InputValue>,
+        span: Span,
     ) -> Result<Self, IntegerError> {
         // Check that the input value is the correct type
         let option = match integer_value {
@@ -135,57 +202,55 @@ impl Integer {
                 if let InputValue::Integer(_type_, number) = input {
                     Some(number)
                 } else {
-                    return Err(IntegerError::InvalidInteger(input.to_string()));
+                    return Err(IntegerError::invalid_integer(input.to_string(), span));
                 }
             }
             None => None,
         };
 
-        Self::allocate_type(cs, integer_type, name, option)
+        Self::allocate_type(cs, integer_type, name, option, span)
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
+        let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line, span.start);
+
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = UInt8::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &[left_u8, right_u8],
-                )?;
+                let result = UInt8::addmany(cs.ns(|| unique_namespace), &[left_u8, right_u8])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = UInt16::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &[left_u16, right_u16],
-                )?;
+                let result = UInt16::addmany(cs.ns(|| unique_namespace), &[left_u16, right_u16])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = UInt32::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &[left_u32, right_u32],
-                )?;
+                let result = UInt32::addmany(cs.ns(|| unique_namespace), &[left_u32, right_u32])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = UInt64::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &[left_u64, right_u64],
-                )?;
+                let result = UInt64::addmany(cs.ns(|| unique_namespace), &[left_u64, right_u64])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = UInt128::addmany(
-                    cs.ns(|| format!("enforce {} + {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &[left_u128, right_u128],
-                )?;
+                let result = UInt128::addmany(cs.ns(|| unique_namespace), &[left_u128, right_u128])
+                    .map_err(|e| IntegerError::cannot_enforce(format!("+"), e, span))?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} + {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("+"), span)),
         })
     }
 
@@ -193,44 +258,47 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
+        let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line, span.start);
+
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let result = left_u8
+                    .sub(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let result = left_u16
+                    .sub(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let result = left_u32
+                    .sub(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let result = left_u64
+                    .sub(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.sub(
-                    cs.ns(|| format!("enforce {} - {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let result = left_u128
+                    .sub(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("-"), e, span))?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} - {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("-"), span)),
         })
     }
 
@@ -238,44 +306,47 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
+        let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line, span.start);
+
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let result = left_u8
+                    .mul(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let result = left_u16
+                    .mul(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let result = left_u32
+                    .mul(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let result = left_u64
+                    .mul(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.mul(
-                    cs.ns(|| format!("enforce {} * {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let result = left_u128
+                    .mul(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("*"), e, span))?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} * {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("*"), span)),
         })
     }
 
@@ -283,44 +354,47 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
+        let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line, span.start);
+
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let result = left_u8
+                    .div(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let result = left_u16
+                    .div(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let result = left_u32
+                    .div(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let result = left_u64
+                    .div(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.div(
-                    cs.ns(|| format!("enforce {} ÷ {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let result = left_u128
+                    .div(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("÷"), e, span))?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ÷ {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("÷"), span)),
         })
     }
 
@@ -328,44 +402,47 @@ impl Integer {
         self,
         cs: &mut CS,
         other: Self,
+        span: Span,
     ) -> Result<Self, IntegerError> {
+        let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line, span.start);
+
         Ok(match (self, other) {
             (Integer::U8(left_u8), Integer::U8(right_u8)) => {
-                let result = left_u8.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u8.value.unwrap(), right_u8.value.unwrap())),
-                    &right_u8,
-                )?;
+                let result = left_u8
+                    .pow(cs.ns(|| unique_namespace), &right_u8)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
+
                 Integer::U8(result)
             }
             (Integer::U16(left_u16), Integer::U16(right_u16)) => {
-                let result = left_u16.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u16.value.unwrap(), right_u16.value.unwrap())),
-                    &right_u16,
-                )?;
+                let result = left_u16
+                    .pow(cs.ns(|| unique_namespace), &right_u16)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
+
                 Integer::U16(result)
             }
             (Integer::U32(left_u32), Integer::U32(right_u32)) => {
-                let result = left_u32.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u32.value.unwrap(), right_u32.value.unwrap())),
-                    &right_u32,
-                )?;
+                let result = left_u32
+                    .pow(cs.ns(|| unique_namespace), &right_u32)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
+
                 Integer::U32(result)
             }
             (Integer::U64(left_u64), Integer::U64(right_u64)) => {
-                let result = left_u64.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u64.value.unwrap(), right_u64.value.unwrap())),
-                    &right_u64,
-                )?;
+                let result = left_u64
+                    .pow(cs.ns(|| unique_namespace), &right_u64)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
+
                 Integer::U64(result)
             }
             (Integer::U128(left_u128), Integer::U128(right_u128)) => {
-                let result = left_u128.pow(
-                    cs.ns(|| format!("enforce {} ** {}", left_u128.value.unwrap(), right_u128.value.unwrap())),
-                    &right_u128,
-                )?;
+                let result = left_u128
+                    .pow(cs.ns(|| unique_namespace), &right_u128)
+                    .map_err(|e| IntegerError::cannot_enforce(format!("**"), e, span))?;
+
                 Integer::U128(result)
             }
-            (left, right) => return Err(IntegerError::CannotEnforce(format!("{} ** {}", left, right))),
+            (_, _) => return Err(IntegerError::cannot_evaluate(format!("**"), span)),
         })
     }
 }
@@ -450,11 +527,11 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
 impl fmt::Display for Integer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let option = match self {
-            Integer::U8(u8) => u8.value.map(|num| num as usize),
-            Integer::U16(u16) => u16.value.map(|num| num as usize),
-            Integer::U32(u32) => u32.value.map(|num| num as usize),
-            Integer::U64(u64) => u64.value.map(|num| num as usize),
-            Integer::U128(u128) => u128.value.map(|num| num as usize),
+            Integer::U8(u8) => u8.value.map(|num| num as u128),
+            Integer::U16(u16) => u16.value.map(|num| num as u128),
+            Integer::U32(u32) => u32.value.map(|num| num as u128),
+            Integer::U64(u64) => u64.value.map(|num| num as u128),
+            Integer::U128(u128) => u128.value.map(|num| num as u128),
         };
         match option {
             Some(number) => write!(f, "{}{}", number, self.get_type()),

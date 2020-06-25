@@ -15,12 +15,16 @@ pub struct Span {
 impl<'ast> From<AstSpan<'ast>> for Span {
     fn from(span: AstSpan<'ast>) -> Self {
         let mut text = " ".to_string();
+        let line_col = span.start_pos().line_col();
+        let end = span.end_pos().line_col().1;
+
         text.push_str(span.start_pos().line_of().trim_end());
+
         Self {
             text,
-            line: span.start_pos().line_col().0,
-            start: find_line_start(&span.start_pos()),
-            end: find_line_end(&span.end_pos()),
+            line: line_col.0,
+            start: line_col.1,
+            end,
         }
     }
 }

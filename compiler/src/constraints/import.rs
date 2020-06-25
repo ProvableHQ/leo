@@ -7,20 +7,12 @@ use crate::{
 use leo_ast::LeoParser;
 use leo_types::{Import, Program};
 
-use snarkos_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkos_models::curves::{Field, PrimeField};
 use std::env::current_dir;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn enforce_import<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        scope: String,
-        import: Import,
-    ) -> Result<(), ImportError> {
-        let path = current_dir().map_err(|error| ImportError::DirectoryError(error))?;
+    pub fn enforce_import(&mut self, scope: String, import: Import) -> Result<(), ImportError> {
+        let path = current_dir().map_err(|error| ImportError::directory_error(error, import.span.clone()))?;
 
         // Sanitize the package path to the imports directory
         let mut package_path = path.clone();
@@ -48,9 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // * -> import all imports, circuits, functions in the current scope
         if import.is_star() {
             // recursively evaluate program statements
-            self.resolve_definitions(cs, program).unwrap();
-
-            Ok(())
+            self.resolve_definitions(program)
         } else {
             let program_name = program.name.clone();
 
@@ -75,11 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                         match matched_function {
                             Some((_function_name, function)) => ConstrainedValue::Function(None, function),
-                            None => unimplemented!(
-                                "cannot find imported symbol {} in imported file {}",
-                                symbol,
-                                program_name.clone()
-                            ),
+                            None => return Err(ImportError::unknown_symbol(symbol, program_name, file_path)),
                         }
                     }
                 };
@@ -96,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             program
                 .imports
                 .into_iter()
-                .map(|nested_import| self.enforce_import(cs, program_name.clone(), nested_import))
+                .map(|nested_import| self.enforce_import(program_name.clone(), nested_import))
                 .collect::<Result<Vec<_>, ImportError>>()?;
 
             Ok(())
