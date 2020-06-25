@@ -123,12 +123,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, CompilerError> {
         let program: Program = bincode::deserialize(bytes)?;
+        let mut program_inputs = Inputs::new();
+
+        program_inputs.set_inputs_size(program.expected_inputs.len());
 
         Ok(Self {
             package_name: program.name.clone(),
             main_file_path: PathBuf::new(),
             program,
-            program_inputs: Inputs::new(),
+            program_inputs,
             output: None,
             _engine: PhantomData,
         })
