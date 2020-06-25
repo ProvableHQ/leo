@@ -5,6 +5,9 @@ pub enum CLIError {
     #[error("{}", _0)]
     BuildError(BuildError),
 
+    #[error("{}", _0)]
+    BytesFileError(BytesFileError),
+
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -52,6 +55,13 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     VerificationKeyFileError(VerificationKeyFileError),
+}
+
+impl From<BytesFileError> for CLIError {
+    fn from(error: BytesFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::BytesFileError(error)
+    }
 }
 
 impl From<BuildError> for CLIError {

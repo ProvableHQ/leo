@@ -511,6 +511,7 @@ dependencies = [
 name = "leo-compiler"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "hex",
  "leo-ast",
  "leo-inputs",

@@ -14,6 +14,7 @@ snarkos-errors = { path = "../../snarkOS/errors", version = "0.8.0", default-fea
 snarkos-gadgets = { path = "../../snarkOS/gadgets", version = "0.8.0", default-features = false }
 snarkos-models =  { path = "../../snarkOS/models", version = "0.8.0", default-features = false }
 
+bincode = { version = "1.0" }
 hex = { version = "0.4.2" }
 log = { version = "0.4" }
 pest = { version = "2.0" }
