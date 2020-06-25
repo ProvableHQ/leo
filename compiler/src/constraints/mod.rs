@@ -3,6 +3,9 @@
 pub(crate) mod boolean;
 pub(crate) use boolean::*;
 
+pub(crate) mod comparator;
+pub(crate) use comparator::*;
+
 pub mod function;
 pub use function::*;
 

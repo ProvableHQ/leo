@@ -1,5 +1,5 @@
 //! Conversion of integer declarations to constraints in Leo.
-use crate::errors::IntegerError;
+use crate::{errors::IntegerError, ComparatorGadget, EvaluateLtGadget};
 use leo_types::{InputValue, IntegerType, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -86,6 +86,16 @@ impl Integer {
     pub fn to_usize(&self, span: Span) -> Result<usize, IntegerError> {
         let value = self.get_value().ok_or(IntegerError::invalid_index(span))?;
         Ok(value as usize)
+    }
+
+    pub fn to_bits_le(&self) -> Vec<Boolean> {
+        match self {
+            Integer::U8(num) => num.bits.clone(),
+            Integer::U16(num) => num.bits.clone(),
+            Integer::U32(num) => num.bits.clone(),
+            Integer::U64(num) => num.bits.clone(),
+            Integer::U128(num) => num.bits.clone(),
+        }
     }
 
     pub fn get_type(&self) -> IntegerType {
@@ -434,6 +444,34 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
         }
     }
 }
+
+impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
+    fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        if self.to_bits_le().len() != other.to_bits_le().len() {
+            return Err(SynthesisError::Unsatisfiable);
+        }
+
+        for (i, (self_bit, other_bit)) in self
+            .to_bits_le()
+            .iter()
+            .rev()
+            .zip(other.to_bits_le().iter().rev())
+            .enumerate()
+        {
+            let is_less = Boolean::and(&mut cs, self_bit, &other_bit.not())?;
+
+            if is_less.eq(&Boolean::constant(true)) {
+                return Ok(is_less);
+            } else if i == self.to_bits_le().len() - 1 {
+                return Ok(is_less);
+            }
+        }
+
+        Err(SynthesisError::Unsatisfiable)
+    }
+}
+
+impl<F: Field + PrimeField> ComparatorGadget<F> for Integer {}
 
 impl<F: Field + PrimeField> EqGadget<F> for Integer {}
 
