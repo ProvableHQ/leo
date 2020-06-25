@@ -1,9 +1,10 @@
 use crate::{CircuitMember, Identifier};
 use leo_ast::circuits::Circuit as AstCircuit;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Circuit {
     pub circuit_name: Identifier,
     pub members: Vec<CircuitMember>,

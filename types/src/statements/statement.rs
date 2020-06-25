@@ -13,10 +13,11 @@ use leo_ast::{
     },
 };
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Statement {
     Return(Vec<Expression>, Span),
     Definition(Declare, Variable, Expression, Span),

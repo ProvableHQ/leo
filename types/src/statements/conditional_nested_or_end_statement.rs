@@ -1,9 +1,10 @@
 use crate::{ConditionalStatement, Statement};
 use leo_ast::statements::ConditionalNestedOrEndStatement as AstConditionalNestedOrEndStatement;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConditionalNestedOrEndStatement {
     Nested(Box<ConditionalStatement>),
     End(Vec<Statement>),

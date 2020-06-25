@@ -1,8 +1,9 @@
 use leo_ast::common::Declare as AstDeclare;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Declare {
     Const,
     Let,

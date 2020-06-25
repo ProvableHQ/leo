@@ -1,9 +1,10 @@
 use crate::{FunctionInput, Identifier, Span, Statement, Type};
 use leo_ast::functions::Function as AstFunction;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Function {
     pub function_name: Identifier,
     pub inputs: Vec<FunctionInput>,
