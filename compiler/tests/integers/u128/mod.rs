@@ -7,9 +7,9 @@ use crate::{
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
-use leo_compiler::ConstrainedValue;
+use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U128Type};
-use leo_types::{InputValue, Integer};
+use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{

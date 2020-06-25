@@ -1,5 +1,5 @@
-use crate::errors::{BooleanError, FieldError, GroupError};
-use leo_types::{Error as FormattedError, IntegerError, Span};
+use crate::errors::{BooleanError, FieldError, GroupError, IntegerError};
+use leo_types::{Error as FormattedError, Span};
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]

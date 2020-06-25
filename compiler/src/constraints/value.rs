@@ -8,8 +8,9 @@ use crate::{
     new_bool_constant,
     FieldType,
     GroupType,
+    Integer,
 };
-use leo_types::{Circuit, Function, Identifier, Integer, Span, Type};
+use leo_types::{Circuit, Function, Identifier, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

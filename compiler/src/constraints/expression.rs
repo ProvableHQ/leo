@@ -10,13 +10,13 @@ use crate::{
     new_scope,
     FieldType,
     GroupType,
+    Integer,
 };
 use leo_types::{
     CircuitFieldDefinition,
     CircuitMember,
     Expression,
     Identifier,
-    Integer,
     IntegerType,
     RangeOrExpression,
     Span,

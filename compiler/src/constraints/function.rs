@@ -8,8 +8,9 @@ use crate::{
     field_from_input,
     group_from_input,
     GroupType,
+    Integer,
 };
-use leo_types::{Expression, Function, InputValue, Integer, Program, Span, Type};
+use leo_types::{Expression, Function, InputValue, Program, Span, Type};
 
 use crate::errors::StatementError;
 use snarkos_models::{

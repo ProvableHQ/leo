@@ -554,7 +554,6 @@ dependencies = [
  "serde",
  "snarkos-errors",
  "snarkos-models",
- "thiserror",
 ]
 
 [[package]]

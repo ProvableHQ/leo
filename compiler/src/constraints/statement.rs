@@ -5,6 +5,7 @@ use crate::{
     errors::StatementError,
     new_scope,
     GroupType,
+    Integer,
 };
 use leo_types::{
     Assignee,
@@ -13,7 +14,6 @@ use leo_types::{
     Declare,
     Expression,
     Identifier,
-    Integer,
     RangeOrExpression,
     Span,
     Statement,

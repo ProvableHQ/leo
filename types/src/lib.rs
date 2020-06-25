@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate thiserror;
-
 pub mod circuits;
 pub use circuits::*;
 
@@ -21,9 +18,6 @@ pub use imports::*;
 
 pub mod inputs;
 pub use inputs::*;
-
-pub mod integer;
-pub use integer::*;
 
 pub mod program;
 pub use program::*;

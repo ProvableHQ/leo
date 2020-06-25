@@ -12,6 +12,9 @@ pub use expression::*;
 pub mod import;
 pub use import::*;
 
+pub mod integer;
+pub use integer::*;
+
 pub mod field;
 pub use field::*;
 
