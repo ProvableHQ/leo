@@ -127,3 +127,20 @@ fn test_nested() {
     program_false_false_0.set_inputs(vec![Some(InputValue::Boolean(false)), Some(InputValue::Boolean(false))]);
     output_number(program_false_false_0, 0u32);
 }
+
+#[test]
+fn test_multiple_returns() {
+    let bytes = include_bytes!("multiple_returns.leo");
+    let mut program_true_1 = parse_program(bytes).unwrap();
+    let mut program_false_0 = program_true_1.clone();
+
+    // Check that an input value of true returns 1 and satisfies the constraint system
+
+    program_true_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    output_number(program_true_1, 1u32);
+
+    // Check that an input value of false returns 0 and satisfies the constraint system
+
+    program_false_0.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    output_number(program_false_0, 0u32);
+}

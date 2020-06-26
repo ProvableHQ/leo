@@ -319,15 +319,58 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 let mut array = vec![];
+
                 for (i, (first, second)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
                     array.push(Self::conditionally_select(
-                        cs.ns(|| format!("array[{}]", i,)),
+                        cs.ns(|| format!("array[{}]", i)),
                         cond,
                         first,
                         second,
                     )?);
                 }
+
                 ConstrainedValue::Array(array)
+            }
+            (ConstrainedValue::Function(identifier_1, function_1), ConstrainedValue::Function(_, _)) => {
+                // This is a no-op. functions cannot hold circuit values
+                // However, we must return a result here
+                ConstrainedValue::Function(identifier_1.clone(), function_1.clone())
+            }
+            (
+                ConstrainedValue::CircuitExpression(identifier, members_1),
+                ConstrainedValue::CircuitExpression(_identifier, members_2),
+            ) => {
+                let mut members = vec![];
+
+                for (i, (first, second)) in members_1.into_iter().zip(members_2.into_iter()).enumerate() {
+                    members.push(ConstrainedCircuitMember::conditionally_select(
+                        cs.ns(|| format!("circuit member[{}]", i)),
+                        cond,
+                        first,
+                        second,
+                    )?);
+                }
+
+                ConstrainedValue::CircuitExpression(identifier.clone(), members)
+            }
+            (ConstrainedValue::Return(returns_1), ConstrainedValue::Return(returns_2)) => {
+                let mut returns = vec![];
+
+                for (i, (first, second)) in returns_1.into_iter().zip(returns_2.into_iter()).enumerate() {
+                    returns.push(Self::conditionally_select(
+                        cs.ns(|| format!("return[{}]", i)),
+                        cond,
+                        first,
+                        second,
+                    )?);
+                }
+
+                ConstrainedValue::Return(returns)
+            }
+            (ConstrainedValue::Static(first), ConstrainedValue::Static(second)) => {
+                let value = Self::conditionally_select(cs, cond, first, second)?;
+
+                ConstrainedValue::Static(Box::new(value))
             }
             (ConstrainedValue::Mutable(first), _) => Self::conditionally_select(cs, cond, first, second)?,
             (_, ConstrainedValue::Mutable(second)) => Self::conditionally_select(cs, cond, first, second)?,
@@ -337,5 +380,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
     fn cost() -> usize {
         unimplemented!() //lower bound 1, upper bound 128 or length of static array
+    }
+}
+
+impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedCircuitMember<F, G> {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        // identifiers will be the same
+        let value = ConstrainedValue::conditionally_select(cs, cond, &first.1, &second.1)?;
+
+        Ok(ConstrainedCircuitMember(first.0.clone(), value))
+    }
+
+    fn cost() -> usize {
+        unimplemented!()
     }
 }

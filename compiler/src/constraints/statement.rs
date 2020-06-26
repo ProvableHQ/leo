@@ -390,24 +390,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_types: Vec<Type>,
-    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
-        let mut res = None;
-        // Evaluate statements and possibly return early
+    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+        let mut results = vec![];
+        // Evaluate statements. Only allow a single return argument to be returned.
         for statement in statements.iter() {
-            if let Some(early_return) = self.enforce_statement(
+            let mut value = self.enforce_statement(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
                 indicator.clone(),
                 statement.clone(),
                 return_types.clone(),
-            )? {
-                res = Some(early_return);
-                break;
-            }
+            )?;
+
+            results.append(&mut value);
         }
 
-        Ok(res)
+        Ok(results)
     }
 
     /// Enforces a statements.conditional statement with one or more branches.
@@ -423,7 +422,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: ConditionalStatement,
         return_types: Vec<Type>,
         span: Span,
-    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
+    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let statement_string = statement.to_string();
         let outer_indicator = indicator.unwrap_or(Boolean::Constant(true));
 
@@ -459,8 +458,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )
         .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
 
+        let mut results = vec![];
+
         // Execute branch 1
-        self.evaluate_branch(
+        let mut branch_1_result = self.evaluate_branch(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -468,6 +469,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             statement.statements,
             return_types.clone(),
         )?;
+
+        results.append(&mut branch_1_result);
 
         // Determine nested branch 2 selection
         let inner_indicator = inner_indicator.not();
@@ -487,7 +490,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
 
         // Execute branch 2
-        match statement.next {
+        let mut branch_2_result = match statement.next {
             Some(next) => match next {
                 ConditionalNestedOrEndStatement::Nested(nested) => self.enforce_conditional_statement(
                     cs,
@@ -497,7 +500,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     *nested,
                     return_types,
                     span,
-                ),
+                )?,
                 ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
                     cs,
                     file_scope,
@@ -505,10 +508,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     Some(branch_2_indicator),
                     statements,
                     return_types,
-                ),
+                )?,
             },
-            None => Ok(None),
-        }
+            None => vec![],
+        };
+
+        results.append(&mut branch_2_result);
+
+        Ok(results)
     }
 
     fn enforce_for_statement<CS: ConstraintSystem<F>>(
@@ -523,8 +530,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statements: Vec<Statement>,
         return_types: Vec<Type>,
         span: Span,
-    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
-        let mut res = None;
+    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+        let mut results = vec![];
         let from = start.to_usize(span.clone())?;
         let to = stop.to_usize(span.clone())?;
 
@@ -540,20 +547,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Evaluate statements and possibly return early
             let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
-            if let Some(early_return) = self.evaluate_branch(
+            let mut result = self.evaluate_branch(
                 &mut cs.ns(|| name_unique),
                 file_scope.clone(),
                 function_scope.clone(),
                 indicator,
                 statements.clone(),
                 return_types.clone(),
-            )? {
-                res = Some(early_return);
-                break;
-            }
+            )?;
+
+            results.append(&mut result);
         }
 
-        Ok(res)
+        Ok(results)
     }
 
     fn enforce_assert_eq_statement<CS: ConstraintSystem<F>>(
@@ -571,6 +577,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(result.map_err(|_| StatementError::assertion_failed(left.to_string(), right.to_string(), span))?)
     }
 
+    /// Enforce a program statement.
+    /// Returns a Vector of (indicator, value) tuples.
+    /// Each evaluated statement may execute of one or more statements that may return early.
+    /// To indicate which of these return values to take we conditionally select that value with the indicator bit.
     pub(crate) fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -579,18 +589,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statement: Statement,
         return_types: Vec<Type>,
-    ) -> Result<Option<ConstrainedValue<F, G>>, StatementError> {
-        let mut res = None;
+    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+        let mut results = vec![];
         match statement {
             Statement::Return(expressions, span) => {
-                res = Some(self.enforce_return_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expressions,
-                    return_types,
-                    span,
-                )?);
+                let return_value = (
+                    indicator,
+                    self.enforce_return_statement(cs, file_scope, function_scope, expressions, return_types, span)?,
+                );
+
+                results.push(return_value);
             }
             Statement::Definition(declare, variable, expression, span) => {
                 self.enforce_definition_statement(cs, file_scope, function_scope, declare, variable, expression, span)?;
@@ -602,7 +610,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function, span)?;
             }
             Statement::Conditional(statement, span) => {
-                if let Some(early_return) = self.enforce_conditional_statement(
+                let mut result = self.enforce_conditional_statement(
                     cs,
                     file_scope,
                     function_scope,
@@ -610,12 +618,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     statement,
                     return_types,
                     span,
-                )? {
-                    res = Some(early_return)
-                }
+                )?;
+
+                results.append(&mut result);
             }
             Statement::For(index, start, stop, statements, span) => {
-                if let Some(early_return) = self.enforce_for_statement(
+                let mut result = self.enforce_for_statement(
                     cs,
                     file_scope,
                     function_scope,
@@ -626,9 +634,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     statements,
                     return_types,
                     span,
-                )? {
-                    res = Some(early_return)
-                }
+                )?;
+
+                results.append(&mut result);
             }
             Statement::AssertEq(left, right, span) => {
                 let (resolved_left, resolved_right) =
@@ -637,17 +645,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
             }
             Statement::Expression(expression, span) => {
-                match self.enforce_expression(cs, file_scope, function_scope, &vec![], expression.clone())? {
+                let expression_string = expression.to_string();
+                let value = self.enforce_expression(cs, file_scope, function_scope, &vec![], expression)?;
+
+                // handle empty return value cases
+                match &value {
                     ConstrainedValue::Return(values) => {
                         if !values.is_empty() {
-                            return Err(StatementError::unassigned(expression.to_string(), span));
+                            return Err(StatementError::unassigned(expression_string, span));
                         }
                     }
-                    _ => return Err(StatementError::unassigned(expression.to_string(), span)),
+                    _ => return Err(StatementError::unassigned(expression_string, span)),
                 }
+
+                let result = (indicator, value);
+
+                results.push(result);
             }
         };
 
-        Ok(res)
+        Ok(results)
     }
 }
