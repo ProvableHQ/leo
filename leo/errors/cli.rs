@@ -1,15 +1,12 @@
 use crate::errors::*;
 
-use walkdir::Error as WalkDirError;
-use zip::result::ZipError;
-
 #[derive(Debug, Error)]
 pub enum CLIError {
     #[error("{}", _0)]
     BuildError(BuildError),
 
     #[error("{}", _0)]
-    BytesFileError(BytesFileError),
+    BytesFileError(ZipFileError),
 
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
@@ -58,16 +55,10 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     VerificationKeyFileError(VerificationKeyFileError),
-
-    #[error("{}", _0)]
-    WalkDirError(WalkDirError),
-
-    #[error("{}", _0)]
-    ZipError(ZipError),
 }
 
-impl From<BytesFileError> for CLIError {
-    fn from(error: BytesFileError) -> Self {
+impl From<ZipFileError> for CLIError {
+    fn from(error: ZipFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::BytesFileError(error)
     }
@@ -182,20 +173,6 @@ impl From<VerificationKeyFileError> for CLIError {
     fn from(error: VerificationKeyFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::VerificationKeyFileError(error)
-    }
-}
-
-impl From<WalkDirError> for CLIError {
-    fn from(error: WalkDirError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::WalkDirError(error)
-    }
-}
-
-impl From<ZipError> for CLIError {
-    fn from(error: ZipError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::ZipError(error)
     }
 }
 

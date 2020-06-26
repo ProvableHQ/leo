@@ -1,5 +1,5 @@
-pub mod bytes;
-pub use self::bytes::*;
+pub mod zip;
+pub use self::zip::*;
 
 pub mod checksum;
 pub use self::checksum::*;

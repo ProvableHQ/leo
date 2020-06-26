@@ -10,7 +10,6 @@ use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 use snarkos_algorithms::snark::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use crate::files::BytesFile;
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
@@ -60,30 +59,8 @@ impl CLI for BuildCommand {
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILE_NAME);
 
-        // Check if the program bytes exist
-        let existing_bytes = BytesFile::new(&package_name).exists_at(&path);
-
-        let program = if existing_bytes {
-            // Load the program ast from stored bytes
-            let bytes = BytesFile::new(&package_name).read_from(&path)?;
-
-            let mut program = Compiler::<Fq, EdwardsGroupType>::from_bytes(bytes.as_slice())?;
-
-            program.set_path(main_file_path.clone());
-
-            program
-        } else {
-            // Load the program at `main_file_path`
-            let program =
-                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
-
-            // Store the program ast as bytes
-            let bytes = program.to_bytes()?;
-
-            BytesFile::new(&package_name).write_to(&path, bytes)?;
-
-            program
-        };
+        // Load the program at `main_file_path`
+        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
 
         // Compute the current program checksum
         let program_checksum = program.checksum()?;

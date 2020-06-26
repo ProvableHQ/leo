@@ -1,7 +1,9 @@
 use std::{io, path::PathBuf};
+use walkdir::Error as WalkDirError;
+use zip::result::ZipError;
 
 #[derive(Debug, Error)]
-pub enum BytesFileError {
+pub enum ZipFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -13,10 +15,16 @@ pub enum BytesFileError {
 
     #[error("writing: {}", _0)]
     Writing(io::Error),
+
+    #[error("{}", _0)]
+    WalkDirError(#[from] WalkDirError),
+
+    #[error("{}", _0)]
+    ZipError(#[from] ZipError),
 }
 
-impl From<std::io::Error> for BytesFileError {
+impl From<std::io::Error> for ZipFileError {
     fn from(error: std::io::Error) -> Self {
-        BytesFileError::Crate("std::io", format!("{}", error))
+        ZipFileError::Crate("std::io", format!("{}", error))
     }
 }
