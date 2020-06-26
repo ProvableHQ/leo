@@ -305,6 +305,7 @@ star = {"*"}
 
 // Declared in imports/import_symbol.rs
 import_symbol = { identifier ~ ("as" ~ identifier)? }
+// import_tuple = _{}
 
 /// Utilities
 
