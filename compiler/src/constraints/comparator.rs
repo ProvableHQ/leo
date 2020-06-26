@@ -14,7 +14,7 @@ where
     Self: EvaluateLtGadget<F>,
 {
     fn greater_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        other.less_than(cs, other)
+        other.less_than(cs, self)
     }
 
     fn less_than_or_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {

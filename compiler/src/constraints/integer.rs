@@ -458,9 +458,17 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
             .zip(other.to_bits_le().iter().rev())
             .enumerate()
         {
-            let is_less = Boolean::and(&mut cs, self_bit, &other_bit.not())?;
+            // is_greater = a & !b
+            // only true when a > b
+            let is_greater = Boolean::and(cs.ns(|| format!("a and not b [{}]", i)), self_bit, &other_bit.not())?;
 
-            if is_less.eq(&Boolean::constant(true)) {
+            // is_less = !a & b
+            // only true when a < b
+            let is_less = Boolean::and(cs.ns(|| format!("not a and b [{}]", i)), &self_bit.not(), other_bit)?;
+
+            if is_greater.get_value().unwrap() {
+                return Ok(is_greater.not());
+            } else if is_less.get_value().unwrap() {
                 return Ok(is_less);
             } else if i == self.to_bits_le().len() - 1 {
                 return Ok(is_less);

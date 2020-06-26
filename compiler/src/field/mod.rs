@@ -224,9 +224,9 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for FieldType<F> {
                 })
             }
             (FieldType::Allocated(first), FieldType::Allocated(second)) => {
-                let bool_option = first.value.and_then(|a| second.value.map(|b| a.eq(&b)));
+                let bool_option = first.value.and_then(|a| second.value.map(|b| a.lt(&b)));
 
-                Boolean::alloc(&mut cs.ns(|| "evaluate_equal"), || {
+                Boolean::alloc(&mut cs.ns(|| "less than"), || {
                     bool_option.ok_or(SynthesisError::AssignmentMissing)
                 })
             }
