@@ -10,7 +10,7 @@ env:
 jobs:
   style:
     name: Check Style
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
 
     - name: Checkout
@@ -18,6 +18,7 @@ jobs:
 
     - name: Fetch snarkOS
       run: |
+        mkdir ~/.ssh
         echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         eval $(ssh-agent -s)
@@ -41,7 +42,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -Dwarnings
     strategy:
@@ -55,6 +56,7 @@ jobs:
 
       - name: Fetch snarkOS
         run: |
+          mkdir ~/.ssh
           echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval $(ssh-agent -s)
@@ -103,13 +105,14 @@ jobs:
 
 #  check_no_std:
 #    name: Check no_std
-#    runs-on: self-hosted
+#    runs-on: ubuntu-latest
 #    steps:
 #      - name: Checkout
 #        uses: actions/checkout@v2
 #
 #      - name: Fetch snarkOS
 #        run: |
+#          mkdir ~/.ssh
 #          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
 #          chmod 600 ~/.ssh/id_rsa
 #          eval $(ssh-agent -s)
