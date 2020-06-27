@@ -10,6 +10,8 @@ use leo_types::{ImportSymbol, Program, Span};
 use snarkos_models::curves::{Field, PrimeField};
 use std::fs::DirEntry;
 
+static LIBRARY_FILE: &str = "src/lib.leo";
+
 fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportError> {
     // make sure the given entry is file
     let file_type = entry
@@ -20,14 +22,18 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
         .into_string()
         .map_err(|_| ImportError::convert_os_string(span.clone()))?;
 
+    let mut file_path = entry.path();
     if file_type.is_dir() {
-        return Err(ImportError::expected_file(file_name, span.clone()));
+        file_path.push(LIBRARY_FILE);
+
+        if !file_path.exists() {
+            return Err(ImportError::expected_file(file_name, span.clone()));
+        }
     }
 
     // Build the abstract syntax tree
-    let file_path = &entry.path();
-    let input_file = &LeoParser::load_file(file_path)?;
-    let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
+    let input_file = &LeoParser::load_file(&file_path)?;
+    let syntax_tree = LeoParser::parse_file(&file_path, input_file)?;
 
     // Generate aleo program from file
     Ok(Program::from(syntax_tree, file_name.clone()))

@@ -6,7 +6,7 @@ use std::{fs, fs::DirEntry, path::PathBuf};
 
 static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";
-// pub(crate) static IMPORTS_DIRECTORY_NAME: &str = "imports/";
+static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_package_access(
@@ -54,26 +54,33 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         });
 
         // search for package name in imports directory
-        // let mut source_directory = path.clone();
-        // source_directory.push(IMPORTS_DIRECTORY_NAME);
-        //
-        // let entries = fs::read_dir(source_directory)
-        //     .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?
-        //     .into_iter()
-        //     .collect::<Result<Vec<_>, std::io::Error>>()
-        //     .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?;
-        //
-        // let matched_import_entry = entries.into_iter().find(|entry| {
-        //     entry.file_name().eq(&package_name.name)
-        // });
+        let mut imports_directory = path.clone();
+        imports_directory.push(IMPORTS_DIRECTORY_NAME);
 
-        // todo: return error if package name is present in both directories
+        if imports_directory.exists() {
+            let entries = fs::read_dir(imports_directory)
+                .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?
+                .into_iter()
+                .collect::<Result<Vec<_>, std::io::Error>>()
+                .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?;
 
-        // Enforce package access
-        if let Some(entry) = matched_source_entry {
-            self.enforce_package_access(scope, &entry, package.access)
+            let matched_import_entry = entries
+                .into_iter()
+                .find(|entry| entry.file_name().into_string().unwrap().eq(&package_name.name));
+
+            // Enforce package access and potential collisions
+            match (matched_source_entry, matched_import_entry) {
+                (Some(_), Some(_)) => Err(ImportError::conflicting_imports(package_name)),
+                (Some(source_entry), None) => self.enforce_package_access(scope, &source_entry, package.access),
+                (None, Some(import_entry)) => self.enforce_package_access(scope, &import_entry, package.access),
+                (None, None) => Err(ImportError::unknown_package(package_name)),
+            }
         } else {
-            Err(ImportError::unknown_package(package_name))
+            // Enforce local package access with no found imports directory
+            match matched_source_entry {
+                Some(source_entry) => self.enforce_package_access(scope, &source_entry, package.access),
+                None => Err(ImportError::unknown_package(package_name)),
+            }
         }
     }
 }

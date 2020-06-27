@@ -17,6 +17,12 @@ impl ImportError {
         ImportError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn conflicting_imports(identifier: Identifier) -> Self {
+        let message = format!("conflicting imports found for `{}`", identifier.name);
+
+        Self::new_from_span(message, identifier.span)
+    }
+
     pub fn convert_os_string(span: Span) -> Self {
         let message = format!("failed to convert file string name, maybe an illegal character?");
 
