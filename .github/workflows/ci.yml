@@ -135,8 +135,10 @@ jobs:
           CARGO_INCREMENTAL: "0"
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=unwind -Zpanic_abort_tests"
 
-      - name: grcov
-        uses: actions-rs/grcov@v0.1
+      - name: Run code coverage
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: '0.9.0'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
