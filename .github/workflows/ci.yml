@@ -1,0 +1,144 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  style:
+    name: Check Style
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Fetch snarkOS
+      run: |
+        mkdir ~/.ssh
+        echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        eval $(ssh-agent -s)
+        ssh-add -k ~/.ssh/id_rsa
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly
+        override: true
+        components: rustfmt
+
+    - name: cargo fmt --check
+      uses: actions-rs/cargo@v1
+      env:
+        CARGO_NET_GIT_FETCH_WITH_CLI: true
+      with:
+        command: fmt
+        args: --all -- --check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -Dwarnings
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - nightly
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust (${{ matrix.rust }})
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+
+      - name: Check examples
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+            command: check
+            args: --examples --all
+
+      - name: Check examples with all features on stable
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+            command: check
+            args: --examples --all-features --all
+        if: matrix.rust == 'stable'
+
+      - name: Check benchmarks on nightly
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+            command: check
+            args: --all-features --examples --all --benches
+        if: matrix.rust == 'nightly'
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+            command: test
+            args: --release
+
+#  check_no_std:
+#    name: Check no_std
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Fetch snarkOS
+#        run: |
+#          mkdir ~/.ssh
+#          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+#          chmod 600 ~/.ssh/id_rsa
+#          eval $(ssh-agent -s)
+#          ssh-add -k ~/.ssh/id_rsa
+#
+#      - name: Install Rust (${{ matrix.rust }})
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: stable
+#          target: thumbv6m-none-eabi
+#          override: true
+#
+#      - name: Build
+#        uses: actions-rs/cargo@v1
+#        env:
+#          CARGO_NET_GIT_FETCH_WITH_CLI: true
+#        with:
+#          use-cross: true
+#          command: build
+#          args: --no-default-features --target thumbv6m-none-eabi
+#
+#      - name: Check
+#        uses: actions-rs/cargo@v1
+#        env:
+#          CARGO_NET_GIT_FETCH_WITH_CLI: true
+#        with:
+#          use-cross: true
+#          command: check
+#          args: --examples --no-default-features --target thumbv6m-none-eabi
