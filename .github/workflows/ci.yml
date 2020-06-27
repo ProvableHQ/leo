@@ -100,7 +100,7 @@ jobs:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
             command: test
-            args: --release
+            args: --release --all --no-fail-fast
 
   codecov:
     name: Code Coverage
@@ -129,7 +129,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features --examples --all --benches --no-fail-fast
+          args: --all
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
           CARGO_INCREMENTAL: "0"
