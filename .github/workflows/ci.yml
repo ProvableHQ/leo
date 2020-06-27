@@ -134,12 +134,6 @@ jobs:
           args: --all-features --examples --all --benches --no-fail-fast
 
       - name: Run Code Coverage
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ${{ steps.coverage.outputs.report }}
-          yml: ./codecov.yml
-          fail_ci_if_error: true
         run: |
           wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
           tar xzf master.tar.gz && cd kcov-master
@@ -148,6 +142,12 @@ jobs:
           for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; fi done
           bash <(curl -s https://codecov.io/bash)
           echo "Uploaded code coverage"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ${{ steps.coverage.outputs.report }}
+          yml: ./codecov.yml
+          fail_ci_if_error: true
 
 #      - name: Upload coverage to Codecov
 #        uses: codecov/codecov-action@v1
