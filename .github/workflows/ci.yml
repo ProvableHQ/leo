@@ -136,9 +136,9 @@ jobs:
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=unwind -Zpanic_abort_tests"
 
       - name: Run code coverage
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.13.0'
+        run: |
+          cargo install cargo-kcov
+          cargo kcov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
