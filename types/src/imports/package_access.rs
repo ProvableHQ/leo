@@ -1,4 +1,4 @@
-use crate::{ImportSymbol, Package};
+use crate::{ImportSymbol, Package, Span};
 use leo_ast::imports::PackageAccess as AstPackageAccess;
 
 use serde::{Deserialize, Serialize};
@@ -6,21 +6,21 @@ use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub enum PackageAccess {
-    Star,
+    Star(Span),
     SubPackage(Box<Package>),
-    Multiple(Vec<Package>),
     Symbol(ImportSymbol),
+    Multiple(Vec<PackageAccess>),
 }
 
 impl<'ast> From<AstPackageAccess<'ast>> for PackageAccess {
     fn from(access: AstPackageAccess<'ast>) -> Self {
         match access {
-            AstPackageAccess::Star(_) => PackageAccess::Star,
+            AstPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
             AstPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
-            AstPackageAccess::Multiple(packages) => {
-                PackageAccess::Multiple(packages.into_iter().map(|package| Package::from(package)).collect())
-            }
             AstPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
+            AstPackageAccess::Multiple(accesses) => {
+                PackageAccess::Multiple(accesses.into_iter().map(|access| PackageAccess::from(access)).collect())
+            }
         }
     }
 }
@@ -28,19 +28,19 @@ impl<'ast> From<AstPackageAccess<'ast>> for PackageAccess {
 impl PackageAccess {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PackageAccess::Star => write!(f, ".*"),
+            PackageAccess::Star(ref _span) => write!(f, ".*"),
             PackageAccess::SubPackage(ref package) => write!(f, ".{}", package),
-            PackageAccess::Multiple(ref packages) => {
+            PackageAccess::Symbol(ref symbol) => write!(f, ".{}", symbol),
+            PackageAccess::Multiple(ref accesses) => {
                 write!(f, ".(")?;
-                for (i, package) in packages.iter().enumerate() {
-                    write!(f, "{}", package)?;
-                    if i < packages.len() - 1 {
+                for (i, access) in accesses.iter().enumerate() {
+                    write!(f, "{}", access)?;
+                    if i < accesses.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }
                 write!(f, ")")
             }
-            PackageAccess::Symbol(ref symbol) => write!(f, ".{}", symbol),
         }
     }
 }

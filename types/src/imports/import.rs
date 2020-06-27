@@ -1,6 +1,6 @@
 //! The import type for a Leo program.
 
-use crate::{ImportSymbol, Package, Span};
+use crate::{Package, Span};
 use leo_ast::imports::Import as AstImport;
 
 use serde::{Deserialize, Serialize};
