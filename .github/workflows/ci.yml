@@ -135,16 +135,24 @@ jobs:
           CARGO_INCREMENTAL: "0"
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=unwind -Zpanic_abort_tests"
 
-      - name: Run code coverage
-        run: |
-          cargo install cargo-kcov
-          cargo kcov
+      - name: Generate coverage report
+          run: |
+            sudo apt-get install libcurl4-openssl-dev libelf-dev libdw-dev binutils-dev libiberty-dev
+            wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+            tar xzf master.tar.gz
+            cd kcov-master
+            mkdir build && cd build
+            cmake .. && make
+            make install DESTDIR=../../kcov-build
+            cd ../..
+            rm -rf kcov-master
+            for file in target/debug/*-*; do [ -x "${file}" ] || continue; mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ${{ steps.coverage.outputs.report }}
-          yml: ./codecov.yml
-          fail_ci_if_error: true
+#          file: ${{ steps.coverage.outputs.report }}
+#          yml: ./codecov.yml
+#          fail_ci_if_error: true
