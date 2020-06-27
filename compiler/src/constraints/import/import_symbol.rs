@@ -58,8 +58,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let program_name = program.name.clone();
 
-        // match each import symbol to a symbol in the imported file
-        // for symbol in import.symbols.into_iter() {
         // see if the imported symbol is a circuit
         let matched_circuit = program
             .circuits
@@ -90,7 +88,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // store imported circuit under resolved name
         self.store(resolved_name, value);
-        // }
 
         // evaluate all import statements in imported file
         // todo: add logic to detect import loops
