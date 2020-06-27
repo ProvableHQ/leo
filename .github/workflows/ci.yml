@@ -135,9 +135,13 @@ jobs:
           CARGO_INCREMENTAL: "0"
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=unwind -Zpanic_abort_tests"
 
+      - name: Install deps for kcov
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+
       - name: Generate coverage report
         run: |
-          sudo apt-get install libcurl4-openssl-dev libelf-dev libdw-dev binutils-dev libiberty-dev
           wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
           tar xzf master.tar.gz
           cd kcov-master
