@@ -30,7 +30,9 @@ impl CLI for PublishCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (_program, _checksum_differs) = BuildCommand::output(options)?;
+        // Build all program files.
+        // It's okay if there's just a lib.leo file here
+        let _output = BuildCommand::output(options)?;
 
         // Get the package name
         let path = current_dir()?;
