@@ -12,33 +12,32 @@ jobs:
     name: Check Style
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
-    - name: Checkout
-      uses: actions/checkout@v1
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
 
-    - name: Fetch snarkOS
-      run: |
-        mkdir ~/.ssh
-        echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        eval $(ssh-agent -s)
-        ssh-add -k ~/.ssh/id_rsa
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: nightly
-        override: true
-        components: rustfmt
-
-    - name: cargo fmt --check
-      uses: actions-rs/cargo@v1
-      env:
-        CARGO_NET_GIT_FETCH_WITH_CLI: true
-      with:
-        command: fmt
-        args: --all -- --check
+      - name: cargo fmt --check
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+          command: fmt
+          args: --all -- --check
 
   test:
     name: Test
@@ -54,7 +53,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Fetch snarkOS
+      - name: Load snarkOS
         run: |
           mkdir ~/.ssh
           echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
@@ -103,6 +102,57 @@ jobs:
             command: test
             args: --release
 
+  codecov:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+          command: test
+          args: --all-features --examples --all --benches --no-fail-fast
+
+      - name: Run Code Coverage
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ${{ steps.coverage.outputs.report }}
+          yml: ./codecov.yml
+          fail_ci_if_error: true
+        run: |
+          wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+          tar xzf master.tar.gz && cd kcov-master
+          mkdir build && cd build && cmake .. && make && sudo make install
+          cd ../.. && rm -rf kcov-master
+          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; fi done
+          bash <(curl -s https://codecov.io/bash)
+          echo "Uploaded code coverage"
+
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v1
+#
+
 #  check_no_std:
 #    name: Check no_std
 #    runs-on: ubuntu-latest
@@ -110,7 +160,7 @@ jobs:
 #      - name: Checkout
 #        uses: actions/checkout@v2
 #
-#      - name: Fetch snarkOS
+#      - name: Load snarkOS
 #        run: |
 #          mkdir ~/.ssh
 #          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
