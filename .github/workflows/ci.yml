@@ -73,34 +73,28 @@ jobs:
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
-            command: check
-            args: --examples --all
+          command: check
+          args: --examples --all
 
       - name: Check examples with all features on stable
         uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
-            command: check
-            args: --examples --all-features --all
+          command: check
+          args: --examples --all-features --all
         if: matrix.rust == 'stable'
 
       - name: Check benchmarks on nightly
         uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
-            command: check
-            args: --all-features --examples --all --benches
+          command: check
+          args: --all-features --examples --all --benches
         if: matrix.rust == 'nightly'
 
       - name: Test
         uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
-            command: test
-            args: --release --all --no-fail-fast
+          command: test
+          args: --release --all --no-fail-fast
 
   codecov:
     name: Code Coverage
