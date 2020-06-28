@@ -1,7 +1,7 @@
 //! The program package zip file.
 
 use crate::{
-    directories::{INPUTS_DIRECTORY_NAME, OUTPUTS_DIRECTORY_NAME},
+    directories::{IMPORTS_DIRECTORY_NAME, INPUTS_DIRECTORY_NAME, OUTPUTS_DIRECTORY_NAME},
     errors::ZipFileError,
     files::{
         CHECKSUM_FILE_EXTENSION,
@@ -109,9 +109,11 @@ impl ZipFile {
 }
 
 fn is_excluded(path: &Path) -> bool {
-    // excluded directories: `/inputs`, `/outputs`
+    // excluded directories: `inputs`, `outputs`, `imports`
     if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
+        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
+        | path
     {
         return true;
     }
