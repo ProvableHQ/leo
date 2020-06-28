@@ -78,7 +78,7 @@ jobs:
 
       - name: Check examples with all features on stable
         uses: actions-rs/cargo@v1
-        env:
+#        env:
 #          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
             command: check
@@ -87,7 +87,7 @@ jobs:
 
       - name: Check benchmarks on nightly
         uses: actions-rs/cargo@v1
-        env:
+#        env:
 #          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
             command: check
@@ -96,7 +96,7 @@ jobs:
 
       - name: Test
         uses: actions-rs/cargo@v1
-        env:
+#        env:
 #          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
             command: test
