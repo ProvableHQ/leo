@@ -53,7 +53,6 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
             let result = resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
-            log::debug!("{}", result);
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),

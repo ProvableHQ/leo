@@ -42,9 +42,19 @@ impl VerificationKeyFile {
         let mut file = File::create(&path)?;
         file.write_all(verification_key)?;
 
-        log::info!("Verification key stored to {:?}", path);
-
         Ok(())
+    }
+
+    /// Removes the verification key at the given path if it exists. Returns `true` on success,
+    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
+    pub fn remove(&self, path: &PathBuf) -> Result<bool, VerificationKeyFileError> {
+        let path = self.setup_file_path(path);
+        if !path.exists() {
+            return Ok(false);
+        }
+
+        fs::remove_file(&path).map_err(|_| VerificationKeyFileError::FileRemovalError(path.clone()))?;
+        Ok(true)
     }
 
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {

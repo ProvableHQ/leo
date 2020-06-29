@@ -1,4 +1,4 @@
-use crate::{cli_types::*, errors::CLIError};
+use crate::{cli_types::*, errors::CLIError, logger};
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
@@ -64,6 +64,19 @@ pub trait CLI {
             .args(flags)
             .args(options)
             .subcommands(subcommands)
+    }
+
+    #[cfg_attr(tarpaulin, skip)]
+    fn process(arguments: &ArgMatches) -> Result<(), CLIError> {
+        // Set logging environment
+        match arguments.is_present("debug") {
+            true => logger::init_logger("leo", 2),
+            false => logger::init_logger("leo", 1),
+        }
+
+        let options = Self::parse(arguments)?;
+        let _output = Self::output(options)?;
+        Ok(())
     }
 
     #[cfg_attr(tarpaulin, skip)]

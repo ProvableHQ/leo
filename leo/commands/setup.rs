@@ -52,6 +52,8 @@ impl CLI for SetupCommand {
 
         // If keys do not exist or the checksum differs, run the program setup
         if !keys_exist || checksum_differs {
+            log::info!("Setup starting...");
+
             // Start the timer
             let start = Instant::now();
 
@@ -61,18 +63,25 @@ impl CLI for SetupCommand {
             let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
 
             // End the timer
-            log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+            let end = start.elapsed().as_millis();
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
             // Write the proving key file to the outputs directory
             let mut proving_key = vec![];
             parameters.write(&mut proving_key)?;
             ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+            log::info!("Saving proving key ({:?})", path);
 
-            // Write the proving key file to the outputs directory
+            // Write the verification key file to the outputs directory
             let mut verification_key = vec![];
             prepared_verifying_key.write(&mut verification_key)?;
             VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
+            log::info!("Saving verification key ({:?})", path);
+
+            // Output the setup time
+            log::info!("Setup completed in {:?} milliseconds", end);
+        } else {
+            log::info!("Setup complete");
         }
 
         // Read the proving key file from the outputs directory
@@ -98,7 +107,7 @@ impl CLI for SetupCommand {
             }
         }
 
-        log::info!("Completed program setup");
+        log::info!("Program setup complete");
 
         Ok((program, parameters, prepared_verifying_key))
     }
