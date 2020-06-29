@@ -903,9 +903,9 @@ checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
 name = "rusty-hook"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27138b73a8ce63ae918707a5e3b57f9b0c0842a57b82f0e43474cf4e3aaf0ff4"
+checksum = "96cee9be61be7e1cbadd851e58ed7449c29c620f00b23df937cb9cbc04ac21a3"
 dependencies = [
  "ci_info",
  "getopts",
