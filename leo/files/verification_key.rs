@@ -42,8 +42,6 @@ impl VerificationKeyFile {
         let mut file = File::create(&path)?;
         file.write_all(verification_key)?;
 
-        log::info!("Verification key stored to {:?}", path);
-
         Ok(())
     }
 

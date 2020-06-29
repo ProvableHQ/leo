@@ -1,0 +1,4 @@
+// The program inputs for test/src/main.leo
+[main]
+a: u32 = 1;
+b: u32 = 2;

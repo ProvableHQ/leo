@@ -42,8 +42,6 @@ impl ProvingKeyFile {
         let mut file = File::create(&path)?;
         file.write_all(proving_key)?;
 
-        log::info!("Proving key stored to {:?}", path);
-
         Ok(())
     }
 

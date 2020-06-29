@@ -42,8 +42,6 @@ impl ChecksumFile {
         let mut file = File::create(&path)?;
         file.write_all(checksum.as_bytes())?;
 
-        log::info!("Checksum stored to {:?}", path);
-
         Ok(())
     }
 
