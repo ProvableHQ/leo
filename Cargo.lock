@@ -569,7 +569,7 @@ dependencies = [
  "log",
  "pest",
  "rand",
- "sha2 0.8.2",
+ "sha2",
  "snarkos-curves",
  "snarkos-errors",
  "snarkos-gadgets",
@@ -903,9 +903,9 @@ checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
 name = "rusty-hook"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27138b73a8ce63ae918707a5e3b57f9b0c0842a57b82f0e43474cf4e3aaf0ff4"
+checksum = "96cee9be61be7e1cbadd851e58ed7449c29c620f00b23df937cb9cbc04ac21a3"
 dependencies = [
  "ci_info",
  "getopts",
@@ -979,18 +979,6 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a256f46ea78a0c0d9ff00077504903ac881a1dafdc20da66545699e7776b3e69"
-dependencies = [
- "block-buffer 0.7.3",
- "digest 0.8.1",
- "fake-simd",
- "opaque-debug",
-]
-
-[[package]]
-name = "sha2"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72377440080fd008550fe9b441e854e43318db116f90181eef92e9ae9aedab48"
@@ -1027,7 +1015,7 @@ dependencies = [
  "rand",
  "rand_chacha",
  "rayon",
- "sha2 0.9.0",
+ "sha2",
  "smallvec",
  "snarkos-errors",
  "snarkos-models",
