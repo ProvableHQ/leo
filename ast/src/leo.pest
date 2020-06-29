@@ -18,7 +18,7 @@ protected_name = {
 LINE_END = { ";" ~ NEWLINE* }
 
 // Declared in common/mutable.rs
-mutable = { "mut" }
+mutable = { "mut " }
 
 // Declared in common/range.rs
 range = { expression? ~ ".." ~ expression? }
@@ -33,15 +33,15 @@ spread = { "..." ~ expression }
 spread_or_expression = { spread | expression }
 
 // Declared in common/static_.rs
-static_ = { "static" }
+static_ = { "static " }
 
 // Declared in common/variable.rs
 variable = { mutable? ~ identifier ~ (":" ~ type_)? }
 
 // Declared in common/declare.rs
 declare = { let_ | const_ }
-const_ = { "const" }
-let_ = { "let" }
+const_ = { "const " }
+let_ = { "let " }
 
 /// Operations
 
@@ -175,23 +175,23 @@ access_static_member = { "::" ~ identifier }
 /// Circuits
 
 // Declared in circuits/circuit_definition.rs
-circuit = { "circuit" ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in circuits/circuit_field.rs
 circuit_field = { identifier ~ ":" ~ expression }
 
 // Declared in circuits/circuit_field_definition.rs
-circuit_field_definition = { identifier ~ ":" ~ type_ ~ NEWLINE* }
+circuit_field_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_function.rs
 circuit_function = { static_? ~ function_definition }
 
 // Declared in circuits/circuit_member.rs
-circuit_member = { circuit_function | circuit_field_definition }
+circuit_member = { circuit_function | circuit_field_definition ~ NEWLINE*}
 
 /// Conditionals
 
-expression_conditional = { "if" ~ expression ~ "?" ~ expression ~ ":" ~ expression}
+expression_conditional = { "if " ~ expression ~ "? " ~ expression ~ ": " ~ expression}
 
 /// Expressions
 
@@ -252,7 +252,7 @@ assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expre
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
 // Declared in statements/conditional_statement.rs
-statement_conditional = {"if" ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end_statement)?}
+statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else" ~ conditional_nested_or_end_statement)?}
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
@@ -262,26 +262,26 @@ statement_definition = { declare ~ variable ~ "=" ~ expression ~ LINE_END}
 statement_expression = { expression ~ LINE_END }
 
 // Declared in statements/for_statement.rs
-statement_for = { "for" ~ identifier ~ "in" ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/multiple_assignment_statement.rs
 statement_multiple_assignment = { declare ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
 variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 // Declared in statements/return_statement.rs
-statement_return = { "return" ~ expression_tuple }
+statement_return = { "return " ~ expression_tuple }
 
 /// Functions
 
 // Declared in functions/function.rs
-function_definition = { "function" ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = { "function " ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
 input_model_list = _{ (function_input ~ ("," ~ function_input)*)? }
 
 // Declared in functions/test_function.rs
-test_function = { "test" ~ function_definition }
+test_function = { "test " ~ function_definition }
 
 /// Imports
 
@@ -310,4 +310,4 @@ import_symbol = { identifier ~ ("as" ~ identifier)? }
 /// Utilities
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
-WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
+WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* } // pest implicit whitespace keyword

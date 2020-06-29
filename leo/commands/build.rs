@@ -9,6 +9,7 @@ use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
@@ -87,6 +88,7 @@ impl CLI for BuildCommand {
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
                 log::debug!("Compiled constraints - {:#?}", output);
+                log::debug!("Number of constraints - {:#?}", cs.num_constraints());
             }
 
             // If a checksum file exists, check if it differs from the new checksum
@@ -103,6 +105,8 @@ impl CLI for BuildCommand {
             if checksum_differs {
                 // Write the new checksum to the outputs directory
                 checksum_file.write_to(&path, program_checksum)?;
+
+                log::debug!("Checksum saved ({:?})", path);
             }
 
             log::info!("Compiled program in {:?}", main_file_path);

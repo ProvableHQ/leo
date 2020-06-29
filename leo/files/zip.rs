@@ -113,7 +113,6 @@ fn is_excluded(path: &Path) -> bool {
     if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path
     {
         return true;
     }

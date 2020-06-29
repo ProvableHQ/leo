@@ -32,7 +32,6 @@ impl CLI for LoadCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let path = current_dir()?;
-
         match BuildCommand::output(options)? {
             Some((_program, _checksum_differs)) => {
                 // Get the package name

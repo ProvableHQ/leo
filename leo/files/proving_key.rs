@@ -42,9 +42,19 @@ impl ProvingKeyFile {
         let mut file = File::create(&path)?;
         file.write_all(proving_key)?;
 
-        log::info!("Proving key stored to {:?}", path);
-
         Ok(())
+    }
+
+    /// Removes the proving key at the given path if it exists. Returns `true` on success,
+    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
+    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProvingKeyFileError> {
+        let path = self.setup_file_path(path);
+        if !path.exists() {
+            return Ok(false);
+        }
+
+        fs::remove_file(&path).map_err(|_| ProvingKeyFileError::FileRemovalError(path.clone()))?;
+        Ok(true)
     }
 
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {

@@ -43,9 +43,21 @@ impl ProofFile {
         let mut file = File::create(&path)?;
         file.write_all(proof)?;
 
-        log::info!("Proof stored to {:?}", path);
+        log::info!("Proof stored ({:?})", path);
 
         Ok(())
+    }
+
+    /// Removes the proof at the given path if it exists. Returns `true` on success,
+    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
+    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProofFileError> {
+        let path = self.setup_file_path(path);
+        if !path.exists() {
+            return Ok(false);
+        }
+
+        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.clone()))?;
+        Ok(true)
     }
 
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
