@@ -11,6 +11,9 @@ pub enum VerificationKeyFileError {
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
+    #[error("Cannot remove the provided file - {:?}", _0)]
+    FileRemovalError(PathBuf),
+
     #[error("Verification key file was corrupted")]
     IncorrectVerificationKey,
 

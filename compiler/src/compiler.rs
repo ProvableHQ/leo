@@ -127,7 +127,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
             })?;
 
         // Write results to file or something
-        // log::info!("{}", result);
+        log::info!("{}", result);
 
         Ok(())
     }

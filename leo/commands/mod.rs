@@ -1,6 +1,9 @@
 pub mod build;
 pub use self::build::*;
 
+pub mod clean;
+pub use self::clean::*;
+
 pub mod deploy;
 pub use self::deploy::*;
 

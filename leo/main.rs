@@ -31,6 +31,7 @@ fn main() -> Result<(), CLIError> {
             RunCommand::new().display_order(8),
             PublishCommand::new().display_order(9),
             DeployCommand::new().display_order(10),
+            CleanCommand::new().display_order(11),
         ])
         .set_term_width(0)
         .get_matches();
@@ -47,6 +48,7 @@ fn main() -> Result<(), CLIError> {
         ("run", Some(arguments)) => RunCommand::process(arguments),
         ("publish", Some(arguments)) => PublishCommand::process(arguments),
         ("deploy", Some(arguments)) => DeployCommand::process(arguments),
+        ("clean", Some(arguments)) => CleanCommand::process(arguments),
         _ => unreachable!(),
     }
 }
