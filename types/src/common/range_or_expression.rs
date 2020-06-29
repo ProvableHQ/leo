@@ -1,32 +1,32 @@
-use crate::{Expression, Integer};
-use leo_ast::common::RangeOrExpression as AstRangeOrExpression;
+use crate::{Error as FormattedError, Expression, Span};
+use leo_ast::{common::RangeOrExpression as AstRangeOrExpression, values::NumberValue};
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Range or expression enum
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RangeOrExpression {
-    Range(Option<Integer>, Option<Integer>),
+    Range(Option<Expression>, Option<Expression>),
     Expression(Expression),
+}
+
+pub fn unwrap_bound(bound: Option<NumberValue>) -> Option<usize> {
+    bound.map(|number| {
+        let message = format!("Range bounds should be integers");
+        let error = FormattedError::new_from_span(message, Span::from(number.span.clone()));
+
+        number.value.parse::<usize>().expect(&error.to_string())
+    })
 }
 
 impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
-            AstRangeOrExpression::Range(range) => {
-                let from = range.from.map(|from| match Expression::from(from.0) {
-                    Expression::Integer(number) => number,
-                    Expression::Implicit(string, _span) => Integer::from_implicit(string),
-                    expression => unimplemented!("Range bounds should be integers, found {}", expression),
-                });
-                let to = range.to.map(|to| match Expression::from(to.0) {
-                    Expression::Integer(number) => number,
-                    Expression::Implicit(string, _span) => Integer::from_implicit(string),
-                    expression => unimplemented!("Range bounds should be integers, found {}", expression),
-                });
-
-                RangeOrExpression::Range(from, to)
-            }
+            AstRangeOrExpression::Range(range) => RangeOrExpression::Range(
+                range.from.map(|expression| Expression::from(expression)),
+                range.to.map(|expression| Expression::from(expression)),
+            ),
             AstRangeOrExpression::Expression(expression) => RangeOrExpression::Expression(Expression::from(expression)),
         }
     }

@@ -12,4 +12,5 @@ snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", rev = "c7a56
 snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", rev = "c7a56d9", default-features = false }
 
 pest = { version = "2.0" }
+serde = { version = "1.0" }
 thiserror = { version = "1.0" }

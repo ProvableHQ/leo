@@ -1,9 +1,10 @@
 use crate::{ConditionalNestedOrEndStatement, Expression, Statement};
 use leo_ast::statements::ConditionalStatement as AstConditionalStatement;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConditionalStatement {
     pub condition: Expression,
     pub statements: Vec<Statement>,

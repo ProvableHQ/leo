@@ -2,7 +2,7 @@
 
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
-    errors::StatementError,
+    errors::{StatementError, ValueError},
     new_scope,
     GroupType,
 };
@@ -21,7 +21,6 @@ use leo_types::{
     Variable,
 };
 
-use crate::errors::ValueError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -95,11 +94,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             RangeOrExpression::Range(from, to) => {
                 let from_index = match from {
-                    Some(integer) => integer.to_usize(span.clone())?,
+                    Some(integer) => {
+                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), integer, span.clone())?
+                    }
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(integer.to_usize(span.clone())?),
+                    Some(integer) => Some(self.enforce_index(
+                        cs,
+                        file_scope.clone(),
+                        function_scope.clone(),
+                        integer,
+                        span.clone(),
+                    )?),
                     None => None,
                 };
 
@@ -525,15 +532,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         indicator: Option<Boolean>,
         index: Identifier,
-        start: Integer,
-        stop: Integer,
+        start: Expression,
+        stop: Expression,
         statements: Vec<Statement>,
         return_types: Vec<Type>,
         span: Span,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
-        let from = start.to_usize(span.clone())?;
-        let to = stop.to_usize(span.clone())?;
+
+        let from = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), start, span.clone())?;
+        let to = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), stop, span.clone())?;
 
         for i in from..to {
             // Store index in current function scope.

@@ -40,15 +40,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         }
     }
 
-    pub fn init(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
-        let mut program = Self::new(package_name);
-        program.set_path(main_file_path);
+    pub fn new_from_path(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
+        let mut compiler = Self::new(package_name);
+        compiler.set_path(main_file_path);
 
         // Generate the abstract syntax tree and assemble the program
-        let program_string = program.load_program()?;
-        program.parse_program(&program_string)?;
+        let program_string = compiler.load_program()?;
+        compiler.parse_program(&program_string)?;
 
-        Ok(program)
+        Ok(compiler)
     }
 
     pub fn set_path(&mut self, main_file_path: PathBuf) {
@@ -115,6 +115,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
 
         Ok(())
+    }
+
+    pub fn to_bytes(&self) -> Result<Vec<u8>, CompilerError> {
+        Ok(bincode::serialize(&self.program)?)
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, CompilerError> {
+        let program: Program = bincode::deserialize(bytes)?;
+        let mut program_inputs = Inputs::new();
+
+        program_inputs.set_inputs_size(program.expected_inputs.len());
+
+        Ok(Self {
+            package_name: program.name.clone(),
+            main_file_path: PathBuf::new(),
+            program,
+            program_inputs,
+            output: None,
+            _engine: PhantomData,
+        })
     }
 }
 

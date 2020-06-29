@@ -1,4 +1,4 @@
-use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Integer, Span, Variable};
+use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Span, Variable};
 use leo_ast::{
     operations::AssignOperation,
     statements::{
@@ -13,17 +13,18 @@ use leo_ast::{
     },
 };
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Statement {
     Return(Vec<Expression>, Span),
     Definition(Declare, Variable, Expression, Span),
     Assign(Assignee, Expression, Span),
     MultipleAssign(Vec<Variable>, Expression, Span),
     Conditional(ConditionalStatement, Span),
-    For(Identifier, Integer, Integer, Vec<Statement>, Span),
+    For(Identifier, Expression, Expression, Vec<Statement>, Span),
     AssertEq(Expression, Expression, Span),
     Expression(Expression, Span),
 }
@@ -149,21 +150,10 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
 
 impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
-        let from = match Expression::from(statement.start) {
-            Expression::Integer(number) => number,
-            Expression::Implicit(string, _span) => Integer::from_implicit(string),
-            expression => unimplemented!("Range bounds should be integers, found {}", expression),
-        };
-        let to = match Expression::from(statement.stop) {
-            Expression::Integer(number) => number,
-            Expression::Implicit(string, _span) => Integer::from_implicit(string),
-            expression => unimplemented!("Range bounds should be integers, found {}", expression),
-        };
-
         Statement::For(
             Identifier::from(statement.index),
-            from,
-            to,
+            Expression::from(statement.start),
+            Expression::from(statement.stop),
             statement
                 .statements
                 .into_iter()

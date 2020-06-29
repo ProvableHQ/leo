@@ -1,4 +1,10 @@
-use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError, files::Manifest};
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::BuildCommand,
+    errors::CLIError,
+    files::{Manifest, ZipFile},
+};
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
@@ -28,9 +34,15 @@ impl CLI for PublishCommand {
 
         // Get the package name
         let path = current_dir()?;
-        let _package_name = Manifest::try_from(&path)?.get_package_name();
+        let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        log::info!("Unimplemented - `leo publish`");
+        // Create zip file
+        let zip_file = ZipFile::new(&package_name);
+        if zip_file.exists_at(&path) {
+            log::info!("Existing package zip file found. Skipping compression.")
+        } else {
+            zip_file.write(&path)?;
+        }
 
         Ok(())
     }

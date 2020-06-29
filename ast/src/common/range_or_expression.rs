@@ -17,8 +17,8 @@ impl<'ast> fmt::Display for RangeOrExpression<'ast> {
             RangeOrExpression::Range(ref range) => write!(
                 f,
                 "{}..{}",
-                range.from.as_ref().map(|e| e.0.to_string()).unwrap_or("".to_string()),
-                range.to.as_ref().map(|e| e.0.to_string()).unwrap_or("".to_string())
+                range.from.as_ref().map(|v| format!("{}", v)).unwrap_or(format!("")),
+                range.to.as_ref().map(|v| format!("{}", v)).unwrap_or(format!("")),
             ),
         }
     }

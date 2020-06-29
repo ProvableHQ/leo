@@ -1,10 +1,11 @@
 use crate::{Identifier, Type};
 use leo_ast::common::Variable as AstVariable;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A variable that is assigned to a value in the constrained program
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Variable {
     pub identifier: Identifier,
     pub mutable: bool,

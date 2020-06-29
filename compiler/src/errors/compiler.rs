@@ -2,6 +2,7 @@ use crate::errors::{FunctionError, ImportError};
 use leo_ast::ParserError;
 use leo_inputs::InputParserError;
 
+use bincode::Error as SerdeError;
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
@@ -26,6 +27,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
+
+    #[error("{}", _0)]
+    SerdeError(#[from] SerdeError),
 }
 
 impl CompilerError {

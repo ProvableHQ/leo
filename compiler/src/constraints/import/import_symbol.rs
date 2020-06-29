@@ -1,0 +1,102 @@
+use crate::{
+    constraints::{ConstrainedProgram, ConstrainedValue},
+    errors::constraints::ImportError,
+    new_scope,
+    GroupType,
+};
+use leo_ast::LeoParser;
+use leo_types::{ImportSymbol, Program, Span};
+
+use snarkos_models::curves::{Field, PrimeField};
+use std::fs::DirEntry;
+
+fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportError> {
+    // make sure the given entry is file
+    let file_type = entry
+        .file_type()
+        .map_err(|error| ImportError::directory_error(error, span.clone()))?;
+    let file_name = entry
+        .file_name()
+        .into_string()
+        .map_err(|_| ImportError::convert_os_string(span.clone()))?;
+
+    if file_type.is_dir() {
+        return Err(ImportError::expected_file(file_name, span.clone()));
+    }
+
+    // Build the abstract syntax tree
+    let file_path = &entry.path();
+    let input_file = &LeoParser::load_file(file_path)?;
+    let syntax_tree = LeoParser::parse_file(file_path, input_file)?;
+
+    // Generate aleo program from file
+    Ok(Program::from(syntax_tree, file_name.clone()))
+}
+
+impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    pub fn enforce_import_star(&mut self, scope: String, entry: &DirEntry, span: Span) -> Result<(), ImportError> {
+        let mut program = parse_import_file(entry, &span)?;
+
+        // Use same namespace as calling function for imported symbols
+        program = program.name(scope);
+
+        // * -> import all imports, circuits, functions in the current scope
+        self.resolve_definitions(program)
+    }
+
+    pub fn enforce_import_symbol(
+        &mut self,
+        scope: String,
+        entry: &DirEntry,
+        symbol: ImportSymbol,
+    ) -> Result<(), ImportError> {
+        // Generate aleo program from file
+        let mut program = parse_import_file(entry, &symbol.span)?;
+
+        // Use same namespace as calling function for imported symbols
+        program = program.name(scope);
+
+        let program_name = program.name.clone();
+
+        // see if the imported symbol is a circuit
+        let matched_circuit = program
+            .circuits
+            .clone()
+            .into_iter()
+            .find(|(circuit_name, _circuit_def)| symbol.symbol == *circuit_name);
+
+        let value = match matched_circuit {
+            Some((_circuit_name, circuit_def)) => ConstrainedValue::CircuitDefinition(circuit_def),
+            None => {
+                // see if the imported symbol is a function
+                let matched_function = program
+                    .functions
+                    .clone()
+                    .into_iter()
+                    .find(|(function_name, _function)| symbol.symbol == *function_name);
+
+                match matched_function {
+                    Some((_function_name, function)) => ConstrainedValue::Function(None, function),
+                    None => return Err(ImportError::unknown_symbol(symbol, program_name, &entry.path())),
+                }
+            }
+        };
+
+        // take the alias if it is present
+        let name = symbol.alias.unwrap_or(symbol.symbol);
+        let resolved_name = new_scope(program_name.clone(), name.to_string());
+
+        // store imported circuit under resolved name
+        self.store(resolved_name, value);
+
+        // evaluate all import statements in imported file
+        // todo: add logic to detect import loops
+        program
+            .imports
+            .into_iter()
+            .map(|nested_import| self.enforce_import(program_name.clone(), nested_import))
+            .collect::<Result<Vec<_>, ImportError>>()?;
+
+        Ok(())
+    }
+}

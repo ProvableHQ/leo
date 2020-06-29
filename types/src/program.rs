@@ -4,10 +4,11 @@
 use crate::{Circuit, Function, FunctionInput, Identifier, Import, TestFunction};
 use leo_ast::files::File;
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A simple program with statement expressions, program arguments and program returns.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
     pub expected_inputs: Vec<FunctionInput>,

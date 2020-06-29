@@ -1,6 +1,7 @@
 use pest::{Position, Span as AstSpan};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Span {
     /// text of input string
     pub text: String,

@@ -59,8 +59,10 @@ impl CLI for BuildCommand {
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILE_NAME);
 
+        // Load the program at `main_file_path`
+        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
+
         // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
         let program_checksum = program.checksum()?;
 
         // Generate the program on the constraint system and verify correctness

@@ -1,9 +1,10 @@
 use crate::{Identifier, Span};
 use leo_ast::imports::ImportSymbol as AstImportSymbol;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ImportSymbol {
     pub symbol: Identifier,
     pub alias: Option<Identifier>,

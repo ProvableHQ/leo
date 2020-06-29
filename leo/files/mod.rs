@@ -1,3 +1,6 @@
+pub mod zip;
+pub use self::zip::*;
+
 pub mod checksum;
 pub use self::checksum::*;
 

@@ -1,10 +1,11 @@
 use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An identifier in the constrained program.
-#[derive(Clone, Hash)]
+#[derive(Clone, Hash, Serialize, Deserialize)]
 pub struct Identifier {
     pub name: String,
     pub span: Span,

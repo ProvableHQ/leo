@@ -21,9 +21,7 @@ LINE_END = { ";" ~ NEWLINE* }
 mutable = { "mut" }
 
 // Declared in common/range.rs
-range = { from_expression? ~ ".." ~ to_expression? }
-from_expression = { expression }
-to_expression = { expression }
+range = { expression? ~ ".." ~ expression? }
 
 // Declared in common/range_or_expression.rs
 range_or_expression = { range | expression }
@@ -288,14 +286,26 @@ test_function = { "test" ~ function_definition }
 /// Imports
 
 // Declared in imports/import.rs
-import = { "from" ~ "\"" ~ import_source ~ "\"" ~ "import" ~ ("*" | ("{" ~ NEWLINE* ~ import_symbol_tuple ~ NEWLINE* ~ "}") | import_symbol) ~ LINE_END}
+import = { "import" ~ package ~ LINE_END}
 
-// Declared in imports/import_source.rs
-import_source = @{ (!"\"" ~ ANY)* }
+// Declared in imports/package.rs
+package = { identifier ~ "." ~ package_access }
+
+// Declared in imports/package_access
+package_access = {
+    star
+    | package // subpackage
+    | multiple_package_access
+    | import_symbol
+}
+
+multiple_package_access = _{ "(" ~ NEWLINE* ~ package_access ~ ("," ~ NEWLINE* ~ package_access)* ~ NEWLINE* ~ ")"}
+
+// Declared in imports/star.rs
+star = {"*"}
 
 // Declared in imports/import_symbol.rs
 import_symbol = { identifier ~ ("as" ~ identifier)? }
-import_symbol_tuple = _{ import_symbol ~ ("," ~ NEWLINE* ~ import_symbol)* }
 
 /// Utilities
 

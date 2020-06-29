@@ -6,6 +6,7 @@ use crate::{
     enforce_or,
     errors::ExpressionError,
     evaluate_not,
+    new_bool_constant,
     new_scope,
     FieldType,
     GroupType,
@@ -573,11 +574,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match index {
             RangeOrExpression::Range(from, to) => {
                 let from_resolved = match from {
-                    Some(from_index) => from_index.to_usize(span.clone())?,
+                    Some(from_index) => {
+                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), from_index, span.clone())?
+                    }
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {
-                    Some(to_index) => to_index.to_usize(span.clone())?,
+                    Some(to_index) => {
+                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), to_index, span.clone())?
+                    }
                     None => array.len(), // Array slice ends at array length
                 };
                 Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
@@ -899,10 +904,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Values
-            Expression::Integer(integer) => Ok(ConstrainedValue::Integer(integer)),
+            Expression::Integer(type_, integer, span) => {
+                Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
+            }
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
             Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
-            Expression::Boolean(bool) => Ok(ConstrainedValue::Boolean(bool)),
+            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
 
             // Binary operations

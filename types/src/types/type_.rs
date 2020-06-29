@@ -1,10 +1,11 @@
 use crate::{Expression, Identifier, IntegerType};
 use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Type {
     IntegerType(IntegerType),
     Field,

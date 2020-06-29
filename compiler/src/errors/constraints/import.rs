@@ -1,5 +1,5 @@
 use leo_ast::ParserError;
-use leo_types::{Error as FormattedError, ImportSymbol, Span};
+use leo_types::{Error as FormattedError, Identifier, ImportSymbol, Span};
 
 use std::{io, path::PathBuf};
 
@@ -17,10 +17,31 @@ impl ImportError {
         ImportError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn directory_error(error: io::Error, span: Span) -> Self {
-        let message = format!("attempt to access current directory failed - {:?}", error);
+    pub fn convert_os_string(span: Span) -> Self {
+        let message = format!("failed to convert file string name, maybe an illegal character?");
 
         Self::new_from_span(message, span)
+    }
+
+    pub fn directory_error(error: io::Error, span: Span) -> Self {
+        let message = format!("compilation failed due to directory error - {:?}", error);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_file(entry: String, span: Span) -> Self {
+        let message = format!("cannot import symbol `{}` from directory `{}`", span.text, entry);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unknown_package(identifier: Identifier) -> Self {
+        let message = format!(
+            "cannot find imported package `{}` in source files or import directory",
+            identifier.name
+        );
+
+        Self::new_from_span(message, identifier.span)
     }
 
     pub fn unknown_symbol(symbol: ImportSymbol, file: String, file_path: &PathBuf) -> Self {

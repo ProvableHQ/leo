@@ -5,9 +5,10 @@ use leo_ast::circuits::{
     CircuitMember as AstCircuitMember,
 };
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
     CircuitField(Identifier, Type),
     CircuitFunction(bool, Function),

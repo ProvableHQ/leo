@@ -57,7 +57,7 @@ impl CLI for TestCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::init(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
 
         // Generate the program on the constraint system and verify correctness
         {

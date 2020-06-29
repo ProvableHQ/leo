@@ -1,4 +1,4 @@
-use crate::{CircuitFieldDefinition, Identifier, Integer, RangeOrExpression, Span, SpreadOrExpression};
+use crate::{CircuitFieldDefinition, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
@@ -16,21 +16,20 @@ use leo_ast::{
     values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
 };
 
-use snarkos_models::gadgets::utilities::boolean::Boolean;
-
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Expression that evaluates to a value
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
     // Identifier
     Identifier(Identifier),
 
     // Values
-    Integer(Integer),
+    Integer(IntegerType, String, Span),
     Field(String, Span),
     Group(String, Span),
-    Boolean(Boolean),
+    Boolean(String, Span),
     Implicit(String, Span),
 
     // Number operations
@@ -122,10 +121,10 @@ impl<'ast> fmt::Display for Expression {
             Expression::Identifier(ref variable) => write!(f, "{}", variable),
 
             // Values
-            Expression::Integer(ref integer) => write!(f, "{}", integer),
+            Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
             Expression::Field(ref field, ref _span) => write!(f, "{}", field),
             Expression::Group(ref group, ref _span) => write!(f, "{}", group),
-            Expression::Boolean(ref bool) => write!(f, "{}", bool.get_value().unwrap()),
+            Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
             Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
 
             // Number operations
@@ -438,9 +437,7 @@ impl<'ast> From<GroupValue<'ast>> for Expression {
 
 impl<'ast> From<BooleanValue<'ast>> for Expression {
     fn from(boolean: BooleanValue<'ast>) -> Self {
-        Expression::Boolean(Boolean::Constant(
-            boolean.value.parse::<bool>().expect("unable to parse boolean"),
-        ))
+        Expression::Boolean(boolean.value, Span::from(boolean.span))
     }
 }
 
@@ -451,8 +448,12 @@ impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
 }
 
 impl<'ast> From<IntegerValue<'ast>> for Expression {
-    fn from(field: IntegerValue<'ast>) -> Self {
-        Expression::Integer(Integer::from(field.number, field._type))
+    fn from(integer: IntegerValue<'ast>) -> Self {
+        Expression::Integer(
+            IntegerType::from(integer._type),
+            integer.number.value,
+            Span::from(integer.span),
+        )
     }
 }
 

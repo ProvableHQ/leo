@@ -4,10 +4,11 @@ use leo_ast::{
     common::{Assignee as AstAssignee, Identifier as AstIdentifier},
 };
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Definition assignee: v, arr[0..2], Point p.x
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Assignee {
     Identifier(Identifier),
     Array(Box<Assignee>, RangeOrExpression),

@@ -1,9 +1,10 @@
 use crate::{Identifier, Span, Type};
 use leo_ast::functions::FunctionInput as AstFunctionInput;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInput {
     pub identifier: Identifier,
     pub mutable: bool,
