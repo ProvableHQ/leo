@@ -183,13 +183,13 @@ circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE
 circuit_field = { identifier ~ ":" ~ expression }
 
 // Declared in circuits/circuit_field_definition.rs
-circuit_field_definition = { identifier ~ ":" ~ type_ ~ NEWLINE* }
+circuit_field_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_function.rs
 circuit_function = { static_? ~ function_definition }
 
 // Declared in circuits/circuit_member.rs
-circuit_member = { circuit_function | circuit_field_definition }
+circuit_member = { circuit_function | circuit_field_definition ~ NEWLINE*}
 
 /// Conditionals
 
