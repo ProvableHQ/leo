@@ -30,7 +30,7 @@ impl CLI for LoadCommand {
         let path = current_dir()?;
         let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-        log::info!("Unimplemented - `leo deploy`");
+        log::info!("Unimplemented - `leo load`");
 
         Ok(())
     }

@@ -40,6 +40,8 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
+        log::info!("Proving...");
+
         // Fetch program inputs here
         let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
         program.parse_inputs(&inputs_string)?;

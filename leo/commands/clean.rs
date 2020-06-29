@@ -1,7 +1,6 @@
 use crate::{
     cli::*,
     cli_types::*,
-    commands::BuildCommand,
     errors::CLIError,
     files::{ChecksumFile, Manifest, ProofFile, ProvingKeyFile, VerificationKeyFile},
 };
@@ -29,9 +28,7 @@ impl CLI for CleanCommand {
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (_program, _checksum_differs) = BuildCommand::output(options)?;
-
+    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();

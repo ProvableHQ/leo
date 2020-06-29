@@ -43,7 +43,7 @@ impl ProofFile {
         let mut file = File::create(&path)?;
         file.write_all(proof)?;
 
-        log::info!("Proof stored to {:?}", path);
+        log::info!("Proof stored ({:?})", path);
 
         Ok(())
     }

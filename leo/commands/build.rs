@@ -52,6 +52,8 @@ impl CLI for BuildCommand {
             return Err(BuildError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into());
         }
 
+        log::info!("Compiling...");
+
         // Create the outputs directory
         OutputsDirectory::create(&package_path)?;
 
@@ -95,7 +97,7 @@ impl CLI for BuildCommand {
             // Write the new checksum to the outputs directory
             checksum_file.write_to(&path, program_checksum)?;
 
-            log::info!("Checksum saved ({:?})", path);
+            log::debug!("Checksum saved ({:?})", path);
         }
 
         log::info!("Compiled program ({:?})", main_file_path);
