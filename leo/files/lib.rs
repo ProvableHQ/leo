@@ -46,8 +46,8 @@ impl LibFile {
     fn template(&self) -> String {
         format!(
             r#"// The '{}' lib function.
-circuit Circ {{
-    c: field
+circuit Foo {{
+    a: field
 }}
 "#,
             self.package_name

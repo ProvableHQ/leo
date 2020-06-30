@@ -31,14 +31,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
     }
 
-    pub fn enforce_package(&mut self, scope: String, path: PathBuf, package: Package) -> Result<(), ImportError> {
+    pub fn enforce_package(&mut self, scope: String, mut path: PathBuf, package: Package) -> Result<(), ImportError> {
         let package_name = package.name;
 
-        // search for package name in local src directory
+        // search for package name in local directory
         let mut source_directory = path.clone();
         source_directory.push(SOURCE_DIRECTORY_NAME);
 
-        let entries = fs::read_dir(source_directory)
+        // search for package name in `imports` directory
+        let mut imports_directory = path.clone();
+        imports_directory.push(IMPORTS_DIRECTORY_NAME);
+
+        // read from local `src` directory or the current path
+        if source_directory.exists() {
+            path = source_directory
+        }
+
+        let entries = fs::read_dir(path)
             .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?
             .into_iter()
             .collect::<Result<Vec<_>, std::io::Error>>()
@@ -52,10 +61,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 .trim_end_matches(SOURCE_FILE_EXTENSION)
                 .eq(&package_name.name)
         });
-
-        // search for package name in imports directory
-        let mut imports_directory = path.clone();
-        imports_directory.push(IMPORTS_DIRECTORY_NAME);
 
         if imports_directory.exists() {
             let entries = fs::read_dir(imports_directory)

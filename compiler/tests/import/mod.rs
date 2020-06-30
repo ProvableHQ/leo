@@ -56,3 +56,26 @@ fn test_alias() {
 
     output_one(program);
 }
+
+// more complex tests
+#[test]
+#[ignore]
+fn test_many_import() {
+    let bytes = include_bytes!("many_import.leo");
+    let program = parse_program(bytes).unwrap();
+
+    set_local_dir();
+
+    output_one(program);
+}
+
+#[test]
+#[ignore]
+fn test_many_import_star() {
+    let bytes = include_bytes!("many_import_star.leo");
+    let program = parse_program(bytes).unwrap();
+
+    set_local_dir();
+
+    output_one(program);
+}

@@ -35,8 +35,11 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
-    pub fn expected_file(entry: String, span: Span) -> Self {
-        let message = format!("cannot import symbol `{}` from directory `{}`", span.text, entry);
+    pub fn expected_lib_file(entry: String, span: Span) -> Self {
+        let message = format!(
+            "expected library file`{}` when looking for symbol `{}`",
+            entry, span.text
+        );
 
         Self::new_from_span(message, span)
     }

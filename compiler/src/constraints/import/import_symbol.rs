@@ -8,7 +8,10 @@ use leo_ast::LeoParser;
 use leo_types::{ImportSymbol, Program, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
-use std::fs::DirEntry;
+use std::{
+    ffi::OsString,
+    fs::{read_dir, DirEntry},
+};
 
 static LIBRARY_FILE: &str = "src/lib.leo";
 
@@ -27,7 +30,10 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
         file_path.push(LIBRARY_FILE);
 
         if !file_path.exists() {
-            return Err(ImportError::expected_file(file_name, span.clone()));
+            return Err(ImportError::expected_lib_file(
+                format!("{:?}", file_path.as_path()),
+                span.clone(),
+            ));
         }
     }
 
@@ -41,13 +47,35 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_import_star(&mut self, scope: String, entry: &DirEntry, span: Span) -> Result<(), ImportError> {
-        let mut program = parse_import_file(entry, &span)?;
+        // import star from a file
+        if entry.path().is_file() {
+            // only parse `.leo` files
+            if let Some(extension) = entry.path().extension() {
+                if extension.eq(&OsString::from("leo")) {
+                    let mut program = parse_import_file(entry, &span)?;
 
-        // Use same namespace as calling function for imported symbols
-        program = program.name(scope);
+                    // Use same namespace as calling function for imported symbols
+                    program = program.name(scope);
 
-        // * -> import all imports, circuits, functions in the current scope
-        self.resolve_definitions(program)
+                    // * -> import all imports, circuits, functions in the current scope
+                    self.resolve_definitions(program)
+                } else {
+                    Ok(())
+                }
+            } else {
+                Ok(())
+            }
+        } else {
+            // import star for every file in the directory
+            for entry in read_dir(entry.path()).map_err(|error| ImportError::directory_error(error, span.clone()))? {
+                match entry {
+                    Ok(entry) => self.enforce_import_star(scope.clone(), &entry, span.clone())?,
+                    Err(error) => return Err(ImportError::directory_error(error, span.clone())),
+                }
+            }
+
+            Ok(())
+        }
     }
 
     pub fn enforce_import_symbol(

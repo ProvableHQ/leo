@@ -299,7 +299,7 @@ package_access = {
     | import_symbol
 }
 
-multiple_package_access = _{ "(" ~ NEWLINE* ~ package_access ~ ("," ~ NEWLINE* ~ package_access)* ~ NEWLINE* ~ ")"}
+multiple_package_access = _{ "(" ~ NEWLINE* ~ package_access ~ ("," ~ NEWLINE* ~ package_access)* ~ ","? ~ NEWLINE* ~ ")"}
 
 // Declared in imports/star.rs
 star = {"*"}
