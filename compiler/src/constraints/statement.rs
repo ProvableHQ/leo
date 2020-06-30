@@ -2,7 +2,7 @@
 
 use crate::{
     constraints::{ConstrainedProgram, ConstrainedValue},
-    errors::StatementError,
+    errors::{StatementError, ValueError},
     new_scope,
     GroupType,
     Integer,
@@ -21,7 +21,6 @@ use leo_types::{
     Variable,
 };
 
-use crate::errors::ValueError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{

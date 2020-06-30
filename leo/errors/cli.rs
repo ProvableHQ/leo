@@ -6,7 +6,7 @@ pub enum CLIError {
     BuildError(BuildError),
 
     #[error("{}", _0)]
-    BytesFileError(BytesFileError),
+    BytesFileError(ZipFileError),
 
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
@@ -25,6 +25,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     InputsFileError(InputsFileError),
+
+    #[error("{}", _0)]
+    LibFileError(LibFileError),
 
     #[error("{}", _0)]
     MainFileError(MainFileError),
@@ -57,8 +60,8 @@ pub enum CLIError {
     VerificationKeyFileError(VerificationKeyFileError),
 }
 
-impl From<BytesFileError> for CLIError {
-    fn from(error: BytesFileError) -> Self {
+impl From<ZipFileError> for CLIError {
+    fn from(error: ZipFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::BytesFileError(error)
     }
@@ -103,6 +106,13 @@ impl From<InputsFileError> for CLIError {
     fn from(error: InputsFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::InputsFileError(error)
+    }
+}
+
+impl From<LibFileError> for CLIError {
+    fn from(error: LibFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::LibFileError(error)
     }
 }
 

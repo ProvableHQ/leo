@@ -1,5 +1,5 @@
 circuit Foo {
-    foo: u32
+    foo: u32,
 
     static function bar() -> u32 {
         return 0

@@ -24,9 +24,9 @@ impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
 impl fmt::Display for ImportSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {
-            write!(f, "\t{} as {}", self.symbol, self.alias.as_ref().unwrap())
+            write!(f, "{} as {}", self.symbol, self.alias.as_ref().unwrap())
         } else {
-            write!(f, "\t{}", self.symbol)
+            write!(f, "{}", self.symbol)
         }
     }
 }

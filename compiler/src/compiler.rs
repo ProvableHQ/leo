@@ -66,8 +66,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         // Hash the file contents
         let mut hasher = Sha256::new();
-        hasher.input(unparsed_file.as_bytes());
-        let hash = hasher.result();
+        hasher.update(unparsed_file.as_bytes());
+        let hash = hasher.finalize();
 
         Ok(hex::encode(hash))
     }
