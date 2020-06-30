@@ -356,40 +356,111 @@ function main() -> Circ {
 ```
 
 ## Imports
-Both struct and function imports are supported.
+Leo supports importing functions and circuits by name into the current file with the following syntax:
 
-```leo
-import all: `*`
-import alias: `symbol as alias`
+```rust
+import [package].[name];
 ```
 
-`src/simple_import.leo`
+#### Import Aliases
+To import a name using an alias:
 ```rust
-circuit Point {
-    x: u32
-    y: u32
+import [package].[name] as [alias];
+```
+
+#### Import Multiple
+To import multiple names from the same package:
+```rust
+import [package].(
+    [name_1],
+    [name_2] as [alias],
+);
+```
+
+#### Import Star
+To import all symbols from a package:
+```rust
+import [package].*;
+```
+
+### Local
+You can import from a local file in the `src/` directory by using its `[file].leo` as the `[package]` name.
+
+```rust
+import [file].[name];
+```
+
+#### Example: 
+`src/bar.leo`
+```rust
+circuit Bar {
+    b: u32
 }
 
-function test() -> (u32, u32[2]) {
-    return 1, [2, 3]
+function baz() -> u32 {
+    return 1u32
 }
 ```
 
-`src/simple.leo`
+`src/main.leo`
 ```rust
-from "./simple_import" import {
-    Point as Foo,
-    test
-};
+import bar.(
+    Bar,
+    baz
+);
 
-// from "./simple_import" import * 
+function main() {
+    const bar = Bar { b: 1u32};
+    const z = baz();
+}
+```
 
-function main() -> (u32[3]) {
-    let p = Foo { x: 1, y: 2};
+### Foreign
+You can import from a foreign package in the `imports/` directory using its `[package]` name.
+```rust
+import [package].[name];
+```
 
-    let (a, b) = test();
+#### Example:
+`imports/bar/src/lib.leo`
+```rust
+circuit Bar {
+    b: u32
+}
+```
 
-    return [a, ...b]
+`src/main.leo`
+```rust
+import bar.Bar;
+
+function main() {
+    const bar = Bar { b: 1u32 };
+}
+```
+
+### Package Paths
+Leo treats directories as package names when importing.
+```rust
+import [package].[directory].[file].[name]
+```
+
+#### Example:
+We wish to import the `Baz` circuit from the `baz.leo` file in the `bar` directory in the `foo` package
+
+
+`imports/foo/src/bar/baz.leo`
+```rust
+circuit Baz {
+    b: u32
+}
+```
+
+`src/main.leo`
+```rust
+import foo.bar.baz.Baz;
+
+function main() {
+    const baz = Baz { b: 1u32 };
 }
 ```
 
@@ -400,11 +471,11 @@ This will enforce that the two values are equal in the constraint system.
 
 ```rust
 function main() {
-  assert_eq(45, 45);
+  assert_eq!(45, 45);
   
-  assert_eq(2fe, 2fe);
+  assert_eq!(2fe, 2fe);
   
-  assert_eq(true, true);
+  assert_eq!(true, true);
 }
 ```
 
