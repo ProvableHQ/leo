@@ -8,12 +8,10 @@ use leo_ast::LeoParser;
 use leo_types::{ImportSymbol, Program, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
-use std::{
-    ffi::OsString,
-    fs::{read_dir, DirEntry},
-};
+use std::{ffi::OsString, fs::DirEntry};
 
 static LIBRARY_FILE: &str = "src/lib.leo";
+static FILE_EXTENSION: &str = "leo";
 
 fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportError> {
     // make sure the given entry is file
@@ -47,34 +45,28 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_import_star(&mut self, scope: String, entry: &DirEntry, span: Span) -> Result<(), ImportError> {
-        // import star from a file
-        if entry.path().is_file() {
-            // only parse `.leo` files
-            if let Some(extension) = entry.path().extension() {
-                if extension.eq(&OsString::from("leo")) {
-                    let mut program = parse_import_file(entry, &span)?;
+        let mut path = entry.path();
+        let is_dir = path.is_dir();
+        let is_leo_file = path
+            .extension()
+            .map_or(false, |ext| ext.eq(&OsString::from(FILE_EXTENSION)));
 
-                    // Use same namespace as calling function for imported symbols
-                    program = program.name(scope);
+        path.push(LIBRARY_FILE);
 
-                    // * -> import all imports, circuits, functions in the current scope
-                    self.resolve_definitions(program)
-                } else {
-                    Ok(())
-                }
-            } else {
-                Ok(())
-            }
+        let is_package = is_dir && path.exists();
+
+        // import * can only be invoked on a package with a library file or a leo file
+        if is_package || is_leo_file {
+            let mut program = parse_import_file(entry, &span)?;
+
+            // use the same namespace as calling function for imported symbols
+            program = program.name(scope);
+
+            // * -> import all imports, circuits, functions in the current scope
+            self.resolve_definitions(program)
         } else {
-            // import star for every file in the directory
-            for entry in read_dir(entry.path()).map_err(|error| ImportError::directory_error(error, span.clone()))? {
-                match entry {
-                    Ok(entry) => self.enforce_import_star(scope.clone(), &entry, span.clone())?,
-                    Err(error) => return Err(ImportError::directory_error(error, span.clone())),
-                }
-            }
-
-            Ok(())
+            // importing * from a directory or non-leo file in `package/src/` is illegal
+            Err(ImportError::star(entry.path(), span))
         }
     }
 

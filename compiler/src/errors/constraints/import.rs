@@ -35,6 +35,12 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
+    pub fn star(path: PathBuf, span: Span) -> Self {
+        let message = format!("cannot import `*` from path `{:?}`", path);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn expected_lib_file(entry: String, span: Span) -> Self {
         let message = format!(
             "expected library file`{}` when looking for symbol `{}`",

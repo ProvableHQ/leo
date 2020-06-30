@@ -1,4 +1,4 @@
-use crate::{integers::u32::output_one, parse_program};
+use crate::{get_error, integers::u32::output_one, parse_program};
 
 use std::env::{current_dir, set_current_dir};
 
@@ -48,6 +48,17 @@ fn test_star() {
 
 #[test]
 #[ignore]
+fn test_star_fail() {
+    let bytes = include_bytes!("star_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    set_local_dir();
+
+    let _err = get_error(program);
+}
+
+#[test]
+#[ignore]
 fn test_alias() {
     let bytes = include_bytes!("alias.leo");
     let program = parse_program(bytes).unwrap();
@@ -70,7 +81,6 @@ fn test_many_import() {
 }
 
 #[test]
-#[ignore]
 fn test_many_import_star() {
     let bytes = include_bytes!("many_import_star.leo");
     let program = parse_program(bytes).unwrap();
