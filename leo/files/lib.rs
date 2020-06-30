@@ -45,7 +45,7 @@ impl LibFile {
 
     fn template(&self) -> String {
         format!(
-            r#"// The '{}' lib function.
+            r#"// The '{}' library circuit.
 circuit Foo {{
     a: field
 }}

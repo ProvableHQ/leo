@@ -27,6 +27,9 @@ pub enum CLIError {
     InputsFileError(InputsFileError),
 
     #[error("{}", _0)]
+    LibFileError(LibFileError),
+
+    #[error("{}", _0)]
     MainFileError(MainFileError),
 
     #[error("{}", _0)]
@@ -103,6 +106,13 @@ impl From<InputsFileError> for CLIError {
     fn from(error: InputsFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::InputsFileError(error)
+    }
+}
+
+impl From<LibFileError> for CLIError {
+    fn from(error: LibFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::LibFileError(error)
     }
 }
 

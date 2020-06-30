@@ -3,7 +3,7 @@ use crate::{
     cli_types::*,
     directories::{InputsDirectory, SourceDirectory},
     errors::{CLIError, NewError},
-    files::{Gitignore, InputsFile, MainFile, Manifest},
+    files::{Gitignore, InputsFile, LibFile, MainFile, Manifest},
 };
 
 use clap::ArgMatches;
@@ -13,7 +13,7 @@ use std::{env::current_dir, fs};
 pub struct NewCommand;
 
 impl CLI for NewCommand {
-    type Options = Option<String>;
+    type Options = (Option<String>, bool);
     type Output = ();
 
     const ABOUT: AboutType = "Create a new Leo package in a new directory";
@@ -26,16 +26,21 @@ impl CLI for NewCommand {
             1u64,
         ),
     ];
-    const FLAGS: &'static [FlagType] = &[];
+    const FLAGS: &'static [FlagType] = &[("--lib"), ("--bin")];
     const NAME: NameType = "new";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
     fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        let mut is_lib = false;
+        if arguments.is_present("lib") {
+            is_lib = true;
+        }
+
         match arguments.value_of("NAME") {
-            Some(name) => Ok(Some(name.to_string())),
-            None => Ok(None),
+            Some(name) => Ok((Some(name.to_string()), is_lib)),
+            None => Ok((None, is_lib)),
         }
     }
 
@@ -44,7 +49,7 @@ impl CLI for NewCommand {
         let mut path = current_dir()?;
 
         // Derive the package name
-        let package_name = match options {
+        let package_name = match options.0 {
             Some(name) => name,
             None => path
                 .file_stem()
@@ -74,14 +79,20 @@ impl CLI for NewCommand {
         // Create the source directory
         SourceDirectory::create(&path)?;
 
-        // Create the inputs directory
-        InputsDirectory::create(&path)?;
+        // Create a new library or binary file
+        if options.1 {
+            // Create the library file in the source directory
+            LibFile::new(&package_name).write_to(&path)?;
+        } else {
+            // Create the inputs directory
+            InputsDirectory::create(&path)?;
 
-        // Create the inputs file in the inputs directory
-        InputsFile::new(&package_name).write_to(&path)?;
+            // Create the inputs file in the inputs directory
+            InputsFile::new(&package_name).write_to(&path)?;
 
-        // Create the main file in the source directory
-        MainFile::new(&package_name).write_to(&path)?;
+            // Create the main file in the source directory
+            MainFile::new(&package_name).write_to(&path)?;
+        }
 
         Ok(())
     }
