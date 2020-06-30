@@ -48,6 +48,22 @@ fn test_let_mut() {
 }
 
 #[test]
+fn test_const_fail() {
+    let bytes = include_bytes!("const.leo");
+    let program = parse_program(bytes).unwrap();
+
+    mut_fail(program);
+}
+
+#[test]
+fn test_const_mut_fail() {
+    let bytes = include_bytes!("const_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
+    mut_fail(program);
+}
+
+#[test]
 fn test_array() {
     let bytes = include_bytes!("array.leo");
     let program = parse_program(bytes).unwrap();

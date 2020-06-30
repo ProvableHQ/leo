@@ -276,8 +276,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             expression,
         )?;
 
-        if let Declare::Let = declare {
-            value.allocate_value(cs, span)?;
+        match declare {
+            Declare::Let => value.allocate_value(cs, span)?,
+            Declare::Const => {
+                if variable.mutable {
+                    return Err(StatementError::immutable_assign(variable.to_string(), span));
+                }
+            }
         }
 
         self.store_definition(function_scope, variable, value)
