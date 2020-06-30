@@ -561,10 +561,25 @@ This will create a new directory with a given package name. The new package will
     - inputs.leo # Your program inputs for main.leo
 - outputs # Your program outputs
 - src
-    - lib.leo # Your program library
     - main.leo # Your program
 - tests
     - test.leo # Your program tests
+- Leo.toml # Your program manifest
+```
+
+#### Flags
+```rust
+leo new {$Name} --bin
+```
+This will create a new directory with a given package name. The new package will have a directory structure as above.
+
+```rust
+leo new {$Name} --lib
+```
+This will create a new directory with a given package name. The new package will have a directory structure as follows:
+```
+- src
+    - lib.leo # Your program library
 - Leo.toml # Your program manifest
 ```
 
@@ -575,6 +590,16 @@ To initialize an existing directory, run:
 leo init
 ```
 This will initialize the current directory with the same package directory setup.
+
+#### Flags
+`leo init` supports the same flags as `leo new`
+```rust
+leo init --bin
+```
+```rust
+leo init --lib
+```
+
 
 ### `leo build`
 
