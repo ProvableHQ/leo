@@ -35,6 +35,8 @@ pub trait GroupType<F: Field>:
 {
     fn constant(string: String, span: Span) -> Result<Self, GroupError>;
 
+    fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: Span) -> Result<Self, GroupError>;
+
     fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;
 
     fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;

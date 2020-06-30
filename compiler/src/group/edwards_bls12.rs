@@ -10,7 +10,7 @@ use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
     curves::AffineCurve,
     gadgets::{
-        curves::{FpGadget, GroupGadget},
+        curves::{FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
         utilities::{
             alloc::AllocGadget,
@@ -37,6 +37,12 @@ impl GroupType<Fq> for EdwardsGroupType {
             Self::edwards_affine_from_str(string.clone()).map_err(|_| GroupError::invalid_group(string, span))?;
 
         Ok(EdwardsGroupType::Constant(value))
+    }
+
+    fn to_allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, span: Span) -> Result<Self, GroupError> {
+        self.allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line, span.start)))
+            .map(|result| EdwardsGroupType::Allocated(result))
+            .map_err(|error| GroupError::synthesis_error(error, span))
     }
 
     fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
@@ -127,7 +133,19 @@ impl EdwardsGroupType {
                     || Ok(constant),
                 )
             }
-            EdwardsGroupType::Allocated(allocated) => Ok(allocated.clone()),
+            EdwardsGroupType::Allocated(allocated) => {
+                let x_value = allocated.x.get_value();
+                let y_value = allocated.y.get_value();
+
+                let x_allocated = FpGadget::alloc(cs.ns(|| format!("x")), || {
+                    x_value.ok_or(SynthesisError::AssignmentMissing)
+                })?;
+                let y_allocated = FpGadget::alloc(cs.ns(|| format!("y")), || {
+                    y_value.ok_or(SynthesisError::AssignmentMissing)
+                })?;
+
+                Ok(EdwardsBlsGadget::new(x_allocated, y_allocated))
+            }
         }
     }
 }
