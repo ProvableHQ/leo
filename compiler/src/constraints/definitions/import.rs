@@ -13,26 +13,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // get imported program name from import
         // get imported symbols from from import
         let imported_symbols = ImportedSymbols::from(import);
-        let program_name = imported_symbols.name.clone();
 
-        // get imported program from hashmap
-        let program = imported_programs
-            .get(&program_name)
-            .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
+        for (package, symbol) in imported_symbols.symbols {
+            // get imported program from hashmap
+            let program = imported_programs
+                .get(&package)
+                .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
 
-        // resolve imported program's import statements
-        program
-            .imports
-            .iter()
-            .map(|import| self.store_import(program_name.clone(), import, imported_programs))
-            .collect::<Result<Vec<()>, ImportError>>()?;
+            // resolve imported program's import statements
+            program
+                .imports
+                .iter()
+                .map(|import| self.store_import(package.clone(), import, imported_programs))
+                .collect::<Result<Vec<()>, ImportError>>()?;
 
-        // store imported symbols in constrained program
-        imported_symbols
-            .symbols
-            .iter()
-            .map(|symbol| self.store_symbol(scope.clone(), program_name.clone(), symbol, program))
-            .collect::<Result<Vec<()>, ImportError>>()?;
+            self.store_symbol(scope.clone(), package, &symbol, program)?;
+        }
 
         Ok(())
     }

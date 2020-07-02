@@ -1,4 +1,4 @@
-use crate::{get_error, integers::u32::output_one, parse_program};
+use crate::{integers::u32::output_one, parse_program};
 
 use std::env::{current_dir, set_current_dir};
 
@@ -16,10 +16,10 @@ fn set_local_dir() {
 #[test]
 #[ignore]
 fn test_basic() {
+    set_local_dir();
+
     let bytes = include_bytes!("basic.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -27,10 +27,10 @@ fn test_basic() {
 #[test]
 #[ignore]
 fn test_multiple() {
+    set_local_dir();
+
     let bytes = include_bytes!("multiple.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -38,10 +38,10 @@ fn test_multiple() {
 #[test]
 #[ignore]
 fn test_star() {
+    set_local_dir();
+
     let bytes = include_bytes!("star.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -49,21 +49,19 @@ fn test_star() {
 #[test]
 #[ignore]
 fn test_star_fail() {
-    let bytes = include_bytes!("star_fail.leo");
-    let program = parse_program(bytes).unwrap();
-
     set_local_dir();
 
-    let _err = get_error(program);
+    let bytes = include_bytes!("star_fail.leo");
+    assert!(parse_program(bytes).is_err());
 }
 
 #[test]
 #[ignore]
 fn test_alias() {
+    set_local_dir();
+
     let bytes = include_bytes!("alias.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -72,10 +70,10 @@ fn test_alias() {
 #[test]
 #[ignore]
 fn test_many_import() {
+    set_local_dir();
+
     let bytes = include_bytes!("many_import.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -83,10 +81,10 @@ fn test_many_import() {
 #[test]
 #[ignore]
 fn test_many_import_star() {
+    set_local_dir();
+
     let bytes = include_bytes!("many_import_star.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }

@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             program_name.clone(),
                             Box::new(ConstrainedValue::Function(None, function.clone())),
                         ),
-                        None => return Err(ImportError::unknown_symbol(symbol.to_owned(), scope)),
+                        None => return Err(ImportError::unknown_symbol(symbol.to_owned(), program_name)),
                     }
                 }
             };

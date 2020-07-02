@@ -2,38 +2,37 @@ use leo_types::{Import, ImportSymbol, Package, PackageAccess};
 
 #[derive(Debug)]
 pub(crate) struct ImportedSymbols {
-    pub name: String,
-    pub symbols: Vec<ImportSymbol>,
+    pub symbols: Vec<(String, ImportSymbol)>,
 }
 
 impl ImportedSymbols {
-    fn new(name: String) -> Self {
-        Self { name, symbols: vec![] }
+    fn new() -> Self {
+        Self { symbols: vec![] }
     }
 
     pub(crate) fn from(import: &Import) -> Self {
-        let mut symbols = Self::new(import.package.name.name.clone());
+        let mut symbols = Self::new();
 
-        symbols.from_package_access(&import.package.access);
+        symbols.from_package(&import.package);
 
         symbols
     }
 
     fn from_package(&mut self, package: &Package) {
-        self.name = package.name.name.clone();
-
-        self.from_package_access(&package.access);
+        self.from_package_access(package.name.name.clone(), &package.access);
     }
 
-    fn from_package_access(&mut self, access: &PackageAccess) {
+    fn from_package_access(&mut self, package: String, access: &PackageAccess) {
         match access {
             PackageAccess::SubPackage(package) => self.from_package(package),
             PackageAccess::Star(span) => {
                 let star = ImportSymbol::star(span);
-                self.symbols.push(star);
+                self.symbols.push((package, star));
             }
-            PackageAccess::Symbol(symbol) => self.symbols.push(symbol.clone()),
-            PackageAccess::Multiple(packages) => packages.iter().for_each(|access| self.from_package_access(access)),
+            PackageAccess::Symbol(symbol) => self.symbols.push((package, symbol.clone())),
+            PackageAccess::Multiple(packages) => packages
+                .iter()
+                .for_each(|access| self.from_package_access(package.clone(), access)),
         }
     }
 }
