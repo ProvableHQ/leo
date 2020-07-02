@@ -2,11 +2,15 @@
 //! a resolved Leo program.
 
 use crate::{
-    bool_from_input,
-    constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
+    constraints::{
+        boolean::bool_from_input,
+        field::field_from_input,
+        group::group_from_input,
+        new_scope,
+        ConstrainedProgram,
+        ConstrainedValue,
+    },
     errors::{FunctionError, StatementError},
-    field_from_input,
-    group_from_input,
     GroupType,
 };
 use leo_types::{Expression, Function, InputValue, Integer, Span, Type};

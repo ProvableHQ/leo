@@ -1,11 +1,12 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{
-    allocate_bool,
-    allocate_field,
-    allocate_group,
+    constraints::{
+        boolean::{allocate_bool, new_bool_constant},
+        field::allocate_field,
+        group::allocate_group,
+    },
     errors::ValueError,
-    new_bool_constant,
     new_scope,
     FieldType,
     GroupType,

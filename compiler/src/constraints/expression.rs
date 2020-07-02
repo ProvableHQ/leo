@@ -1,13 +1,14 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
 use crate::{
-    constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
-    enforce_and,
-    enforce_or,
+    constraints::{
+        boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
+        new_scope,
+        ConstrainedCircuitMember,
+        ConstrainedProgram,
+        ConstrainedValue,
+    },
     errors::ExpressionError,
-    evaluate_not,
-    new_bool_constant,
-    new_scope,
     FieldType,
     GroupType,
 };
