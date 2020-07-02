@@ -39,6 +39,17 @@ impl Error {
         }
     }
 
+    pub fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+        Self {
+            path: Some(format!("{:?}", path)),
+            line: span.line,
+            start: span.start,
+            end: span.end,
+            text: span.text,
+            message,
+        }
+    }
+
     pub fn set_path(&mut self, path: PathBuf) {
         self.path = Some(format!("{:?}", path));
     }

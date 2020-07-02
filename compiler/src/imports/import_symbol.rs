@@ -1,4 +1,4 @@
-use crate::{errors::constraints::ImportError, ProgramImports};
+use crate::{errors::constraints::ImportError, ImportedPrograms};
 use leo_ast::LeoParser;
 use leo_types::{ImportSymbol, Program, Span};
 
@@ -11,7 +11,7 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
     // make sure the given entry is file
     let file_type = entry
         .file_type()
-        .map_err(|error| ImportError::directory_error(error, span.clone()))?;
+        .map_err(|error| ImportError::directory_error(error, span.clone(), entry.path()))?;
     let file_name = entry
         .file_name()
         .to_os_string()
@@ -38,7 +38,7 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
     Ok(Program::from(syntax_tree, file_name.clone()))
 }
 
-impl ProgramImports {
+impl ImportedPrograms {
     pub fn parse_import_star(&mut self, entry: &DirEntry, span: &Span) -> Result<(), ImportError> {
         let path = entry.path();
         let is_dir = path.is_dir();
@@ -57,6 +57,13 @@ impl ProgramImports {
             let name = format!("{:?}", entry.path());
             let program = parse_import_file(entry, &span)?;
 
+            // Store program's imports in imports hashmap
+            program
+                .imports
+                .iter()
+                .map(|import| self.parse_package(entry.path(), &import.package))
+                .collect::<Result<Vec<()>, ImportError>>()?;
+
             // Store program in imports hashmap
             self.store(name, program);
 
@@ -71,6 +78,13 @@ impl ProgramImports {
         // Generate aleo program from file
         let name = format!("{:?}", entry.path());
         let program = parse_import_file(entry, &symbol.span)?;
+
+        // Store program's imports in imports hashmap
+        program
+            .imports
+            .iter()
+            .map(|import| self.parse_package(entry.path(), &import.package))
+            .collect::<Result<Vec<()>, ImportError>>()?;
 
         // Store program in imports hashmap
         self.store(name, program);

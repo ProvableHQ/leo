@@ -8,6 +8,7 @@ use crate::{
     field_from_input,
     group_from_input,
     GroupType,
+    ImportedPrograms,
 };
 use leo_types::{Expression, Function, InputValue, Integer, Program, Span, Type};
 
@@ -272,10 +273,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         self.enforce_function(cs, scope, function_name, function, input_variables)
     }
 
-    pub(crate) fn resolve_definitions(&mut self, program: Program) -> Result<(), ImportError> {
+    pub(crate) fn resolve_definitions(
+        &mut self,
+        program: Program,
+        _imported_programs: ImportedPrograms,
+    ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 
-        // evaluate and store all imports
+        // evaluate all import statements and store imported definitions
         // program
         //     .imports
         //     .into_iter()

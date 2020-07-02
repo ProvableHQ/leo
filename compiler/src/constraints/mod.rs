@@ -24,7 +24,7 @@ pub use value::*;
 pub mod statement;
 pub use statement::*;
 
-use crate::{errors::CompilerError, GroupType};
+use crate::{errors::CompilerError, GroupType, ImportedPrograms};
 use leo_types::{InputValue, Program};
 
 use snarkos_models::{
@@ -36,12 +36,13 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     cs: &mut CS,
     program: Program,
     parameters: Vec<Option<InputValue>>,
+    imported_programs: ImportedPrograms,
 ) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());
 
-    resolved_program.resolve_definitions(program)?;
+    resolved_program.resolve_definitions(program, imported_programs)?;
 
     let main = resolved_program
         .get(&main_function_name)
@@ -59,13 +60,14 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     cs: &mut TestConstraintSystem<F>,
     program: Program,
+    imported_programs: ImportedPrograms,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
 
     let tests = program.tests.clone();
 
-    resolved_program.resolve_definitions(program)?;
+    resolved_program.resolve_definitions(program, imported_programs)?;
 
     log::info!("Running {} tests", tests.len());
 

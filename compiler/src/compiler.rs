@@ -4,7 +4,7 @@ use crate::{
     constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
     errors::CompilerError,
     GroupType,
-    ProgramImports,
+    ImportedPrograms,
 };
 use leo_ast::LeoParser;
 use leo_inputs::LeoInputsParser;
@@ -25,7 +25,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     main_file_path: PathBuf,
     program: Program,
     program_inputs: Inputs,
-    program_imports: ProgramImports,
+    imported_programs: ImportedPrograms,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             main_file_path: PathBuf::new(),
             program: Program::new(package_name),
             program_inputs: Inputs::new(),
-            program_imports: ProgramImports::new(),
+            imported_programs: ImportedPrograms::new(),
             output: None,
             _engine: PhantomData,
         }
@@ -80,7 +80,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         cs: &mut CS,
     ) -> Result<ConstrainedValue<F, G>, CompilerError> {
         let path = self.main_file_path;
-        generate_constraints(cs, self.program, self.program_inputs.get_inputs()).map_err(|mut error| {
+        let inputs = self.program_inputs.get_inputs();
+
+        generate_constraints(cs, self.program, inputs, self.imported_programs).map_err(|mut error| {
             error.set_path(path);
 
             error
@@ -88,7 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(cs, self.program)
+        generate_test_constraints::<F, G>(cs, self.program, self.imported_programs)
     }
 
     fn load_program(&mut self) -> Result<String, CompilerError> {
@@ -105,7 +107,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         self.program = Program::from(syntax_tree, package_name);
         self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
-        self.program_imports = ProgramImports::from_program(&self.program)?;
+        self.imported_programs = ImportedPrograms::from_program(&self.program)?;
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
 
@@ -136,7 +138,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             main_file_path: PathBuf::new(),
             program,
             program_inputs,
-            program_imports: ProgramImports::new(),
+            imported_programs: ImportedPrograms::new(),
             output: None,
             _engine: PhantomData,
         })
@@ -145,11 +147,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let result =
-            generate_constraints::<_, G, _>(cs, self.program, self.program_inputs.get_inputs()).map_err(|e| {
-                log::error!("{}", e);
-                SynthesisError::Unsatisfiable
-            })?;
+        let result = generate_constraints::<_, G, _>(
+            cs,
+            self.program,
+            self.program_inputs.get_inputs(),
+            self.imported_programs,
+        )
+        .map_err(|e| {
+            log::error!("{}", e);
+            SynthesisError::Unsatisfiable
+        })?;
 
         // Write results to file or something
         log::info!("{}", result);

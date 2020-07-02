@@ -4,11 +4,11 @@ use leo_types::Program;
 use std::{collections::HashMap, env::current_dir};
 
 #[derive(Clone)]
-pub struct ProgramImports {
+pub struct ImportedPrograms {
     imports: HashMap<String, Program>,
 }
 
-impl ProgramImports {
+impl ImportedPrograms {
     pub fn new() -> Self {
         Self {
             imports: HashMap::new(),
@@ -19,6 +19,10 @@ impl ProgramImports {
         // todo: handle conflicting versions for duplicate imports here
         println!("{}, {:?}", name, program);
         let _res = self.imports.insert(name, program);
+    }
+
+    pub fn get(&self, name: &String) -> Option<&Program> {
+        self.imports.get(name)
     }
 
     pub fn from_program(program: &Program) -> Result<Self, ImportError> {

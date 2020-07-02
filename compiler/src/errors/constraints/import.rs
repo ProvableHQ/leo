@@ -17,6 +17,10 @@ impl ImportError {
         ImportError::Error(FormattedError::new_from_span(message, span))
     }
 
+    fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+        ImportError::Error(FormattedError::new_from_span_with_path(message, span, path))
+    }
+
     pub fn conflicting_imports(identifier: Identifier) -> Self {
         let message = format!("conflicting imports found for `{}`", identifier.name);
 
@@ -41,10 +45,10 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
-    pub fn directory_error(error: io::Error, span: Span) -> Self {
+    pub fn directory_error(error: io::Error, span: Span, path: PathBuf) -> Self {
         let message = format!("compilation failed due to directory error - {:?}", error);
 
-        Self::new_from_span(message, span)
+        Self::new_from_span_with_path(message, span, path)
     }
 
     pub fn star(path: PathBuf, span: Span) -> Self {

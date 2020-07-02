@@ -1,4 +1,4 @@
-use crate::{errors::constraints::ImportError, ProgramImports};
+use crate::{errors::constraints::ImportError, ImportedPrograms};
 use leo_types::{Package, PackageAccess};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
@@ -7,7 +7,7 @@ static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
-impl ProgramImports {
+impl ImportedPrograms {
     pub fn parse_package_access(&mut self, entry: &DirEntry, access: &PackageAccess) -> Result<(), ImportError> {
         // bring one or more import symbols into scope for the current constrained program
         // we will recursively traverse sub packages here until we find the desired symbol
@@ -26,7 +26,13 @@ impl ProgramImports {
     }
 
     pub fn parse_package(&mut self, mut path: PathBuf, package: &Package) -> Result<(), ImportError> {
+        let error_path = path.clone();
         let package_name = package.name.clone();
+
+        // trim path if importing from another file
+        if path.is_file() {
+            path.pop();
+        }
 
         // search for package name in local directory
         let mut source_directory = path.clone();
@@ -42,10 +48,10 @@ impl ProgramImports {
         }
 
         let entries = fs::read_dir(path)
-            .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?
+            .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?
             .into_iter()
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?;
+            .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?;
 
         let matched_source_entry = entries.into_iter().find(|entry| {
             entry
@@ -59,10 +65,10 @@ impl ProgramImports {
 
         if imports_directory.exists() {
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?
+                .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?
                 .into_iter()
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| ImportError::directory_error(error, package_name.span.clone()))?;
+                .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?;
 
             let matched_import_entry = entries
                 .into_iter()
