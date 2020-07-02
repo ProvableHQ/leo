@@ -17,6 +17,10 @@ impl ImportError {
         ImportError::Error(FormattedError::new_from_span(message, span))
     }
 
+    fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+        ImportError::Error(FormattedError::new_from_span_with_path(message, span, path))
+    }
+
     pub fn conflicting_imports(identifier: Identifier) -> Self {
         let message = format!("conflicting imports found for `{}`", identifier.name);
 
@@ -29,8 +33,26 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
-    pub fn directory_error(error: io::Error, span: Span) -> Self {
+    pub fn current_directory_error(error: io::Error) -> Self {
+        let span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+        let message = format!("compilation failed trying to find current directory - {:?}", error);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn directory_error(error: io::Error, span: Span, path: PathBuf) -> Self {
         let message = format!("compilation failed due to directory error - {:?}", error);
+
+        Self::new_from_span_with_path(message, span, path)
+    }
+
+    pub fn star(path: PathBuf, span: Span) -> Self {
+        let message = format!("cannot import `*` from path `{:?}`", path);
 
         Self::new_from_span(message, span)
     }
@@ -53,11 +75,9 @@ impl ImportError {
         Self::new_from_span(message, identifier.span)
     }
 
-    pub fn unknown_symbol(symbol: ImportSymbol, file: String, file_path: &PathBuf) -> Self {
+    pub fn unknown_symbol(symbol: ImportSymbol, file: String) -> Self {
         let message = format!("cannot find imported symbol `{}` in imported file `{}`", symbol, file);
-        let mut error = FormattedError::new_from_span(message, symbol.span);
-
-        error.path = Some(format!("{:?}", file_path));
+        let error = FormattedError::new_from_span(message, symbol.span);
 
         ImportError::Error(error)
     }

@@ -1,9 +1,9 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{
-    allocate_bool,
-    errors::{FieldError, ValueError},
-    new_bool_constant,
+    constraints::boolean::{allocate_bool, new_bool_constant},
+    errors::{ExpressionError, FieldError, ValueError},
+    new_scope,
     FieldType,
     GroupType,
     Integer,
@@ -40,6 +40,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
+    Import(String, Box<ConstrainedValue<F, G>>),
     Unresolved(String),
 }
 
@@ -111,6 +112,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type(span.clone())?], span),
             (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type(span.clone())?], span),
             _ => Ok(()),
+        }
+    }
+
+    pub(crate) fn extract_function(self, scope: String, span: Span) -> Result<(String, Function), ExpressionError> {
+        match self {
+            ConstrainedValue::Function(circuit_identifier, function) => {
+                let mut outer_scope = scope.clone();
+                // If this is a circuit function, evaluate inside the circuit scope
+                if circuit_identifier.is_some() {
+                    outer_scope = new_scope(scope, circuit_identifier.unwrap().to_string());
+                }
+
+                Ok((outer_scope, function.clone()))
+            }
+            ConstrainedValue::Import(import_scope, function) => function.extract_function(import_scope, span),
+            value => return Err(ExpressionError::undefined_function(value.to_string(), span)),
+        }
+    }
+
+    pub(crate) fn extract_circuit(self, span: Span) -> Result<Circuit, ExpressionError> {
+        match self {
+            ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit),
+            ConstrainedValue::Import(_import_scope, circuit) => circuit.extract_circuit(span),
+            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
         }
     }
 
@@ -189,6 +214,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // empty wrappers
             ConstrainedValue::CircuitDefinition(_) => {}
             ConstrainedValue::Function(_, _) => {}
+            ConstrainedValue::Import(_, _) => {}
+
             ConstrainedValue::Unresolved(value) => {
                 return Err(ValueError::implicit(value.to_string(), span));
             }
@@ -246,6 +273,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
                 write!(f, "function {{ {}() }}", function.function_name)
             }
+            ConstrainedValue::Import(_, ref value) => write!(f, "{}", value),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
             ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
