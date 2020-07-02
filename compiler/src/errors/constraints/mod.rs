@@ -1,28 +1,28 @@
 //! Module containing errors returned when enforcing constraints in an Leo program
 
 pub mod boolean;
-pub use boolean::*;
+pub use self::boolean::*;
 
 pub mod function;
-pub use function::*;
+pub use self::function::*;
 
 pub mod expression;
-pub use expression::*;
+pub use self::expression::*;
 
 pub mod import;
-pub use import::*;
+pub use self::import::*;
 
 pub mod integer;
 pub use integer::*;
 
 pub mod field;
-pub use field::*;
+pub use self::field::*;
 
 pub mod group;
-pub use group::*;
+pub use self::group::*;
 
 pub mod value;
-pub use value::*;
+pub use self::value::*;
 
 pub mod statement;
-pub use statement::*;
+pub use self::statement::*;
