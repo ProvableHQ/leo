@@ -29,6 +29,18 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
+    pub fn current_directory_error(error: io::Error) -> Self {
+        let span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+        let message = format!("compilation failed trying to find current directory - {:?}", error);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn directory_error(error: io::Error, span: Span) -> Self {
         let message = format!("compilation failed due to directory error - {:?}", error);
 

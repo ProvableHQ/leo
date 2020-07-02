@@ -276,11 +276,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let program_name = program.name.clone();
 
         // evaluate and store all imports
-        program
-            .imports
-            .into_iter()
-            .map(|import| self.enforce_import(program_name.clone(), import))
-            .collect::<Result<Vec<_>, ImportError>>()?;
+        // program
+        //     .imports
+        //     .into_iter()
+        //     .map(|import| self.store_import(program_name.clone(), import))
+        //     .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
         program.circuits.into_iter().for_each(|(identifier, circuit)| {

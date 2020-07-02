@@ -22,16 +22,6 @@ impl<'ast> From<AstImport<'ast>> for Import {
 }
 
 impl Import {
-    pub fn path_string_full(&self) -> String {
-        format!("{}.leo", self.package.name)
-    }
-
-    // from "./import" import *;
-    pub fn is_star(&self) -> bool {
-        // self.symbols.is_empty()
-        false
-    }
-
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "import {};", self.package)
     }

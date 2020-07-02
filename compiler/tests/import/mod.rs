@@ -81,6 +81,7 @@ fn test_many_import() {
 }
 
 #[test]
+#[ignore]
 fn test_many_import_star() {
     let bytes = include_bytes!("many_import_star.leo");
     let program = parse_program(bytes).unwrap();

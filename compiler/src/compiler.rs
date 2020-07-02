@@ -4,6 +4,7 @@ use crate::{
     constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
     errors::CompilerError,
     GroupType,
+    ProgramImports,
 };
 use leo_ast::LeoParser;
 use leo_inputs::LeoInputsParser;
@@ -24,6 +25,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     main_file_path: PathBuf,
     program: Program,
     program_inputs: Inputs,
+    program_imports: ProgramImports,
     output: Option<ConstrainedValue<F, G>>,
     _engine: PhantomData<F>,
 }
@@ -35,6 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             main_file_path: PathBuf::new(),
             program: Program::new(package_name),
             program_inputs: Inputs::new(),
+            program_imports: ProgramImports::new(),
             output: None,
             _engine: PhantomData,
         }
@@ -102,6 +105,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         self.program = Program::from(syntax_tree, package_name);
         self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
+        self.program_imports = ProgramImports::from_program(&self.program)?;
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
 
@@ -132,6 +136,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             main_file_path: PathBuf::new(),
             program,
             program_inputs,
+            program_imports: ProgramImports::new(),
             output: None,
             _engine: PhantomData,
         })
