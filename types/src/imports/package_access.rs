@@ -28,11 +28,11 @@ impl<'ast> From<AstPackageAccess<'ast>> for PackageAccess {
 impl PackageAccess {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PackageAccess::Star(ref _span) => write!(f, ".*"),
-            PackageAccess::SubPackage(ref package) => write!(f, ".{}", package),
-            PackageAccess::Symbol(ref symbol) => write!(f, ".{}", symbol),
+            PackageAccess::Star(ref _span) => write!(f, "*"),
+            PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
+            PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
             PackageAccess::Multiple(ref accesses) => {
-                write!(f, ".(")?;
+                write!(f, "(")?;
                 for (i, access) in accesses.iter().enumerate() {
                     write!(f, "{}", access)?;
                     if i < accesses.len() - 1 {
