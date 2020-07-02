@@ -17,7 +17,6 @@ impl ImportedPrograms {
 
     pub(crate) fn store(&mut self, file_name: String, program: Program) {
         // todo: handle conflicting versions for duplicate imports here
-        println!("storing: {},\n {:?}", file_name, program);
         let _res = self.imports.insert(file_name, program);
     }
 

@@ -10,14 +10,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         import: &Import,
         imported_programs: &ImportedPrograms,
     ) -> Result<(), ImportError> {
-        println!("program name {}", scope);
-        println!("import {}", import);
-
         // get imported program name from import
         // get imported symbols from from import
         let imported_symbols = ImportedSymbols::from(import);
         let program_name = imported_symbols.name.clone();
-        println!("symbols {:?}", imported_symbols);
 
         // get imported program from hashmap
         let program = imported_programs
@@ -35,7 +31,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         imported_symbols
             .symbols
             .iter()
-            .map(|symbol| self.store_symbol(scope.clone(), symbol, program))
+            .map(|symbol| self.store_symbol(scope.clone(), program_name.clone(), symbol, program))
             .collect::<Result<Vec<()>, ImportError>>()?;
 
         Ok(())
