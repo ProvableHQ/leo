@@ -15,14 +15,14 @@ impl ImportedPrograms {
         }
     }
 
-    pub(crate) fn store(&mut self, name: String, program: Program) {
+    pub(crate) fn store(&mut self, file_name: String, program: Program) {
         // todo: handle conflicting versions for duplicate imports here
-        println!("{}, {:?}", name, program);
-        let _res = self.imports.insert(name, program);
+        println!("storing: {},\n {:?}", file_name, program);
+        let _res = self.imports.insert(file_name, program);
     }
 
-    pub fn get(&self, name: &String) -> Option<&Program> {
-        self.imports.get(name)
+    pub fn get(&self, file_name: &String) -> Option<&Program> {
+        self.imports.get(file_name)
     }
 
     pub fn from_program(program: &Program) -> Result<Self, ImportError> {

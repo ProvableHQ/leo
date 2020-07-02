@@ -30,3 +30,31 @@ impl fmt::Display for ImportSymbol {
         }
     }
 }
+
+// todo: remove this
+impl fmt::Debug for ImportSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.alias.is_some() {
+            write!(f, "{} as {}", self.symbol, self.alias.as_ref().unwrap())
+        } else {
+            write!(f, "{}", self.symbol)
+        }
+    }
+}
+
+impl ImportSymbol {
+    pub fn star(span: &Span) -> Self {
+        Self {
+            symbol: Identifier {
+                name: "*".to_string(),
+                span: span.clone(),
+            },
+            alias: None,
+            span: span.clone(),
+        }
+    }
+
+    pub fn is_star(&self) -> bool {
+        self.symbol.name.eq("*")
+    }
+}

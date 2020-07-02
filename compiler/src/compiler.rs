@@ -82,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let path = self.main_file_path;
         let inputs = self.program_inputs.get_inputs();
 
-        generate_constraints(cs, self.program, inputs, self.imported_programs).map_err(|mut error| {
+        generate_constraints(cs, self.program, inputs, &self.imported_programs).map_err(|mut error| {
             error.set_path(path);
 
             error
@@ -90,7 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(cs, self.program, self.imported_programs)
+        generate_test_constraints::<F, G>(cs, self.program, &self.imported_programs)
     }
 
     fn load_program(&mut self) -> Result<String, CompilerError> {
@@ -151,7 +151,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
             cs,
             self.program,
             self.program_inputs.get_inputs(),
-            self.imported_programs,
+            &self.imported_programs,
         )
         .map_err(|e| {
             log::error!("{}", e);
