@@ -16,10 +16,10 @@ fn set_local_dir() {
 #[test]
 #[ignore]
 fn test_basic() {
+    set_local_dir();
+
     let bytes = include_bytes!("basic.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -27,10 +27,10 @@ fn test_basic() {
 #[test]
 #[ignore]
 fn test_multiple() {
+    set_local_dir();
+
     let bytes = include_bytes!("multiple.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
@@ -38,21 +38,53 @@ fn test_multiple() {
 #[test]
 #[ignore]
 fn test_star() {
+    set_local_dir();
+
     let bytes = include_bytes!("star.leo");
     let program = parse_program(bytes).unwrap();
-
-    set_local_dir();
 
     output_one(program);
 }
 
 #[test]
 #[ignore]
+fn test_star_fail() {
+    set_local_dir();
+
+    let bytes = include_bytes!("star_fail.leo");
+    assert!(parse_program(bytes).is_err());
+}
+
+#[test]
+#[ignore]
 fn test_alias() {
+    set_local_dir();
+
     let bytes = include_bytes!("alias.leo");
     let program = parse_program(bytes).unwrap();
 
+    output_one(program);
+}
+
+// more complex tests
+#[test]
+#[ignore]
+fn test_many_import() {
     set_local_dir();
+
+    let bytes = include_bytes!("many_import.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_one(program);
+}
+
+#[test]
+#[ignore]
+fn test_many_import_star() {
+    set_local_dir();
+
+    let bytes = include_bytes!("many_import_star.leo");
+    let program = parse_program(bytes).unwrap();
 
     output_one(program);
 }

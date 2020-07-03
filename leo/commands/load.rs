@@ -1,4 +1,11 @@
-use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError, files::Manifest};
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::BuildCommand,
+    directories::SOURCE_DIRECTORY_NAME,
+    errors::{CLIError, RunError},
+    files::{Manifest, MAIN_FILE_NAME},
+};
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
@@ -24,14 +31,25 @@ impl CLI for LoadCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (_program, _checksum_differs) = BuildCommand::output(options)?;
-
-        // Get the package name
         let path = current_dir()?;
-        let _package_name = Manifest::try_from(&path)?.get_package_name();
+        match BuildCommand::output(options)? {
+            Some((_program, _checksum_differs)) => {
+                // Get the package name
+                let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-        log::info!("Unimplemented - `leo load`");
+                log::info!("Unimplemented - `leo load`");
 
-        Ok(())
+                Ok(())
+            }
+            None => {
+                let mut main_file_path = path.clone();
+                main_file_path.push(SOURCE_DIRECTORY_NAME);
+                main_file_path.push(MAIN_FILE_NAME);
+
+                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
+                    main_file_path.into_os_string(),
+                )))
+            }
+        }
     }
 }

@@ -2,16 +2,19 @@
 //! a resolved Leo program.
 
 use crate::{
-    bool_from_input,
-    constraints::{new_scope, ConstrainedProgram, ConstrainedValue},
-    errors::{FunctionError, ImportError},
-    field_from_input,
-    group_from_input,
+    constraints::{
+        boolean::bool_from_input,
+        field::field_from_input,
+        group::group_from_input,
+        new_scope,
+        ConstrainedProgram,
+        ConstrainedValue,
+    },
+    errors::{FunctionError, StatementError},
     GroupType,
 };
-use leo_types::{Expression, Function, InputValue, Integer, Program, Span, Type};
+use leo_types::{Expression, Function, InputValue, Integer, Span, Type};
 
-use crate::errors::StatementError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
@@ -270,30 +273,5 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)
-    }
-
-    pub(crate) fn resolve_definitions(&mut self, program: Program) -> Result<(), ImportError> {
-        let program_name = program.name.clone();
-
-        // evaluate and store all imports
-        program
-            .imports
-            .into_iter()
-            .map(|import| self.enforce_import(program_name.clone(), import))
-            .collect::<Result<Vec<_>, ImportError>>()?;
-
-        // evaluate and store all circuit definitions
-        program.circuits.into_iter().for_each(|(identifier, circuit)| {
-            let resolved_circuit_name = new_scope(program_name.clone(), identifier.to_string());
-            self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
-        });
-
-        // evaluate and store all function definitions
-        program.functions.into_iter().for_each(|(function_name, function)| {
-            let resolved_function_name = new_scope(program_name.clone(), function_name.to_string());
-            self.store(resolved_function_name, ConstrainedValue::Function(None, function));
-        });
-
-        Ok(())
     }
 }

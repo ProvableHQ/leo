@@ -2,8 +2,9 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
-    errors::{CLIError, VerificationKeyFileError},
-    files::{Manifest, ProvingKeyFile, VerificationKeyFile},
+    directories::SOURCE_DIRECTORY_NAME,
+    errors::{CLIError, RunError, VerificationKeyFileError},
+    files::{Manifest, ProvingKeyFile, VerificationKeyFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
 
@@ -40,75 +41,87 @@ impl CLI for SetupCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (program, checksum_differs) = BuildCommand::output(options)?;
-
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        // Check if a proving key and verification key already exists
-        let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
-            && VerificationKeyFile::new(&package_name).exists_at(&path);
+        match BuildCommand::output(options)? {
+            Some((program, checksum_differs)) => {
+                // Check if a proving key and verification key already exists
+                let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
+                    && VerificationKeyFile::new(&package_name).exists_at(&path);
 
-        // If keys do not exist or the checksum differs, run the program setup
-        if !keys_exist || checksum_differs {
-            log::info!("Setup starting...");
+                // If keys do not exist or the checksum differs, run the program setup
+                // If keys do not exist or the checksum differs, run the program setup
+                if !keys_exist || checksum_differs {
+                    log::info!("Setup starting...");
 
-            // Start the timer
-            let start = Instant::now();
+                    // Start the timer
+                    let start = Instant::now();
 
-            // Run the program setup operation
-            let rng = &mut thread_rng();
-            let parameters = generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
-            let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
+                    // Run the program setup operation
+                    let rng = &mut thread_rng();
+                    let parameters = generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
+                    let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
 
-            // End the timer
-            let end = start.elapsed().as_millis();
+                    // End the timer
+                    let end = start.elapsed().as_millis();
 
-            // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
-            // Write the proving key file to the outputs directory
-            let mut proving_key = vec![];
-            parameters.write(&mut proving_key)?;
-            ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
-            log::info!("Saving proving key ({:?})", path);
+                    // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
+                    // Write the proving key file to the outputs directory
+                    let mut proving_key = vec![];
+                    parameters.write(&mut proving_key)?;
+                    ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+                    log::info!("Saving proving key ({:?})", path);
 
-            // Write the verification key file to the outputs directory
-            let mut verification_key = vec![];
-            prepared_verifying_key.write(&mut verification_key)?;
-            VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
-            log::info!("Saving verification key ({:?})", path);
+                    // Write the verification key file to the outputs directory
+                    let mut verification_key = vec![];
+                    prepared_verifying_key.write(&mut verification_key)?;
+                    VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
+                    log::info!("Saving verification key ({:?})", path);
 
-            // Output the setup time
-            log::info!("Setup completed in {:?} milliseconds", end);
-        } else {
-            log::info!("Setup complete");
-        }
-
-        // Read the proving key file from the outputs directory
-        let proving_key = ProvingKeyFile::new(&package_name).read_from(&path)?;
-        let parameters = Parameters::<Bls12_377>::read(proving_key.as_slice(), true)?;
-
-        // Read the proving key file from the outputs directory
-        let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
-        {
-            // Load the stored verification key from the outputs directory
-            let stored_vk = VerificationKeyFile::new(&package_name).read_from(&path)?;
-
-            // Convert the prepared_verifying_key to a buffer
-            let mut verification_key = vec![];
-            prepared_verifying_key.write(&mut verification_key)?;
-
-            // Check that the constructed prepared verification key matches the stored verification key
-            let compare: Vec<(u8, u8)> = verification_key.into_iter().zip(stored_vk.into_iter()).collect();
-            for (a, b) in compare {
-                if a != b {
-                    return Err(VerificationKeyFileError::IncorrectVerificationKey.into());
+                    // Output the setup time
+                    log::info!("Setup completed in {:?} milliseconds", end);
+                } else {
+                    log::info!("Setup complete");
                 }
+
+                // Read the proving key file from the outputs directory
+                let proving_key = ProvingKeyFile::new(&package_name).read_from(&path)?;
+                let parameters = Parameters::<Bls12_377>::read(proving_key.as_slice(), true)?;
+
+                // Read the proving key file from the outputs directory
+                let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
+                {
+                    // Load the stored verification key from the outputs directory
+                    let stored_vk = VerificationKeyFile::new(&package_name).read_from(&path)?;
+
+                    // Convert the prepared_verifying_key to a buffer
+                    let mut verification_key = vec![];
+                    prepared_verifying_key.write(&mut verification_key)?;
+
+                    // Check that the constructed prepared verification key matches the stored verification key
+                    let compare: Vec<(u8, u8)> = verification_key.into_iter().zip(stored_vk.into_iter()).collect();
+                    for (a, b) in compare {
+                        if a != b {
+                            return Err(VerificationKeyFileError::IncorrectVerificationKey.into());
+                        }
+                    }
+                }
+
+                log::info!("Program setup complete");
+
+                Ok((program, parameters, prepared_verifying_key))
+            }
+            None => {
+                let mut main_file_path = path.clone();
+                main_file_path.push(SOURCE_DIRECTORY_NAME);
+                main_file_path.push(MAIN_FILE_NAME);
+
+                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
+                    main_file_path.into_os_string(),
+                )))
             }
         }
-
-        log::info!("Program setup complete");
-
-        Ok((program, parameters, prepared_verifying_key))
     }
 }

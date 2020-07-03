@@ -2,6 +2,7 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
+    directories::outputs::OutputsDirectory,
     errors::CLIError,
     files::{Manifest, ZipFile},
 };
@@ -30,11 +31,16 @@ impl CLI for PublishCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (_program, _checksum_differs) = BuildCommand::output(options)?;
+        // Build all program files.
+        // It's okay if there's just a lib.leo file here
+        let _output = BuildCommand::output(options)?;
 
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
+
+        // Create the outputs directory
+        OutputsDirectory::create(&path)?;
 
         // Create zip file
         let zip_file = ZipFile::new(&package_name);

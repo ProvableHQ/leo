@@ -1,13 +1,14 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
 use crate::{
-    constraints::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue},
-    enforce_and,
-    enforce_or,
+    constraints::{
+        boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
+        new_scope,
+        ConstrainedCircuitMember,
+        ConstrainedProgram,
+        ConstrainedValue,
+    },
     errors::ExpressionError,
-    evaluate_not,
-    new_bool_constant,
-    new_scope,
     FieldType,
     GroupType,
 };
@@ -50,6 +51,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value.clone()
         } else if let Some(value) = self.get(&identifier_name) {
             // Check global scope (function and circuit names)
+            value.clone()
+        } else if let Some(value) = self.get(&unresolved_identifier.name) {
+            // Check imported file scope
             value.clone()
         } else {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
@@ -609,53 +613,55 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             program_identifier = file_scope.clone();
         }
 
-        if let Some(ConstrainedValue::CircuitDefinition(circuit_definition)) = self.get_mut(&program_identifier) {
-            let circuit_identifier = circuit_definition.circuit_name.clone();
-            let mut resolved_members = vec![];
-            for member in circuit_definition.members.clone().into_iter() {
-                match member {
-                    CircuitMember::CircuitField(identifier, _type) => {
-                        let matched_field = members
-                            .clone()
-                            .into_iter()
-                            .find(|field| field.identifier.eq(&identifier));
-                        match matched_field {
-                            Some(field) => {
-                                // Resolve and enforce circuit object
-                                let field_value = self.enforce_expression(
-                                    cs,
-                                    file_scope.clone(),
-                                    function_scope.clone(),
-                                    &vec![_type.clone()],
-                                    field.expression,
-                                )?;
+        let circuit = match self.get(&program_identifier) {
+            Some(value) => value.clone().extract_circuit(span.clone())?,
+            None => return Err(ExpressionError::undefined_circuit(identifier.to_string(), span)),
+        };
 
-                                resolved_members.push(ConstrainedCircuitMember(identifier, field_value))
-                            }
-                            None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
+        let circuit_identifier = circuit.circuit_name.clone();
+        let mut resolved_members = vec![];
+
+        for member in circuit.members.clone().into_iter() {
+            match member {
+                CircuitMember::CircuitField(identifier, _type) => {
+                    let matched_field = members
+                        .clone()
+                        .into_iter()
+                        .find(|field| field.identifier.eq(&identifier));
+                    match matched_field {
+                        Some(field) => {
+                            // Resolve and enforce circuit object
+                            let field_value = self.enforce_expression(
+                                cs,
+                                file_scope.clone(),
+                                function_scope.clone(),
+                                &vec![_type.clone()],
+                                field.expression,
+                            )?;
+
+                            resolved_members.push(ConstrainedCircuitMember(identifier, field_value))
                         }
+                        None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
                     }
-                    CircuitMember::CircuitFunction(_static, function) => {
-                        let identifier = function.function_name.clone();
-                        let mut constrained_function_value =
-                            ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
+                }
+                CircuitMember::CircuitFunction(_static, function) => {
+                    let identifier = function.function_name.clone();
+                    let mut constrained_function_value =
+                        ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
 
-                        if _static {
-                            constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
-                        }
-
-                        resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
+                    if _static {
+                        constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
                     }
-                };
-            }
 
-            Ok(ConstrainedValue::CircuitExpression(
-                circuit_identifier.clone(),
-                resolved_members,
-            ))
-        } else {
-            Err(ExpressionError::undefined_circuit(identifier.to_string(), span))
+                    resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
+                }
+            };
         }
+
+        Ok(ConstrainedValue::CircuitExpression(
+            circuit_identifier.clone(),
+            resolved_members,
+        ))
     }
 
     fn enforce_circuit_access_expression<CS: ConstraintSystem<F>>(
@@ -786,18 +792,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             *function.clone(),
         )?;
 
-        let (outer_scope, function_call) = match function_value {
-            ConstrainedValue::Function(circuit_identifier, function) => {
-                let mut outer_scope = file_scope.clone();
-                // If this is a circuit function, evaluate inside the circuit scope
-                if circuit_identifier.is_some() {
-                    outer_scope = new_scope(file_scope, circuit_identifier.unwrap().to_string());
-                }
-
-                (outer_scope, function.clone())
-            }
-            value => return Err(ExpressionError::undefined_function(value.to_string(), span)),
-        };
+        let (outer_scope, function_call) = function_value.extract_function(file_scope, span.clone())?;
 
         let name_unique = format!(
             "function call {} {}:{}",
