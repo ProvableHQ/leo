@@ -1,6 +1,7 @@
 //! Methods to enforce constraints on expressions in a resolved Leo program.
 
 use crate::{
+    comparator::{ComparatorGadget, EvaluateLtGadget},
     constraints::{
         boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
         new_scope,
@@ -11,13 +12,13 @@ use crate::{
     errors::ExpressionError,
     FieldType,
     GroupType,
+    Integer,
 };
 use leo_types::{
     CircuitFieldDefinition,
     CircuitMember,
     Expression,
     Identifier,
-    Integer,
     IntegerType,
     RangeOrExpression,
     Span,
@@ -76,11 +77,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(ConstrainedValue::Integer(num_1.add(cs, num_2, span)?))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.add(cs, &fe_2, span)?))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                Ok(ConstrainedValue::Field(field_1.add(cs, &field_2, span)?))
             }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.add(cs, &ge_2, span)?))
+            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+                Ok(ConstrainedValue::Group(point_1.add(cs, &point_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -108,11 +109,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2, span)?))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.sub(cs, &fe_2, span)?))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                Ok(ConstrainedValue::Field(field_1.sub(cs, &field_2, span)?))
             }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                Ok(ConstrainedValue::Group(ge_1.sub(cs, &ge_2, span)?))
+            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+                Ok(ConstrainedValue::Group(point_1.sub(cs, &point_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -140,8 +141,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(ConstrainedValue::Integer(num_1.mul(cs, num_2, span)?))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.mul(cs, &fe_2, span)?))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                Ok(ConstrainedValue::Field(field_1.mul(cs, &field_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -171,8 +172,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 Ok(ConstrainedValue::Integer(num_1.div(cs, num_2, span)?))
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                Ok(ConstrainedValue::Field(fe_1.div(cs, &fe_2, span)?))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                Ok(ConstrainedValue::Field(field_1.div(cs, &field_2, span)?))
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -233,11 +234,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
                 num_1.evaluate_equal(unique_namespace, &num_2)
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                fe_1.evaluate_equal(unique_namespace, &fe_2)
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.evaluate_equal(unique_namespace, &field_2)
             }
-            (ConstrainedValue::Group(ge_1), ConstrainedValue::Group(ge_2)) => {
-                ge_1.evaluate_equal(unique_namespace, &ge_2)
+            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+                point_1.evaluate_equal(unique_namespace, &point_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
@@ -256,133 +257,157 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let boolean =
-            constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate equals"), e, span))?;
+            constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate equal"), e, span))?;
 
         Ok(ConstrainedValue::Boolean(boolean))
     }
 
-    //TODO: unsafe for allocated values
-    fn evaluate_ge_expression(
+    fn evaluate_ge_expression<CS: ConstraintSystem<F>>(
         &mut self,
+        cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match (left, right) {
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line, span.start));
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                let result = num_1.ge(&num_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+                num_1.greater_than_or_equal(unique_namespace, &num_2)
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = fe_1.ge(&fe_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.greater_than_or_equal(unique_namespace, &field_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-                self.evaluate_ge_expression(val_1, val_2, span)
+                return self.evaluate_ge_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-                self.evaluate_ge_expression(val_1, val_2, span)
+                return self.evaluate_ge_expression(&mut unique_namespace, val_1, val_2, span);
             }
-            (val_1, val_2) => Err(ExpressionError::incompatible_types(
-                format!("{} >= {}", val_1, val_2),
-                span,
-            )),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::incompatible_types(
+                    format!("{} >= {}", val_1, val_2),
+                    span,
+                ));
+            }
+        };
+
+        let boolean = constraint_result
+            .map_err(|e| ExpressionError::cannot_enforce(format!("evaluate greater than or equal"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
-    //TODO: unsafe for allocated values
-    fn evaluate_gt_expression(
+    fn evaluate_gt_expression<CS: ConstraintSystem<F>>(
         &mut self,
+        cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match (left, right) {
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} > {} {}:{}", left, right, span.line, span.start));
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                let result = num_1.gt(&num_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+                num_1.greater_than(unique_namespace, &num_2)
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = fe_1.gt(&fe_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.greater_than(unique_namespace, &field_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-                self.evaluate_gt_expression(val_1, val_2, span)
+                return self.evaluate_gt_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-                self.evaluate_gt_expression(val_1, val_2, span)
+                return self.evaluate_gt_expression(&mut unique_namespace, val_1, val_2, span);
             }
-            (val_1, val_2) => Err(ExpressionError::incompatible_types(
-                format!("{} > {}", val_1, val_2),
-                span,
-            )),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::incompatible_types(
+                    format!("{} > {}", val_1, val_2),
+                    span,
+                ));
+            }
+        };
+
+        let boolean = constraint_result
+            .map_err(|e| ExpressionError::cannot_enforce(format!("evaluate greater than"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
-    //TODO: unsafe for allocated values
-    fn evaluate_le_expression(
+    fn evaluate_le_expression<CS: ConstraintSystem<F>>(
         &mut self,
+        cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match (left, right) {
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} <= {} {}:{}", left, right, span.line, span.start));
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                let result = num_1.le(&num_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+                num_1.less_than_or_equal(unique_namespace, &num_2)
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = fe_1.le(&fe_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.less_than_or_equal(unique_namespace, &field_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-                self.evaluate_le_expression(val_1, val_2, span)
+                return self.evaluate_le_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-                self.evaluate_le_expression(val_1, val_2, span)
+                return self.evaluate_le_expression(&mut unique_namespace, val_1, val_2, span);
             }
-            (val_1, val_2) => Err(ExpressionError::incompatible_types(
-                format!("{} <= {}", val_1, val_2),
-                span,
-            )),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::incompatible_types(
+                    format!("{} <= {}", val_1, val_2),
+                    span,
+                ));
+            }
+        };
+
+        let boolean = constraint_result
+            .map_err(|e| ExpressionError::cannot_enforce(format!("evaluate less than or equal"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
-    //TODO: unsafe for allocated values
-    fn evaluate_lt_expression(
+    fn evaluate_lt_expression<CS: ConstraintSystem<F>>(
         &mut self,
+        cs: &mut CS,
         left: ConstrainedValue<F, G>,
         right: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        match (left, right) {
+        let mut unique_namespace = cs.ns(|| format!("evaluate {} < {} {}:{}", left, right, span.line, span.start));
+        let constraint_result = match (left, right) {
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                let result = num_1.lt(&num_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+                num_1.less_than(unique_namespace, &num_2)
             }
-            (ConstrainedValue::Field(fe_1), ConstrainedValue::Field(fe_2)) => {
-                let result = fe_1.lt(&fe_2);
-                Ok(ConstrainedValue::Boolean(Boolean::Constant(result)))
+            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+                field_1.less_than(unique_namespace, &field_2)
             }
             (ConstrainedValue::Unresolved(string), val_2) => {
                 let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-                self.evaluate_lt_expression(val_1, val_2, span)
+                return self.evaluate_lt_expression(&mut unique_namespace, val_1, val_2, span);
             }
             (val_1, ConstrainedValue::Unresolved(string)) => {
                 let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-                self.evaluate_lt_expression(val_1, val_2, span)
+                return self.evaluate_lt_expression(&mut unique_namespace, val_1, val_2, span);
             }
-            (val_1, val_2) => Err(ExpressionError::incompatible_types(
-                format!("{} < {}", val_1, val_2,),
-                span,
-            )),
-        }
+            (val_1, val_2) => {
+                return Err(ExpressionError::incompatible_types(
+                    format!("{} < {}", val_1, val_2),
+                    span,
+                ));
+            }
+        };
+
+        let boolean =
+            constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate less than"), e, span))?;
+
+        Ok(ConstrainedValue::Boolean(boolean))
     }
 
     /// Enforce ternary conditional expression
@@ -1029,7 +1054,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_ge_expression(resolved_left, resolved_right, span)?)
+                Ok(self.evaluate_ge_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Gt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -1042,7 +1067,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_gt_expression(resolved_left, resolved_right, span)?)
+                Ok(self.evaluate_gt_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Le(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -1055,7 +1080,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_le_expression(resolved_left, resolved_right, span)?)
+                Ok(self.evaluate_le_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Lt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -1068,7 +1093,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_lt_expression(resolved_left, resolved_right, span)?)
+                Ok(self.evaluate_lt_expression(cs, resolved_left, resolved_right, span)?)
             }
 
             // Conditionals

@@ -1,5 +1,5 @@
-use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, ValueError};
-use leo_types::{Error as FormattedError, Identifier, IntegerError, Span};
+use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
+use leo_types::{Error as FormattedError, Identifier, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::PathBuf;

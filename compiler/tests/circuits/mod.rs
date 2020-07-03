@@ -10,8 +10,9 @@ use leo_compiler::{
     errors::{CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedCircuitMember,
     ConstrainedValue,
+    Integer,
 };
-use leo_types::{Expression, Function, Identifier, Integer, Span, Statement, Type};
+use leo_types::{Expression, Function, Identifier, Span, Statement, Type};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 

@@ -12,6 +12,9 @@ pub use self::expression::*;
 pub mod import;
 pub use self::import::*;
 
+pub mod integer;
+pub use integer::*;
+
 pub mod field;
 pub use self::field::*;
 

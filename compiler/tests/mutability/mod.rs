@@ -2,8 +2,8 @@ use crate::{array::input_value_u32_one, parse_program, EdwardsConstrainedValue, 
 use leo_compiler::{
     errors::{CompilerError, FunctionError, StatementError},
     ConstrainedValue,
+    Integer,
 };
-use leo_types::Integer;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::uint::UInt32};

@@ -12,8 +12,10 @@ use crate::{
     },
     errors::{FunctionError, StatementError},
     GroupType,
+    Integer,
 };
-use leo_types::{Expression, Function, InputValue, Integer, Span, Type};
+
+use leo_types::{Expression, Function, InputValue, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

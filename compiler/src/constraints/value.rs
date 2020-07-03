@@ -10,8 +10,9 @@ use crate::{
     new_scope,
     FieldType,
     GroupType,
+    Integer,
 };
-use leo_types::{Circuit, Function, Identifier, Integer, Span, Type};
+use leo_types::{Circuit, Function, Identifier, Span, Type};
 
 use crate::errors::ExpressionError;
 use snarkos_errors::gadgets::SynthesisError;
