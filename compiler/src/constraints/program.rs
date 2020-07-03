@@ -22,6 +22,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     }
 
     pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<F, G>) {
+        println!("{}", name);
         self.identifiers.insert(name, value);
     }
 

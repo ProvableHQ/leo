@@ -34,6 +34,8 @@ use snarkos_models::{
     },
 };
 
+static SELF_KEYWORD: &'static str = "self";
+
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
     pub(crate) fn evaluate_identifier(
@@ -699,6 +701,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         circuit_member: Identifier,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        println!("access");
         let (circuit_name, members) = match self.enforce_expression_value(
             cs,
             file_scope.clone(),
@@ -725,8 +728,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 _ => {
                                     let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
                                     let function_scope = new_scope(circuit_scope, member.0.to_string());
-                                    let field = new_scope(function_scope, stored_member.0.to_string());
+                                    let self_keyword = new_scope(function_scope, SELF_KEYWORD.to_string());
+                                    let field = new_scope(self_keyword, stored_member.0.to_string());
 
+                                    println!("storing");
                                     self.store(field, stored_member.1.clone());
                                 }
                             }

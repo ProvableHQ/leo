@@ -384,7 +384,8 @@ import [package].*;
 ```
 
 ### Local
-You can import from a local file in the `src/` directory by using its `[file].leo` as the `[package]` name.
+You can import from a local file in the same package using its direct path.
+`src/` directory by using its `[file].leo` as the `[package]` name.
 
 ```rust
 import [file].[name];
