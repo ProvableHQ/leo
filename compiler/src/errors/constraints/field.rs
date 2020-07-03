@@ -36,13 +36,19 @@ impl FieldError {
     }
 
     pub fn missing_field(expected: String, span: Span) -> Self {
-        let message = format!("expected integer input `{}` not found", expected);
+        let message = format!("expected field input `{}` not found", expected);
 
         Self::new_from_span(message, span)
     }
 
     pub fn no_inverse(field: String, span: Span) -> Self {
         let message = format!("no multiplicative inverse found for field `{}`", field);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn synthesis_error(error: SynthesisError, span: Span) -> Self {
+        let message = format!("compilation failed due to field synthesis error `{}`", error);
 
         Self::new_from_span(message, span)
     }

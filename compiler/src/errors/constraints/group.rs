@@ -40,4 +40,10 @@ impl GroupError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn synthesis_error(error: SynthesisError, span: Span) -> Self {
+        let message = format!("compilation failed due to group synthesis error `{}`", error);
+
+        Self::new_from_span(message, span)
+    }
 }

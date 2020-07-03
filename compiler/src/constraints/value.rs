@@ -1,12 +1,8 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{
-    constraints::{
-        boolean::{allocate_bool, new_bool_constant},
-        field::allocate_field,
-        group::allocate_group,
-    },
-    errors::ValueError,
+    constraints::boolean::{allocate_bool, new_bool_constant},
+    errors::{ExpressionError, FieldError, ValueError},
     new_scope,
     FieldType,
     GroupType,
@@ -14,7 +10,6 @@ use crate::{
 };
 use leo_types::{Circuit, Function, Identifier, Span, Type};
 
-use crate::errors::ExpressionError;
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -167,16 +162,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }
             ConstrainedValue::Field(field) => {
-                let option = field.get_value().map(|v| format!("{}", v));
-                let name = option.clone().map(|f| f.to_string()).unwrap_or(format!("[allocated]"));
+                let gadget = field
+                    .allocated(cs.ns(|| format!("allocate field {}:{}", span.line, span.start)))
+                    .map_err(|error| ValueError::FieldError(FieldError::synthesis_error(error, span)))?;
 
-                *field = allocate_field(&mut cs, name, option, span)?;
+                *field = FieldType::Allocated(gadget)
             }
             ConstrainedValue::Group(group) => {
-                let name = format!("{}", group); // may need to implement u256 -> decimal formatting
-                let option = Some(name.clone());
-
-                *group = allocate_group(&mut cs, name, option, span)?;
+                *group = group.to_allocated(cs, span)?;
             }
             // value wrappers
             ConstrainedValue::Array(array) => {

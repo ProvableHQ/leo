@@ -150,7 +150,9 @@ impl<F: Field + PrimeField> FieldType<F> {
     pub fn allocated<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<FpGadget<F>, SynthesisError> {
         match self {
             FieldType::Constant(constant) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
-            FieldType::Allocated(allocated) => Ok(allocated.clone()),
+            FieldType::Allocated(allocated) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", allocated)), || {
+                allocated.value.ok_or(SynthesisError::AssignmentMissing)
+            }),
         }
     }
 }
