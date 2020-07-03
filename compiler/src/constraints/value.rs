@@ -40,7 +40,9 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
+
     Import(String, Box<ConstrainedValue<F, G>>),
+
     Unresolved(String),
 }
 

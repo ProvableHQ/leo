@@ -48,21 +48,12 @@ fn output_circuit(program: EdwardsTestCompiler) {
     );
 }
 
-fn fail_expected_member(program: EdwardsTestCompiler) {
+fn expect_fail(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::Error(_string),
         ))) => {}
         error => panic!("Expected invalid circuit member error, got {}", error),
-    }
-}
-
-fn fail_undefined_member(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected undefined circuit member error, got {}", error),
     }
 }
 
@@ -81,7 +72,7 @@ fn test_inline_fail() {
     let bytes = include_bytes!("inline_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_expected_member(program)
+    expect_fail(program)
 }
 
 #[test]
@@ -112,7 +103,7 @@ fn test_member_field_fail() {
     let bytes = include_bytes!("member_field_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_undefined_member(program);
+    expect_fail(program);
 }
 
 #[test]
@@ -136,7 +127,7 @@ fn test_member_function_fail() {
     let bytes = include_bytes!("member_function_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_undefined_member(program);
+    expect_fail(program);
 }
 
 #[test]
@@ -144,12 +135,7 @@ fn test_member_function_invalid() {
     let bytes = include_bytes!("member_function_invalid.leo");
     let program = parse_program(bytes).unwrap();
 
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected invalid function error, got {}", error),
-    }
+    expect_fail(program);
 }
 
 #[test]
@@ -165,12 +151,7 @@ fn test_member_static_function_undefined() {
     let bytes = include_bytes!("member_static_function_undefined.leo");
     let program = parse_program(bytes).unwrap();
 
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected undefined static function error, got {}", error),
-    }
+    expect_fail(program)
 }
 
 #[test]
@@ -178,18 +159,37 @@ fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
     let program = parse_program(bytes).unwrap();
 
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected invalid static function error, got {}", error),
-    }
+    expect_fail(program)
 }
 
 // Self
 #[test]
-fn test_self() {
-    let bytes = include_bytes!("self.leo");
+fn test_self_member() {
+    let bytes = include_bytes!("self_member.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_one(program);
+}
+
+#[test]
+fn test_self_no_member_fail() {
+    let bytes = include_bytes!("self_no_member_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    let _err = get_error(program);
+}
+
+#[test]
+fn test_self_member_fail() {
+    let bytes = include_bytes!("self_member_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    let _err = get_error(program);
+}
+
+#[test]
+fn test_self_circuit() {
+    let bytes = include_bytes!("self_circuit.leo");
     let program = parse_program(bytes).unwrap();
 
     let output = get_output(program);
