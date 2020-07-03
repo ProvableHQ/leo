@@ -42,7 +42,7 @@ Leo supports `let` and `const` keywords for variable definition.
 **Allocated** variables define private variables in the constraint system. Their value is constrained in the circuit on initialization.
 
 **Constant** variables do not define a variable in the constraint system. Their value is constrained in the circuit on computation with an **allocated** variable. 
-**Constant** variables can be mutable. They do not have the same functionality as `const` variables in other languages.
+**Constant** variables cannot be mutable. They have the same functionality as `const` variables in other languages.
 ```rust
 function addOne() -> {
     let a = 0u8;   // allocated, value enforced on this line
@@ -379,6 +379,7 @@ import [package].(
 
 #### Import Star
 To import all symbols from a package:
+Note that this will only import symbols from the package library `lib.leo` file.
 ```rust
 import [package].*;
 ```
