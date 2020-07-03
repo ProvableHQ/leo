@@ -379,6 +379,7 @@ import [package].(
 
 #### Import Star
 To import all symbols from a package:
+Note that this will only import symbols from the package library `lib.leo` file.
 ```rust
 import [package].*;
 ```
