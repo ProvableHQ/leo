@@ -368,11 +368,16 @@ circuit Foo {
     function bar() -> bool {
         return self.b 
     }
+    
+    function baz() -> bool {
+        return self.bar()
+    }
 }
 
 function main() -> bool {
     let c = Foo { b: true };
-    return c.b 
+
+    return c.baz() 
 }
 ```
 
