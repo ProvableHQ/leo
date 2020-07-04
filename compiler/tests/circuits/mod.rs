@@ -1,7 +1,7 @@
 use crate::{
     get_error,
     get_output,
-    integers::u32::output_one,
+    integers::u32::{output_number, output_one},
     parse_program,
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
@@ -136,6 +136,14 @@ fn test_member_function_invalid() {
     let program = parse_program(bytes).unwrap();
 
     expect_fail(program);
+}
+
+#[test]
+fn test_member_function_nested() {
+    let bytes = include_bytes!("member_function_nested.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_number(program, 2u32);
 }
 
 #[test]

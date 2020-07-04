@@ -704,9 +704,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // access a circuit member using the `self` keyword
         if let Expression::Identifier(ref identifier) = *circuit_identifier {
             if identifier.is_self() {
-                let self_keyword = new_scope(function_scope, SELF_KEYWORD.to_string());
+                let self_file_scope = new_scope(file_scope.clone(), identifier.name.to_string());
+                let self_function_scope = new_scope(self_file_scope.clone(), identifier.name.to_string());
+
                 let member_value =
-                    self.evaluate_identifier(file_scope, self_keyword, &vec![], circuit_member.clone())?;
+                    self.evaluate_identifier(self_file_scope, self_function_scope, &vec![], circuit_member.clone())?;
 
                 return Ok(member_value);
             }
@@ -730,20 +732,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Some(member) => {
                 match &member.1 {
                     ConstrainedValue::Function(ref _circuit_identifier, ref _function) => {
-                        // Pass static circuit fields into function call by value
+                        // Pass circuit members into function call by value
                         for stored_member in members {
-                            match &stored_member.1 {
-                                ConstrainedValue::Function(_, _) => {}
-                                ConstrainedValue::Static(_) => {}
-                                _ => {
-                                    let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
-                                    let function_scope = new_scope(circuit_scope, member.0.to_string());
-                                    let self_keyword = new_scope(function_scope, SELF_KEYWORD.to_string());
-                                    let field = new_scope(self_keyword, stored_member.0.to_string());
+                            let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
+                            let self_keyword = new_scope(circuit_scope, SELF_KEYWORD.to_string());
+                            let field = new_scope(self_keyword, stored_member.0.to_string());
 
-                                    self.store(field, stored_member.1.clone());
-                                }
-                            }
+                            self.store(field, stored_member.1.clone());
                         }
                     }
                     ConstrainedValue::Static(value) => {
@@ -831,7 +826,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             *function.clone(),
         )?;
 
-        let (outer_scope, function_call) = function_value.extract_function(file_scope, span.clone())?;
+        let (outer_scope, function_call) = function_value.extract_function(file_scope.clone(), span.clone())?;
 
         let name_unique = format!(
             "function call {} {}:{}",

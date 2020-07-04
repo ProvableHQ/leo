@@ -130,14 +130,14 @@ function main() -> group {
 ### Operator Assignment Statements
 ```rust
 function main() -> u32 {
-  let mut a = 10;
-  a += 5;
-  a -= 10;
-  a *= 5;
-  a /= 5;
-  a **= 2;
+    let mut a = 10;
+    a += 5;
+    a -= 10;
+    a *= 5;
+    a /= 5;
+    a **= 2;
 
-  return a
+    return a
 }
 ```
 
@@ -173,11 +173,11 @@ function main() -> u32[2] {
 ### Multidimensional Arrays
 ```rust
 function main() -> u32[3][2] {
-  let m = [[0u32, 0u32], [0u32, 0u32]];
+    let m = [[0u32, 0u32], [0u32, 0u32]];
 
-  let m: u32[3][2] = [[0; 3]; 2];
+    let m: u32[3][2] = [[0; 3]; 2];
 
-  return m
+    return m
 }
 ```
 
@@ -193,8 +193,8 @@ In the underlying circuit, this is a single bit multiplexer.
 
 ```rust
 function main() -> u32 {
-  let y = if 3==3 ? 1 : 5;
-  return y
+    let y = if 3==3 ? 1 : 5;
+    return y
 }
 ```
 
@@ -204,45 +204,47 @@ Since `first` and `second` are one or more statements, they resolve to separate 
 In the underlying circuit this can be thought of as a demultiplexer.
 ```rust
 function main(a: bool, b: bool) -> u32 {
-  let mut res = 0u32;
-  if a {
-    res = 1;
-  } else if b {
-    res = 2;
-  } else {
-    res = 3;
-  }
-  return res
+    let mut res = 0u32;
+
+    if a {
+        res = 1;
+    } else if b {
+        res = 2;
+    } else {
+        res = 3;
+    }
+
+    return res
 }
 ```
 
 ### For loop
 ```rust
 function main() -> fe {
-  let mut a = 1field;
-  for i in 0..4 {
-    a = a + 1;
-  }
-  return a
+    let mut a = 1field;
+    for i in 0..4 {
+      a = a + 1;
+    }
+    return a
 }
 ```
 
 ## Functions
 ```rust
 function test1(a : u32) -> u32 {
-  return a + 1
+    return a + 1
 }
 
 function test2(b: fe) -> field {
-  return b * 2field
+    return b * 2field
 }
 
 function test3(c: bool) -> bool {
-  return c && true
+    return c && true
 }
 
 function main() -> u32 {
-  return test1(5)
+    return test1(5)
 }
 ```
 
@@ -250,13 +252,13 @@ function main() -> u32 {
 ### Function Scope
 ```rust
 function foo() -> field {
-  // return myGlobal <- not allowed
-  return 42field
+    // return myGlobal <- not allowed
+    return 42field
 }
 
 function main() -> field {
-  let myGlobal = 42field;
-  return foo()
+    let myGlobal = 42field;
+    return foo()
 }
 ```
 
@@ -279,7 +281,7 @@ Main function inputs are allocated private variables in the program's constraint
 `a` is implicitly private.
 ```rust
 function main(a: field) -> field {
-  return a
+    return a
 }
 ```
 Normal function inputs are passed by value.
@@ -299,8 +301,8 @@ function main() -> u32 {
 ## Circuits
 Circuits in Leo are similar to classes in object oriented langauges. Circuits are defined above functions in a Leo program.  Circuits can have one or more members.
 
-
-Members can be defined as fields which hold primitive values
+#### Circuit member values
+Members can be defined as fields which hold primitive values.
 ```rust
 circuit Point {
     x: u32
@@ -312,51 +314,73 @@ function main() -> u32 {
 }
 ```
 
+#### Circuit member functions
 Members can also be defined as functions.
 ```rust
-circuit Circ {
-  function echo(x: u32) -> u32 {
-    return x
-  }
+circuit Foo {
+    function echo(x: u32) -> u32 {
+        return x
+    }
 }
 
 function main() -> u32 {
-  let c = Circ { };
+  let c = Foo { };
   return c.echo(1u32)
 }
 ```
 
+#### Circuit member static functions
 Circuit functions can be made static, enabling them to be called without instantiation.
 ```rust
-circuit Circ {
-  static function echo(x: u32) -> u32 {
-    return x
-  }
+circuit Foo {
+    static function echo(x: u32) -> u32 {
+        return x
+    }
 }
 
 function main() -> u32 {
-  return Circ::echo(1u32)
+  return Foo::echo(1u32)
 }
 ```
 
-The `Self` keyword is supported in circuit functions.
+#### `Self` and `self`
+The `Self` keyword references the circuit definition.
 ```rust
-circuit Circ {
-  b: bool
+circuit Foo {
+    b: bool
 
-  static function new() -> Self {
-    return Self { b: true }
-  }
+    static function new() -> Self { // Self resolves to Foo
+        return Self { b: true }
+    }
 }
 
-function main() -> Circ {
-  let c = Circ::new();
-  return c.b
+function main() -> bool {
+    let c = Foo::new();
+    return c.b
 }
 ```
+
+The `self` keyword references the circuit's members.
+```rust
+circuit Foo {
+    b: bool
+  
+    function bar() -> bool {
+        return self.b 
+    }
+}
+
+function main() -> bool {
+    let c = Foo { b: true };
+    return c.b 
+}
+```
+
 
 ## Imports
-Leo supports importing functions and circuits by name into the current file with the following syntax:
+Leo supports importing functions
+}
+} and circuits by name into the current file with the following syntax:
 
 ```rust
 import [package].[name];
@@ -472,11 +496,11 @@ This will enforce that the two values are equal in the constraint system.
 
 ```rust
 function main() {
-  assert_eq!(45, 45);
+    assert_eq!(45, 45);
   
-  assert_eq!(2fe, 2fe);
+    assert_eq!(2fe, 2fe);
   
-  assert_eq!(true, true);
+    assert_eq!(true, true);
 }
 ```
 
@@ -490,15 +514,15 @@ function main(a: u32) -> u32 {
 }
 
 test function expect_pass() {
-  let a = 1u32;
+    let a = 1u32;
 
-  let res = main(a);
+    let res = main(a);
 
-  assert_eq!(res, 1u32);
+    assert_eq!(res, 1u32);
 }
 
 test function expect_fail() {
-  assert_eq!(1u8, 0u8);
+    assert_eq!(1u8, 0u8);
 }
 ```
 
