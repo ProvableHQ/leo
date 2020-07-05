@@ -74,7 +74,9 @@ Addresses are defined to enable compiler-optimized routines for parsing and oper
 ```js
 function main(owner: address) {
     let sender = address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8);
+    let receiver: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
     assert_eq!(owner, sender);
+    assert_eq!(sender, receiver);
 }
 ```
 
