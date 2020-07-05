@@ -1,6 +1,6 @@
 # The Leo Programming Language
 
-[![Build Status](https://travis-ci.com/AleoHQ/leo.svg?token=Xy7ht9JdPvr4xSgbPruF&branch=master)](https://travis-ci.com/AleoHQ/leo)
+![CI](https://github.com/AleoHQ/leo/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/AleoHQ/leo/branch/master/graph/badge.svg?token=S6MWO60SYL)](https://codecov.io/gh/AleoHQ/leo)
 
 ## Compiler Architecture
@@ -43,8 +43,8 @@ Leo supports `let` and `const` keywords for variable definition.
 
 **Constant** variables do not define a variable in the constraint system. Their value is constrained in the circuit on computation with an **allocated** variable. 
 **Constant** variables cannot be mutable. They have the same functionality as `const` variables in other languages.
-```rust
-function addOne() -> {
+```js
+function add_one() -> {
     let a = 0u8;   // allocated, value enforced on this line
     const b = 1u8; // constant, value not enforced yet
 
@@ -57,7 +57,7 @@ Computations are expressed in terms of arithmetic circuits, in particular rank-1
 * All defined variables in Leo are immutable by default.
 * Variables can be made mutable with the `mut` keyword.
 
-```rust
+```js
 function main() {
     let a = 0u32;
     //a = 1 <- Will fail
@@ -67,10 +67,20 @@ function main() {
 }
 ```
 
+## Addresses
+
+Addresses are defined to enable compiler-optimized routines for parsing and operating over addresses. These semantics will be accompanied by a standard library in a future sprint.
+
+```js
+function main() {
+    let sender = address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8);
+}
+```
+
 ## Booleans
 
 Explicit types are optional.
-```rust
+```js
 function main() -> bool {
     let a: bool = true || false;
     let b = false && false;
@@ -87,7 +97,7 @@ function main() -> bool {
 
 ### Integers
 Supported integer types: `u8`, `u16`, `u32`, `u64`, `u128`
-```rust
+```js
 function main() -> u32 {
     let a = 2u32; // explicit type
     let a: u32 = 1 + 1; // explicit type
@@ -101,7 +111,7 @@ function main() -> u32 {
 ```
 
 ### Field Elements
-```rust
+```js
 function main() -> field {
     let a = 1000field; // explicit type
     let a: field = 21888242871839275222246405745257275088548364400416034343698204186575808495617; // explicit type
@@ -113,11 +123,11 @@ function main() -> field {
 }
 ```
 
-### Affine Points
-The set of affine points on the elliptic curve passed into the leo compiler forms a group.
+### Group Elements
+An affine point on the elliptic curve passed into the Leo compiler forms a group.
 Leo supports this set as a primitive data type.
 
-```rust
+```js
 function main() -> group {
     let a = 1000group; // explicit type
     let a = (21888242871839275222246405745257275088548364400416034343698204186575808495617, 21888242871839275222246405745257275088548364400416034343698204186575808495617)group; // explicit type
@@ -128,7 +138,7 @@ function main() -> group {
 ```
 
 ### Operator Assignment Statements
-```rust
+```js
 function main() -> u32 {
   let mut a = 10;
   a += 5;
@@ -143,7 +153,7 @@ function main() -> u32 {
 
 ## Arrays
 Leo supports static arrays with fixed length.
-```rust
+```js
 function main() -> u32[2] {
     // initialize an integer array with integer values
     let mut a: u32[3] = [1, 2, 3];
@@ -171,7 +181,7 @@ function main() -> u32[2] {
 ```
 
 ### Multidimensional Arrays
-```rust
+```js
 function main() -> u32[3][2] {
   let m = [[0u32, 0u32], [0u32, 0u32]];
 
@@ -191,7 +201,7 @@ Ternary `if [cond] ? [first] : [second];` expressions are the cheapest form of c
 Since `first` and `second` are expressions, we can resolve their values before proceeding execution.
 In the underlying circuit, this is a single bit multiplexer.
 
-```rust
+```js
 function main() -> u32 {
   let y = if 3==3 ? 1 : 5;
   return y
@@ -202,7 +212,7 @@ function main() -> u32 {
 Leo supports the traditional `if [cond] { [first] } else { [second] }` which can be chained using `else if`.
 Since `first` and `second` are one or more statements, they resolve to separate circuits which will all be evaluated.
 In the underlying circuit this can be thought of as a demultiplexer.
-```rust
+```js
 function main(a: bool, b: bool) -> u32 {
   let mut res = 0u32;
   if a {
@@ -217,7 +227,7 @@ function main(a: bool, b: bool) -> u32 {
 ```
 
 ### For loop
-```rust
+```js
 function main() -> fe {
   let mut a = 1field;
   for i in 0..4 {
@@ -228,7 +238,7 @@ function main() -> fe {
 ```
 
 ## Functions
-```rust
+```js
 function test1(a : u32) -> u32 {
   return a + 1
 }
@@ -248,7 +258,7 @@ function main() -> u32 {
 
 
 ### Function Scope
-```rust
+```js
 function foo() -> field {
   // return myGlobal <- not allowed
   return 42field
@@ -262,7 +272,7 @@ function main() -> field {
 
 ### Multiple returns
 Functions can return tuples whose types are specified in the function signature.
-```rust
+```js
 function test() -> (u32, u32[2]) {
     return 1, [2, 3]
 }
@@ -277,13 +287,13 @@ function main() -> u32[3] {
 ### Function inputs
 Main function inputs are allocated private variables in the program's constraint system.
 `a` is implicitly private.
-```rust
+```js
 function main(a: field) -> field {
   return a
 }
 ```
 Normal function inputs are passed by value.
-```rust
+```js
 function test(mut a: u32) {
     a = 0;
 }
@@ -301,7 +311,7 @@ Circuits in Leo are similar to classes in object oriented langauges. Circuits ar
 
 
 Members can be defined as fields which hold primitive values
-```rust
+```js
 circuit Point {
     x: u32
     y: u32
@@ -313,34 +323,34 @@ function main() -> u32 {
 ```
 
 Members can also be defined as functions.
-```rust
-circuit Circ {
+```js
+circuit Foo {
   function echo(x: u32) -> u32 {
     return x
   }
 }
 
 function main() -> u32 {
-  let c = Circ { };
+  let c = Foo { };
   return c.echo(1u32)
 }
 ```
 
 Circuit functions can be made static, enabling them to be called without instantiation.
-```rust
-circuit Circ {
+```js
+circuit Foo {
   static function echo(x: u32) -> u32 {
     return x
   }
 }
 
 function main() -> u32 {
-  return Circ::echo(1u32)
+  return Foo::echo(1u32)
 }
 ```
 
 The `Self` keyword is supported in circuit functions.
-```rust
+```js
 circuit Circ {
   b: bool
 
@@ -358,19 +368,19 @@ function main() -> Circ {
 ## Imports
 Leo supports importing functions and circuits by name into the current file with the following syntax:
 
-```rust
+```js
 import [package].[name];
 ```
 
 #### Import Aliases
 To import a name using an alias:
-```rust
+```js
 import [package].[name] as [alias];
 ```
 
 #### Import Multiple
 To import multiple names from the same package:
-```rust
+```js
 import [package].(
     [name_1],
     [name_2] as [alias],
@@ -380,20 +390,20 @@ import [package].(
 #### Import Star
 To import all symbols from a package:
 Note that this will only import symbols from the package library `lib.leo` file.
-```rust
+```js
 import [package].*;
 ```
 
 ### Local
 You can import from a local file in the `src/` directory by using its `[file].leo` as the `[package]` name.
 
-```rust
+```js
 import [file].[name];
 ```
 
 #### Example: 
 `src/bar.leo`
-```rust
+```js
 circuit Bar {
     b: u32
 }
@@ -404,7 +414,7 @@ function baz() -> u32 {
 ```
 
 `src/main.leo`
-```rust
+```js
 import bar.(
     Bar,
     baz
@@ -418,20 +428,20 @@ function main() {
 
 ### Foreign
 You can import from a foreign package in the `imports/` directory using its `[package]` name.
-```rust
+```js
 import [package].[name];
 ```
 
 #### Example:
 `imports/bar/src/lib.leo`
-```rust
+```js
 circuit Bar {
     b: u32
 }
 ```
 
 `src/main.leo`
-```rust
+```js
 import bar.Bar;
 
 function main() {
@@ -441,7 +451,7 @@ function main() {
 
 ### Package Paths
 Leo treats directories as package names when importing.
-```rust
+```js
 import [package].[directory].[file].[name]
 ```
 
@@ -450,14 +460,14 @@ We wish to import the `Baz` circuit from the `baz.leo` file in the `bar` directo
 
 
 `imports/foo/src/bar/baz.leo`
-```rust
+```js
 circuit Baz {
     b: u32
 }
 ```
 
 `src/main.leo`
-```rust
+```js
 import foo.bar.baz.Baz;
 
 function main() {
@@ -470,7 +480,7 @@ function main() {
 ### Assert Equals
 This will enforce that the two values are equal in the constraint system.
 
-```rust
+```js
 function main() {
   assert_eq!(45, 45);
   
@@ -484,7 +494,7 @@ function main() {
 
 Use the `test` keyword to add tests to a leo program. Tests must have 0 function inputs and 0 function returns.
 
-```rust
+```js
 function main(a: u32) -> u32 {
     return a
 }
