@@ -72,8 +72,9 @@ function main() {
 Addresses are defined to enable compiler-optimized routines for parsing and operating over addresses. These semantics will be accompanied by a standard library in a future sprint.
 
 ```js
-function main() {
+function main(owner: address) {
     let sender = address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8);
+    assert_eq!(owner, sender);
 }
 ```
 
