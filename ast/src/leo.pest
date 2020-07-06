@@ -284,7 +284,7 @@ statement_definition = { declare ~ variable ~ "=" ~ expression ~ LINE_END}
 statement_expression = { expression ~ LINE_END }
 
 // Declared in statements/for_statement.rs
-statement_for = { "for " ~ identifier ~ " in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/multiple_assignment_statement.rs
 statement_multiple_assignment = { declare ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
