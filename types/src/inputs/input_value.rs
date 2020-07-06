@@ -5,18 +5,24 @@ use leo_inputs::{
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
 
+use leo_inputs::values::Address;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum InputValue {
-    Integer(IntegerType, u128),
+    Address(String),
+    Boolean(bool),
     Field(String),
     Group(String),
-    Boolean(bool),
+    Integer(IntegerType, u128),
     Array(Vec<InputValue>),
 }
 
 impl InputValue {
+    fn from_address(address: Address) -> Self {
+        InputValue::Address(address.value)
+    }
+
     fn from_boolean(boolean: BooleanValue) -> Result<Self, InputParserError> {
         let boolean = boolean.value.parse::<bool>()?;
         Ok(InputValue::Boolean(boolean))
@@ -37,7 +43,8 @@ impl InputValue {
 
     fn from_implicit(data_type: DataType, implicit: NumberImplicitValue) -> Result<Self, InputParserError> {
         match data_type {
-            DataType::Boolean(_) => Err(InputParserError::implicit_boolean(data_type, implicit)),
+            DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.number),
             DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
@@ -46,6 +53,7 @@ impl InputValue {
 
     fn from_value(data_type: DataType, value: Value) -> Result<Self, InputParserError> {
         match (data_type, value) {
+            (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address(address.address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 InputValue::from_number(integer_type, integer.number)
@@ -59,6 +67,9 @@ impl InputValue {
 
     pub(crate) fn from_expression(type_: Type, expression: Expression) -> Result<Self, InputParserError> {
         match (type_, expression) {
+            (Type::Basic(DataType::Address(_)), Expression::ImplicitAddress(address)) => {
+                Ok(InputValue::from_address(address))
+            }
             (Type::Basic(data_type), Expression::Value(value)) => InputValue::from_value(data_type, value),
             (Type::Array(array_type), Expression::ArrayInline(inline)) => {
                 InputValue::from_array_inline(array_type, inline)
@@ -134,10 +145,11 @@ impl InputValue {
 impl fmt::Display for InputValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            InputValue::Address(ref address) => write!(f, "{}", address),
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
-            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
+            InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
             InputValue::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {

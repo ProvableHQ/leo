@@ -47,8 +47,8 @@ impl AddressError {
         Self::new_from_span(message, span)
     }
 
-    pub fn missing_address(expected: String, span: Span) -> Self {
-        let message = format!("expected address input `{}` not found", expected);
+    pub fn missing_address(span: Span) -> Self {
+        let message = format!("expected address input not found");
 
         Self::new_from_span(message, span)
     }

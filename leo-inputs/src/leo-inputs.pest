@@ -36,6 +36,9 @@ type_group = { "group" }
 // Declared in types/boolean_type.rs
 type_boolean = { "bool" }
 
+// Declared in types/address_type.rs
+type_address = { "address" }
+
 // Declared in types/data_type.rs
 type_data = { type_field | type_group | type_boolean | type_integer }
 
@@ -45,7 +48,14 @@ type_array = { type_data ~ ("[" ~ value_number ~ "]")+ }
 /// Values
 
 // Declared in values/value.rs
-value = { value_field | value_group | value_boolean | value_integer | value_implicit }
+value = {
+    value_address
+    | value_boolean
+    | value_field
+    | value_group
+    | value_integer
+    | value_implicit // must be last as a catch all
+}
 
 // Declared in values/number_value.rs
 value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
@@ -66,6 +76,12 @@ value_field = { value_number ~ type_field }
 value_group = { group_tuple ~ type_group }
 group_tuple = { "(" ~ NEWLINE* ~ value_number ~ "," ~ NEWLINE* ~ value_number ~ NEWLINE* ~")" }
 
+// Declared in values/address.rs
+address = @{ (LOWERCASE_LETTER | ASCII_DIGIT)* }
+
+// Declared in values/address_value.rs
+value_address = { type_address ~ "(" ~ address ~ ")" }
+
 /// Expressions
 
 // Declared in expressions/array_initializer_expression.rs
@@ -80,6 +96,7 @@ expression = {
     expression_array_inline
     | expression_array_initializer
     | value
+    | address // address conflicts with identifier namespaces so we catch implicit address values as expressions here
 }
 
 /// Parameters

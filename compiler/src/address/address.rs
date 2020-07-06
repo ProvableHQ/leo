@@ -1,5 +1,5 @@
-use crate::errors::AddressError;
-use leo_types::Span;
+use crate::{errors::AddressError, ConstrainedValue, GroupType};
+use leo_types::{InputValue, Span};
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_errors::gadgets::SynthesisError;
@@ -25,6 +25,30 @@ impl Address {
         let address = AccountPublicKey::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         Ok(Address(address))
+    }
+
+    pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+        _cs: &mut CS,
+        name: String,
+        input_value: Option<InputValue>,
+        span: Span,
+    ) -> Result<ConstrainedValue<F, G>, AddressError> {
+        // Check that the input value is the correct type
+        let option = match input_value {
+            Some(input) => {
+                if let InputValue::Address(address) = input {
+                    Some(address)
+                } else {
+                    return Err(AddressError::invalid_address(name, span));
+                }
+            }
+            None => None,
+        };
+
+        let option = option.ok_or(AddressError::missing_address(span.clone()))?;
+        let address = Address::new(option, span)?;
+
+        Ok(ConstrainedValue::Address(address))
     }
 }
 
