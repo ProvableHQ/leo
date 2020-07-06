@@ -64,7 +64,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
         match _type {
             // Data types
-            Type::Address => Ok(ConstrainedValue::Address(Address::constant(value, span)?)),
+            Type::Address => Ok(ConstrainedValue::Address(Address::new(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(value, span)?)),
@@ -169,7 +169,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS, span: Span) -> Result<(), ValueError> {
         match self {
             // Data types
-            ConstrainedValue::Address(address) => unimplemented!("allocating addresses not impl"),
+            ConstrainedValue::Address(address) => {
+                // allow `let address()` syntax to pass through for now
+            }
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
                 let name = option.map(|b| b.to_string()).unwrap_or(format!("[allocated]"));

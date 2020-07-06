@@ -180,6 +180,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 
 [[package]]
+name = "chrono"
+version = "0.4.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c74d84029116787153e02106bf53e66828452a4b325cc8652b788b5967c0a0b6"
+dependencies = [
+ "num-integer",
+ "num-traits",
+ "serde",
+ "time",
+]
+
+[[package]]
 name = "ci_info"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -574,9 +586,11 @@ dependencies = [
  "rand",
  "sha2",
  "snarkos-curves",
+ "snarkos-dpc",
  "snarkos-errors",
  "snarkos-gadgets",
  "snarkos-models",
+ "snarkos-objects",
  "snarkos-utilities",
  "thiserror",
 ]
@@ -667,6 +681,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab250442c86f1850815b5d268639dff018c0627022bc1940eb2d642ca1ce12f0"
 
 [[package]]
+name = "num-integer"
+version = "0.1.43"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d59457e662d541ba17869cf51cf177c0b5f0cbf476c66bdc90bf1edac4f875b"
+dependencies = [
+ "autocfg",
+ "num-traits",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac267bcc07f48ee5f8935ab0d24f316fb722d7a1292e2913f0cc196b29ffd611"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -681,6 +714,12 @@ name = "object"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ab52be62400ca80aa00285d25253d7f7c437b7375c4de678f5405d3afe82ca5"
+
+[[package]]
+name = "once_cell"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b631f7e854af39a1739f401cf34a8a013dfe09eac4fa4dba91e9768bd28168d"
 
 [[package]]
 name = "opaque-debug"
@@ -1057,6 +1096,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "snarkos-dpc"
+version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git?rev=c7a56d9#c7a56d97a76dd6e7841aa6bb86e086f7128e5620"
+dependencies = [
+ "blake2",
+ "derivative",
+ "hex",
+ "rand",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+ "snarkos-objects",
+ "snarkos-parameters",
+ "snarkos-profiler",
+ "snarkos-utilities",
+]
+
+[[package]]
 name = "snarkos-errors"
 version = "0.8.0"
 source = "git+ssh://git@github.com/AleoHQ/snarkOS.git?rev=c7a56d9#c7a56d97a76dd6e7841aa6bb86e086f7128e5620"
@@ -1095,6 +1154,39 @@ dependencies = [
  "serde",
  "smallvec",
  "snarkos-errors",
+ "snarkos-utilities",
+]
+
+[[package]]
+name = "snarkos-objects"
+version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git?rev=c7a56d9#c7a56d97a76dd6e7841aa6bb86e086f7128e5620"
+dependencies = [
+ "base58",
+ "bech32",
+ "chrono",
+ "derivative",
+ "hex",
+ "once_cell",
+ "rand",
+ "serde",
+ "sha2",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-models",
+ "snarkos-utilities",
+]
+
+[[package]]
+name = "snarkos-parameters"
+version = "0.8.0"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git?rev=c7a56d9#c7a56d97a76dd6e7841aa6bb86e086f7128e5620"
+dependencies = [
+ "hex",
+ "snarkos-algorithms",
+ "snarkos-errors",
+ "snarkos-models",
  "snarkos-utilities",
 ]
 

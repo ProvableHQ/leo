@@ -1,32 +1,23 @@
 use crate::errors::AddressError;
 use leo_types::Span;
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkos_dpc::base_dpc::instantiated::Components;
+use snarkos_objects::account::AccountPublicKey;
+use std::str::FromStr;
 
-#[derive(Clone, Debug)]
-pub struct Address(pub String);
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Address(pub AccountPublicKey<Components>);
 
 impl Address {
-    pub(crate) fn constant(address: String, span: Span) -> Result<Self, AddressError> {
-        Ok(Self(address))
-    }
+    pub(crate) fn new(address: String, span: Span) -> Result<Self, AddressError> {
+        let address = AccountPublicKey::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
-    // pub(crate) fn allocate<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-    //     cs: &mut CS,
-    //     name: String,
-    //     option: Option<bool>,
-    //     span: Span,
-    // ) -> Result<Self, AddressError> {
-    //     let boolean_name = format!("{}: bool", name);
-    //     let boolean_name_unique = format!("`{}` {}:{}", boolean_name, span.line, span.start);
-    //
-    //     Self::alloc(cs.ns(|| boolean_name_unique), || {
-    //         option.ok_or(SynthesisError::AssignmentMissing)
-    //     })
-    //         .map_err(|_| AddressError::missing_boolean(boolean_name, span))
-    // }
+        Ok(Address(address))
+    }
+}
+
+impl std::fmt::Display for Address {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }

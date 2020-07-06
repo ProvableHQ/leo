@@ -1,6 +1,6 @@
 use leo_types::{Error as FormattedError, Span};
 
-use snarkos_errors::gadgets::SynthesisError;
+use snarkos_errors::{gadgets::SynthesisError, objects::account::AccountError};
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
@@ -18,6 +18,12 @@ impl AddressError {
 
     fn new_from_span(message: String, span: Span) -> Self {
         AddressError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn account_error(error: AccountError, span: Span) -> Self {
+        let message = format!("account creation failed due to `{}`", error);
+
+        Self::new_from_span(message, span)
     }
 
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
