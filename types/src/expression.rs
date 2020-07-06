@@ -429,7 +429,7 @@ impl<'ast> From<NotExpression<'ast>> for Expression {
 
 impl<'ast> From<AddressValue<'ast>> for Expression {
     fn from(address: AddressValue<'ast>) -> Self {
-        Expression::Address(address.number.value, Span::from(address.span))
+        Expression::Address(address.address.value, Span::from(address.span))
     }
 }
 
