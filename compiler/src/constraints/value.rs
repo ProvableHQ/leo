@@ -169,8 +169,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS, span: Span) -> Result<(), ValueError> {
         match self {
             // Data types
-            ConstrainedValue::Address(address) => {
-                // allow `let address()` syntax to pass through for now
+            ConstrainedValue::Address(_address) => {
+                // allow `let address()` even though addresses are constant
             }
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
@@ -326,22 +326,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         match (self, other) {
-            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => unimplemented!(),
+            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
+                address_1.conditional_enforce_equal(cs, address_2, condition)
+            }
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-                bool_1.conditional_enforce_equal(cs, bool_2, &condition)
+                bool_1.conditional_enforce_equal(cs, bool_2, condition)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-                field_1.conditional_enforce_equal(cs, field_2, &condition)
+                field_1.conditional_enforce_equal(cs, field_2, condition)
             }
             (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
-                group_1.conditional_enforce_equal(cs, group_2, &condition)
+                group_1.conditional_enforce_equal(cs, group_2, condition)
             }
             (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.conditional_enforce_equal(cs, num_2, &condition)
+                num_1.conditional_enforce_equal(cs, num_2, condition)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
-                    left.conditional_enforce_equal(cs.ns(|| format!("array[{}]", i)), right, &condition)?;
+                    left.conditional_enforce_equal(cs.ns(|| format!("array[{}]", i)), right, condition)?;
                 }
                 Ok(())
             }
@@ -362,7 +364,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         Ok(match (first, second) {
-            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => unimplemented!(),
+            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
+                ConstrainedValue::Address(Address::conditionally_select(cs, cond, address_1, address_2)?)
+            }
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
             }
