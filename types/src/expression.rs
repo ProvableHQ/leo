@@ -16,6 +16,7 @@ use leo_ast::{
     values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
 };
 
+use leo_ast::values::AddressValue;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -26,11 +27,12 @@ pub enum Expression {
     Identifier(Identifier),
 
     // Values
-    Integer(IntegerType, String, Span),
+    Address(String, Span),
+    Boolean(String, Span),
     Field(String, Span),
     Group(String, Span),
-    Boolean(String, Span),
     Implicit(String, Span),
+    Integer(IntegerType, String, Span),
 
     // Number operations
     Add(Box<Expression>, Box<Expression>, Span),
@@ -121,11 +123,12 @@ impl<'ast> fmt::Display for Expression {
             Expression::Identifier(ref variable) => write!(f, "{}", variable),
 
             // Values
-            Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
+            Expression::Address(ref address, ref _span) => write!(f, "{}", address),
+            Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
             Expression::Field(ref field, ref _span) => write!(f, "{}", field),
             Expression::Group(ref group, ref _span) => write!(f, "{}", group),
-            Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
             Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
+            Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
 
             // Number operations
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
@@ -405,11 +408,12 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
 impl<'ast> From<Value<'ast>> for Expression {
     fn from(value: Value<'ast>) -> Self {
         match value {
-            Value::Integer(num) => Expression::from(num),
+            Value::Address(address) => Expression::from(address),
+            Value::Boolean(boolean) => Expression::from(boolean),
             Value::Field(field) => Expression::from(field),
             Value::Group(group) => Expression::from(group),
-            Value::Boolean(bool) => Expression::from(bool),
-            Value::Implicit(value) => Expression::from(value),
+            Value::Implicit(number) => Expression::from(number),
+            Value::Integer(integer) => Expression::from(integer),
         }
     }
 }
@@ -423,6 +427,18 @@ impl<'ast> From<NotExpression<'ast>> for Expression {
     }
 }
 
+impl<'ast> From<AddressValue<'ast>> for Expression {
+    fn from(address: AddressValue<'ast>) -> Self {
+        Expression::Address(address.number.value, Span::from(address.span))
+    }
+}
+
+impl<'ast> From<BooleanValue<'ast>> for Expression {
+    fn from(boolean: BooleanValue<'ast>) -> Self {
+        Expression::Boolean(boolean.value, Span::from(boolean.span))
+    }
+}
+
 impl<'ast> From<FieldValue<'ast>> for Expression {
     fn from(field: FieldValue<'ast>) -> Self {
         Expression::Field(field.number.value, Span::from(field.span))
@@ -432,12 +448,6 @@ impl<'ast> From<FieldValue<'ast>> for Expression {
 impl<'ast> From<GroupValue<'ast>> for Expression {
     fn from(group: GroupValue<'ast>) -> Self {
         Expression::Group(group.to_string(), Span::from(group.span))
-    }
-}
-
-impl<'ast> From<BooleanValue<'ast>> for Expression {
-    fn from(boolean: BooleanValue<'ast>) -> Self {
-        Expression::Boolean(boolean.value, Span::from(boolean.span))
     }
 }
 

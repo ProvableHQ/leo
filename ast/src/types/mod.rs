@@ -1,3 +1,6 @@
+pub mod address_type;
+pub use address_type::*;
+
 pub mod array_type;
 pub use array_type::*;
 
