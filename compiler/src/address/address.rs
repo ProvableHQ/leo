@@ -18,13 +18,13 @@ use snarkos_objects::account::AccountPublicKey;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Address(pub AccountPublicKey<Components>);
+pub struct Address(pub Option<AccountPublicKey<Components>>);
 
 impl Address {
     pub(crate) fn new(address: String, span: Span) -> Result<Self, AddressError> {
         let address = AccountPublicKey::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
-        Ok(Address(address))
+        Ok(Address(Some(address)))
     }
 
     pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -34,21 +34,20 @@ impl Address {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, AddressError> {
         // Check that the input value is the correct type
-        let option = match input_value {
+        let address_value = match input_value {
             Some(input) => {
-                if let InputValue::Address(address) = input {
-                    Some(address)
+                if let InputValue::Address(string) = input {
+                    let address = Address::new(string, span)?;
+
+                    address
                 } else {
                     return Err(AddressError::invalid_address(name, span));
                 }
             }
-            None => None,
+            None => Address(None),
         };
 
-        let option = option.ok_or(AddressError::missing_address(span.clone()))?;
-        let address = Address::new(option, span)?;
-
-        Ok(ConstrainedValue::Address(address))
+        Ok(ConstrainedValue::Address(address_value))
     }
 }
 
@@ -58,8 +57,8 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
     }
 }
 
-fn not_equal_error(first: &Address, second: &Address, cond: bool) -> Result<(), SynthesisError> {
-    if cond {
+fn cond_equal_helper(first: &Address, second: &Address, cond: bool) -> Result<(), SynthesisError> {
+    if cond && first.0.is_some() && second.0.is_some() {
         if first.eq(second) {
             Ok(())
         } else {
@@ -78,11 +77,11 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Address {
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         if let Boolean::Constant(cond) = *condition {
-            not_equal_error(self, other, cond)
+            cond_equal_helper(self, other, cond)
         } else {
             condition
                 .get_value()
-                .map(|cond| not_equal_error(self, other, cond))
+                .map(|cond| cond_equal_helper(self, other, cond))
                 .unwrap_or(Ok(()))
         }
     }
@@ -120,6 +119,10 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
 
 impl std::fmt::Display for Address {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(
+            f,
+            "{}",
+            self.0.as_ref().map(|v| v.to_string()).unwrap_or(format!("[allocated]"))
+        )
     }
 }
