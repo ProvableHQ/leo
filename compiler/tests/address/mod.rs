@@ -70,13 +70,3 @@ fn test_input_fail_bool() {
 
     let _err = get_error(program);
 }
-
-#[test]
-fn test_input_fail_none() {
-    let bytes = include_bytes!("input.leo");
-    let mut program = parse_program(bytes).unwrap();
-
-    program.set_inputs(vec![None]);
-
-    let _err = get_error(program);
-}
