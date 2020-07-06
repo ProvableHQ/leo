@@ -5,6 +5,7 @@ use crate::{
     errors::{ExpressionError, FieldError, ValueError},
     is_in_scope,
     new_scope,
+    Address,
     FieldType,
     GroupType,
     Integer,
@@ -26,25 +27,31 @@ pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub 
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
-    Integer(Integer),
+    // Data types
+    Address(Address),
+    Boolean(Boolean),
     Field(FieldType<F>),
     Group(G),
-    Boolean(Boolean),
+    Integer(Integer),
 
+    // Arrays
     Array(Vec<ConstrainedValue<F, G>>),
 
+    // Circuits
     CircuitDefinition(Circuit),
     CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
+    // Functions
     Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
     Return(Vec<ConstrainedValue<F, G>>),
 
+    // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
-
-    Import(String, Box<ConstrainedValue<F, G>>),
-
     Unresolved(String),
+
+    // Imports
+    Import(String, Box<ConstrainedValue<F, G>>),
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
@@ -56,14 +63,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
     pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
         match _type {
+            // Data types
+            Type::Address => Ok(ConstrainedValue::Address(Address::constant(value, span)?)),
+            Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
+            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
+            Type::Group => Ok(ConstrainedValue::Group(G::constant(value, span)?)),
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
                 integer_type,
                 value,
                 span,
             )?)),
-            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-            Type::Group => Ok(ConstrainedValue::Group(G::constant(value, span)?)),
-            Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
+
+            // Data type wrappers
             Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type, span),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }
@@ -71,10 +82,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
     pub(crate) fn to_type(&self, span: Span) -> Result<Type, ValueError> {
         Ok(match self {
-            ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
+            // Data types
+            ConstrainedValue::Address(_address) => Type::Address,
+            ConstrainedValue::Boolean(_bool) => Type::Boolean,
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
-            ConstrainedValue::Boolean(_bool) => Type::Boolean,
+            ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
+
+            // Data type wrappers
             ConstrainedValue::Array(types) => {
                 let array_type = types[0].to_type(span.clone())?;
                 let count = types.len();
@@ -153,19 +168,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
     pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS, span: Span) -> Result<(), ValueError> {
         match self {
-            // allocated values
+            // Data types
+            ConstrainedValue::Address(address) => unimplemented!("allocating addresses not impl"),
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
                 let name = option.map(|b| b.to_string()).unwrap_or(format!("[allocated]"));
 
                 *boolean = allocate_bool(&mut cs, name, option, span)?;
-            }
-            ConstrainedValue::Integer(integer) => {
-                let integer_type = integer.get_type();
-                let option = integer.get_value();
-                let name = option.map(|n| n.to_string()).unwrap_or(format!("[allocated]"));
-
-                *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }
             ConstrainedValue::Field(field) => {
                 let gadget = field
@@ -177,7 +186,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Group(group) => {
                 *group = group.to_allocated(cs, span)?;
             }
-            // value wrappers
+            ConstrainedValue::Integer(integer) => {
+                let integer_type = integer.get_type();
+                let option = integer.get_value();
+                let name = option.map(|n| n.to_string()).unwrap_or(format!("[allocated]"));
+
+                *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
+            }
+
+            // Data type wrappers
             ConstrainedValue::Array(array) => {
                 array
                     .iter_mut()
@@ -217,11 +234,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Static(value) => {
                 value.allocate_value(cs, span)?;
             }
-            // empty wrappers
+
+            // Empty wrappers that are unreachable
             ConstrainedValue::CircuitDefinition(_) => {}
             ConstrainedValue::Function(_, _) => {}
             ConstrainedValue::Import(_, _) => {}
 
+            // Cannot allocate an unresolved value
             ConstrainedValue::Unresolved(value) => {
                 return Err(ValueError::implicit(value.to_string(), span));
             }
@@ -234,9 +253,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
-            ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
+            // Data types
+            ConstrainedValue::Address(ref value) => write!(f, "{}", value),
             ConstrainedValue::Boolean(ref value) => write!(
                 f,
                 "{}",
@@ -245,6 +263,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                     .map(|v| v.to_string())
                     .unwrap_or(format!("[allocated]"))
             ),
+            ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
+            ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
+            ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
+
+            // Data type wrappers
             ConstrainedValue::Array(ref array) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
@@ -301,17 +324,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         match (self, other) {
+            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => unimplemented!(),
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 bool_1.conditional_enforce_equal(cs, bool_2, &condition)
-            }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                num_1.conditional_enforce_equal(cs, num_2, &condition)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 field_1.conditional_enforce_equal(cs, field_2, &condition)
             }
             (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
                 group_1.conditional_enforce_equal(cs, group_2, &condition)
+            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                num_1.conditional_enforce_equal(cs, num_2, &condition)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
@@ -336,17 +360,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         Ok(match (first, second) {
+            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => unimplemented!(),
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
-            }
-            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-                ConstrainedValue::Integer(Integer::conditionally_select(cs, cond, num_1, num_2)?)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, field_1, field_2)?)
             }
             (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
                 ConstrainedValue::Group(G::conditionally_select(cs, cond, group_1, group_2)?)
+            }
+            (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+                ConstrainedValue::Integer(Integer::conditionally_select(cs, cond, num_1, num_2)?)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 let mut array = vec![];

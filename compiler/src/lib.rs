@@ -3,6 +3,9 @@
 #[macro_use]
 extern crate thiserror;
 
+pub mod address;
+pub use self::address::*;
+
 pub mod compiler;
 
 pub mod constraints;

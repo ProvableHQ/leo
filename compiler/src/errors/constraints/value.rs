@@ -1,9 +1,13 @@
-use crate::errors::{BooleanError, FieldError, GroupError, IntegerError};
+use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
 use leo_types::{Error as FormattedError, Span};
+
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum ValueError {
+    #[error("{}", _0)]
+    AddressError(#[from] AddressError),
+
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
 
@@ -23,6 +27,7 @@ pub enum ValueError {
 impl ValueError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
+            ValueError::AddressError(error) => error.set_path(path),
             ValueError::BooleanError(error) => error.set_path(path),
             ValueError::Error(error) => error.set_path(path),
             ValueError::FieldError(error) => error.set_path(path),
