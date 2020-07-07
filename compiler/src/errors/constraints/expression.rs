@@ -1,4 +1,4 @@
-use crate::errors::{BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
+use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
 use leo_types::{Error as FormattedError, Identifier, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -6,6 +6,9 @@ use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
+    #[error("{}", _0)]
+    AddressError(#[from] AddressError),
+
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
 
@@ -31,6 +34,7 @@ pub enum ExpressionError {
 impl ExpressionError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
+            ExpressionError::AddressError(error) => error.set_path(path),
             ExpressionError::BooleanError(error) => error.set_path(path),
             ExpressionError::Error(error) => error.set_path(path),
             ExpressionError::FieldError(error) => error.set_path(path),

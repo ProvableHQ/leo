@@ -1,3 +1,4 @@
+pub mod address;
 pub mod array;
 pub mod boolean;
 pub mod circuits;

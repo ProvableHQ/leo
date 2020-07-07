@@ -7,10 +7,14 @@ use std::fmt;
 /// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Type {
-    IntegerType(IntegerType),
+    // Data types
+    Address,
+    Boolean,
     Field,
     Group,
-    Boolean,
+    IntegerType(IntegerType),
+
+    // Data type wrappers
     Array(Box<Type>, Vec<usize>),
     Circuit(Identifier),
     SelfType,
@@ -35,12 +39,13 @@ impl Type {
 /// pest ast -> Explicit Type for defining circuit members and function params
 
 impl From<DataType> for Type {
-    fn from(basic_type: DataType) -> Self {
-        match basic_type {
-            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
+    fn from(data_type: DataType) -> Self {
+        match data_type {
+            DataType::Address(_type) => Type::Address,
+            DataType::Boolean(_type) => Type::Boolean,
             DataType::Field(_type) => Type::Field,
             DataType::Group(_type) => Type::Group,
-            DataType::Boolean(_type) => Type::Boolean,
+            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
         }
     }
 }
@@ -106,10 +111,11 @@ impl Type {
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
+            Type::Address => write!(f, "address"),
+            Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
-            Type::Boolean => write!(f, "bool"),
+            Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Circuit(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => {

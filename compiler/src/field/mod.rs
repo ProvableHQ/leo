@@ -1,9 +1,8 @@
 //! A data type that represents a field value
 
-use crate::errors::FieldError;
+use crate::{errors::FieldError, ComparatorGadget, EvaluateLtGadget};
 use leo_types::Span;
 
-use crate::{ComparatorGadget, EvaluateLtGadget};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},

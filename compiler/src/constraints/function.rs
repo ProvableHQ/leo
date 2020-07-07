@@ -2,6 +2,7 @@
 //! a resolved Leo program.
 
 use crate::{
+    address::Address,
     constraints::{
         boolean::bool_from_input,
         field::field_from_input,
@@ -229,6 +230,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
+            Type::Address => Ok(Address::from_input(cs, name, input_value, span)?),
+            Type::Boolean => Ok(bool_from_input(cs, name, input_value, span)?),
+            Type::Field => Ok(field_from_input(cs, name, input_value, span)?),
+            Type::Group => Ok(group_from_input(cs, name, input_value, span)?),
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(
                 cs,
                 integer_type,
@@ -236,9 +241,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 input_value,
                 span,
             )?)),
-            Type::Field => Ok(field_from_input(cs, name, input_value, span)?),
-            Type::Group => Ok(group_from_input(cs, name, input_value, span)?),
-            Type::Boolean => Ok(bool_from_input(cs, name, input_value, span)?),
             Type::Array(_type, dimensions) => self.allocate_array(cs, name, *_type, dimensions, input_value, span),
             _ => unimplemented!("main function input not implemented for type"),
         }

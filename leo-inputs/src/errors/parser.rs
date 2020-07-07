@@ -40,7 +40,7 @@ impl InputParserError {
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
-    pub fn implicit_boolean(data_type: DataType, implicit: NumberImplicitValue) -> Self {
+    pub fn implicit_type(data_type: DataType, implicit: NumberImplicitValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type.to_string(), implicit.to_string());
 
         Self::new_from_span(message, implicit.span)

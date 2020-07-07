@@ -1,9 +1,13 @@
-use crate::errors::{BooleanError, ExpressionError, IntegerError, ValueError};
+use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, ValueError};
 use leo_types::{Error as FormattedError, Span, Type};
+
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum StatementError {
+    #[error("{}", _0)]
+    AddressError(#[from] AddressError),
+
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
 
@@ -23,6 +27,7 @@ pub enum StatementError {
 impl StatementError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
+            StatementError::AddressError(error) => error.set_path(path),
             StatementError::BooleanError(error) => error.set_path(path),
             StatementError::Error(error) => error.set_path(path),
             StatementError::ExpressionError(error) => error.set_path(path),

@@ -10,6 +10,7 @@ use crate::{
         ConstrainedValue,
     },
     errors::ExpressionError,
+    Address,
     FieldType,
     GroupType,
     Integer,
@@ -30,7 +31,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EvaluateEqGadget, select::CondSelectGadget},
+        utilities::{eq::EvaluateEqGadget, select::CondSelectGadget},
     },
 };
 
@@ -58,6 +59,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         } else if let Some(value) = self.get(&unresolved_identifier.name) {
             // Check imported file scope
             value.clone()
+        } else if expected_types.contains(&Type::Address) {
+            // If we expect an address type, try to return an address
+            let address = Address::new(unresolved_identifier.name, unresolved_identifier.span)?;
+
+            return Ok(ConstrainedValue::Address(address));
         } else {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
@@ -230,6 +236,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut unique_namespace = cs.ns(|| format!("evaluate {} == {} {}:{}", left, right, span.line, span.start));
         let constraint_result = match (left, right) {
+            (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
+                address_1.evaluate_equal(unique_namespace, &address_2)
+            }
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 bool_1.evaluate_equal(unique_namespace, &bool_2)
             }
@@ -419,23 +428,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         expected_types: &Vec<Type>,
+        conditional: Expression,
         first: Expression,
         second: Expression,
-        third: Expression,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let resolved_first = match self.enforce_expression(
+        let conditional_value = match self.enforce_expression(
             cs,
             file_scope.clone(),
             function_scope.clone(),
             &vec![Type::Boolean],
-            first,
+            conditional,
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
         };
 
-        let resolved_second = self.enforce_expression_value(
+        let first_value = self.enforce_expression_value(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_types,
+            first,
+            span.clone(),
+        )?;
+
+        let second_value = self.enforce_expression_value(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -443,46 +461,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             second,
             span.clone(),
         )?;
-        let resolved_third =
-            self.enforce_expression_value(cs, file_scope, function_scope, expected_types, third, span.clone())?;
 
         let unique_namespace = cs.ns(|| {
             format!(
                 "select {} or {} {}:{}",
-                resolved_second, resolved_third, span.line, span.start
+                first_value, second_value, span.line, span.start
             )
         });
 
-        match (resolved_second, resolved_third) {
-            (ConstrainedValue::Boolean(bool_2), ConstrainedValue::Boolean(bool_3)) => {
-                let result = Boolean::conditionally_select(unique_namespace, &resolved_first, &bool_2, &bool_3)
-                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
-
-                Ok(ConstrainedValue::Boolean(result))
-            }
-            (ConstrainedValue::Integer(integer_2), ConstrainedValue::Integer(integer_3)) => {
-                let result = Integer::conditionally_select(unique_namespace, &resolved_first, &integer_2, &integer_3)
-                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
-
-                Ok(ConstrainedValue::Integer(result))
-            }
-            (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-                let result = FieldType::conditionally_select(unique_namespace, &resolved_first, &field_1, &field_2)
-                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
-
-                Ok(ConstrainedValue::Field(result))
-            }
-            (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
-                let result = G::conditionally_select(unique_namespace, &resolved_first, &point_1, &point_2)
-                    .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))?;
-
-                Ok(ConstrainedValue::Group(result))
-            }
-            (val_1, val_2) => Err(ExpressionError::incompatible_types(
-                format!("ternary between {} and {}", val_1, val_2),
-                span,
-            )),
-        }
+        ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
+            .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))
     }
 
     /// Enforce array expressions
@@ -933,13 +921,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Values
+            Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::new(address, span)?)),
+            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
+            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
+            Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
+            Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
             }
-            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
-            Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
-            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
-            Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
 
             // Binary operations
             Expression::Add(left, right, span) => {
@@ -1106,14 +1095,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Conditionals
-            Expression::IfElse(first, second, third, span) => self.enforce_conditional_expression(
+            Expression::IfElse(conditional, first, second, span) => self.enforce_conditional_expression(
                 cs,
                 file_scope,
                 function_scope,
                 expected_types,
+                *conditional,
                 *first,
                 *second,
-                *third,
                 span,
             ),
 

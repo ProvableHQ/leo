@@ -1,4 +1,6 @@
 //! Module containing errors returned when enforcing constraints in an Leo program
+pub mod address;
+pub use self::address::*;
 
 pub mod boolean;
 pub use self::boolean::*;
