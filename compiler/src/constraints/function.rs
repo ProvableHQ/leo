@@ -231,11 +231,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match _type {
             Type::Address => Ok(Address::from_input(cs, name, input_value, span)?),
-            Type::Boolean => {
-                let bool = bool_from_input(cs, name, input_value, span)?;
-                println!("bool {}", bool);
-                Ok(bool)
-            }
+            Type::Boolean => Ok(bool_from_input(cs, name, input_value, span)?),
             Type::Field => Ok(field_from_input(cs, name, input_value, span)?),
             Type::Group => Ok(group_from_input(cs, name, input_value, span)?),
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(

@@ -52,7 +52,7 @@ pub enum Expression {
     Lt(Box<Expression>, Box<Expression>, Span),
 
     // Conditionals
-    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span),
+    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span), // (conditional, first_value, second_value)
 
     // Arrays
     Array(Vec<Box<SpreadOrExpression>>, Span),
