@@ -8,7 +8,7 @@ use snarkos_curves::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::AffineCurve,
+    curves::{AffineCurve, One, TEModelParameters},
     gadgets::{
         curves::{FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
@@ -33,6 +33,11 @@ pub enum EdwardsGroupType {
 
 impl GroupType<Fq> for EdwardsGroupType {
     fn constant(string: String, span: Span) -> Result<Self, GroupError> {
+        // 1group = generator
+        if string.eq("1") {
+            return Ok(Self::one());
+        }
+
         let value =
             Self::edwards_affine_from_str(string.clone()).map_err(|_| GroupError::invalid_group(string, span))?;
 
@@ -104,7 +109,7 @@ impl GroupType<Fq> for EdwardsGroupType {
 
 impl EdwardsGroupType {
     pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, SynthesisError> {
-        // 0 or (0, 1)
+        // x or (x, y)
         match Fq::from_str(&string).ok() {
             Some(x) => EdwardsAffine::get_point_from_x(x, false).ok_or(SynthesisError::AssignmentMissing),
             None => EdwardsAffine::from_str(&string).map_err(|_| SynthesisError::AssignmentMissing),
@@ -122,7 +127,12 @@ impl EdwardsGroupType {
             _ => Err(SynthesisError::AssignmentMissing),
         }?;
 
-        Self::edwards_affine_from_str(affine_string)
+        // 1group = generator
+        if affine_string.eq("1") {
+            Ok(edwards_affine_one())
+        } else {
+            Self::edwards_affine_from_str(affine_string)
+        }
     }
 
     pub fn allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<EdwardsBlsGadget, SynthesisError> {
@@ -314,6 +324,24 @@ impl ToBytesGadget<Fq> for EdwardsGroupType {
     fn to_bytes_strict<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bytes_strict(cs)
+    }
+}
+
+fn edwards_affine_one() -> GroupAffine<EdwardsParameters> {
+    let (x, y) = EdwardsParameters::AFFINE_GENERATOR_COEFFS;
+
+    EdwardsAffine::new(x, y)
+}
+
+impl One for EdwardsGroupType {
+    fn one() -> Self {
+        let one = edwards_affine_one();
+
+        Self::Constant(one)
+    }
+
+    fn is_one(&self) -> bool {
+        self.eq(&Self::one())
     }
 }
 
