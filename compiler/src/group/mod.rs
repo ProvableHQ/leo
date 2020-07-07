@@ -4,7 +4,7 @@ use crate::errors::GroupError;
 use leo_types::Span;
 
 use snarkos_models::{
-    curves::Field,
+    curves::{Field, One},
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
@@ -25,6 +25,7 @@ pub trait GroupType<F: Field>:
     + Clone
     + Debug
     + Display
+    + One
     + EvaluateEqGadget<F>
     + EqGadget<F>
     + ConditionalEqGadget<F>
