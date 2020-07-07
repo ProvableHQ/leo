@@ -32,6 +32,12 @@ spread = { "..." ~ expression }
 // Declared in common/spread_or_expression.rs
 spread_or_expression = { spread | expression }
 
+// Declared in common/return_.rs
+return_ = { return_tuple | expression }
+
+// Declared in common/return_tuple.rs
+return_tuple = {"(" ~ expression ~ ("," ~ expression)+ ~ ")"}
+
 // Declared in common/static_.rs
 static_ = { "static " }
 
@@ -291,7 +297,7 @@ statement_multiple_assignment = { declare ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  
 variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 // Declared in statements/return_statement.rs
-statement_return = { "return " ~ expression_tuple }
+statement_return = { "return " ~ return_}
 
 /// Functions
 

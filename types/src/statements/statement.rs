@@ -1,5 +1,6 @@
 use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Span, Variable};
 use leo_ast::{
+    common::Return,
     operations::AssignOperation,
     statements::{
         AssertStatement,
@@ -32,8 +33,10 @@ pub enum Statement {
 impl<'ast> From<ReturnStatement<'ast>> for Statement {
     fn from(statement: ReturnStatement<'ast>) -> Self {
         let span = Span::from(statement.span);
-        Statement::Return(
-            statement
+
+        let expressions = match statement.return_ {
+            Return::Single(expression) => vec![Expression::from(expression)],
+            Return::Tuple(tuple) => tuple
                 .expressions
                 .into_iter()
                 .map(|expression| {
@@ -43,8 +46,9 @@ impl<'ast> From<ReturnStatement<'ast>> for Statement {
                     expression
                 })
                 .collect(),
-            span,
-        )
+        };
+
+        Statement::Return(expressions, span)
     }
 }
 
