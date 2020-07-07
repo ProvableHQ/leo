@@ -13,7 +13,7 @@ pub struct Identifier {
 
 impl Identifier {
     pub fn is_self(&self) -> bool {
-        self.name == "Self"
+        self.name == "Self" || self.name == "self"
     }
 }
 

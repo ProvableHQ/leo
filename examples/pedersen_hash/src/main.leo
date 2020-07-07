@@ -1,13 +1,17 @@
 circuit PedersenHash {
-    parameters: group[512]
-    static function new(parameters: group[512]) -> Self {
+    parameters: group[256],
+
+    // Instantiates a Pedersen hash circuit
+    static function new(parameters: group[256]) -> Self {
         return Self { parameters: parameters }
     }
-    function hash(bits: bool[512]) -> group {
+
+    function hash(bits: bool[256]) -> group {
         let mut digest: group = 0;
-        for i in 0..512 {
-            let base = if bits[i] ? parameters[i] : 0group;
-            digest += base;
+        for i in 0..256 {
+            if bits[i] {
+                digest += self.parameters[i];
+            }
         }
         return digest
     }
@@ -15,8 +19,8 @@ circuit PedersenHash {
 
 // The 'pedersen_hash' main function.
 function main() -> group {
-    let parameters = [0group; 512];
+    const parameters = [0group; 256];
     const pedersen = PedersenHash::new(parameters);
-    let input: bool[512] = [true; 512];
+    let input: bool[256] = [true; 256];
     return pedersen.hash(input)
 }

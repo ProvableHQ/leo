@@ -3,6 +3,7 @@
 use crate::{
     constraints::boolean::{allocate_bool, new_bool_constant},
     errors::{ExpressionError, FieldError, ValueError},
+    is_in_scope,
     new_scope,
     FieldType,
     GroupType,
@@ -40,7 +41,9 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
+
     Import(String, Box<ConstrainedValue<F, G>>),
+
     Unresolved(String),
 }
 
@@ -120,8 +123,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Function(circuit_identifier, function) => {
                 let mut outer_scope = scope.clone();
                 // If this is a circuit function, evaluate inside the circuit scope
-                if circuit_identifier.is_some() {
-                    outer_scope = new_scope(scope, circuit_identifier.unwrap().to_string());
+                if let Some(identifier) = circuit_identifier {
+                    // avoid creating recursive scope
+                    if !is_in_scope(&scope, &identifier.name.to_string()) {
+                        outer_scope = new_scope(scope, identifier.name.to_string());
+                    }
                 }
 
                 Ok((outer_scope, function.clone()))

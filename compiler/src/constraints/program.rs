@@ -14,6 +14,10 @@ pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
 
+pub fn is_in_scope(current_scope: &String, desired_scope: &String) -> bool {
+    current_scope.ends_with(desired_scope)
+}
+
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn new() -> Self {
         Self {
