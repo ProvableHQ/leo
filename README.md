@@ -279,7 +279,7 @@ function main() -> field {
 Functions can return tuples whose types are specified in the function signature.
 ```js
 function test() -> (u32, u32[2]) {
-    return 1, [2, 3]
+    return (1, [2, 3])
 }
 
 function main() -> u32[3] {
