@@ -9,10 +9,10 @@ use crate::{
 use leo_compiler::{group::edwards_bls12::EdwardsGroupType, ConstrainedValue};
 use leo_types::InputValue;
 
-use snarkos_curves::edwards_bls12::{EdwardsAffine, Fq};
+use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::Zero,
+    curves::{TEModelParameters, Zero},
     gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
 };
 use std::str::FromStr;
@@ -47,12 +47,27 @@ fn output_zero(program: EdwardsTestCompiler) {
     output_expected_constant(program, EdwardsAffine::zero())
 }
 
+fn output_one(program: EdwardsTestCompiler) {
+    let (x, y) = EdwardsParameters::AFFINE_GENERATOR_COEFFS;
+    let one = EdwardsAffine::new(x, y);
+
+    output_expected_constant(program, one)
+}
+
 #[test]
 fn test_zero() {
     let bytes = include_bytes!("zero.leo");
     let program = parse_program(bytes).unwrap();
 
     output_zero(program);
+}
+
+#[test]
+fn test_one() {
+    let bytes = include_bytes!("one.leo");
+    let program = parse_program(bytes).unwrap();
+
+    output_one(program)
 }
 
 #[test]
