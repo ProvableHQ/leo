@@ -1,5 +1,8 @@
 //! Conversion of integer declarations to constraints in Leo.
-use crate::{errors::IntegerError, ComparatorGadget, EvaluateLtGadget};
+use crate::{
+    comparator::{ComparatorGadget, EvaluateLtGadget},
+    errors::IntegerError,
+};
 use leo_types::{InputValue, IntegerType, Span};
 
 use snarkos_errors::gadgets::SynthesisError;

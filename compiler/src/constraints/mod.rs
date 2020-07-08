@@ -1,8 +1,5 @@
 //! Module containing methods to enforce constraints in an Leo program
 
-pub(crate) mod comparator;
-pub(crate) use comparator::*;
-
 pub mod function;
 pub use self::function::*;
 
