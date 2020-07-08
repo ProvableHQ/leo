@@ -9,8 +9,6 @@ pub use self::expression::*;
 pub mod generate_constraints;
 pub use self::generate_constraints::*;
 
-pub mod group;
-
 pub mod program;
 pub use self::program::*;
 

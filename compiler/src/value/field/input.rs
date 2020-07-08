@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on value.field elements in a resolved Leo program.
+//! Methods to enforce constraints on input field values in a resolved Leo program.
 
 use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
 use leo_types::{InputValue, Span};

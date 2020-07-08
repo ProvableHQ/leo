@@ -1,4 +1,4 @@
-//! A data type that represents a value.field value
+//! A data type that represents a field value
 
 use crate::{
     comparator::{ComparatorGadget, EvaluateLtGadget},

@@ -1,3 +1,3 @@
-function main(a: value.field, b: value.field) -> bool {
+function main(a: field, b: field) -> bool {
   return a == b
 }

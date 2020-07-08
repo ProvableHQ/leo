@@ -1,3 +1,3 @@
-function main(b: bool, f1: value.field, f2: value.field) -> value.field {
+function main(b: bool, f1: field, f2: field) -> field {
   return if b ? f1 : f2
 }

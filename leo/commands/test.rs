@@ -5,7 +5,7 @@ use crate::{
     errors::{CLIError, TestError},
     files::{MainFile, Manifest, MAIN_FILE_NAME},
 };
-use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
+use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;

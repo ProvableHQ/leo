@@ -1,3 +1,5 @@
+//! Methods to enforce constraints on fields in a resolved Leo program.
+
 pub mod input;
 
 pub mod field_type;

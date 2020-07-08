@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on an input boolean value in a resolved Leo program.
+//! Methods to enforce constraints on input boolean values in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_types::{InputValue, Span};

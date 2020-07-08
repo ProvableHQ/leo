@@ -15,9 +15,6 @@ pub mod definitions;
 
 pub mod errors;
 
-pub mod group;
-pub use self::group::*;
-
 pub mod imports;
 pub use self::imports::*;
 
