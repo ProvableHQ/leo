@@ -39,7 +39,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        let (circuit_name, members) = match self.enforce_expression_value(
+        let (circuit_name, members) = match self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),

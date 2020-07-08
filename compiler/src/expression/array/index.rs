@@ -18,7 +18,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<usize, ExpressionError> {
         let expected_types = vec![Type::IntegerType(IntegerType::U32)];
-        match self.enforce_expression_value(
+        match self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),

@@ -6,6 +6,9 @@ pub use self::arithmetic::*;
 pub mod array;
 pub use self::array::*;
 
+pub mod binary;
+pub use self::binary::*;
+
 pub mod circuit;
 pub use self::circuit::*;
 

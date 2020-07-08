@@ -32,7 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
         };
 
-        let first_value = self.enforce_expression_value(
+        let first_value = self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             span.clone(),
         )?;
 
-        let second_value = self.enforce_expression_value(
+        let second_value = self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),

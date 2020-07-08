@@ -32,58 +32,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(ConstrainedValue::Unresolved(value))
     }
 
-    /// Enforce a branch of a binary expression.
-    /// We don't care about mutability because we are not changing any variables.
-    /// We try to resolve unresolved types here if the type is given explicitly.
-    pub(crate) fn enforce_expression_value<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        expected_types: &Vec<Type>,
-        expression: Expression,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
-
-        branch.get_inner_mut();
-        branch.resolve_type(expected_types, span)?;
-
-        Ok(branch)
-    }
-
-    pub(crate) fn enforce_binary_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        expected_types: &Vec<Type>,
-        left: Expression,
-        right: Expression,
-        span: Span,
-    ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
-        let mut resolved_left = self.enforce_expression_value(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            left,
-            span.clone(),
-        )?;
-        let mut resolved_right = self.enforce_expression_value(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            right,
-            span.clone(),
-        )?;
-
-        resolved_left.resolve_types(&mut resolved_right, expected_types, span)?;
-
-        Ok((resolved_left, resolved_right))
-    }
-
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

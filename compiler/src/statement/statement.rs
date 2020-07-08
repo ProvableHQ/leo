@@ -373,7 +373,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut returns = vec![];
         for (expression, ty) in expressions.into_iter().zip(return_types.clone().into_iter()) {
             let expected_types = vec![ty.clone()];
-            let result = self.enforce_expression_value(
+            let result = self.enforce_operand(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),

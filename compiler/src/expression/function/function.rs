@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on expressions in a compiled Leo program.
+//! Enforce constraints on a function call expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_types::{Expression, Span, Type};

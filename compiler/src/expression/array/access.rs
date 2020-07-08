@@ -19,7 +19,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         index: RangeOrExpression,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_expression_value(
+        let array = match self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),
