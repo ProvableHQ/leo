@@ -2,8 +2,8 @@
 
 use crate::{
     comparator::{ComparatorGadget, EvaluateLtGadget},
-    constraints::{new_scope, ConstrainedProgram},
     errors::ExpressionError,
+    program::{new_scope, ConstrainedProgram},
     value::{
         boolean::{
             input::new_bool_constant,

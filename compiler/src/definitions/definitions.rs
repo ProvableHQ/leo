@@ -1,6 +1,6 @@
 use crate::{
-    constraints::{new_scope, ConstrainedProgram},
     errors::ImportError,
+    program::{new_scope, ConstrainedProgram},
     value::ConstrainedValue,
     GroupType,
     ImportedPrograms,

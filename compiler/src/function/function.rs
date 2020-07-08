@@ -2,8 +2,8 @@
 
 use crate::{
     address::Address,
-    constraints::{new_scope, ConstrainedProgram},
     errors::{FunctionError, StatementError},
+    program::{new_scope, ConstrainedProgram},
     value::{
         boolean::input::bool_from_input,
         field::input::field_from_input,

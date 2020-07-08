@@ -21,6 +21,9 @@ pub use self::function::*;
 pub mod imports;
 pub use self::imports::*;
 
+pub mod program;
+pub use self::program::*;
+
 pub mod statement;
 pub use self::statement::*;
 

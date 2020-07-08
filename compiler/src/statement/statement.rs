@@ -1,9 +1,9 @@
 //! Methods to enforce constraints on statements in a resolved Leo program.
 
 use crate::{
-    constraints::ConstrainedProgram,
     errors::{StatementError, ValueError},
     new_scope,
+    program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
     Integer,
