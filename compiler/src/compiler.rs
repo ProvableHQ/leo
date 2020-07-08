@@ -1,8 +1,9 @@
 //! Compiles a Leo program from a file path.
 
 use crate::{
-    constraints::{generate_constraints, generate_test_constraints, ConstrainedValue},
+    constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
+    value::ConstrainedValue,
     GroupType,
     ImportedPrograms,
 };

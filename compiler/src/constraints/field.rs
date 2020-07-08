@@ -1,6 +1,6 @@
 //! Methods to enforce constraints on field elements in a resolved Leo program.
 
-use crate::{constraints::ConstrainedValue, errors::FieldError, FieldType, GroupType};
+use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
 use leo_types::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;

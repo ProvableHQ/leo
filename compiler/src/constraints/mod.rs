@@ -24,8 +24,5 @@ pub mod group;
 pub mod program;
 pub use self::program::*;
 
-pub mod value;
-pub use self::value::*;
-
 pub mod statement;
 pub use self::statement::*;

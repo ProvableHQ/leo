@@ -9,9 +9,9 @@ use crate::{
         group::group_from_input,
         new_scope,
         ConstrainedProgram,
-        ConstrainedValue,
     },
     errors::{FunctionError, StatementError},
+    value::ConstrainedValue,
     GroupType,
     Integer,
 };

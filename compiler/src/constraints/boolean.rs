@@ -1,6 +1,6 @@
 //! Methods to enforce constraints on booleans in a resolved Leo program.
 
-use crate::{constraints::ConstrainedValue, errors::BooleanError, GroupType};
+use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_types::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;

@@ -5,11 +5,10 @@ use crate::{
     constraints::{
         boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
         new_scope,
-        ConstrainedCircuitMember,
         ConstrainedProgram,
-        ConstrainedValue,
     },
     errors::ExpressionError,
+    value::{ConstrainedCircuitMember, ConstrainedValue},
     Address,
     FieldType,
     GroupType,
