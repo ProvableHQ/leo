@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on `>=` comparison expressions in a compiled Leo program.
+//! Enforces a relational `>=` operator in a resolved Leo program.
 
 use crate::{comparator::ComparatorGadget, errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_types::Span;
@@ -8,7 +8,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn evaluate_ge_expression<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_ge<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,
@@ -24,11 +24,11 @@ pub fn evaluate_ge_expression<F: Field + PrimeField, G: GroupType<F>, CS: Constr
         }
         (ConstrainedValue::Unresolved(string), val_2) => {
             let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
-            return evaluate_ge_expression(&mut unique_namespace, val_1, val_2, span);
+            return evaluate_ge(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, ConstrainedValue::Unresolved(string)) => {
             let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
-            return evaluate_ge_expression(&mut unique_namespace, val_1, val_2, span);
+            return evaluate_ge(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(

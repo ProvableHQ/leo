@@ -1,4 +1,4 @@
-//! Enforce constraints on binary expressions in a compiled Leo program.
+//! Enforces a binary expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_types::{Expression, Span, Type};

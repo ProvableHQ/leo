@@ -1,4 +1,4 @@
-//! Enforces constraints on array expressions in a compiled Leo program.
+//! Enforces an array expression in a compiled Leo program.
 
 use crate::{
     errors::ExpressionError,
@@ -15,7 +15,7 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce array expressions
-    pub fn enforce_array_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,

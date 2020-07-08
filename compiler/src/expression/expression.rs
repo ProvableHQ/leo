@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on expressions in a compiled Leo program.
+//! Enforce constraints on an expression in a compiled Leo program.
 
 use crate::{
     arithmetic::*,
@@ -6,13 +6,13 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
-    value::{boolean::input::new_bool_constant, ConstrainedValue},
+    value::{boolean::input::new_bool_constant, implicit::*, ConstrainedValue},
     Address,
     FieldType,
     GroupType,
     Integer,
 };
-use leo_types::{Expression, Span, Type};
+use leo_types::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -20,18 +20,6 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub(crate) fn enforce_number_implicit(
-        expected_types: &Vec<Type>,
-        value: String,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        if expected_types.len() == 1 {
-            return Ok(ConstrainedValue::from_type(value, &expected_types[0], span)?);
-        }
-
-        Ok(ConstrainedValue::Unresolved(value))
-    }
-
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -51,7 +39,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
             Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
-            Expression::Implicit(value, span) => Self::enforce_number_implicit(expected_types, value, span),
+            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_types, value, span)?),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
             }
@@ -68,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_add_expression(cs, resolved_left, resolved_right, span)
+                enforce_add(cs, resolved_left, resolved_right, span)
             }
             Expression::Sub(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -81,7 +69,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_sub_expression(cs, resolved_left, resolved_right, span)
+                enforce_sub(cs, resolved_left, resolved_right, span)
             }
             Expression::Mul(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -94,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_mul_expression(cs, resolved_left, resolved_right, span)
+                enforce_mul(cs, resolved_left, resolved_right, span)
             }
             Expression::Div(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -107,7 +95,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_div_expression(cs, resolved_left, resolved_right, span)
+                enforce_div(cs, resolved_left, resolved_right, span)
             }
             Expression::Pow(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -120,7 +108,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_pow_expression(cs, resolved_left, resolved_right, span)
+                enforce_pow(cs, resolved_left, resolved_right, span)
             }
 
             // Boolean operations
@@ -165,7 +153,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_eq_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_eq(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Ge(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -178,7 +166,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_ge_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_ge(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Gt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -191,7 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_gt_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_gt(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Le(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -204,7 +192,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_le_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_le(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Lt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -217,7 +205,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_lt_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_lt(cs, resolved_left, resolved_right, span)?)
             }
 
             // Conditionals
@@ -234,34 +222,27 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Arrays
             Expression::Array(array, span) => {
-                self.enforce_array_expression(cs, file_scope, function_scope, expected_types, array, span)
+                self.enforce_array(cs, file_scope, function_scope, expected_types, array, span)
             }
-            Expression::ArrayAccess(array, index, span) => self.enforce_array_access_expression(
+            Expression::ArrayAccess(array, index, span) => {
+                self.enforce_array_access(cs, file_scope, function_scope, expected_types, array, *index, span)
+            }
+
+            // Circuits
+            Expression::Circuit(circuit_name, members, span) => {
+                self.enforce_circuit(cs, file_scope, function_scope, circuit_name, members, span)
+            }
+            Expression::CircuitMemberAccess(circuit_variable, circuit_member, span) => self.enforce_circuit_access(
                 cs,
                 file_scope,
                 function_scope,
                 expected_types,
-                array,
-                *index,
+                circuit_variable,
+                circuit_member,
                 span,
             ),
-
-            // Circuits
-            Expression::Circuit(circuit_name, members, span) => {
-                self.enforce_circuit_expression(cs, file_scope, function_scope, circuit_name, members, span)
-            }
-            Expression::CircuitMemberAccess(circuit_variable, circuit_member, span) => self
-                .enforce_circuit_access_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_types,
-                    circuit_variable,
-                    circuit_member,
-                    span,
-                ),
             Expression::CircuitStaticFunctionAccess(circuit_identifier, circuit_member, span) => self
-                .enforce_circuit_static_access_expression(
+                .enforce_circuit_static_access(
                     cs,
                     file_scope,
                     function_scope,

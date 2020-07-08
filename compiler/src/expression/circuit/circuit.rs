@@ -1,4 +1,4 @@
-//! Enforces constraints on circuit expressions in a compiled Leo program.
+//! Enforces a circuit expression in a compiled Leo program.
 
 use crate::{
     errors::ExpressionError,
@@ -14,7 +14,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn enforce_circuit_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_circuit<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,

@@ -1,4 +1,4 @@
-//! Enforces constraints on circuit static access expressions in a compiled Leo program.
+//! Enforces a circuit static access expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_types::{CircuitMember, Expression, Identifier, Span, Type};
@@ -9,7 +9,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn enforce_circuit_static_access_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_circuit_static_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,

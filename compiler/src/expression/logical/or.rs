@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on boolean operations in a resolved Leo program.
+//! Enforces a logical `||` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_types::Span;

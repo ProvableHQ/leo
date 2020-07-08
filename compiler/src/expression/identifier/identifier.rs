@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on expressions in a compiled Leo program.
+//! Enforces an identifier expression in a compiled Leo program.
 
 use crate::{
     errors::ExpressionError,

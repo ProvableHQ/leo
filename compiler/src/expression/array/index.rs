@@ -1,4 +1,4 @@
-//! Enforces constraints on an array index expression in a compiled Leo program.
+//! Enforces an array index expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_types::{Expression, IntegerType, Span, Type};
