@@ -1,4 +1,4 @@
-use crate::{errors::constraints::ImportError, ImportParser};
+use crate::{errors::ImportError, ImportParser};
 use leo_ast::LeoParser;
 use leo_types::{ImportSymbol, Program, Span};
 
