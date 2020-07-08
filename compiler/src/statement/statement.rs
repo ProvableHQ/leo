@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on statements in a compiled Leo program.
+//! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_types::{Statement, Type};
@@ -12,7 +12,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
-    /// To indicate which of these return values to take we conditionally select that value with the indicator bit.
+    /// To indicate which of these return values to take,
+    /// we conditionally select the value according the `indicator` bit that evaluates to true.
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -23,6 +24,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         return_types: Vec<Type>,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
+
         match statement {
             Statement::Return(expressions, span) => {
                 let return_value = (
