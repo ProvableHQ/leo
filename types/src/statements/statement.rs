@@ -22,8 +22,8 @@ use std::fmt;
 pub enum Statement {
     Return(Vec<Expression>, Span),
     Definition(Declare, Variable, Expression, Span),
+    MultipleDefinition(Vec<Variable>, Expression, Span),
     Assign(Assignee, Expression, Span),
-    MultipleAssign(Vec<Variable>, Expression, Span),
     Conditional(ConditionalStatement, Span),
     For(Identifier, Expression, Expression, Vec<Statement>, Span),
     AssertEq(Expression, Expression, Span),
@@ -140,7 +140,7 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
             .map(|typed_variable| Variable::from(typed_variable))
             .collect();
 
-        Statement::MultipleAssign(
+        Statement::MultipleDefinition(
             variables,
             Expression::FunctionCall(
                 Box::new(Expression::from(statement.function_name)),
@@ -226,7 +226,7 @@ impl fmt::Display for Statement {
                 write!(f, "{} {} = {};", declare, variable, expression)
             }
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
-            Statement::MultipleAssign(ref assignees, ref function, ref _span) => {
+            Statement::MultipleDefinition(ref assignees, ref function, ref _span) => {
                 write!(f, "let (")?;
                 for (i, id) in assignees.iter().enumerate() {
                     write!(f, "{}", id)?;

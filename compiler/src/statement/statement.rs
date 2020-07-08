@@ -8,233 +8,17 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_types::{
-    Assignee,
-    ConditionalNestedOrEndStatement,
-    ConditionalStatement,
-    Expression,
-    Identifier,
-    RangeOrExpression,
-    Span,
-    Statement,
-    Type,
-};
+use leo_types::{ConditionalNestedOrEndStatement, ConditionalStatement, Expression, Identifier, Span, Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget, uint::UInt32},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint::UInt32},
     },
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    fn resolve_assignee(&mut self, scope: String, assignee: Assignee) -> String {
-        match assignee {
-            Assignee::Identifier(name) => new_scope(scope, name.to_string()),
-            Assignee::Array(array, _index) => self.resolve_assignee(scope, *array),
-            Assignee::CircuitField(circuit_name, _member) => self.resolve_assignee(scope, *circuit_name),
-        }
-    }
-
-    fn get_mutable_assignee(
-        &mut self,
-        name: String,
-        span: Span,
-    ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
-        // Check that assignee exists and is mutable
-        Ok(match self.get_mut(&name) {
-            Some(value) => match value {
-                ConstrainedValue::Mutable(mutable_value) => mutable_value,
-                _ => return Err(StatementError::immutable_assign(name, span)),
-            },
-            None => return Err(StatementError::undefined_variable(name, span)),
-        })
-    }
-
-    fn mutate_array<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        indicator: Option<Boolean>,
-        name: String,
-        range_or_expression: RangeOrExpression,
-        mut new_value: ConstrainedValue<F, G>,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-
-        // Resolve index so we know if we are assigning to a single value or a range of values
-        match range_or_expression {
-            RangeOrExpression::Expression(index) => {
-                let index = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index, span.clone())?;
-
-                // Modify the single value of the array in place
-                match self.get_mutable_assignee(name, span.clone())? {
-                    ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(&vec![old[index].to_type(span.clone())?], span.clone())?;
-
-                        let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
-                        let selected_value = ConstrainedValue::conditionally_select(
-                            cs.ns(|| name_unique),
-                            &condition,
-                            &new_value,
-                            &old[index],
-                        )
-                        .map_err(|_| {
-                            StatementError::select_fail(new_value.to_string(), old[index].to_string(), span)
-                        })?;
-
-                        old[index] = selected_value;
-                    }
-                    _ => return Err(StatementError::array_assign_index(span)),
-                }
-            }
-            RangeOrExpression::Range(from, to) => {
-                let from_index = match from {
-                    Some(integer) => {
-                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), integer, span.clone())?
-                    }
-                    None => 0usize,
-                };
-                let to_index_option = match to {
-                    Some(integer) => Some(self.enforce_index(
-                        cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
-                        integer,
-                        span.clone(),
-                    )?),
-                    None => None,
-                };
-
-                // Modify the range of values of the array
-                let old_array = self.get_mutable_assignee(name, span.clone())?;
-                let new_array = match (old_array.clone(), new_value) {
-                    (ConstrainedValue::Array(mut mutable), ConstrainedValue::Array(new)) => {
-                        let to_index = to_index_option.unwrap_or(mutable.len());
-
-                        mutable.splice(from_index..to_index, new.iter().cloned());
-                        ConstrainedValue::Array(mutable)
-                    }
-                    _ => return Err(StatementError::array_assign_range(span)),
-                };
-                let name_unique = format!("select {} {}:{}", new_array, span.line, span.start);
-                let selected_array =
-                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_array, old_array)
-                        .map_err(|_| StatementError::select_fail(new_array.to_string(), old_array.to_string(), span))?;
-
-                *old_array = selected_array;
-            }
-        }
-
-        Ok(())
-    }
-
-    fn mutute_circuit_field<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: Option<Boolean>,
-        circuit_name: String,
-        object_name: Identifier,
-        mut new_value: ConstrainedValue<F, G>,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-
-        match self.get_mutable_assignee(circuit_name, span.clone())? {
-            ConstrainedValue::CircuitExpression(_variable, members) => {
-                // Modify the circuit value.field in place
-                let matched_field = members.into_iter().find(|object| object.0 == object_name);
-
-                match matched_field {
-                    Some(object) => match &object.1 {
-                        ConstrainedValue::Function(_circuit_identifier, function) => {
-                            return Err(StatementError::immutable_circuit_function(
-                                function.function_name.to_string(),
-                                span,
-                            ));
-                        }
-                        ConstrainedValue::Static(_value) => {
-                            return Err(StatementError::immutable_circuit_function("static".into(), span));
-                        }
-                        _ => {
-                            new_value.resolve_type(&vec![object.1.to_type(span.clone())?], span.clone())?;
-
-                            let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
-                            let selected_value = ConstrainedValue::conditionally_select(
-                                cs.ns(|| name_unique),
-                                &condition,
-                                &new_value,
-                                &object.1,
-                            )
-                            .map_err(|_| {
-                                StatementError::select_fail(new_value.to_string(), object.1.to_string(), span)
-                            })?;
-
-                            object.1 = selected_value.to_owned();
-                        }
-                    },
-                    None => return Err(StatementError::undefined_circuit_object(object_name.to_string(), span)),
-                }
-            }
-            _ => return Err(StatementError::undefined_circuit(object_name.to_string(), span)),
-        }
-
-        Ok(())
-    }
-
-    fn enforce_assign_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        indicator: Option<Boolean>,
-        assignee: Assignee,
-        expression: Expression,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        // Get the name of the variable we are assigning to
-        let variable_name = self.resolve_assignee(function_scope.clone(), assignee.clone());
-
-        // Evaluate new value
-        let mut new_value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
-
-        // Mutate the old value into the new value
-        match assignee {
-            Assignee::Identifier(_identifier) => {
-                let condition = indicator.unwrap_or(Boolean::Constant(true));
-                let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
-
-                new_value.resolve_type(&vec![old_value.to_type(span.clone())?], span.clone())?;
-
-                let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
-                let selected_value =
-                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
-                        .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
-
-                *old_value = selected_value;
-
-                Ok(())
-            }
-            Assignee::Array(_assignee, range_or_expression) => self.mutate_array(
-                cs,
-                file_scope,
-                function_scope,
-                indicator,
-                variable_name,
-                range_or_expression,
-                new_value,
-                span,
-            ),
-            Assignee::CircuitField(_assignee, object_name) => {
-                self.mutute_circuit_field(cs, indicator, variable_name, object_name, new_value, span)
-            }
-        }
-    }
-
     fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -457,11 +241,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Statement::Definition(declare, variable, expression, span) => {
                 self.enforce_definition_statement(cs, file_scope, function_scope, declare, variable, expression, span)?;
             }
+            Statement::MultipleDefinition(variables, function, span) => {
+                self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function, span)?;
+            }
             Statement::Assign(variable, expression, span) => {
                 self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression, span)?;
-            }
-            Statement::MultipleAssign(variables, function, span) => {
-                self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function, span)?;
             }
             Statement::Conditional(statement, span) => {
                 let mut result = self.enforce_conditional_statement(
