@@ -15,6 +15,9 @@ pub use self::conditional::*;
 pub mod expression;
 pub use self::expression::*;
 
+pub mod function;
+pub use self::function::*;
+
 pub mod logical;
 pub use self::logical::*;
 
