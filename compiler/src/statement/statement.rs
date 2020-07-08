@@ -1,89 +1,19 @@
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    new_scope,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    Integer,
-};
-use leo_types::{Expression, Identifier, Span, Statement, Type};
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_types::{Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, uint::UInt32},
-    },
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    fn enforce_for_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        indicator: Option<Boolean>,
-        index: Identifier,
-        start: Expression,
-        stop: Expression,
-        statements: Vec<Statement>,
-        return_types: Vec<Type>,
-        span: Span,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
-        let mut results = vec![];
-
-        let from = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), start, span.clone())?;
-        let to = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), stop, span.clone())?;
-
-        for i in from..to {
-            // Store index in current function scope.
-            // For loop scope is not implemented.
-            let index_name = new_scope(function_scope.clone(), index.to_string());
-
-            self.store(
-                index_name,
-                ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
-            );
-
-            // Evaluate statements and possibly return early
-            let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
-            let mut result = self.evaluate_branch(
-                &mut cs.ns(|| name_unique),
-                file_scope.clone(),
-                function_scope.clone(),
-                indicator,
-                statements.clone(),
-                return_types.clone(),
-            )?;
-
-            results.append(&mut result);
-        }
-
-        Ok(results)
-    }
-
-    fn enforce_assert_eq_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: Option<Boolean>,
-        left: &ConstrainedValue<F, G>,
-        right: &ConstrainedValue<F, G>,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-        let name_unique = format!("assert {} == {} {}:{}", left, right, span.line, span.start);
-        let result = left.conditional_enforce_equal(cs.ns(|| name_unique), right, &condition);
-
-        Ok(result.map_err(|_| StatementError::assertion_failed(left.to_string(), right.to_string(), span))?)
-    }
-
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
     /// To indicate which of these return values to take we conditionally select that value with the indicator bit.
-    pub(crate) fn enforce_statement<CS: ConstraintSystem<F>>(
+    pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
@@ -124,8 +54,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 results.append(&mut result);
             }
-            Statement::For(index, start, stop, statements, span) => {
-                let mut result = self.enforce_for_statement(
+            Statement::Iteration(index, start, stop, statements, span) => {
+                let mut result = self.enforce_iteration_statement(
                     cs,
                     file_scope,
                     function_scope,

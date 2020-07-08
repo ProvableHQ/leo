@@ -25,7 +25,7 @@ pub enum Statement {
     MultipleDefinition(Vec<Variable>, Expression, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
-    For(Identifier, Expression, Expression, Vec<Statement>, Span),
+    Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
     AssertEq(Expression, Expression, Span),
     Expression(Expression, Span),
 }
@@ -154,7 +154,7 @@ impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
 
 impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
-        Statement::For(
+        Statement::Iteration(
             Identifier::from(statement.index),
             Expression::from(statement.start),
             Expression::from(statement.stop),
@@ -237,7 +237,7 @@ impl fmt::Display for Statement {
                 write!(f, ") = {};", function)
             }
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
-            Statement::For(ref var, ref start, ref stop, ref list, ref _span) => {
+            Statement::Iteration(ref var, ref start, ref stop, ref list, ref _span) => {
                 write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
                 for l in list {
                     write!(f, "\t\t{}\n", l)?;
