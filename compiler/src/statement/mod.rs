@@ -1,6 +1,12 @@
 pub mod assign;
 pub use self::assign::*;
 
+pub mod branch;
+pub use self::branch::*;
+
+pub mod conditional;
+pub use self::conditional::*;
+
 pub mod definition;
 pub use self::definition::*;
 
