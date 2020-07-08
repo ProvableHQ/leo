@@ -2,13 +2,13 @@
 
 use crate::{
     comparator::{ComparatorGadget, EvaluateLtGadget},
-    constraints::{
-        boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
-        new_scope,
-        ConstrainedProgram,
-    },
+    constraints::{new_scope, ConstrainedProgram},
     errors::ExpressionError,
-    value::{ConstrainedCircuitMember, ConstrainedValue},
+    value::{
+        boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
+        ConstrainedCircuitMember,
+        ConstrainedValue,
+    },
     Address,
     FieldType,
     GroupType,

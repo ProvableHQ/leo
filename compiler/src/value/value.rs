@@ -1,7 +1,7 @@
 //! The in memory stored value for a defined name in a resolved Leo program.
 
 use crate::{
-    constraints::boolean::{allocate_bool, new_bool_constant},
+    boolean::{allocate_bool, new_bool_constant},
     errors::{ExpressionError, FieldError, ValueError},
     is_in_scope,
     new_scope,

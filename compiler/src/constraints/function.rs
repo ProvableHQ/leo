@@ -3,15 +3,9 @@
 
 use crate::{
     address::Address,
-    constraints::{
-        boolean::bool_from_input,
-        field::field_from_input,
-        group::group_from_input,
-        new_scope,
-        ConstrainedProgram,
-    },
+    constraints::{field::field_from_input, group::group_from_input, new_scope, ConstrainedProgram},
     errors::{FunctionError, StatementError},
-    value::ConstrainedValue,
+    value::{boolean::bool_from_input, ConstrainedValue},
     GroupType,
     Integer,
 };
