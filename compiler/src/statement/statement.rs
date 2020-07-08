@@ -12,14 +12,12 @@ use leo_types::{
     Assignee,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
-    Declare,
     Expression,
     Identifier,
     RangeOrExpression,
     Span,
     Statement,
     Type,
-    Variable,
 };
 
 use snarkos_models::{
@@ -235,100 +233,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.mutute_circuit_field(cs, indicator, variable_name, object_name, new_value, span)
             }
         }
-    }
-
-    fn store_definition(
-        &mut self,
-        function_scope: String,
-        variable: Variable,
-        mut value: ConstrainedValue<F, G>,
-    ) -> Result<(), StatementError> {
-        // Store with given mutability
-        if variable.mutable {
-            value = ConstrainedValue::Mutable(Box::new(value));
-        }
-
-        let variable_program_identifier = new_scope(function_scope, variable.identifier.name);
-
-        self.store(variable_program_identifier, value);
-
-        Ok(())
-    }
-
-    fn enforce_definition_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        declare: Declare,
-        variable: Variable,
-        expression: Expression,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        let mut expected_types = vec![];
-        if let Some(ref _type) = variable._type {
-            expected_types.push(_type.clone());
-        }
-        let mut value = self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            &expected_types,
-            expression,
-        )?;
-
-        match declare {
-            Declare::Let => value.allocate_value(cs, span)?,
-            Declare::Const => {
-                if variable.mutable {
-                    return Err(StatementError::immutable_assign(variable.to_string(), span));
-                }
-            }
-        }
-
-        self.store_definition(function_scope, variable, value)
-    }
-
-    fn enforce_multiple_definition_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        variables: Vec<Variable>,
-        function: Expression,
-        span: Span,
-    ) -> Result<(), StatementError> {
-        let mut expected_types = vec![];
-        for variable in variables.iter() {
-            if let Some(ref _type) = variable._type {
-                expected_types.push(_type.clone());
-            }
-        }
-
-        // Expect return values from function
-        let return_values = match self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            &expected_types,
-            function,
-        )? {
-            ConstrainedValue::Return(values) => values,
-            value => unimplemented!("multiple assignment only implemented for functions, got {}", value),
-        };
-
-        if variables.len() != return_values.len() {
-            return Err(StatementError::invalid_number_of_definitions(
-                variables.len(),
-                return_values.len(),
-                span,
-            ));
-        }
-
-        for (variable, value) in variables.into_iter().zip(return_values.into_iter()) {
-            self.store_definition(function_scope.clone(), variable, value)?;
-        }
-        Ok(())
     }
 
     fn evaluate_branch<CS: ConstraintSystem<F>>(

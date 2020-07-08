@@ -12,11 +12,7 @@ use leo_types::Program;
 use snarkos_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub(crate) fn store_definitions(
-        &mut self,
-        program: Program,
-        imported_programs: &ImportParser,
-    ) -> Result<(), ImportError> {
+    pub fn store_definitions(&mut self, program: Program, imported_programs: &ImportParser) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 
         // evaluate all import statements and store imported definitions
