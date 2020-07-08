@@ -3,6 +3,9 @@
 pub mod arithmetic;
 pub use self::arithmetic::*;
 
+pub mod array;
+pub use self::array::*;
+
 pub mod conditional;
 pub use self::conditional::*;
 
