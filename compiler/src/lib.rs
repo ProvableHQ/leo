@@ -11,6 +11,8 @@ pub mod compiler;
 pub mod constraints;
 pub use self::constraints::*;
 
+pub mod definitions;
+
 pub mod errors;
 
 pub mod field;

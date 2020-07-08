@@ -1,4 +1,10 @@
-use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType, ImportedPrograms};
+use crate::{
+    definitions::imported_symbols::ImportedSymbols,
+    errors::ImportError,
+    ConstrainedProgram,
+    GroupType,
+    ImportedPrograms,
+};
 use leo_types::Import;
 
 use snarkos_models::curves::{Field, PrimeField};

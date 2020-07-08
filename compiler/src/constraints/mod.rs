@@ -21,9 +21,6 @@ pub use self::generate_constraints::*;
 
 pub mod group;
 
-pub mod definitions;
-pub use self::definitions::*;
-
 pub mod program;
 pub use self::program::*;
 
