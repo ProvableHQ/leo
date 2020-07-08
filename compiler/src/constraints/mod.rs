@@ -8,6 +8,3 @@ pub use self::generate_constraints::*;
 
 pub mod program;
 pub use self::program::*;
-
-pub mod statement;
-pub use self::statement::*;

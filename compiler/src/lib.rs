@@ -18,5 +18,8 @@ pub use self::expression::*;
 pub mod imports;
 pub use self::imports::*;
 
+pub mod statement;
+pub use self::statement::*;
+
 pub mod value;
 pub use self::value::*;
