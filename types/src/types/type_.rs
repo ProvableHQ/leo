@@ -113,7 +113,7 @@ impl fmt::Display for Type {
         match *self {
             Type::Address => write!(f, "address"),
             Type::Boolean => write!(f, "bool"),
-            Type::Field => write!(f, "value.field"),
+            Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Circuit(ref variable) => write!(f, "circuit {}", variable),

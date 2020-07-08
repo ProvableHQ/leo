@@ -21,7 +21,7 @@ impl std::fmt::Display for DataType {
         match self {
             DataType::Address(_) => write!(f, "address"),
             DataType::Boolean(_) => write!(f, "bool"),
-            DataType::Field(_) => write!(f, "value.field"),
+            DataType::Field(_) => write!(f, "field"),
             DataType::Group(_) => write!(f, "group"),
             DataType::Integer(ref integer) => write!(f, "{}", integer),
         }

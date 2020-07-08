@@ -364,7 +364,7 @@ macro_rules! test_uint {
 
                 let mut program_2 = program_1.clone();
 
-                // true -> value.field 1
+                // true -> field 1
                 program_1.set_inputs(vec![
                     Some(InputValue::Boolean(true)),
                     Some(InputValue::Integer($integer_type, r1 as u128)),
@@ -373,7 +373,7 @@ macro_rules! test_uint {
 
                 output_expected_allocated(program_1, g1);
 
-                // false -> value.field 2
+                // false -> field 2
                 program_2.set_inputs(vec![
                     Some(InputValue::Boolean(false)),
                     Some(InputValue::Integer($integer_type, r1 as u128)),
