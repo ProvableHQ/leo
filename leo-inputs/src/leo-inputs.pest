@@ -28,7 +28,7 @@ type_u64 = { "u64" }
 type_u128 = { "u128" }
 
 // Declared in types/field_type.rs
-type_field = { "value.field" }
+type_field = { "field" }
 
 // Declared in types/group_type.rs
 type_group = { "group" }
