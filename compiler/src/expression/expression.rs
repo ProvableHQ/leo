@@ -1,9 +1,11 @@
 //! Methods to enforce constraints on expressions in a compiled Leo program.
 
 use crate::{
+    arithmetic::*,
     errors::ExpressionError,
-    logical::{and::enforce_and, not::evaluate_not, or::enforce_or},
+    logical::*,
     program::{new_scope, ConstrainedProgram},
+    relational::*,
     value::{boolean::input::new_bool_constant, ConstrainedCircuitMember, ConstrainedValue},
     Address,
     FieldType,
@@ -586,7 +588,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                self.enforce_add_expression(cs, resolved_left, resolved_right, span)
+                enforce_add_expression(cs, resolved_left, resolved_right, span)
             }
             Expression::Sub(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -599,7 +601,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                self.enforce_sub_expression(cs, resolved_left, resolved_right, span)
+                enforce_sub_expression(cs, resolved_left, resolved_right, span)
             }
             Expression::Mul(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -612,7 +614,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                self.enforce_mul_expression(cs, resolved_left, resolved_right, span)
+                enforce_mul_expression(cs, resolved_left, resolved_right, span)
             }
             Expression::Div(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -625,7 +627,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                self.enforce_div_expression(cs, resolved_left, resolved_right, span)
+                enforce_div_expression(cs, resolved_left, resolved_right, span)
             }
             Expression::Pow(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -638,7 +640,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                self.enforce_pow_expression(cs, resolved_left, resolved_right, span)
+                enforce_pow_expression(cs, resolved_left, resolved_right, span)
             }
 
             // Boolean operations
@@ -683,7 +685,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_eq_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_eq_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Ge(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -696,7 +698,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_ge_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_ge_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Gt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -709,7 +711,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_gt_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_gt_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Le(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -722,7 +724,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_le_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_le_expression(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Lt(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -735,7 +737,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(self.evaluate_lt_expression(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_lt_expression(cs, resolved_left, resolved_right, span)?)
             }
 
             // Conditionals

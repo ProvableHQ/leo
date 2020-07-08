@@ -8,7 +8,7 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-pub(crate) fn enforce_or<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_or<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,

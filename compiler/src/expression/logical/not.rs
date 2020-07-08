@@ -5,7 +5,7 @@ use leo_types::Span;
 
 use snarkos_models::curves::{Field, PrimeField};
 
-pub(crate) fn evaluate_not<F: Field + PrimeField, G: GroupType<F>>(
+pub fn evaluate_not<F: Field + PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<F, G>,
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, BooleanError> {
