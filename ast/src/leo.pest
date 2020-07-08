@@ -321,9 +321,9 @@ package = { identifier ~ "." ~ package_access }
 
 // Declared in imports/package_access
 package_access = {
-    star
+    multiple_package_access
+    | star
     | package // subpackage
-    | multiple_package_access
     | import_symbol
 }
 
@@ -333,7 +333,7 @@ multiple_package_access = _{ "(" ~ NEWLINE* ~ package_access ~ ("," ~ NEWLINE* ~
 star = {"*"}
 
 // Declared in imports/import_symbol.rs
-import_symbol = { identifier ~ (" as " ~ identifier)? }
+import_symbol = { identifier ~ ("as " ~ identifier)? }
 
 /// Utilities
 

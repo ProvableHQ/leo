@@ -3,7 +3,7 @@ use crate::{
     program::{new_scope, ConstrainedProgram},
     value::ConstrainedValue,
     GroupType,
-    ImportedPrograms,
+    ImportParser,
 };
 use leo_types::Program;
 
@@ -13,7 +13,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_definitions(
         &mut self,
         program: Program,
-        imported_programs: &ImportedPrograms,
+        imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
         let program_name = program.name.clone();
 

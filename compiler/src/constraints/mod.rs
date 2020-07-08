@@ -1,4 +1,4 @@
 //! Module containing methods to enforce constraints in an Leo program
 
-pub mod generate_constraints;
-pub use self::generate_constraints::*;
+pub mod constraints;
+pub use self::constraints::*;

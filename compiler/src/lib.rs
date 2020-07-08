@@ -18,8 +18,8 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
-pub mod imports;
-pub use self::imports::*;
+pub mod import;
+pub use self::import::*;
 
 pub mod program;
 pub use self::program::*;

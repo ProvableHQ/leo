@@ -1,4 +1,4 @@
-use crate::{errors::constraints::ImportError, ImportedPrograms};
+use crate::{errors::constraints::ImportError, ImportParser};
 use leo_ast::LeoParser;
 use leo_types::{ImportSymbol, Program, Span};
 
@@ -38,7 +38,7 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
     Ok(Program::from(syntax_tree, file_name.clone()))
 }
 
-impl ImportedPrograms {
+impl ImportParser {
     pub fn parse_import_star(&mut self, entry: &DirEntry, span: &Span) -> Result<(), ImportError> {
         let path = entry.path();
         let is_dir = path.is_dir();
@@ -72,7 +72,7 @@ impl ImportedPrograms {
                 .into_string()
                 .unwrap(); // the file exists so these will not fail
 
-            self.store(file_name, program);
+            self.insert(file_name, program);
 
             Ok(())
         } else {
@@ -101,7 +101,7 @@ impl ImportedPrograms {
             .into_string()
             .unwrap(); // the file exists so these will not fail
 
-        self.store(file_name, program);
+        self.insert(file_name, program);
 
         Ok(())
     }

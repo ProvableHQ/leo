@@ -1,10 +1,4 @@
-use crate::{
-    definitions::imported_symbols::ImportedSymbols,
-    errors::ImportError,
-    ConstrainedProgram,
-    GroupType,
-    ImportedPrograms,
-};
+use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType, ImportParser};
 use leo_types::Import;
 
 use snarkos_models::curves::{Field, PrimeField};
@@ -14,7 +8,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         scope: String,
         import: &Import,
-        imported_programs: &ImportedPrograms,
+        imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
         // get imported program name from import
         // get imported symbols from from import

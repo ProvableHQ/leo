@@ -1,5 +1,6 @@
 use leo_types::{Import, ImportSymbol, Package, PackageAccess};
 
+/// Stores the the package file name and imported symbol from an import statement
 #[derive(Debug)]
 pub(crate) struct ImportedSymbols {
     pub symbols: Vec<(String, ImportSymbol)>,

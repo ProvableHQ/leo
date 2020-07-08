@@ -1,4 +1,4 @@
-use crate::{errors::constraints::ImportError, ImportedPrograms};
+use crate::{errors::constraints::ImportError, ImportParser};
 use leo_types::{Package, PackageAccess};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
@@ -7,7 +7,7 @@ static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
-impl ImportedPrograms {
+impl ImportParser {
     pub fn parse_package_access(&mut self, entry: &DirEntry, access: &PackageAccess) -> Result<(), ImportError> {
         // bring one or more import symbols into scope for the current constrained program
         // we will recursively traverse sub packages here until we find the desired symbol

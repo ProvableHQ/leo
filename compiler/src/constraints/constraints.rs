@@ -1,4 +1,4 @@
-use crate::{errors::CompilerError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType, ImportedPrograms};
+use crate::{errors::CompilerError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType, ImportParser};
 use leo_types::{InputValue, Program};
 
 use snarkos_models::{
@@ -10,7 +10,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     cs: &mut CS,
     program: Program,
     parameters: Vec<Option<InputValue>>,
-    imported_programs: &ImportedPrograms,
+    imported_programs: &ImportParser,
 ) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
     let program_name = program.get_name();
@@ -34,7 +34,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     cs: &mut TestConstraintSystem<F>,
     program: Program,
-    imported_programs: &ImportedPrograms,
+    imported_programs: &ImportParser,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();

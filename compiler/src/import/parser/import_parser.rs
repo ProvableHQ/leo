@@ -3,19 +3,21 @@ use leo_types::Program;
 
 use std::{collections::HashMap, env::current_dir};
 
+/// Parses all relevant import files for a program.
+/// Stores compiled program structs.
 #[derive(Clone)]
-pub struct ImportedPrograms {
+pub struct ImportParser {
     imports: HashMap<String, Program>,
 }
 
-impl ImportedPrograms {
+impl ImportParser {
     pub fn new() -> Self {
         Self {
             imports: HashMap::new(),
         }
     }
 
-    pub(crate) fn store(&mut self, file_name: String, program: Program) {
+    pub(crate) fn insert(&mut self, file_name: String, program: Program) {
         // todo: handle conflicting versions for duplicate imports here
         let _res = self.imports.insert(file_name, program);
     }
@@ -24,7 +26,7 @@ impl ImportedPrograms {
         self.imports.get(file_name)
     }
 
-    pub fn from_program(program: &Program) -> Result<Self, ImportError> {
+    pub fn parse(program: &Program) -> Result<Self, ImportError> {
         let mut imports = Self::new();
 
         // Find all imports relative to current directory
