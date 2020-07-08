@@ -5,7 +5,7 @@ use crate::{
     address::Address,
     constraints::{field::field_from_input, group::group_from_input, new_scope, ConstrainedProgram},
     errors::{FunctionError, StatementError},
-    value::{boolean::bool_from_input, ConstrainedValue},
+    value::{boolean::input::bool_from_input, ConstrainedValue},
     GroupType,
     Integer,
 };

@@ -5,7 +5,10 @@ use crate::{
     constraints::{new_scope, ConstrainedProgram},
     errors::ExpressionError,
     value::{
-        boolean::{enforce_and, enforce_or, evaluate_not, new_bool_constant},
+        boolean::{
+            input::new_bool_constant,
+            operation::{enforce_and, enforce_or, evaluate_not},
+        },
         ConstrainedCircuitMember,
         ConstrainedValue,
     },
