@@ -22,7 +22,7 @@ impl FieldError {
 
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the field binary operation `{}` failed due to synthesis error `{}`",
+            "the value.field binary operation `{}` failed due to synthesis error `{}`",
             operation, error,
         );
 
@@ -30,25 +30,25 @@ impl FieldError {
     }
 
     pub fn invalid_field(actual: String, span: Span) -> Self {
-        let message = format!("expected field element input type, found `{}`", actual);
+        let message = format!("expected value.field element input type, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
     pub fn missing_field(expected: String, span: Span) -> Self {
-        let message = format!("expected field input `{}` not found", expected);
+        let message = format!("expected value.field input `{}` not found", expected);
 
         Self::new_from_span(message, span)
     }
 
     pub fn no_inverse(field: String, span: Span) -> Self {
-        let message = format!("no multiplicative inverse found for field `{}`", field);
+        let message = format!("no multiplicative inverse found for value.field `{}`", field);
 
         Self::new_from_span(message, span)
     }
 
     pub fn synthesis_error(error: SynthesisError, span: Span) -> Self {
-        let message = format!("compilation failed due to field synthesis error `{}`", error);
+        let message = format!("compilation failed due to value.field synthesis error `{}`", error);
 
         Self::new_from_span(message, span)
     }

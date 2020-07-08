@@ -6,8 +6,6 @@ pub use self::function::*;
 pub mod expression;
 pub use self::expression::*;
 
-pub mod field;
-
 pub mod generate_constraints;
 pub use self::generate_constraints::*;
 

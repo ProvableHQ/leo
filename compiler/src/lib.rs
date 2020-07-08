@@ -15,9 +15,6 @@ pub mod definitions;
 
 pub mod errors;
 
-pub mod field;
-pub use self::field::*;
-
 pub mod group;
 pub use self::group::*;
 

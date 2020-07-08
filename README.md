@@ -115,9 +115,9 @@ function main() -> u32 {
 
 ### Field Elements
 ```js
-function main() -> field {
+function main() -> value.field {
     let a = 1000field; // explicit type
-    let a: field = 21888242871839275222246405745257275088548364400416034343698204186575808495617; // explicit type
+    let a: value.field = 21888242871839275222246405745257275088548364400416034343698204186575808495617; // explicit type
     let b = a + 1; // implicit type
     let c = b - 1; 
     let d = c * 4;
@@ -173,7 +173,7 @@ function main() -> u32[2] {
     // initialize an array copying a slice from `c`
     let d = c[1..3];
 
-    // initialize a field array
+    // initialize a value.field array
     let e = [5field; 2];
 
     // initialize a boolean array
@@ -248,7 +248,7 @@ function test1(a : u32) -> u32 {
     return a + 1
 }
 
-function test2(b: fe) -> field {
+function test2(b: fe) -> value.field {
     return b * 2field
 }
 
@@ -264,12 +264,12 @@ function main() -> u32 {
 
 ### Function Scope
 ```js
-function foo() -> field {
+function foo() -> value.field {
     // return myGlobal <- not allowed
     return 42field
 }
 
-function main() -> field {
+function main() -> value.field {
     let myGlobal = 42field;
     return foo()
 }
@@ -293,7 +293,7 @@ function main() -> u32[3] {
 Main function inputs are allocated private variables in the program's constraint system.
 `a` is implicitly private.
 ```js
-function main(a: field) -> field {
+function main(a: value.field) -> value.field {
     return a
 }
 ```
@@ -578,7 +578,7 @@ function main(a: u32, b: u32) -> u32 {
 [main]
 a: bool  = true;       // <- booleans
 b: u8    = 2;          // <- integers
-c: field = 0;          // <- fields
+c: value.field = 0;          // <- fields
 d: group = (0, 1)group // <- group tuples
 ```
 

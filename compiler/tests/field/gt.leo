@@ -1,3 +1,3 @@
-function main(a: field, b: field) -> bool {
+function main(a: value.field, b: value.field) -> bool {
   return a > b
 }

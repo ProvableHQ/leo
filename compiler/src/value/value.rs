@@ -180,7 +180,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             }
             ConstrainedValue::Field(field) => {
                 let gadget = field
-                    .allocated(cs.ns(|| format!("allocate field {}:{}", span.line, span.start)))
+                    .allocated(cs.ns(|| format!("allocate value.field {}:{}", span.line, span.start)))
                     .map_err(|error| ValueError::FieldError(FieldError::synthesis_error(error, span)))?;
 
                 *field = FieldType::Allocated(gadget)

@@ -1,3 +1,3 @@
-function main(a: field, b: field) -> field {
+function main(a: value.field, b: value.field) -> value.field {
   return a + b
 }

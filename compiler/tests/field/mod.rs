@@ -55,7 +55,7 @@ fn output_one(program: EdwardsTestCompiler) {
 fn fail_field(program: EdwardsTestCompiler) {
     match get_error(program) {
         CompilerError::FunctionError(FunctionError::FieldError(FieldError::Error(_string))) => {}
-        error => panic!("Expected invalid field error, got {}", error),
+        error => panic!("Expected invalid value.field error, got {}", error),
     }
 }
 
@@ -450,7 +450,7 @@ fn test_ternary() {
     let mut program_1 = parse_program(bytes).unwrap();
     let mut program_2 = program_1.clone();
 
-    // true -> field 1
+    // true -> value.field 1
     program_1.set_inputs(vec![
         Some(InputValue::Boolean(true)),
         Some(InputValue::Field(r1.to_string())),
@@ -459,7 +459,7 @@ fn test_ternary() {
 
     output_expected_allocated(program_1, g1);
 
-    // false -> field 2
+    // false -> value.field 2
     program_2.set_inputs(vec![
         Some(InputValue::Boolean(false)),
         Some(InputValue::Field(r1.to_string())),

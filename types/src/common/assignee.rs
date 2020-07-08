@@ -12,7 +12,7 @@ use std::fmt;
 pub enum Assignee {
     Identifier(Identifier),
     Array(Box<Assignee>, RangeOrExpression),
-    CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
+    CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit value.field name)
 }
 
 impl<'ast> From<AstIdentifier<'ast>> for Assignee {

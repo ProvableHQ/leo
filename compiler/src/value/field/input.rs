@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on field elements in a resolved Leo program.
+//! Methods to enforce constraints on value.field elements in a resolved Leo program.
 
 use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
 use leo_types::{InputValue, Span};
@@ -15,7 +15,7 @@ pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     option: Option<String>,
     span: Span,
 ) -> Result<FieldType<F>, FieldError> {
-    let field_name = format!("{}: field", name);
+    let field_name = format!("{}: value.field", name);
     let field_name_unique = format!("`{}` {}:{}", field_name, span.line, span.start);
 
     FieldType::alloc(cs.ns(|| field_name_unique), || {
