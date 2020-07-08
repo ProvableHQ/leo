@@ -8,9 +8,6 @@ pub use self::expression::*;
 
 pub mod field;
 
-pub mod integer;
-pub use integer::*;
-
 pub mod generate_constraints;
 pub use self::generate_constraints::*;
 
