@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on points in the affine group in a resolved Leo program.
+//! Methods to enforce constraints on group values in a resolved Leo program.
 
 pub mod input;
 

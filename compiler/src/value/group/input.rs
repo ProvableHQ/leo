@@ -1,3 +1,5 @@
+//! Methods to enforce constraints on input group values in a resolved Leo program.
+
 use crate::{errors::GroupError, ConstrainedValue, GroupType};
 use leo_types::{InputValue, Span};
 

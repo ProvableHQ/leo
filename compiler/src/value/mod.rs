@@ -1,5 +1,8 @@
 //! Methods to enforce constraints on values in a resolved Leo program.
 
+pub mod address;
+pub use self::address::*;
+
 pub mod boolean;
 
 pub(crate) mod comparator;
