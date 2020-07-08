@@ -6,6 +6,9 @@ pub use self::arithmetic::*;
 pub mod array;
 pub use self::array::*;
 
+pub mod circuit;
+pub use self::circuit::*;
+
 pub mod conditional;
 pub use self::conditional::*;
 

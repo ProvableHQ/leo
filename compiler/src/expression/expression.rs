@@ -6,20 +6,18 @@ use crate::{
     logical::*,
     program::{new_scope, ConstrainedProgram},
     relational::*,
-    value::{boolean::input::new_bool_constant, ConstrainedCircuitMember, ConstrainedValue},
+    value::{boolean::input::new_bool_constant, ConstrainedValue},
     Address,
     FieldType,
     GroupType,
     Integer,
 };
-use leo_types::{CircuitFieldDefinition, CircuitMember, Expression, Identifier, Span, Type};
+use leo_types::{Expression, Identifier, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-
-static SELF_KEYWORD: &'static str = "self";
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
@@ -55,189 +53,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         result_value.resolve_type(expected_types, unresolved_identifier.span.clone())?;
 
         Ok(result_value)
-    }
-
-    fn enforce_circuit_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        identifier: Identifier,
-        members: Vec<CircuitFieldDefinition>,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
-
-        if identifier.is_self() {
-            program_identifier = file_scope.clone();
-        }
-
-        let circuit = match self.get(&program_identifier) {
-            Some(value) => value.clone().extract_circuit(span.clone())?,
-            None => return Err(ExpressionError::undefined_circuit(identifier.to_string(), span)),
-        };
-
-        let circuit_identifier = circuit.circuit_name.clone();
-        let mut resolved_members = vec![];
-
-        for member in circuit.members.clone().into_iter() {
-            match member {
-                CircuitMember::CircuitField(identifier, _type) => {
-                    let matched_field = members
-                        .clone()
-                        .into_iter()
-                        .find(|field| field.identifier.eq(&identifier));
-                    match matched_field {
-                        Some(field) => {
-                            // Resolve and enforce circuit object
-                            let field_value = self.enforce_expression(
-                                cs,
-                                file_scope.clone(),
-                                function_scope.clone(),
-                                &vec![_type.clone()],
-                                field.expression,
-                            )?;
-
-                            resolved_members.push(ConstrainedCircuitMember(identifier, field_value))
-                        }
-                        None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
-                    }
-                }
-                CircuitMember::CircuitFunction(_static, function) => {
-                    let identifier = function.function_name.clone();
-                    let mut constrained_function_value =
-                        ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
-
-                    if _static {
-                        constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
-                    }
-
-                    resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
-                }
-            };
-        }
-
-        Ok(ConstrainedValue::CircuitExpression(
-            circuit_identifier.clone(),
-            resolved_members,
-        ))
-    }
-
-    fn enforce_circuit_access_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        expected_types: &Vec<Type>,
-        circuit_identifier: Box<Expression>,
-        circuit_member: Identifier,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // access a circuit member using the `self` keyword
-        if let Expression::Identifier(ref identifier) = *circuit_identifier {
-            if identifier.is_self() {
-                let self_file_scope = new_scope(file_scope.clone(), identifier.name.to_string());
-                let self_function_scope = new_scope(self_file_scope.clone(), identifier.name.to_string());
-
-                let member_value =
-                    self.evaluate_identifier(self_file_scope, self_function_scope, &vec![], circuit_member.clone())?;
-
-                return Ok(member_value);
-            }
-        }
-
-        let (circuit_name, members) = match self.enforce_expression_value(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            *circuit_identifier.clone(),
-            span.clone(),
-        )? {
-            ConstrainedValue::CircuitExpression(name, members) => (name, members),
-            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
-        };
-
-        let matched_member = members.clone().into_iter().find(|member| member.0 == circuit_member);
-
-        match matched_member {
-            Some(member) => {
-                match &member.1 {
-                    ConstrainedValue::Function(ref _circuit_identifier, ref _function) => {
-                        // Pass circuit members into function call by value
-                        for stored_member in members {
-                            let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
-                            let self_keyword = new_scope(circuit_scope, SELF_KEYWORD.to_string());
-                            let field = new_scope(self_keyword, stored_member.0.to_string());
-
-                            self.store(field, stored_member.1.clone());
-                        }
-                    }
-                    ConstrainedValue::Static(value) => {
-                        return Err(ExpressionError::invalid_static_access(value.to_string(), span));
-                    }
-                    _ => {}
-                }
-                Ok(member.1)
-            }
-            None => Err(ExpressionError::undefined_member_access(
-                circuit_name.to_string(),
-                circuit_member.to_string(),
-                span,
-            )),
-        }
-    }
-
-    fn enforce_circuit_static_access_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        expected_types: &Vec<Type>,
-        circuit_identifier: Box<Expression>,
-        circuit_member: Identifier,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Get defined circuit
-        let circuit = match self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            *circuit_identifier.clone(),
-        )? {
-            ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,
-            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
-        };
-
-        // Find static circuit function
-        let matched_function = circuit.members.into_iter().find(|member| match member {
-            CircuitMember::CircuitFunction(_static, function) => function.function_name == circuit_member,
-            _ => false,
-        });
-
-        // Return errors if no static function exists
-        let function = match matched_function {
-            Some(CircuitMember::CircuitFunction(_static, function)) => {
-                if _static {
-                    function
-                } else {
-                    return Err(ExpressionError::invalid_member_access(
-                        function.function_name.to_string(),
-                        span,
-                    ));
-                }
-            }
-            _ => {
-                return Err(ExpressionError::undefined_member_access(
-                    circuit.circuit_name.to_string(),
-                    circuit_member.to_string(),
-                    span,
-                ));
-            }
-        };
-
-        Ok(ConstrainedValue::Function(Some(circuit.circuit_name), function))
     }
 
     fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
