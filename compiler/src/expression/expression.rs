@@ -26,7 +26,7 @@ use leo_types::{
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::select::CondSelectGadget},
+    gadgets::r1cs::ConstraintSystem,
 };
 
 static SELF_KEYWORD: &'static str = "self";
@@ -65,58 +65,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         result_value.resolve_type(expected_types, unresolved_identifier.span.clone())?;
 
         Ok(result_value)
-    }
-
-    /// Enforce ternary conditional expression
-    fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
-        expected_types: &Vec<Type>,
-        conditional: Expression,
-        first: Expression,
-        second: Expression,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let conditional_value = match self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            &vec![Type::Boolean],
-            conditional,
-        )? {
-            ConstrainedValue::Boolean(resolved) => resolved,
-            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
-        };
-
-        let first_value = self.enforce_expression_value(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            first,
-            span.clone(),
-        )?;
-
-        let second_value = self.enforce_expression_value(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_types,
-            second,
-            span.clone(),
-        )?;
-
-        let unique_namespace = cs.ns(|| {
-            format!(
-                "select {} or {} {}:{}",
-                first_value, second_value, span.line, span.start
-            )
-        });
-
-        ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))
     }
 
     /// Enforce array expressions

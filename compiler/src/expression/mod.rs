@@ -3,6 +3,9 @@
 pub mod arithmetic;
 pub use self::arithmetic::*;
 
+pub mod conditional;
+pub use self::conditional::*;
+
 pub mod expression;
 pub use self::expression::*;
 
