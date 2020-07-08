@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on values in a resolved Leo program.
+//! Methods to enforce constraints on values in a Leo program.
 
 pub mod address;
 pub use self::address::*;

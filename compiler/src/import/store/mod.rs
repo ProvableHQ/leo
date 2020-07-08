@@ -1,5 +1,4 @@
-//! The import store brings an imported symbol into the main program from an imported compiled program
-
+/// The import store brings an imported symbol into the main program from an import program struct
 pub mod import;
 pub use self::import::*;
 

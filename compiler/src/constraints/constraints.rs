@@ -1,3 +1,5 @@
+//! Generates R1CS constraints for a compiled Leo program.
+
 use crate::{errors::CompilerError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType, ImportParser};
 use leo_types::{InputValue, Program};
 

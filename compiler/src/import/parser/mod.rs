@@ -1,5 +1,4 @@
-//! The import parser creates a hashmap of import program names -> import program structs
-
+/// The import parser creates a hashmap of import program names -> import program structs
 pub mod parse_symbol;
 pub use self::parse_symbol::*;
 

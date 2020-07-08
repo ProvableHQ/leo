@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on statements in a resolved Leo program.
+//! Methods to enforce constraints on statements in a compiled Leo program.
 
 use crate::{
     errors::{StatementError, ValueError},

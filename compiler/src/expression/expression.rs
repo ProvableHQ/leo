@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on expressions in a resolved Leo program.
+//! Methods to enforce constraints on expressions in a compiled Leo program.
 
 use crate::{
     comparator::{ComparatorGadget, EvaluateLtGadget},

@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on group values in a resolved Leo program.
+//! A group value in a compiled Leo program.
 
 pub mod input;
 

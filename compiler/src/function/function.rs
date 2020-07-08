@@ -1,4 +1,4 @@
-//! Methods to enforce functions with arguments in a resolved Leo program.
+//! Methods to enforce functions with arguments in a compiled Leo program.
 
 use crate::{
     address::Address,

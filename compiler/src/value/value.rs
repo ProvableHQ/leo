@@ -1,4 +1,4 @@
-//! The in memory stored value for a defined name in a resolved Leo program.
+//! The in memory stored value for a defined name in a compiled Leo program.
 
 use crate::{
     boolean::input::{allocate_bool, new_bool_constant},

@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on booleans in a resolved Leo program.
+//! An address value in a compiled Leo program.
 
 pub mod address;
 pub use self::address::*;

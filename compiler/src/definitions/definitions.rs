@@ -1,3 +1,5 @@
+//! Stores all defined names in a compiled Leo program.
+
 use crate::{
     errors::ImportError,
     program::{new_scope, ConstrainedProgram},

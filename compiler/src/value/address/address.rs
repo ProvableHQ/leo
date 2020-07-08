@@ -17,6 +17,8 @@ use snarkos_models::{
 use snarkos_objects::account::AccountPublicKey;
 use std::str::FromStr;
 
+/// A public address
+/// Addresses are currently constant values in the constraint system only
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Address(pub Option<AccountPublicKey<Components>>);
 

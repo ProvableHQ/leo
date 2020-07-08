@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on booleans in a resolved Leo program.
+//! A boolean value in a compiled Leo program.
 
 pub mod operation;
 

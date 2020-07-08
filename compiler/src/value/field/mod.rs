@@ -1,4 +1,4 @@
-//! Methods to enforce constraints on fields in a resolved Leo program.
+//! A field value in a compiled Leo program.
 
 pub mod input;
 
