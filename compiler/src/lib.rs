@@ -15,6 +15,9 @@ pub mod errors;
 pub mod expression;
 pub use self::expression::*;
 
+pub mod function;
+pub use self::function::*;
+
 pub mod imports;
 pub use self::imports::*;
 
