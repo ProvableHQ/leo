@@ -6,5 +6,8 @@ pub use self::arithmetic::*;
 pub mod expression;
 pub use self::expression::*;
 
+pub mod logical;
+pub use self::logical::*;
+
 pub mod relational;
 pub use self::relational::*;

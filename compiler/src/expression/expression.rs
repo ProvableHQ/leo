@@ -2,15 +2,9 @@
 
 use crate::{
     errors::ExpressionError,
+    logical::{and::enforce_and, not::evaluate_not, or::enforce_or},
     program::{new_scope, ConstrainedProgram},
-    value::{
-        boolean::{
-            input::new_bool_constant,
-            operation::{enforce_and, enforce_or, evaluate_not},
-        },
-        ConstrainedCircuitMember,
-        ConstrainedValue,
-    },
+    value::{boolean::input::new_bool_constant, ConstrainedCircuitMember, ConstrainedValue},
     Address,
     FieldType,
     GroupType,
