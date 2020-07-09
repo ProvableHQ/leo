@@ -362,7 +362,7 @@ formatted_string = {
 // Declared in macros/formatted_container.rs
 formatted_container = { "{" ~ "}"}
 
-// Declared in marcros/formatted_parameter.rs
+// Declared in macros/formatted_parameter.rs
 formatted_parameter = { expression }
 
 // Declared in macros/macro_symbol.rs

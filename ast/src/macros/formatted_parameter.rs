@@ -7,7 +7,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::formatted_parameter))]
 pub struct FormattedParameter<'ast> {
-    expression: Expression<'ast>,
+    pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

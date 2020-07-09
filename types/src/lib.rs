@@ -19,6 +19,9 @@ pub use self::imports::*;
 pub mod inputs;
 pub use self::inputs::*;
 
+pub mod macros;
+pub use self::macros::*;
+
 pub mod program;
 pub use self::program::*;
 

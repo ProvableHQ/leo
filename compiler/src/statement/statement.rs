@@ -78,6 +78,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
             }
+            Statement::Macro(macro_) => {
+                println!("{}", macro_);
+            }
             Statement::Expression(expression, span) => {
                 let expression_string = expression.to_string();
                 let value = self.enforce_expression(cs, file_scope, function_scope, &vec![], expression)?;
