@@ -1,4 +1,4 @@
-use crate::{Debug, FormattedError, PrintLine};
+use crate::{Debug, ErrorMacro, PrintLine};
 use leo_ast::macros::MacroName as AstMacroName;
 
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MacroName {
     Debug(Debug),
-    Error(FormattedError),
+    Error(ErrorMacro),
     PrintLine(PrintLine),
 }
 
@@ -15,7 +15,7 @@ impl<'ast> From<AstMacroName<'ast>> for MacroName {
     fn from(name: AstMacroName<'ast>) -> Self {
         match name {
             AstMacroName::Debug(debug) => MacroName::Debug(Debug::from(debug)),
-            AstMacroName::Error(error) => MacroName::Error(FormattedError::from(error)),
+            AstMacroName::Error(error) => MacroName::Error(ErrorMacro::from(error)),
             AstMacroName::PrintLine(print_line) => MacroName::PrintLine(PrintLine::from(print_line)),
         }
     }

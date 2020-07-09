@@ -4,8 +4,8 @@ pub use debug::*;
 pub mod formatted_container;
 pub use formatted_container::*;
 
-pub mod formatted_error;
-pub use formatted_error::*;
+pub mod error_macro;
+pub use error_macro::*;
 
 pub mod formatted_macro;
 pub use formatted_macro::*;
