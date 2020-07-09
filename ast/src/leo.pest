@@ -12,6 +12,7 @@ protected_name = {
     "for"| "if" | "else" | "as" | "return"
      | declare | mutable | static_ | value_boolean
      | type_array | type_data
+     | macro_name | macro_symbol
 }
 
 // Declared in common/line_end.rs
@@ -264,7 +265,7 @@ statement = {
     | statement_conditional
     | statement_for
       | (statement_multiple_assignment
-      | statement_assert
+      | statement_macro
       | statement_definition
       | statement_assign
       | statement_expression
@@ -272,9 +273,11 @@ statement = {
     ) ~ NEWLINE*
 }
 
-// Declared in statements/assert_statement.rs
-statement_assert = { assert_eq }
-assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
+// Declared in statements/macro_statement.rs
+statement_macro = {
+    assert_eq
+    | formatted_macro
+}
 
 // Declared in statements/assign_statement.rs
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
@@ -339,3 +342,31 @@ import_symbol = { identifier ~ ("as " ~ identifier)? }
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* } // pest implicit whitespace keyword
+
+/// Macros
+
+// Declared in macros/assert_eq.rs
+assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
+
+// Declared in macros/formatted_macro.rs
+formatted_macro = { macro_name ~ macro_symbol ~ "(" ~ (!)}
+
+// Declared in macros/macro_symbol.rs
+macro_symbol = {"!"}
+
+// Declared in macros/macro_name.rs
+macro_name = {
+    println
+//     | debug
+//     | error
+}
+
+// Declared in macros/println.rs
+println = {"println"}
+
+// // Declared in macros/debug.rs
+// debug = {"debug"}
+//
+// // Declared in macros/error.rs
+// error = {"error"}
+
