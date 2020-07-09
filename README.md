@@ -545,6 +545,37 @@ test function expect_fail() {
 }
 ```
 
+## Macros
+
+Leo supports `println!`, `debug!`, and `error!` macros.
+
+Macros support string formatting arguments `[macro]!("{} {}", [argument_1], [argument_2])`
+
+#### `println!`
+Directly calls the `println!` macro in rust.
+```js
+function main(a: u32) {
+    println!("a is {}", a);
+}
+```
+
+#### `debug!`
+Enabled by specifying the `-d` flag after a Leo command.
+```js
+function main(a: u32) {
+    debug!("a is {}", a);
+}
+```
+
+
+#### `error!`
+Halts program execution and prints to console.
+```js
+function main(a: u32) {
+    error!("a is {}", a);
+}
+```
+
 # Leo Inputs
 
 Private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
