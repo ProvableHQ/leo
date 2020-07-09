@@ -305,11 +305,11 @@ statement_return = { "return " ~ return_}
 /// Functions
 
 // Declared in functions/function.rs
-function_definition = { "function " ~ identifier ~ "(" ~ input_model_list ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_model_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
-input_model_list = _{ (function_input ~ ("," ~ function_input)*)? }
+input_model_list = _{ (function_input ~ ("," ~ NEWLINE* ~ function_input)*)? }
 
 // Declared in functions/test_function.rs
 test_function = { "test " ~ function_definition }
