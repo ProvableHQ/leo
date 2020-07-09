@@ -16,6 +16,7 @@ pub mod expressions;
 pub mod files;
 pub mod functions;
 pub mod imports;
+pub mod macros;
 pub mod operations;
 pub mod statements;
 pub mod types;

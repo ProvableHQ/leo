@@ -349,24 +349,38 @@ WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* } // pest implicit whitespace keyword
 assert_eq = {"assert_eq!" ~ "(" ~ NEWLINE* ~ expression ~ "," ~ NEWLINE* ~ expression ~ NEWLINE* ~ ")" ~ LINE_END}
 
 // Declared in macros/formatted_macro.rs
-formatted_macro = { macro_name ~ macro_symbol ~ "(" ~ (!)}
+formatted_macro = { macro_name ~ macro_symbol ~ "(" ~ formatted_string? ~ ")" ~ LINE_END}
+
+// Declared in macros/formatted_string.rs
+formatted_string = {
+    "\""
+    ~ (!"\"" ~ (formatted_container | ANY))*
+    ~ "\""
+    ~ ("," ~ formatted_parameter)*
+}
+
+// Declared in macros/formatted_container.rs
+formatted_container = { "{" ~ "}"}
+
+// Declared in marcros/formatted_parameter.rs
+formatted_parameter = { expression }
 
 // Declared in macros/macro_symbol.rs
 macro_symbol = {"!"}
 
 // Declared in macros/macro_name.rs
 macro_name = {
-    println
-//     | debug
-//     | error
+    debug
+    | error
+    | println
 }
 
 // Declared in macros/println.rs
 println = {"println"}
 
-// // Declared in macros/debug.rs
-// debug = {"debug"}
-//
-// // Declared in macros/error.rs
-// error = {"error"}
+// Declared in macros/debug.rs
+debug = {"debug"}
+
+// Declared in macros/error.rs
+error = {"error"}
 

@@ -3,11 +3,11 @@ use leo_ast::{
     common::Return,
     operations::AssignOperation,
     statements::{
-        AssertStatement,
         AssignStatement,
         DefinitionStatement,
         ExpressionStatement,
         ForStatement,
+        MacroStatement,
         MultipleAssignmentStatement,
         ReturnStatement,
         Statement as AstStatement,
@@ -168,15 +168,17 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<AssertStatement<'ast>> for Statement {
-    fn from(statement: AssertStatement<'ast>) -> Self {
-        match statement {
-            AssertStatement::AssertEq(assert_eq) => Statement::AssertEq(
-                Expression::from(assert_eq.left),
-                Expression::from(assert_eq.right),
-                Span::from(assert_eq.span),
-            ),
-        }
+impl<'ast> From<MacroStatement<'ast>> for Statement {
+    fn from(statement: MacroStatement<'ast>) -> Self {
+        println!("{}", statement);
+        // match statement {
+        //     MacroStatement::AssertEq(assert_eq) => Statement::AssertEq(
+        //         Expression::from(assert_eq.left),
+        //         Expression::from(assert_eq.right),
+        //         Span::from(assert_eq.span),
+        //     ),
+        // }
+        unimplemented!()
     }
 }
 
