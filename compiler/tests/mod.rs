@@ -15,7 +15,7 @@ pub mod syntax;
 use leo_compiler::{
     compiler::Compiler,
     errors::{CompilerError, FunctionError, StatementError},
-    group::edwards_bls12::EdwardsGroupType,
+    group::targets::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
 };
 

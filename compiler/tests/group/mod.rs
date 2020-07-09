@@ -6,7 +6,7 @@ use crate::{
     EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
-use leo_compiler::{group::edwards_bls12::EdwardsGroupType, ConstrainedValue};
+use leo_compiler::{group::targets::edwards_bls12::EdwardsGroupType, ConstrainedValue};
 use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};

@@ -5,7 +5,7 @@ use crate::{
     errors::CLIError,
     files::{ChecksumFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
-use leo_compiler::{compiler::Compiler, group::edwards_bls12::EdwardsGroupType};
+use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
