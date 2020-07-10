@@ -545,17 +545,17 @@ test function expect_fail() {
 }
 ```
 
-## Macros
+## Logging
 
-Leo supports `println!`, `debug!`, and `error!` macros.
+Leo supports `print!`, `debug!`, and `error!` logging macros.
 
 Macros support string formatting arguments `[macro]!("{} {}", [argument_1], [argument_2])`
 
-#### `println!`
+#### `print!`
 Directly calls the `println!` macro in rust.
 ```js
 function main(a: u32) {
-    println!("a is {}", a);
+    print!("a is {}", a);
 }
 ```
 

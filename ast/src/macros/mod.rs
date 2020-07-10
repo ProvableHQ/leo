@@ -25,5 +25,5 @@ pub use macro_name::*;
 pub mod macro_symbol;
 pub use macro_symbol::*;
 
-pub mod println;
-pub use println::*;
+pub mod print;
+pub use print::*;

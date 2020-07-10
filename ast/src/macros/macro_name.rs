@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    macros::{Debug, Error, PrintLine},
+    macros::{Debug, Error, Print},
 };
 
 use pest_ast::FromPest;
@@ -11,7 +11,7 @@ use std::fmt;
 pub enum MacroName<'ast> {
     Debug(Debug<'ast>),
     Error(Error<'ast>),
-    PrintLine(PrintLine<'ast>),
+    Print(Print<'ast>),
 }
 
 impl<'ast> fmt::Display for MacroName<'ast> {
@@ -19,7 +19,7 @@ impl<'ast> fmt::Display for MacroName<'ast> {
         match *self {
             MacroName::Debug(ref debug) => write!(f, "{}", debug),
             MacroName::Error(ref error) => write!(f, "{}", error),
-            MacroName::PrintLine(ref print_line) => write!(f, "{}", print_line),
+            MacroName::Print(ref print_line) => write!(f, "{}", print_line),
         }
     }
 }

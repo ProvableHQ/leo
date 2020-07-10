@@ -24,7 +24,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match macro_.name {
             MacroName::Debug(_) => log::debug!("{}\n", string),
             MacroName::Error(_) => log::error!("{}\n", string),
-            MacroName::PrintLine(_) => println!("{}\n", string),
+            MacroName::Print(_) => println!("{}", string),
         }
 
         Ok(())

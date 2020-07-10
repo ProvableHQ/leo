@@ -372,11 +372,11 @@ macro_symbol = {"!"}
 macro_name = {
     debug
     | error
-    | println
+    | print
 }
 
-// Declared in macros/println.rs
-println = {"println"}
+// Declared in macros/print.rs
+print = {"print"}
 
 // Declared in macros/debug.rs
 debug = {"debug"}
