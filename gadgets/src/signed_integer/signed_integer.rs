@@ -1,7 +1,19 @@
 use crate::errors::IntegerError;
-use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkos_models::{
+    curves::PrimeField,
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::boolean::{AllocatedBit, Boolean},
+    },
+};
 
 use std::{cmp::Ordering, fmt::Debug};
+
+int_impl!(Int8, i8, 8);
+int_impl!(Int16, i16, 16);
+int_impl!(Int32, i32, 32);
+int_impl!(Int64, i64, 64);
+int_impl!(Int128, i128, 128);
 
 /// A signed two's complement integer object
 pub trait Int: Debug + Clone + PartialOrd + Eq + PartialEq {

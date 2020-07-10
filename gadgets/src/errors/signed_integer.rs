@@ -1,2 +1,2 @@
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum IntegerError {}

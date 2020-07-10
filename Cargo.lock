@@ -600,6 +600,7 @@ dependencies = [
 name = "leo-gadgets"
 version = "0.1.0"
 dependencies = [
+ "rand",
  "snarkos-models",
  "thiserror",
 ]
