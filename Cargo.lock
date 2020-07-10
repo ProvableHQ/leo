@@ -601,7 +601,10 @@ name = "leo-gadgets"
 version = "0.1.0"
 dependencies = [
  "rand",
+ "rand_xorshift",
+ "snarkos-errors",
  "snarkos-models",
+ "snarkos-utilities",
  "thiserror",
 ]
 

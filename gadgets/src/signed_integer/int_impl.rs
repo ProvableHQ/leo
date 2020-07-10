@@ -2,17 +2,30 @@ use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 use std::fmt::Debug;
 
+pub trait Int: Debug + Clone {
+    type IntegerType;
+    const SIZE: usize;
+
+    /// Returns true if all bits in this `Int` are constant
+    fn is_constant(&self) -> bool;
+
+    /// Returns true if both `Int` objects have constant bits
+    fn result_is_constant(first: &Self, second: &Self) -> bool {
+        first.is_constant() && second.is_constant()
+    }
+}
+
 /// Implements the base struct for a signed integer gadget
 macro_rules! int_impl {
-    ($name: ident, $_type: ty, $size: expr) => {
+    ($name: ident, $type_: ty, $size: expr) => {
         #[derive(Clone, Debug)]
         pub struct $name {
             pub bits: Vec<Boolean>,
-            pub value: Option<$_type>,
+            pub value: Option<$type_>,
         }
 
         impl $name {
-            pub fn constant(value: $_type) -> Self {
+            pub fn constant(value: $type_) -> Self {
                 let mut bits = Vec::with_capacity($size);
 
                 let mut tmp = value;
@@ -32,6 +45,27 @@ macro_rules! int_impl {
                     bits,
                     value: Some(value),
                 }
+            }
+        }
+
+        impl Int for $name {
+            type IntegerType = $type_;
+
+            const SIZE: usize = $size;
+
+            fn is_constant(&self) -> bool {
+                let mut constant = true;
+
+                // If any bits of self are allocated bits, return false
+                for bit in &self.bits {
+                    match *bit {
+                        Boolean::Is(ref _bit) => constant = false,
+                        Boolean::Not(ref _bit) => constant = false,
+                        Boolean::Constant(_bit) => {}
+                    }
+                }
+
+                constant
             }
         }
     };

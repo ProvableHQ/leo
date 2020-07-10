@@ -1,7 +1,7 @@
 use crate::{errors::IntegerError, Int128, Int16, Int32, Int64, Int8};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-/// Implements modular division for a signed integer gadget
+/// Modular division for a signed integer gadget
 pub trait Div<Rhs = Self>
 where
     Self: std::marker::Sized,
