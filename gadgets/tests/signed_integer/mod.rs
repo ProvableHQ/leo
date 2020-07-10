@@ -1,5 +1,6 @@
 #[macro_use]
-pub mod macros;
+pub mod arithmetic;
+pub use self::arithmetic::*;
 
-pub mod integers;
-pub use self::integers::*;
+pub mod test_constant;
+pub use self::test_constant::*;
