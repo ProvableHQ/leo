@@ -63,36 +63,43 @@ fn test_int8_add_constants() {
     }
 }
 
-// #[test]
-// fn test_int8_add() {
-//     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
-//
-//     // for _ in 0..1000 {
-//         let mut cs = TestConstraintSystem::<Fr>::new();
-//
-//         let a: i8 = rng.gen();
-//         let b: i8 = rng.gen();
-//
-//         let expected = a.wrapping_add(b);
-//
-//         let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-//         let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
-//
-//         let r = a_bit.add(cs.ns(|| "addition"), &b_bit).unwrap();
-//
-//         assert!(cs.is_satisfied());
-//
-//         assert!(r.value == Some(expected));
-//
-//         check_all_allocated_bits(expected, r);
-//
-//         // Flip a bit_gadget and see if the addition constraint still works
-//         if cs.get("addition/result bit_gadget 0/boolean").is_zero() {
-//             cs.set("addition/result bit_gadget 0/boolean", Fr::one());
-//         } else {
-//             cs.set("addition/result bit_gadget 0/boolean", Fr::zero());
-//         }
-//
-//         assert!(!cs.is_satisfied());
-//     // }
-// }
+#[test]
+fn test_int8_add() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    // for _ in 0..1000 {
+    let mut cs = TestConstraintSystem::<Fr>::new();
+
+    // let a: i8 = rng.gen();
+    // let b: i8 = rng.gen();
+    let a = 15i8;
+    let b = -5i8;
+
+    println!("a {}", a);
+    println!("b {}", b);
+
+    let expected = a.wrapping_add(b);
+
+    let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+    let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+
+    let r = a_bit.add(cs.ns(|| "addition"), &b_bit).unwrap();
+
+    println!("{:?}", r.bits);
+
+    assert!(cs.is_satisfied());
+
+    assert!(r.value == Some(expected));
+
+    check_all_allocated_bits(expected, r);
+
+    // Flip a bit_gadget and see if the addition constraint still works
+    if cs.get("addition/result bit_gadget 0/boolean").is_zero() {
+        cs.set("addition/result bit_gadget 0/boolean", Fr::one());
+    } else {
+        cs.set("addition/result bit_gadget 0/boolean", Fr::zero());
+    }
+
+    assert!(!cs.is_satisfied());
+    // }
+}

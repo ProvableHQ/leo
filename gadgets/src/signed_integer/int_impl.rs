@@ -13,6 +13,8 @@ pub trait Int: Debug + Clone {
     fn result_is_constant(first: &Self, second: &Self) -> bool {
         first.is_constant() && second.is_constant()
     }
+
+    fn is_negative(&self) -> bool;
 }
 
 /// Implements the base struct for a signed integer gadget
@@ -66,6 +68,10 @@ macro_rules! int_impl {
                 }
 
                 constant
+            }
+
+            fn is_negative(&self) -> bool {
+                true
             }
         }
     };

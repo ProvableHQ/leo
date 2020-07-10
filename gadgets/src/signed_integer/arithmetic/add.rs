@@ -1,4 +1,5 @@
 use crate::{errors::IntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+
 use snarkos_models::{
     curves::{fp_parameters::FpParameters, PrimeField},
     gadgets::{
@@ -105,6 +106,8 @@ macro_rules! add_int_impl {
 
                 // The value of the actual result is modulo 2 ^ $size
                 let modular_value = result_value.map(|v| v as <$gadget as Int>::IntegerType);
+
+                println!("{}", modular_value.unwrap());
 
                 if all_constants && modular_value.is_some() {
                     // We can just return a constant, rather than
