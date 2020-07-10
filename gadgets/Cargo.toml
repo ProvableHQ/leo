@@ -1,0 +1,10 @@
+[package]
+name = "leo-gadgets"
+version = "0.1.0"
+authors = ["The Aleo Team <hello@aleo.org>"]
+edition = "2018"
+
+[dependencies]
+snarkos-models = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", rev = "c7a56d9", default-features = false }
+
+thiserror = { version = "1.0" }

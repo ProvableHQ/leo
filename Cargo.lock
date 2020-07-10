@@ -540,6 +540,7 @@ dependencies = [
  "env_logger",
  "from-pest",
  "leo-compiler",
+ "leo-gadgets",
  "leo-inputs",
  "log",
  "rand",
@@ -592,6 +593,14 @@ dependencies = [
  "snarkos-models",
  "snarkos-objects",
  "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-gadgets"
+version = "0.1.0"
+dependencies = [
+ "snarkos-models",
  "thiserror",
 ]
 
