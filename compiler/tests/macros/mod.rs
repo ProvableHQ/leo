@@ -33,6 +33,14 @@ fn test_print_parameter_many() {
 }
 
 #[test]
+fn test_print_parameter_fail_unknown() {
+    let bytes = include_bytes!("print_parameter_fail_unknown.leo");
+    let program = parse_program(bytes).unwrap();
+
+    let _err = get_error(program);
+}
+
+#[test]
 fn test_print_parameter_fail_empty() {
     let bytes = include_bytes!("print_parameter_fail_empty.leo");
     let program = parse_program(bytes).unwrap();

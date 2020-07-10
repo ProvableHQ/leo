@@ -1,4 +1,4 @@
-//! Evaluates a macro in a compiled Leo program.
+//! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::MacroError, program::ConstrainedProgram, GroupType};
 use leo_types::FormattedString;
