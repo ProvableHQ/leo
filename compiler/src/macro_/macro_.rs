@@ -22,8 +22,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .unwrap_or(Ok("".to_string()))?;
 
         match macro_.name {
-            MacroName::Debug(_) => log::debug!("{}\n", string),
-            MacroName::Error(_) => log::error!("{}\n", string),
+            MacroName::Debug(_) => log::debug!("{}", string),
+            MacroName::Error(_) => log::error!("{}", string),
             MacroName::Print(_) => println!("{}", string),
         }
 
