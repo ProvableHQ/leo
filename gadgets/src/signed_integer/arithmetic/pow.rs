@@ -1,7 +1,7 @@
 use crate::{errors::IntegerError, Int16, Int32, Int64, Int8};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-/// Modular exponentiation for a signed integer gadget
+/// Exponentiation for a signed integer gadget
 pub trait Pow<Rhs = Self>
 where
     Self: std::marker::Sized,

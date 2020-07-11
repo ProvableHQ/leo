@@ -1,4 +1,7 @@
-use leo_gadgets::{arithmetic::Add, Int8};
+use leo_gadgets::{
+    arithmetic::{Add, Neg},
+    Int8,
+};
 use snarkos_models::{
     curves::{One, Zero},
     gadgets::{
@@ -100,5 +103,31 @@ fn test_int8_add() {
         }
 
         assert!(!cs.is_satisfied());
+    }
+}
+
+#[test]
+fn test_int8_neg_constants() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1 {
+        let a: i8 = rng.gen();
+
+        println!("{}", a);
+
+        let a_bit = Int8::constant(a);
+
+        let r = a_bit.neg();
+
+        match a.checked_neg() {
+            Some(expected) => {
+                println!("result {}", expected);
+                let result = r.unwrap();
+                assert!(result.value == Some(expected));
+
+                check_all_constant_bits(expected, result);
+            }
+            None => assert!(r.is_none()),
+        }
     }
 }

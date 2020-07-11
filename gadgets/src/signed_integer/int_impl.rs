@@ -6,6 +6,8 @@ pub trait Int: Debug + Clone {
     type IntegerType;
     const SIZE: usize;
 
+    fn one() -> Self;
+
     /// Returns true if all bits in this `Int` are constant
     fn is_constant(&self) -> bool;
 
@@ -13,8 +15,6 @@ pub trait Int: Debug + Clone {
     fn result_is_constant(first: &Self, second: &Self) -> bool {
         first.is_constant() && second.is_constant()
     }
-
-    fn is_negative(&self) -> bool;
 }
 
 /// Implements the base struct for a signed integer gadget
@@ -55,6 +55,10 @@ macro_rules! int_impl {
 
             const SIZE: usize = $size;
 
+            fn one() -> Self {
+                Self::constant(1 as $type_)
+            }
+
             fn is_constant(&self) -> bool {
                 let mut constant = true;
 
@@ -68,10 +72,6 @@ macro_rules! int_impl {
                 }
 
                 constant
-            }
-
-            fn is_negative(&self) -> bool {
-                true
             }
         }
     };

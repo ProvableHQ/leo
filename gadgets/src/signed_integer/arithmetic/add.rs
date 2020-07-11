@@ -11,7 +11,7 @@ use snarkos_models::{
     },
 };
 
-/// Modular addition for a signed integer gadget
+/// Addition for a signed integer gadget
 pub trait Add<Rhs = Self>
 where
     Self: std::marker::Sized,

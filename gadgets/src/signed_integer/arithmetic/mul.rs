@@ -1,7 +1,7 @@
 use crate::{errors::IntegerError, Int16, Int32, Int64, Int8};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-/// Modular multiplication for a signed integer gadget
+/// Multiplication for a signed integer gadget
 pub trait Mul<Rhs = Self>
 where
     Self: std::marker::Sized,
