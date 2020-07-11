@@ -13,9 +13,10 @@ where
 impl SignExtend for Boolean {
     fn sign_extend(bits: &[Boolean], length: usize) -> Vec<Self> {
         let msb = bits.last().expect("empty bit list");
-        let mut extension = vec![msb.clone(); length];
-        let mut result = Vec::from(bits);
+        let bits_needed = length - bits.len();
+        let mut extension = vec![msb.clone(); bits_needed];
 
+        let mut result = Vec::from(bits);
         result.append(&mut extension);
 
         result

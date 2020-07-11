@@ -30,17 +30,17 @@ macro_rules! int_impl {
             pub fn constant(value: $type_) -> Self {
                 let mut bits = Vec::with_capacity($size);
 
-                let mut tmp = value;
+                for i in 0..$size {
+                    // shift value by i
+                    let mask = 1 << i as $type_;
+                    let result = value & mask;
 
-                for _ in 0..$size {
                     // If last bit is one, push one.
-                    if tmp & 1 == 1 {
+                    if result == mask {
                         bits.push(Boolean::constant(true))
                     } else {
                         bits.push(Boolean::constant(false))
                     }
-
-                    tmp >>= 1;
                 }
 
                 Self {

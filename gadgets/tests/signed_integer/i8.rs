@@ -10,33 +10,64 @@ use snarkos_models::{
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-fn check_all_constant_bits(mut expected: i8, actual: Int8) {
-    for b in actual.bits.iter() {
+fn check_all_constant_bits(expected: i8, actual: Int8) {
+    for (i, b) in actual.bits.iter().enumerate() {
+        // shift value by i
+        let mask = 1 << i as i8;
+        let result = expected & mask;
+
         match b {
             &Boolean::Is(_) => panic!(),
             &Boolean::Not(_) => panic!(),
             &Boolean::Constant(b) => {
-                assert!(b == (expected & 1 == 1));
+                let bit = result == mask;
+                assert_eq!(b, bit);
             }
         }
-
-        expected >>= 1;
     }
 }
 
-fn check_all_allocated_bits(mut expected: i8, actual: Int8) {
-    for b in actual.bits.iter() {
+fn check_all_allocated_bits(expected: i8, actual: Int8) {
+    for (i, b) in actual.bits.iter().enumerate() {
+        // shift value by i
+        let mask = 1 << i as i8;
+        let result = expected & mask;
+
         match b {
             &Boolean::Is(ref b) => {
-                assert!(b.get_value().unwrap() == (expected & 1 == 1));
+                let bit = result == mask;
+                assert_eq!(b.get_value().unwrap(), bit);
             }
             &Boolean::Not(ref b) => {
-                assert!(!b.get_value().unwrap() == (expected & 1 == 1));
+                let bit = result == mask;
+                assert_eq!(!b.get_value().unwrap(), bit);
             }
             &Boolean::Constant(_) => unreachable!(),
         }
+    }
+}
 
-        expected >>= 1;
+#[test]
+fn test_int8_constant_and_alloc() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+
+        let a_const = Int8::constant(a);
+
+        assert!(a_const.value == Some(a));
+
+        check_all_constant_bits(a, a_const);
+
+        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+
+        assert!(cs.is_satisfied());
+        assert!(a_bit.value == Some(a));
+
+        check_all_allocated_bits(a, a_bit);
     }
 }
 
@@ -173,6 +204,69 @@ fn test_int8_sub() {
             cs.set("subtraction/add_complement/result bit_gadget 0/boolean", Fr::one());
         } else {
             cs.set("subtraction/add_complement/result bit_gadget 0/boolean", Fr::zero());
+        }
+
+        assert!(!cs.is_satisfied());
+    }
+}
+
+#[test]
+fn test_int8_mul_constants() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        let expected = match a.checked_mul(b) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
+
+        let r = a_bit.mul(cs.ns(|| "multiplication"), &b_bit).unwrap();
+
+        assert!(r.value == Some(expected));
+
+        check_all_constant_bits(expected, r);
+    }
+}
+
+#[test]
+fn test_int8_mul() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        let expected = match a.checked_mul(b) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+
+        let r = a_bit.mul(cs.ns(|| "multiplication"), &b_bit).unwrap();
+
+        assert!(cs.is_satisfied());
+
+        assert!(r.value == Some(expected));
+
+        check_all_allocated_bits(expected, r);
+
+        // Flip a bit_gadget and see if the multiplication constraint still works
+        if cs.get("multiplication/result bit_gadget 0/boolean").is_zero() {
+            cs.set("multiplication/result bit_gadget 0/boolean", Fr::one());
+        } else {
+            cs.set("multiplication/result bit_gadget 0/boolean", Fr::zero());
         }
 
         assert!(!cs.is_satisfied());

@@ -20,7 +20,7 @@ where
 }
 
 // Generic impl
-impl RippleCarryAdder for &[Boolean] {
+impl RippleCarryAdder for Vec<Boolean> {
     fn add_bits<F: PrimeField, CS: ConstraintSystem<F>>(
         &self,
         mut cs: CS,

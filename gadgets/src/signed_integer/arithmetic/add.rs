@@ -25,12 +25,11 @@ macro_rules! add_int_impl {
         impl Add for $gadget {
             fn add<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
                 // Compute the maximum value of the sum
-                let mut max_bits = <$gadget as Int>::SIZE;
+                let max_bits = <$gadget as Int>::SIZE;
 
                 // Make some arbitrary bounds for ourselves to avoid overflows
                 // in the scalar field
                 assert!(F::Params::MODULUS_BITS >= max_bits as u32);
-
 
                 // Accumulate the value
                 let result_value = match (self.value, other.value) {
@@ -60,7 +59,7 @@ macro_rules! add_int_impl {
                 // we discard the carry since we check for overflow above
                 let _carry = bits.pop();
 
-                // Iterate over each bit_gadget of self and add each bit to
+                // Iterate over each bit_gadget of result and add each bit to
                 // the linear combination
                 let mut coeff = F::one();
                 for bit in bits {
@@ -87,6 +86,7 @@ macro_rules! add_int_impl {
                     coeff.double_in_place();
                 }
 
+
                 // The value of the actual result is modulo 2 ^ $size
                 let modular_value = result_value.map(|v| v as <$gadget as Int>::IntegerType);
 
@@ -102,11 +102,13 @@ macro_rules! add_int_impl {
 
                 // Allocate each bit_gadget of the result
                 let mut coeff = F::one();
-                let mut i = 0;
-                while max_bits != 0 {
+                for i in 0..max_bits {
+                    // get bit value
+                    let mask = 1 << i as <$gadget as Int>::IntegerType;
+
                     // Allocate the bit_gadget
                     let b = AllocatedBit::alloc(cs.ns(|| format!("result bit_gadget {}", i)), || {
-                        result_value.map(|v| (v >> i) & 1 == 1).get()
+                        result_value.map(|v| (v & mask) == mask).get()
                     })?;
 
                     // Subtract this bit_gadget from the linear combination to ensure that the sums
@@ -115,8 +117,6 @@ macro_rules! add_int_impl {
 
                     result_bits.push(b.into());
 
-                    max_bits -= 1;
-                    i += 1;
                     coeff.double_in_place();
                 }
 
