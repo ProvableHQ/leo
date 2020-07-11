@@ -11,8 +11,8 @@ where
 }
 
 macro_rules! sub_int_impl {
-    ($($t:ty)*) => ($(
-        impl Sub for $t {
+    ($($gadget: ident)*) => ($(
+        impl Sub for $gadget {
             fn sub<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
                 // Evaluate the two's complement of the subtrahend
                 let s = other.twos_comp(cs.ns(|| format!("complement")))?;
