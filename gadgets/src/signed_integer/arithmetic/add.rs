@@ -1,4 +1,4 @@
-use crate::{errors::IntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{binary::RippleCarryAdder, errors::IntegerError, Int, Int16, Int32, Int64, Int8};
 
 use snarkos_models::{
     curves::{fp_parameters::FpParameters, PrimeField},
@@ -28,60 +28,42 @@ macro_rules! add_int_impl {
                 // in the scalar field
                 assert!(F::Params::MODULUS_BITS >= 128);
 
-                // Compute the maximum value of the sum so we allocate enough bits for the result
+                // Compute the maximum value of the sum
                 let mut max_value = 2i128 * i128::from(<$gadget as Int>::IntegerType::max_value());
 
-                // Keep track of the resulting value
-                let mut result_value = self.value.clone().map(|v| i128::from(v));
+                // Accumulate the value
+                let result_value = match (self.value, other.value) {
+                    (Some(a), Some(b)) => {
+                         // check for addition overflow here
+                         let val = match a.checked_add(b) {
+                            Some(val) => val,
+                            None => return Err(IntegerError::Overflow)
+                         };
+
+                        Some(i128::from(val))
+                    },
+                    _ => {
+                        // If any of the operands have unknown value, we won't
+                        // know the value of the result
+                        None
+                    }
+                };
 
                 // This is a linear combination that we will enforce to be zero
                 let mut lc = LinearCombination::zero();
 
                 let mut all_constants = true;
 
-                // Accumulate the value
-                match other.value {
-                    Some(val) => {
-                        result_value.as_mut().map(|v| *v += i128::from(val));
-                    }
-                    None => {
-                        // If any of the operands have unknown value, we won't
-                        // know the value of the result
-                        result_value = None;
-                    }
-                }
+                let mut bits = self.add_bits(cs.ns(|| format!("bits")), other)?;
+
+                // we discard the carry since we check for overflow above
+                let _carry = bits.pop();
 
                 // Iterate over each bit_gadget of self and add each bit to
                 // the linear combination
                 let mut coeff = F::one();
-                for bit in &self.bits {
-                    match *bit {
-                        Boolean::Is(ref bit) => {
-                            all_constants = false;
-
-                            // Add the coeff * bit_gadget
-                            lc = lc + (coeff, bit.get_variable());
-                        }
-                        Boolean::Not(ref bit) => {
-                            all_constants = false;
-
-                            // Add coeff * (1 - bit_gadget) = coeff * ONE - coeff * bit_gadget
-                            lc = lc + (coeff, CS::one()) - (coeff, bit.get_variable());
-                        }
-                        Boolean::Constant(bit) => {
-                            if bit {
-                                lc = lc + (coeff, CS::one());
-                            }
-                        }
-                    }
-
-                    coeff.double_in_place();
-                }
-
-                // Iterate over each bit_gadget of self and add each bit to
-                // the linear combination
-                for bit in &other.bits {
-                    match *bit {
+                for bit in bits {
+                    match bit {
                         Boolean::Is(ref bit) => {
                             all_constants = false;
 
@@ -106,8 +88,6 @@ macro_rules! add_int_impl {
 
                 // The value of the actual result is modulo 2 ^ $size
                 let modular_value = result_value.map(|v| v as <$gadget as Int>::IntegerType);
-
-                println!("{}", modular_value.unwrap());
 
                 if all_constants && modular_value.is_some() {
                     // We can just return a constant, rather than
@@ -154,4 +134,4 @@ macro_rules! add_int_impl {
     )*)
 }
 
-add_int_impl!(Int8 Int16 Int32 Int64 Int128);
+add_int_impl!(Int8 Int16 Int32 Int64);

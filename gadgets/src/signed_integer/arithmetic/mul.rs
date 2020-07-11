@@ -1,4 +1,4 @@
-use crate::{errors::IntegerError, Int128, Int16, Int32, Int64, Int8};
+use crate::{errors::IntegerError, Int16, Int32, Int64, Int8};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 /// Modular multiplication for a signed integer gadget
@@ -20,4 +20,4 @@ macro_rules! mul_int_impl {
     )*)
 }
 
-mul_int_impl!(Int8 Int16 Int32 Int64 Int128);
+mul_int_impl!(Int8 Int16 Int32 Int64);

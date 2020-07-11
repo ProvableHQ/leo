@@ -1,4 +1,4 @@
-use crate::{errors::IntegerError, Int128, Int16, Int32, Int64, Int8};
+use crate::{errors::IntegerError, Int16, Int32, Int64, Int8};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 /// Modular division for a signed integer gadget
@@ -20,4 +20,4 @@ macro_rules! div_int_impl {
     )*)
 }
 
-div_int_impl!(Int8 Int16 Int32 Int64 Int128);
+div_int_impl!(Int8 Int16 Int32 Int64);
