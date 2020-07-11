@@ -1,7 +1,4 @@
-use leo_gadgets::{
-    arithmetic::{Add, Neg},
-    Int8,
-};
+use leo_gadgets::{arithmetic::*, Int8};
 use snarkos_models::{
     curves::{One, Zero},
     gadgets::{
@@ -107,27 +104,77 @@ fn test_int8_add() {
 }
 
 #[test]
-fn test_int8_neg_constants() {
+fn test_int8_sub_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1 {
-        let a: i8 = rng.gen();
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
 
-        println!("{}", a);
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        if b.checked_neg().is_none() {
+            // negate with overflows will fail: -128
+            continue;
+        }
+        let expected = match a.checked_sub(b) {
+            // subtract with overflow will fail: -0
+            Some(valid) => valid,
+            None => continue,
+        };
 
         let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
 
-        let r = a_bit.neg();
+        let r = a_bit.sub(cs.ns(|| "subtraction"), &b_bit).unwrap();
 
-        match a.checked_neg() {
-            Some(expected) => {
-                println!("result {}", expected);
-                let result = r.unwrap();
-                assert!(result.value == Some(expected));
+        assert!(r.value == Some(expected));
 
-                check_all_constant_bits(expected, result);
-            }
-            None => assert!(r.is_none()),
+        check_all_constant_bits(expected, r);
+    }
+}
+
+#[test]
+fn test_int8_sub() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        if b.checked_neg().is_none() {
+            // negate with overflows will fail: -128
+            continue;
         }
+        let expected = match a.checked_sub(b) {
+            // subtract with overflow will fail: -0
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+
+        let r = a_bit.sub(cs.ns(|| "subtraction"), &b_bit).unwrap();
+
+        assert!(cs.is_satisfied());
+
+        assert!(r.value == Some(expected));
+
+        check_all_allocated_bits(expected, r);
+
+        // Flip a bit_gadget and see if the subtraction constraint still works
+        if cs
+            .get("subtraction/add_complement/result bit_gadget 0/boolean")
+            .is_zero()
+        {
+            cs.set("subtraction/add_complement/result bit_gadget 0/boolean", Fr::one());
+        } else {
+            cs.set("subtraction/add_complement/result bit_gadget 0/boolean", Fr::zero());
+        }
+
+        assert!(!cs.is_satisfied());
     }
 }

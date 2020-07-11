@@ -1,4 +1,4 @@
-use crate::{errors::IntegerError, Int128, Int16, Int32, Int64, Int8};
+use crate::{errors::IntegerError, Add, Int128, Int16, Int32, Int64, Int8, TwosComplement};
 use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 /// Subtraction for a signed integer gadget
@@ -7,14 +7,18 @@ where
     Self: std::marker::Sized,
 {
     #[must_use]
-    fn sub<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<(), IntegerError>;
+    fn sub<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, IntegerError>;
 }
 
 macro_rules! sub_int_impl {
     ($($t:ty)*) => ($(
         impl Sub for $t {
-            fn sub<F: PrimeField, CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<(), IntegerError> {
-                Ok(())
+            fn sub<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
+                // Evaluate the two's complement of the subtrahend
+                let s = other.twos_comp(cs.ns(|| format!("complement")))?;
+
+                // Add minuend + subtrahend
+                self.add(cs.ns(|| format!("add_complement")), &s)
             }
         }
     )*)

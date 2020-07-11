@@ -27,7 +27,6 @@ macro_rules! twos_comp_int_impl {
                     }
                     None => None,
                 };
-                println!("val {}", value.unwrap());
 
                 // flip all bits
                 let flipped_bits = self.bits
