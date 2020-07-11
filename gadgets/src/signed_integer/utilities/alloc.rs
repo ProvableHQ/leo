@@ -1,4 +1,4 @@
-use crate::{Int, Int16, Int32, Int64, Int8};
+use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
 use core::borrow::Borrow;
 use snarkos_errors::gadgets::SynthesisError;
@@ -99,4 +99,4 @@ macro_rules! alloc_int_impl {
     )*)
 }
 
-alloc_int_impl!(Int8 Int16 Int32 Int64);
+alloc_int_impl!(Int8 Int16 Int32 Int64 Int128);

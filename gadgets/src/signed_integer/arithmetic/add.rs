@@ -1,4 +1,4 @@
-use crate::{binary::RippleCarryAdder, errors::IntegerError, Int, Int16, Int32, Int64, Int8};
+use crate::{binary::RippleCarryAdder, errors::IntegerError, Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkos_models::{
     curves::{fp_parameters::FpParameters, PrimeField},
@@ -24,12 +24,13 @@ macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(
         impl Add for $gadget {
             fn add<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
+                // Compute the maximum value of the sum
+                let mut max_bits = <$gadget as Int>::SIZE;
+
                 // Make some arbitrary bounds for ourselves to avoid overflows
                 // in the scalar field
-                assert!(F::Params::MODULUS_BITS >= 128);
+                assert!(F::Params::MODULUS_BITS >= max_bits as u32);
 
-                // Compute the maximum value of the sum
-                let mut max_value = 2i128 * i128::from(<$gadget as Int>::IntegerType::max_value());
 
                 // Accumulate the value
                 let result_value = match (self.value, other.value) {
@@ -40,7 +41,7 @@ macro_rules! add_int_impl {
                             None => return Err(IntegerError::Overflow)
                          };
 
-                        Some(i128::from(val))
+                        Some(val)
                     },
                     _ => {
                         // If any of the operands have unknown value, we won't
@@ -102,7 +103,7 @@ macro_rules! add_int_impl {
                 // Allocate each bit_gadget of the result
                 let mut coeff = F::one();
                 let mut i = 0;
-                while max_value != 0 {
+                while max_bits != 0 {
                     // Allocate the bit_gadget
                     let b = AllocatedBit::alloc(cs.ns(|| format!("result bit_gadget {}", i)), || {
                         result_value.map(|v| (v >> i) & 1 == 1).get()
@@ -114,7 +115,7 @@ macro_rules! add_int_impl {
 
                     result_bits.push(b.into());
 
-                    max_value >>= 1;
+                    max_bits -= 1;
                     i += 1;
                     coeff.double_in_place();
                 }
@@ -134,4 +135,4 @@ macro_rules! add_int_impl {
     )*)
 }
 
-add_int_impl!(Int8 Int16 Int32 Int64);
+add_int_impl!(Int8 Int16 Int32 Int64 Int128);

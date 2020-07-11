@@ -41,4 +41,4 @@ macro_rules! rpc_impl {
     )*)
 }
 
-rpc_impl!(Int8 Int16 Int32 Int64);
+rpc_impl!(Int8 Int16 Int32 Int64 Int128);
