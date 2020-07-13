@@ -2,6 +2,9 @@
 pub mod add;
 pub use self::add::*;
 
+pub mod cmp;
+pub use self::cmp::*;
+
 pub mod div;
 pub use self::div::*;
 
