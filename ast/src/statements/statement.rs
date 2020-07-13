@@ -12,7 +12,7 @@ pub enum Statement<'ast> {
     MultipleAssignment(MultipleAssignmentStatement<'ast>),
     Conditional(ConditionalStatement<'ast>),
     Iteration(ForStatement<'ast>),
-    Assert(AssertStatement<'ast>),
+    Assert(MacroStatement<'ast>),
     Expression(ExpressionStatement<'ast>),
 }
 

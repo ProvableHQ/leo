@@ -1,4 +1,4 @@
-use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, ValueError};
+use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, MacroError, ValueError};
 use leo_types::{Error as FormattedError, Span, Type};
 
 use std::path::PathBuf;
@@ -21,6 +21,9 @@ pub enum StatementError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
+    MacroError(#[from] MacroError),
+
+    #[error("{}", _0)]
     ValueError(#[from] ValueError),
 }
 
@@ -32,6 +35,7 @@ impl StatementError {
             StatementError::Error(error) => error.set_path(path),
             StatementError::ExpressionError(error) => error.set_path(path),
             StatementError::IntegerError(error) => error.set_path(path),
+            StatementError::MacroError(error) => error.set_path(path),
             StatementError::ValueError(error) => error.set_path(path),
         }
     }

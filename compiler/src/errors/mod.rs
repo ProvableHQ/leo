@@ -10,6 +10,9 @@ pub use self::function::*;
 pub mod import;
 pub use self::import::*;
 
+pub mod macro_;
+pub use self::macro_::*;
+
 pub mod statement;
 pub use self::statement::*;
 

@@ -1,4 +1,4 @@
-use crate::{Error as FormattedError, Expression, Span};
+use crate::{Error, Expression, Span};
 use leo_ast::{common::RangeOrExpression as AstRangeOrExpression, values::NumberValue};
 
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub enum RangeOrExpression {
 pub fn unwrap_bound(bound: Option<NumberValue>) -> Option<usize> {
     bound.map(|number| {
         let message = format!("Range bounds should be integers");
-        let error = FormattedError::new_from_span(message, Span::from(number.span.clone()));
+        let error = Error::new_from_span(message, Span::from(number.span.clone()));
 
         number.value.parse::<usize>().expect(&error.to_string())
     })

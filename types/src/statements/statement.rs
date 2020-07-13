@@ -1,13 +1,13 @@
-use crate::{Assignee, ConditionalStatement, Declare, Expression, Identifier, Span, Variable};
+use crate::{Assignee, ConditionalStatement, Declare, Expression, FormattedMacro, Identifier, Span, Variable};
 use leo_ast::{
     common::Return,
     operations::AssignOperation,
     statements::{
-        AssertStatement,
         AssignStatement,
         DefinitionStatement,
         ExpressionStatement,
         ForStatement,
+        MacroStatement,
         MultipleAssignmentStatement,
         ReturnStatement,
         Statement as AstStatement,
@@ -27,6 +27,7 @@ pub enum Statement {
     Conditional(ConditionalStatement, Span),
     Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
     AssertEq(Expression, Expression, Span),
+    Macro(FormattedMacro),
     Expression(Expression, Span),
 }
 
@@ -168,14 +169,15 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<AssertStatement<'ast>> for Statement {
-    fn from(statement: AssertStatement<'ast>) -> Self {
+impl<'ast> From<MacroStatement<'ast>> for Statement {
+    fn from(statement: MacroStatement<'ast>) -> Self {
         match statement {
-            AssertStatement::AssertEq(assert_eq) => Statement::AssertEq(
+            MacroStatement::AssertEq(assert_eq) => Statement::AssertEq(
                 Expression::from(assert_eq.left),
                 Expression::from(assert_eq.right),
                 Span::from(assert_eq.span),
             ),
+            MacroStatement::Formatted(formatted) => Statement::Macro(FormattedMacro::from(formatted)),
         }
     }
 }
@@ -245,6 +247,7 @@ impl fmt::Display for Statement {
                 write!(f, "\t}}")
             }
             Statement::AssertEq(ref left, ref right, ref _span) => write!(f, "assert_eq({}, {});", left, right),
+            Statement::Macro(ref macro_) => write!(f, "{}", macro_),
             Statement::Expression(ref expression, ref _span) => write!(f, "{};", expression),
         }
     }
