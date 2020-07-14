@@ -9,10 +9,20 @@ file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit* ~ NEWLINE* ~ function_de
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = {
-    "for"| "if" | "else" | "as" | "return"
-     | declare | mutable | static_ | value_boolean
-     | type_array | type_data
-     | macro_name | macro_symbol
+    "address"
+    | "as"
+    | "const"
+    | "else"
+    | "false"
+    | "function"
+    | "for"
+    | "if"
+    | "in"
+    | "let"
+    | "mut"
+    | "return"
+    | "static"
+    | "true"
 }
 
 // Declared in common/line_end.rs
