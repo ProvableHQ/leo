@@ -2,5 +2,5 @@
 pub mod eq;
 pub use self::eq::*;
 
-pub mod lt;
-pub use self::lt::*;
+pub mod cmp;
+pub use self::cmp::*;

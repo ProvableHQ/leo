@@ -34,6 +34,14 @@ macro_rules! eq_gadget_impl {
                 Ok(result)
             }
         }
+
+        impl PartialEq for $gadget {
+            fn eq(&self, other: &Self) -> bool {
+                !self.value.is_none() && !other.value.is_none() && self.value == other.value
+            }
+        }
+
+        impl Eq for $gadget {}
     )*)
 }
 

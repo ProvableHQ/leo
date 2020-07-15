@@ -8,6 +8,8 @@ pub trait Int: Debug + Clone {
 
     fn one() -> Self;
 
+    fn zero() -> Self;
+
     /// Returns true if all bits in this `Int` are constant
     fn is_constant(&self) -> bool;
 
@@ -57,6 +59,10 @@ macro_rules! int_impl {
 
             fn one() -> Self {
                 Self::constant(1 as $type_)
+            }
+
+            fn zero() -> Self {
+                Self::constant(0 as $type_)
             }
 
             fn is_constant(&self) -> bool {

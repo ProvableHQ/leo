@@ -272,3 +272,31 @@ fn test_int8_mul() {
         assert!(!cs.is_satisfied());
     }
 }
+
+#[test]
+fn test_int8_div_constants() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        println!("{} / {}", a, b);
+
+        let expected = match a.checked_div(b) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
+
+        let r = a_bit.div(cs.ns(|| "division"), &b_bit).unwrap();
+
+        assert!(r.value == Some(expected));
+
+        check_all_constant_bits(expected, r);
+    }
+}
