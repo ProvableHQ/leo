@@ -95,7 +95,7 @@ macro_rules! mul_int_impl {
                 // Accumulate the value
                 let result_value = match (self.value, other.value) {
                     (Some(a), Some(b)) => {
-                         // check for addition overflow here
+                         // check for multiplication overflow here
                          let val = match a.checked_mul(b) {
                             Some(val) => val,
                             None => return Err(IntegerError::Overflow)

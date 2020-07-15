@@ -328,3 +328,79 @@ fn test_int8_div() {
         check_all_allocated_bits(expected, r);
     }
 }
+
+#[test]
+fn test_int8_pow_constants() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..1000 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
+
+        let expected = match a.checked_pow(b as u32) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let r = a_bit.pow(cs.ns(|| "exponentiation"), &b_bit).unwrap();
+
+        assert!(r.value == Some(expected));
+
+        check_all_constant_bits(expected, r);
+    }
+}
+
+#[test]
+fn test_int8_pow() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for i in 0..100 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        // Test small ranges that we know won't overflow first
+        let (a, b): (i8, i8) = if i < 50 {
+            (rng.gen_range(-4, 4), rng.gen_range(0, 4))
+        } else {
+            (rng.gen(), rng.gen())
+        };
+
+        let expected = match a.checked_pow(b as u32) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+
+        let r = a_bit.pow(cs.ns(|| "exponentiation"), &b_bit).unwrap();
+
+        assert!(cs.is_satisfied());
+
+        assert!(r.value == Some(expected));
+
+        check_all_allocated_bits(expected, r);
+
+        // Flip a bit_gadget and see if the exponentiation constraint still works
+        if cs
+            .get("exponentiation/multiply_by_self_0/result bit_gadget 0/boolean")
+            .is_zero()
+        {
+            cs.set(
+                "exponentiation/multiply_by_self_0/result bit_gadget 0/boolean",
+                Fr::one(),
+            );
+        } else {
+            cs.set(
+                "exponentiation/multiply_by_self_0/result bit_gadget 0/boolean",
+                Fr::zero(),
+            );
+        }
+
+        assert!(!cs.is_satisfied());
+    }
+}

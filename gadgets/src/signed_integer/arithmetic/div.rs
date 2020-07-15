@@ -43,9 +43,12 @@ macro_rules! div_int_impl {
                 // N / D pseudocode:
                 //
                 // if D = 0 then error(DivisionByZeroException) end
+                //
                 // positive = msb(N) == msb(D) -- if msb's equal, return positive result
+                //
                 // Q := 0                  -- Initialize quotient and remainder to zero
                 // R := 0
+                //
                 // for i := n − 1 .. 0 do  -- Where n is number of bits in N
                 //   R := R << 1           -- Left-shift R by 1 bit
                 //   R(0) := N(i)          -- Set the least-significant bit of R equal to bit i of the numerator
@@ -54,10 +57,11 @@ macro_rules! div_int_impl {
                 //     Q(i) := 1
                 //   end
                 // end
-                // if positive {           -- positive result
+                //
+                // if positive then           -- positive result
                 //    Q
-                // }
-                // !Q                      -- negative result
+                // else
+                //    !Q                      -- negative result
 
                 if other.eq(&Self::constant(0 as <$gadget as Int>::IntegerType)) {
                     return Err(IntegerError::DivisionByZero);
