@@ -580,6 +580,7 @@ dependencies = [
  "bincode",
  "hex",
  "leo-ast",
+ "leo-gadgets",
  "leo-inputs",
  "leo-types",
  "log",
