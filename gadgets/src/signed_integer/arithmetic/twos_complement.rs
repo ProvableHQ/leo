@@ -41,7 +41,7 @@ macro_rules! twos_comp_int_impl {
                     Some(val) => {
                         match val.checked_neg() {
                             Some(val_neg) => Some(val_neg),
-                            None => return Err(IntegerError::NegativeZero) // -0 should fail
+                            None => return Err(IntegerError::Overflow) // -0 should fail
                         }
                     }
                     None => None,

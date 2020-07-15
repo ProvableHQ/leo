@@ -1,4 +1,5 @@
 use leo_gadgets::{arithmetic::*, Int8};
+
 use snarkos_models::{
     curves::{One, Zero},
     gadgets::{
@@ -9,6 +10,7 @@ use snarkos_models::{
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
+use std::i8;
 
 fn check_all_constant_bits(expected: i8, actual: Int8) {
     for (i, b) in actual.bits.iter().enumerate() {
@@ -277,13 +279,11 @@ fn test_int8_mul() {
 fn test_int8_div_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1 {
+    for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
-
-        println!("{} / {}", a, b);
+        let a: i8 = rng.gen_range(-127i8, i8::MAX);
+        let b: i8 = rng.gen_range(-127i8, i8::MAX);
 
         let expected = match a.checked_div(b) {
             Some(valid) => valid,
@@ -298,5 +298,33 @@ fn test_int8_div_constants() {
         assert!(r.value == Some(expected));
 
         check_all_constant_bits(expected, r);
+    }
+}
+
+#[test]
+fn test_int8_div() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..100 {
+        let mut cs = TestConstraintSystem::<Fr>::new();
+
+        let a: i8 = rng.gen_range(-127i8, i8::MAX);
+        let b: i8 = rng.gen_range(-127i8, i8::MAX);
+
+        let expected = match a.checked_div(b) {
+            Some(valid) => valid,
+            None => continue,
+        };
+
+        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+
+        let r = a_bit.div(cs.ns(|| "division"), &b_bit).unwrap();
+
+        assert!(cs.is_satisfied());
+
+        assert!(r.value == Some(expected));
+
+        check_all_allocated_bits(expected, r);
     }
 }

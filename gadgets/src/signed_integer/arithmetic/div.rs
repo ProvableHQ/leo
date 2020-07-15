@@ -17,6 +17,7 @@ use snarkos_models::{
         utilities::{
             alloc::AllocGadget,
             boolean::{AllocatedBit, Boolean},
+            eq::EvaluateEqGadget,
             select::CondSelectGadget,
         },
     },
@@ -88,16 +89,34 @@ macro_rules! div_int_impl {
                     &allocated_zero,
                 )?;
 
+                let self_is_zero = Boolean::Constant(self.eq(&Self::constant(0 as <$gadget as Int>::IntegerType)));
+
                 // If the most significant bits of both numbers are equal, the quotient will be positive
                 let a_msb = self.bits.last().unwrap();
                 let b_msb = other.bits.last().unwrap();
-                let positive = Boolean::and(cs.ns(|| "compare msb"), &a_msb, &b_msb)?;
+                let positive = a_msb.evaluate_equal(cs.ns(|| "compare_msb"), &b_msb)?;
 
-                let self_is_zero = Boolean::Constant(self.eq(&Self::constant(0 as <$gadget as Int>::IntegerType)));
+                // Get the absolute value of each number
+                let a_comp = self.twos_comp(&mut cs.ns(|| "a_twos_comp"))?;
+                let a = Self::conditionally_select(
+                    &mut cs.ns(|| "a_abs"),
+                    &a_msb,
+                    &a_comp,
+                    &self
+                )?;
+
+                let b_comp = other.twos_comp(&mut cs.ns(|| "b_twos_comp"))?;
+                let b = Self::conditionally_select(
+                    &mut cs.ns(|| "b_abs"),
+                    &b_msb,
+                    &b_comp,
+                    &other,
+                )?;
+
                 let mut q = zero.clone();
                 let mut r = zero.clone();
 
-                for (i, bit) in self.bits.iter().rev().enumerate() {
+                for (i, bit) in a.bits.iter().rev().enumerate() {
                     if i == 0 {
                         // skip the sign bit
                         continue;
@@ -124,22 +143,24 @@ macro_rules! div_int_impl {
 
                     let can_sub = r.greater_than_or_equal(
                         &mut cs.ns(|| format!("compare_remainder_{}", i)),
-                        other
+                        &b
                     )?;
+
 
                     let sub = r.sub(
                         &mut cs.ns(|| format!("subtract_divisor_{}", i)),
-                        other
-                    )?;
+                        &b
+                    );
+
 
                     r = Self::conditionally_select(
                         &mut cs.ns(|| format!("subtract_or_same_{}", i)),
                         &can_sub,
-                        &sub,
+                        &sub?,
                         &r
                     )?;
 
-                    let index = <$gadget as Int>::SIZE -1 -i as usize;
+                    let index = <$gadget as Int>::SIZE - 1 - i as usize;
                     let bit_value = (1 as <$gadget as Int>::IntegerType) << (index as <$gadget as Int>::IntegerType);
                     let mut q_new = q.clone();
                     q_new.bits[index] = true_bit.clone();
@@ -151,6 +172,7 @@ macro_rules! div_int_impl {
                         &q_new,
                         &q,
                     )?;
+
                 }
 
                 let q_neg = q.twos_comp(&mut cs.ns(|| "twos comp"))?;
@@ -162,14 +184,12 @@ macro_rules! div_int_impl {
                     &q_neg,
                 )?;
 
-
                 Ok(Self::conditionally_select(
                     &mut cs.ns(|| "self_or_quotient"),
                     &self_is_zero,
                     self,
                     &q
                 )?)
-
             }
         }
     )*)
