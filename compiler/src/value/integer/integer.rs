@@ -130,14 +130,17 @@ impl Integer {
         }
     }
 
-    pub fn get_value(&self) -> Option<u128> {
+    pub fn get_value(&self) -> Option<String> {
         let integer = self;
         match_integer!(integer => integer.get_value())
     }
 
     pub fn to_usize(&self, span: Span) -> Result<usize, IntegerError> {
-        let value = self.get_value().ok_or(IntegerError::invalid_index(span))?;
-        Ok(value as usize)
+        let value = self.get_value().ok_or(IntegerError::invalid_index(span.clone()))?;
+        let value_usize = value
+            .parse::<usize>()
+            .map_err(|_| IntegerError::invalid_integer(value, span))?;
+        Ok(value_usize)
     }
 
     pub fn to_bits_le(&self) -> Vec<Boolean> {
@@ -165,14 +168,20 @@ impl Integer {
         cs: &mut CS,
         integer_type: IntegerType,
         name: String,
-        option: Option<u128>,
+        option: Option<String>,
         span: Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
             IntegerType::U8 => {
                 let u8_name = format!("{}: u8", name);
                 let u8_name_unique = format!("`{}` {}:{}", u8_name, span.line, span.start);
-                let u8_option = option.map(|integer| integer as u8);
+
+                let u8_option = option.map(|s| {
+                    s.parse::<u8>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
+
                 let u8_result = UInt8::alloc(cs.ns(|| u8_name_unique), || {
                     u8_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -183,7 +192,11 @@ impl Integer {
             IntegerType::U16 => {
                 let u16_name = format!("{}: u16", name);
                 let u16_name_unique = format!("`{}` {}:{}", u16_name, span.line, span.start);
-                let u16_option = option.map(|integer| integer as u16);
+                let u16_option = option.map(|s| {
+                    s.parse::<u16>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let u16_result = UInt16::alloc(cs.ns(|| u16_name_unique), || {
                     u16_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -194,7 +207,11 @@ impl Integer {
             IntegerType::U32 => {
                 let u32_name = format!("{}: u32", name);
                 let u32_name_unique = format!("`{}` {}:{}", u32_name, span.line, span.start);
-                let u32_option = option.map(|integer| integer as u32);
+                let u32_option = option.map(|s| {
+                    s.parse::<u32>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let u32_result = UInt32::alloc(cs.ns(|| u32_name_unique), || {
                     u32_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -205,7 +222,11 @@ impl Integer {
             IntegerType::U64 => {
                 let u64_name = format!("{}: u64", name);
                 let u64_name_unique = format!("`{}` {}:{}", u64_name, span.line, span.start);
-                let u64_option = option.map(|integer| integer as u64);
+                let u64_option = option.map(|s| {
+                    s.parse::<u64>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let u64_result = UInt64::alloc(cs.ns(|| u64_name_unique), || {
                     u64_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -216,7 +237,11 @@ impl Integer {
             IntegerType::U128 => {
                 let u128_name = format!("{}: u128", name);
                 let u128_name_unique = format!("`{}` {}:{}", u128_name, span.line, span.start);
-                let u128_option = option.map(|integer| integer as u128);
+                let u128_option = option.map(|s| {
+                    s.parse::<u128>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let u128_result = UInt128::alloc(cs.ns(|| u128_name_unique), || {
                     u128_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -228,7 +253,11 @@ impl Integer {
             IntegerType::I8 => {
                 let i8_name = format!("{}: i8", name);
                 let i8_name_unique = format!("`{}` {}:{}", i8_name, span.line, span.start);
-                let i8_option = option.map(|integer| integer as i8);
+                let i8_option = option.map(|s| {
+                    s.parse::<i8>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let i8_result = Int8::alloc(cs.ns(|| i8_name_unique), || {
                     i8_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -239,7 +268,11 @@ impl Integer {
             IntegerType::I16 => {
                 let i16_name = format!("{}: i16", name);
                 let i16_name_unique = format!("`{}` {}:{}", i16_name, span.line, span.start);
-                let i16_option = option.map(|integer| integer as i16);
+                let i16_option = option.map(|s| {
+                    s.parse::<i16>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let i16_result = Int16::alloc(cs.ns(|| i16_name_unique), || {
                     i16_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -250,7 +283,11 @@ impl Integer {
             IntegerType::I32 => {
                 let i32_name = format!("{}: i32", name);
                 let i32_name_unique = format!("`{}` {}:{}", i32_name, span.line, span.start);
-                let i32_option = option.map(|integer| integer as i32);
+                let i32_option = option.map(|s| {
+                    s.parse::<i32>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let i32_result = Int32::alloc(cs.ns(|| i32_name_unique), || {
                     i32_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -261,7 +298,11 @@ impl Integer {
             IntegerType::I64 => {
                 let i64_name = format!("{}: i64", name);
                 let i64_name_unique = format!("`{}` {}:{}", i64_name, span.line, span.start);
-                let i64_option = option.map(|integer| integer as i64);
+                let i64_option = option.map(|s| {
+                    s.parse::<i64>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let i64_result = Int64::alloc(cs.ns(|| i64_name_unique), || {
                     i64_option.ok_or(SynthesisError::AssignmentMissing)
                 })
@@ -272,7 +313,11 @@ impl Integer {
             IntegerType::I128 => {
                 let i128_name = format!("{}: i128", name);
                 let i128_name_unique = format!("`{}` {}:{}", i128_name, span.line, span.start);
-                let i128_option = option.map(|integer| integer as i128);
+                let i128_option = option.map(|s| {
+                    s.parse::<i128>()
+                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .unwrap()
+                });
                 let i128_result = Int128::alloc(cs.ns(|| i128_name_unique), || {
                     i128_option.ok_or(SynthesisError::AssignmentMissing)
                 })

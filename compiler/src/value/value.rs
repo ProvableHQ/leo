@@ -191,7 +191,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Integer(integer) => {
                 let integer_type = integer.get_type();
                 let option = integer.get_value();
-                let name = option.map(|n| n.to_string()).unwrap_or(format!("[allocated]"));
+                let name = option.clone().unwrap_or(format!("[allocated]"));
 
                 *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }

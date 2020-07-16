@@ -2,7 +2,22 @@
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
-protected_name = { "let" | "for"| "if" | "else" | "as" | "return" }
+protected_name = {
+    "address"
+    | "as"
+    | "const"
+    | "else"
+    | "false"
+    | "function"
+    | "for"
+    | "if"
+    | "in"
+    | "let"
+    | "mut"
+    | "return"
+    | "static"
+    | "true"
+ }
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
@@ -20,12 +35,26 @@ type_integer = {
     | type_u32
     | type_u64
     | type_u128
+    | type_i8
+    | type_i16
+    | type_i32
+    | type_i64
+    | type_i128
 }
+
+// Declared in types/integer_type.rs
 type_u8 = { "u8" }
 type_u16 = { "u16" }
 type_u32 = { "u32" }
 type_u64 = { "u64" }
 type_u128 = { "u128" }
+
+// Declared in types/integer_type.rs
+type_i8 = { "i8" }
+type_i16 = { "i16" }
+type_i32 = { "i32" }
+type_i64 = { "i64" }
+type_i128 = { "i128" }
 
 // Declared in types/field_type.rs
 type_field = { "field" }

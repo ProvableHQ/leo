@@ -7,7 +7,7 @@ use snarkos_models::gadgets::utilities::{
 use std::fmt::Debug;
 
 pub trait IntegerTrait: Sized + Clone + Debug + Add {
-    fn get_value(&self) -> Option<u128>;
+    fn get_value(&self) -> Option<String>;
 
     fn get_bits(&self) -> Vec<Boolean>;
 }
@@ -15,8 +15,8 @@ pub trait IntegerTrait: Sized + Clone + Debug + Add {
 macro_rules! integer_trait_impl {
     ($($gadget: ident)*) => ($(
         impl IntegerTrait for $gadget {
-            fn get_value(&self) -> Option<u128> {
-                self.value.map(|num| num as u128)
+            fn get_value(&self) -> Option<String> {
+                self.value.map(|num| num.to_string())
             }
 
             fn get_bits(&self) -> Vec<Boolean> {

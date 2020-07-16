@@ -19,6 +19,7 @@ pub enum IntegerType {
 }
 
 // Unsigned
+
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_u8))]
 pub struct U8Type {}
@@ -39,7 +40,7 @@ pub struct U64Type {}
 #[pest_ast(rule(Rule::type_u128))]
 pub struct U128Type {}
 
-// Singed
+// Signed
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::type_i8))]
