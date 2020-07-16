@@ -75,7 +75,7 @@ operation_gt = { ">" }
 operation_le = { "<=" }
 operation_lt = { "<" }
 operation_add = { "+" }
-operation_sub = { "-" }
+operation_sub = { "- " }
 operation_mul = { "*" }
 operation_div = { "/" }
 operation_pow = { "**" }
@@ -180,7 +180,7 @@ value = {
 }
 
 // Declared in values/number_value.rs
-value_number = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+value_number = @{ (("-" ~ ASCII_NONZERO_DIGIT) | "0" | ASCII_NONZERO_DIGIT) ~ ASCII_DIGIT* }
 
 // Declared in values/number_implicit_value.rs
 value_implicit = { value_number }

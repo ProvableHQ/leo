@@ -31,7 +31,7 @@ macro_rules! test_int {
                 let bytes = include_bytes!("input.leo");
                 let mut program = parse_program(bytes).unwrap();
 
-                program.set_inputs(vec![Some(InputValue::Integer($integer_type, num as u128))]);
+                program.set_inputs(vec![Some(InputValue::Integer($integer_type, num.to_string()))]);
 
                 output_expected_allocated(program, expected);
 
@@ -64,8 +64,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_allocated(program, sum_allocated);
@@ -89,8 +89,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_allocated(program, difference_allocated);
@@ -114,8 +114,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_allocated(program, product_allocated);
@@ -131,8 +131,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     // expect an error when dividing by zero
@@ -159,9 +159,9 @@ macro_rules! test_int {
                 let r2 = r2 as u32; // we cast to u32 here because of rust pow() requirements
 
                 let result = match r1.checked_pow(r2) {
-                        Some(valid) => valid,
-                        None => continue,
-                    };
+                    Some(valid) => valid,
+                    None => return,
+                };
 
                 let cs = TestConstraintSystem::<Fq>::new();
                 let result_allocated = <$gadget>::alloc(cs, || Ok(result)).unwrap();
@@ -170,8 +170,8 @@ macro_rules! test_int {
                 let mut program = parse_program(bytes).unwrap();
 
                 program.set_inputs(vec![
-                    Some(InputValue::Integer($integer_type, r1 as u128)),
-                    Some(InputValue::Integer($integer_type, r2 as u128)),
+                    Some(InputValue::Integer($integer_type, r1.to_string())),
+                    Some(InputValue::Integer($integer_type, r2.to_string())),
                 ]);
 
                 output_expected_allocated(program, result_allocated);
@@ -187,8 +187,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     output_true(program);
@@ -201,8 +201,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -218,8 +218,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     output_true(program);
@@ -232,8 +232,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -249,8 +249,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     output_false(program);
@@ -263,8 +263,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -280,8 +280,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     output_true(program);
@@ -294,8 +294,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -311,8 +311,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     output_false(program);
@@ -325,8 +325,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     output_expected_boolean(program, result);
@@ -342,8 +342,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
                     ]);
 
                     let _ = get_output(program);
@@ -358,8 +358,8 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1 as u128)),
-                        Some(InputValue::Integer($integer_type, r2 as u128)),
+                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                        Some(InputValue::Integer($integer_type, r2.to_string())),
                     ]);
 
                     let mut cs = TestConstraintSystem::<Fq>::new();
@@ -383,8 +383,8 @@ macro_rules! test_int {
                 // true -> field 1
                 program_1.set_inputs(vec![
                     Some(InputValue::Boolean(true)),
-                    Some(InputValue::Integer($integer_type, r1 as u128)),
-                    Some(InputValue::Integer($integer_type, r2 as u128)),
+                    Some(InputValue::Integer($integer_type, r1.to_string())),
+                    Some(InputValue::Integer($integer_type, r2.to_string())),
                 ]);
 
                 output_expected_allocated(program_1, g1);
@@ -392,8 +392,8 @@ macro_rules! test_int {
                 // false -> field 2
                 program_2.set_inputs(vec![
                     Some(InputValue::Boolean(false)),
-                    Some(InputValue::Integer($integer_type, r1 as u128)),
-                    Some(InputValue::Integer($integer_type, r2 as u128)),
+                    Some(InputValue::Integer($integer_type, r1.to_string())),
+                    Some(InputValue::Integer($integer_type, r2.to_string())),
                 ]);
 
                 output_expected_allocated(program_2, g2);

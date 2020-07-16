@@ -444,36 +444,12 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
 }
 
 impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
-    fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        if self.get_bits().len() != other.get_bits().len() {
-            return Err(SynthesisError::Unsatisfiable);
-        }
+    fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        let a = self;
+        let b = other;
+        let result = match_integers!((a, b) => a.less_than(cs, b));
 
-        for (i, (self_bit, other_bit)) in self
-            .get_bits()
-            .iter()
-            .rev()
-            .zip(other.get_bits().iter().rev())
-            .enumerate()
-        {
-            // is_greater = a & !b
-            // only true when a > b
-            let is_greater = Boolean::and(cs.ns(|| format!("a and not b [{}]", i)), self_bit, &other_bit.not())?;
-
-            // is_less = !a & b
-            // only true when a < b
-            let is_less = Boolean::and(cs.ns(|| format!("not a and b [{}]", i)), &self_bit.not(), other_bit)?;
-
-            if is_greater.get_value().unwrap() {
-                return Ok(is_greater.not());
-            } else if is_less.get_value().unwrap() {
-                return Ok(is_less);
-            } else if i == self.get_bits().len() - 1 {
-                return Ok(is_less);
-            }
-        }
-
-        Err(SynthesisError::Unsatisfiable)
+        result.ok_or(SynthesisError::Unsatisfiable)
     }
 }
 

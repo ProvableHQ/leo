@@ -1,5 +1,7 @@
 #[macro_use]
-// pub mod int_macro;
+pub mod int_macro;
+
+#[macro_use]
 pub mod uint_macro;
 
 pub mod integer_tester;
@@ -12,4 +14,4 @@ pub mod u32;
 pub mod u64;
 pub mod u8;
 
-// pub mod i8;
+pub mod i8;

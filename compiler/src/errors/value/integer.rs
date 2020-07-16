@@ -68,7 +68,7 @@ impl IntegerError {
     }
 
     pub fn invalid_integer(actual: String, span: Span) -> Self {
-        let message = format!("expected integer input type, found `{}`", actual);
+        let message = format!("failed to parse `{}` as expected integer type", actual);
 
         Self::new_from_span(message, span)
     }
