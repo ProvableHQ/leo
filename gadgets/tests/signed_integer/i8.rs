@@ -8,7 +8,6 @@ use snarkos_models::{
     },
 };
 
-use leo_gadgets::binary::EvaluateLtGadget;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use std::i8;
@@ -404,16 +403,4 @@ fn test_int8_pow() {
 
         assert!(!cs.is_satisfied());
     }
-}
-
-#[test]
-fn i8_lt() {
-    let one = Int8::constant(1i8);
-    let two = Int8::constant(-9i8);
-
-    let mut cs = TestConstraintSystem::<Fr>::new();
-
-    let res = one.less_than(cs.ns(|| "less than"), &two).unwrap();
-
-    println!("{}", res.get_value().unwrap());
 }
