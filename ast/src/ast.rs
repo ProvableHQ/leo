@@ -45,8 +45,9 @@ fn precedence_climber() -> PrecClimber<Rule> {
     PrecClimber::new(vec![
         Operator::new(Rule::operation_or, Assoc::Left),
         Operator::new(Rule::operation_and, Assoc::Left),
-        Operator::new(Rule::operation_eq, Assoc::Left) | Operator::new(Rule::operation_ne, Assoc::Left),
-        Operator::new(Rule::operation_ge, Assoc::Left)
+        Operator::new(Rule::operation_eq, Assoc::Left)
+            | Operator::new(Rule::operation_ne, Assoc::Left)
+            | Operator::new(Rule::operation_ge, Assoc::Left)
             | Operator::new(Rule::operation_gt, Assoc::Left)
             | Operator::new(Rule::operation_le, Assoc::Left)
             | Operator::new(Rule::operation_lt, Assoc::Left),

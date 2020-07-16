@@ -55,7 +55,10 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Compile the library file but do not output
-            let _program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), lib_file_path)?;
+            let _program =
+                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), lib_file_path.clone())?;
+
+            log::info!("Compiled library file {:?}", lib_file_path);
         };
 
         // Compile the main.leo file along with constraints
@@ -109,7 +112,7 @@ impl CLI for BuildCommand {
                 log::debug!("Checksum saved ({:?})", path);
             }
 
-            log::info!("Compiled program in {:?}", main_file_path);
+            log::info!("Compiled program file {:?}", main_file_path);
 
             return Ok(Some((program, checksum_differs)));
         }
