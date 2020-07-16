@@ -1,4 +1,4 @@
-use crate::{arithmetic::*, errors::IntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{arithmetic::*, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkos_models::{
     curves::PrimeField,
@@ -8,10 +8,19 @@ use snarkos_models::{
     },
 };
 
+/// Exponentiation for a signed integer gadget
+pub trait Pow<Rhs = Self>
+where
+    Self: std::marker::Sized,
+{
+    #[must_use]
+    fn pow<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, SignedIntegerError>;
+}
+
 macro_rules! pow_int_impl {
     ($($gadget:ty)*) => ($(
         impl Pow for $gadget {
-            fn pow<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
+            fn pow<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, SignedIntegerError> {
                 // let mut res = Self::one();
                 //
                 // let mut found_one = false;
@@ -72,15 +81,6 @@ macro_rules! pow_int_impl {
             }
         }
     )*)
-}
-
-/// Exponentiation for a signed integer gadget
-pub trait Pow<Rhs = Self>
-where
-    Self: std::marker::Sized,
-{
-    #[must_use]
-    fn pow<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, IntegerError>;
 }
 
 pow_int_impl!(Int8 Int16 Int32 Int64 Int128);

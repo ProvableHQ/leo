@@ -45,20 +45,20 @@ impl RippleCarryAdder for Vec<Boolean> {
 macro_rules! rpc_impl {
     ($($gadget: ident)*) => ($(
         impl RippleCarryAdder for $gadget {
-            fn add_bits<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError> {
-                let mut result = vec![];
-                let mut carry = Boolean::constant(false);
-                for (i, (a, b)) in self.bits.iter().zip(other.bits.iter()).enumerate() {
-                    let (sum, next) = Boolean::add(cs.ns(|| format!("rpc {}", i)), a, b, &carry)?;
+            fn add_bits<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError> {
+                // let mut result = vec![];
+                // let mut carry = Boolean::constant(false);
+                // for (i, (a, b)) in self.bits.iter().zip(other.bits.iter()).enumerate() {
+                //     let (sum, next) = Boolean::add(cs.ns(|| format!("rpc {}", i)), a, b, &carry)?;
+                //
+                //     carry = next;
+                //     result.push(sum);
+                // }
+                //
+                // // append the carry bit to the end
+                // result.push(carry);
 
-                    carry = next;
-                    result.push(sum);
-                }
-
-                // append the carry bit to the end
-                result.push(carry);
-
-                Ok(result)
+                self.bits.add_bits(cs, &other.bits)
             }
         }
     )*)

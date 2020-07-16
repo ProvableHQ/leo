@@ -1,4 +1,4 @@
-use leo_gadgets::errors::IntegerError as SignedIntegerError;
+use leo_gadgets::errors::SignedIntegerError;
 use leo_types::{error::Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;

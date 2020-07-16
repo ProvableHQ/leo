@@ -1,4 +1,4 @@
-use crate::{binary::RippleCarryAdder, errors::IntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{binary::RippleCarryAdder, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -46,7 +46,7 @@ add_uint_impl!(UInt8, UInt16, UInt32, UInt64, UInt128);
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(
         impl Add for $gadget {
-            type ErrorType = IntegerError;
+            type ErrorType = SignedIntegerError;
 
             fn add<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, Self::ErrorType> {
                 // Compute the maximum value of the sum
@@ -62,7 +62,7 @@ macro_rules! add_int_impl {
                          // check for addition overflow here
                          let val = match a.checked_add(b) {
                             Some(val) => val,
-                            None => return Err(IntegerError::Overflow)
+                            None => return Err(SignedIntegerError::Overflow)
                          };
 
                         Some(val)

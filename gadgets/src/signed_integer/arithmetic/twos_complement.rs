@@ -1,4 +1,4 @@
-use crate::{binary::RippleCarryAdder, errors::IntegerError, signed_integer::*};
+use crate::{binary::RippleCarryAdder, errors::SignedIntegerError, signed_integer::*};
 
 use snarkos_models::{
     curves::PrimeField,
@@ -11,11 +11,11 @@ where
     Self: std::marker::Sized,
 {
     #[must_use]
-    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, IntegerError>;
+    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, SignedIntegerError>;
 }
 
 impl TwosComplement for Vec<Boolean> {
-    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, IntegerError> {
+    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, SignedIntegerError> {
         // flip all bits
         let flipped: Self = self.iter().map(|bit| bit.not()).collect();
 
@@ -35,34 +35,20 @@ macro_rules! twos_comp_int_impl {
         impl TwosComplement for $gadget {
             fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(
                 &self,
-                mut cs: CS
-            ) -> Result<Self, IntegerError> {
+                cs: CS
+            ) -> Result<Self, SignedIntegerError> {
                 let value = match self.value {
                     Some(val) => {
                         match val.checked_neg() {
                             Some(val_neg) => Some(val_neg),
-                            None => return Err(IntegerError::Overflow) // -0 should fail
+                            None => return Err(SignedIntegerError::Overflow) // -0 should fail
                         }
                     }
                     None => None,
                 };
 
-                // flip all bits
-                let flipped_bits = self.bits
-                    .iter()
-                    .map(|bit| bit.not())
-                    .collect();
-
-                let flipped = Self {
-                    bits: flipped_bits,
-                    value,
-                };
-
-                // add one
-                let one = Self::one();
-
-                let mut bits = flipped.add_bits(cs.ns(|| format!("add one")), &one)?;
-                let _carry = bits.pop(); // we already accounted for overflow above
+                // calculate two's complement
+                let bits = self.bits.twos_comp(cs)?;
 
                 Ok(Self {
                     bits,

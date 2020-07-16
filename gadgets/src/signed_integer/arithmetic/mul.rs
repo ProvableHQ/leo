@@ -1,6 +1,6 @@
 use crate::{
     binary::RippleCarryAdder,
-    errors::IntegerError,
+    errors::SignedIntegerError,
     sign_extend::SignExtend,
     Int,
     Int128,
@@ -30,13 +30,13 @@ where
     Self: std::marker::Sized,
 {
     #[must_use]
-    fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, IntegerError>;
+    fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, SignedIntegerError>;
 }
 
 macro_rules! mul_int_impl {
     ($($gadget: ident)*) => ($(
         impl Mul for $gadget {
-            fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, IntegerError> {
+            fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, SignedIntegerError> {
                 // Conditionally select constant result
                 let is_constant = Boolean::constant(Self::result_is_constant(&self, &other));
                 let allocated_false = Boolean::from(AllocatedBit::alloc(&mut cs.ns(|| "false"), || Ok(false)).unwrap());
@@ -98,7 +98,7 @@ macro_rules! mul_int_impl {
                          // check for multiplication overflow here
                          let val = match a.checked_mul(b) {
                             Some(val) => val,
-                            None => return Err(IntegerError::Overflow)
+                            None => return Err(SignedIntegerError::Overflow)
                          };
 
                         Some(val)

@@ -1,6 +1,6 @@
 use crate::{
     binary::ComparatorGadget,
-    errors::IntegerError,
+    errors::SignedIntegerError,
     signed_integer::arithmetic::*,
     Int,
     Int128,
@@ -29,7 +29,7 @@ where
     Self: std::marker::Sized,
 {
     #[must_use]
-    fn div<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, IntegerError>;
+    fn div<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, SignedIntegerError>;
 }
 
 macro_rules! div_int_impl {
@@ -39,7 +39,7 @@ macro_rules! div_int_impl {
                 &self,
                 mut cs: CS,
                 other: &Self
-            ) -> Result<Self, IntegerError> {
+            ) -> Result<Self, SignedIntegerError> {
                 // N / D pseudocode:
                 //
                 // if D = 0 then error(DivisionByZeroException) end
@@ -64,7 +64,7 @@ macro_rules! div_int_impl {
                 //    !Q                      -- negative result
 
                 if other.eq(&Self::constant(0 as <$gadget as Int>::IntegerType)) {
-                    return Err(IntegerError::DivisionByZero);
+                    return Err(SignedIntegerError::DivisionByZero);
                 }
 
                 let is_constant = Boolean::constant(Self::result_is_constant(&self, &other));
