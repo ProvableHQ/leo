@@ -74,7 +74,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let difference = r1.wrapping_sub(r2);
+                    let difference = match r1.checked_sub(r2) {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
 
                     let cs = TestConstraintSystem::<Fq>::new();
                     let difference_allocated = <$gadget>::alloc(cs, || Ok(difference)).unwrap();

@@ -29,28 +29,80 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt64) {
     }
 }
 
+test_uint!(TestU64, u64, IntegerType::U64Type(U64Type {}), UInt64);
+
 #[test]
-#[ignore] //temporarily ignore memory expensive tests for travis
-fn test_u64() {
-    test_uint!(Testu64, u64, IntegerType::U64Type(U64Type {}), UInt64);
+fn test_u64_min() {
+    TestU64::test_min(std::u64::MIN);
+}
 
-    Testu64::test_min(std::u64::MIN);
-    Testu64::test_max(std::u64::MAX);
+#[test]
+fn test_u64_max() {
+    TestU64::test_max(std::u64::MAX);
+}
 
-    Testu64::test_input();
+#[test]
+fn test_u64_input() {
+    TestU64::test_input();
+}
 
-    Testu64::test_add();
-    // Testu64::test_sub(); //Todo: Catch subtraction overflow error in gadget
-    Testu64::test_mul();
-    Testu64::test_div();
-    Testu64::test_pow(); // takes ~2mins
+#[test]
+fn test_u64_add() {
+    TestU64::test_add();
+}
 
-    Testu64::test_eq();
-    Testu64::test_ge();
-    Testu64::test_gt();
-    Testu64::test_le();
-    Testu64::test_gt();
+#[test]
+fn test_u64_sub() {
+    TestU64::test_sub();
+}
 
-    Testu64::test_assert_eq();
-    Testu64::test_ternary();
+#[test]
+fn test_u64_mul() {
+    TestU64::test_mul();
+}
+
+#[test]
+fn test_u64_div() {
+    TestU64::test_div();
+}
+
+#[test]
+#[ignore] // this test takes ~7 mins
+fn test_u64_pow() {
+    TestU64::test_pow();
+}
+
+#[test]
+fn test_u64_eq() {
+    TestU64::test_eq();
+}
+
+#[test]
+fn test_u64_ge() {
+    TestU64::test_ge();
+}
+
+#[test]
+fn test_u64_gt() {
+    TestU64::test_gt();
+}
+
+#[test]
+fn test_u64_le() {
+    TestU64::test_le();
+}
+
+#[test]
+fn test_u64_lt() {
+    TestU64::test_lt();
+}
+
+#[test]
+fn test_u64_assert_eq() {
+    TestU64::test_assert_eq();
+}
+
+#[test]
+fn test_u64_ternary() {
+    TestU64::test_ternary();
 }
