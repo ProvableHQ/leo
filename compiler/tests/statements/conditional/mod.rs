@@ -35,17 +35,26 @@ fn test_assert() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1))]);
+    program_1_pass.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        1.to_string(),
+    ))]);
     empty_output_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0))]);
+    program_0_pass.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        0.to_string(),
+    ))]);
     empty_output_satisfied(program_0_pass);
 
     // Check that an input value of 2 does not satisfy the constraint system
 
-    program_2_fail.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2))]);
+    program_2_fail.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        2.to_string(),
+    ))]);
     let mut cs = TestConstraintSystem::<Fq>::new();
     let _output = program_2_fail.compile_constraints(&mut cs).unwrap();
     assert!(!cs.is_satisfied());
@@ -59,12 +68,18 @@ fn test_mutate() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_true.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1))]);
+    program_1_true.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        1.to_string(),
+    ))]);
     output_one(program_1_true);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0))]);
+    program_0_pass.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        0.to_string(),
+    ))]);
     output_zero(program_0_pass);
 }
 
@@ -93,15 +108,24 @@ fn test_chain() {
     let mut program_2_3 = program_1_1.clone();
 
     // Check that an input of 1 outputs true
-    program_1_1.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1))]);
+    program_1_1.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        1.to_string(),
+    ))]);
     output_number(program_1_1, 1u32);
 
     // Check that an input of 0 outputs true
-    program_2_2.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2))]);
+    program_2_2.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        2.to_string(),
+    ))]);
     output_number(program_2_2, 2u32);
 
     // Check that an input of 0 outputs true
-    program_2_3.set_inputs(vec![Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 5))]);
+    program_2_3.set_inputs(vec![Some(InputValue::Integer(
+        IntegerType::U32Type(U32Type {}),
+        5.to_string(),
+    ))]);
     output_number(program_2_3, 3u32);
 }
 

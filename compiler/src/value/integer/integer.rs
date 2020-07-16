@@ -50,10 +50,6 @@ impl fmt::Display for Integer {
 }
 
 impl Integer {
-    pub fn from_implicit(number: String) -> Self {
-        Integer::U128(UInt128::constant(number.parse::<u128>().expect("unable to parse u128")))
-    }
-
     pub fn new_constant(integer_type: &IntegerType, string: String, span: Span) -> Result<Self, IntegerError> {
         match integer_type {
             IntegerType::U8 => {
@@ -130,6 +126,11 @@ impl Integer {
         }
     }
 
+    pub fn get_bits(&self) -> Vec<Boolean> {
+        let integer = self;
+        match_integer!(integer => integer.get_bits())
+    }
+
     pub fn get_value(&self) -> Option<String> {
         let integer = self;
         match_integer!(integer => integer.get_value())
@@ -141,11 +142,6 @@ impl Integer {
             .parse::<usize>()
             .map_err(|_| IntegerError::invalid_integer(value, span))?;
         Ok(value_usize)
-    }
-
-    pub fn to_bits_le(&self) -> Vec<Boolean> {
-        let integer = self;
-        match_integer!(integer => integer.get_bits())
     }
 
     pub fn get_type(&self) -> IntegerType {
@@ -449,15 +445,15 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
 
 impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
     fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        if self.to_bits_le().len() != other.to_bits_le().len() {
+        if self.get_bits().len() != other.get_bits().len() {
             return Err(SynthesisError::Unsatisfiable);
         }
 
         for (i, (self_bit, other_bit)) in self
-            .to_bits_le()
+            .get_bits()
             .iter()
             .rev()
-            .zip(other.to_bits_le().iter().rev())
+            .zip(other.get_bits().iter().rev())
             .enumerate()
         {
             // is_greater = a & !b
@@ -472,7 +468,7 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
                 return Ok(is_greater.not());
             } else if is_less.get_value().unwrap() {
                 return Ok(is_less);
-            } else if i == self.to_bits_le().len() - 1 {
+            } else if i == self.get_bits().len() - 1 {
                 return Ok(is_less);
             }
         }

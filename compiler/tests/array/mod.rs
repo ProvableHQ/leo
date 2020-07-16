@@ -55,7 +55,7 @@ fn fail_array(program: EdwardsTestCompiler) {
 }
 
 pub(crate) fn input_value_u32_one() -> InputValue {
-    InputValue::Integer(IntegerType::U32Type(U32Type {}), 1)
+    InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())
 }
 
 // Expressions

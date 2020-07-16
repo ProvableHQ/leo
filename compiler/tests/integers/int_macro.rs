@@ -1,4 +1,4 @@
-macro_rules! test_uint {
+macro_rules! test_int {
     ($name: ident, $_type: ty, $integer_type: expr, $gadget: ty) => {
         pub struct $name {}
 
@@ -52,7 +52,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let sum = r1.wrapping_add(r2);
+                    let sum = match r1.checked_add(r2) {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
 
                     let cs = TestConstraintSystem::<Fq>::new();
                     let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
@@ -99,7 +102,10 @@ macro_rules! test_uint {
                     let r1: $_type = rand::random();
                     let r2: $_type = rand::random();
 
-                    let product = r1.wrapping_mul(r2);
+                    let product = match r1.checked_mul(r2) {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
 
                     let cs = TestConstraintSystem::<Fq>::new();
                     let product_allocated = <$gadget>::alloc(cs, || Ok(product)).unwrap();
@@ -134,7 +140,11 @@ macro_rules! test_uint {
                         let _err = get_error(program);
                     } else {
                         let cs = TestConstraintSystem::<Fq>::new();
-                        let quotient = r1.wrapping_div(r2);
+
+                        let quotient = match r1.checked_div(r2) {
+                            Some(valid) => valid,
+                            None => continue,
+                        };
                         let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
 
                         output_expected_allocated(program, quotient_allocated);
@@ -148,7 +158,10 @@ macro_rules! test_uint {
                 let r2: $_type = rand::random();
                 let r2 = r2 as u32; // we cast to u32 here because of rust pow() requirements
 
-                let result = r1.wrapping_pow(r2);
+                let result = match r1.checked_pow(r2) {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
 
                 let cs = TestConstraintSystem::<Fq>::new();
                 let result_allocated = <$gadget>::alloc(cs, || Ok(result)).unwrap();
