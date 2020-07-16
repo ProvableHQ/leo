@@ -12,6 +12,7 @@ use snarkos_models::{
     curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
+use std::cmp::Ordering;
 
 macro_rules! cmp_gadget_impl {
     ($($gadget: ident)*) => ($(
@@ -64,6 +65,12 @@ macro_rules! cmp_gadget_impl {
         }
 
         impl<F: PrimeField> ComparatorGadget<F> for $gadget {}
+
+        impl PartialOrd for $gadget {
+            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+                Option::from(self.value.cmp(&other.value))
+            }
+        }
     )*)
 }
 
