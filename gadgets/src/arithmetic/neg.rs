@@ -6,7 +6,7 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-/// Returns a negated representation of the given signed integer.
+/// Returns a negated representation of `self` in the constraint system.
 pub trait Neg<F: Field>
 where
     Self: std::marker::Sized,

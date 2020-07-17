@@ -1,6 +1,6 @@
 use snarkos_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
 
-/// Returns division of two gadgets in the constraint system
+/// Returns division of `self` / `other` in the constraint system.
 pub trait Div<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,

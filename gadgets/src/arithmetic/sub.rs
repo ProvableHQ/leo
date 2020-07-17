@@ -1,6 +1,6 @@
 use snarkos_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
 
-/// Subtraction for a signed integer gadget
+/// Returns subtraction of `self` - `other` in the constraint system.
 pub trait Sub<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,

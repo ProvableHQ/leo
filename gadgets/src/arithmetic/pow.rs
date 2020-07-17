@@ -1,6 +1,6 @@
 use snarkos_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
 
-/// Exponentiation for a signed integer gadget
+/// Returns exponentiation of `self` ** `other` in the constraint system.
 pub trait Pow<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,

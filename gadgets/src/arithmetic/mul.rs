@@ -1,6 +1,6 @@
 use snarkos_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
 
-/// Returns multiplication of two gadgets in the constraint system
+/// Returns multiplication of `self` * `other` in the constraint system.
 pub trait Mul<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,

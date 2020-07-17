@@ -3,8 +3,6 @@ extern crate thiserror;
 
 pub mod arithmetic;
 
-pub mod big_integer;
-
 pub mod bits;
 
 pub mod errors;

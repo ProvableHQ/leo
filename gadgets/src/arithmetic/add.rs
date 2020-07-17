@@ -7,7 +7,7 @@ use snarkos_models::{
     },
 };
 
-/// Returns addition of two gadgets in the constraint system
+/// Returns addition of `self` + `other` in the constraint system.
 pub trait Add<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,
