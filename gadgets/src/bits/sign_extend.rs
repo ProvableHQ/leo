@@ -1,7 +1,7 @@
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 
 /// Sign extends an array of bits to the desired length.
-/// Least significant bit first
+/// Expects least significant bit first
 pub trait SignExtend
 where
     Self: std::marker::Sized,

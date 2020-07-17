@@ -23,10 +23,25 @@ use snarkos_models::{
 
 macro_rules! mul_int_impl {
     ($($gadget: ident)*) => ($(
+        /// Bitwise multiplication of two signed integer objects.
         impl<F: PrimeField> Mul<F> for $gadget {
+
             type ErrorType = SignedIntegerError;
 
             fn mul<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, Self::ErrorType> {
+                // pseudocode:
+                //
+                // res = 0;
+                // for (i, bit) in other.bits.enumerate() {
+                //   shifted_self = self << i;
+                //
+                //   if bit {
+                //     res += shifted_self;
+                //   }
+                // }
+                // return res
+
+
                 // Conditionally select constant result
                 let is_constant = Boolean::constant(Self::result_is_constant(&self, &other));
                 let allocated_false = Boolean::from(AllocatedBit::alloc(&mut cs.ns(|| "false"), || Ok(false)).unwrap());
