@@ -20,9 +20,6 @@ pub fn evaluate_le<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             num_1.less_than_or_equal(unique_namespace, &num_2)
         }
-        (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-            field_1.less_than_or_equal(unique_namespace, &field_2)
-        }
         (ConstrainedValue::Unresolved(string), val_2) => {
             let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
             return evaluate_le(&mut unique_namespace, val_1, val_2, span);

@@ -55,7 +55,7 @@ macro_rules! cmp_gadget_impl {
                     // evaluate a <= b
                     let less_or_equal = Boolean::or(cs.ns(|| format!("less or equal [{}]", i)), &less, &equal)?;
 
-                    // select the current result if it is the first bit difference
+                    // If `all_equal` is `true`, sets `result` to `less_or_equal`. Else, sets `result` to `result`.
                     result = Boolean::conditionally_select(cs.ns(|| format!("select bit [{}]", i)), &all_equal, &less_or_equal, &result)?;
 
                     // keep track of equal bits

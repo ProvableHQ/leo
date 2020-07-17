@@ -11,11 +11,13 @@ protected_name = {
     | "function"
     | "for"
     | "if"
+    | "import"
     | "in"
     | "let"
     | "mut"
     | "return"
     | "static"
+    | "test"
     | "true"
  }
 

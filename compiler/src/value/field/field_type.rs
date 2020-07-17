@@ -1,7 +1,6 @@
 //! A data type that represents a field value
 
 use crate::errors::FieldError;
-use leo_gadgets::bits::{ComparatorGadget, EvaluateLtGadget};
 use leo_types::Span;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -21,7 +20,6 @@ use snarkos_models::{
         },
     },
 };
-use snarkos_utilities::BigInteger;
 
 use std::{borrow::Borrow, cmp::Ordering};
 
@@ -214,72 +212,6 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
         }
     }
 }
-
-/// Returns true if any bit is true
-fn not_all_zeros<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-    bits: &[Boolean],
-    mut cs: CS,
-) -> Result<Boolean, SynthesisError> {
-    let mut result = Boolean::constant(false);
-
-    for (i, b) in bits.iter().enumerate() {
-        result = Boolean::or(cs.ns(|| format!("result or bit [{}]", i)), &result, b)?;
-    }
-
-    Ok(result)
-}
-
-/// Returns true if A < B
-impl<F: Field + PrimeField> EvaluateLtGadget<F> for FieldType<F> {
-    /*
-     packed(alpha) = 2^n + B - A
-     not_all_zeros = \bigvee_{i=0}^{n-1} alpha_i
-     if B - A > 0, then 2^n + B - A > 2^n,
-         so alpha_n = 1 and not_all_zeros = 1
-     if B - A = 0, then 2^n + B - A = 2^n,
-         so alpha_n = 1 and not_all_zeros = 0
-     if B - A < 0, then 2^n + B - A \in {0, 1, \ldots, 2^n-1},
-         so alpha_n = 0
-     therefore less_than = alpha_n * not_all_zeros
-    */
-    fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        // B - A
-        let alpha: FpGadget<F> = match (self, other) {
-            (FieldType::Constant(a), FieldType::Constant(b)) => {
-                let cmp = a < b;
-                return Ok(Boolean::constant(cmp));
-            }
-            (FieldType::Constant(a), FieldType::Allocated(b)) => b.sub_constant(cs.ns(|| "alpha"), &a)?,
-            (FieldType::Allocated(a), FieldType::Constant(b)) => {
-                let a_neg = a.negate(cs.ns(|| "a neg"))?;
-                a_neg.add_constant(cs.ns(|| "alpha"), &b)?
-            }
-            (FieldType::Allocated(a), FieldType::Allocated(b)) => b.sub(cs.ns(|| "alpha"), a)?,
-        };
-
-        // not_all_zeros = \bigvee_{i=0}^{n-1} alpha_i
-        let alpha_bits = alpha.to_bits(cs.ns(|| "alpha to bits"))?;
-        let not_all_zeroes = not_all_zeros(&alpha_bits, cs.ns(|| "not all zeroes"))?;
-
-        // 2^n
-        let n = F::size_in_bits() - 1;
-        let mut base_big_int = F::BigInt::from(1u64);
-        base_big_int.muln(n as u32);
-        let base = F::from_repr(base_big_int);
-
-        // packed(alpha) = 2^n + B - A
-        let packed_alpha = alpha.add_constant(cs.ns(|| "packed alpha"), &base)?;
-
-        // less_than = alpha_n * not_all_zeros
-        let packed_alpha_bits = packed_alpha.to_bits(cs.ns(|| "packed alpha to bits"))?;
-        let alpha_n = packed_alpha_bits.first().unwrap();
-        let result = Boolean::and(cs.ns(|| "alpha_n and not all zeroes"), alpha_n, &not_all_zeroes)?;
-
-        Ok(result)
-    }
-}
-
-impl<F: Field + PrimeField> ComparatorGadget<F> for FieldType<F> {}
 
 impl<F: Field + PrimeField> EqGadget<F> for FieldType<F> {}
 

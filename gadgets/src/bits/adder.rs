@@ -5,6 +5,7 @@ use snarkos_models::{
 };
 
 /// Single bit binary adder with carry bit
+/// https://en.wikipedia.org/wiki/Adder_(electronics)#Full_adder
 /// sum = (a XOR b) XOR carry
 /// carry = a AND b OR carry AND (a XOR b)
 /// Returns (sum, carry)

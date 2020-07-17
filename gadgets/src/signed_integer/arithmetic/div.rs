@@ -113,11 +113,10 @@ macro_rules! div_int_impl {
                 let mut q = zero.clone();
                 let mut r = zero.clone();
 
-                for (i, bit) in a.bits.iter().rev().enumerate() {
-                    if i == 0 {
-                        // skip the sign bit
-                        continue;
-                    }
+                let mut index = <$gadget as Int>::SIZE - 1 as usize;
+                let mut bit_value = (1 as <$gadget as Int>::IntegerType) << ((index - 1) as <$gadget as Int>::IntegerType);
+
+                for (i, bit) in a.bits.iter().rev().enumerate().skip(1) {
 
                     // Left shift remainder by 1
                     r = r.add(
@@ -157,11 +156,13 @@ macro_rules! div_int_impl {
                         &r
                     )?;
 
-                    let index = <$gadget as Int>::SIZE - 1 - i as usize;
-                    let bit_value = (1 as <$gadget as Int>::IntegerType) << (index as <$gadget as Int>::IntegerType);
+                    index = index - 1;
+
                     let mut q_new = q.clone();
                     q_new.bits[index] = true_bit.clone();
                     q_new.value = Some(q_new.value.unwrap() + bit_value);
+
+                    bit_value = (bit_value >> 1);
 
                     q = Self::conditionally_select(
                         &mut cs.ns(|| format!("set_bit_or_same_{}", i)),
