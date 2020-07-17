@@ -1,3 +1,3 @@
 function main() -> i32 {
-  return 2147483647
+    return 2147483647
 }

@@ -1,3 +1,3 @@
 function main() {
-  my_function();
+    my_function();
 }

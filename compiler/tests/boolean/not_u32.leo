@@ -1,3 +1,3 @@
 function main() -> bool {
-  return !1u32
+    return !1u32
 }

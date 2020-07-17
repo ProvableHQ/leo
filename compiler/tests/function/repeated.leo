@@ -1,7 +1,7 @@
 function one() -> bool {
-  return true
+    return true
 }
 
 function main() -> bool {
-  return one() && one()
+    return one() && one()
 }

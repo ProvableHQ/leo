@@ -1,8 +1,8 @@
 function tuple() -> (bool, bool) {
-  return (true, false)
+    return (true, false)
 }
 
 function main() -> (bool, bool) {
-  let (a, b) = tuple();
-  return (a, b)
+    let (a, b) = tuple();
+    return (a, b)
 }

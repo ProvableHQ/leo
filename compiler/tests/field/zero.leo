@@ -1,3 +1,3 @@
 function main() -> field {
-  return 0field
+    return 0field
 }

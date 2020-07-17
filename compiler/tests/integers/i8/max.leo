@@ -1,3 +1,3 @@
 function main() -> i8 {
-  return 127
+    return 127
 }

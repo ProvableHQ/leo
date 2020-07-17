@@ -28,10 +28,10 @@ fn test_undefined() {
             assert_eq!(
                 format!("{}", error),
                 vec![
-                    "    --> \"/test/src/main.leo\": 2:10",
+                    "    --> \"/test/src/main.leo\": 2:12",
                     "     |",
-                    "   2 |    return a",
-                    "     |           ^",
+                    "   2 |      return a",
+                    "     |             ^",
                     "     |",
                     "     = cannot find value `a` in this scope",
                 ]

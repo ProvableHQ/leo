@@ -1,5 +1,5 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
+    boolean::{output_expected_boolean, output_true},
     get_error,
     get_output,
     parse_program,

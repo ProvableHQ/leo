@@ -1,8 +1,8 @@
 function foo() -> field {
-  return myGlobal
+    return myGlobal
 }
 
 function main() -> field {
-  const myGlobal = 42field;
-  return foo()
+    const myGlobal = 42field;
+    return foo()
 }

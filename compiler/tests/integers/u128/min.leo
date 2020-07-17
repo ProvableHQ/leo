@@ -1,3 +1,3 @@
 function main() -> u128 {
-  return 0
+    return 0
 }

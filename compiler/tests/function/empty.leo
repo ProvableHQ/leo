@@ -1,5 +1,5 @@
 function empty() { }
 
 function main() {
-  empty();
+    empty();
 }
