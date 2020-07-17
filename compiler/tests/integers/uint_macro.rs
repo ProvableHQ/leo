@@ -1,9 +1,9 @@
 macro_rules! test_uint {
-    ($name: ident, $_type: ty, $integer_type: expr, $gadget: ty) => {
+    ($name: ident, $type_: ty, $integer_type: expr, $gadget: ty) => {
         pub struct $name {}
 
         impl $name {
-            fn test_min(min: $_type) {
+            fn test_min(min: $type_) {
                 let min_allocated = <$gadget>::constant(min);
 
                 let bytes = include_bytes!("min.leo");
@@ -12,7 +12,7 @@ macro_rules! test_uint {
                 output_expected_allocated(program, min_allocated);
             }
 
-            fn test_max(max: $_type) {
+            fn test_max(max: $type_) {
                 let max_allocated = <$gadget>::constant(max);
 
                 let bytes = include_bytes!("max.leo");
@@ -25,7 +25,7 @@ macro_rules! test_uint {
         impl IntegerTester for $name {
             fn test_input() {
                 // valid input
-                let num: $_type = rand::random();
+                let num: $type_ = rand::random();
                 let expected = <$gadget>::constant(num);
 
                 let bytes = include_bytes!("input.leo");
@@ -49,8 +49,8 @@ macro_rules! test_uint {
 
             fn test_add() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
-                    let r2: $_type = rand::random();
+                    let r1: $type_ = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let sum = r1.wrapping_add(r2);
 
@@ -71,8 +71,8 @@ macro_rules! test_uint {
 
             fn test_sub() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
-                    let r2: $_type = rand::random();
+                    let r1: $type_ = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let difference = match r1.checked_sub(r2) {
                         Some(valid) => valid,
@@ -96,8 +96,8 @@ macro_rules! test_uint {
 
             fn test_mul() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
-                    let r2: $_type = rand::random();
+                    let r1: $type_ = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let product = r1.wrapping_mul(r2);
 
@@ -118,8 +118,8 @@ macro_rules! test_uint {
 
             fn test_div() {
                 // for _ in 0..10 {// these loops take an excessive amount of time
-                let r1: $_type = rand::random();
-                let r2: $_type = rand::random();
+                let r1: $type_ = rand::random();
+                let r2: $type_ = rand::random();
 
                 let bytes = include_bytes!("div.leo");
                 let mut program = parse_program(bytes).unwrap();
@@ -144,8 +144,8 @@ macro_rules! test_uint {
 
             fn test_pow() {
                 // for _ in 0..10 {// these loops take an excessive amount of time
-                let r1: $_type = rand::random();
-                let r2: $_type = rand::random();
+                let r1: $type_ = rand::random();
+                let r2: $type_ = rand::random();
                 let r2 = r2 as u32; // we cast to u32 here because of rust pow() requirements
 
                 let result = r1.wrapping_pow(r2);
@@ -167,7 +167,7 @@ macro_rules! test_uint {
 
             fn test_eq() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("eq.leo");
@@ -181,7 +181,7 @@ macro_rules! test_uint {
                     output_true(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let result = r1.eq(&r2);
 
@@ -198,7 +198,7 @@ macro_rules! test_uint {
 
             fn test_ge() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("ge.leo");
@@ -212,7 +212,7 @@ macro_rules! test_uint {
                     output_true(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let result = r1.ge(&r2);
 
@@ -229,7 +229,7 @@ macro_rules! test_uint {
 
             fn test_gt() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("gt.leo");
@@ -243,7 +243,7 @@ macro_rules! test_uint {
                     output_false(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let result = r1.gt(&r2);
 
@@ -260,7 +260,7 @@ macro_rules! test_uint {
 
             fn test_le() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("le.leo");
@@ -274,7 +274,7 @@ macro_rules! test_uint {
                     output_true(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let result = r1.le(&r2);
 
@@ -291,7 +291,7 @@ macro_rules! test_uint {
 
             fn test_lt() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("lt.leo");
@@ -304,7 +304,7 @@ macro_rules! test_uint {
                     output_false(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     let result = r1.lt(&r2);
 
@@ -321,7 +321,7 @@ macro_rules! test_uint {
 
             fn test_assert_eq() {
                 for _ in 0..10 {
-                    let r1: $_type = rand::random();
+                    let r1: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("assert_eq.leo");
@@ -335,7 +335,7 @@ macro_rules! test_uint {
                     let _ = get_output(program);
 
                     // test not equal
-                    let r2: $_type = rand::random();
+                    let r2: $type_ = rand::random();
 
                     if r1 == r2 {
                         continue;
@@ -355,8 +355,8 @@ macro_rules! test_uint {
             }
 
             fn test_ternary() {
-                let r1: $_type = rand::random();
-                let r2: $_type = rand::random();
+                let r1: $type_ = rand::random();
+                let r2: $type_ = rand::random();
 
                 let g1 = <$gadget>::constant(r1);
                 let g2 = <$gadget>::constant(r2);
