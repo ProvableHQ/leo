@@ -101,7 +101,7 @@ macro_rules! div_int_impl {
                 let positive = a_msb.evaluate_equal(cs.ns(|| "compare_msb"), &b_msb)?;
 
                 // Get the absolute value of each number
-                let a_comp = self.twos_comp(&mut cs.ns(|| "a_twos_comp"))?;
+                let a_comp = self.neg(&mut cs.ns(|| "a_neg"))?;
                 let a = Self::conditionally_select(
                     &mut cs.ns(|| "a_abs"),
                     &a_msb,
@@ -109,7 +109,7 @@ macro_rules! div_int_impl {
                     &self
                 )?;
 
-                let b_comp = other.twos_comp(&mut cs.ns(|| "b_twos_comp"))?;
+                let b_comp = other.neg(&mut cs.ns(|| "b_neg"))?;
                 let b = Self::conditionally_select(
                     &mut cs.ns(|| "b_abs"),
                     &b_msb,
@@ -179,7 +179,7 @@ macro_rules! div_int_impl {
 
                 }
 
-                let q_neg = q.twos_comp(&mut cs.ns(|| "twos comp"))?;
+                let q_neg = q.neg(&mut cs.ns(|| "negate"))?;
 
                 q = Self::conditionally_select(
                     &mut cs.ns(|| "positive or negative"),

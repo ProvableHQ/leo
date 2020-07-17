@@ -8,8 +8,8 @@ pub use self::div::*;
 pub mod mul;
 pub use self::mul::*;
 
-pub mod twos_complement;
-pub use self::twos_complement::*;
+pub mod neg;
+pub use self::neg::*;
 
 pub mod pow;
 pub use self::pow::*;

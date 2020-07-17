@@ -5,17 +5,17 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-/// Inverts the given number and adds 1 to the lsb of the result
-pub trait TwosComplement
+/// Returns a negated representation of the given signed integer.
+pub trait Negate
 where
     Self: std::marker::Sized,
 {
     #[must_use]
-    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, SignedIntegerError>;
+    fn neg<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, SignedIntegerError>;
 }
 
-impl TwosComplement for Vec<Boolean> {
-    fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, SignedIntegerError> {
+impl Negate for Vec<Boolean> {
+    fn neg<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, SignedIntegerError> {
         // flip all bits
         let flipped: Self = self.iter().map(|bit| bit.not()).collect();
 
@@ -32,8 +32,8 @@ impl TwosComplement for Vec<Boolean> {
 
 macro_rules! twos_comp_int_impl {
     ($($gadget: ident)*) => ($(
-        impl TwosComplement for $gadget {
-            fn twos_comp<F: PrimeField, CS: ConstraintSystem<F>>(
+        impl Negate for $gadget {
+            fn neg<F: PrimeField, CS: ConstraintSystem<F>>(
                 &self,
                 cs: CS
             ) -> Result<Self, SignedIntegerError> {
@@ -48,7 +48,7 @@ macro_rules! twos_comp_int_impl {
                 };
 
                 // calculate two's complement
-                let bits = self.bits.twos_comp(cs)?;
+                let bits = self.bits.neg(cs)?;
 
                 Ok(Self {
                     bits,
