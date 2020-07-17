@@ -60,7 +60,6 @@ fn test_i64_mul() {
 }
 
 #[test]
-// #[ignore] // this test takes ~1 min
 fn test_i64_div() {
     TestI64::test_div();
 }

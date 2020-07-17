@@ -10,12 +10,16 @@ use crate::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, select::CondSelectGadget},
+    },
 };
 use std::cmp::Ordering;
 
 macro_rules! cmp_gadget_impl {
     ($($gadget: ident)*) => ($(
+        /* Bitwise less than comparison of two signed integers */
         impl<F: PrimeField> EvaluateLtGadget<F> for $gadget {
             fn less_than<CS: ConstraintSystem<F>>(
                 &self,
@@ -23,47 +27,48 @@ macro_rules! cmp_gadget_impl {
                 other: &Self
             ) -> Result<Boolean, SynthesisError> {
 
-                for (i, (a, b)) in self.bits
+                let mut result = Boolean::constant(true);
+                let mut all_equal = Boolean::constant(true);
+
+                // msb -> lsb
+                for (i, (a, b)) in self
+                    .bits
                     .iter()
                     .rev()
                     .zip(other.bits.iter().rev())
                     .enumerate()
                 {
-                    let is_greater = if i == 0 {
-                        // Check sign bit
-                        // is_greater = !a_msb & b_msb
-                        // only true when a > b
-                        Boolean::and(cs.ns(|| format!("not a and b [{}]", i)), &a.not(), b)?
-                    } else {
-                        // is_greater = a & !b
-                        // only true when a > b
-                        Boolean::and(cs.ns(|| format!("a and not b [{}]", i)), a, &b.not())?
-                    };
 
-                    let is_less = if i == 0 {
-                        // Check sign bit
-                        // is_less = a_msb & ! b_msb
-                        // only true when a < b
+                    // check msb signed bit
+                    let less = if i == 0 {
+                        // a == 1 & b == 0
                         Boolean::and(cs.ns(|| format!("a and not b [{}]", i)), a, &b.not())?
                     } else {
-                        // is_less = !a & b
-                        // only true when a < b
+                        // a == 0 & b == 1
                         Boolean::and(cs.ns(|| format!("not a and b [{}]", i)), &a.not(), b)?
                     };
 
-                    if is_greater.get_value().unwrap() {
-                        return Ok(is_greater.not());
-                    } else if is_less.get_value().unwrap() {
-                        return Ok(is_less);
-                    } else if i == self.bits.len() - 1 {
-                        return Ok(is_less);
-                    }
+                    // a == b = !(a ^ b)
+                    let not_equal = Boolean::xor(cs.ns(|| format!("a XOR b [{}]", i)), a, b)?;
+                    let equal = not_equal.not();
+
+                    // evaluate a <= b
+                    let less_or_equal = Boolean::or(cs.ns(|| format!("less or equal [{}]", i)), &less, &equal)?;
+
+                    // select the current result if it is the first bit difference
+                    result = Boolean::conditionally_select(cs.ns(|| format!("select bit [{}]", i)), &all_equal, &less_or_equal, &result)?;
+
+                    // keep track of equal bits
+                    all_equal = Boolean::and(cs.ns(|| format!("accumulate equal [{}]", i)), &all_equal, &equal)?;
                 }
 
-                Err(SynthesisError::Unsatisfiable)
+                result = Boolean::and(cs.ns(|| format!("false if all equal")), &result, &all_equal.not())?;
+
+                Ok(result)
             }
         }
 
+        /* Bitwise comparison of two unsigned integers */
         impl<F: PrimeField> ComparatorGadget<F> for $gadget {}
 
         impl PartialOrd for $gadget {

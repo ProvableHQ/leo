@@ -60,7 +60,6 @@ fn test_i128_mul() {
 }
 
 #[test]
-#[ignore] // this test takes ~5 mins
 fn test_i128_div() {
     TestI128::test_div();
 }

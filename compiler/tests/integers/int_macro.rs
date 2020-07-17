@@ -123,33 +123,33 @@ macro_rules! test_int {
             }
 
             fn test_div() {
-                for _ in 0..10 {
-                    let r1: $_type = rand::random();
-                    let r2: $_type = rand::random();
+                // for _ in 0..10 {// these loops take an excessive amount of time
+                let r1: $_type = rand::random();
+                let r2: $_type = rand::random();
 
-                    let bytes = include_bytes!("div.leo");
-                    let mut program = parse_program(bytes).unwrap();
+                let bytes = include_bytes!("div.leo");
+                let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
-                    ]);
+                program.set_inputs(vec![
+                    Some(InputValue::Integer($integer_type, r1.to_string())),
+                    Some(InputValue::Integer($integer_type, r2.to_string())),
+                ]);
 
-                    // expect an error when dividing by zero
-                    if r2 == 0 {
-                        let _err = get_error(program);
-                    } else {
-                        let cs = TestConstraintSystem::<Fq>::new();
+                // expect an error when dividing by zero
+                if r2 == 0 {
+                    let _err = get_error(program);
+                } else {
+                    let cs = TestConstraintSystem::<Fq>::new();
 
-                        let quotient = match r1.checked_div(r2) {
-                            Some(valid) => valid,
-                            None => continue,
-                        };
-                        let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
+                    let quotient = match r1.checked_div(r2) {
+                        Some(valid) => valid,
+                        None => return,
+                    };
+                    let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
 
-                        output_expected_allocated(program, quotient_allocated);
-                    }
+                    output_expected_allocated(program, quotient_allocated);
                 }
+                // }
             }
 
             fn test_pow() {
