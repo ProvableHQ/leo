@@ -1,9 +1,9 @@
-circuit Circ {
+circuit Foo {
   static function new() -> Self {
     return Self { }
   }
 }
 
-function main() -> Circ {
-  return Circ::new()
+function main() -> Foo {
+  return Foo::new()
 }

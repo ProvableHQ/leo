@@ -1,9 +1,9 @@
 // Circuits are immutable by default.
-circuit Circ {
+circuit Foo {
   x: u32
 }
 
 function main() {
-  let a = Circ { x: 1 };
+  let a = Foo { x: 1 };
   a.x = 0;
 }
