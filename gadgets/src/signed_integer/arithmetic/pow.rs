@@ -67,14 +67,12 @@ macro_rules! pow_int_impl {
                     let mul_by_self = result
                         .mul(cs.ns(|| format!("multiply_by_self_{}", i)), &self);
 
-                    if bit.get_value().unwrap() {
-                        result = Self::conditionally_select(
-                            &mut cs.ns(|| format!("mul_by_self_or_result_{}", i)),
-                            &bit,
-                            &mul_by_self?,
-                            &result,
-                        )?;
-                    }
+                    result = Self::conditionally_select(
+                        &mut cs.ns(|| format!("mul_by_self_or_result_{}", i)),
+                        &bit,
+                        &mul_by_self?,
+                        &result,
+                    )?;
 
                 }
                 Ok(result)
