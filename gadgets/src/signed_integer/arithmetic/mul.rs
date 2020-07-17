@@ -58,7 +58,7 @@ macro_rules! mul_int_impl {
                 // Compute double and add algorithm
                 for (i, b_bit) in b.iter().enumerate() {
                     // double
-                    let mut a_shifted = vec![false_bit.clone(); i];
+                    let mut a_shifted = vec![false_bit; i];
                     a_shifted.append(&mut a.clone());
                     a_shifted.truncate(size);
 
