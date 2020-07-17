@@ -584,8 +584,10 @@ dependencies = [
  "leo-inputs",
  "leo-types",
  "log",
+ "num-bigint",
  "pest",
  "rand",
+ "rand_xorshift",
  "sha2",
  "snarkos-curves",
  "snarkos-dpc",
@@ -693,6 +695,17 @@ name = "nias"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab250442c86f1850815b5d268639dff018c0627022bc1940eb2d642ca1ce12f0"
+
+[[package]]
+name = "num-bigint"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7f3fc75e3697059fb1bc465e3d8cca6cf92f56854f201158b3f9c77d5a3cfa0"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
 
 [[package]]
 name = "num-integer"
