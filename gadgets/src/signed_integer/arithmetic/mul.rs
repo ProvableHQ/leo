@@ -1,7 +1,7 @@
 use crate::{
-    binary::RippleCarryAdder,
+    arithmetic::Mul,
+    bits::{RippleCarryAdder, SignExtend},
     errors::SignedIntegerError,
-    sign_extend::SignExtend,
     Int,
     Int128,
     Int16,
@@ -21,22 +21,12 @@ use snarkos_models::{
     },
 };
 
-/// Multiplication for a signed integer gadget
-/// 1. Sign extend both integers to double precision.
-/// 2. Compute double and add.
-/// 3. Truncate to original bit size.
-pub trait Mul<Rhs = Self>
-where
-    Self: std::marker::Sized,
-{
-    #[must_use]
-    fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, SignedIntegerError>;
-}
-
 macro_rules! mul_int_impl {
     ($($gadget: ident)*) => ($(
-        impl Mul for $gadget {
-            fn mul<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, SignedIntegerError> {
+        impl<F: PrimeField> Mul<F> for $gadget {
+            type ErrorType = SignedIntegerError;
+
+            fn mul<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, Self::ErrorType> {
                 // Conditionally select constant result
                 let is_constant = Boolean::constant(Self::result_is_constant(&self, &other));
                 let allocated_false = Boolean::from(AllocatedBit::alloc(&mut cs.ns(|| "false"), || Ok(false)).unwrap());

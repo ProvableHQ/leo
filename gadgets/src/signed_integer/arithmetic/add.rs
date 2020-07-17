@@ -1,54 +1,32 @@
-use crate::{binary::RippleCarryAdder, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{
+    arithmetic::Add,
+    bits::RippleCarryAdder,
+    errors::SignedIntegerError,
+    Int,
+    Int128,
+    Int16,
+    Int32,
+    Int64,
+    Int8,
+};
 
-use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::{fp_parameters::FpParameters, Field, PrimeField},
+    curves::{fp_parameters::FpParameters, PrimeField},
     gadgets::{
         r1cs::{Assignment, ConstraintSystem, LinearCombination},
         utilities::{
             alloc::AllocGadget,
             boolean::{AllocatedBit, Boolean},
-            uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
         },
     },
 };
 
-/// Addition for a signed integer gadget
-pub trait Add<Rhs = Self>
-where
-    Self: std::marker::Sized,
-{
-    type ErrorType;
-
-    #[must_use]
-    fn add<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, Self::ErrorType>;
-}
-
-// Implement unsigned integers
-macro_rules! add_uint_impl {
-    ($($gadget: ident),*) => ($(
-        impl Add for $gadget {
-            type ErrorType = SynthesisError;
-
-            fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
-                &self,
-                cs: CS,
-                other: &Self
-            ) -> Result<Self, Self::ErrorType> {
-                <$gadget as UInt>::addmany(cs, &[self.clone(), other.clone()])
-            }
-        }
-    )*)
-}
-
-add_uint_impl!(UInt8, UInt16, UInt32, UInt64, UInt128);
-
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(
-        impl Add for $gadget {
+        impl<F: PrimeField> Add<F> for $gadget {
             type ErrorType = SignedIntegerError;
 
-            fn add<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, Self::ErrorType> {
+            fn add<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Self, Self::ErrorType> {
                 // Compute the maximum value of the sum
                 let max_bits = <$gadget as Int>::SIZE;
 

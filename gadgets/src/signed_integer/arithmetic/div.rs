@@ -1,7 +1,7 @@
 use crate::{
-    binary::ComparatorGadget,
+    arithmetic::{Add, Div, Neg, Sub},
+    bits::ComparatorGadget,
     errors::SignedIntegerError,
-    signed_integer::arithmetic::*,
     Int,
     Int128,
     Int16,
@@ -23,23 +23,16 @@ use snarkos_models::{
     },
 };
 
-/// Division for a signed integer gadget
-pub trait Div<Rhs = Self>
-where
-    Self: std::marker::Sized,
-{
-    #[must_use]
-    fn div<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, SignedIntegerError>;
-}
-
 macro_rules! div_int_impl {
     ($($gadget:ident)*) => ($(
-        impl Div for $gadget {
-            fn div<F: PrimeField, CS: ConstraintSystem<F>>(
+        impl<F: PrimeField> Div<F> for $gadget {
+            type ErrorType = SignedIntegerError;
+
+            fn div<CS: ConstraintSystem<F>>(
                 &self,
                 mut cs: CS,
                 other: &Self
-            ) -> Result<Self, SignedIntegerError> {
+            ) -> Result<Self, Self::ErrorType> {
                 // N / D pseudocode:
                 //
                 // if D = 0 then error(DivisionByZeroException) end

@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate thiserror;
 
-pub mod binary;
+pub mod arithmetic;
+
+pub mod bits;
 
 pub mod errors;
 

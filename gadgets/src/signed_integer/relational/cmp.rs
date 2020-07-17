@@ -1,5 +1,5 @@
 use crate::{
-    binary::{ComparatorGadget, EvaluateLtGadget},
+    bits::{ComparatorGadget, EvaluateLtGadget},
     Int128,
     Int16,
     Int32,

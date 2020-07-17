@@ -1,42 +1,16 @@
-use crate::{binary::RippleCarryAdder, errors::SignedIntegerError, signed_integer::*};
+use crate::{arithmetic::Neg, errors::SignedIntegerError, signed_integer::*};
 
-use snarkos_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-/// Returns a negated representation of the given signed integer.
-pub trait Negate
-where
-    Self: std::marker::Sized,
-{
-    #[must_use]
-    fn neg<F: PrimeField, CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, SignedIntegerError>;
-}
-
-impl Negate for Vec<Boolean> {
-    fn neg<F: PrimeField, CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Self, SignedIntegerError> {
-        // flip all bits
-        let flipped: Self = self.iter().map(|bit| bit.not()).collect();
-
-        // add one
-        let mut one = vec![Boolean::constant(true)];
-        one.append(&mut vec![Boolean::Constant(false); self.len() - 1]);
-
-        let mut bits = flipped.add_bits(cs.ns(|| format!("add one")), &one)?;
-        let _carry = bits.pop(); // we already accounted for overflow above
-
-        Ok(bits)
-    }
-}
-
-macro_rules! twos_comp_int_impl {
+macro_rules! neg_int_impl {
     ($($gadget: ident)*) => ($(
-        impl Negate for $gadget {
-            fn neg<F: PrimeField, CS: ConstraintSystem<F>>(
+        impl<F: PrimeField> Neg<F> for $gadget {
+            type ErrorType = SignedIntegerError;
+
+            fn neg<CS: ConstraintSystem<F>>(
                 &self,
                 cs: CS
-            ) -> Result<Self, SignedIntegerError> {
+            ) -> Result<Self, Self::ErrorType> {
                 let value = match self.value {
                     Some(val) => {
                         match val.checked_neg() {
@@ -59,4 +33,4 @@ macro_rules! twos_comp_int_impl {
     )*)
 }
 
-twos_comp_int_impl!(Int8 Int16 Int32 Int64 Int128);
+neg_int_impl!(Int8 Int16 Int32 Int64 Int128);

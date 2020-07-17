@@ -7,6 +7,3 @@ pub use self::eq::*;
 
 pub mod select;
 pub use self::select::*;
-
-pub mod sign_extend;
-pub use self::sign_extend::*;
