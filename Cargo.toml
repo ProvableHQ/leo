@@ -28,7 +28,7 @@ snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", rev = "c7a5
 snarkos-utilities = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", rev = "c7a56d9" }
 
 clap = { version = "2.33.0" }
-colored = { version = "1.9" }
+colored = { version = "2.0" }
 env_logger = { version = "0.7" }
 from-pest = { version = "0.3.1" }
 log = { version = "0.4" }
