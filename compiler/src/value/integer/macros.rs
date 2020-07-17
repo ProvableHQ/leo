@@ -1,4 +1,4 @@
-use leo_gadgets::*;
+use leo_gadgets::signed_integer::*;
 
 use snarkos_models::gadgets::utilities::{
     boolean::Boolean,
@@ -6,7 +6,7 @@ use snarkos_models::gadgets::utilities::{
 };
 use std::fmt::Debug;
 
-pub trait IntegerTrait: Sized + Clone + Debug + Add {
+pub trait IntegerTrait: Sized + Clone + Debug {
     fn get_value(&self) -> Option<String>;
 
     fn get_bits(&self) -> Vec<Boolean>;

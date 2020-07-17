@@ -1,7 +1,7 @@
 //! A data type that represents a field value
 
 use crate::errors::FieldError;
-use leo_gadgets::binary::{ComparatorGadget, EvaluateLtGadget};
+use leo_gadgets::bits::{ComparatorGadget, EvaluateLtGadget};
 use leo_types::Span;
 
 use snarkos_errors::gadgets::SynthesisError;

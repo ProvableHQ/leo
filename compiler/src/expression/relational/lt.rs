@@ -1,7 +1,7 @@
 //! Enforces a relational `<` operator in a resolved Leo program.
 
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_gadgets::binary::comparator::EvaluateLtGadget;
+use leo_gadgets::bits::comparator::EvaluateLtGadget;
 use leo_types::Span;
 
 use snarkos_models::{
