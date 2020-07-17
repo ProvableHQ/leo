@@ -46,43 +46,79 @@ pub(crate) fn output_one(program: EdwardsTestCompiler) {
     output_number(program, 1u32);
 }
 
-#[test]
-fn test_u32() {
-    test_uint!(TestU32, u32, IntegerType::U32Type(U32Type {}), UInt32);
+test_uint!(TestU32, u32, IntegerType::U32Type(U32Type {}), UInt32);
 
+#[test]
+fn test_u32_min() {
     TestU32::test_min(std::u32::MIN);
+}
+
+#[test]
+fn test_u32_max() {
     TestU32::test_max(std::u32::MAX);
+}
 
+#[test]
+fn test_u32_input() {
     TestU32::test_input();
+}
 
+#[test]
+fn test_u32_add() {
     TestU32::test_add();
-    // TestU32::test_sub(); //Todo: Catch subtraction overflow error in gadget
+}
+
+#[test]
+fn test_u32_sub() {
+    TestU32::test_sub();
+}
+
+#[test]
+fn test_u32_mul() {
     TestU32::test_mul();
+}
+
+#[test]
+fn test_u32_div() {
     TestU32::test_div();
-    TestU32::test_pow(); // takes about 2 mins
+}
 
+#[test]
+fn test_u32_pow() {
+    TestU32::test_pow();
+}
+
+#[test]
+fn test_u32_eq() {
     TestU32::test_eq();
+}
+
+#[test]
+fn test_u32_ge() {
     TestU32::test_ge();
+}
+
+#[test]
+fn test_u32_gt() {
     TestU32::test_gt();
+}
+
+#[test]
+fn test_u32_le() {
     TestU32::test_le();
-    TestU32::test_gt();
+}
 
+#[test]
+fn test_u32_lt() {
+    TestU32::test_lt();
+}
+
+#[test]
+fn test_u32_assert_eq() {
     TestU32::test_assert_eq();
+}
+
+#[test]
+fn test_u32_ternary() {
     TestU32::test_ternary();
-}
-
-#[test]
-fn test_zero() {
-    let bytes = include_bytes!("zero.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_zero(program);
-}
-
-#[test]
-fn test_one() {
-    let bytes = include_bytes!("one.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_one(program);
 }

@@ -1,3 +1,3 @@
 function main() -> u64 {
-  return 0
+    return 0
 }

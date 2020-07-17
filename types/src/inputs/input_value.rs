@@ -14,7 +14,7 @@ pub enum InputValue {
     Boolean(bool),
     Field(String),
     Group(String),
-    Integer(IntegerType, u128),
+    Integer(IntegerType, String),
     Array(Vec<InputValue>),
 }
 
@@ -29,8 +29,7 @@ impl InputValue {
     }
 
     fn from_number(integer_type: IntegerType, number: NumberValue) -> Result<Self, InputParserError> {
-        let integer = number.value.parse::<u128>()?;
-        Ok(InputValue::Integer(integer_type, integer))
+        Ok(InputValue::Integer(integer_type, number.value))
     }
 
     fn from_group(group: GroupValue) -> Self {

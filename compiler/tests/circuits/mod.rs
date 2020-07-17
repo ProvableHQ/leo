@@ -16,13 +16,13 @@ use leo_types::{Expression, Function, Identifier, Span, Statement, Type};
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 
-// Circ { x: 1u32 }
+// Foo { x: 1u32 }
 fn output_circuit(program: EdwardsTestCompiler) {
     let output = get_output(program);
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
             Identifier {
-                name: "Circ".to_string(),
+                name: "Foo".to_string(),
                 span: Span {
                     text: "".to_string(),
                     line: 0,
@@ -202,7 +202,7 @@ fn test_self_circuit() {
 
     let output = get_output(program);
 
-    // circuit Circ {
+    // circuit Foo {
     //   static function new() -> Self {
     //     return Self { }
     //   }
@@ -210,7 +210,7 @@ fn test_self_circuit() {
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::CircuitExpression(
             Identifier {
-                name: "Circ".to_string(),
+                name: "Foo".to_string(),
                 span: Span {
                     text: "".to_string(),
                     line: 0,

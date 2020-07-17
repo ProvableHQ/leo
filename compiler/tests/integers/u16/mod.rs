@@ -29,27 +29,79 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt16) {
     }
 }
 
+test_uint!(TestU16, u16, IntegerType::U16Type(U16Type {}), UInt16);
+
 #[test]
-fn test_u16() {
-    test_uint!(Testu16, u16, IntegerType::U16Type(U16Type {}), UInt16);
+fn test_u16_min() {
+    TestU16::test_min(std::u16::MIN);
+}
 
-    Testu16::test_min(std::u16::MIN);
-    Testu16::test_max(std::u16::MAX);
+#[test]
+fn test_u16_max() {
+    TestU16::test_max(std::u16::MAX);
+}
 
-    Testu16::test_input();
+#[test]
+fn test_u16_input() {
+    TestU16::test_input();
+}
 
-    Testu16::test_add();
-    // Testu16::test_sub(); //Todo: Catch subtraction overflow error in gadget
-    Testu16::test_mul();
-    Testu16::test_div();
-    Testu16::test_pow();
+#[test]
+fn test_u16_add() {
+    TestU16::test_add();
+}
 
-    Testu16::test_eq();
-    Testu16::test_ge();
-    Testu16::test_gt();
-    Testu16::test_le();
-    Testu16::test_gt();
+#[test]
+fn test_u16_sub() {
+    TestU16::test_sub();
+}
 
-    Testu16::test_assert_eq();
-    Testu16::test_ternary();
+#[test]
+fn test_u16_mul() {
+    TestU16::test_mul();
+}
+
+#[test]
+fn test_u16_div() {
+    TestU16::test_div();
+}
+
+#[test]
+fn test_u16_pow() {
+    TestU16::test_pow();
+}
+
+#[test]
+fn test_u16_eq() {
+    TestU16::test_eq();
+}
+
+#[test]
+fn test_u16_ge() {
+    TestU16::test_ge();
+}
+
+#[test]
+fn test_u16_gt() {
+    TestU16::test_gt();
+}
+
+#[test]
+fn test_u16_le() {
+    TestU16::test_le();
+}
+
+#[test]
+fn test_u16_lt() {
+    TestU16::test_lt();
+}
+
+#[test]
+fn test_u16_assert_eq() {
+    TestU16::test_assert_eq();
+}
+
+#[test]
+fn test_u16_ternary() {
+    TestU16::test_ternary();
 }

@@ -11,6 +11,12 @@ pub enum IntegerType {
     U32,
     U64,
     U128,
+
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
 }
 
 impl From<AstIntegerType> for IntegerType {
@@ -21,6 +27,12 @@ impl From<AstIntegerType> for IntegerType {
             AstIntegerType::U32Type(_type) => IntegerType::U32,
             AstIntegerType::U64Type(_type) => IntegerType::U64,
             AstIntegerType::U128Type(_type) => IntegerType::U128,
+
+            AstIntegerType::I8Type(_type) => IntegerType::I8,
+            AstIntegerType::I16Type(_type) => IntegerType::I16,
+            AstIntegerType::I32Type(_type) => IntegerType::I32,
+            AstIntegerType::I64Type(_type) => IntegerType::I64,
+            AstIntegerType::I128Type(_type) => IntegerType::I128,
         }
     }
 }
@@ -33,6 +45,12 @@ impl fmt::Display for IntegerType {
             IntegerType::U32 => write!(f, "u32"),
             IntegerType::U64 => write!(f, "u64"),
             IntegerType::U128 => write!(f, "u128"),
+
+            IntegerType::I8 => write!(f, "i8"),
+            IntegerType::I16 => write!(f, "i16"),
+            IntegerType::I32 => write!(f, "i32"),
+            IntegerType::I64 => write!(f, "i64"),
+            IntegerType::I128 => write!(f, "i128"),
         }
     }
 }

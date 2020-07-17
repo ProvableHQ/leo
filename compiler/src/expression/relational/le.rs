@@ -1,6 +1,7 @@
 //! Enforces a relational `<=` operator in a resolved Leo program.
 
-use crate::{comparator::ComparatorGadget, errors::ExpressionError, value::ConstrainedValue, GroupType};
+use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
+use leo_gadgets::bits::ComparatorGadget;
 use leo_types::Span;
 
 use snarkos_models::{
@@ -18,9 +19,6 @@ pub fn evaluate_le<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     let constraint_result = match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             num_1.less_than_or_equal(unique_namespace, &num_2)
-        }
-        (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-            field_1.less_than_or_equal(unique_namespace, &field_2)
         }
         (ConstrainedValue::Unresolved(string), val_2) => {
             let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;

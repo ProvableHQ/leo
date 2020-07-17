@@ -5,6 +5,6 @@ circuit Foo {
 }
 
 function main() -> u32 {
-    let circuit = Foo { };
-    return circuit.bar()
+    let foo = Foo { };
+    return foo.bar()
 }

@@ -1,10 +1,10 @@
-circuit Circ {
-  static function echo(x: u32) -> u32 {
-    return x
-  }
+circuit Foo {
+    static function echo(x: u32) -> u32 {
+        return x
+    }
 }
 
 function main() -> u32 {
-  let c = Circ { };
-  return c.echo(1u32) // echo is a static function and must be accessed using `::`
+    let c = Foo { };
+    return c.echo(1u32) // echo is a static function and must be accessed using `::`
 }

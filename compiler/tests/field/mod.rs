@@ -1,5 +1,5 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
+    boolean::{output_expected_boolean, output_true},
     get_error,
     get_output,
     parse_program,
@@ -13,6 +13,9 @@ use leo_compiler::{
 };
 use leo_types::InputValue;
 
+use num_bigint::BigUint;
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_gadgets::curves::edwards_bls12::FqGadget;
 use snarkos_models::{
@@ -22,7 +25,7 @@ use snarkos_models::{
         r1cs::{ConstraintSystem, TestConstraintSystem},
     },
 };
-use snarkos_utilities::biginteger::BigInteger256;
+use snarkos_utilities::{biginteger::BigInteger256, bytes::ToBytes};
 
 fn output_expected_constant(program: EdwardsTestCompiler, expected: Fq) {
     let output = get_output(program);
@@ -110,17 +113,22 @@ fn test_input_fail_none() {
 fn test_add() {
     use std::ops::Add;
 
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
-        let r2: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
 
-        let b1 = BigInteger256::from(r1);
-        let b2 = BigInteger256::from(r2);
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
 
-        let f1: Fq = Fq::from_repr(b1);
-        let f2: Fq = Fq::from_repr(b2);
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
 
-        let sum = f1.add(&f2);
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
+
+        let sum = r1.add(&r2);
 
         let cs = TestConstraintSystem::<Fq>::new();
         let sum_allocated = FqGadget::from(cs, &sum);
@@ -129,8 +137,8 @@ fn test_add() {
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         output_expected_allocated(program, sum_allocated);
@@ -141,17 +149,22 @@ fn test_add() {
 fn test_sub() {
     use std::ops::Sub;
 
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
-        let r2: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
 
-        let b1 = BigInteger256::from(r1);
-        let b2 = BigInteger256::from(r2);
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
 
-        let f1: Fq = Fq::from_repr(b1);
-        let f2: Fq = Fq::from_repr(b2);
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
 
-        let difference = f1.sub(&f2);
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
+
+        let difference = r1.sub(&r2);
 
         let cs = TestConstraintSystem::<Fq>::new();
         let difference_allocated = FqGadget::from(cs, &difference);
@@ -160,8 +173,8 @@ fn test_sub() {
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         output_expected_allocated(program, difference_allocated);
@@ -172,17 +185,22 @@ fn test_sub() {
 fn test_mul() {
     use std::ops::Mul;
 
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
-        let r2: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
 
-        let b1 = BigInteger256::from(r1);
-        let b2 = BigInteger256::from(r2);
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
 
-        let f1: Fq = Fq::from_repr(b1);
-        let f2: Fq = Fq::from_repr(b2);
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
 
-        let product = f1.mul(&f2);
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
+
+        let product = r1.mul(&r2);
 
         let cs = TestConstraintSystem::<Fq>::new();
         let product_allocated = FqGadget::from(cs, &product);
@@ -191,8 +209,8 @@ fn test_mul() {
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         output_expected_allocated(program, product_allocated);
@@ -203,17 +221,22 @@ fn test_mul() {
 fn test_div() {
     use std::ops::Div;
 
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
-        let r2: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
 
-        let b1 = BigInteger256::from(r1);
-        let b2 = BigInteger256::from(r2);
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
 
-        let f1: Fq = Fq::from_repr(b1);
-        let f2: Fq = Fq::from_repr(b2);
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
 
-        let quotient = f1.div(&f2);
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
+
+        let quotient = r1.div(&r2);
 
         let cs = TestConstraintSystem::<Fq>::new();
         let quotient_allocated = FqGadget::from(cs, &quotient);
@@ -222,8 +245,8 @@ fn test_div() {
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         output_expected_allocated(program, quotient_allocated);
@@ -232,158 +255,42 @@ fn test_div() {
 
 #[test]
 fn test_eq() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
+
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
+
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
+
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
 
         // test equal
+
         let bytes = include_bytes!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
         ]);
 
         output_true(program);
 
         // test not equal
-        let r2: u64 = rand::random();
 
         let result = r1.eq(&r2);
 
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
-        ]);
-
-        output_expected_boolean(program, result)
-    }
-}
-
-#[test]
-fn test_ge() {
-    for _ in 0..10 {
-        let r1: u64 = rand::random();
-
-        // test equal
-        let bytes = include_bytes!("ge.leo");
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
-        ]);
-
-        output_true(program);
-
-        // test greater than
-        let r2: u64 = rand::random();
-
-        let result = r1.ge(&r2);
-
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
-        ]);
-
-        output_expected_boolean(program, result)
-    }
-}
-
-#[test]
-fn test_gt() {
-    for _ in 0..10 {
-        let r1: u64 = rand::random();
-
-        // test equal
-        let bytes = include_bytes!("gt.leo");
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
-        ]);
-
-        output_false(program);
-
-        // test greater than
-        let r2: u64 = rand::random();
-
-        let result = r1.gt(&r2);
-
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
-        ]);
-
-        output_expected_boolean(program, result)
-    }
-}
-
-#[test]
-fn test_le() {
-    for _ in 0..10 {
-        let r1: u64 = rand::random();
-
-        // test equal
-        let bytes = include_bytes!("le.leo");
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
-        ]);
-
-        output_true(program);
-
-        // test greater than
-        let r2: u64 = rand::random();
-
-        let result = r1.le(&r2);
-
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
-        ]);
-
-        output_expected_boolean(program, result)
-    }
-}
-
-#[test]
-fn test_lt() {
-    for _ in 0..10 {
-        let r1: u64 = rand::random();
-
-        // test equal
-        let bytes = include_bytes!("lt.leo");
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
-        ]);
-
-        output_false(program);
-
-        // test greater than
-        let r2: u64 = rand::random();
-
-        let result = r1.lt(&r2);
-
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         output_expected_boolean(program, result)
@@ -392,15 +299,20 @@ fn test_lt() {
 
 #[test]
 fn test_assert_eq_pass() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let mut r1_buf = Vec::new();
+        r1.write(&mut r1_buf).unwrap();
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
 
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r1.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
         ]);
 
         let _ = get_output(program);
@@ -409,9 +321,18 @@ fn test_assert_eq_pass() {
 
 #[test]
 fn test_assert_eq_fail() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
     for _ in 0..10 {
-        let r1: u64 = rand::random();
-        let r2: u64 = rand::random();
+        let r1: Fq = rng.gen();
+        let r2: Fq = rng.gen();
+
+        let mut r1_buf = Vec::new();
+        let mut r2_buf = Vec::new();
+        r1.write(&mut r1_buf).unwrap();
+        r2.write(&mut r2_buf).unwrap();
+        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
 
         if r1 == r2 {
             continue;
@@ -421,8 +342,8 @@ fn test_assert_eq_fail() {
         let mut program = parse_program(bytes).unwrap();
 
         program.set_inputs(vec![
-            Some(InputValue::Field(r1.to_string())),
-            Some(InputValue::Field(r2.to_string())),
+            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
 
         let mut cs = TestConstraintSystem::<Fq>::new();

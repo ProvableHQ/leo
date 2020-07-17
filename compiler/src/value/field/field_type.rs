@@ -1,9 +1,6 @@
 //! A data type that represents a field value
 
-use crate::{
-    comparator::{ComparatorGadget, EvaluateLtGadget},
-    errors::FieldError,
-};
+use crate::errors::FieldError;
 use leo_types::Span;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -23,6 +20,7 @@ use snarkos_models::{
         },
     },
 };
+
 use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
@@ -214,31 +212,6 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
         }
     }
 }
-
-impl<F: Field + PrimeField> EvaluateLtGadget<F> for FieldType<F> {
-    fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        match (self, other) {
-            (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.lt(second))),
-            (FieldType::Allocated(allocated), FieldType::Constant(constant))
-            | (FieldType::Constant(constant), FieldType::Allocated(allocated)) => {
-                let bool_option = allocated.value.map(|f| f.lt(constant));
-
-                Boolean::alloc(&mut cs.ns(|| "less than"), || {
-                    bool_option.ok_or(SynthesisError::AssignmentMissing)
-                })
-            }
-            (FieldType::Allocated(first), FieldType::Allocated(second)) => {
-                let bool_option = first.value.and_then(|a| second.value.map(|b| a.lt(&b)));
-
-                Boolean::alloc(&mut cs.ns(|| "less than"), || {
-                    bool_option.ok_or(SynthesisError::AssignmentMissing)
-                })
-            }
-        }
-    }
-}
-
-impl<F: Field + PrimeField> ComparatorGadget<F> for FieldType<F> {}
 
 impl<F: Field + PrimeField> EqGadget<F> for FieldType<F> {}
 

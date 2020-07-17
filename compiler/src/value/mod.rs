@@ -5,8 +5,6 @@ pub use self::address::*;
 
 pub mod boolean;
 
-pub(crate) mod comparator;
-
 pub mod field;
 pub use self::field::*;
 

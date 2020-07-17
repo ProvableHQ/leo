@@ -28,29 +28,80 @@ fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt128) {
         _ => panic!("program output unknown return value"),
     }
 }
+test_uint!(TestU128, u128, IntegerType::U128Type(U128Type {}), UInt128);
 
 #[test]
-#[ignore] // temporarily ignore memory expensive tests for travis
-fn test_u128() {
-    test_uint!(TestU128, u128, IntegerType::U128Type(U128Type {}), UInt128);
-
+fn test_u128_min() {
     TestU128::test_min(std::u128::MIN);
+}
+
+#[test]
+fn test_u128_max() {
     TestU128::test_max(std::u128::MAX);
+}
 
+#[test]
+fn test_u128_input() {
     TestU128::test_input();
+}
 
+#[test]
+fn test_u128_add() {
     TestU128::test_add();
-    // TestU128::test_sub(); //Todo: Catch subtraction overflow error in gadget
+}
+
+#[test]
+fn test_u128_sub() {
+    TestU128::test_sub();
+}
+
+#[test] // this test take ~1 min
+fn test_u128_mul() {
     TestU128::test_mul();
+}
+
+#[test] // this test takes ~30 sec
+fn test_u128_div() {
     TestU128::test_div();
-    // TestU128::test_pow(); // takes about 10 minutes
+}
 
+#[test]
+#[ignore] // this test takes ~10 mins
+fn test_u128_pow() {
+    TestU128::test_pow();
+}
+
+#[test]
+fn test_u128_eq() {
     TestU128::test_eq();
-    TestU128::test_ge();
-    TestU128::test_gt();
-    TestU128::test_le();
-    TestU128::test_gt();
+}
 
+#[test]
+fn test_u128_ge() {
+    TestU128::test_ge();
+}
+
+#[test]
+fn test_u128_gt() {
+    TestU128::test_gt();
+}
+
+#[test]
+fn test_u128_le() {
+    TestU128::test_le();
+}
+
+#[test]
+fn test_u128_lt() {
+    TestU128::test_lt();
+}
+
+#[test]
+fn test_u128_assert_eq() {
     TestU128::test_assert_eq();
+}
+
+#[test]
+fn test_u128_ternary() {
     TestU128::test_ternary();
 }

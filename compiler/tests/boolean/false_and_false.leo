@@ -1,3 +1,3 @@
 function main() -> bool {
-  return false && false
+    return false && false
 }

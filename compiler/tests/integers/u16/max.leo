@@ -1,3 +1,3 @@
 function main() -> u16 {
-  return 65535
+    return 65535
 }

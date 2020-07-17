@@ -1,3 +1,3 @@
 function main() -> u16 {
-  return 0
+    return 0
 }

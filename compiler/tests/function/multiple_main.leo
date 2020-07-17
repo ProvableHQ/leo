@@ -1,3 +1,3 @@
 function main() -> (bool, bool) {
-  return (true, false)
+    return (true, false)
 }

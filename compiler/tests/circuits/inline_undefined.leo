@@ -1,3 +1,3 @@
 function main() {
-  let c = Circ { };
+    let c = Foo { };
 }
