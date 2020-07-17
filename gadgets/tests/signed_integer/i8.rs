@@ -359,7 +359,7 @@ fn test_int8_pow_constants() {
 fn test_int8_pow() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for i in 0..100 {
+    for i in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
         // Test small ranges that we know won't overflow first
