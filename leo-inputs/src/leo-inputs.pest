@@ -182,7 +182,7 @@ private = { "private" }
 visibility = { public | private }
 
 // Declared in sections/table.rs
-table = {visibility ~ NEWLINE+ ~ section*}
+table = {"[[" ~ visibility ~ "]]" ~ NEWLINE+ ~ section*}
 
 /// Utilities
 
@@ -192,4 +192,4 @@ WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 /// Files
 
 // Declared in files/file.rs
-file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ table* ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
