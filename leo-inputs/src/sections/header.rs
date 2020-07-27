@@ -1,12 +1,18 @@
-use crate::{ast::Rule, common::Identifier};
+use crate::{
+    ast::Rule,
+    common::Identifier,
+    sections::{Main, Record, Registers, State, StateLeaf},
+};
 
-use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::header))]
-pub struct Header<'ast> {
-    pub name: Identifier<'ast>,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
+pub enum Header<'ast> {
+    Main(Main<'ast>),
+    Record(Record<'ast>),
+    Registers(Registers<'ast>),
+    State(State<'ast>),
+    StateLeaf(StateLeaf<'ast>),
+    Identifier(Identifier<'ast>),
 }

@@ -14,10 +14,15 @@ protected_name = {
     | "import"
     | "in"
     | "let"
+    | "main"
     | "mut"
     | "private"
     | "public"
+    | "record"
+    | "registers"
     | "return"
+    | "state"
+    | "state_leaf"
     | "static"
     | "test"
     | "true"
@@ -142,8 +147,23 @@ parameter = { identifier ~ ":" ~ type_ }
 // Declared in sections/section.rs
 section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
 
+// Declared in sections/main_.rs
+main = { "main" }
+
+// Declared in sections/record.rs
+record = { "record" }
+
+// Declared in sections/registers.rs
+registers = { "registers" }
+
+// Declared in sections/state.rs
+state = { "state" }
+
+// Declared in sections/state_leaf.rs
+state_leaf = { "state_leaf" }
+
 // Declared in sections/header.rs
-header = { "[" ~ identifier ~ "]" }
+header = { "[" ~ main | record | registers | state | state_leaf | identifier ~ "]" }
 
 /// Assignments
 
