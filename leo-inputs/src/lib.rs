@@ -13,6 +13,7 @@ pub mod expressions;
 pub mod files;
 pub mod parameters;
 pub mod sections;
+pub mod tables;
 pub mod types;
 pub mod values;
 
