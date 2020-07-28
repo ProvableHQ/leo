@@ -6,9 +6,9 @@ extern crate thiserror;
 pub mod errors;
 pub use errors::*;
 
-pub mod assignments;
 mod ast;
 pub mod common;
+pub mod definitions;
 pub mod expressions;
 pub mod files;
 pub mod parameters;
@@ -30,7 +30,7 @@ impl LeoInputsParser {
 
     /// Parses the input file and constructs a syntax tree.
     pub fn parse_file(input_file: &str) -> Result<files::File, InputParserError> {
-        // Parse the file using leo.pest
+        // Parse the file using leo-inputs.pest
         let mut file = ast::parse(input_file)?;
 
         // Build the abstract syntax tree

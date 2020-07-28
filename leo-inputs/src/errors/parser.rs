@@ -6,6 +6,7 @@ use crate::{
     values::{NumberImplicitValue, NumberValue, Value},
 };
 
+use crate::sections::Header;
 use pest::{
     error::{Error, ErrorVariant},
     Span,
@@ -78,6 +79,27 @@ impl InputParserError {
             array.count
         );
         let span = array.span.to_owned();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn input_section_header(header: Header) -> Self {
+        let message = format!("the section header {} does not belong in an input `.in` file", header);
+        let span = header.span();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn public_section(header: Header) -> Self {
+        let message = format!("the section header {} is not a public section", header);
+        let span = header.span();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn private_section(header: Header) -> Self {
+        let message = format!("the section header {} is not a private section", header);
+        let span = header.span();
 
         Self::new_from_span(message, span)
     }

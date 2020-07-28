@@ -14,15 +14,15 @@ protected_name = {
     | "import"
     | "in"
     | "let"
-    | "main"
+    | main
     | "mut"
-    | "private"
-    | "public"
-    | "record"
-    | "registers"
+    | private
+    | public
+    | record
+    | registers
     | "return"
-    | "state"
-    | "state_leaf"
+    | state
+    | state_leaf
     | "static"
     | "test"
     | "true"
@@ -145,7 +145,7 @@ parameter = { identifier ~ ":" ~ type_ }
 /// Section
 
 // Declared in sections/section.rs
-section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
+section = { "["  ~ header ~ "]" ~ NEWLINE+ ~ (definition ~ NEWLINE*)* }
 
 // Declared in sections/main_.rs
 main = { "main" }
@@ -163,12 +163,12 @@ state = { "state" }
 state_leaf = { "state_leaf" }
 
 // Declared in sections/header.rs
-header = { "[" ~ main | record | registers | state | state_leaf | identifier ~ "]" }
+header = { main | record | registers | state_leaf | state | identifier }
 
-/// Assignments
+/// Definitions
 
-// Declared in assignment/assignment.rs
-assignment = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
+// Declared in definition/definition.rs
+definition = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
 
 /// Table
 
@@ -191,5 +191,8 @@ WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
 /// Files
 
+// Declared in files/table_or_section.rs
+table_or_section = { table | section }
+
 // Declared in files/file.rs
-file = { SOI ~ NEWLINE* ~ table* ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ table_or_section* ~ NEWLINE* ~ EOI }

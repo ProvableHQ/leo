@@ -118,8 +118,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
         let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
 
+        self.program_inputs
+            .parse_program_input_file(syntax_tree, self.program.expected_inputs.clone())?;
+
         // Check number/order of parameters here
-        self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
+        // self.program_inputs = Inputs::from_inputs_file(syntax_tree, self.program.expected_inputs.clone())?;
 
         Ok(())
     }

@@ -8,7 +8,7 @@ use std::fmt;
 pub struct FunctionInput {
     pub identifier: Identifier,
     pub mutable: bool,
-    pub _type: Type,
+    pub type_: Type,
     pub span: Span,
 }
 
@@ -17,7 +17,7 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
         FunctionInput {
             identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
-            _type: Type::from(parameter._type),
+            type_: Type::from(parameter._type),
             span: Span::from(parameter.span),
         }
     }
@@ -30,7 +30,7 @@ impl FunctionInput {
             write!(f, "mut ")?;
         }
         write!(f, "{}: ", self.identifier)?;
-        write!(f, "{}", self._type)
+        write!(f, "{}", self.type_)
     }
 }
 

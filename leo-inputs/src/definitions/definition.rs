@@ -4,8 +4,8 @@ use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::assignment))]
-pub struct Assignment<'ast> {
+#[pest_ast(rule(Rule::definition))]
+pub struct Definition<'ast> {
     pub parameter: Parameter<'ast>,
     pub expression: Expression<'ast>,
     pub line_end: LineEnd,

@@ -7,7 +7,7 @@ use crate::{
     GroupType,
 };
 
-use leo_types::{Expression, Function, Span};
+use leo_types::{Expression, Function, Input, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -39,23 +39,28 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.inputs.clone().iter().zip(inputs.into_iter()) {
-            // First evaluate input expression
-            let mut input_value = self.enforce_input(
-                cs,
-                scope.clone(),
-                caller_scope.clone(),
-                function_name.clone(),
-                vec![input_model._type.clone()],
-                input_expression,
-            )?;
+            if let Input::FunctionInput(input_model) = input_model {
+                // First evaluate input expression
+                let mut input_value = self.enforce_input(
+                    cs,
+                    scope.clone(),
+                    caller_scope.clone(),
+                    function_name.clone(),
+                    vec![input_model.type_.clone()],
+                    input_expression,
+                )?;
 
-            if input_model.mutable {
-                input_value = ConstrainedValue::Mutable(Box::new(input_value))
+                if input_model.mutable {
+                    input_value = ConstrainedValue::Mutable(Box::new(input_value))
+                }
+
+                // Store input as variable with {function_name}_{input_name}
+                let input_program_identifier = new_scope(function_name.clone(), input_model.identifier.name.clone());
+                self.store(input_program_identifier, input_value);
+            } else {
+                println!("function input model {}", input_model);
+                println!("function input option {}", input_expression)
             }
-
-            // Store input as variable with {function_name}_{input_name}
-            let input_program_identifier = new_scope(function_name.clone(), input_model.identifier.name.clone());
-            self.store(input_program_identifier, input_value);
         }
 
         // Evaluate every statement in the function and save all potential results
