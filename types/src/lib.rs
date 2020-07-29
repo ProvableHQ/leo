@@ -1,3 +1,6 @@
+//! A typed syntax tree is represented as a `Program` and consists of import, circuit, and function definitions.
+//! Each defined type consists of typed statements and expressions.
+
 pub mod circuits;
 pub use self::circuits::*;
 
@@ -30,3 +33,22 @@ pub use self::statements::*;
 
 pub mod types;
 pub use self::types::*;
+
+use leo_ast::LeoAst;
+
+pub struct LeoTypedAst {
+    typed_ast: Program,
+}
+
+impl LeoTypedAst {
+    /// Creates a new typed syntax tree from a given program name and abstract syntax tree.
+    pub fn new<'ast>(program_name: &str, ast: &LeoAst<'ast>) -> Self {
+        Self {
+            typed_ast: Program::from(program_name, ast.as_repr()),
+        }
+    }
+
+    pub fn into_repr(self) -> Program {
+        self.typed_ast
+    }
+}

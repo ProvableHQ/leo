@@ -1,5 +1,5 @@
 use crate::{errors::ImportError, ImportParser};
-use leo_ast::LeoParser;
+use leo_ast::LeoAst;
 use leo_types::{ImportSymbol, Program, Span};
 
 use std::{ffi::OsString, fs::DirEntry, path::PathBuf};
@@ -30,12 +30,12 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
         }
     }
 
-    // Build the abstract syntax tree
-    let input_file = &LeoParser::load_file(&file_path)?;
-    let syntax_tree = LeoParser::parse_file(&file_path, input_file)?;
+    // Builds the abstract syntax tree.
+    let program_string = &LeoAst::load_file(&file_path)?;
+    let ast = &LeoAst::new(&file_path, &program_string)?;
 
-    // Generate aleo program from file
-    Ok(Program::from(syntax_tree, file_name.clone()))
+    // Generates the Leo program from file.
+    Ok(Program::from(&file_name, ast.as_repr()))
 }
 
 impl ImportParser {

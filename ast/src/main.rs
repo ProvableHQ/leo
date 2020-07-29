@@ -1,16 +1,16 @@
-use leo_ast::{LeoParser, ParserError};
+use leo_ast::{LeoAst, ParserError};
 use std::{env, fs, path::Path};
 
 fn to_leo_ast(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
-    let program_string = LeoParser::load_file(&program_filepath)?;
+    let program_string = LeoAst::load_file(&program_filepath)?;
 
-    // Parses the Leo program string and constructs an abstract syntax tree.
-    let abstract_syntax_tree = LeoParser::parse_file(&program_filepath, &program_string)?;
+    // Parses the Leo file and constructs an abstract syntax tree.
+    let ast = LeoAst::new(&program_filepath, &program_string)?;
 
     // Serializes the abstract syntax tree into JSON format.
-    let serialized_ast = LeoParser::to_json_string(&abstract_syntax_tree)?;
+    let serialized_ast = LeoAst::to_json_string(&ast)?;
 
     Ok(serialized_ast)
 }

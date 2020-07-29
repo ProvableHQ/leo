@@ -7,9 +7,9 @@ use crate::{
     GroupType,
     ImportParser,
 };
-use leo_ast::LeoParser;
+use leo_ast::LeoAst;
 use leo_inputs::LeoInputsParser;
-use leo_types::{InputValue, Inputs, Program};
+use leo_types::{InputValue, Inputs, LeoTypedAst, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -48,9 +48,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let mut compiler = Self::new(package_name);
         compiler.set_path(main_file_path);
 
-        // Generate the abstract syntax tree and assemble the program
-        let program_string = compiler.load_program()?;
-        compiler.parse_program(&program_string)?;
+        // Generate the abstract syntax tree and assemble the program.
+        compiler.parse_program()?;
 
         Ok(compiler)
     }
@@ -94,20 +93,40 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program, &self.imported_programs)
     }
 
-    /// Loads the Leo code as a string from the given file path.
-    fn load_program(&mut self) -> Result<String, CompilerError> {
-        Ok(LeoParser::load_file(&self.main_file_path)?)
+    /// Parses the Leo program file, constructs a syntax tree, and generates a program.
+    pub fn parse_program(&mut self) -> Result<(), CompilerError> {
+        // Use the parser to construct the abstract syntax tree.
+        let program_string = LeoAst::load_file(&self.main_file_path)?;
+        let ast = LeoAst::new(&self.main_file_path, &program_string)?;
+
+        // Derive the package name.
+        let package_name = self.package_name.clone();
+
+        // Use the typed parser to construct the typed syntax tree.
+        let typed_tree = LeoTypedAst::new(&package_name, &ast);
+
+        self.program = typed_tree.into_repr();
+        self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
+        self.imported_programs = ImportParser::parse(&self.program)?;
+
+        log::debug!("Program parsing complete\n{:#?}", self.program);
+
+        Ok(())
     }
 
     /// Parses the Leo program string, constructs a syntax tree, and generates a program.
-    pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
-        // Parse the program syntax tree
-        let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
+    /// Used for testing only.
+    pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
+        // Use the given bytes to construct the abstract syntax tree.
+        let ast = LeoAst::new(&self.main_file_path, &program_string)?;
 
-        // Build program from syntax tree
+        // Derive the package name.
         let package_name = self.package_name.clone();
 
-        self.program = Program::from(syntax_tree, package_name);
+        // Use the typed parser to construct the typed syntax tree.
+        let typed_tree = LeoTypedAst::new(&package_name, &ast);
+
+        self.program = typed_tree.into_repr();
         self.program_inputs.set_inputs_size(self.program.expected_inputs.len());
         self.imported_programs = ImportParser::parse(&self.program)?;
 

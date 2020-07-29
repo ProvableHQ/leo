@@ -59,7 +59,7 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
     let mut compiler = new_compiler();
     let program_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_program(&program_string)?;
+    compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
 }
