@@ -26,10 +26,10 @@ impl PublicState {
         Self { state }
     }
 
-    pub fn store_definitions(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
+    pub fn parse(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
         for section in sections {
             match section.header {
-                Header::State(_state) => self.state.store_definitions(section.definitions)?,
+                Header::State(_state) => self.state.parse(section.definitions)?,
                 header => return Err(InputParserError::public_section(header)),
             }
         }

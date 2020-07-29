@@ -31,10 +31,11 @@ impl ProgramState {
         self.public.len() + self.private.len()
     }
 
-    pub fn store_definitions(&mut self, table: Table) -> Result<(), InputParserError> {
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse(&mut self, table: Table) -> Result<(), InputParserError> {
         match table.visibility {
-            Visibility::Private(_private) => self.private.store_definitions(table.sections),
-            Visibility::Public(_public) => self.public.store_definitions(table.sections),
+            Visibility::Private(_private) => self.private.parse(table.sections),
+            Visibility::Public(_public) => self.public.parse(table.sections),
         }
     }
 }

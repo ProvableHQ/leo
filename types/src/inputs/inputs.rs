@@ -27,22 +27,26 @@ impl Inputs {
         Self { inputs, state }
     }
 
+    /// Returns the number of input variables to pass into the `main` program function
     pub fn len(&self) -> usize {
         self.inputs.len() + self.state.len()
     }
 
+    /// Manually set the input variables to the `main` program function
     pub fn set_main_inputs(&mut self, inputs: MainInputs) {
         self.inputs.main = inputs;
     }
 
-    pub fn parse_file(&mut self, file: File) -> Result<(), InputParserError> {
+    /// Parse all inputs included in a file and store them in `self`.
+    /// Currently parser does not care if file is `.in` or `.state`
+    pub fn parse(&mut self, file: File) -> Result<(), InputParserError> {
         for entry in file.entries.into_iter() {
             match entry {
                 TableOrSection::Section(section) => {
-                    self.inputs.store_definitions(section)?;
+                    self.inputs.parse(section)?;
                 }
                 TableOrSection::Table(table) => {
-                    self.state.store_definitions(table)?;
+                    self.state.parse(table)?;
                 }
             }
         }

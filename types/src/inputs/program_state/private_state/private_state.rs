@@ -43,11 +43,12 @@ impl PrivateState {
         len
     }
 
-    pub fn store_definitions(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
         for section in sections {
             match section.header {
-                Header::Record(_state) => self.record.store_definitions(section.definitions)?,
-                Header::StateLeaf(_state_leaf) => self.state_leaf.store_definitions(section.definitions)?,
+                Header::Record(_state) => self.record.parse(section.definitions)?,
+                Header::StateLeaf(_state_leaf) => self.state_leaf.parse(section.definitions)?,
                 header => return Err(InputParserError::private_section(header)),
             }
         }

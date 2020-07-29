@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let mut compiler = Self::new(package_name);
         compiler.set_path(main_file_path);
 
-        // Generate the inputs file abstract syntax tree
+        // Generate the inputs file abstract syntax tree and store definitions
         compiler.parse_inputs(inputs_string)?;
 
         // Generate the program abstract syntax tree and assemble the program
@@ -124,7 +124,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
         let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
 
-        self.program_inputs.parse_file(syntax_tree)?;
+        self.program_inputs.parse(syntax_tree)?;
 
         Ok(())
     }

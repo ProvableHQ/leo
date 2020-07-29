@@ -41,10 +41,11 @@ impl ProgramInputs {
         len
     }
 
-    pub fn store_definitions(&mut self, section: Section) -> Result<(), InputParserError> {
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse(&mut self, section: Section) -> Result<(), InputParserError> {
         match section.header {
-            Header::Main(_main) => self.main.store_definitions(section.definitions),
-            Header::Registers(_registers) => self.registers.store_definitions(section.definitions),
+            Header::Main(_main) => self.main.parse(section.definitions),
+            Header::Registers(_registers) => self.registers.parse(section.definitions),
             header => Err(InputParserError::input_section_header(header)),
         }
     }
