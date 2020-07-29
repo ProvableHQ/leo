@@ -1,9 +1,10 @@
 use crate::{ast::Rule, common::Spread, expressions::Expression};
 
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::spread_or_expression))]
 pub enum SpreadOrExpression<'ast> {
     Spread(Spread<'ast>),

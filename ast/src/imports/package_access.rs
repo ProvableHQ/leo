@@ -4,8 +4,9 @@ use crate::{
 };
 
 use pest_ast::FromPest;
+use serde::Serialize;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::package_access))]
 pub enum PackageAccess<'ast> {
     Star(Star<'ast>),

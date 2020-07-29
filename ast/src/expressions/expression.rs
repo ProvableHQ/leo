@@ -1,9 +1,10 @@
 use crate::{common::Identifier, expressions::*, operations::BinaryOperation, values::Value};
 
 use pest::Span;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum Expression<'ast> {
     Value(Value<'ast>),
     Identifier(Identifier<'ast>),

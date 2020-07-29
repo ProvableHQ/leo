@@ -1,16 +1,18 @@
-use crate::{ast::Rule, common::LineEnd, expressions::Expression};
+use crate::{ast::Rule, common::LineEnd, expressions::Expression, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::assert_eq))]
 pub struct AssertEq<'ast> {
     pub left: Expression<'ast>,
     pub right: Expression<'ast>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 

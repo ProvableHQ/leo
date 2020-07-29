@@ -1,9 +1,10 @@
 use crate::{ast::Rule, types::*};
 
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::type_))]
 pub enum Type<'ast> {
     Basic(DataType),

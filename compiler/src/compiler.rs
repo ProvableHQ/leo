@@ -94,11 +94,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program, &self.imported_programs)
     }
 
+    /// Loads the Leo code as a string from the given file path.
     fn load_program(&mut self) -> Result<String, CompilerError> {
-        // Load the program syntax tree from the file path
         Ok(LeoParser::load_file(&self.main_file_path)?)
     }
 
+    /// Parses the Leo program string, constructs a syntax tree, and generates a program.
     pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Parse the program syntax tree
         let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
