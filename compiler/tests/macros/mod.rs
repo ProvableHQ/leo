@@ -61,7 +61,7 @@ fn test_print_input() {
     let bytes = include_bytes!("print_input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
 
     let _output = get_output(program);
 }

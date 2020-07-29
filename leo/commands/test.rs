@@ -3,14 +3,13 @@ use crate::{
     cli_types::*,
     directories::source::SOURCE_DIRECTORY_NAME,
     errors::{CLIError, TestError},
-    files::{MainFile, Manifest, MAIN_FILE_NAME},
+    files::{InputsFile, MainFile, Manifest, StateFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
-use crate::files::InputsFile;
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
@@ -41,9 +40,6 @@ impl CLI for TestCommand {
         let manifest = Manifest::try_from(&path)?;
         let package_name = manifest.get_package_name();
 
-        // Load the inputs file at `package_name`
-        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
-
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
         if package_path.is_file() {
@@ -60,11 +56,18 @@ impl CLI for TestCommand {
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILE_NAME);
 
+        // Load the inputs file at `package_name`
+        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+
+        // Load the state file at `package_name.in`
+        let state_string = StateFile::new(&package_name).read_from(&path)?;
+
         // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(
+        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_inputs(
             package_name.clone(),
             main_file_path.clone(),
             &inputs_string,
+            &state_string,
         )?;
 
         // Generate the program on the constraint system and verify correctness

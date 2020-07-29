@@ -83,7 +83,7 @@ fn test_input_pass() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Field("1".into()))]);
+    program.set_main_inputs(vec![Some(InputValue::Field("1".into()))]);
 
     let cs = TestConstraintSystem::<Fq>::new();
     let expected = FqGadget::one(cs).unwrap();
@@ -96,7 +96,7 @@ fn test_input_fail_bool() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
     fail_field(program);
 }
 
@@ -105,7 +105,7 @@ fn test_input_fail_none() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![None]);
+    program.set_main_inputs(vec![None]);
     fail_field(program);
 }
 
@@ -136,7 +136,7 @@ fn test_add() {
         let bytes = include_bytes!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -172,7 +172,7 @@ fn test_sub() {
         let bytes = include_bytes!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -208,7 +208,7 @@ fn test_mul() {
         let bytes = include_bytes!("mul.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -244,7 +244,7 @@ fn test_div() {
         let bytes = include_bytes!("div.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -275,7 +275,7 @@ fn test_eq() {
         let bytes = include_bytes!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
         ]);
@@ -288,7 +288,7 @@ fn test_eq() {
 
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -310,7 +310,7 @@ fn test_assert_eq_pass() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
         ]);
@@ -341,7 +341,7 @@ fn test_assert_eq_fail() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_inputs(vec![
+        program.set_main_inputs(vec![
             Some(InputValue::Field(r1_bigint.to_str_radix(10))),
             Some(InputValue::Field(r2_bigint.to_str_radix(10))),
         ]);
@@ -372,7 +372,7 @@ fn test_ternary() {
     let mut program_2 = program_1.clone();
 
     // true -> field 1
-    program_1.set_inputs(vec![
+    program_1.set_main_inputs(vec![
         Some(InputValue::Boolean(true)),
         Some(InputValue::Field(r1.to_string())),
         Some(InputValue::Field(r2.to_string())),
@@ -381,7 +381,7 @@ fn test_ternary() {
     output_expected_allocated(program_1, g1);
 
     // false -> field 2
-    program_2.set_inputs(vec![
+    program_2.set_main_inputs(vec![
         Some(InputValue::Boolean(false)),
         Some(InputValue::Field(r1.to_string())),
         Some(InputValue::Field(r2.to_string())),

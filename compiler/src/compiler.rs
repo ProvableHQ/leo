@@ -32,10 +32,10 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
-    pub fn new(package_name: String) -> Self {
+    pub fn new(package_name: String, main_file_path: PathBuf) -> Self {
         Self {
             package_name: package_name.clone(),
-            main_file_path: PathBuf::new(),
+            main_file_path,
             program: Program::new(package_name),
             program_inputs: Inputs::new(),
             imported_programs: ImportParser::new(),
@@ -44,37 +44,48 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         }
     }
 
-    pub fn new_from_path(
-        package_name: String,
-        main_file_path: PathBuf,
-        inputs_string: &str,
-    ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name);
-        compiler.set_path(main_file_path);
+    /// Parses program files.
+    /// Returns a compiler struct that stores the typed program abstract syntax trees (ast).
+    pub fn parse_program_without_inputs(package_name: String, main_file_path: PathBuf) -> Result<Self, CompilerError> {
+        let mut compiler = Self::new(package_name, main_file_path);
 
-        // Generate the inputs file abstract syntax tree and store definitions
-        compiler.parse_inputs(inputs_string)?;
-
-        // Generate the program abstract syntax tree and assemble the program
         let program_string = compiler.load_program()?;
         compiler.parse_program(&program_string)?;
 
         Ok(compiler)
     }
 
-    pub fn set_path(&mut self, main_file_path: PathBuf) {
-        self.main_file_path = main_file_path
+    /// Parses input, state, and program files.
+    /// Returns a compiler struct that stores the typed inputs and typed program abstract syntax trees (ast).
+    pub fn parse_program_with_inputs(
+        package_name: String,
+        main_file_path: PathBuf,
+        inputs_string: &str,
+        state_string: &str,
+    ) -> Result<Self, CompilerError> {
+        let mut compiler = Self::new(package_name, main_file_path);
+
+        compiler.parse_inputs(inputs_string, state_string)?;
+
+        let program_string = compiler.load_program()?;
+        compiler.parse_program(&program_string)?;
+
+        Ok(compiler)
     }
 
-    pub fn set_inputs(&mut self, program_inputs: MainInputs) {
-        self.program_inputs.set_main_inputs(program_inputs);
+    /// Parse the input and state files.
+    /// Stores a typed ast of all inputs to the program.
+    pub fn parse_inputs(&mut self, inputs_string: &str, state_string: &str) -> Result<(), CompilerError> {
+        let inputs_syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
+        let state_syntax_tree = LeoInputsParser::parse_file(&state_string)?;
+
+        self.program_inputs.parse_inputs(inputs_syntax_tree)?;
+        self.program_inputs.parse_state(state_syntax_tree)?;
+
+        Ok(())
     }
 
-    fn load_program(&mut self) -> Result<String, CompilerError> {
-        // Load the program syntax tree from the file path
-        Ok(LeoParser::load_file(&self.main_file_path)?)
-    }
-
+    /// Parse the program file and all associated import files.
     pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Parse the program syntax tree
         let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
@@ -90,12 +101,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(())
     }
 
-    pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
-        let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
+    /// Loads the program file at `main_file_path`.
+    fn load_program(&mut self) -> Result<String, CompilerError> {
+        Ok(LeoParser::load_file(&self.main_file_path)?)
+    }
 
-        self.program_inputs.parse(syntax_tree)?;
-
-        Ok(())
+    /// Manually set the inputs to the `main` program function.
+    pub fn set_main_inputs(&mut self, program_inputs: MainInputs) {
+        self.program_inputs.set_main_inputs(program_inputs);
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -111,6 +124,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(hex::encode(hash))
     }
 
+    /// Synthesizes the circuit without program inputs to verify correctness.
     pub fn compile_constraints<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
@@ -125,6 +139,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })
     }
 
+    /// Synthesizes the circuit for test functions with program inputs.
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
         generate_test_constraints::<F, G>(cs, self.program, self.program_inputs, &self.imported_programs)
     }
@@ -150,6 +165,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
+    /// Synthesizes the circuit with program inputs.
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs)
             .map_err(|e| {

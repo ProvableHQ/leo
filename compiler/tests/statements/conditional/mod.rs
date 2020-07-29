@@ -35,7 +35,7 @@ fn test_assert() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_pass.set_inputs(vec![Some(InputValue::Integer(
+    program_1_pass.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         1.to_string(),
     ))]);
@@ -43,7 +43,7 @@ fn test_assert() {
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_inputs(vec![Some(InputValue::Integer(
+    program_0_pass.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         0.to_string(),
     ))]);
@@ -51,7 +51,7 @@ fn test_assert() {
 
     // Check that an input value of 2 does not satisfy the constraint system
 
-    program_2_fail.set_inputs(vec![Some(InputValue::Integer(
+    program_2_fail.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         2.to_string(),
     ))]);
@@ -68,7 +68,7 @@ fn test_mutate() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_true.set_inputs(vec![Some(InputValue::Integer(
+    program_1_true.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         1.to_string(),
     ))]);
@@ -76,7 +76,7 @@ fn test_mutate() {
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_inputs(vec![Some(InputValue::Integer(
+    program_0_pass.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         0.to_string(),
     ))]);
@@ -91,12 +91,12 @@ fn test_for_loop() {
 
     // Check that an input value of true satisfies the constraint system
 
-    program_true_6.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program_true_6.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
     output_number(program_true_6, 6u32);
 
     // Check that an input value of false satisfies the constraint system
 
-    program_false_0.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    program_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
     output_zero(program_false_0);
 }
 
@@ -108,21 +108,21 @@ fn test_chain() {
     let mut program_2_3 = program_1_1.clone();
 
     // Check that an input of 1 outputs true
-    program_1_1.set_inputs(vec![Some(InputValue::Integer(
+    program_1_1.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         1.to_string(),
     ))]);
     output_number(program_1_1, 1u32);
 
     // Check that an input of 0 outputs true
-    program_2_2.set_inputs(vec![Some(InputValue::Integer(
+    program_2_2.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         2.to_string(),
     ))]);
     output_number(program_2_2, 2u32);
 
     // Check that an input of 0 outputs true
-    program_2_3.set_inputs(vec![Some(InputValue::Integer(
+    program_2_3.set_main_inputs(vec![Some(InputValue::Integer(
         IntegerType::U32Type(U32Type {}),
         5.to_string(),
     ))]);
@@ -138,17 +138,17 @@ fn test_nested() {
 
     // Check that an input value of true true satisfies the constraint system
 
-    program_true_true_3.set_inputs(vec![Some(InputValue::Boolean(true)); 2]);
+    program_true_true_3.set_main_inputs(vec![Some(InputValue::Boolean(true)); 2]);
     output_number(program_true_true_3, 3u32);
 
     // Check that an input value of true false satisfies the constraint system
 
-    program_true_false_1.set_inputs(vec![Some(InputValue::Boolean(true)), Some(InputValue::Boolean(false))]);
+    program_true_false_1.set_main_inputs(vec![Some(InputValue::Boolean(true)), Some(InputValue::Boolean(false))]);
     output_number(program_true_false_1, 1u32);
 
     // Check that an input value of false false satisfies the constraint system
 
-    program_false_false_0.set_inputs(vec![Some(InputValue::Boolean(false)), Some(InputValue::Boolean(false))]);
+    program_false_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false)), Some(InputValue::Boolean(false))]);
     output_number(program_false_false_0, 0u32);
 }
 
@@ -160,11 +160,11 @@ fn test_multiple_returns() {
 
     // Check that an input value of true returns 1 and satisfies the constraint system
 
-    program_true_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program_true_1.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
     output_number(program_true_1, 1u32);
 
     // Check that an input value of false returns 0 and satisfies the constraint system
 
-    program_false_0.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    program_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
     output_number(program_false_0, 0u32);
 }

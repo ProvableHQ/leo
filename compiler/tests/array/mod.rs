@@ -107,7 +107,7 @@ fn test_input_array() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Array(vec![input_value_u32_one(); 3]))]);
+    program.set_main_inputs(vec![Some(InputValue::Array(vec![input_value_u32_one(); 3]))]);
 
     output_ones(program)
 }
@@ -117,7 +117,7 @@ fn test_input_array_fail() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(input_value_u32_one())]);
+    program.set_main_inputs(vec![Some(input_value_u32_one())]);
 
     fail_array(program);
 }
@@ -127,7 +127,7 @@ fn test_input_field_none() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![None]);
+    program.set_main_inputs(vec![None]);
 
     fail_integer(program)
 }

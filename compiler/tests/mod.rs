@@ -49,8 +49,7 @@ pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
-    let mut compiler = EdwardsTestCompiler::new(program_name);
-    compiler.set_path(path);
+    let mut compiler = EdwardsTestCompiler::new(program_name, path);
 
     compiler
 }

@@ -100,7 +100,7 @@ fn test_function_input() {
     let bytes = include_bytes!("function_input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(input_value_u32_one())]);
+    program.set_main_inputs(vec![Some(input_value_u32_one())]);
     mut_fail(program);
 }
 
@@ -109,6 +109,6 @@ fn test_function_input_mut() {
     let bytes = include_bytes!("function_input_mut.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(input_value_u32_one())]);
+    program.set_main_inputs(vec![Some(input_value_u32_one())]);
     mut_success(program);
 }

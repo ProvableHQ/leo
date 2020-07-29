@@ -30,8 +30,6 @@ protected_name = {
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
-
-
 /// Types
 
 // Declared in types/type_.rs

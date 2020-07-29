@@ -80,7 +80,7 @@ fn test_input_pass() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Address(TEST_ADDRESS_1.to_string()))]);
+    program.set_main_inputs(vec![Some(InputValue::Address(TEST_ADDRESS_1.to_string()))]);
 
     let _output = get_output(program);
 }
@@ -90,7 +90,7 @@ fn test_input_fail_bool() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
 
     let _err = get_error(program);
 }
@@ -101,11 +101,11 @@ fn test_ternary() {
     let mut program_1 = parse_program(bytes).unwrap();
     let mut program_2 = program_1.clone();
 
-    program_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program_1.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
 
     output_test_address(program_1, TEST_ADDRESS_1);
 
-    program_2.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    program_2.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
 
     output_test_address(program_2, TEST_ADDRESS_2);
 }
@@ -116,14 +116,14 @@ fn test_equal() {
     let mut program_1 = parse_program(bytes).unwrap();
     let mut program_2 = program_1.clone();
 
-    program_1.set_inputs(vec![
+    program_1.set_main_inputs(vec![
         Some(InputValue::Address(TEST_ADDRESS_1.to_string())),
         Some(InputValue::Address(TEST_ADDRESS_1.to_string())),
     ]);
 
     output_true(program_1);
 
-    program_2.set_inputs(vec![
+    program_2.set_main_inputs(vec![
         Some(InputValue::Address(TEST_ADDRESS_1.to_string())),
         Some(InputValue::Address(TEST_ADDRESS_2.to_string())),
     ]);

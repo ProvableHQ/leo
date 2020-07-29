@@ -84,7 +84,7 @@ fn test_input() {
     let bytes = include_bytes!("input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Group(TEST_POINT_1.into()))]);
+    program.set_main_inputs(vec![Some(InputValue::Group(TEST_POINT_1.into()))]);
 
     let mut cs = TestConstraintSystem::<Fq>::new();
     let constant_point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
@@ -163,7 +163,7 @@ fn test_ternary() {
     let mut program_2 = program_1.clone();
 
     // true -> point_1
-    program_1.set_inputs(vec![Some(InputValue::Boolean(true))]);
+    program_1.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
 
     let mut cs = TestConstraintSystem::<Fq>::new();
     let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
@@ -172,7 +172,7 @@ fn test_ternary() {
     output_expected_allocated(program_1, expected_point_1);
 
     // false -> point_2
-    program_2.set_inputs(vec![Some(InputValue::Boolean(false))]);
+    program_2.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
 
     let mut cs = TestConstraintSystem::<Fq>::new();
     let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();

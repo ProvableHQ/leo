@@ -60,7 +60,7 @@ fn test_input_bool_field() {
     let bytes = include_bytes!("input_bool.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![Some(InputValue::Field("1field".to_string()))]);
+    program.set_main_inputs(vec![Some(InputValue::Field("1field".to_string()))]);
 
     fail_boolean(program);
 }
@@ -70,7 +70,7 @@ fn test_input_bool_none() {
     let bytes = include_bytes!("input_bool.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    program.set_inputs(vec![None]);
+    program.set_main_inputs(vec![None]);
 
     fail_boolean(program);
 }

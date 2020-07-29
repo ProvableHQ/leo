@@ -18,6 +18,7 @@ impl From<Error<Rule>> for SyntaxError {
             Rule::file => "a table or section".to_owned(),
             Rule::identifier => "a variable name".to_owned(),
             Rule::type_ => "a type".to_owned(),
+            Rule::header => "[[public]] or [[private]]".to_owned(),
 
             rule => format!("{:?}", rule),
         });

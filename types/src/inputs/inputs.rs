@@ -39,13 +39,24 @@ impl Inputs {
     }
 
     /// Parse all inputs included in a file and store them in `self`.
-    /// Currently parser does not care if file is `.in` or `.state`
-    pub fn parse(&mut self, file: File) -> Result<(), InputParserError> {
+    pub fn parse_inputs(&mut self, file: File) -> Result<(), InputParserError> {
         for entry in file.entries.into_iter() {
             match entry {
                 TableOrSection::Section(section) => {
                     self.inputs.parse(section)?;
                 }
+                TableOrSection::Table(table) => return Err(InputParserError::table(table)),
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse_state(&mut self, file: File) -> Result<(), InputParserError> {
+        for entry in file.entries.into_iter() {
+            match entry {
+                TableOrSection::Section(section) => return Err(InputParserError::section(section.header)),
                 TableOrSection::Table(table) => {
                     self.state.parse(table)?;
                 }
