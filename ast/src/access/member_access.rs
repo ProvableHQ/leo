@@ -1,12 +1,14 @@
-use crate::{ast::Rule, common::Identifier};
+use crate::{ast::Rule, common::Identifier, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::access_member))]
 pub struct MemberAccess<'ast> {
     pub identifier: Identifier<'ast>,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }

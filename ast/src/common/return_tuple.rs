@@ -1,14 +1,16 @@
-use crate::{ast::Rule, expressions::Expression};
+use crate::{ast::Rule, expressions::Expression, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::return_tuple))]
 pub struct ReturnTuple<'ast> {
     pub expressions: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 

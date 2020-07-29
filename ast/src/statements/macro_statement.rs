@@ -4,9 +4,10 @@ use crate::{
 };
 
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::statement_macro))]
 pub enum MacroStatement<'ast> {
     AssertEq(AssertEq<'ast>),

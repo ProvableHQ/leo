@@ -5,11 +5,9 @@ extern crate pest_derive;
 #[macro_use]
 extern crate thiserror;
 
-pub mod errors;
-pub use errors::*;
+mod ast;
 
 pub mod access;
-mod ast;
 pub mod circuits;
 pub mod common;
 pub mod expressions;
@@ -21,6 +19,12 @@ pub mod operations;
 pub mod statements;
 pub mod types;
 pub mod values;
+
+pub mod errors;
+pub use errors::*;
+
+pub(crate) mod span;
+pub(crate) use span::*;
 
 use from_pest::FromPest;
 use std::{fs, path::PathBuf};
@@ -44,5 +48,15 @@ impl LeoParser {
         log::debug!("{:#?}", syntax_tree);
 
         Ok(syntax_tree)
+    }
+
+    /// Serializes and stores a given syntax tree in the output file.
+    pub fn store_syntax_tree<'a>(syntax_tree: files::File<'a>, output_file: &'a str) -> Result<(), ParserError> {
+        // Serialize and store the syntax tree to the given filepath.
+        let serialized_syntax_tree = serde_json::to_string(&syntax_tree).unwrap();
+        println!("serialized = {}", serialized_syntax_tree);
+        fs::write(output_file, serialized_syntax_tree)?;
+
+        Ok(())
     }
 }

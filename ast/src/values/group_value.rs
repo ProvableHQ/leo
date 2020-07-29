@@ -1,15 +1,17 @@
-use crate::{ast::Rule, types::GroupType, values::NumberValue};
+use crate::{ast::Rule, types::GroupType, values::NumberValue, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::value_group))]
 pub struct GroupValue<'ast> {
     pub value: GroupRepresentation<'ast>,
     pub _type: GroupType,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 
@@ -19,7 +21,7 @@ impl<'ast> fmt::Display for GroupValue<'ast> {
     }
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::group_single_or_tuple))]
 pub enum GroupRepresentation<'ast> {
     Single(NumberValue<'ast>),
@@ -35,12 +37,13 @@ impl<'ast> fmt::Display for GroupRepresentation<'ast> {
     }
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::group_tuple))]
 pub struct GroupTuple<'ast> {
     pub x: NumberValue<'ast>,
     pub y: NumberValue<'ast>,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 

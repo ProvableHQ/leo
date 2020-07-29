@@ -570,6 +570,8 @@ dependencies = [
  "pest",
  "pest-ast",
  "pest_derive",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

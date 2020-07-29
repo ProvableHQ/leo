@@ -1,9 +1,10 @@
 use crate::{ast::Rule, statements::*};
 
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::statement))]
 pub enum Statement<'ast> {
     Return(ReturnStatement<'ast>),
