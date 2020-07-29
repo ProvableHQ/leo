@@ -12,6 +12,9 @@ pub enum ParserError {
     FileReadError(PathBuf),
 
     #[error("{}", _0)]
+    JsonError(#[from] serde_json::error::Error),
+
+    #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
 
     #[error("Unable to construct abstract syntax tree")]

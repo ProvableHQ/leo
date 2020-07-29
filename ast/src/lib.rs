@@ -32,16 +32,16 @@ use std::{fs, path::PathBuf};
 pub struct LeoParser;
 
 impl LeoParser {
-    /// Reads in the given file path into a string.
+    /// Loads the Leo code as a string from the given file path.
     pub fn load_file(file_path: &PathBuf) -> Result<String, ParserError> {
         Ok(fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.clone()))?)
     }
 
-    /// Parses the input file and constructs a syntax tree.
-    pub fn parse_file<'a>(file_path: &'a PathBuf, input_file: &'a str) -> Result<files::File<'a>, ParserError> {
+    /// Parses the Leo program string and constructs an abstract syntax tree.
+    pub fn parse_file<'a>(file_path: &'a PathBuf, program_string: &'a str) -> Result<files::File<'a>, ParserError> {
         // Parse the file using leo.pest
-        let mut file =
-            ast::parse(input_file).map_err(|error| ParserError::from(error.with_path(file_path.to_str().unwrap())))?;
+        let mut file = ast::parse(program_string)
+            .map_err(|error| ParserError::from(error.with_path(file_path.to_str().unwrap())))?;
 
         // Build the abstract syntax tree
         let syntax_tree = files::File::from_pest(&mut file).map_err(|_| ParserError::SyntaxTreeError)?;
@@ -50,13 +50,8 @@ impl LeoParser {
         Ok(syntax_tree)
     }
 
-    /// Serializes and stores a given syntax tree in the output file.
-    pub fn store_syntax_tree<'a>(syntax_tree: files::File<'a>, output_file: &'a str) -> Result<(), ParserError> {
-        // Serialize and store the syntax tree to the given filepath.
-        let serialized_syntax_tree = serde_json::to_string(&syntax_tree).unwrap();
-        println!("serialized = {}", serialized_syntax_tree);
-        fs::write(output_file, serialized_syntax_tree)?;
-
-        Ok(())
+    /// Serializes a given abstract syntax tree into a JSON string.
+    pub fn to_json_string(syntax_tree: &files::File) -> Result<String, ParserError> {
+        Ok(serde_json::to_string_pretty(syntax_tree)?)
     }
 }
