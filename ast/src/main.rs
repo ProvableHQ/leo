@@ -21,20 +21,22 @@ fn main() -> Result<(), ParserError> {
 
     // Check that the correct number of command-line arguments were passed in.
     if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
-        eprintln!("Error - invalid number of command-line arguments");
-        println!("\nCommand-line usage:\n\n\tleo_ast {{input_filename}}.leo {{optional_output_filepath}}\n");
+        eprintln!("Warning - an invalid number of command-line arguments were provided.");
+        println!(
+            "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
+        );
         return Ok(()); // Exit innocently
     }
 
-    // Create the input filepath.
+    // Construct the input filepath.
     let input_filepath = Path::new(&cli_arguments[1]);
 
-    // Create the serialized abstract syntax tree.
+    // Construct the serialized abstract syntax tree.
     let serialized_ast = to_leo_ast(&input_filepath)?;
     println!("{}", serialized_ast);
 
-    // Create the output filepath.
-    let output_filepath = match cli_arguments.len() == 3 {
+    // Determine the output directory.
+    let output_directory = match cli_arguments.len() == 3 {
         true => format!(
             "{}/{}.json",
             cli_arguments[2],
@@ -43,8 +45,8 @@ fn main() -> Result<(), ParserError> {
         false => format!("./{}.json", input_filepath.file_stem().unwrap().to_str().unwrap()),
     };
 
-    // Write the serialized abstract syntax tree to the output filepath.
-    fs::write(Path::new(&output_filepath), serialized_ast)?;
+    // Write the serialized abstract syntax tree to the output directory.
+    fs::write(Path::new(&output_directory), serialized_ast)?;
 
     Ok(())
 }
