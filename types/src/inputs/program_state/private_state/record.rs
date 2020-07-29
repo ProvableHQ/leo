@@ -1,4 +1,4 @@
-use crate::{Input, InputValue};
+use crate::{InputValue, Parameter};
 use leo_inputs::{definitions::Definition, InputParserError};
 
 use std::collections::HashMap;

@@ -1,10 +1,11 @@
 use leo_ast::types::IntegerType as AstIntegerType;
+use leo_inputs::types::IntegerType as InputsAstIntegerType;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit integer type
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegerType {
     U8,
     U16,
@@ -33,6 +34,24 @@ impl From<AstIntegerType> for IntegerType {
             AstIntegerType::I32Type(_type) => IntegerType::I32,
             AstIntegerType::I64Type(_type) => IntegerType::I64,
             AstIntegerType::I128Type(_type) => IntegerType::I128,
+        }
+    }
+}
+
+impl From<InputsAstIntegerType> for IntegerType {
+    fn from(integer_type: InputsAstIntegerType) -> Self {
+        match integer_type {
+            InputsAstIntegerType::U8Type(_type) => IntegerType::U8,
+            InputsAstIntegerType::U16Type(_type) => IntegerType::U16,
+            InputsAstIntegerType::U32Type(_type) => IntegerType::U32,
+            InputsAstIntegerType::U64Type(_type) => IntegerType::U64,
+            InputsAstIntegerType::U128Type(_type) => IntegerType::U128,
+
+            InputsAstIntegerType::I8Type(_type) => IntegerType::I8,
+            InputsAstIntegerType::I16Type(_type) => IntegerType::I16,
+            InputsAstIntegerType::I32Type(_type) => IntegerType::I32,
+            InputsAstIntegerType::I64Type(_type) => IntegerType::I64,
+            InputsAstIntegerType::I128Type(_type) => IntegerType::I128,
         }
     }
 }

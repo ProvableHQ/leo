@@ -78,4 +78,10 @@ impl FunctionError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn input_not_found(expected: String, span: Span) -> Self {
+        let message = format!("main function input {} not found", expected);
+
+        Self::new_from_span(message, span)
+    }
 }

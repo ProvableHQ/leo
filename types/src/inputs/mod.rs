@@ -8,6 +8,9 @@ pub use inputs::*;
 pub mod input_value;
 pub use input_value::*;
 
+pub mod parameters;
+pub use parameters::*;
+
 pub mod program_inputs;
 pub use program_inputs::*;
 

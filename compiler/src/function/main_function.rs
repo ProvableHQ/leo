@@ -30,12 +30,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
-        let mut seen = 0;
-        for (i, input_model) in function.inputs.clone().into_iter().enumerate() {
-            match input_model {
+        for input_model in function.inputs.clone().into_iter() {
+            let (identifier, value) = match input_model {
                 Input::FunctionInput(input_model) => {
                     let name = input_model.identifier.name.clone();
-                    let input_option = inputs.get(&name);
+                    let input_option = inputs
+                        .get(&name)
+                        .ok_or(FunctionError::input_not_found(name.clone(), function.span.clone()))?;
                     let input_value = self.allocate_main_function_input(
                         cs,
                         input_model.type_,
@@ -44,25 +45,41 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         function.span.clone(),
                     )?;
 
-                    // Store a new variable for every allocated main function input
-                    let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-                    self.store(input_name.clone(), input_value);
+                    (input_model.identifier, input_value)
+                }
+                Input::Registers(identifier) => {
+                    let section = inputs.get_registers();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
 
-                    input_variables.push(Expression::Identifier(input_model.identifier));
+                    (identifier, value)
                 }
-                Input::Registers => {
-                    seen += 1;
+                Input::Record(identifier) => {
+                    let section = inputs.get_record();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
                 }
-                Input::Record => {
-                    seen += 1;
+                Input::State(identifier) => {
+                    let section = inputs.get_state();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
                 }
-                Input::State => {
-                    seen += 1;
+                Input::StateLeaf(identifier) => {
+                    let section = inputs.get_state_leaf();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
                 }
-                Input::StateLeaf => {
-                    seen += 1;
-                }
-            }
+            };
+
+            // Store input as variable with {function_name}_{identifier_name}
+            let input_name = new_scope(function_name.clone(), identifier.name.clone());
+
+            // Store a new variable for every allocated main function input
+            self.store(input_name, value);
+
+            input_variables.push(Expression::Identifier(identifier));
         }
 
         self.enforce_function(cs, scope, function_name, function, input_variables)

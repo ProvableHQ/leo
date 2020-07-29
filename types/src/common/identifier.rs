@@ -1,5 +1,6 @@
 use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
+use leo_inputs::common::Identifier as InputsAstIdentifier;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -19,6 +20,15 @@ impl Identifier {
 
 impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     fn from(identifier: AstIdentifier<'ast>) -> Self {
+        Self {
+            name: identifier.value,
+            span: Span::from(identifier.span),
+        }
+    }
+}
+
+impl<'ast> From<InputsAstIdentifier<'ast>> for Identifier {
+    fn from(identifier: InputsAstIdentifier<'ast>) -> Self {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),

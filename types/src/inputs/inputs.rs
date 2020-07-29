@@ -1,8 +1,9 @@
-use crate::{Input, InputValue, MainInputs, ProgramInputs, ProgramState};
+use crate::{InputValue, MainInputs, Parameter, ProgramInputs, ProgramState};
 use leo_inputs::{
     files::{File, TableOrSection},
     InputParserError,
 };
+use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Inputs {
@@ -55,7 +56,27 @@ impl Inputs {
     }
 
     /// Returns the main function input value with the given `name`
-    pub fn get(&self, name: &String) -> Option<InputValue> {
+    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.inputs.get(name)
+    }
+
+    /// Returns the runtime register input values
+    pub fn get_registers(&self) -> HashMap<Parameter, Option<InputValue>> {
+        self.inputs.get_registers()
+    }
+
+    /// Returns the runtime record input values
+    pub fn get_record(&self) -> HashMap<Parameter, Option<InputValue>> {
+        self.state.get_record()
+    }
+
+    /// Returns the runtime state input values
+    pub fn get_state(&self) -> HashMap<Parameter, Option<InputValue>> {
+        self.state.get_state()
+    }
+
+    /// Returns the runtime state leaf input values
+    pub fn get_state_leaf(&self) -> HashMap<Parameter, Option<InputValue>> {
+        self.state.get_state_leaf()
     }
 }

@@ -9,7 +9,7 @@ use crate::{
 };
 use leo_ast::LeoParser;
 use leo_inputs::LeoInputsParser;
-use leo_types::{InputValue, Inputs, MainInputs, Program};
+use leo_types::{Inputs, MainInputs, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -70,6 +70,34 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.program_inputs.set_main_inputs(program_inputs);
     }
 
+    fn load_program(&mut self) -> Result<String, CompilerError> {
+        // Load the program syntax tree from the file path
+        Ok(LeoParser::load_file(&self.main_file_path)?)
+    }
+
+    pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
+        // Parse the program syntax tree
+        let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
+
+        // Build program from syntax tree
+        let package_name = self.package_name.clone();
+
+        self.program = Program::from(syntax_tree, package_name);
+        self.imported_programs = ImportParser::parse(&self.program)?;
+
+        log::debug!("Program parsing complete\n{:#?}", self.program);
+
+        Ok(())
+    }
+
+    pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
+        let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
+
+        self.program_inputs.parse(syntax_tree)?;
+
+        Ok(())
+    }
+
     pub fn checksum(&self) -> Result<String, CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
@@ -101,41 +129,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program, self.program_inputs, &self.imported_programs)
     }
 
-    fn load_program(&mut self) -> Result<String, CompilerError> {
-        // Load the program syntax tree from the file path
-        Ok(LeoParser::load_file(&self.main_file_path)?)
-    }
-
-    pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
-        // Parse the program syntax tree
-        let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
-
-        // Build program from syntax tree
-        let package_name = self.package_name.clone();
-
-        self.program = Program::from(syntax_tree, package_name);
-        self.imported_programs = ImportParser::parse(&self.program)?;
-
-        log::debug!("Program parsing complete\n{:#?}", self.program);
-
-        Ok(())
-    }
-
-    pub fn parse_inputs(&mut self, inputs_string: &str) -> Result<(), CompilerError> {
-        let syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
-
-        self.program_inputs.parse(syntax_tree)?;
-
-        Ok(())
-    }
-
     pub fn to_bytes(&self) -> Result<Vec<u8>, CompilerError> {
         Ok(bincode::serialize(&self.program)?)
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, CompilerError> {
         let program: Program = bincode::deserialize(bytes)?;
-        let mut program_inputs = Inputs::new();
+        let program_inputs = Inputs::new();
 
         Ok(Self {
             package_name: program.name.clone(),

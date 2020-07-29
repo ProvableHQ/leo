@@ -1,8 +1,9 @@
-use crate::{Input, InputValue, MainInputs, Registers};
+use crate::{InputValue, MainInputs, Parameter, Registers};
 use leo_inputs::{
     sections::{Header, Section},
     InputParserError,
 };
+use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ProgramInputs {
@@ -50,7 +51,13 @@ impl ProgramInputs {
         }
     }
 
-    pub fn get(&self, name: &String) -> Option<InputValue> {
+    /// Returns the main function input value with the given `name`
+    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.main.get(name)
+    }
+
+    /// Returns the runtime register input values
+    pub fn get_registers(&self) -> HashMap<Parameter, Option<InputValue>> {
+        self.registers.values()
     }
 }
