@@ -18,17 +18,36 @@ impl PrivateState {
         }
     }
 
-    pub fn store_definitions(
-        &mut self,
-        sections: Vec<Section>,
-        expected_inputs: &Vec<Input>,
-    ) -> Result<(), InputParserError> {
+    /// Returns an empty version of this struct with `None` values.
+    /// Called during constraint synthesis to provide private inputs.
+    pub fn empty(&self) -> Self {
+        let record = self.record.empty();
+        let state_leaf = self.state_leaf.empty();
+
+        Self { record, state_leaf }
+    }
+
+    pub fn len(&self) -> usize {
+        let mut len = 0;
+
+        // add record variable
+        if self.record.is_present() {
+            len += 1;
+        }
+
+        // add state_leaf variable
+        if self.state_leaf.is_present() {
+            len += 1;
+        }
+
+        len
+    }
+
+    pub fn store_definitions(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
         for section in sections {
             match section.header {
-                Header::Record(_state) => self.record.store_definitions(section.definitions, expected_inputs)?,
-                Header::StateLeaf(_state_leaf) => self
-                    .state_leaf
-                    .store_definitions(section.definitions, expected_inputs)?,
+                Header::Record(_state) => self.record.store_definitions(section.definitions)?,
+                Header::StateLeaf(_state_leaf) => self.state_leaf.store_definitions(section.definitions)?,
                 header => return Err(InputParserError::private_section(header)),
             }
         }

@@ -3,7 +3,7 @@ use crate::{
     cli_types::*,
     directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory},
     errors::CLIError,
-    files::{ChecksumFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
+    files::{ChecksumFile, InputsFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -41,6 +41,9 @@ impl CLI for BuildCommand {
         let manifest = Manifest::try_from(&path)?;
         let package_name = manifest.get_package_name();
 
+        // Load the inputs file at `package_name`
+        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
         if package_path.is_file() {
@@ -55,8 +58,11 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Compile the library file but do not output
-            let _program =
-                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), lib_file_path.clone())?;
+            let _program = Compiler::<Fq, EdwardsGroupType>::new_from_path(
+                package_name.clone(),
+                lib_file_path.clone(),
+                &inputs_string,
+            )?;
 
             log::info!("Compiled library file {:?}", lib_file_path);
         };
@@ -72,8 +78,11 @@ impl CLI for BuildCommand {
             main_file_path.push(MAIN_FILE_NAME);
 
             // Load the program at `main_file_path`
-            let program =
-                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
+            let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(
+                package_name.clone(),
+                main_file_path.clone(),
+                &inputs_string,
+            )?;
 
             // Compute the current program checksum
             let program_checksum = program.checksum()?;

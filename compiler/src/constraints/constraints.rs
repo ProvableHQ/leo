@@ -1,7 +1,7 @@
 //! Generates R1CS constraints for a compiled Leo program.
 
 use crate::{errors::CompilerError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType, ImportParser};
-use leo_types::{InputValue, Program};
+use leo_types::{Inputs, Program};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -11,7 +11,7 @@ use snarkos_models::{
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     program: Program,
-    parameters: Vec<Option<InputValue>>,
+    inputs: Inputs,
     imported_programs: &ImportParser,
 ) -> Result<ConstrainedValue<F, G>, CompilerError> {
     let mut resolved_program = ConstrainedProgram::new();
@@ -26,7 +26,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, program_name, function, parameters)?;
+            let result = resolved_program.enforce_main_function(cs, program_name, function, inputs)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -36,6 +36,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     cs: &mut TestConstraintSystem<F>,
     program: Program,
+    inputs: Inputs,
     imported_programs: &ImportParser,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
@@ -54,7 +55,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             cs,
             program_name.clone(),
             test_function.0,
-            vec![], // test functions should not take any inputs
+            inputs.clone(), // pass program inputs into every test
         );
 
         if result.is_ok() {

@@ -14,14 +14,22 @@ impl PublicState {
         Self { state: State::new() }
     }
 
-    pub fn store_definitions(
-        &mut self,
-        sections: Vec<Section>,
-        expected_inputs: &Vec<Input>,
-    ) -> Result<(), InputParserError> {
+    pub fn len(&self) -> usize {
+        if self.state.is_present() { 1usize } else { 0usize }
+    }
+
+    /// Returns an empty version of this struct with `None` values.
+    /// Called during constraint synthesis to provide private inputs.
+    pub fn empty(&self) -> Self {
+        let state = self.state.empty();
+
+        Self { state }
+    }
+
+    pub fn store_definitions(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
         for section in sections {
             match section.header {
-                Header::State(_state) => self.state.store_definitions(section.definitions, expected_inputs)?,
+                Header::State(_state) => self.state.store_definitions(section.definitions)?,
                 header => return Err(InputParserError::public_section(header)),
             }
         }

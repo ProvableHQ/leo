@@ -8,7 +8,7 @@ use crate::{
     GroupType,
 };
 
-use leo_types::{Expression, Function, Input, InputValue};
+use leo_types::{Expression, Function, Input, Inputs};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -21,7 +21,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: String,
         function: Function,
-        inputs: Vec<Option<InputValue>>,
+        inputs: Inputs,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
@@ -30,24 +30,38 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
-        for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
-            if let Input::FunctionInput(input_model) = input_model {
-                let input_value = self.allocate_main_function_input(
-                    cs,
-                    input_model.type_,
-                    input_model.identifier.name.clone(),
-                    input_option,
-                    function.span.clone(),
-                )?;
+        let mut seen = 0;
+        for (i, input_model) in function.inputs.clone().into_iter().enumerate() {
+            match input_model {
+                Input::FunctionInput(input_model) => {
+                    let name = input_model.identifier.name.clone();
+                    let input_option = inputs.get(&name);
+                    let input_value = self.allocate_main_function_input(
+                        cs,
+                        input_model.type_,
+                        name.clone(),
+                        input_option,
+                        function.span.clone(),
+                    )?;
 
-                // Store a new variable for every allocated main function input
-                let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-                self.store(input_name.clone(), input_value);
+                    // Store a new variable for every allocated main function input
+                    let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
+                    self.store(input_name.clone(), input_value);
 
-                input_variables.push(Expression::Identifier(input_model.identifier));
-            } else {
-                println!("main function input model {}", input_model);
-                // println!("main function input option {}", input_option.to_)
+                    input_variables.push(Expression::Identifier(input_model.identifier));
+                }
+                Input::Registers => {
+                    seen += 1;
+                }
+                Input::Record => {
+                    seen += 1;
+                }
+                Input::State => {
+                    seen += 1;
+                }
+                Input::StateLeaf => {
+                    seen += 1;
+                }
             }
         }
 

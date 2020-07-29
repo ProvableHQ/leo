@@ -10,6 +10,7 @@ use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGro
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
+use crate::files::InputsFile;
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
@@ -40,6 +41,9 @@ impl CLI for TestCommand {
         let manifest = Manifest::try_from(&path)?;
         let package_name = manifest.get_package_name();
 
+        // Load the inputs file at `package_name`
+        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
         if package_path.is_file() {
@@ -57,7 +61,11 @@ impl CLI for TestCommand {
         main_file_path.push(MAIN_FILE_NAME);
 
         // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(
+            package_name.clone(),
+            main_file_path.clone(),
+            &inputs_string,
+        )?;
 
         // Generate the program on the constraint system and verify correctness
         {
