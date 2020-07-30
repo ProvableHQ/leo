@@ -8,7 +8,7 @@ pub mod group;
 pub mod import;
 pub mod inputs;
 pub mod integers;
-// pub mod macros;
+pub mod macros;
 // pub mod mutability;
 // pub mod statements;
 // pub mod syntax;
