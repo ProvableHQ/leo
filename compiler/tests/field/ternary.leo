@@ -1,3 +1,5 @@
-function main(b: bool, f1: field, f2: field) -> field {
-    return if b ? f1 : f2
+function main(s: bool, a: field, b: field, c: field) {
+    let r = if s ? a : b;
+
+    assert_eq!(r, c);
 }

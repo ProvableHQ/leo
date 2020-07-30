@@ -1,21 +1,13 @@
 use crate::{
     assert_satisfied,
-    fail_enforce,
     get_compiler_error,
     get_outputs,
     get_synthesis_error,
     parse_program,
     parse_program_with_inputs,
-    EdwardsConstrainedValue,
     EdwardsTestCompiler,
 };
-use leo_compiler::{
-    errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedValue,
-};
-use leo_types::InputValue;
-
-use snarkos_models::gadgets::utilities::boolean::Boolean;
+use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
     let expected = include_bytes!("outputs/register_true.out");
@@ -29,13 +21,6 @@ pub fn output_false(program: EdwardsTestCompiler) {
     let actual = get_outputs(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
-}
-
-fn fail_boolean(program: EdwardsTestCompiler) {
-    match get_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::BooleanError(BooleanError::Error(_))) => {}
-        error => panic!("Expected boolean error, got {}", error),
-    }
 }
 
 fn fail_boolean_statement(program: EdwardsTestCompiler) {
@@ -60,7 +45,7 @@ fn test_input_pass() {
 #[test]
 fn test_input_fail() {
     let program_bytes = include_bytes!("assert_eq_input.leo");
-    let input_bytes = include_bytes!("inputs/false_false.in");
+    let input_bytes = include_bytes!("inputs/true_false.in");
 
     let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
 

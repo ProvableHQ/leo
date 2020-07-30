@@ -10,7 +10,7 @@ use crate::{
 };
 use leo_ast::LeoParser;
 use leo_inputs::LeoInputsParser;
-use leo_types::{Inputs, Program};
+use leo_types::{Inputs, MainInputs, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -112,6 +112,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Loads the program file at `main_file_path`.
     fn load_program(&mut self) -> Result<String, CompilerError> {
         Ok(LeoParser::load_file(&self.main_file_path)?)
+    }
+
+    /// Manually sets main function inputs
+    pub fn set_main_inputs(&mut self, inputs: MainInputs) {
+        self.program_inputs.set_main_inputs(inputs);
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {

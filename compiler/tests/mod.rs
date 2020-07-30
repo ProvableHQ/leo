@@ -2,7 +2,7 @@
 // pub mod array;
 pub mod boolean;
 // pub mod circuits;
-// pub mod field;
+pub mod field;
 // pub mod function;
 // pub mod group;
 // pub mod import;
@@ -15,8 +15,7 @@ pub mod boolean;
 
 use leo_compiler::{
     compiler::Compiler,
-    constraints::generate_constraints,
-    errors::{CompilerError, FunctionError, StatementError},
+    errors::CompilerError,
     group::targets::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
     OutputBytes,
@@ -24,13 +23,12 @@ use leo_compiler::{
 use leo_types::{InputValue, MainInputs};
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, TestConstraintSystem};
+use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
-use std::{env::temp_dir, fs::File, io::Read, path::PathBuf};
+use std::path::PathBuf;
 
 pub const TEST_OUTPUTS_DIRECTORY: &str = "/outputs/";
 pub const TEST_OUTPUTS_FILE_NAME: &str = "/outputs/test.out";
-
 const EMPTY_FILE: &str = "";
 
 pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
@@ -54,11 +52,9 @@ pub fn parse_program_with_inputs(
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
-    // create temporary output directory
-    let outputs_directory = temp_dir();
-    let mut compiler = EdwardsTestCompiler::new(program_name, path, outputs_directory);
+    let outputs_dir = PathBuf::from(TEST_OUTPUTS_DIRECTORY);
 
-    compiler
+    EdwardsTestCompiler::new(program_name, path, outputs_dir)
 }
 
 pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -70,14 +66,14 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
     Ok(compiler)
 }
 
-pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let inputs_string = String::from_utf8_lossy(bytes);
-
-    compiler.parse_inputs(&inputs_string, "")?;
-
-    Ok(compiler)
-}
+// pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+//     let mut compiler = new_compiler();
+//     let inputs_string = String::from_utf8_lossy(bytes);
+//
+//     compiler.parse_inputs(&inputs_string, "")?;
+//
+//     Ok(compiler)
+// }
 
 pub(crate) fn get_outputs(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
@@ -110,9 +106,19 @@ pub(crate) fn get_synthesis_error(program: EdwardsTestCompiler) {
     assert!(!cs.is_satisfied());
 }
 
-pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
-    match get_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::Error(_))) => {}
-        error => panic!("Expected evaluate error, got {}", error),
+// pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
+//     match get_compiler_error(program) {
+//         CompilerError::FunctionError(FunctionError::StatementError(StatementError::Error(_))) => {}
+//         error => panic!("Expected evaluate error, got {}", error),
+//     }
+// }
+
+pub(crate) fn generate_main_inputs(inputs: Vec<(&str, Option<InputValue>)>) -> MainInputs {
+    let mut main_inputs = MainInputs::new();
+
+    for (name, value) in inputs {
+        main_inputs.insert(name.to_string(), value);
     }
+
+    main_inputs
 }

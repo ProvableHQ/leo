@@ -28,13 +28,17 @@ impl MainInputs {
         self.inputs.len()
     }
 
+    pub fn insert(&mut self, key: String, value: Option<InputValue>) {
+        self.inputs.insert(key, value);
+    }
+
     /// Parses main input definitions and stores them in `self`.
     pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
         for definition in definitions {
             let name = definition.parameter.variable.value;
             let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
 
-            self.inputs.insert(name, Some(value));
+            self.insert(name, Some(value));
         }
 
         Ok(())

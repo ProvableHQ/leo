@@ -1,112 +1,26 @@
-use crate::{
-    boolean::{output_expected_boolean, output_true},
-    get_error,
-    get_output,
-    parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
-};
-use leo_compiler::{
-    errors::{CompilerError, FieldError, FunctionError},
-    ConstrainedValue,
-    FieldType,
-};
+use crate::{assert_satisfied, generate_main_inputs, get_synthesis_error, parse_program};
 use leo_types::InputValue;
+
+use snarkos_curves::edwards_bls12::Fq;
+use snarkos_utilities::bytes::ToBytes;
 
 use num_bigint::BigUint;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_gadgets::curves::edwards_bls12::FqGadget;
-use snarkos_models::{
-    curves::{One, PrimeField, Zero},
-    gadgets::{
-        curves::field::FieldGadget,
-        r1cs::{ConstraintSystem, TestConstraintSystem},
-    },
-};
-use snarkos_utilities::{biginteger::BigInteger256, bytes::ToBytes};
 
-fn output_expected_constant(program: EdwardsTestCompiler, expected: Fq) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Field(FieldType::Constant(expected))]).to_string(),
-        output.to_string()
-    );
-}
+// Helper function to convert field element into decimal base 10 string
+fn field_to_decimal_string(f: Fq) -> String {
+    // write field to buffer
 
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: FqGadget) {
-    let output = get_output(program);
+    let mut buf = Vec::new();
 
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Field(FieldType::Allocated(fp_gadget))] => assert_eq!(*fp_gadget, expected as FqGadget),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
+    f.write(&mut buf).unwrap();
 
-fn output_zero(program: EdwardsTestCompiler) {
-    output_expected_constant(program, Fq::zero())
-}
+    // convert to big integer
 
-fn output_one(program: EdwardsTestCompiler) {
-    output_expected_constant(program, Fq::one())
-}
+    let f_bigint = BigUint::from_bytes_le(&buf);
 
-fn fail_field(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::FieldError(FieldError::Error(_string))) => {}
-        error => panic!("Expected invalid field error, got {}", error),
-    }
-}
-
-#[test]
-fn test_zero() {
-    let bytes = include_bytes!("zero.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_zero(program);
-}
-
-#[test]
-fn test_one() {
-    let bytes = include_bytes!("one.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_one(program);
-}
-
-#[test]
-fn test_input_pass() {
-    let bytes = include_bytes!("input.leo");
-    let mut program = parse_program(bytes).unwrap();
-
-    program.set_main_inputs(vec![Some(InputValue::Field("1".into()))]);
-
-    let cs = TestConstraintSystem::<Fq>::new();
-    let expected = FqGadget::one(cs).unwrap();
-
-    output_expected_allocated(program, expected)
-}
-
-#[test]
-fn test_input_fail_bool() {
-    let bytes = include_bytes!("input.leo");
-    let mut program = parse_program(bytes).unwrap();
-
-    program.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
-    fail_field(program);
-}
-
-#[test]
-fn test_input_fail_none() {
-    let bytes = include_bytes!("input.leo");
-    let mut program = parse_program(bytes).unwrap();
-
-    program.set_main_inputs(vec![None]);
-    fail_field(program);
+    f_bigint.to_str_radix(10)
 }
 
 #[test]
@@ -116,32 +30,25 @@ fn test_add() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
+        let c = a.add(&b);
 
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
-
-        let sum = r1.add(&r2);
-
-        let cs = TestConstraintSystem::<Fq>::new();
-        let sum_allocated = FqGadget::from(cs, &sum);
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
+        let c_string = field_to_decimal_string(c);
 
         let bytes = include_bytes!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+            ("c", Some(InputValue::Field(c_string))),
         ]);
+        program.set_main_inputs(main_inputs);
 
-        output_expected_allocated(program, sum_allocated);
+        assert_satisfied(program)
     }
 }
 
@@ -152,68 +59,25 @@ fn test_sub() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
+        let c = a.sub(&b);
 
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
-
-        let difference = r1.sub(&r2);
-
-        let cs = TestConstraintSystem::<Fq>::new();
-        let difference_allocated = FqGadget::from(cs, &difference);
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
+        let c_string = field_to_decimal_string(c);
 
         let bytes = include_bytes!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+            ("c", Some(InputValue::Field(c_string))),
         ]);
+        program.set_main_inputs(main_inputs);
 
-        output_expected_allocated(program, difference_allocated);
-    }
-}
-
-#[test]
-fn test_mul() {
-    use std::ops::Mul;
-
-    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
-
-    for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
-
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
-
-        let product = r1.mul(&r2);
-
-        let cs = TestConstraintSystem::<Fq>::new();
-        let product_allocated = FqGadget::from(cs, &product);
-
-        let bytes = include_bytes!("mul.leo");
-        let mut program = parse_program(bytes).unwrap();
-
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
-        ]);
-
-        output_expected_allocated(program, product_allocated);
+        assert_satisfied(program)
     }
 }
 
@@ -224,32 +88,55 @@ fn test_div() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
+        let c = a.div(&b);
 
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
-
-        let quotient = r1.div(&r2);
-
-        let cs = TestConstraintSystem::<Fq>::new();
-        let quotient_allocated = FqGadget::from(cs, &quotient);
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
+        let c_string = field_to_decimal_string(c);
 
         let bytes = include_bytes!("div.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+            ("c", Some(InputValue::Field(c_string))),
+        ]);
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program)
+    }
+}
+
+#[test]
+fn test_mul() {
+    use std::ops::Mul;
+
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..10 {
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
+        let c = a.mul(&b);
+
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
+        let c_string = field_to_decimal_string(c);
+
+        let bytes = include_bytes!("mul.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+            ("c", Some(InputValue::Field(c_string))),
         ]);
 
-        output_expected_allocated(program, quotient_allocated);
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program)
     }
 }
 
@@ -258,42 +145,42 @@ fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
 
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
 
         // test equal
 
         let bytes = include_bytes!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string.clone()))),
+            ("b", Some(InputValue::Field(a_string.clone()))),
+            ("c", Some(InputValue::Boolean(true))),
         ]);
 
-        output_true(program);
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
 
         // test not equal
 
-        let result = r1.eq(&r2);
+        let c = a.eq(&b);
 
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+            ("c", Some(InputValue::Boolean(c))),
         ]);
 
-        output_expected_boolean(program, result)
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
     }
 }
 
@@ -302,20 +189,21 @@ fn test_assert_eq_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let mut r1_buf = Vec::new();
-        r1.write(&mut r1_buf).unwrap();
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
+        let a: Fq = rng.gen();
+
+        let a_string = field_to_decimal_string(a);
 
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string.clone()))),
+            ("b", Some(InputValue::Field(a_string))),
         ]);
 
-        let _ = get_output(program);
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
     }
 }
 
@@ -324,68 +212,98 @@ fn test_assert_eq_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
-        let r1: Fq = rng.gen();
-        let r2: Fq = rng.gen();
+        let a: Fq = rng.gen();
+        let b: Fq = rng.gen();
 
-        let mut r1_buf = Vec::new();
-        let mut r2_buf = Vec::new();
-        r1.write(&mut r1_buf).unwrap();
-        r2.write(&mut r2_buf).unwrap();
-        let r1_bigint = BigUint::from_bytes_le(&r1_buf);
-        let r2_bigint = BigUint::from_bytes_le(&r2_buf);
-
-        if r1 == r2 {
+        if a == b {
             continue;
         }
+
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
 
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        program.set_main_inputs(vec![
-            Some(InputValue::Field(r1_bigint.to_str_radix(10))),
-            Some(InputValue::Field(r2_bigint.to_str_radix(10))),
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
         ]);
 
-        let mut cs = TestConstraintSystem::<Fq>::new();
-        let _ = program.compile_constraints(&mut cs).unwrap();
-        assert!(!cs.is_satisfied());
+        program.set_main_inputs(main_inputs);
+
+        get_synthesis_error(program);
     }
 }
 
 #[test]
 fn test_ternary() {
-    let r1: u64 = rand::random();
-    let r2: u64 = rand::random();
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    let b1 = BigInteger256::from(r1);
-    let b2 = BigInteger256::from(r2);
+    let a: Fq = rng.gen();
+    let b: Fq = rng.gen();
 
-    let f1: Fq = Fq::from_repr(b1);
-    let f2: Fq = Fq::from_repr(b2);
-
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let g1 = FqGadget::from(cs.ns(|| "g1"), &f1);
-    let g2 = FqGadget::from(cs.ns(|| "g2"), &f2);
+    let a_string = field_to_decimal_string(a);
+    let b_string = field_to_decimal_string(b);
 
     let bytes = include_bytes!("ternary.leo");
-    let mut program_1 = parse_program(bytes).unwrap();
-    let mut program_2 = program_1.clone();
+    let mut program = parse_program(bytes).unwrap();
 
-    // true -> field 1
-    program_1.set_main_inputs(vec![
-        Some(InputValue::Boolean(true)),
-        Some(InputValue::Field(r1.to_string())),
-        Some(InputValue::Field(r2.to_string())),
+    // true -> field a
+    let main_inputs = generate_main_inputs(vec![
+        ("s", Some(InputValue::Boolean(true))),
+        ("a", Some(InputValue::Field(a_string.clone()))),
+        ("b", Some(InputValue::Field(b_string.clone()))),
+        ("c", Some(InputValue::Field(a_string.clone()))),
     ]);
 
-    output_expected_allocated(program_1, g1);
+    program.set_main_inputs(main_inputs);
 
-    // false -> field 2
-    program_2.set_main_inputs(vec![
-        Some(InputValue::Boolean(false)),
-        Some(InputValue::Field(r1.to_string())),
-        Some(InputValue::Field(r2.to_string())),
+    assert_satisfied(program);
+
+    let mut program = parse_program(bytes).unwrap();
+
+    // false -> field b
+    let main_inputs = generate_main_inputs(vec![
+        ("s", Some(InputValue::Boolean(false))),
+        ("a", Some(InputValue::Field(a_string))),
+        ("b", Some(InputValue::Field(b_string.clone()))),
+        ("c", Some(InputValue::Field(b_string))),
     ]);
 
-    output_expected_allocated(program_2, g2);
+    program.set_main_inputs(main_inputs);
+
+    assert_satisfied(program);
 }
+
+//
+// pub fn output_one(program: EdwardsTestCompiler) {
+//     let expected = include_bytes!("outputs/register_one.out");
+//     let actual = get_outputs(program);
+//
+//     assert_eq!(expected, actual.bytes().as_slice());
+// }
+//
+// pub fn output_zero(program: EdwardsTestCompiler) {
+//     let expected = include_bytes!("outputs/register_zero.out");
+//     let actual = get_outputs(program);
+//
+//     assert_eq!(expected, actual.bytes().as_slice());
+// }
+//
+// #[test]
+// fn test_registers() {
+//     let program_bytes = include_bytes!("output_register.leo");
+//     let one_input_bytes = include_bytes!("inputs/register_one.in");
+//     let zero_input_bytes = include_bytes!("inputs/register_zero.in");
+//
+//     // test 1field input register => 1field output register
+//     let program = parse_program_with_inputs(program_bytes, one_input_bytes).unwrap();
+//
+//     output_one(program);
+//
+//     // test 0field input register => 0field output register
+//     let program = parse_program_with_inputs(program_bytes, zero_input_bytes).unwrap();
+//
+//     output_zero(program);
+// }
