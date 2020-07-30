@@ -1,3 +1,3 @@
-function main() -> u32[3] {
-    return [1u32, 1u32, 1u32]
+function main(a: u8[3]) {
+    assert_eq!(a, [1u8, 1u8, 1u8]);
 }
