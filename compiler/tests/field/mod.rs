@@ -1,4 +1,4 @@
-use crate::{assert_satisfied, generate_main_inputs, get_synthesis_error, parse_program};
+use crate::{assert_satisfied, expect_synthesis_error, generate_main_inputs, parse_program};
 use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -232,7 +232,7 @@ fn test_assert_eq_fail() {
 
         program.set_main_inputs(main_inputs);
 
-        get_synthesis_error(program);
+        expect_synthesis_error(program);
     }
 }
 
@@ -278,14 +278,14 @@ fn test_ternary() {
 
 //
 // pub fn output_one(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("outputs/register_one.out");
+//     let expected = include_bytes!("outputs_/register_one.out");
 //     let actual = get_outputs(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());
 // }
 //
 // pub fn output_zero(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("outputs/register_zero.out");
+//     let expected = include_bytes!("outputs_/register_zero.out");
 //     let actual = get_outputs(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());

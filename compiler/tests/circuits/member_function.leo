@@ -4,7 +4,8 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    let c = Foo { };
-    return c.echo(1u32)
+function main() {
+    let a = Foo { };
+
+    assert_eq!(a.echo(1u32), 1u32);
 }

@@ -6,7 +6,9 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    let foo = Foo { f: 1u32 };
-    return foo.bar()
+function main() {
+    let a = Foo { f: 1u32 };
+    let b = a.bar();
+
+    assert_eq!(b, 1u32);
 }

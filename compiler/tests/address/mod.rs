@@ -1,4 +1,4 @@
-use crate::{assert_satisfied, generate_main_inputs, get_compiler_error, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_inputs, parse_program};
 use leo_types::InputValue;
 
 static TEST_ADDRESS_1: &'static str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";
@@ -17,7 +17,7 @@ fn test_invalid() {
     let bytes = include_bytes!("invalid.leo");
     let program = parse_program(bytes).unwrap();
 
-    let _output = get_compiler_error(program);
+    let _output = expect_compiler_error(program);
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn test_implicit_invalid() {
     let bytes = include_bytes!("implicit_invalid.leo");
     let program = parse_program(bytes).unwrap();
 
-    let _output = get_compiler_error(program);
+    let _output = expect_compiler_error(program);
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn test_assert_eq_fail() {
     let bytes = include_bytes!("assert_eq_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    let _output = get_compiler_error(program);
+    let _output = expect_compiler_error(program);
 }
 
 #[test]

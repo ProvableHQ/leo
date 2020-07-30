@@ -1,8 +1,8 @@
 use crate::{
     assert_satisfied,
-    get_compiler_error,
+    expect_compiler_error,
+    expect_synthesis_error,
     get_outputs,
-    get_synthesis_error,
     parse_program,
     parse_program_with_inputs,
     EdwardsTestCompiler,
@@ -10,21 +10,21 @@ use crate::{
 use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs/register_true.out");
+    let expected = include_bytes!("outputs_/register_true.out");
     let actual = get_outputs(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 pub fn output_false(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs/register_false.out");
+    let expected = include_bytes!("outputs_/register_false.out");
     let actual = get_outputs(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 fn fail_boolean_statement(program: EdwardsTestCompiler) {
-    match get_compiler_error(program) {
+    match expect_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::BooleanError(BooleanError::Error(_)),
         ))) => {}
@@ -49,7 +49,7 @@ fn test_input_fail() {
 
     let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
 
-    get_synthesis_error(program);
+    expect_synthesis_error(program);
 }
 
 #[test]

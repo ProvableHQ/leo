@@ -4,7 +4,7 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
+function main() {
     let foo = Foo { };
-    return foo.bar()
+    let err = foo.bar();
 }

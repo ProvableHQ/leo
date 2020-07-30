@@ -1,6 +1,6 @@
 use crate::{
     assert_satisfied,
-    get_compiler_error,
+    expect_compiler_error,
     get_outputs,
     parse_program,
     parse_program_with_inputs,
@@ -8,14 +8,14 @@ use crate::{
 };
 
 pub fn output_ones(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs/registers_ones.out");
+    let expected = include_bytes!("outputs_/registers_ones.out");
     let actual = get_outputs(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
 }
 
 pub fn output_zeros(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs/registers_zeros.out");
+    let expected = include_bytes!("outputs_/registers_zeros.out");
     let actual = get_outputs(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
@@ -56,7 +56,7 @@ fn test_inline_fail() {
     let program_bytes = include_bytes!("inline.leo");
     let program = parse_program(program_bytes).unwrap();
 
-    let _err = get_compiler_error(program);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]

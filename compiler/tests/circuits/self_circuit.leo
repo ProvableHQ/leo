@@ -4,6 +4,6 @@ circuit Foo {
     }
 }
 
-function main() -> Foo {
-    return Foo::new()
+function main() {
+    let a = Foo::new();
 }

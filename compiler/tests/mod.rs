@@ -1,7 +1,7 @@
 pub mod address;
 pub mod array;
 pub mod boolean;
-// pub mod circuits;
+pub mod circuits;
 pub mod field;
 // pub mod function;
 // pub mod group;
@@ -94,12 +94,12 @@ pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
     assert_eq!(empty_output_bytes, res.bytes().as_slice());
 }
 
-pub(crate) fn get_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
+pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
     program.generate_constraints_helper(&mut cs).unwrap_err()
 }
 
-pub(crate) fn get_synthesis_error(program: EdwardsTestCompiler) {
+pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
     let mut cs = TestConstraintSystem::<Fq>::new();
     let _output = program.generate_constraints_helper(&mut cs).unwrap();
 
