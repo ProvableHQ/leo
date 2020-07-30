@@ -1,23 +1,32 @@
-use crate::{get_error, EdwardsTestCompiler};
-use leo_compiler::errors::{CompilerError, FunctionError, IntegerError};
+use crate::{expect_compiler_error, EdwardsTestCompiler};
+use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, IntegerError, StatementError, ValueError};
 
 pub trait IntegerTester {
-    /// Tests use of the integer in a function input
-    fn test_input();
+    /// Tests defining the smalled value that can be represented by the integer type
+    fn test_min();
 
-    /// Tests a wrapping addition
+    /// Tests defining the smallest value - 1
+    fn test_min_fail();
+
+    /// Tests defining the largest value that can be represented by the integer type
+    fn test_max();
+
+    /// Tests defining the largest value + 1
+    fn test_max_fail();
+
+    /// Tests a non-wrapping addition
     fn test_add();
 
-    /// Tests a wrapping subtraction
+    /// Tests a non-wrapping subtraction
     fn test_sub();
 
-    /// Tests a wrapping multiplication
+    /// Tests a non-wrapping multiplication
     fn test_mul();
 
     /// Tests a non-wrapping division
     fn test_div();
 
-    /// Tests a wrapping exponentiation
+    /// Tests a non-wrapping exponentiation
     fn test_pow();
 
     /// Tests == evaluation
@@ -42,9 +51,11 @@ pub trait IntegerTester {
     fn test_ternary();
 }
 
-pub(crate) fn fail_integer(program: EdwardsTestCompiler) {
-    match get_error(program) {
-        CompilerError::FunctionError(FunctionError::IntegerError(IntegerError::Error(_string))) => {}
-        error => panic!("Expected invalid boolean error, got {}", error),
+pub(crate) fn expect_fail(program: EdwardsTestCompiler) {
+    match expect_compiler_error(program) {
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::ValueError(ValueError::IntegerError(IntegerError::Error(_))),
+        ))) => {}
+        error => panic!("Expected invalid boolean error, got {:?}", error),
     }
 }

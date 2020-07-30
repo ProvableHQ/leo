@@ -1,49 +1,33 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
-    get_error,
-    get_output,
-    integers::{fail_integer, IntegerTester},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    integers::{expect_fail, IntegerTester},
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
 };
-use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U16Type};
 use leo_types::InputValue;
-
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{
-    r1cs::TestConstraintSystem,
-    utilities::{alloc::AllocGadget, uint::UInt16},
-};
-
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt16) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Integer(Integer::U16(actual))] => assert_eq!(*actual, expected),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
 
 test_uint!(TestU16, u16, IntegerType::U16Type(U16Type {}), UInt16);
 
 #[test]
 fn test_u16_min() {
-    TestU16::test_min(std::u16::MIN);
+    TestU16::test_min();
+}
+
+#[test]
+fn test_u16_min_fail() {
+    TestU16::test_min_fail();
 }
 
 #[test]
 fn test_u16_max() {
-    TestU16::test_max(std::u16::MAX);
+    TestU16::test_max();
 }
 
 #[test]
-fn test_u16_input() {
-    TestU16::test_input();
+fn test_u16_max_fail() {
+    TestU16::test_max_fail();
 }
 
 #[test]

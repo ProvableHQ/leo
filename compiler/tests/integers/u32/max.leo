@@ -1,3 +1,3 @@
-function main() -> u32 {
-    return 4294967295
+function main() {
+    let a: u32 = 4294967295;
 }

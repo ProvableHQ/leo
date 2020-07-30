@@ -1,48 +1,33 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
-    get_error,
-    get_output,
-    integers::{fail_integer, IntegerTester},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    integers::{expect_fail, IntegerTester},
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
 };
-use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U128Type};
 use leo_types::InputValue;
 
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{
-    r1cs::TestConstraintSystem,
-    utilities::{alloc::AllocGadget, uint::UInt128},
-};
-
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt128) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Integer(Integer::U128(actual))] => assert_eq!(*actual, expected),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
 test_uint!(TestU128, u128, IntegerType::U128Type(U128Type {}), UInt128);
 
 #[test]
 fn test_u128_min() {
-    TestU128::test_min(std::u128::MIN);
+    TestU128::test_min();
+}
+
+#[test]
+fn test_u128_min_fail() {
+    TestU128::test_min_fail();
 }
 
 #[test]
 fn test_u128_max() {
-    TestU128::test_max(std::u128::MAX);
+    TestU128::test_max();
 }
 
 #[test]
-fn test_u128_input() {
-    TestU128::test_input();
+fn test_u128_max_fail() {
+    TestU128::test_max_fail();
 }
 
 #[test]
@@ -55,18 +40,17 @@ fn test_u128_sub() {
     TestU128::test_sub();
 }
 
-#[test] // this test take ~1 min
+#[test]
 fn test_u128_mul() {
     TestU128::test_mul();
 }
 
-#[test] // this test takes ~30 sec
+#[test]
 fn test_u128_div() {
     TestU128::test_div();
 }
 
 #[test]
-#[ignore] // this test takes ~10 mins
 fn test_u128_pow() {
     TestU128::test_pow();
 }

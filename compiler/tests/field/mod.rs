@@ -46,6 +46,7 @@ fn test_add() {
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Field(c_string))),
         ]);
+
         program.set_main_inputs(main_inputs);
 
         assert_satisfied(program)

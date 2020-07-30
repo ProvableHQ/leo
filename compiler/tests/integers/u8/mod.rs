@@ -1,49 +1,33 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
-    get_error,
-    get_output,
-    integers::{fail_integer, IntegerTester},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    integers::{expect_fail, IntegerTester},
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
 };
-use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U8Type};
 use leo_types::InputValue;
-
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{
-    r1cs::TestConstraintSystem,
-    utilities::{alloc::AllocGadget, uint::UInt8},
-};
-
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt8) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Integer(Integer::U8(actual))] => assert_eq!(*actual, expected),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
 
 test_uint!(TestU8, u8, IntegerType::U8Type(U8Type {}), UInt8);
 
 #[test]
 fn test_u8_min() {
-    TestU8::test_min(std::u8::MIN);
+    TestU8::test_min();
+}
+
+#[test]
+fn test_u8_min_fail() {
+    TestU8::test_min_fail();
 }
 
 #[test]
 fn test_u8_max() {
-    TestU8::test_max(std::u8::MAX);
+    TestU8::test_max();
 }
 
 #[test]
-fn test_u8_input() {
-    TestU8::test_input();
+fn test_u8_max_fail() {
+    TestU8::test_max_fail();
 }
 
 #[test]
