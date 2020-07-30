@@ -1,3 +1,3 @@
-function main() -> i32 {
-    return -2147483648
+function main() {
+    let a: i32 = -2147483648;
 }

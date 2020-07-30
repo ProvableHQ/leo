@@ -1,105 +1,91 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
-    get_error,
-    get_output,
-    integers::{fail_integer, IntegerTester},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    integers::{expect_fail, IntegerTester},
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
 };
-use leo_compiler::{ConstrainedValue, Integer};
-use leo_gadgets::*;
 use leo_inputs::types::{I8Type, IntegerType};
 use leo_types::InputValue;
 
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget};
-
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: Int8) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Integer(Integer::I8(actual))] => assert_eq!(*actual, expected),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
-
-test_int!(TestI8, i8, IntegerType::I8Type(I8Type {}), Int8);
+test_int!(Testi8, i8, IntegerType::I8Type(I8Type {}), Int8);
 
 #[test]
 fn test_i8_min() {
-    TestI8::test_min(std::i8::MIN);
+    Testi8::test_min();
+}
+
+#[test]
+fn test_i8_min_fail() {
+    Testi8::test_min_fail();
 }
 
 #[test]
 fn test_i8_max() {
-    TestI8::test_max(std::i8::MAX);
+    Testi8::test_max();
 }
 
 #[test]
-fn test_i8_input() {
-    TestI8::test_input();
+fn test_i8_max_fail() {
+    Testi8::test_max_fail();
 }
 
 #[test]
 fn test_i8_add() {
-    TestI8::test_add();
+    Testi8::test_add();
 }
 
 #[test]
 fn test_i8_sub() {
-    TestI8::test_sub();
+    Testi8::test_sub();
 }
 
 #[test]
 fn test_i8_mul() {
-    TestI8::test_mul();
+    Testi8::test_mul();
 }
 
 #[test]
 fn test_i8_div() {
-    TestI8::test_div();
+    Testi8::test_div();
 }
 
 #[test]
 fn test_i8_pow() {
-    TestI8::test_pow();
+    Testi8::test_pow();
 }
 
 #[test]
 fn test_i8_eq() {
-    TestI8::test_eq();
+    Testi8::test_eq();
 }
 
 #[test]
 fn test_i8_ge() {
-    TestI8::test_ge();
+    Testi8::test_ge();
 }
 
 #[test]
 fn test_i8_gt() {
-    TestI8::test_gt();
+    Testi8::test_gt();
 }
 
 #[test]
 fn test_i8_le() {
-    TestI8::test_le();
+    Testi8::test_le();
 }
 
 #[test]
 fn test_i8_lt() {
-    TestI8::test_lt();
+    Testi8::test_lt();
 }
 
 #[test]
 fn test_i8_assert_eq() {
-    TestI8::test_assert_eq();
+    Testi8::test_assert_eq();
 }
 
 #[test]
 fn test_i8_ternary() {
-    TestI8::test_ternary();
+    Testi8::test_ternary();
 }

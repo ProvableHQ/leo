@@ -56,6 +56,6 @@ pub(crate) fn expect_fail(program: EdwardsTestCompiler) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::ValueError(ValueError::IntegerError(IntegerError::Error(_))),
         ))) => {}
-        error => panic!("Expected invalid boolean error, got {:?}", error),
+        error => panic!("Expected invalid integer error, got {:?}", error),
     }
 }

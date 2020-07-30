@@ -1,3 +1,3 @@
 function main() {
-    let a: u32 = -1;
+    let a: u8 = -1;
 }

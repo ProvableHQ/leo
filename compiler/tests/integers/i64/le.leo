@@ -1,3 +1,3 @@
-function main(a: i64, b: i64) -> bool {
-    return a <= b
+function main(a: i64, b: i64, c: bool) {
+    assert_eq!(a <= b, c);
 }
