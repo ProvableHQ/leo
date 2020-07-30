@@ -1,3 +1,3 @@
-function main() -> bool {
-    return true && 1u32
+function main() {
+    let a = true && 1u32;
 }

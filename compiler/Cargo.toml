@@ -31,3 +31,4 @@ thiserror = { version = "1.0" }
 
 [dev-dependencies]
 num-bigint = { version = "0.3" }
+tempfile = { version = "3.1.0" }

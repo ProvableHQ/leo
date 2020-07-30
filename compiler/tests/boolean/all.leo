@@ -1,8 +1,8 @@
 // !(true && (false || true))
-function main() -> bool {
+function main() {
     const a = true;
     const b = false || a;
     const c = !(true && b);
 
-    return c
+    assert_eq!(c, false);
 }

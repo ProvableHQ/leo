@@ -144,6 +144,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_test_constraints::<F, G>(cs, self.program, self.program_inputs, &self.imported_programs)
     }
 
+    /// Calls the internal generate_constraints method with arguments
+    pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(
+        self,
+        cs: &mut CS,
+    ) -> Result<OutputBytes, CompilerError> {
+        generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs)
+    }
+
     pub fn to_bytes(&self) -> Result<Vec<u8>, CompilerError> {
         Ok(bincode::serialize(&self.program)?)
     }
@@ -168,17 +176,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     /// Synthesizes the circuit with program inputs.
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let result = generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs)
-            .map_err(|e| {
-                log::error!("{}", e);
-                SynthesisError::Unsatisfiable
-            })?;
+        let outputs_directory = self.outputs_directory.clone();
+        let package_name = self.package_name.clone();
+        let result = self.generate_constraints_helper(cs).map_err(|e| {
+            log::error!("{}", e);
+            SynthesisError::Unsatisfiable
+        })?;
 
-        // Write results to file or something
         log::info!("Program circuit successfully synthesized!");
 
-        let outputs_file = OutputsFile::new(&self.package_name);
-        outputs_file.write(&self.outputs_directory, result.bytes()).unwrap();
+        // Write results to file
+        let outputs_file = OutputsFile::new(&package_name);
+        outputs_file.write(&outputs_directory, result.bytes()).unwrap();
 
         Ok(())
     }

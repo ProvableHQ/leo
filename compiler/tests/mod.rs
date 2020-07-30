@@ -1,6 +1,6 @@
 // pub mod address;
 // pub mod array;
-// pub mod boolean;
+pub mod boolean;
 // pub mod circuits;
 // pub mod field;
 // pub mod function;
@@ -19,12 +19,17 @@ use leo_compiler::{
     errors::{CompilerError, FunctionError, StatementError},
     group::targets::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
+    OutputBytes,
 };
 use leo_types::{InputValue, MainInputs};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::{ConstraintSynthesizer, TestConstraintSystem};
-use std::path::PathBuf;
+
+use std::{env::temp_dir, fs::File, io::Read, path::PathBuf};
+
+pub const TEST_OUTPUTS_DIRECTORY: &str = "/outputs/";
+pub const TEST_OUTPUTS_FILE_NAME: &str = "/outputs/test.out";
 
 const EMPTY_FILE: &str = "";
 
@@ -49,7 +54,9 @@ pub fn parse_program_with_inputs(
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
-    let mut compiler = EdwardsTestCompiler::new(program_name, path);
+    // create temporary output directory
+    let outputs_directory = temp_dir();
+    let mut compiler = EdwardsTestCompiler::new(program_name, path, outputs_directory);
 
     compiler
 }
@@ -72,26 +79,39 @@ pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compiler
     Ok(compiler)
 }
 
-pub(crate) fn compile_with_inputs(program: EdwardsTestCompiler) -> EdwardsConstrainedValue {
+pub(crate) fn get_outputs(program: EdwardsTestCompiler) -> OutputBytes {
+    // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
-    let _output = program.generate_constraints(&mut cs).unwrap();
-    assert!(cs.is_satisfied());
-}
+    let output = program.generate_constraints_helper(&mut cs).unwrap();
 
-pub(crate) fn get_output(program: EdwardsTestCompiler) -> EdwardsConstrainedValue {
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let output = program.compile_constraints(&mut cs).unwrap();
+    // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
+
     output
 }
 
-pub(crate) fn get_error(program: EdwardsTestCompiler) -> CompilerError {
+pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
+    let empty_output_bytes = include_bytes!("compiler_outputs/empty.out");
+    let res = get_outputs(program);
+
+    // assert that the output is empty
+    assert_eq!(empty_output_bytes, res.bytes().as_slice());
+}
+
+pub(crate) fn get_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
-    program.compile_constraints(&mut cs).unwrap_err()
+    program.generate_constraints_helper(&mut cs).unwrap_err()
+}
+
+pub(crate) fn get_synthesis_error(program: EdwardsTestCompiler) {
+    let mut cs = TestConstraintSystem::<Fq>::new();
+    let _output = program.generate_constraints_helper(&mut cs).unwrap();
+
+    assert!(!cs.is_satisfied());
 }
 
 pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
-    match get_error(program) {
+    match get_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::Error(_))) => {}
         error => panic!("Expected evaluate error, got {}", error),
     }

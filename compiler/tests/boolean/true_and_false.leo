@@ -1,3 +1,5 @@
-function main() -> bool {
-    return true && false
+function main() {
+    let a = true && false;
+
+    assert_eq!(a, false);
 }
