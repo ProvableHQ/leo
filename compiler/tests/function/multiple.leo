@@ -2,7 +2,9 @@ function tuple() -> (bool, bool) {
     return (true, false)
 }
 
-function main() -> (bool, bool) {
+function main() {
     let (a, b) = tuple();
-    return (a, b)
+
+    assert_eq!(a, true);
+    assert_eq!(b, false);
 }

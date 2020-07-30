@@ -2,6 +2,6 @@ function one() -> u32 {
     return 1u32
 }
 
-function main() -> u32 {
-    return one()
+function main() {
+    assert_eq!(one(), 1u32);
 }

@@ -10,14 +10,14 @@ use crate::{
 use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/register_true.out");
+    let expected = include_bytes!("outputs_/registers_true.out");
     let actual = get_outputs(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 pub fn output_false(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/register_false.out");
+    let expected = include_bytes!("outputs_/registers_false.out");
     let actual = get_outputs(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
@@ -55,8 +55,8 @@ fn test_input_fail() {
 #[test]
 fn test_registers() {
     let program_bytes = include_bytes!("output_register.leo");
-    let true_input_bytes = include_bytes!("inputs/register_true.in");
-    let false_input_bytes = include_bytes!("inputs/register_false.in");
+    let true_input_bytes = include_bytes!("inputs/registers_true.in");
+    let false_input_bytes = include_bytes!("inputs/registers_false.in");
 
     // test true input register => true output register
     let program = parse_program_with_inputs(program_bytes, true_input_bytes).unwrap();

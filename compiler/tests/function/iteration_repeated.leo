@@ -8,6 +8,8 @@ function iteration() -> u32 {
     return a
 }
 
-function main() -> u32 {
-    return iteration() + iteration()
+function main() {
+    let total = iteration() + iteration();
+
+    assert_eq!(total, 20);
 }

@@ -1,3 +1,3 @@
-function main() -> (bool, bool) {
-    return (true, false)
+function main(registers) -> (bool, bool) {
+    return (registers.a, registers.b)
 }
