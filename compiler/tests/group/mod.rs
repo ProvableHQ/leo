@@ -1,57 +1,23 @@
 use crate::{
-    boolean::{output_false, output_true},
-    fail_enforce,
-    get_output,
+    assert_satisfied,
+    expect_synthesis_error,
+    field::field_to_decimal_string,
+    generate_main_inputs,
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
+    parse_program_with_inputs,
 };
-use leo_compiler::{group::targets::edwards_bls12::EdwardsGroupType, ConstrainedValue};
 use leo_types::InputValue;
 
-use snarkos_curves::edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq};
-use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkos_models::{
-    curves::{TEModelParameters, Zero},
-    gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget},
-};
-use std::str::FromStr;
+use snarkos_curves::edwards_bls12::EdwardsAffine;
 
-const TEST_POINT_1: &str = "(7374112779530666882856915975292384652154477718021969292781165691637980424078, 3435195339177955418892975564890903138308061187980579490487898366607011481796)";
-const TEST_POINT_2: &str = "(1005842117974384149622370061042978581211342111653966059496918451529532134799, 79389132189982034519597104273449021362784864778548730890166152019533697186)";
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 
-fn output_expected_constant(program: EdwardsTestCompiler, expected: EdwardsAffine) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Group(EdwardsGroupType::Constant(expected))])
-            .to_string(),
-        output.to_string()
-    )
-}
+pub fn group_to_decimal_string(g: EdwardsAffine) -> String {
+    let x = field_to_decimal_string(g.x);
+    let y = field_to_decimal_string(g.y);
 
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: EdwardsBlsGadget) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Group(EdwardsGroupType::Allocated(gadget))] => {
-                assert_eq!(*gadget, expected as EdwardsBlsGadget)
-            }
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
-
-fn output_zero(program: EdwardsTestCompiler) {
-    output_expected_constant(program, EdwardsAffine::zero())
-}
-
-fn output_one(program: EdwardsTestCompiler) {
-    let (x, y) = EdwardsParameters::AFFINE_GENERATOR_COEFFS;
-    let one = EdwardsAffine::new(x, y);
-
-    output_expected_constant(program, one)
+    format!("({}, {})", x, y)
 }
 
 #[test]
@@ -59,7 +25,7 @@ fn test_zero() {
     let bytes = include_bytes!("zero.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_zero(program);
+    assert_satisfied(program);
 }
 
 #[test]
@@ -67,116 +33,222 @@ fn test_one() {
     let bytes = include_bytes!("one.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_one(program)
+    assert_satisfied(program)
 }
 
 #[test]
 fn test_point() {
-    let point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
     let bytes = include_bytes!("point.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_expected_constant(program, point);
+    assert_satisfied(program);
 }
 
 #[test]
-fn test_input() {
-    let bytes = include_bytes!("input.leo");
-    let mut program = parse_program(bytes).unwrap();
+fn test_inputs() {
+    let program_bytes = include_bytes!("input.leo");
+    let input_bytes_pass = include_bytes!("inputs/one_one.in");
+    let input_bytes_fail = include_bytes!("inputs/one_zero.in");
 
-    program.set_main_inputs(vec![Some(InputValue::Group(TEST_POINT_1.into()))]);
+    let program = parse_program_with_inputs(program_bytes, input_bytes_pass).unwrap();
 
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let constant_point = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let allocated_point =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(constant_point)).unwrap();
+    assert_satisfied(program);
 
-    output_expected_allocated(program, allocated_point);
+    let program = parse_program_with_inputs(program_bytes, input_bytes_fail).unwrap();
+
+    expect_synthesis_error(program);
 }
 
 #[test]
 fn test_add() {
     use std::ops::Add;
 
-    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    let sum = point_1.add(&point_2);
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+        let b: EdwardsAffine = rng.gen();
+        let c = a.add(&b);
 
-    let bytes = include_bytes!("add.leo");
-    let program = parse_program(bytes).unwrap();
+        let a_string = group_to_decimal_string(a);
+        let b_string = group_to_decimal_string(b);
+        let c_string = group_to_decimal_string(c);
 
-    output_expected_constant(program, sum);
+        let bytes = include_bytes!("add.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string))),
+            ("b", Some(InputValue::Group(b_string))),
+            ("c", Some(InputValue::Group(c_string))),
+        ]);
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program)
+    }
 }
 
 #[test]
 fn test_sub() {
     use std::ops::Sub;
 
-    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    let sum = point_1.sub(&point_2);
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+        let b: EdwardsAffine = rng.gen();
+        let c = a.sub(&b);
 
-    let bytes = include_bytes!("sub.leo");
-    let program = parse_program(bytes).unwrap();
+        let a_string = group_to_decimal_string(a);
+        let b_string = group_to_decimal_string(b);
+        let c_string = group_to_decimal_string(c);
 
-    output_expected_constant(program, sum);
-}
+        let bytes = include_bytes!("sub.leo");
+        let mut program = parse_program(bytes).unwrap();
 
-#[test]
-fn test_eq_true() {
-    let bytes = include_bytes!("eq_true.leo");
-    let program = parse_program(bytes).unwrap();
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string))),
+            ("b", Some(InputValue::Group(b_string))),
+            ("c", Some(InputValue::Group(c_string))),
+        ]);
+        program.set_main_inputs(main_inputs);
 
-    output_true(program)
-}
-
-#[test]
-fn test_eq_false() {
-    let bytes = include_bytes!("eq_false.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_false(program)
+        assert_satisfied(program)
+    }
 }
 
 #[test]
 fn test_assert_eq_pass() {
-    let bytes = include_bytes!("assert_eq_true.leo");
-    let program = parse_program(bytes).unwrap();
-    let _res = get_output(program);
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+
+        let a_string = group_to_decimal_string(a);
+
+        let bytes = include_bytes!("assert_eq.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string.clone()))),
+            ("b", Some(InputValue::Group(a_string))),
+        ]);
+
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
+    }
 }
 
 #[test]
 fn test_assert_eq_fail() {
-    let bytes = include_bytes!("assert_eq_false.leo");
-    let program = parse_program(bytes).unwrap();
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    fail_enforce(program);
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+        let b: EdwardsAffine = rng.gen();
+
+        if a == b {
+            continue;
+        }
+
+        let a_string = group_to_decimal_string(a);
+        let b_string = group_to_decimal_string(b);
+
+        let bytes = include_bytes!("assert_eq.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string))),
+            ("b", Some(InputValue::Group(b_string))),
+        ]);
+
+        program.set_main_inputs(main_inputs);
+
+        expect_synthesis_error(program);
+    }
+}
+
+#[test]
+fn test_eq() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+        let b: EdwardsAffine = rng.gen();
+
+        let a_string = group_to_decimal_string(a);
+        let b_string = group_to_decimal_string(b);
+
+        // test equal
+
+        let bytes = include_bytes!("eq.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string.clone()))),
+            ("b", Some(InputValue::Group(a_string.clone()))),
+            ("c", Some(InputValue::Boolean(true))),
+        ]);
+
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
+
+        // test not equal
+
+        let c = a.eq(&b);
+
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_inputs = generate_main_inputs(vec![
+            ("a", Some(InputValue::Group(a_string))),
+            ("b", Some(InputValue::Group(b_string))),
+            ("c", Some(InputValue::Boolean(c))),
+        ]);
+
+        program.set_main_inputs(main_inputs);
+
+        assert_satisfied(program);
+    }
 }
 
 #[test]
 fn test_ternary() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    let a: EdwardsAffine = rng.gen();
+    let b: EdwardsAffine = rng.gen();
+
+    let a_string = group_to_decimal_string(a);
+    let b_string = group_to_decimal_string(b);
+
     let bytes = include_bytes!("ternary.leo");
-    let mut program_1 = parse_program(bytes).unwrap();
+    let mut program = parse_program(bytes).unwrap();
 
-    let mut program_2 = program_1.clone();
+    // true -> field a
+    let main_inputs = generate_main_inputs(vec![
+        ("s", Some(InputValue::Boolean(true))),
+        ("a", Some(InputValue::Group(a_string.clone()))),
+        ("b", Some(InputValue::Group(b_string.clone()))),
+        ("c", Some(InputValue::Group(a_string.clone()))),
+    ]);
 
-    // true -> point_1
-    program_1.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
+    program.set_main_inputs(main_inputs);
 
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let point_1 = EdwardsAffine::from_str(TEST_POINT_1).unwrap();
-    let expected_point_1 =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_1)).unwrap();
-    output_expected_allocated(program_1, expected_point_1);
+    assert_satisfied(program);
 
-    // false -> point_2
-    program_2.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
+    let mut program = parse_program(bytes).unwrap();
 
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let point_2 = EdwardsAffine::from_str(TEST_POINT_2).unwrap();
-    let expected_point_2 =
-        <EdwardsBlsGadget as AllocGadget<EdwardsAffine, Fq>>::alloc(&mut cs, || Ok(point_2)).unwrap();
-    output_expected_allocated(program_2, expected_point_2);
+    // false -> field b
+    let main_inputs = generate_main_inputs(vec![
+        ("s", Some(InputValue::Boolean(false))),
+        ("a", Some(InputValue::Group(a_string))),
+        ("b", Some(InputValue::Group(b_string.clone()))),
+        ("c", Some(InputValue::Group(b_string))),
+    ]);
+
+    program.set_main_inputs(main_inputs);
+
+    assert_satisfied(program);
 }

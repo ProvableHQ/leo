@@ -4,7 +4,7 @@ pub mod boolean;
 pub mod circuits;
 pub mod field;
 pub mod function;
-// pub mod group;
+pub mod group;
 // pub mod import;
 // pub mod inputs;
 // pub mod integers;

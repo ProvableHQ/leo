@@ -9,7 +9,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 // Helper function to convert field element into decimal base 10 string
-fn field_to_decimal_string(f: Fq) -> String {
+pub fn field_to_decimal_string(f: Fq) -> String {
     // write field to buffer
 
     let mut buf = Vec::new();
