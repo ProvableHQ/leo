@@ -1,6 +1,14 @@
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{errors::CompilerError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType, ImportParser};
+use crate::{
+    errors::CompilerError,
+    new_scope,
+    ConstrainedProgram,
+    ConstrainedValue,
+    GroupType,
+    ImportParser,
+    OutputBytes,
+};
 use leo_types::{Inputs, Program};
 
 use snarkos_models::{
@@ -13,8 +21,8 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     program: Program,
     inputs: Inputs,
     imported_programs: &ImportParser,
-) -> Result<ConstrainedValue<F, G>, CompilerError> {
-    let mut resolved_program = ConstrainedProgram::new();
+) -> Result<OutputBytes, CompilerError> {
+    let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());
 

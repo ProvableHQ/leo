@@ -1,4 +1,4 @@
-use crate::{get_error, get_output, parse_program, EdwardsConstrainedValue, EdwardsTestCompiler};
+use crate::{get_error, get_output, parse_program, parse_program_with_inputs, EdwardsConstrainedValue, EdwardsTestCompiler};
 use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
@@ -56,24 +56,25 @@ fn test_false() {
 }
 
 #[test]
-fn test_input_bool_field() {
-    let bytes = include_bytes!("input_bool.leo");
-    let mut program = parse_program(bytes).unwrap();
+fn test_input_bool_true() {
+    let program_bytes = include_bytes!("input_bool.leo");
+    let input_bytes = include_bytes!("inputs/true.in");
 
-    program.set_main_inputs(vec![Some(InputValue::Field("1field".to_string()))]);
+    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
 
-    fail_boolean(program);
+    output_true(program);
 }
 
 #[test]
-fn test_input_bool_none() {
-    let bytes = include_bytes!("input_bool.leo");
-    let mut program = parse_program(bytes).unwrap();
+fn test_input_bool_1field() {
+    let program_bytes = include_bytes!("input_bool.leo");
+    let input_bytes = include_bytes!("inputs/1field.in");
 
-    program.set_main_inputs(vec![None]);
+    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
 
     fail_boolean(program);
 }
+
 
 // Boolean not !
 

@@ -1,9 +1,8 @@
-use crate::{InputValue, Parameter, Record, StateLeaf};
+use crate::{Record, StateLeaf};
 use leo_inputs::{
     sections::{Header, Section},
     InputParserError,
 };
-use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct PrivateState {
@@ -58,12 +57,12 @@ impl PrivateState {
     }
 
     /// Returns the runtime record input values
-    pub fn get_record(&self) -> HashMap<Parameter, Option<InputValue>> {
-        self.record.values()
+    pub fn get_record(&self) -> &Record {
+        &self.record
     }
 
     /// Returns the runtime state leaf input values
-    pub fn get_state_leaf(&self) -> HashMap<Parameter, Option<InputValue>> {
-        self.state_leaf.values()
+    pub fn get_state_leaf(&self) -> &StateLeaf {
+        &self.state_leaf
     }
 }

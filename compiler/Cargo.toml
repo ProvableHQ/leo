@@ -25,6 +25,7 @@ log = { version = "0.4" }
 pest = { version = "2.0" }
 rand = { version = "0.7" }
 rand_xorshift = { version = "0.2", default-features = false }
+serde = { version = "1.0" }
 sha2 = { version = "0.9" }
 thiserror = { version = "1.0" }
 

@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory},
+    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     errors::CLIError,
-    files::{ChecksumFile, InputsFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
+    files::{ChecksumFile, InputsFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -11,7 +11,6 @@ use snarkos_algorithms::snark::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
-use crate::files::StateFile;
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
@@ -48,6 +47,10 @@ impl CLI for BuildCommand {
             package_path.pop();
         }
 
+        // Construct the path to the outputs directory
+        let mut outputs_directory = package_path.clone();
+        outputs_directory.push(OUTPUTS_DIRECTORY_NAME);
+
         // Compile the package starting with the lib.leo file
         if LibFile::exists_at(&package_path) {
             // Construct the path to the library file in the source directory
@@ -59,6 +62,7 @@ impl CLI for BuildCommand {
             let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_inputs(
                 package_name.clone(),
                 lib_file_path.clone(),
+                outputs_directory.clone(),
             )?;
 
             log::info!("Compiled library file {:?}", lib_file_path);
@@ -84,6 +88,7 @@ impl CLI for BuildCommand {
             let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_inputs(
                 package_name.clone(),
                 main_file_path.clone(),
+                outputs_directory,
                 &inputs_string,
                 &state_string,
             )?;

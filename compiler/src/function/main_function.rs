@@ -4,8 +4,8 @@ use crate::{
     errors::FunctionError,
     function::check_arguments_length,
     program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
     GroupType,
+    OutputBytes,
 };
 
 use leo_types::{Expression, Function, Input, Inputs};
@@ -22,8 +22,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: String,
         function: Function,
         inputs: Inputs,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<OutputBytes, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
+        let registers = inputs.get_registers();
 
         // Make sure we are given the correct number of inputs
         check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
@@ -48,25 +49,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     (input_model.identifier, input_value)
                 }
                 Input::Registers(identifier) => {
-                    let section = inputs.get_registers();
+                    let section = inputs.get_registers().values();
                     let value = self.allocate_input_section(cs, identifier.clone(), section)?;
 
                     (identifier, value)
                 }
                 Input::Record(identifier) => {
-                    let section = inputs.get_record();
+                    let section = inputs.get_record().values();
                     let value = self.allocate_input_section(cs, identifier.clone(), section)?;
 
                     (identifier, value)
                 }
                 Input::State(identifier) => {
-                    let section = inputs.get_state();
+                    let section = inputs.get_state().values();
                     let value = self.allocate_input_section(cs, identifier.clone(), section)?;
 
                     (identifier, value)
                 }
                 Input::StateLeaf(identifier) => {
-                    let section = inputs.get_state_leaf();
+                    let section = inputs.get_state_leaf().values();
                     let value = self.allocate_input_section(cs, identifier.clone(), section)?;
 
                     (identifier, value)
@@ -82,6 +83,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             input_variables.push(Expression::Identifier(identifier));
         }
 
-        self.enforce_function(cs, scope, function_name, function, input_variables)
+        let span = function.span.clone();
+        let result_value = self.enforce_function(cs, scope, function_name, function, input_variables)?;
+        let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
+
+        Ok(output_bytes)
     }
 }

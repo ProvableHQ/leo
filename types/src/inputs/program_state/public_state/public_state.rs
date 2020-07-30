@@ -1,10 +1,8 @@
-use crate::{InputValue, Parameter, State};
+use crate::State;
 use leo_inputs::{
     sections::{Header, Section},
     InputParserError,
 };
-
-use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct PublicState {
@@ -41,7 +39,7 @@ impl PublicState {
     }
 
     /// Returns the runtime state input values
-    pub fn get_state(&self) -> HashMap<Parameter, Option<InputValue>> {
-        self.state.values()
+    pub fn get_state(&self) -> &State {
+        &self.state
     }
 }

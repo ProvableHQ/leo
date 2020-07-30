@@ -1,10 +1,8 @@
-use crate::{InputValue, Parameter, PrivateState, PublicState};
+use crate::{PrivateState, PublicState, Record, State, StateLeaf};
 use leo_inputs::{
     tables::{Table, Visibility},
     InputParserError,
 };
-
-use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ProgramState {
@@ -42,17 +40,17 @@ impl ProgramState {
     }
 
     /// Returns the runtime record input values
-    pub fn get_record(&self) -> HashMap<Parameter, Option<InputValue>> {
+    pub fn get_record(&self) -> &Record {
         self.private.get_record()
     }
 
     /// Returns the runtime state input values
-    pub fn get_state(&self) -> HashMap<Parameter, Option<InputValue>> {
+    pub fn get_state(&self) -> &State {
         self.public.get_state()
     }
 
     /// Returns the runtime state leaf input values
-    pub fn get_state_leaf(&self) -> HashMap<Parameter, Option<InputValue>> {
+    pub fn get_state_leaf(&self) -> &StateLeaf {
         self.private.get_state_leaf()
     }
 }

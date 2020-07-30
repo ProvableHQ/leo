@@ -4,10 +4,10 @@ use leo_ast::functions::inputs::Input as AstInput;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-const RECORD_VARIABLE_NAME: &str = "record";
-const REGISTERS_VARIABLE_NAME: &str = "registers";
-const STATE_VARIABLE_NAME: &str = "state";
-const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
+pub const RECORD_VARIABLE_NAME: &str = "record";
+pub const REGISTERS_VARIABLE_NAME: &str = "registers";
+pub const STATE_VARIABLE_NAME: &str = "state";
+pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Input {
