@@ -3,7 +3,8 @@ import test_import.(
     foo
 );
 
-function main() -> u32 {
-    let p = Point { x: 1u32, y: 0u32 };
-    return p.x
+function main() {
+    let a = Point { x: 1u32, y: 0u32 };
+
+    assert_eq!(a.x, 1u32);
 }
