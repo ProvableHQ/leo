@@ -1,3 +1,4 @@
-function main(a: bool, b: bool) -> bool {
-    return a || b
+function main(a: bool, b: bool) {
+    assert_eq!(a, true);
+    assert_eq!(b, false);
 }

@@ -6,7 +6,7 @@ pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
-// pub mod inputs;
+pub mod inputs;
 // pub mod integers;
 // pub mod macros;
 // pub mod mutability;
