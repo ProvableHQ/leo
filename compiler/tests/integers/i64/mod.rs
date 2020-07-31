@@ -45,7 +45,8 @@ fn test_i64_mul() {
     Testi64::test_mul();
 }
 
-#[test] // takes 90 seconds
+#[test]
+#[ignore] // takes 2 minutes
 fn test_i64_div() {
     Testi64::test_div();
 }

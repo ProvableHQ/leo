@@ -1,15 +1,17 @@
-use crate::{access::AssigneeAccess, ast::Rule, common::Identifier};
+use crate::{access::AssigneeAccess, ast::Rule, common::Identifier, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::assignee))]
 pub struct Assignee<'ast> {
     pub identifier: Identifier<'ast>,
     pub accesses: Vec<AssigneeAccess<'ast>>,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 

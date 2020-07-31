@@ -2,13 +2,15 @@ use crate::{
     ast::Rule,
     common::LineEnd,
     macros::{FormattedString, MacroName, MacroSymbol},
+    SpanDef,
 };
 
 use pest::Span;
 use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::formatted_macro))]
 pub struct FormattedMacro<'ast> {
     pub name: MacroName<'ast>,
@@ -16,6 +18,7 @@ pub struct FormattedMacro<'ast> {
     pub string: Option<FormattedString<'ast>>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
 
