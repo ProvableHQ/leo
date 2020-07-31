@@ -1,3 +1,5 @@
-function main(b: bool, x: u128, y: u128) -> u128 {
-    return if b ? x : y
+function main(s: bool, a: u128, b: u128, c: u128) {
+    let r = if s ? a : b;
+
+    assert_eq!(r, c);
 }

@@ -1,6 +1,6 @@
 // `{from}..{to}` copies the elements of one array into another exclusively
-function main() -> u32[3] {
-    let a = [1u32; 4];
+function main(a: u8[3]) {
+    let b = [1u8; 4];
 
-    return a[0..3]
+    assert_eq!(a, b[0..3]);
 }

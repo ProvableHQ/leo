@@ -1,3 +1,3 @@
-function main(b: bool) {
-    print!("b = {}", b);
+function main(a: bool) {
+    print!("a = {}", a);
 }

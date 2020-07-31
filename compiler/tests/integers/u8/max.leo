@@ -1,3 +1,3 @@
-function main() -> u8 {
-    return 255
+function main() {
+    let a: u8 = 255;
 }

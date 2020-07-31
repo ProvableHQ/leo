@@ -1,11 +1,15 @@
-function main(bit: u32) -> u32 {
-    let mut a = 5u32;
+function main(a: u32) {
+    let mut b = 5u32;
 
-    if bit == 1 {
-        a = 1;
+    if a == 1 {
+        b = 1;
     } else {
-        a = 0;
+        b = 0;
     }
 
-    return a
+    if a == 1 {
+        assert_eq!(b, 1);
+    } else {
+        assert_eq!(b, 0);
+    }
 }

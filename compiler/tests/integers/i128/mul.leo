@@ -1,3 +1,3 @@
-function main(a: i128, b: i128) -> i128 {
-    return a * b
+function main(a: i128, b: i128, c: i128) {
+    assert_eq!(a * b, c);
 }

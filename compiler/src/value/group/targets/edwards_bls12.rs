@@ -303,8 +303,8 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
         if let Boolean::Constant(cond) = *cond {
             if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
-            let first_gadget = first.allocated(&mut cs)?;
-            let second_gadget = second.allocated(&mut cs)?;
+            let first_gadget = first.allocated(cs.ns(|| "first"))?;
+            let second_gadget = second.allocated(cs.ns(|| "second"))?;
             let result = EdwardsBlsGadget::conditionally_select(cs, cond, &first_gadget, &second_gadget)?;
 
             Ok(EdwardsGroupType::Allocated(result))

@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::source::SOURCE_DIRECTORY_NAME,
+    directories::{outputs::OUTPUTS_DIRECTORY_NAME, source::SOURCE_DIRECTORY_NAME},
     errors::{CLIError, TestError},
-    files::{MainFile, Manifest, MAIN_FILE_NAME},
+    files::{InputsFile, MainFile, Manifest, StateFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -56,8 +56,24 @@ impl CLI for TestCommand {
         main_file_path.push(SOURCE_DIRECTORY_NAME);
         main_file_path.push(MAIN_FILE_NAME);
 
+        // Construct the path to the outputs directory;
+        let mut outputs_directory = package_path.clone();
+        outputs_directory.push(OUTPUTS_DIRECTORY_NAME);
+
+        // Load the inputs file at `package_name`
+        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+
+        // Load the state file at `package_name.in`
+        let state_string = StateFile::new(&package_name).read_from(&path)?;
+
         // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
+        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_inputs(
+            package_name.clone(),
+            main_file_path.clone(),
+            outputs_directory,
+            &inputs_string,
+            &state_string,
+        )?;
 
         // Generate the program on the constraint system and verify correctness
         {

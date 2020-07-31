@@ -1,5 +1,5 @@
 import test_import.foo;
 
-function main() -> u32 {
-    return foo()
+function main() {
+    assert_eq!(foo(), 1u32);
 }

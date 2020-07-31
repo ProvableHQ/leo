@@ -1,4 +1,4 @@
-use crate::errors::{FunctionError, ImportError};
+use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputsFileError};
 use leo_ast::ParserError;
 use leo_inputs::InputParserError;
 
@@ -26,6 +26,12 @@ pub enum CompilerError {
     NoMainFunction,
 
     #[error("{}", _0)]
+    OutputError(#[from] OutputsFileError),
+
+    #[error("{}", _0)]
+    OutputStringError(#[from] OutputBytesError),
+
+    #[error("{}", _0)]
     ParserError(#[from] ParserError),
 
     #[error("{}", _0)]
@@ -36,6 +42,7 @@ impl CompilerError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
             CompilerError::FunctionError(error) => error.set_path(path),
+            CompilerError::OutputStringError(error) => error.set_path(path),
             _ => {}
         }
     }

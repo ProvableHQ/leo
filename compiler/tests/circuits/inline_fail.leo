@@ -3,5 +3,5 @@ circuit Foo {
 }
 
 function main() {
-    let c = Foo { y: 0u32 };
+    let a = Foo { y: 0u32 };
 }

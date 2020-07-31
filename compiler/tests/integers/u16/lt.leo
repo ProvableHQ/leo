@@ -1,3 +1,3 @@
-function main(a: u16, b: u16) -> bool {
-    return a < b
+function main(a: u16, b: u16, c: bool) {
+    assert_eq!(a < b, c);
 }

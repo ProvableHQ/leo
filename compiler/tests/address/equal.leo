@@ -1,3 +1,3 @@
-function main(first: address, second: address) -> bool {
-    return first == second
+function main(a: address, b: address, c: bool) {
+    assert_eq!(a == b, c);
 }

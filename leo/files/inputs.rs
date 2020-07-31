@@ -1,4 +1,4 @@
-//! The `inputs.leo` file.
+//! The `program.in` file.
 
 use crate::{directories::inputs::INPUTS_DIRECTORY_NAME, errors::InputsFileError};
 
@@ -28,7 +28,7 @@ impl InputsFile {
         path.exists()
     }
 
-    /// Reads the proof from the given file path if it exists.
+    /// Reads the inputs from the given file path if it exists.
     pub fn read_from(&self, path: &PathBuf) -> Result<String, InputsFileError> {
         let path = self.setup_file_path(path);
 

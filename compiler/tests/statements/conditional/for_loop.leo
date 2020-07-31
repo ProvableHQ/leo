@@ -1,11 +1,13 @@
-function main(cond: bool) -> u32 {
-    let mut a = 0u32;
+function main(a: bool) {
+    let mut b = 0u32;
 
-    if cond {
+    if a {
         for i in 0..4 {
-        a += i;
+            b += i;
         }
     }
 
-    return a
+    let r: u32 = if a ? 6 : 0;
+
+    assert_eq!(r, b);
 }

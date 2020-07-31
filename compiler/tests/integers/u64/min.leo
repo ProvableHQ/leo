@@ -1,3 +1,3 @@
-function main() -> u64 {
-    return 0
+function main() {
+    let a: u64 = 0;
 }

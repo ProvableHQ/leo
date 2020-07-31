@@ -1,3 +1,3 @@
-function main() -> group {
-    return 0group
+function main() {
+    let a = 0group;
 }

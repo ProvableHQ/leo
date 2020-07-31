@@ -609,6 +609,7 @@ dependencies = [
  "pest",
  "rand",
  "rand_xorshift",
+ "serde",
  "sha2",
  "snarkos-curves",
  "snarkos-dpc",

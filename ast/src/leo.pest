@@ -335,11 +335,32 @@ statement_return = { "return " ~ return_}
 /// Functions
 
 // Declared in functions/function.rs
-function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_model_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-// Declared in functions/function_input.rs
+// Declared in functions/inputs/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
-input_model_list = _{ (function_input ~ ("," ~ NEWLINE* ~ function_input)*)? }
+
+// Declared in functions/inputs/record.rs
+record = { "record" }
+
+// Declared in functions/inputs/registers.rs
+registers = { "registers" }
+
+// Declared in functions/inputs/state.rs
+state = { "state" }
+
+// Declared in functions/inputs/state_leaf.rs
+state_leaf = { "state_leaf" }
+
+// Declared in functions/inputs/input.rs
+input = {
+    record
+    | registers
+    | state_leaf
+    | state
+    | function_input
+}
+input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }
 
 // Declared in functions/test_function.rs
 test_function = { "test " ~ function_definition }

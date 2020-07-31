@@ -1,3 +1,3 @@
-function main() -> u64 {
-    return 18446744073709551615
+function main() {
+    let a: u64 = 18446744073709551615;
 }

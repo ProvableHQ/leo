@@ -1,4 +1,4 @@
-use crate::{get_error, parse_inputs, parse_program};
+use crate::{expect_compiler_error, parse_inputs, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_inputs::InputParserError;
@@ -19,7 +19,7 @@ fn test_undefined() {
     let bytes = include_bytes!("undefined.leo");
     let program = parse_program(bytes).unwrap();
 
-    let error = get_error(program);
+    let error = expect_compiler_error(program);
 
     match error {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(

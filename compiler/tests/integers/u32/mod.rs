@@ -1,66 +1,33 @@
 use crate::{
-    boolean::{output_expected_boolean, output_false, output_true},
-    get_error,
-    get_output,
-    integers::{fail_integer, IntegerTester},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    integers::{expect_parsing_error, IntegerTester},
     parse_program,
-    EdwardsConstrainedValue,
-    EdwardsTestCompiler,
 };
-use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::InputValue;
-
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::{
-    r1cs::TestConstraintSystem,
-    utilities::{alloc::AllocGadget, uint::UInt32},
-};
-
-fn output_expected_allocated(program: EdwardsTestCompiler, expected: UInt32) {
-    let output = get_output(program);
-
-    match output {
-        EdwardsConstrainedValue::Return(vec) => match vec.as_slice() {
-            [ConstrainedValue::Integer(Integer::U32(actual))] => assert_eq!(*actual, expected),
-            _ => panic!("program output unknown return value"),
-        },
-        _ => panic!("program output unknown return value"),
-    }
-}
-
-pub(crate) fn output_number(program: EdwardsTestCompiler, number: u32) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![ConstrainedValue::Integer(Integer::U32(UInt32::constant(number)))])
-            .to_string(),
-        output.to_string()
-    )
-}
-
-pub(crate) fn output_zero(program: EdwardsTestCompiler) {
-    output_number(program, 0u32);
-}
-
-pub(crate) fn output_one(program: EdwardsTestCompiler) {
-    output_number(program, 1u32);
-}
 
 test_uint!(TestU32, u32, IntegerType::U32Type(U32Type {}), UInt32);
 
 #[test]
 fn test_u32_min() {
-    TestU32::test_min(std::u32::MIN);
+    TestU32::test_min();
+}
+
+#[test]
+fn test_u32_min_fail() {
+    TestU32::test_min_fail();
 }
 
 #[test]
 fn test_u32_max() {
-    TestU32::test_max(std::u32::MAX);
+    TestU32::test_max();
 }
 
 #[test]
-fn test_u32_input() {
-    TestU32::test_input();
+fn test_u32_max_fail() {
+    TestU32::test_max_fail();
 }
 
 #[test]

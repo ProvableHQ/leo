@@ -1,12 +1,5 @@
-use crate::{
-    get_error,
-    integers::u32::{output_one, output_zero},
-    parse_program,
-};
+use crate::{assert_satisfied, expect_compiler_error, expect_synthesis_error, generate_main_inputs, parse_program};
 use leo_types::InputValue;
-
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 pub mod conditional;
 
@@ -15,15 +8,27 @@ pub mod conditional;
 #[test]
 fn test_ternary_basic() {
     let bytes = include_bytes!("ternary_basic.leo");
-    let mut program_input_true = parse_program(bytes).unwrap();
+    let mut program = parse_program(bytes).unwrap();
 
-    let mut program_input_false = program_input_true.clone();
+    let main_inputs = generate_main_inputs(vec![
+        ("a", Some(InputValue::Boolean(true))),
+        ("b", Some(InputValue::Boolean(true))),
+    ]);
 
-    program_input_true.set_inputs(vec![Some(InputValue::Boolean(true))]);
-    output_one(program_input_true);
+    program.set_main_inputs(main_inputs);
 
-    program_input_false.set_inputs(vec![Some(InputValue::Boolean(false))]);
-    output_zero(program_input_false);
+    assert_satisfied(program);
+
+    let mut program = parse_program(bytes).unwrap();
+
+    let main_inputs = generate_main_inputs(vec![
+        ("a", Some(InputValue::Boolean(false))),
+        ("b", Some(InputValue::Boolean(false))),
+    ]);
+
+    program.set_main_inputs(main_inputs);
+
+    assert_satisfied(program);
 }
 
 // Iteration for i {start}..{stop} { statements }
@@ -33,7 +38,7 @@ fn test_iteration_basic() {
     let bytes = include_bytes!("iteration_basic.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_one(program);
+    assert_satisfied(program);
 }
 
 // Assertion
@@ -41,23 +46,21 @@ fn test_iteration_basic() {
 #[test]
 fn test_assertion_basic() {
     let bytes = include_bytes!("assertion_basic.leo");
-    let program = parse_program(bytes).unwrap();
+    let mut program = parse_program(bytes).unwrap();
 
-    let mut program_input_true = program.clone();
-    let mut cs_satisfied = TestConstraintSystem::<Fq>::new();
+    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(true)))]);
 
-    program_input_true.set_inputs(vec![Some(InputValue::Boolean(true))]);
-    let _output = program_input_true.compile_constraints(&mut cs_satisfied).unwrap();
+    program.set_main_inputs(main_inputs);
 
-    assert!(cs_satisfied.is_satisfied());
+    assert_satisfied(program);
 
-    let mut program_input_false = program.clone();
-    let mut cs_unsatisfied = TestConstraintSystem::<Fq>::new();
+    let mut program = parse_program(bytes).unwrap();
 
-    program_input_false.set_inputs(vec![Some(InputValue::Boolean(false))]);
-    let _output = program_input_false.compile_constraints(&mut cs_unsatisfied).unwrap();
+    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(false)))]);
 
-    assert!(!cs_unsatisfied.is_satisfied());
+    program.set_main_inputs(main_inputs);
+
+    expect_synthesis_error(program);
 }
 
 #[test]
@@ -65,5 +68,5 @@ fn test_num_returns_fail() {
     let bytes = include_bytes!("num_returns_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    let _ = get_error(program);
+    expect_compiler_error(program);
 }
