@@ -360,8 +360,8 @@ fn test_ternary() {
     let b1 = BigInteger256::from(r1);
     let b2 = BigInteger256::from(r2);
 
-    let f1: Fq = Fq::from_repr(b1);
-    let f2: Fq = Fq::from_repr(b2);
+    let f1: Fq = Fq::from_repr(b1).unwrap();
+    let f2: Fq = Fq::from_repr(b2).unwrap();
 
     let mut cs = TestConstraintSystem::<Fq>::new();
     let g1 = FqGadget::from(cs.ns(|| "g1"), &f1);
