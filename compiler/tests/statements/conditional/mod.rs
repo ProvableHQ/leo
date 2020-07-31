@@ -1,31 +1,15 @@
 use crate::{
-    get_output,
-    integers::u32::{output_number, output_one, output_zero},
+    assert_satisfied,
+    expect_synthesis_error,
+    generate_main_inputs,
+    get_outputs,
     parse_program,
-    EdwardsConstrainedValue,
+    parse_program_with_inputs,
     EdwardsTestCompiler,
 };
 use leo_inputs::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
-
-fn empty_output_satisfied(program: EdwardsTestCompiler) {
-    let output = get_output(program);
-
-    assert_eq!(EdwardsConstrainedValue::Return(vec![]).to_string(), output.to_string());
-}
-
-// Tests a statements.conditional enforceBit() program
-//
-// function main(bit: u8) {
-//     if bit == 1u8 {
-//       assert_eq!(bit, 1u8);
-//     } else {
-//       assert_eq!(bit, 0u8);
-//     }
-// }
 #[test]
 fn test_assert() {
     let bytes = include_bytes!("assert.leo");
@@ -35,52 +19,65 @@ fn test_assert() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_pass.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        1.to_string(),
-    ))]);
-    empty_output_satisfied(program_1_pass);
+    let main_inputs = generate_main_inputs(vec![(
+        "a",
+        Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
+    )]);
+
+    program_1_pass.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        0.to_string(),
-    ))]);
-    empty_output_satisfied(program_0_pass);
+    let main_inputs = generate_main_inputs(vec![(
+        "a",
+        Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0.to_string())),
+    )]);
+
+    program_0_pass.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_0_pass);
 
     // Check that an input value of 2 does not satisfy the constraint system
 
-    program_2_fail.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        2.to_string(),
-    ))]);
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let _output = program_2_fail.compile_constraints(&mut cs).unwrap();
-    assert!(!cs.is_satisfied());
+    let main_inputs = generate_main_inputs(vec![(
+        "a",
+        Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2.to_string())),
+    )]);
+
+    program_2_fail.set_main_inputs(main_inputs);
+
+    expect_synthesis_error(program_2_fail);
 }
 
 #[test]
 fn test_mutate() {
     let bytes = include_bytes!("mutate.leo");
-    let mut program_1_true = parse_program(bytes).unwrap();
-    let mut program_0_pass = program_1_true.clone();
+    let mut program_1_pass = parse_program(bytes).unwrap();
+    let mut program_0_pass = program_1_pass.clone();
 
     // Check that an input value of 1 satisfies the constraint system
 
-    program_1_true.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        1.to_string(),
-    ))]);
-    output_one(program_1_true);
+    let main_inputs = generate_main_inputs(vec![(
+        "a",
+        Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
+    )]);
+
+    program_1_pass.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    program_0_pass.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        0.to_string(),
-    ))]);
-    output_zero(program_0_pass);
+    let main_inputs = generate_main_inputs(vec![(
+        "a",
+        Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0.to_string())),
+    )]);
+
+    program_0_pass.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_0_pass);
 }
 
 #[test]
@@ -91,13 +88,19 @@ fn test_for_loop() {
 
     // Check that an input value of true satisfies the constraint system
 
-    program_true_6.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
-    output_number(program_true_6, 6u32);
+    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(true)))]);
+
+    program_true_6.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_true_6);
 
     // Check that an input value of false satisfies the constraint system
 
-    program_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
-    output_zero(program_false_0);
+    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(false)))]);
+
+    program_false_0.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_false_0);
 }
 
 #[test]
@@ -105,28 +108,58 @@ fn test_chain() {
     let bytes = include_bytes!("chain.leo");
     let mut program_1_1 = parse_program(bytes).unwrap();
     let mut program_2_2 = program_1_1.clone();
-    let mut program_2_3 = program_1_1.clone();
+    let mut program_4_3 = program_1_1.clone();
 
-    // Check that an input of 1 outputs true
-    program_1_1.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        1.to_string(),
-    ))]);
-    output_number(program_1_1, 1u32);
+    // Check that an input of 1 outputs 1
 
-    // Check that an input of 0 outputs true
-    program_2_2.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        2.to_string(),
-    ))]);
-    output_number(program_2_2, 2u32);
+    let main_inputs = generate_main_inputs(vec![
+        (
+            "a",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
+        ),
+        (
+            "b",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
+        ),
+    ]);
 
-    // Check that an input of 0 outputs true
-    program_2_3.set_main_inputs(vec![Some(InputValue::Integer(
-        IntegerType::U32Type(U32Type {}),
-        5.to_string(),
-    ))]);
-    output_number(program_2_3, 3u32);
+    program_1_1.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_1_1);
+
+    // Check that an input of 2 outputs 2
+
+    let main_inputs = generate_main_inputs(vec![
+        (
+            "a",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2.to_string())),
+        ),
+        (
+            "b",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2.to_string())),
+        ),
+    ]);
+
+    program_2_2.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_2_2);
+
+    // Check that an input of 4 outputs 3
+
+    let main_inputs = generate_main_inputs(vec![
+        (
+            "a",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 4.to_string())),
+        ),
+        (
+            "b",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 3.to_string())),
+        ),
+    ]);
+
+    program_4_3.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_4_3);
 }
 
 #[test]
@@ -136,35 +169,81 @@ fn test_nested() {
     let mut program_true_false_1 = program_true_true_3.clone();
     let mut program_false_false_0 = program_true_true_3.clone();
 
-    // Check that an input value of true true satisfies the constraint system
+    // Check that an input value of true true outputs 3
 
-    program_true_true_3.set_main_inputs(vec![Some(InputValue::Boolean(true)); 2]);
-    output_number(program_true_true_3, 3u32);
+    let main_inputs = generate_main_inputs(vec![
+        ("a", Some(InputValue::Boolean(true))),
+        ("b", Some(InputValue::Boolean(true))),
+        (
+            "c",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 3.to_string())),
+        ),
+    ]);
 
-    // Check that an input value of true false satisfies the constraint system
+    program_true_true_3.set_main_inputs(main_inputs);
 
-    program_true_false_1.set_main_inputs(vec![Some(InputValue::Boolean(true)), Some(InputValue::Boolean(false))]);
-    output_number(program_true_false_1, 1u32);
+    assert_satisfied(program_true_true_3);
 
-    // Check that an input value of false false satisfies the constraint system
+    // Check that an input value of true false outputs 1
 
-    program_false_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false)), Some(InputValue::Boolean(false))]);
-    output_number(program_false_false_0, 0u32);
+    let main_inputs = generate_main_inputs(vec![
+        ("a", Some(InputValue::Boolean(true))),
+        ("b", Some(InputValue::Boolean(false))),
+        (
+            "c",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
+        ),
+    ]);
+
+    program_true_false_1.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_true_false_1);
+
+    // Check that an input value of false false outputs 0
+
+    let main_inputs = generate_main_inputs(vec![
+        ("a", Some(InputValue::Boolean(false))),
+        ("b", Some(InputValue::Boolean(false))),
+        (
+            "c",
+            Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0.to_string())),
+        ),
+    ]);
+
+    program_false_false_0.set_main_inputs(main_inputs);
+
+    assert_satisfied(program_false_false_0);
+}
+
+fn output_one(program: EdwardsTestCompiler) {
+    let expected = include_bytes!("outputs_/registers_one.out");
+    let actual = get_outputs(program);
+
+    assert_eq!(expected, actual.bytes().as_slice());
+}
+
+fn output_zero(program: EdwardsTestCompiler) {
+    let expected = include_bytes!("outputs_/registers_zero.out");
+    let actual = get_outputs(program);
+
+    assert_eq!(expected, actual.bytes().as_slice());
 }
 
 #[test]
 fn test_multiple_returns() {
-    let bytes = include_bytes!("multiple_returns.leo");
-    let mut program_true_1 = parse_program(bytes).unwrap();
-    let mut program_false_0 = program_true_1.clone();
+    let program_bytes = include_bytes!("multiple_returns.leo");
 
-    // Check that an input value of true returns 1 and satisfies the constraint system
+    // Check that an input value of 1 writes 1 to the output registers
 
-    program_true_1.set_main_inputs(vec![Some(InputValue::Boolean(true))]);
-    output_number(program_true_1, 1u32);
+    let registers_one_bytes = include_bytes!("inputs/registers_one.in");
+    let program = parse_program_with_inputs(program_bytes, registers_one_bytes).unwrap();
 
-    // Check that an input value of false returns 0 and satisfies the constraint system
+    output_one(program);
 
-    program_false_0.set_main_inputs(vec![Some(InputValue::Boolean(false))]);
-    output_number(program_false_0, 0u32);
+    // Check that an input value of 0 writes 0 to the output registers
+
+    let registers_zero_bytes = include_bytes!("inputs/registers_zero.in");
+    let program = parse_program_with_inputs(program_bytes, registers_zero_bytes).unwrap();
+
+    output_zero(program);
 }

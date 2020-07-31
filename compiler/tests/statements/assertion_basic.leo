@@ -1,3 +1,3 @@
-function main(b: bool) {
-    assert_eq!(b, true);
+function main(a: bool) {
+    assert_eq!(a, true);
 }

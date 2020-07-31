@@ -1,12 +1,12 @@
-function main(a: bool, b: bool) -> u32 {
-    let mut result = 0u32;
+function main(a: bool, b: bool, c: u32) {
+    let mut d = 0u32;
 
     if a {
-        result += 1;
+        d += 1;
         if b {
-            result += 2;
+            d += 2;
         }
     }
 
-    return result
+    assert_eq!(d, c);
 }

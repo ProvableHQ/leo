@@ -1,3 +1,5 @@
-function main(b: bool) -> u32 {
-    return if b ? 1 : 0
+function main(a: bool, b: bool) {
+    let c = if a ? true : false;
+
+    assert_eq!(c, b);
 }
