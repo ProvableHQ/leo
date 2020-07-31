@@ -7,7 +7,7 @@ use crate::{
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
-use snarkos_algorithms::snark::KeypairAssembly;
+use snarkos_algorithms::snark::groth16::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 

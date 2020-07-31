@@ -51,6 +51,9 @@ pub enum CLIError {
     RunError(RunError),
 
     #[error("{}", _0)]
+    SNARKError(snarkos_errors::algorithms::snark::SNARKError),
+
+    #[error("{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
 
     #[error("{}", _0)]
@@ -210,20 +213,30 @@ impl From<leo_inputs::errors::InputParserError> for CLIError {
     }
 }
 
+impl From<snarkos_errors::algorithms::snark::SNARKError> for CLIError {
+    fn from(error: snarkos_errors::algorithms::snark::SNARKError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::Crate("snarkos_errors", format!("{}", error))
+    }
+}
+
 impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
     fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
+        log::error!("{}\n", error);
         CLIError::Crate("snarkos_errors", format!("{}", error))
     }
 }
 
 impl From<serde_json::error::Error> for CLIError {
     fn from(error: serde_json::error::Error) -> Self {
+        log::error!("{}\n", error);
         CLIError::Crate("serde_json", format!("{}", error))
     }
 }
 
 impl From<std::io::Error> for CLIError {
     fn from(error: std::io::Error) -> Self {
+        log::error!("{}\n", error);
         CLIError::Crate("std::io", format!("{}", error))
     }
 }

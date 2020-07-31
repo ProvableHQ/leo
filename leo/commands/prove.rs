@@ -6,8 +6,9 @@ use crate::{
     files::{Manifest, ProofFile},
 };
 
-use snarkos_algorithms::snark::{create_random_proof, PreparedVerifyingKey, Proof};
-use snarkos_curves::bls12_377::Bls12_377;
+use snarkos_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
+use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_models::algorithms::SNARK;
 
 use clap::ArgMatches;
 use rand::thread_rng;
@@ -46,8 +47,9 @@ impl CLI for ProveCommand {
         let start = Instant::now();
 
         let rng = &mut thread_rng();
-        let program_proof = create_random_proof(program.clone(), &parameters, rng)?;
+        let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, program, rng)?;
 
+        // Output the proving time
         log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
         // Write the proof file to the outputs directory

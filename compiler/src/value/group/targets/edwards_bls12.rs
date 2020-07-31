@@ -111,7 +111,20 @@ impl EdwardsGroupType {
     pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, SynthesisError> {
         // x or (x, y)
         match Fq::from_str(&string).ok() {
-            Some(x) => EdwardsAffine::get_point_from_x(x, false).ok_or(SynthesisError::AssignmentMissing),
+            Some(x) => {
+                // Attempt to recover with a sign_low bit.
+                if let Some(element) = EdwardsAffine::from_x_coordinate(x.clone(), false) {
+                    return Ok(element);
+                }
+
+                // Attempt to recover with a sign_high bit.
+                if let Some(element) = EdwardsAffine::from_x_coordinate(x, true) {
+                    return Ok(element);
+                }
+
+                // Otherwise return error.
+                Err(SynthesisError::AssignmentMissing)
+            }
             None => EdwardsAffine::from_str(&string).map_err(|_| SynthesisError::AssignmentMissing),
         }
     }
