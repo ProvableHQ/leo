@@ -154,7 +154,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self,
         cs: &mut CS,
     ) -> Result<OutputBytes, CompilerError> {
-        generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs)
+        let path = self.main_file_path;
+        generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs).map_err(
+            |mut error| {
+                error.set_path(path);
+
+                error
+            },
+        )
     }
 
     pub fn to_bytes(&self) -> Result<Vec<u8>, CompilerError> {

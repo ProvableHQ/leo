@@ -11,7 +11,7 @@ pub mod integers;
 pub mod macros;
 pub mod mutability;
 pub mod statements;
-// pub mod syntax;
+pub mod syntax;
 
 use leo_compiler::{
     compiler::Compiler,
@@ -66,14 +66,14 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
     Ok(compiler)
 }
 
-// pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
-//     let mut compiler = new_compiler();
-//     let inputs_string = String::from_utf8_lossy(bytes);
-//
-//     compiler.parse_inputs(&inputs_string, "")?;
-//
-//     Ok(compiler)
-// }
+pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+    let inputs_string = String::from_utf8_lossy(bytes);
+
+    compiler.parse_inputs(&inputs_string, "")?;
+
+    Ok(compiler)
+}
 
 pub(crate) fn get_outputs(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
