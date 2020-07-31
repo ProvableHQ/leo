@@ -36,6 +36,8 @@ pub use self::types::*;
 
 use leo_ast::LeoAst;
 
+use serde_json;
+
 pub struct LeoTypedAst {
     typed_ast: Program,
 }
@@ -48,7 +50,13 @@ impl LeoTypedAst {
         }
     }
 
+    /// Returns a reference to the inner typed syntax tree representation.
     pub fn into_repr(self) -> Program {
         self.typed_ast
+    }
+
+    /// Serializes the abstract syntax tree into a JSON string.
+    pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
+        Ok(serde_json::to_string_pretty(&self.typed_ast)?)
     }
 }
