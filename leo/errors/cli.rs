@@ -3,187 +3,64 @@ use crate::errors::*;
 #[derive(Debug, Error)]
 pub enum CLIError {
     #[error("{}", _0)]
-    BuildError(BuildError),
+    BuildError(#[from] BuildError),
 
     #[error("{}", _0)]
-    BytesFileError(ZipFileError),
+    BytesFileError(#[from] ZipFileError),
 
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
     #[error("{}", _0)]
-    ChecksumFileError(ChecksumFileError),
+    ChecksumFileError(#[from] ChecksumFileError),
 
     #[error("{}", _0)]
-    GitignoreError(GitignoreError),
+    GitignoreError(#[from] GitignoreError),
 
     #[error("{}", _0)]
-    InitError(InitError),
+    InitError(#[from] InitError),
 
     #[error("{}", _0)]
-    InputsDirectoryError(InputsDirectoryError),
+    InputsDirectoryError(#[from] InputsDirectoryError),
 
     #[error("{}", _0)]
-    InputsFileError(InputsFileError),
+    InputsFileError(#[from] InputsFileError),
 
     #[error("{}", _0)]
-    LibFileError(LibFileError),
+    LibFileError(#[from] LibFileError),
 
     #[error("{}", _0)]
-    MainFileError(MainFileError),
+    MainFileError(#[from] MainFileError),
 
     #[error("{}", _0)]
-    ManifestError(ManifestError),
+    ManifestError(#[from] ManifestError),
 
     #[error("{}", _0)]
-    NewError(NewError),
+    NewError(#[from] NewError),
 
     #[error("{}", _0)]
-    OutputsDirectoryError(OutputsDirectoryError),
+    OutputsDirectoryError(#[from] OutputsDirectoryError),
 
     #[error("{}", _0)]
-    ProofFileError(ProofFileError),
+    ProofFileError(#[from] ProofFileError),
 
     #[error("{}", _0)]
-    ProvingKeyFileError(ProvingKeyFileError),
+    ProvingKeyFileError(#[from] ProvingKeyFileError),
 
     #[error("{}", _0)]
-    RunError(RunError),
+    RunError(#[from] RunError),
 
     #[error("{}", _0)]
-    SourceDirectoryError(SourceDirectoryError),
+    SNARKError(#[from] snarkos_errors::algorithms::snark::SNARKError),
 
     #[error("{}", _0)]
-    TestError(TestError),
+    SourceDirectoryError(#[from] SourceDirectoryError),
 
     #[error("{}", _0)]
-    VerificationKeyFileError(VerificationKeyFileError),
-}
+    TestError(#[from] TestError),
 
-impl From<ZipFileError> for CLIError {
-    fn from(error: ZipFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::BytesFileError(error)
-    }
-}
-
-impl From<BuildError> for CLIError {
-    fn from(error: BuildError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::BuildError(error)
-    }
-}
-
-impl From<ChecksumFileError> for CLIError {
-    fn from(error: ChecksumFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::ChecksumFileError(error)
-    }
-}
-
-impl From<GitignoreError> for CLIError {
-    fn from(error: GitignoreError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::GitignoreError(error)
-    }
-}
-
-impl From<InitError> for CLIError {
-    fn from(error: InitError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::InitError(error)
-    }
-}
-
-impl From<InputsDirectoryError> for CLIError {
-    fn from(error: InputsDirectoryError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::InputsDirectoryError(error)
-    }
-}
-
-impl From<InputsFileError> for CLIError {
-    fn from(error: InputsFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::InputsFileError(error)
-    }
-}
-
-impl From<LibFileError> for CLIError {
-    fn from(error: LibFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::LibFileError(error)
-    }
-}
-
-impl From<MainFileError> for CLIError {
-    fn from(error: MainFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::MainFileError(error)
-    }
-}
-
-impl From<ManifestError> for CLIError {
-    fn from(error: ManifestError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::ManifestError(error)
-    }
-}
-
-impl From<NewError> for CLIError {
-    fn from(error: NewError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::NewError(error)
-    }
-}
-
-impl From<OutputsDirectoryError> for CLIError {
-    fn from(error: OutputsDirectoryError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::OutputsDirectoryError(error)
-    }
-}
-
-impl From<ProofFileError> for CLIError {
-    fn from(error: ProofFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::ProofFileError(error)
-    }
-}
-
-impl From<ProvingKeyFileError> for CLIError {
-    fn from(error: ProvingKeyFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::ProvingKeyFileError(error)
-    }
-}
-
-impl From<RunError> for CLIError {
-    fn from(error: RunError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::RunError(error)
-    }
-}
-
-impl From<SourceDirectoryError> for CLIError {
-    fn from(error: SourceDirectoryError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::SourceDirectoryError(error)
-    }
-}
-
-impl From<TestError> for CLIError {
-    fn from(error: TestError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::TestError(error)
-    }
-}
-
-impl From<VerificationKeyFileError> for CLIError {
-    fn from(error: VerificationKeyFileError) -> Self {
-        log::error!("{}\n", error);
-        CLIError::VerificationKeyFileError(error)
-    }
+    #[error("{}", _0)]
+    VerificationKeyFileError(#[from] VerificationKeyFileError),
 }
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {

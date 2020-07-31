@@ -10,7 +10,7 @@ use leo_compiler::{Address, ConstrainedValue};
 use leo_types::InputValue;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
-use snarkos_objects::AccountPublicKey;
+use snarkos_objects::AccountAddress;
 use std::str::FromStr;
 
 static TEST_ADDRESS_1: &'static str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";
@@ -19,7 +19,7 @@ static TEST_ADDRESS_2: &'static str = "aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma
 fn output_test_address(program: EdwardsTestCompiler, address: &str) {
     let output = get_output(program);
 
-    let address_1 = AccountPublicKey::<Components>::from_str(address).unwrap();
+    let address_1 = AccountAddress::<Components>::from_str(address).unwrap();
 
     assert_eq!(
         EdwardsConstrainedValue::Return(vec![ConstrainedValue::Address(Address(Some(address_1)))]).to_string(),

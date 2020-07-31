@@ -32,7 +32,7 @@ macro_rules! add_int_impl {
 
                 // Make some arbitrary bounds for ourselves to avoid overflows
                 // in the scalar field
-                assert!(F::Params::MODULUS_BITS >= max_bits as u32);
+                assert!(F::Parameters::MODULUS_BITS >= max_bits as u32);
 
                 // Accumulate the value
                 let result_value = match (self.value, other.value) {
