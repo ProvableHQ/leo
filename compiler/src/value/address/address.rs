@@ -14,17 +14,17 @@ use snarkos_models::{
         },
     },
 };
-use snarkos_objects::account::AccountPublicKey;
+use snarkos_objects::account::AccountAddress;
 use std::str::FromStr;
 
 /// A public address
 /// Addresses are currently constant values in the constraint system only
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Address(pub Option<AccountPublicKey<Components>>);
+pub struct Address(pub Option<AccountAddress<Components>>);
 
 impl Address {
     pub(crate) fn new(address: String, span: Span) -> Result<Self, AddressError> {
-        let address = AccountPublicKey::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
+        let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         Ok(Address(Some(address)))
     }

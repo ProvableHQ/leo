@@ -1,6 +1,9 @@
 use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
+use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
-use snarkos_algorithms::snark::verify_proof;
+use snarkos_algorithms::snark::groth16::Groth16;
+use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_models::algorithms::SNARK;
 
 use clap::ArgMatches;
 use std::time::{Duration, Instant};
@@ -32,7 +35,12 @@ impl CLI for RunCommand {
 
         let start = Instant::now();
 
-        let is_success = verify_proof(&prepared_verifying_key, &proof, &vec![]).unwrap();
+        let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
+            &prepared_verifying_key,
+            &vec![],
+            &proof,
+        )
+        .unwrap();
 
         verifying += start.elapsed();
 

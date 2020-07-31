@@ -3,14 +3,14 @@ use crate::{
     cli_types::*,
     commands::BuildCommand,
     directories::SOURCE_DIRECTORY_NAME,
-    errors::{CLIError, RunError, VerificationKeyFileError},
+    errors::{CLIError, RunError},
     files::{Manifest, ProvingKeyFile, VerificationKeyFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
-use snarkos_algorithms::snark::{generate_random_parameters, prepare_verifying_key, Parameters, PreparedVerifyingKey};
-use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkos_utilities::bytes::ToBytes;
+use snarkos_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
+use snarkos_curves::bls12_377::{Bls12_377, Fr};
+use snarkos_models::algorithms::snark::SNARK;
 
 use clap::ArgMatches;
 use rand::thread_rng;
@@ -22,7 +22,7 @@ pub struct SetupCommand;
 impl CLI for SetupCommand {
     type Options = ();
     type Output = (
-        Compiler<Fq, EdwardsGroupType>,
+        Compiler<Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
@@ -53,7 +53,7 @@ impl CLI for SetupCommand {
 
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
-                if !keys_exist || checksum_differs {
+                let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     log::info!("Setup starting...");
 
                     // Start the timer
@@ -61,57 +61,46 @@ impl CLI for SetupCommand {
 
                     // Run the program setup operation
                     let rng = &mut thread_rng();
-                    let parameters = generate_random_parameters::<Bls12_377, _, _>(program.clone(), rng).unwrap();
-                    let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
+                    let (proving_key, prepared_verifying_key) =
+                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
 
-                    // End the timer
-                    let end = start.elapsed().as_millis();
+                    // Output the setup time
+                    log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the outputs directory
-                    let mut proving_key = vec![];
-                    parameters.write(&mut proving_key)?;
-                    ProvingKeyFile::new(&package_name).write_to(&path, &proving_key)?;
+                    let mut proving_key_bytes = vec![];
+                    proving_key.write(&mut proving_key_bytes)?;
+                    ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
                     log::info!("Saving proving key ({:?})", path);
 
                     // Write the verification key file to the outputs directory
                     let mut verification_key = vec![];
-                    prepared_verifying_key.write(&mut verification_key)?;
+                    proving_key.vk.write(&mut verification_key)?;
                     VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
                     log::info!("Saving verification key ({:?})", path);
 
-                    // Output the setup time
-                    log::info!("Setup completed in {:?} milliseconds", end);
+                    (proving_key, prepared_verifying_key)
                 } else {
-                    log::info!("Setup complete");
-                }
+                    log::info!("Loading saved setup...");
 
-                // Read the proving key file from the outputs directory
-                let proving_key = ProvingKeyFile::new(&package_name).read_from(&path)?;
-                let parameters = Parameters::<Bls12_377>::read(proving_key.as_slice(), true)?;
+                    // Read the proving key file from the outputs directory
+                    let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
+                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
 
-                // Read the proving key file from the outputs directory
-                let prepared_verifying_key = prepare_verifying_key::<Bls12_377>(&parameters.vk);
-                {
-                    // Load the stored verification key from the outputs directory
-                    let stored_vk = VerificationKeyFile::new(&package_name).read_from(&path)?;
+                    // Read the verification key file from the outputs directory
+                    let verifying_key_bytes = VerificationKeyFile::new(&package_name).read_from(&path)?;
+                    let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())?;
 
-                    // Convert the prepared_verifying_key to a buffer
-                    let mut verification_key = vec![];
-                    prepared_verifying_key.write(&mut verification_key)?;
+                    // Derive the prepared verifying key file from the verifying key
+                    let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
 
-                    // Check that the constructed prepared verification key matches the stored verification key
-                    let compare: Vec<(u8, u8)> = verification_key.into_iter().zip(stored_vk.into_iter()).collect();
-                    for (a, b) in compare {
-                        if a != b {
-                            return Err(VerificationKeyFileError::IncorrectVerificationKey.into());
-                        }
-                    }
-                }
+                    (proving_key, prepared_verifying_key)
+                };
 
                 log::info!("Program setup complete");
 
-                Ok((program, parameters, prepared_verifying_key))
+                Ok((program, proving_key, prepared_verifying_key))
             }
             None => {
                 let mut main_file_path = path.clone();
