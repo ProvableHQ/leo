@@ -2,7 +2,6 @@
 
 use crate::{
     errors::FunctionError,
-    function::check_arguments_length,
     program::{new_scope, ConstrainedProgram},
     GroupType,
     OutputBytes,
@@ -25,9 +24,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<OutputBytes, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
         let registers = inputs.get_registers();
-
-        // Make sure we are given the correct number of inputs
-        check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];

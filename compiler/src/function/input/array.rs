@@ -2,7 +2,6 @@
 
 use crate::{
     errors::FunctionError,
-    function::check_arguments_length,
     program::{new_scope, ConstrainedProgram},
     value::ConstrainedValue,
     GroupType,
@@ -30,9 +29,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         match input_value {
             Some(InputValue::Array(arr)) => {
-                // Check the dimension of the array
-                check_arguments_length(expected_length, arr.len(), span.clone())?;
-
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = new_scope(name.clone(), i.to_string());

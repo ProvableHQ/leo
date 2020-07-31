@@ -6,7 +6,7 @@ pub mod field;
 pub mod function;
 pub mod group;
 pub mod import;
-pub mod inputs;
+pub mod input_files;
 pub mod integers;
 pub mod macros;
 pub mod mutability;
@@ -34,21 +34,6 @@ const EMPTY_FILE: &str = "";
 pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
 pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
 
-pub fn parse_program_with_inputs(
-    program_bytes: &[u8],
-    input_bytes: &[u8],
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-
-    let program_string = String::from_utf8_lossy(program_bytes);
-    let inputs_string = String::from_utf8_lossy(input_bytes);
-
-    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
-    compiler.parse_program(&program_string)?;
-
-    Ok(compiler)
-}
-
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
@@ -70,7 +55,76 @@ pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compiler
     let mut compiler = new_compiler();
     let inputs_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_inputs(&inputs_string, "")?;
+    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
+
+    Ok(compiler)
+}
+
+pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+    let state_string = String::from_utf8_lossy(bytes);
+
+    compiler.parse_inputs(EMPTY_FILE, &state_string)?;
+
+    Ok(compiler)
+}
+
+pub(crate) fn parse_inputs_and_state(
+    inputs_bytes: &[u8],
+    state_bytes: &[u8],
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+    let inputs_string = String::from_utf8_lossy(inputs_bytes);
+    let state_string = String::from_utf8_lossy(state_bytes);
+
+    compiler.parse_inputs(&inputs_string, &state_string)?;
+
+    Ok(compiler)
+}
+
+pub fn parse_program_with_inputs(
+    program_bytes: &[u8],
+    input_bytes: &[u8],
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+
+    let program_string = String::from_utf8_lossy(program_bytes);
+    let inputs_string = String::from_utf8_lossy(input_bytes);
+
+    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_program(&program_string)?;
+
+    Ok(compiler)
+}
+
+pub fn parse_program_with_state(
+    program_bytes: &[u8],
+    state_bytes: &[u8],
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+
+    let program_string = String::from_utf8_lossy(program_bytes);
+    let state_string = String::from_utf8_lossy(state_bytes);
+
+    compiler.parse_inputs(EMPTY_FILE, &state_string)?;
+    compiler.parse_program(&program_string)?;
+
+    Ok(compiler)
+}
+
+pub fn parse_program_with_inputs_and_state(
+    program_bytes: &[u8],
+    inputs_bytes: &[u8],
+    state_bytes: &[u8],
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler();
+
+    let program_string = String::from_utf8_lossy(program_bytes);
+    let inputs_string = String::from_utf8_lossy(inputs_bytes);
+    let state_string = String::from_utf8_lossy(state_bytes);
+
+    compiler.parse_inputs(&inputs_string, &state_string)?;
+    compiler.parse_program(&program_string)?;
 
     Ok(compiler)
 }
@@ -105,13 +159,6 @@ pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
 
     assert!(!cs.is_satisfied());
 }
-
-// pub(crate) fn fail_enforce(program: EdwardsTestCompiler) {
-//     match get_compiler_error(program) {
-//         CompilerError::FunctionError(FunctionError::StatementError(StatementError::Error(_))) => {}
-//         error => panic!("Expected evaluate error, got {}", error),
-//     }
-// }
 
 pub(crate) fn generate_main_inputs(inputs: Vec<(&str, Option<InputValue>)>) -> MainInputs {
     let mut main_inputs = MainInputs::new();

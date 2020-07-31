@@ -76,7 +76,7 @@ type_boolean = { "bool" }
 type_address = { "address" }
 
 // Declared in types/data_type.rs
-type_data = { type_field | type_group | type_boolean | type_integer }
+type_data = { type_field | type_group | type_boolean | type_address | type_integer }
 
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ value_number ~ "]")+ }
