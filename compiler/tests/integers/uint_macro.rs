@@ -14,7 +14,7 @@ macro_rules! test_uint {
                 let bytes = include_bytes!("min_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
-                expect_fail(program);
+                expect_parsing_error(program);
             }
 
             fn test_max() {
@@ -28,7 +28,7 @@ macro_rules! test_uint {
                 let bytes = include_bytes!("max_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
-                expect_fail(program);
+                expect_parsing_error(program);
             }
 
             fn test_add() {

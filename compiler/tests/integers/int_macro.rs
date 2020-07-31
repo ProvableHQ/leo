@@ -14,7 +14,7 @@ macro_rules! test_int {
                 let bytes = include_bytes!("min_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
-                expect_fail(program);
+                expect_parsing_error(program);
             }
 
             fn test_max() {
@@ -28,7 +28,7 @@ macro_rules! test_int {
                 let bytes = include_bytes!("max_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
-                expect_fail(program);
+                expect_parsing_error(program);
             }
 
             fn test_add() {
@@ -128,11 +128,11 @@ macro_rules! test_int {
 
                         program.set_main_inputs(main_inputs);
 
-                        expect_fail(program);
+                        expect_computation_error(program);
                     } else {
                         let c = match a.checked_div(b) {
                             Some(valid) => valid,
-                            None => return,
+                            None => continue,
                         };
 
                         let main_inputs = generate_main_inputs(vec![

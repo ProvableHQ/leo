@@ -51,11 +51,23 @@ pub trait IntegerTester {
     fn test_ternary();
 }
 
-pub(crate) fn expect_fail(program: EdwardsTestCompiler) {
+pub(crate) fn expect_parsing_error(program: EdwardsTestCompiler) {
     match expect_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::ValueError(ValueError::IntegerError(IntegerError::Error(_))),
         ))) => {}
-        error => panic!("Expected invalid integer error, got {:?}", error),
+        error => panic!("Expected integer parsing error, found {:?}", error),
+    }
+}
+
+pub(crate) fn expect_computation_error(program: EdwardsTestCompiler) {
+    match expect_compiler_error(program) {
+        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
+            ExpressionError::IntegerError(IntegerError::Error(_)),
+        ))) => {}
+        error => panic!(
+            "Expected integer computation error such as `DivisionByZero`, found {:?}",
+            error
+        ),
     }
 }

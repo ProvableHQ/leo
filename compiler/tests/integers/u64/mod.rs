@@ -2,7 +2,7 @@ use crate::{
     assert_satisfied,
     expect_synthesis_error,
     generate_main_inputs,
-    integers::{expect_fail, IntegerTester},
+    integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
 use leo_inputs::types::{IntegerType, U64Type};
