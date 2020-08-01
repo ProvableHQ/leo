@@ -53,9 +53,9 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 
 pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let inputs_string = String::from_utf8_lossy(bytes);
+    let input_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_input(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_input(&input_string, EMPTY_FILE)?;
 
     Ok(compiler)
 }
@@ -89,9 +89,9 @@ pub fn parse_program_with_input(
     let mut compiler = new_compiler();
 
     let program_string = String::from_utf8_lossy(program_bytes);
-    let inputs_string = String::from_utf8_lossy(input_bytes);
+    let input_string = String::from_utf8_lossy(input_bytes);
 
-    compiler.parse_input(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_input(&input_string, EMPTY_FILE)?;
     compiler.parse_program(&program_string)?;
 
     Ok(compiler)

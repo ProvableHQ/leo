@@ -1,3 +1,3 @@
-mod program_inputs;
-mod program_inputs_and_state;
-mod state;
+mod program_input;
+mod program_input_and_program_state;
+mod program_state;

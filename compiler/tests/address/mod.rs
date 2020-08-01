@@ -57,23 +57,23 @@ fn test_ternary() {
     let bytes = include_bytes!("ternary.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(true))),
         ("c", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(false))),
         ("c", Some(InputValue::Address(TEST_ADDRESS_2.to_string()))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 }
@@ -83,25 +83,25 @@ fn test_equal() {
     let bytes = include_bytes!("equal.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("b", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("c", Some(InputValue::Boolean(true))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("b", Some(InputValue::Address(TEST_ADDRESS_2.to_string()))),
         ("c", Some(InputValue::Boolean(false))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 }

@@ -35,7 +35,7 @@ fn fail_boolean_statement(program: EdwardsTestCompiler) {
 #[test]
 fn test_input_pass() {
     let program_bytes = include_bytes!("assert_eq_input.leo");
-    let input_bytes = include_bytes!("inputs/true_true.in");
+    let input_bytes = include_bytes!("input/true_true.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -45,7 +45,7 @@ fn test_input_pass() {
 #[test]
 fn test_input_fail() {
     let program_bytes = include_bytes!("assert_eq_input.leo");
-    let input_bytes = include_bytes!("inputs/true_false.in");
+    let input_bytes = include_bytes!("input/true_false.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -55,8 +55,8 @@ fn test_input_fail() {
 #[test]
 fn test_registers() {
     let program_bytes = include_bytes!("output_register.leo");
-    let true_input_bytes = include_bytes!("inputs/registers_true.in");
-    let false_input_bytes = include_bytes!("inputs/registers_false.in");
+    let true_input_bytes = include_bytes!("input/registers_true.in");
+    let false_input_bytes = include_bytes!("input/registers_false.in");
 
     // test true input register => true output register
     let program = parse_program_with_input(program_bytes, true_input_bytes).unwrap();

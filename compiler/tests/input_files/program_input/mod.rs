@@ -9,9 +9,9 @@ fn expect_fail(program: EdwardsTestCompiler) {
 }
 
 #[test]
-fn test_inputs_pass() {
+fn test_input_pass() {
     let program_bytes = include_bytes!("main.leo");
-    let input_bytes = include_bytes!("inputs/main.in");
+    let input_bytes = include_bytes!("input/main.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -19,9 +19,9 @@ fn test_inputs_pass() {
 }
 
 #[test]
-fn test_inputs_fail_name() {
+fn test_input_fail_name() {
     let program_bytes = include_bytes!("main.leo");
-    let input_bytes = include_bytes!("inputs/main_fail_name.in");
+    let input_bytes = include_bytes!("input/main_fail_name.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -29,9 +29,9 @@ fn test_inputs_fail_name() {
 }
 
 #[test]
-fn test_inputs_fail_type() {
+fn test_input_fail_type() {
     let program_bytes = include_bytes!("main.leo");
-    let input_bytes = include_bytes!("inputs/main_fail_type.in");
+    let input_bytes = include_bytes!("input/main_fail_type.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -39,9 +39,9 @@ fn test_inputs_fail_type() {
 }
 
 #[test]
-fn test_inputs_multiple() {
+fn test_input_multiple() {
     let program_bytes = include_bytes!("main_multiple.leo");
-    let input_bytes = include_bytes!("inputs/main_multiple.in");
+    let input_bytes = include_bytes!("input/main_multiple.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 

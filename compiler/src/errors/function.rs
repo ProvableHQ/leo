@@ -67,7 +67,7 @@ impl FunctionError {
     }
 
     pub fn arguments_length(expected: usize, actual: usize, span: Span) -> Self {
-        let message = format!("function expected {} inputs, found {} inputs", expected, actual);
+        let message = format!("function expected {} input variables, found {}", expected, actual);
 
         Self::new_from_span(message, span)
     }

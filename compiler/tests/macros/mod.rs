@@ -61,9 +61,9 @@ fn test_print_input() {
     let bytes = include_bytes!("print_input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
+    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 }

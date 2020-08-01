@@ -44,13 +44,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("add.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -69,13 +69,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("sub.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -94,13 +94,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("mul.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -119,13 +119,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("div.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -145,13 +145,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("pow.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -167,13 +167,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("eq.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -183,13 +183,13 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -205,13 +205,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("ge.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -221,13 +221,13 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -243,13 +243,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("gt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("c", Some(InputValue::Boolean(false))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -259,13 +259,13 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -281,13 +281,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("le.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -297,13 +297,13 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -319,13 +319,13 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("lt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("c", Some(InputValue::Boolean(false))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -335,13 +335,13 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                         ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
                 }
@@ -355,12 +355,12 @@ macro_rules! test_uint {
                     let bytes = include_bytes!("assert_eq.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     assert_satisfied(program);
 
@@ -373,12 +373,12 @@ macro_rules! test_uint {
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    let main_inputs = generate_main_inputs(vec![
+                    let main_input = generate_main_input(vec![
                         ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                         ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                     ]);
 
-                    program.set_main_inputs(main_inputs);
+                    program.set_main_input(main_input);
 
                     expect_synthesis_error(program);
                 }
@@ -392,28 +392,28 @@ macro_rules! test_uint {
                 let mut program = parse_program(bytes).unwrap();
 
                 // true -> field 1
-                let main_inputs = generate_main_inputs(vec![
+                let main_input = generate_main_input(vec![
                     ("s", Some(InputValue::Boolean(true))),
                     ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                     ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                     ("c", Some(InputValue::Integer($integer_type, a.to_string()))),
                 ]);
 
-                program.set_main_inputs(main_inputs);
+                program.set_main_input(main_input);
 
                 assert_satisfied(program);
 
                 // false -> field 2
                 let mut program = parse_program(bytes).unwrap();
 
-                let main_inputs = generate_main_inputs(vec![
+                let main_input = generate_main_input(vec![
                     ("s", Some(InputValue::Boolean(false))),
                     ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                     ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                     ("c", Some(InputValue::Integer($integer_type, b.to_string()))),
                 ]);
 
-                program.set_main_inputs(main_inputs);
+                program.set_main_input(main_input);
 
                 assert_satisfied(program);
             }

@@ -1,4 +1,4 @@
-// The program inputs for square_root/src/main.leo
+// The program input for square_root/src/main.leo
 [main]
 a: field = 337;
 b: field = 113569;

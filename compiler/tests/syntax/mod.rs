@@ -44,11 +44,11 @@ fn test_undefined() {
 
 #[test]
 fn input_syntax_error() {
-    let bytes = include_bytes!("inputs_semicolon.leo");
+    let bytes = include_bytes!("input_semicolon.leo");
     let error = parse_input(bytes).err().unwrap();
 
     match error {
         CompilerError::InputParserError(InputParserError::SyntaxError(_)) => {}
-        _ => panic!("inputs syntax error should be a ParserError"),
+        _ => panic!("input syntax error should be a ParserError"),
     }
 }

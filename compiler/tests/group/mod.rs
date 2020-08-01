@@ -45,10 +45,10 @@ fn test_point() {
 }
 
 #[test]
-fn test_inputs() {
+fn test_input() {
     let program_bytes = include_bytes!("input.leo");
-    let input_bytes_pass = include_bytes!("inputs/one_one.in");
-    let input_bytes_fail = include_bytes!("inputs/one_zero.in");
+    let input_bytes_pass = include_bytes!("input/one_one.in");
+    let input_bytes_fail = include_bytes!("input/one_zero.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes_pass).unwrap();
 
@@ -77,12 +77,12 @@ fn test_add() {
         let bytes = include_bytes!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string))),
             ("b", Some(InputValue::Group(b_string))),
             ("c", Some(InputValue::Group(c_string))),
         ]);
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         assert_satisfied(program)
     }
@@ -106,12 +106,12 @@ fn test_sub() {
         let bytes = include_bytes!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string))),
             ("b", Some(InputValue::Group(b_string))),
             ("c", Some(InputValue::Group(c_string))),
         ]);
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         assert_satisfied(program)
     }
@@ -129,12 +129,12 @@ fn test_assert_eq_pass() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string.clone()))),
             ("b", Some(InputValue::Group(a_string))),
         ]);
 
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         assert_satisfied(program);
     }
@@ -158,12 +158,12 @@ fn test_assert_eq_fail() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string))),
             ("b", Some(InputValue::Group(b_string))),
         ]);
 
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         expect_synthesis_error(program);
     }
@@ -185,13 +185,13 @@ fn test_eq() {
         let bytes = include_bytes!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string.clone()))),
             ("b", Some(InputValue::Group(a_string.clone()))),
             ("c", Some(InputValue::Boolean(true))),
         ]);
 
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         assert_satisfied(program);
 
@@ -201,13 +201,13 @@ fn test_eq() {
 
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_input(vec![
+        let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Group(a_string))),
             ("b", Some(InputValue::Group(b_string))),
             ("c", Some(InputValue::Boolean(c))),
         ]);
 
-        program.set_main_input(main_inputs);
+        program.set_main_input(main_input);
 
         assert_satisfied(program);
     }
@@ -227,28 +227,28 @@ fn test_ternary() {
     let mut program = parse_program(bytes).unwrap();
 
     // true -> field a
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(true))),
         ("a", Some(InputValue::Group(a_string.clone()))),
         ("b", Some(InputValue::Group(b_string.clone()))),
         ("c", Some(InputValue::Group(a_string.clone()))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
     // false -> field b
-    let main_inputs = generate_main_input(vec![
+    let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(false))),
         ("a", Some(InputValue::Group(a_string))),
         ("b", Some(InputValue::Group(b_string.clone()))),
         ("c", Some(InputValue::Group(b_string))),
     ]);
 
-    program.set_main_input(main_inputs);
+    program.set_main_input(main_input);
 
     assert_satisfied(program);
 }
