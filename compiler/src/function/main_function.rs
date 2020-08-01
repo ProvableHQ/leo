@@ -7,7 +7,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_types::{Expression, Function, Input, Inputs};
+use leo_types::{Expression, Function, InputVariable, Inputs};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -29,7 +29,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut input_variables = vec![];
         for input_model in function.inputs.clone().into_iter() {
             let (identifier, value) = match input_model {
-                Input::FunctionInput(input_model) => {
+                InputVariable::InputKeyword(identifier) => {
+                    let value = self.allocate_input_keyword(cs, identifier.clone(), &inputs)?;
+
+                    (identifier, value)
+                }
+                InputVariable::FunctionInput(input_model) => {
                     let name = input_model.identifier.name.clone();
                     let input_option = inputs
                         .get(&name)
@@ -43,30 +48,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     )?;
 
                     (input_model.identifier, input_value)
-                }
-                Input::Registers(identifier) => {
-                    let section = inputs.get_registers().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::Record(identifier) => {
-                    let section = inputs.get_record().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::State(identifier) => {
-                    let section = inputs.get_state().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::StateLeaf(identifier) => {
-                    let section = inputs.get_state_leaf().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
                 }
             };
 

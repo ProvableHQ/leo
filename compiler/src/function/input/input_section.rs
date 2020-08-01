@@ -16,7 +16,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let mut members = vec![];
 
-        // Store each section definition as a circuit member value
+        // Allocate each section definition as a circuit member value
+
         for (parameter, option) in section.into_iter() {
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(
@@ -32,6 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Return section as circuit expression
+
         Ok(ConstrainedValue::CircuitExpression(identifier, members))
     }
 }

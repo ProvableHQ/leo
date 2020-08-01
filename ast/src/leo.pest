@@ -340,24 +340,12 @@ function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~
 // Declared in functions/inputs/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
 
-// Declared in functions/inputs/record.rs
-record = { "record" }
-
-// Declared in functions/inputs/registers.rs
-registers = { "registers" }
-
-// Declared in functions/inputs/state.rs
-state = { "state" }
-
-// Declared in functions/inputs/state_leaf.rs
-state_leaf = { "state_leaf" }
+// Declared in functions/inputs/input_keyword.rs
+input_keyword = { "input" }
 
 // Declared in functions/inputs/input.rs
 input = {
-    record
-    | registers
-    | state_leaf
-    | state
+    input_keyword
     | function_input
 }
 input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }

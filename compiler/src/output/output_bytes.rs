@@ -1,5 +1,5 @@
-use crate::{errors::OutputBytesError, ConstrainedValue, GroupType};
-use leo_types::{Parameter, Registers, Span, REGISTERS_VARIABLE_NAME};
+use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use leo_types::{Parameter, Registers, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
 

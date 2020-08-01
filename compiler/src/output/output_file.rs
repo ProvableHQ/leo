@@ -39,9 +39,7 @@ impl OutputsFile {
     pub fn write(&self, path: &PathBuf, bytes: &[u8]) -> Result<(), OutputsFileError> {
         // create output file
         let path = self.setup_file_path(path);
-        println!("setup {:?}", path);
         let mut file = File::create(&path)?;
-        println!("created");
         log::info!("Writing to output registers...");
 
         Ok(file.write_all(bytes)?)

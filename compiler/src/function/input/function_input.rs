@@ -10,7 +10,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn enforce_input<CS: ConstraintSystem<F>>(
+    pub fn enforce_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         scope: String,

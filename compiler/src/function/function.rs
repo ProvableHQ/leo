@@ -7,7 +7,7 @@ use crate::{
     GroupType,
 };
 
-use leo_types::{Expression, Function, Input, Span};
+use leo_types::{Expression, Function, InputVariable, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -40,9 +40,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.inputs.clone().iter().zip(inputs.into_iter()) {
             let (name, value) = match input_model {
-                Input::FunctionInput(input_model) => {
+                InputVariable::InputKeyword(identifier) => {
+                    let input_value = self.enforce_function_input(
+                        cs,
+                        scope.clone(),
+                        caller_scope.clone(),
+                        function_name.clone(),
+                        vec![],
+                        input_expression,
+                    )?;
+
+                    (identifier.name.clone(), input_value)
+                }
+                InputVariable::FunctionInput(input_model) => {
                     // First evaluate input expression
-                    let mut input_value = self.enforce_input(
+                    let mut input_value = self.enforce_function_input(
                         cs,
                         scope.clone(),
                         caller_scope.clone(),
@@ -56,54 +68,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     }
 
                     (input_model.identifier.name.clone(), input_value)
-                }
-                Input::Registers(identifier) => {
-                    let input_value = self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        vec![],
-                        input_expression,
-                    )?;
-
-                    (identifier.name.clone(), input_value)
-                }
-                Input::Record(identifier) => {
-                    let input_value = self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        vec![],
-                        input_expression,
-                    )?;
-
-                    (identifier.name.clone(), input_value)
-                }
-                Input::State(identifier) => {
-                    let input_value = self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        vec![],
-                        input_expression,
-                    )?;
-
-                    (identifier.name.clone(), input_value)
-                }
-                Input::StateLeaf(identifier) => {
-                    let input_value = self.enforce_input(
-                        cs,
-                        scope.clone(),
-                        caller_scope.clone(),
-                        function_name.clone(),
-                        vec![],
-                        input_expression,
-                    )?;
-
-                    (identifier.name.clone(), input_value)
                 }
             };
 
