@@ -9,7 +9,7 @@ use crate::{
     OutputsFile,
 };
 use leo_ast::LeoParser;
-use leo_inputs::LeoInputsParser;
+use leo_input::LeoInputsParser;
 use leo_types::{Inputs, MainInputs, Program};
 
 use snarkos_errors::gadgets::SynthesisError;

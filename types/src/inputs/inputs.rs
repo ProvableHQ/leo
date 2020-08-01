@@ -1,5 +1,5 @@
 use crate::{InputValue, MainInputs, ProgramInputs, ProgramState, Record, Registers, State, StateLeaf};
-use leo_inputs::{
+use leo_input::{
     files::{File, TableOrSection},
     InputParserError,
 };

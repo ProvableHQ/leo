@@ -30,7 +30,7 @@ impl LeoInputsParser {
 
     /// Parses the input file and constructs a syntax tree.
     pub fn parse_file(input_file: &str) -> Result<files::File, InputParserError> {
-        // Parse the file using leo-inputs.pest
+        // Parse the file using leo-input.pest
         let mut file = ast::parse(input_file)?;
 
         // Build the abstract syntax tree

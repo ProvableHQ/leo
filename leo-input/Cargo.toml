@@ -1,5 +1,5 @@
 [package]
-name = "leo-inputs"
+name = "leo-input"
 version = "0.1.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"

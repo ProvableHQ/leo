@@ -5,7 +5,7 @@ use crate::{
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{IntegerType, U128Type};
+use leo_input::types::{IntegerType, U128Type};
 use leo_types::InputValue;
 
 test_uint!(TestU128, u128, IntegerType::U128Type(U128Type {}), UInt128);

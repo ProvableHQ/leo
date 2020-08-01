@@ -1,5 +1,5 @@
 use crate::InputValue;
-use leo_inputs::{definitions::Definition, InputParserError};
+use leo_input::{definitions::Definition, InputParserError};
 use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]

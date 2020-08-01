@@ -1,5 +1,5 @@
 use crate::{InputValue, Parameter};
-use leo_inputs::{definitions::Definition, InputParserError};
+use leo_input::{definitions::Definition, InputParserError};
 
 use std::collections::HashMap;
 

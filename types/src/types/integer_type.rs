@@ -1,5 +1,5 @@
 use leo_ast::types::IntegerType as AstIntegerType;
-use leo_inputs::types::IntegerType as InputsAstIntegerType;
+use leo_input::types::IntegerType as InputsAstIntegerType;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

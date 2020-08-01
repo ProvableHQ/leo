@@ -1,7 +1,7 @@
 use crate::{expect_compiler_error, parse_inputs, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-use leo_inputs::InputParserError;
+use leo_input::InputParserError;
 
 #[test]
 fn test_semicolon() {

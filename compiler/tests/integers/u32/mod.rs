@@ -5,7 +5,7 @@ use crate::{
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{IntegerType, U32Type};
+use leo_input::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
 test_uint!(TestU32, u32, IntegerType::U32Type(U32Type {}), UInt32);

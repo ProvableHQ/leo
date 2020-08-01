@@ -1,6 +1,6 @@
 use crate::{Expression, Identifier, IntegerType};
 use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
-use leo_inputs::types::{ArrayType as InputsArrayType, DataType as InputsDataType, Type as InputsAstType};
+use leo_input::types::{ArrayType as InputsArrayType, DataType as InputsDataType, Type as InputsAstType};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

@@ -206,10 +206,10 @@ impl From<leo_compiler::errors::CompilerError> for CLIError {
     }
 }
 
-impl From<leo_inputs::errors::InputParserError> for CLIError {
-    fn from(error: leo_inputs::errors::InputParserError) -> Self {
+impl From<leo_input::errors::InputParserError> for CLIError {
+    fn from(error: leo_input::errors::InputParserError) -> Self {
         log::error!("{}\n", error);
-        CLIError::Crate("leo_inputs", "Program failed due to previous error".into())
+        CLIError::Crate("leo_input", "Program failed due to previous error".into())
     }
 }
 

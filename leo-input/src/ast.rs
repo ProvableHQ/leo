@@ -1,8 +1,8 @@
-//! Abstract syntax tree (ast) representation from leo-inputs.pest.
+//! Abstract syntax tree (ast) representation from leo-input.pest.
 use pest::{error::Error, iterators::Pairs, Parser, Span};
 
 #[derive(Parser)]
-#[grammar = "leo-inputs.pest"]
+#[grammar = "leo-input.pest"]
 pub struct LanguageParser;
 
 pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {

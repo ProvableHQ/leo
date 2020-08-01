@@ -1,11 +1,11 @@
-use leo_inputs::{
+use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
     types::{ArrayType, DataType, IntegerType, Type},
     values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
 };
 
-use leo_inputs::values::Address;
+use leo_input::values::Address;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]

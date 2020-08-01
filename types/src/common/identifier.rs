@@ -1,6 +1,6 @@
 use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
-use leo_inputs::common::Identifier as InputsAstIdentifier;
+use leo_input::common::Identifier as InputsAstIdentifier;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

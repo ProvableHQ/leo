@@ -7,7 +7,7 @@ use crate::{
     parse_program_with_inputs,
     EdwardsTestCompiler,
 };
-use leo_inputs::types::{IntegerType, U32Type};
+use leo_input::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
 #[test]

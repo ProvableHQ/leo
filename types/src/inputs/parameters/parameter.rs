@@ -1,5 +1,5 @@
 use crate::{Identifier, Span, Type};
-use leo_inputs::parameters::Parameter as AstParameter;
+use leo_input::parameters::Parameter as AstParameter;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Parameter {

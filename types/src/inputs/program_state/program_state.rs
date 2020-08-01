@@ -1,5 +1,5 @@
 use crate::{PrivateState, PublicState, Record, State, StateLeaf};
-use leo_inputs::{
+use leo_input::{
     tables::{Table, Visibility},
     InputParserError,
 };

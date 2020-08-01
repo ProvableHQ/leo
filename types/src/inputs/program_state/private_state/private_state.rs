@@ -1,5 +1,5 @@
 use crate::{Record, StateLeaf};
-use leo_inputs::{
+use leo_input::{
     sections::{Header, Section},
     InputParserError,
 };

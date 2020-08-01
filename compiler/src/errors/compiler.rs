@@ -1,6 +1,6 @@
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputsFileError};
 use leo_ast::ParserError;
-use leo_inputs::InputParserError;
+use leo_input::InputParserError;
 
 use bincode::Error as SerdeError;
 use std::path::PathBuf;

@@ -5,7 +5,7 @@ use crate::{
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{I16Type, IntegerType};
+use leo_input::types::{I16Type, IntegerType};
 use leo_types::InputValue;
 
 test_int!(Testi16, i16, IntegerType::I16Type(I16Type {}), Int16);
