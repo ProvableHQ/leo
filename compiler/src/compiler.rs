@@ -6,7 +6,7 @@ use crate::{
     GroupType,
     ImportParser,
     OutputBytes,
-    OutputsFile,
+    OutputFile,
 };
 use leo_ast::LeoParser;
 use leo_input::LeoInputParser;
@@ -25,7 +25,7 @@ use std::{fs, marker::PhantomData, path::PathBuf};
 pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
     main_file_path: PathBuf,
-    outputs_directory: PathBuf,
+    output_directory: PathBuf,
     program: Program,
     program_input: Input,
     imported_programs: ImportParser,
@@ -34,11 +34,11 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
-    pub fn new(package_name: String, main_file_path: PathBuf, outputs_directory: PathBuf) -> Self {
+    pub fn new(package_name: String, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
         Self {
             package_name: package_name.clone(),
             main_file_path,
-            outputs_directory,
+            output_directory,
             program: Program::new(package_name),
             program_input: Input::new(),
             imported_programs: ImportParser::new(),
@@ -52,9 +52,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_program_without_input(
         package_name: String,
         main_file_path: PathBuf,
-        outputs_directory: PathBuf,
+        output_directory: PathBuf,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, outputs_directory);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
         let program_string = compiler.load_program()?;
         compiler.parse_program(&program_string)?;
@@ -67,11 +67,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_program_with_input(
         package_name: String,
         main_file_path: PathBuf,
-        outputs_directory: PathBuf,
+        output_directory: PathBuf,
         input_string: &str,
         state_string: &str,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, outputs_directory);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
         compiler.parse_input(input_string, state_string)?;
 
@@ -175,7 +175,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(Self {
             package_name: program.name.clone(),
             main_file_path: PathBuf::new(),
-            outputs_directory: PathBuf::new(),
+            output_directory: PathBuf::new(),
             program,
             program_input,
             imported_programs: ImportParser::new(),
@@ -188,7 +188,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     /// Synthesizes the circuit with program input.
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let outputs_directory = self.outputs_directory.clone();
+        let output_directory = self.output_directory.clone();
         let package_name = self.package_name.clone();
         let result = self.generate_constraints_helper(cs).map_err(|e| {
             log::error!("{}", e);
@@ -198,8 +198,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
         log::info!("Program circuit successfully synthesized!");
 
         // Write results to file
-        let outputs_file = OutputsFile::new(&package_name);
-        outputs_file.write(&outputs_directory, result.bytes()).unwrap();
+        let output_file = OutputFile::new(&package_name);
+        output_file.write(&output_directory, result.bytes()).unwrap();
 
         Ok(())
     }

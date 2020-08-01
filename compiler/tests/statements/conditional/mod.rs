@@ -2,7 +2,7 @@ use crate::{
     assert_satisfied,
     expect_synthesis_error,
     generate_main_input,
-    get_outputs,
+    get_output,
     parse_program,
     parse_program_with_input,
     EdwardsTestCompiler,
@@ -216,15 +216,15 @@ fn test_nested() {
 }
 
 fn output_one(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_one.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_one.out");
+    let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 fn output_zero(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_zero.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_zero.out");
+    let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }

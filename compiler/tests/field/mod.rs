@@ -279,15 +279,15 @@ fn test_ternary() {
 
 //
 // pub fn output_one(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("outputs_/register_one.out");
-//     let actual = get_outputs(program);
+//     let expected = include_bytes!("output_/register_one.out");
+//     let actual = get_output(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());
 // }
 //
 // pub fn output_zero(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("outputs_/register_zero.out");
-//     let actual = get_outputs(program);
+//     let expected = include_bytes!("output_/register_zero.out");
+//     let actual = get_output(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());
 // }

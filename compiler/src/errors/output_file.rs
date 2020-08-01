@@ -1,7 +1,7 @@
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
-pub enum OutputsFileError {
+pub enum OutputFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -15,8 +15,8 @@ pub enum OutputsFileError {
     Writing(io::Error),
 }
 
-impl From<std::io::Error> for OutputsFileError {
+impl From<std::io::Error> for OutputFileError {
     fn from(error: std::io::Error) -> Self {
-        OutputsFileError::Crate("std::io", format!("{}", error))
+        OutputFileError::Crate("std::io", format!("{}", error))
     }
 }

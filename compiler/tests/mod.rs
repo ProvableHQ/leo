@@ -27,8 +27,7 @@ use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 
-pub const TEST_OUTPUTS_DIRECTORY: &str = "/outputs/";
-pub const TEST_OUTPUTS_FILE_NAME: &str = "/outputs/test.out";
+pub const TEST_OUTPUT_DIRECTORY: &str = "/output/";
 const EMPTY_FILE: &str = "";
 
 pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
@@ -37,9 +36,9 @@ pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
-    let outputs_dir = PathBuf::from(TEST_OUTPUTS_DIRECTORY);
+    let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, outputs_dir)
+    EdwardsTestCompiler::new(program_name, path, output_dir)
 }
 
 pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -129,7 +128,7 @@ pub fn parse_program_with_input_and_state(
     Ok(compiler)
 }
 
-pub(crate) fn get_outputs(program: EdwardsTestCompiler) -> OutputBytes {
+pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.generate_constraints_helper(&mut cs).unwrap();
@@ -141,8 +140,8 @@ pub(crate) fn get_outputs(program: EdwardsTestCompiler) -> OutputBytes {
 }
 
 pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
-    let empty_output_bytes = include_bytes!("compiler_outputs/empty.out");
-    let res = get_outputs(program);
+    let empty_output_bytes = include_bytes!("compiler_output/empty.out");
+    let res = get_output(program);
 
     // assert that the output is empty
     assert_eq!(empty_output_bytes, res.bytes().as_slice());

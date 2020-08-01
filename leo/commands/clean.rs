@@ -15,7 +15,7 @@ impl CLI for CleanCommand {
     type Options = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Clean the outputs directory";
+    const ABOUT: AboutType = "Clean the output directory";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "clean";
@@ -33,16 +33,16 @@ impl CLI for CleanCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        // Remove the checksum from the outputs directory
+        // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;
 
-        // Remove the proving key from the outputs directory
+        // Remove the proving key from the output directory
         ProvingKeyFile::new(&package_name).remove(&path)?;
 
-        // Remove the verification key from the outputs directory
+        // Remove the verification key from the output directory
         VerificationKeyFile::new(&package_name).remove(&path)?;
 
-        // Remove the proof from the outputs directory
+        // Remove the proof from the output directory
         ProofFile::new(&package_name).remove(&path)?;
 
         Ok(())

@@ -52,7 +52,7 @@ impl CLI for ProveCommand {
         // Output the proving time
         log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
-        // Write the proof file to the outputs directory
+        // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;

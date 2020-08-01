@@ -68,13 +68,13 @@ impl CLI for SetupCommand {
                     log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
-                    // Write the proving key file to the outputs directory
+                    // Write the proving key file to the output directory
                     let mut proving_key_bytes = vec![];
                     proving_key.write(&mut proving_key_bytes)?;
                     ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
                     log::info!("Saving proving key ({:?})", path);
 
-                    // Write the verification key file to the outputs directory
+                    // Write the verification key file to the output directory
                     let mut verification_key = vec![];
                     proving_key.vk.write(&mut verification_key)?;
                     VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
@@ -84,11 +84,11 @@ impl CLI for SetupCommand {
                 } else {
                     log::info!("Loading saved setup...");
 
-                    // Read the proving key file from the outputs directory
+                    // Read the proving key file from the output directory
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
                     let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
 
-                    // Read the verification key file from the outputs directory
+                    // Read the verification key file from the output directory
                     let verifying_key_bytes = VerificationKeyFile::new(&package_name).read_from(&path)?;
                     let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())?;
 

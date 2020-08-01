@@ -1,22 +1,22 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    get_outputs,
+    get_output,
     parse_program,
     parse_program_with_input,
     EdwardsTestCompiler,
 };
 
 pub fn output_ones(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_ones.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_ones.out");
+    let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
 }
 
 pub fn output_zeros(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_zeros.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_zeros.out");
+    let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
 }
