@@ -18,7 +18,7 @@ macro_rules! input_section_impl {
             }
 
             /// Returns an empty version of this struct with `None` values.
-            /// Called during constraint synthesis to provide private inputs.
+            /// Called during constraint synthesis to provide private input variables.
             pub fn empty(&self) -> Self {
                 let is_present = self.is_present;
                 let mut values = self.values.clone();

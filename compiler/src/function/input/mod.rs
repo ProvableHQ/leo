@@ -1,4 +1,4 @@
-//! Methods to enforce function inputs in a compiled Leo program.
+//! Methods to enforce function input variables in a compiled Leo program.
 
 pub mod array;
 pub use self::array::*;

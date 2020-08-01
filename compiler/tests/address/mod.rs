@@ -1,4 +1,4 @@
-use crate::{assert_satisfied, expect_compiler_error, generate_main_inputs, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
 use leo_types::InputValue;
 
 static TEST_ADDRESS_1: &'static str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";
@@ -57,23 +57,23 @@ fn test_ternary() {
     let bytes = include_bytes!("ternary.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(true))),
         ("c", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(false))),
         ("c", Some(InputValue::Address(TEST_ADDRESS_2.to_string()))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 }
@@ -83,25 +83,25 @@ fn test_equal() {
     let bytes = include_bytes!("equal.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("b", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("c", Some(InputValue::Boolean(true))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
         ("b", Some(InputValue::Address(TEST_ADDRESS_2.to_string()))),
         ("c", Some(InputValue::Boolean(false))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 }

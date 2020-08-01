@@ -1,4 +1,4 @@
-use crate::{assert_satisfied, expect_synthesis_error, generate_main_inputs, parse_program};
+use crate::{assert_satisfied, expect_synthesis_error, generate_main_input, parse_program};
 use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -41,13 +41,13 @@ fn test_add() {
         let bytes = include_bytes!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Field(c_string))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program)
     }
@@ -71,12 +71,12 @@ fn test_sub() {
         let bytes = include_bytes!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Field(c_string))),
         ]);
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program)
     }
@@ -100,12 +100,12 @@ fn test_div() {
         let bytes = include_bytes!("div.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Field(c_string))),
         ]);
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program)
     }
@@ -129,13 +129,13 @@ fn test_mul() {
         let bytes = include_bytes!("mul.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Field(c_string))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program)
     }
@@ -157,13 +157,13 @@ fn test_eq() {
         let bytes = include_bytes!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string.clone()))),
             ("b", Some(InputValue::Field(a_string.clone()))),
             ("c", Some(InputValue::Boolean(true))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program);
 
@@ -173,13 +173,13 @@ fn test_eq() {
 
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
             ("c", Some(InputValue::Boolean(c))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program);
     }
@@ -197,12 +197,12 @@ fn test_assert_eq_pass() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string.clone()))),
             ("b", Some(InputValue::Field(a_string))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         assert_satisfied(program);
     }
@@ -226,12 +226,12 @@ fn test_assert_eq_fail() {
         let bytes = include_bytes!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
-        let main_inputs = generate_main_inputs(vec![
+        let main_inputs = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
             ("b", Some(InputValue::Field(b_string))),
         ]);
 
-        program.set_main_inputs(main_inputs);
+        program.set_main_input(main_inputs);
 
         expect_synthesis_error(program);
     }
@@ -251,28 +251,28 @@ fn test_ternary() {
     let mut program = parse_program(bytes).unwrap();
 
     // true -> field a
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(true))),
         ("a", Some(InputValue::Field(a_string.clone()))),
         ("b", Some(InputValue::Field(b_string.clone()))),
         ("c", Some(InputValue::Field(a_string.clone()))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 
     let mut program = parse_program(bytes).unwrap();
 
     // false -> field b
-    let main_inputs = generate_main_inputs(vec![
+    let main_inputs = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(false))),
         ("a", Some(InputValue::Field(a_string))),
         ("b", Some(InputValue::Field(b_string.clone()))),
         ("c", Some(InputValue::Field(b_string))),
     ]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 }

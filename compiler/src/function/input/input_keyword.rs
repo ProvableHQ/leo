@@ -1,5 +1,5 @@
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_types::{Identifier, Inputs};
+use leo_types::{Identifier, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -16,7 +16,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
-        input: &Inputs,
+        input: &Input,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Create an identifier for each input variable
 

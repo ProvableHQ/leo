@@ -7,8 +7,8 @@ pub use self::checksum::*;
 pub mod gitignore;
 pub use self::gitignore::*;
 
-pub mod inputs;
-pub use self::inputs::*;
+pub mod input;
+pub use self::input::*;
 
 pub mod lib;
 pub use self::lib::*;

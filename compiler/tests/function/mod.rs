@@ -3,7 +3,7 @@ use crate::{
     expect_compiler_error,
     get_outputs,
     parse_program,
-    parse_program_with_inputs,
+    parse_program_with_input,
     EdwardsTestCompiler,
 };
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
@@ -54,7 +54,7 @@ fn test_multiple_returns_main() {
     let program_bytes = include_bytes!("multiple_main.leo");
     let inputs_bytes = include_bytes!("inputs/registers.in");
 
-    let program = parse_program_with_inputs(program_bytes, inputs_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, inputs_bytes).unwrap();
 
     let expected_bytes = include_bytes!("outputs_/registers.out");
     let expected = std::str::from_utf8(expected_bytes).unwrap();

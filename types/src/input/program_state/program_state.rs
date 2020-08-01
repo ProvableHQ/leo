@@ -19,7 +19,7 @@ impl ProgramState {
     }
 
     /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private inputs.
+    /// Called during constraint synthesis to provide private input variables.
     pub fn empty(&self) -> Self {
         let public = self.public.empty();
         let private = self.private.empty();
@@ -31,7 +31,7 @@ impl ProgramState {
         self.public.len() + self.private.len()
     }
 
-    /// Parse all inputs included in a file and store them in `self`.
+    /// Parse all input variables included in a file and store them in `self`.
     pub fn parse(&mut self, table: Table) -> Result<(), InputParserError> {
         match table.visibility {
             Visibility::Private(_private) => self.private.parse(table.sections),

@@ -20,7 +20,7 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
-use leo_types::{InputValue, MainInputs};
+use leo_types::{InputValue, MainInput};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
@@ -51,11 +51,11 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
     Ok(compiler)
 }
 
-pub(crate) fn parse_inputs(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let inputs_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_input(&inputs_string, EMPTY_FILE)?;
 
     Ok(compiler)
 }
@@ -64,25 +64,25 @@ pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerE
     let mut compiler = new_compiler();
     let state_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_inputs(EMPTY_FILE, &state_string)?;
+    compiler.parse_input(EMPTY_FILE, &state_string)?;
 
     Ok(compiler)
 }
 
-pub(crate) fn parse_inputs_and_state(
-    inputs_bytes: &[u8],
+pub(crate) fn parse_input_and_state(
+    input_bytes: &[u8],
     state_bytes: &[u8],
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let inputs_string = String::from_utf8_lossy(inputs_bytes);
+    let input_string = String::from_utf8_lossy(input_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
 
-    compiler.parse_inputs(&inputs_string, &state_string)?;
+    compiler.parse_input(&input_string, &state_string)?;
 
     Ok(compiler)
 }
 
-pub fn parse_program_with_inputs(
+pub fn parse_program_with_input(
     program_bytes: &[u8],
     input_bytes: &[u8],
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -91,7 +91,7 @@ pub fn parse_program_with_inputs(
     let program_string = String::from_utf8_lossy(program_bytes);
     let inputs_string = String::from_utf8_lossy(input_bytes);
 
-    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_input(&inputs_string, EMPTY_FILE)?;
     compiler.parse_program(&program_string)?;
 
     Ok(compiler)
@@ -106,24 +106,24 @@ pub fn parse_program_with_state(
     let program_string = String::from_utf8_lossy(program_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
 
-    compiler.parse_inputs(EMPTY_FILE, &state_string)?;
+    compiler.parse_input(EMPTY_FILE, &state_string)?;
     compiler.parse_program(&program_string)?;
 
     Ok(compiler)
 }
 
-pub fn parse_program_with_inputs_and_state(
+pub fn parse_program_with_input_and_state(
     program_bytes: &[u8],
-    inputs_bytes: &[u8],
+    input_bytes: &[u8],
     state_bytes: &[u8],
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
     let program_string = String::from_utf8_lossy(program_bytes);
-    let inputs_string = String::from_utf8_lossy(inputs_bytes);
+    let input_string = String::from_utf8_lossy(input_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
 
-    compiler.parse_inputs(&inputs_string, &state_string)?;
+    compiler.parse_input(&input_string, &state_string)?;
     compiler.parse_program(&program_string)?;
 
     Ok(compiler)
@@ -160,12 +160,12 @@ pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
     assert!(!cs.is_satisfied());
 }
 
-pub(crate) fn generate_main_inputs(inputs: Vec<(&str, Option<InputValue>)>) -> MainInputs {
-    let mut main_inputs = MainInputs::new();
+pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {
+    let mut main_input = MainInput::new();
 
-    for (name, value) in inputs {
-        main_inputs.insert(name.to_string(), value);
+    for (name, value) in input {
+        main_input.insert(name.to_string(), value);
     }
 
-    main_inputs
+    main_input
 }

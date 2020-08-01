@@ -3,7 +3,7 @@ use crate::{
     expect_compiler_error,
     get_outputs,
     parse_program,
-    parse_program_with_inputs,
+    parse_program_with_input,
     EdwardsTestCompiler,
 };
 
@@ -30,12 +30,12 @@ fn test_registers() {
     let zeros_input_bytes = include_bytes!("inputs/registers_zeros.in");
 
     // test ones input register => ones output register
-    let program = parse_program_with_inputs(program_bytes, ones_input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, ones_input_bytes).unwrap();
 
     output_ones(program);
 
     // test zeros input register => zeros output register
-    let program = parse_program_with_inputs(program_bytes, zeros_input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, zeros_input_bytes).unwrap();
 
     output_zeros(program);
 }
@@ -46,7 +46,7 @@ fn test_registers() {
 fn test_inline() {
     let program_bytes = include_bytes!("inline.leo");
     let input_bytes = include_bytes!("inputs/three_ones.in");
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
@@ -63,7 +63,7 @@ fn test_inline_fail() {
 fn test_initializer() {
     let program_bytes = include_bytes!("initializer.leo");
     let input_bytes = include_bytes!("inputs/three_ones.in");
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
@@ -72,7 +72,7 @@ fn test_initializer() {
 fn test_spread() {
     let program_bytes = include_bytes!("spread.leo");
     let input_bytes = include_bytes!("inputs/three_ones.in");
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
@@ -81,7 +81,7 @@ fn test_spread() {
 fn test_slice() {
     let program_bytes = include_bytes!("slice.leo");
     let input_bytes = include_bytes!("inputs/three_ones.in");
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }

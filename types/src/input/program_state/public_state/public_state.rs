@@ -15,7 +15,7 @@ impl PublicState {
     }
 
     /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private inputs.
+    /// Called during constraint synthesis to provide private input variables.
     pub fn empty(&self) -> Self {
         let state = self.state.empty();
 
@@ -26,7 +26,7 @@ impl PublicState {
         if self.state.is_present() { 1usize } else { 0usize }
     }
 
-    /// Parse all inputs included in a file and store them in `self`.
+    /// Parse all input variables included in a file and store them in `self`.
     pub fn parse(&mut self, sections: Vec<Section>) -> Result<(), InputParserError> {
         for section in sections {
             match section.header {

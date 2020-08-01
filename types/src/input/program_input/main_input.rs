@@ -3,33 +3,33 @@ use leo_input::{definitions::Definition, InputParserError};
 use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct MainInputs {
-    inputs: HashMap<String, Option<InputValue>>,
+pub struct MainInput {
+    input: HashMap<String, Option<InputValue>>,
 }
 
-impl MainInputs {
+impl MainInput {
     pub fn new() -> Self {
-        Self { inputs: HashMap::new() }
+        Self { input: HashMap::new() }
     }
 
     /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private inputs.
+    /// Called during constraint synthesis to provide private input variables.
     pub fn empty(&self) -> Self {
-        let mut inputs = self.inputs.clone();
+        let mut input = self.input.clone();
 
-        inputs.iter_mut().for_each(|(_name, value)| {
+        input.iter_mut().for_each(|(_name, value)| {
             *value = None;
         });
 
-        Self { inputs }
+        Self { input }
     }
 
     pub fn len(&self) -> usize {
-        self.inputs.len()
+        self.input.len()
     }
 
     pub fn insert(&mut self, key: String, value: Option<InputValue>) {
-        self.inputs.insert(key, value);
+        self.input.insert(key, value);
     }
 
     /// Parses main input definitions and stores them in `self`.
@@ -46,6 +46,6 @@ impl MainInputs {
 
     /// Returns an `Option` of the main function input at `name`
     pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
-        self.inputs.get(name).map(|input| input.clone())
+        self.input.get(name).map(|input| input.clone())
     }
 }

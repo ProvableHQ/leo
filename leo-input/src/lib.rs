@@ -20,9 +20,9 @@ pub mod values;
 use from_pest::FromPest;
 use std::{fs, path::PathBuf};
 
-pub struct LeoInputsParser;
+pub struct LeoInputParser;
 
-impl LeoInputsParser {
+impl LeoInputParser {
     /// Reads in the given file path into a string.
     pub fn load_file(file_path: &PathBuf) -> Result<String, InputParserError> {
         Ok(fs::read_to_string(file_path).map_err(|_| InputParserError::FileReadError(file_path.clone()))?)

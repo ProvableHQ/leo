@@ -30,15 +30,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: String,
         caller_scope: String,
         function: Function,
-        inputs: Vec<Expression>,
+        input: Vec<Expression>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
-        // Make sure we are given the correct number of inputs
-        check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
+        // Make sure we are given the correct number of input variables
+        check_arguments_length(function.input.len(), input.len(), function.span.clone())?;
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.inputs.clone().iter().zip(inputs.into_iter()) {
+        for (input_model, input_expression) in function.input.clone().iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 InputVariable::InputKeyword(identifier) => {
                     let input_value = self.enforce_function_input(

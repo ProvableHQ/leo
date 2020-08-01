@@ -11,7 +11,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
-    pub expected_inputs: Vec<InputVariable>,
+    pub expected_input: Vec<InputVariable>,
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
@@ -33,7 +33,7 @@ impl<'ast> Program {
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
         let mut tests = HashMap::new();
-        let mut expected_inputs = vec![];
+        let mut expected_input = vec![];
 
         file.circuits.into_iter().for_each(|circuit| {
             circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
@@ -41,7 +41,7 @@ impl<'ast> Program {
         file.functions.into_iter().for_each(|function_def| {
             let function = Function::from(function_def);
             if function.function_name.name.eq(MAIN_FUNCTION_NAME) {
-                expected_inputs = function.inputs.clone();
+                expected_input = function.input.clone();
             }
             functions.insert(function.function_name.clone(), function);
         });
@@ -52,7 +52,7 @@ impl<'ast> Program {
 
         Self {
             name,
-            expected_inputs,
+            expected_input,
             imports,
             circuits,
             functions,
@@ -65,7 +65,7 @@ impl Program {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            expected_inputs: vec![],
+            expected_input: vec![],
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),

@@ -1,6 +1,6 @@
 //! The `program.state` file.
 
-use crate::{directories::inputs::INPUTS_DIRECTORY_NAME, errors::StateFileError};
+use crate::{directories::input::INPUT_DIRECTORY_NAME, errors::StateFileError};
 
 use serde::Deserialize;
 use std::{
@@ -28,12 +28,12 @@ impl StateFile {
         path.exists()
     }
 
-    /// Reads the state inputs from the given file path if it exists.
+    /// Reads the state input variables from the given file path if it exists.
     pub fn read_from(&self, path: &PathBuf) -> Result<String, StateFileError> {
         let path = self.setup_file_path(path);
 
-        let inputs = fs::read_to_string(&path).map_err(|_| StateFileError::FileReadError(path.clone()))?;
-        Ok(inputs)
+        let input = fs::read_to_string(&path).map_err(|_| StateFileError::FileReadError(path.clone()))?;
+        Ok(input)
     }
 
     /// Writes the standard input format to a file.
@@ -58,7 +58,7 @@ root: u8[32] = [0u8; 32];
 [record]
 serial_number: u8[32] = [0u8; 32];
 commitment: u8[32] = [0u8; 32];
-owner: address = aleo1...;
+owner: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
 value: u64 = 5;
 payload: u8[32] = [0u8; 32]; // TBD
 birth_program_id: u8[32] = [0u8; 32];
@@ -79,8 +79,8 @@ leaf_randomness: u8[32] = [0u8; 32];
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+            if !path.ends_with(INPUT_DIRECTORY_NAME) {
+                path.push(PathBuf::from(INPUT_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, STATE_FILE_EXTENSION)));
         }

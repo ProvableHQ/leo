@@ -31,8 +31,8 @@ impl OutputsFile {
     pub fn read_from(&self, path: &PathBuf) -> Result<String, OutputsFileError> {
         let path = self.setup_file_path(path);
 
-        let inputs = fs::read_to_string(&path).map_err(|_| OutputsFileError::FileReadError(path.clone()))?;
-        Ok(inputs)
+        let outputs = fs::read_to_string(&path).map_err(|_| OutputsFileError::FileReadError(path.clone()))?;
+        Ok(outputs)
     }
 
     /// Writes output to a file.

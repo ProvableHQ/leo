@@ -1,48 +1,51 @@
-use crate::{InputValue, MainInputs, ProgramInputs, ProgramState, Record, Registers, State, StateLeaf};
+use crate::{InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
 use leo_input::{
     files::{File, TableOrSection},
     InputParserError,
 };
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Inputs {
-    inputs: ProgramInputs,
-    state: ProgramState,
+pub struct Input {
+    program_input: ProgramInput,
+    program_state: ProgramState,
 }
 
-impl Inputs {
+impl Input {
     pub fn new() -> Self {
         Self {
-            inputs: ProgramInputs::new(),
-            state: ProgramState::new(),
+            program_input: ProgramInput::new(),
+            program_state: ProgramState::new(),
         }
     }
 
     /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private inputs.
+    /// Called during constraint synthesis to provide private input variables.
     pub fn empty(&self) -> Self {
-        let inputs = self.inputs.empty();
-        let state = self.state.empty();
+        let input = self.program_input.empty();
+        let state = self.program_state.empty();
 
-        Self { inputs, state }
+        Self {
+            program_input: input,
+            program_state: state,
+        }
     }
 
     /// Returns the number of input variables to pass into the `main` program function
     pub fn len(&self) -> usize {
-        self.inputs.len() + self.state.len()
+        self.program_input.len() + self.program_state.len()
     }
 
     /// Manually set the input variables to the `main` program function
-    pub fn set_main_inputs(&mut self, inputs: MainInputs) {
-        self.inputs.main = inputs;
+    pub fn set_main_input(&mut self, input: MainInput) {
+        self.program_input.main = input;
     }
 
-    /// Parse all inputs included in a file and store them in `self`.
-    pub fn parse_inputs(&mut self, file: File) -> Result<(), InputParserError> {
+    /// Parse all input variables included in a file and store them in `self`.
+    pub fn parse_input(&mut self, file: File) -> Result<(), InputParserError> {
         for entry in file.entries.into_iter() {
             match entry {
                 TableOrSection::Section(section) => {
-                    self.inputs.parse(section)?;
+                    self.program_input.parse(section)?;
                 }
                 TableOrSection::Table(table) => return Err(InputParserError::table(table)),
             }
@@ -51,13 +54,13 @@ impl Inputs {
         Ok(())
     }
 
-    /// Parse all inputs included in a file and store them in `self`.
+    /// Parse all input variables included in a file and store them in `self`.
     pub fn parse_state(&mut self, file: File) -> Result<(), InputParserError> {
         for entry in file.entries.into_iter() {
             match entry {
                 TableOrSection::Section(section) => return Err(InputParserError::section(section.header)),
                 TableOrSection::Table(table) => {
-                    self.state.parse(table)?;
+                    self.program_state.parse(table)?;
                 }
             }
         }
@@ -67,26 +70,26 @@ impl Inputs {
 
     /// Returns the main function input value with the given `name`
     pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
-        self.inputs.get(name)
+        self.program_input.get(name)
     }
 
     /// Returns the runtime register input values
     pub fn get_registers(&self) -> &Registers {
-        self.inputs.get_registers()
+        self.program_input.get_registers()
     }
 
     /// Returns the runtime record input values
     pub fn get_record(&self) -> &Record {
-        self.state.get_record()
+        self.program_state.get_record()
     }
 
     /// Returns the runtime state input values
     pub fn get_state(&self) -> &State {
-        self.state.get_state()
+        self.program_state.get_state()
     }
 
     /// Returns the runtime state leaf input values
     pub fn get_state_leaf(&self) -> &StateLeaf {
-        self.state.get_state_leaf()
+        self.program_state.get_state_leaf()
     }
 }

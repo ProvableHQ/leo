@@ -1,25 +1,25 @@
-use crate::{InputValue, MainInputs, Registers};
+use crate::{InputValue, MainInput, Registers};
 use leo_input::{
     sections::{Header, Section},
     InputParserError,
 };
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ProgramInputs {
-    pub main: MainInputs,
+pub struct ProgramInput {
+    pub main: MainInput,
     registers: Registers,
 }
 
-impl ProgramInputs {
+impl ProgramInput {
     pub fn new() -> Self {
         Self {
-            main: MainInputs::new(),
+            main: MainInput::new(),
             registers: Registers::new(),
         }
     }
 
     /// Returns an empty version of this struct with `None` values.
-    /// Called during constraint synthesis to provide private inputs.
+    /// Called during constraint synthesis to provide private input values.
     pub fn empty(&self) -> Self {
         let main = self.main.empty();
         let registers = self.registers.empty();
@@ -30,7 +30,7 @@ impl ProgramInputs {
     pub fn len(&self) -> usize {
         let mut len = 0;
 
-        // add main inputs
+        // add main input variables
         len += self.main.len();
 
         // add registers
@@ -41,7 +41,7 @@ impl ProgramInputs {
         len
     }
 
-    /// Parse all inputs included in a file and store them in `self`.
+    /// Parse each input included in a file and store them in `self`.
     pub fn parse(&mut self, section: Section) -> Result<(), InputParserError> {
         match section.header {
             Header::Main(_main) => self.main.parse(section.definitions),

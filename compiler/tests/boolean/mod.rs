@@ -4,7 +4,7 @@ use crate::{
     expect_synthesis_error,
     get_outputs,
     parse_program,
-    parse_program_with_inputs,
+    parse_program_with_input,
     EdwardsTestCompiler,
 };
 use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
@@ -37,7 +37,7 @@ fn test_input_pass() {
     let program_bytes = include_bytes!("assert_eq_input.leo");
     let input_bytes = include_bytes!("inputs/true_true.in");
 
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
@@ -47,7 +47,7 @@ fn test_input_fail() {
     let program_bytes = include_bytes!("assert_eq_input.leo");
     let input_bytes = include_bytes!("inputs/true_false.in");
 
-    let program = parse_program_with_inputs(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     expect_synthesis_error(program);
 }
@@ -59,12 +59,12 @@ fn test_registers() {
     let false_input_bytes = include_bytes!("inputs/registers_false.in");
 
     // test true input register => true output register
-    let program = parse_program_with_inputs(program_bytes, true_input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, true_input_bytes).unwrap();
 
     output_true(program);
 
     // test false input register => false output register
-    let program = parse_program_with_inputs(program_bytes, false_input_bytes).unwrap();
+    let program = parse_program_with_input(program_bytes, false_input_bytes).unwrap();
 
     output_false(program);
 }

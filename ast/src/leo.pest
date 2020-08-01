@@ -337,13 +337,13 @@ statement_return = { "return " ~ return_}
 // Declared in functions/function.rs
 function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-// Declared in functions/inputs/function_input.rs
+// Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
 
-// Declared in functions/inputs/input_keyword.rs
+// Declared in functions/input/input_keyword.rs
 input_keyword = { "input" }
 
-// Declared in functions/inputs/input.rs
+// Declared in functions/input/input.rs
 input = {
     input_keyword
     | function_input

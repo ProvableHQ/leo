@@ -1,7 +1,7 @@
 use crate::{
     assert_satisfied,
     expect_synthesis_error,
-    generate_main_inputs,
+    generate_main_input,
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };

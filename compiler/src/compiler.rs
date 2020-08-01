@@ -9,8 +9,8 @@ use crate::{
     OutputsFile,
 };
 use leo_ast::LeoParser;
-use leo_input::LeoInputsParser;
-use leo_types::{Inputs, MainInputs, Program};
+use leo_input::LeoInputParser;
+use leo_types::{Input, MainInput, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -27,7 +27,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     main_file_path: PathBuf,
     outputs_directory: PathBuf,
     program: Program,
-    program_inputs: Inputs,
+    program_input: Input,
     imported_programs: ImportParser,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -40,7 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             main_file_path,
             outputs_directory,
             program: Program::new(package_name),
-            program_inputs: Inputs::new(),
+            program_input: Input::new(),
             imported_programs: ImportParser::new(),
             _engine: PhantomData,
             _group: PhantomData,
@@ -49,7 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     /// Parses program files.
     /// Returns a compiler struct that stores the typed program abstract syntax trees (ast).
-    pub fn parse_program_without_inputs(
+    pub fn parse_program_without_input(
         package_name: String,
         main_file_path: PathBuf,
         outputs_directory: PathBuf,
@@ -63,17 +63,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Parses input, state, and program files.
-    /// Returns a compiler struct that stores the typed inputs and typed program abstract syntax trees (ast).
-    pub fn parse_program_with_inputs(
+    /// Returns a compiler struct that stores the typed input and typed program abstract syntax trees (ast).
+    pub fn parse_program_with_input(
         package_name: String,
         main_file_path: PathBuf,
         outputs_directory: PathBuf,
-        inputs_string: &str,
+        input_string: &str,
         state_string: &str,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, outputs_directory);
 
-        compiler.parse_inputs(inputs_string, state_string)?;
+        compiler.parse_input(input_string, state_string)?;
 
         let program_string = compiler.load_program()?;
         compiler.parse_program(&program_string)?;
@@ -82,13 +82,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Parse the input and state files.
-    /// Stores a typed ast of all inputs to the program.
-    pub fn parse_inputs(&mut self, inputs_string: &str, state_string: &str) -> Result<(), CompilerError> {
-        let inputs_syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
-        let state_syntax_tree = LeoInputsParser::parse_file(&state_string)?;
+    /// Stores a typed ast of all input variables to the program.
+    pub fn parse_input(&mut self, input_string: &str, state_string: &str) -> Result<(), CompilerError> {
+        let input_syntax_tree = LeoInputParser::parse_file(&input_string)?;
+        let state_syntax_tree = LeoInputParser::parse_file(&state_string)?;
 
-        self.program_inputs.parse_inputs(inputs_syntax_tree)?;
-        self.program_inputs.parse_state(state_syntax_tree)?;
+        self.program_input.parse_input(input_syntax_tree)?;
+        self.program_input.parse_state(state_syntax_tree)?;
 
         Ok(())
     }
@@ -114,9 +114,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(LeoParser::load_file(&self.main_file_path)?)
     }
 
-    /// Manually sets main function inputs
-    pub fn set_main_inputs(&mut self, inputs: MainInputs) {
-        self.program_inputs.set_main_inputs(inputs);
+    /// Manually sets main function input
+    pub fn set_main_input(&mut self, input: MainInput) {
+        self.program_input.set_main_input(input);
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
@@ -132,21 +132,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(hex::encode(hash))
     }
 
-    /// Synthesizes the circuit without program inputs to verify correctness.
+    /// Synthesizes the circuit without program input to verify correctness.
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
-        let inputs = self.program_inputs.empty();
+        let input = self.program_input.empty();
 
-        generate_constraints::<F, G, CS>(cs, self.program, inputs, &self.imported_programs).map_err(|mut error| {
+        generate_constraints::<F, G, CS>(cs, self.program, input, &self.imported_programs).map_err(|mut error| {
             error.set_path(path);
 
             error
         })
     }
 
-    /// Synthesizes the circuit for test functions with program inputs.
+    /// Synthesizes the circuit for test functions with program input.
     pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(cs, self.program, self.program_inputs, &self.imported_programs)
+        generate_test_constraints::<F, G>(cs, self.program, self.program_input, &self.imported_programs)
     }
 
     /// Calls the internal generate_constraints method with arguments
@@ -155,7 +155,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         cs: &mut CS,
     ) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
-        generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs).map_err(
+        generate_constraints::<_, G, _>(cs, self.program, self.program_input, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(path);
 
@@ -170,14 +170,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, CompilerError> {
         let program: Program = bincode::deserialize(bytes)?;
-        let program_inputs = Inputs::new();
+        let program_input = Input::new();
 
         Ok(Self {
             package_name: program.name.clone(),
             main_file_path: PathBuf::new(),
             outputs_directory: PathBuf::new(),
             program,
-            program_inputs,
+            program_input,
             imported_programs: ImportParser::new(),
             _engine: PhantomData,
             _group: PhantomData,
@@ -186,7 +186,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
-    /// Synthesizes the circuit with program inputs.
+    /// Synthesizes the circuit with program input.
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let outputs_directory = self.outputs_directory.clone();
         let package_name = self.package_name.clone();

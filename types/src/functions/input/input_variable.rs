@@ -1,5 +1,5 @@
 use crate::{FunctionInput, Identifier, Span};
-use leo_ast::functions::inputs::Input as AstInput;
+use leo_ast::functions::input::Input as AstInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

@@ -1,8 +1,8 @@
 pub mod imports;
 pub use self::imports::*;
 
-pub mod inputs;
-pub use self::inputs::*;
+pub mod input;
+pub use self::input::*;
 
 pub mod outputs;
 pub use self::outputs::*;

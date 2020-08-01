@@ -1,6 +1,6 @@
 use crate::{Expression, Identifier, IntegerType};
 use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
-use leo_input::types::{ArrayType as InputsArrayType, DataType as InputsDataType, Type as InputsAstType};
+use leo_input::types::{ArrayType as InputArrayType, DataType as InputDataType, Type as InputAstType};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -51,8 +51,8 @@ impl From<DataType> for Type {
     }
 }
 
-impl<'ast> From<InputsArrayType<'ast>> for Type {
-    fn from(array_type: InputsArrayType<'ast>) -> Self {
+impl<'ast> From<InputArrayType<'ast>> for Type {
+    fn from(array_type: InputArrayType<'ast>) -> Self {
         let element_type = Box::new(Type::from(array_type._type));
         let dimensions = array_type
             .dimensions
@@ -81,16 +81,16 @@ impl<'ast> From<AstType<'ast>> for Type {
     }
 }
 
-/// inputs pest ast -> Explicit Type
+/// input pest ast -> Explicit Type
 
-impl From<InputsDataType> for Type {
-    fn from(data_type: InputsDataType) -> Self {
+impl From<InputDataType> for Type {
+    fn from(data_type: InputDataType) -> Self {
         match data_type {
-            InputsDataType::Address(_type) => Type::Address,
-            InputsDataType::Boolean(_type) => Type::Boolean,
-            InputsDataType::Field(_type) => Type::Field,
-            InputsDataType::Group(_type) => Type::Group,
-            InputsDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
+            InputDataType::Address(_type) => Type::Address,
+            InputDataType::Boolean(_type) => Type::Boolean,
+            InputDataType::Field(_type) => Type::Field,
+            InputDataType::Group(_type) => Type::Group,
+            InputDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
         }
     }
 }
@@ -108,11 +108,11 @@ impl<'ast> From<ArrayType<'ast>> for Type {
     }
 }
 
-impl<'ast> From<InputsAstType<'ast>> for Type {
-    fn from(type_: InputsAstType<'ast>) -> Self {
+impl<'ast> From<InputAstType<'ast>> for Type {
+    fn from(type_: InputAstType<'ast>) -> Self {
         match type_ {
-            InputsAstType::Basic(type_) => Type::from(type_),
-            InputsAstType::Array(type_) => Type::from(type_),
+            InputAstType::Basic(type_) => Type::from(type_),
+            InputAstType::Array(type_) => Type::from(type_),
         }
     }
 }

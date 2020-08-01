@@ -1,4 +1,4 @@
-use crate::{assert_satisfied, expect_compiler_error, generate_main_inputs, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
 use leo_types::InputValue;
 
 #[test]
@@ -61,9 +61,9 @@ fn test_print_input() {
     let bytes = include_bytes!("print_input.leo");
     let mut program = parse_program(bytes).unwrap();
 
-    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(true)))]);
+    let main_inputs = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
-    program.set_main_inputs(main_inputs);
+    program.set_main_input(main_inputs);
 
     assert_satisfied(program);
 }
