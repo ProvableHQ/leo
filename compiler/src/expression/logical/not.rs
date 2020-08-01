@@ -1,7 +1,7 @@
 //! Enforces a logical `!` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_types::Span;
+use leo_typed::Span;
 
 use snarkos_models::curves::{Field, PrimeField};
 

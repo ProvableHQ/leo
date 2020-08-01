@@ -11,7 +11,7 @@ use leo_compiler::{
     ConstrainedValue,
     FieldType,
 };
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 use num_bigint::BigUint;
 use rand::{Rng, SeedableRng};

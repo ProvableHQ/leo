@@ -9,7 +9,7 @@ use crate::{
 };
 use leo_compiler::{ConstrainedValue, Integer};
 use leo_inputs::types::{IntegerType, U8Type};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{

@@ -3,7 +3,7 @@ use leo_compiler::{
     errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError},
     ConstrainedValue,
 };
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 use snarkos_models::gadgets::utilities::boolean::Boolean;
 

@@ -1,7 +1,7 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::MacroError, program::ConstrainedProgram, GroupType};
-use leo_types::FormattedString;
+use leo_typed::FormattedString;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

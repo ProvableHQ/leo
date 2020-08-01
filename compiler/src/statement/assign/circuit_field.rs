@@ -1,7 +1,7 @@
 //! Enforces a circuit field assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_types::{Identifier, Span};
+use leo_typed::{Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

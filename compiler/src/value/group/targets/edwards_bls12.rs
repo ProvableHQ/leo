@@ -1,5 +1,5 @@
 use crate::{errors::GroupError, GroupType};
-use leo_types::Span;
+use leo_typed::Span;
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},

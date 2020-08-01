@@ -1,7 +1,7 @@
 //! Enforces an array assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_types::{RangeOrExpression, Span};
+use leo_typed::{RangeOrExpression, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

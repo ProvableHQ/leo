@@ -1,5 +1,5 @@
 use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, MacroError, ValueError};
-use leo_types::{Error as FormattedError, Span, Type};
+use leo_typed::{Error as FormattedError, Span, Type};
 
 use std::path::PathBuf;
 

@@ -7,7 +7,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_compiler::{Address, ConstrainedValue};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
