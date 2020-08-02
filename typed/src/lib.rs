@@ -38,6 +38,7 @@ use leo_ast::LeoAst;
 
 use serde_json;
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct LeoTypedAst {
     typed_ast: Program,
 }
@@ -55,8 +56,14 @@ impl LeoTypedAst {
         self.typed_ast
     }
 
-    /// Serializes the abstract syntax tree into a JSON string.
+    /// Serializes the typed syntax tree into a JSON string.
     pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
         Ok(serde_json::to_string_pretty(&self.typed_ast)?)
+    }
+
+    /// Deserializes the JSON string into a typed syntax tree.
+    pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
+        let typed_ast: Program = serde_json::from_str(json)?;
+        Ok(Self { typed_ast })
     }
 }

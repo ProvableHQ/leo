@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A simple program with statement expressions, program arguments and program returns.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
     pub expected_inputs: Vec<FunctionInput>,
