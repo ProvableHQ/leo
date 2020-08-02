@@ -1,6 +1,6 @@
 use crate::{errors::ImportError, ImportParser};
 use leo_ast::LeoAst;
-use leo_typed::{ImportSymbol, Program, Span};
+use leo_types::{ImportSymbol, Program, Span};
 
 use std::{ffi::OsString, fs::DirEntry, path::PathBuf};
 

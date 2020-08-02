@@ -1,5 +1,5 @@
 use crate::{errors::ImportError, ImportParser};
-use leo_typed::{Package, PackageAccess};
+use leo_types::{Package, PackageAccess};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
 

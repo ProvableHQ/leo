@@ -5,7 +5,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_typed::Variable;
+use leo_types::Variable;
 
 use snarkos_models::curves::{Field, PrimeField};
 

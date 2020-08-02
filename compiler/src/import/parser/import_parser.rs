@@ -1,5 +1,5 @@
 use crate::errors::ImportError;
-use leo_typed::Program;
+use leo_types::Program;
 
 use std::{collections::HashMap, env::current_dir};
 

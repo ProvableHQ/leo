@@ -1,5 +1,5 @@
 use leo_gadgets::errors::SignedIntegerError;
-use leo_typed::{error::Error as FormattedError, Span};
+use leo_types::{error::Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::PathBuf;

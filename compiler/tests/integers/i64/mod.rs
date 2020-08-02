@@ -10,7 +10,7 @@ use crate::{
 use leo_compiler::{ConstrainedValue, Integer};
 use leo_gadgets::*;
 use leo_inputs::types::{I64Type, IntegerType};
-use leo_typed::InputValue;
+use leo_types::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::{r1cs::TestConstraintSystem, utilities::alloc::AllocGadget};

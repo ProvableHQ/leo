@@ -1,5 +1,5 @@
 use leo_ast::ParserError;
-use leo_typed::{Error as FormattedError, Identifier, ImportSymbol, Span};
+use leo_types::{Error as FormattedError, Identifier, ImportSymbol, Span};
 
 use std::{io, path::PathBuf};
 

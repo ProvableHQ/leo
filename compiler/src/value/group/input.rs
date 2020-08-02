@@ -1,7 +1,7 @@
 //! Methods to enforce constraints on input group values in a Leo program.
 
 use crate::{errors::GroupError, ConstrainedValue, GroupType};
-use leo_typed::{InputValue, Span};
+use leo_types::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

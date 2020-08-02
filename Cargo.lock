@@ -603,7 +603,7 @@ dependencies = [
  "leo-ast",
  "leo-gadgets",
  "leo-inputs",
- "leo-typed",
+ "leo-types",
  "log",
  "num-bigint",
  "pest",
@@ -649,7 +649,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-typed"
+name = "leo-types"
 version = "0.1.0"
 dependencies = [
  "leo-ast",

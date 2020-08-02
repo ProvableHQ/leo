@@ -1,4 +1,4 @@
-use leo_typed::{Error as FormattedError, Span};
+use leo_types::{Error as FormattedError, Span};
 
 use snarkos_errors::{gadgets::SynthesisError, objects::account::AccountError};
 use std::path::PathBuf;

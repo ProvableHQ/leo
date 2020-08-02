@@ -1,7 +1,7 @@
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
+use leo_types::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

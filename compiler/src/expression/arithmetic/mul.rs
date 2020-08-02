@@ -1,7 +1,7 @@
 //! Enforces an arithmetic `*` operator in a resolved Leo program.
 
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_typed::Span;
+use leo_types::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

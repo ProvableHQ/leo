@@ -1,5 +1,5 @@
 use crate::{errors::ImportError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_typed::{ImportSymbol, Program};
+use leo_types::{ImportSymbol, Program};
 
 use snarkos_models::curves::{Field, PrimeField};
 

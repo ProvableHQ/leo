@@ -7,7 +7,7 @@ use crate::{
     Address,
     GroupType,
 };
-use leo_typed::{Identifier, Type};
+use leo_types::{Identifier, Type};
 
 use snarkos_models::curves::{Field, PrimeField};
 

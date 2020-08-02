@@ -12,7 +12,7 @@ use leo_compiler::{
     Integer,
 };
 use leo_inputs::types::{IntegerType, U32Type};
-use leo_typed::InputValue;
+use leo_types::InputValue;
 
 use snarkos_models::gadgets::utilities::uint::UInt32;
 

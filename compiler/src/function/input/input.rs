@@ -2,7 +2,7 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_typed::{Expression, Type};
+use leo_types::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

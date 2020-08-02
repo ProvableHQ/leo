@@ -1,5 +1,5 @@
 use crate::{get_error, get_output, parse_program};
-use leo_typed::InputValue;
+use leo_types::InputValue;
 
 #[test]
 fn test_print() {

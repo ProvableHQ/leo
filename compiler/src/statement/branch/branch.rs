@@ -1,7 +1,7 @@
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Statement, Type};
+use leo_types::{Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
