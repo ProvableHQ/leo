@@ -206,7 +206,7 @@ group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
 
 // Declared in values/address.rs
-address = @{ (LOWERCASE_LETTER | ASCII_DIGIT)* }
+address = @{ (LOWERCASE_LETTER | ASCII_DIGIT)+ }
 
 // Declared in values/address_value.rs
 value_address = { type_address ~ "(" ~ address ~ ")" }
