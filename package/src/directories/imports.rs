@@ -2,7 +2,7 @@ use crate::errors::ImportsDirectoryError;
 
 use std::{fs, path::PathBuf};
 
-pub(crate) static IMPORTS_DIRECTORY_NAME: &str = "imports/";
+pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
 pub struct ImportsDirectory;
 

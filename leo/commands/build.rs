@@ -1,11 +1,9 @@
-use crate::{
-    cli::*,
-    cli_types::*,
+use crate::{cli::*, cli_types::*, errors::CLIError};
+use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_package::{
     directories::{source::SOURCE_DIRECTORY_NAME, OutputDirectory, OUTPUT_DIRECTORY_NAME},
-    errors::CLIError,
     files::{ChecksumFile, InputFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
 use snarkos_algorithms::snark::groth16::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};

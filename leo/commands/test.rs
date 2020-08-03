@@ -1,11 +1,13 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{output::OUTPUT_DIRECTORY_NAME, source::SOURCE_DIRECTORY_NAME},
     errors::{CLIError, TestError},
-    files::{InputFile, MainFile, Manifest, StateFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_package::{
+    directories::{output::OUTPUT_DIRECTORY_NAME, source::SOURCE_DIRECTORY_NAME},
+    files::{InputFile, MainFile, Manifest, StateFile, MAIN_FILE_NAME},
+};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;

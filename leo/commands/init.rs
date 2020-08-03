@@ -1,8 +1,10 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{InputDirectory, SourceDirectory},
     errors::{CLIError, InitError},
+};
+use leo_package::{
+    directories::{InputDirectory, SourceDirectory},
     files::{Gitignore, InputFile, LibFile, MainFile, Manifest},
 };
 

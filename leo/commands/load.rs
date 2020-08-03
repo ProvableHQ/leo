@@ -2,8 +2,10 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
-    directories::SOURCE_DIRECTORY_NAME,
     errors::{CLIError, RunError},
+};
+use leo_package::{
+    directories::SOURCE_DIRECTORY_NAME,
     files::{Manifest, MAIN_FILE_NAME},
 };
 

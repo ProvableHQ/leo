@@ -2,7 +2,7 @@ use crate::errors::InputDirectoryError;
 
 use std::{fs, path::PathBuf};
 
-pub(crate) static INPUT_DIRECTORY_NAME: &str = "input/";
+pub static INPUT_DIRECTORY_NAME: &str = "input/";
 
 static INPUT_FILE_EXTENSION: &str = "leo.in";
 

@@ -1,4 +1,5 @@
 use crate::errors::*;
+use leo_package::errors::*;
 
 #[derive(Debug, Error)]
 pub enum CLIError {

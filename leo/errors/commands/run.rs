@@ -1,4 +1,4 @@
-use crate::errors::ManifestError;
+use leo_package::errors::ManifestError;
 
 use std::ffi::OsString;
 

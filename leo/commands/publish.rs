@@ -1,9 +1,6 @@
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
+use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError};
+use leo_package::{
     directories::output::OutputDirectory,
-    errors::CLIError,
     files::{Manifest, ZipFile},
 };
 

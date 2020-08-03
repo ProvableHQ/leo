@@ -2,7 +2,7 @@ use crate::errors::SourceDirectoryError;
 
 use std::{fs, path::PathBuf};
 
-pub(crate) static SOURCE_DIRECTORY_NAME: &str = "src/";
+pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
 static SOURCE_FILE_EXTENSION: &str = "leo";
 
