@@ -1272,7 +1272,7 @@ checksum = "3757cb9d89161a2f24e1cf78efa0c1fcff485d18e3f55e0aa3480824ddaa0f3f"
 [[package]]
 name = "snarkos-algorithms"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "blake2",
  "derivative",
@@ -1292,7 +1292,7 @@ dependencies = [
 [[package]]
 name = "snarkos-curves"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "derivative",
  "rand",
@@ -1307,7 +1307,7 @@ dependencies = [
 [[package]]
 name = "snarkos-derives"
 version = "0.1.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "proc-macro2 1.0.19",
  "quote 1.0.7",
@@ -1317,7 +1317,7 @@ dependencies = [
 [[package]]
 name = "snarkos-dpc"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "blake2",
  "derivative",
@@ -1338,7 +1338,7 @@ dependencies = [
 [[package]]
 name = "snarkos-errors"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "base58",
  "bech32",
@@ -1351,7 +1351,7 @@ dependencies = [
 [[package]]
 name = "snarkos-gadgets"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "derivative",
  "digest 0.8.1",
@@ -1366,7 +1366,7 @@ dependencies = [
 [[package]]
 name = "snarkos-models"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "bincode",
  "derivative",
@@ -1382,7 +1382,7 @@ dependencies = [
 [[package]]
 name = "snarkos-objects"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "base58",
  "bech32",
@@ -1403,7 +1403,7 @@ dependencies = [
 [[package]]
 name = "snarkos-parameters"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "hex",
  "snarkos-algorithms",
@@ -1415,12 +1415,12 @@ dependencies = [
 [[package]]
 name = "snarkos-profiler"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 
 [[package]]
 name = "snarkos-utilities"
 version = "0.8.0"
-source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#d80ce42f37c8dbdd8dcb0ab9574361aea3276dc3"
+source = "git+ssh://git@github.com/AleoHQ/snarkOS.git#c1bab103254631c892fade02662eaa66cc145d58"
 dependencies = [
  "bincode",
  "rand",
