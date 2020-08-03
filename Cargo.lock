@@ -758,6 +758,7 @@ version = "0.1.0"
 name = "leo-types"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "leo-ast",
  "leo-input",
  "pest",
