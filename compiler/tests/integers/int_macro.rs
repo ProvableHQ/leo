@@ -115,11 +115,18 @@ macro_rules! test_int {
                     let a: $type_ = rand::random();
                     let b: $type_ = rand::random();
 
+                    // make sure that we can calculate the inverse of each number
+                    // Leo signed integer division is non-wrapping. Thus attempting to calculate a
+                    // division result that wraps should be ignored here.
+                    if a.checked_neg().is_none() || b.checked_neg().is_none() {
+                        continue;
+                    }
+
                     let bytes = include_bytes!("div.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     // expect an error when dividing by zero
-                    if b == 0 || b == <$type_>::MIN || a == <$type_>::MIN {
+                    if b == 0 {
                         let main_input = generate_main_input(vec![
                             ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                             ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
