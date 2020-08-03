@@ -4,9 +4,6 @@ pub use self::checksum::*;
 pub mod directory;
 pub use directory::*;
 
-// pub mod output;
-// pub use output::*;
-
 pub mod proof;
 pub use self::proof::*;
 

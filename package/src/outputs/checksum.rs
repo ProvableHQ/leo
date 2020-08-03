@@ -1,6 +1,6 @@
 //! The build checksum file.
 
-use crate::{errors::ChecksumFileError, outputs::OUTPUT_DIRECTORY_NAME};
+use crate::{errors::ChecksumFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
@@ -60,8 +60,8 @@ impl ChecksumFile {
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(OUTPUT_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUT_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!(
                 "{}{}",

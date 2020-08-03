@@ -2,3 +2,6 @@
 [main]
 a: field = 337;
 b: field = 113569;
+
+[registers]
+r0: bool = false;

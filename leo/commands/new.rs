@@ -88,7 +88,7 @@ impl CLI for NewCommand {
             LibFile::new(&package_name).write_to(&path)?;
         } else {
             // Create the input directory
-            InputDirectory::create(&path)?;
+            InputsDirectory::create(&path)?;
 
             // Create the input file in the input directory
             InputFile::new(&package_name).write_to(&path)?;

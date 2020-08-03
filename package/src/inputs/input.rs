@@ -1,6 +1,6 @@
 //! The `program.in` file.
 
-use crate::{errors::InputFileError, inputs::INPUT_DIRECTORY_NAME};
+use crate::{errors::InputFileError, inputs::INPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
@@ -58,8 +58,8 @@ b: u32 = 2;
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(INPUT_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUT_DIRECTORY_NAME));
+            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION)));
         }
