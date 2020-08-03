@@ -2,11 +2,14 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
-    directories::SOURCE_DIRECTORY_NAME,
     errors::{CLIError, RunError},
-    files::{Manifest, ProvingKeyFile, VerificationKeyFile, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_package::{
+    outputs::{ProvingKeyFile, VerificationKeyFile},
+    root::Manifest,
+    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+};
 
 use snarkos_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
 use snarkos_curves::bls12_377::{Bls12_377, Fr};

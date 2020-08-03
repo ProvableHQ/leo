@@ -2,9 +2,11 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
-    directories::SOURCE_DIRECTORY_NAME,
     errors::{CLIError, RunError},
-    files::{Manifest, MAIN_FILE_NAME},
+};
+use leo_package::{
+    root::Manifest,
+    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use clap::ArgMatches;

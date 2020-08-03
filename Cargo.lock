@@ -661,6 +661,7 @@ dependencies = [
  "leo-compiler",
  "leo-gadgets",
  "leo-input",
+ "leo-package",
  "log",
  "rand",
  "rand_core",
@@ -675,8 +676,6 @@ dependencies = [
  "snarkos-utilities",
  "thiserror",
  "toml",
- "walkdir",
- "zip",
 ]
 
 [[package]]
@@ -753,6 +752,19 @@ dependencies = [
 [[package]]
 name = "leo-linter"
 version = "0.1.0"
+
+[[package]]
+name = "leo-package"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "toml",
+ "walkdir",
+ "zip",
+]
 
 [[package]]
 name = "leo-typed"

@@ -1,9 +1,12 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{InputDirectory, SourceDirectory},
     errors::{CLIError, InitError},
-    files::{Gitignore, InputFile, LibFile, MainFile, Manifest},
+};
+use leo_package::{
+    inputs::*,
+    root::{Gitignore, Manifest},
+    source::{LibFile, MainFile, SourceDirectory},
 };
 
 use clap::ArgMatches;
@@ -68,7 +71,7 @@ impl CLI for InitCommand {
             }
         } else {
             // Create the input directory
-            InputDirectory::create(&path)?;
+            InputsDirectory::create(&path)?;
 
             // Verify the input file does not exist
             let input_file = InputFile::new(&package_name);
