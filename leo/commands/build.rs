@@ -2,7 +2,7 @@ use crate::{cli::*, cli_types::*, errors::CLIError};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
-    outputs::{ChecksumFile, OutputDirectory, OUTPUT_DIRECTORY_NAME},
+    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
     source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
@@ -49,7 +49,7 @@ impl CLI for BuildCommand {
 
         // Construct the path to the output directory
         let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUT_DIRECTORY_NAME);
+        output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         // Compile the package starting with the lib.leo file
         if LibFile::exists_at(&package_path) {
@@ -71,7 +71,7 @@ impl CLI for BuildCommand {
         // Compile the main.leo file along with constraints
         if MainFile::exists_at(&package_path) {
             // Create the output directory
-            OutputDirectory::create(&package_path)?;
+            OutputsDirectory::create(&package_path)?;
 
             // Construct the path to the main file in the source directory
             let mut main_file_path = package_path.clone();

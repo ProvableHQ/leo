@@ -3,10 +3,10 @@
 use crate::{
     errors::ZipFileError,
     imports::IMPORTS_DIRECTORY_NAME,
-    inputs::{INPUT_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
+    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
-        OUTPUT_DIRECTORY_NAME,
+        OUTPUTS_DIRECTORY_NAME,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
         VERIFICATION_KEY_FILE_EXTENSION,
@@ -100,8 +100,8 @@ impl ZipFile {
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(OUTPUT_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUT_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION)));
         }
@@ -111,8 +111,8 @@ impl ZipFile {
 
 fn is_excluded(path: &Path) -> bool {
     // excluded directories: `input`, `output`, `imports`
-    if path.ends_with(INPUT_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(OUTPUT_DIRECTORY_NAME.trim_end_matches("/"))
+    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
+        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
     {
         return true;
