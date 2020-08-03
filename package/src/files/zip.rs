@@ -1,8 +1,8 @@
 //! The program package zip file.
 
 use crate::{
-    directories::IMPORTS_DIRECTORY_NAME,
     errors::ZipFileError,
+    imports::IMPORTS_DIRECTORY_NAME,
     inputs::{INPUT_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,

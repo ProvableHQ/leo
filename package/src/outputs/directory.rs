@@ -2,7 +2,7 @@ use crate::errors::OutputDirectoryError;
 
 use std::{fs, path::PathBuf};
 
-pub static OUTPUT_DIRECTORY_NAME: &str = "output/";
+pub static OUTPUT_DIRECTORY_NAME: &str = "outputs/";
 
 pub struct OutputDirectory;
 

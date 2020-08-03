@@ -1,10 +1,8 @@
-use crate::errors::InputDirectoryError;
+use crate::{errors::InputDirectoryError, inputs::INPUT_FILE_EXTENSION};
 
 use std::{fs, path::PathBuf};
 
-pub static INPUT_DIRECTORY_NAME: &str = "input/";
-
-static INPUT_FILE_EXTENSION: &str = "leo.in";
+pub static INPUT_DIRECTORY_NAME: &str = "inputs/";
 
 pub struct InputDirectory;
 
