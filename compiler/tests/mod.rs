@@ -90,7 +90,7 @@ pub fn parse_program_with_input(
     let program_string = String::from_utf8_lossy(program_bytes);
     let input_string = String::from_utf8_lossy(input_bytes);
 
-    compiler.parse_inputs(&inputs_string, EMPTY_FILE)?;
+    compiler.parse_input(&input_string, EMPTY_FILE)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -105,7 +105,7 @@ pub fn parse_program_with_state(
     let program_string = String::from_utf8_lossy(program_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
 
-    compiler.parse_inputs(EMPTY_FILE, &state_string)?;
+    compiler.parse_input(EMPTY_FILE, &state_string)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -122,7 +122,7 @@ pub fn parse_program_with_input_and_state(
     let input_string = String::from_utf8_lossy(input_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
 
-    compiler.parse_inputs(&inputs_string, &state_string)?;
+    compiler.parse_input(&input_string, &state_string)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
