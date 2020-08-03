@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
+[[bin]]
+name = "leo_types_ast"
+path = "src/main.rs"
+
 [dependencies]
 leo-ast = { path = "../ast", version = "0.1.0" }
 leo-inputs = { path = "../leo-inputs", version = "0.1.0" }
@@ -13,3 +17,4 @@ snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "
 
 pest = { version = "2.0" }
 serde = { version = "1.0" }
+serde_json = { version = "1.0" }

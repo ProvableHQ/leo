@@ -650,6 +650,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-linter"
+version = "0.1.0"
+
+[[package]]
 name = "leo-types"
 version = "0.1.0"
 dependencies = [
@@ -657,6 +661,7 @@ dependencies = [
  "leo-inputs",
  "pest",
  "serde",
+ "serde_json",
  "snarkos-errors",
  "snarkos-models",
 ]

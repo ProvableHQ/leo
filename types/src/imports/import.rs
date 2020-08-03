@@ -6,7 +6,7 @@ use leo_ast::imports::Import as AstImport;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Import {
     pub package: Package,
     pub span: Span,

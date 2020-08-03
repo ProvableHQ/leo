@@ -4,7 +4,7 @@ use leo_ast::imports::Package as AstPackage;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Package {
     pub name: Identifier,
     pub access: PackageAccess,

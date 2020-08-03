@@ -1,0 +1,91 @@
+{
+  "imports": [],
+  "circuits": [],
+  "functions": [
+    {
+      "function_name": {
+        "value": "main",
+        "span": {
+          "input": "main",
+          "start": 9,
+          "end": 13
+        }
+      },
+      "parameters": [],
+      "returns": [],
+      "statements": [
+        {
+          "Return": {
+            "return_": {
+              "Single": {
+                "Binary": {
+                  "operation": "Add",
+                  "left": {
+                    "Value": {
+                      "Implicit": {
+                        "number": {
+                          "value": "1",
+                          "span": {
+                            "input": "1",
+                            "start": 29,
+                            "end": 30
+                          }
+                        },
+                        "span": {
+                          "input": "1",
+                          "start": 29,
+                          "end": 30
+                        }
+                      }
+                    }
+                  },
+                  "right": {
+                    "Value": {
+                      "Implicit": {
+                        "number": {
+                          "value": "1",
+                          "span": {
+                            "input": "1",
+                            "start": 33,
+                            "end": 34
+                          }
+                        },
+                        "span": {
+                          "input": "1",
+                          "start": 33,
+                          "end": 34
+                        }
+                      }
+                    }
+                  },
+                  "span": {
+                    "input": "1 + 1",
+                    "start": 29,
+                    "end": 34
+                  }
+                }
+              }
+            },
+            "span": {
+              "input": "return 1 + 1",
+              "start": 22,
+              "end": 34
+            }
+          }
+        }
+      ],
+      "span": {
+        "input": "function main() {\n    return 1 + 1\n}\n",
+        "start": 0,
+        "end": 37
+      }
+    }
+  ],
+  "tests": [],
+  "eoi": null,
+  "span": {
+    "input": "function main() {\n    return 1 + 1\n}\n",
+    "start": 0,
+    "end": 37
+  }
+}

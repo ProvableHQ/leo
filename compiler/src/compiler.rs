@@ -8,9 +8,9 @@ use crate::{
     OutputBytes,
     OutputsFile,
 };
-use leo_ast::LeoParser;
+use leo_ast::LeoAst;
 use leo_inputs::LeoInputsParser;
-use leo_types::{Inputs, MainInputs, Program};
+use leo_types::{Inputs, LeoTypedAst, MainInputs, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -47,6 +47,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         }
     }
 
+    /// Parse the input and state files.
+    /// Stores a typed ast of all inputs to the program.
+    pub fn parse_inputs(&mut self, inputs_string: &str, state_string: &str) -> Result<(), CompilerError> {
+        let inputs_syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
+        let state_syntax_tree = LeoInputsParser::parse_file(&state_string)?;
+
+        self.program_inputs.parse_inputs(inputs_syntax_tree)?;
+        self.program_inputs.parse_state(state_syntax_tree)?;
+
+        Ok(())
+    }
+
     /// Parses program files.
     /// Returns a compiler struct that stores the typed program abstract syntax trees (ast).
     pub fn parse_program_without_inputs(
@@ -56,8 +68,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, outputs_directory);
 
-        let program_string = compiler.load_program()?;
-        compiler.parse_program(&program_string)?;
+        compiler.parse_program()?;
 
         Ok(compiler)
     }
@@ -74,44 +85,38 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let mut compiler = Self::new(package_name, main_file_path, outputs_directory);
 
         compiler.parse_inputs(inputs_string, state_string)?;
-
-        let program_string = compiler.load_program()?;
-        compiler.parse_program(&program_string)?;
+        compiler.parse_program()?;
 
         Ok(compiler)
     }
 
-    /// Parse the input and state files.
-    /// Stores a typed ast of all inputs to the program.
-    pub fn parse_inputs(&mut self, inputs_string: &str, state_string: &str) -> Result<(), CompilerError> {
-        let inputs_syntax_tree = LeoInputsParser::parse_file(&inputs_string)?;
-        let state_syntax_tree = LeoInputsParser::parse_file(&state_string)?;
+    /// Parses the Leo program file, constructs a syntax tree, and generates a program.
+    pub fn parse_program(&mut self) -> Result<(), CompilerError> {
+        // Use the parser to construct the abstract syntax tree.
+        let program_string = LeoAst::load_file(&self.main_file_path)?;
 
-        self.program_inputs.parse_inputs(inputs_syntax_tree)?;
-        self.program_inputs.parse_state(state_syntax_tree)?;
-
-        Ok(())
+        self.parse_program_from_string(&program_string)
     }
 
-    /// Parse the program file and all associated import files.
-    pub fn parse_program(&mut self, program_string: &str) -> Result<(), CompilerError> {
-        // Parse the program syntax tree
-        let syntax_tree = LeoParser::parse_file(&self.main_file_path, program_string)?;
+    /// Parses the Leo program string, constructs a syntax tree, and generates a program.
+    /// Used for testing only.
+    #[deprecated(note = "Please use the 'parse_program' method instead.")]
+    pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
+        // Use the given bytes to construct the abstract syntax tree.
+        let ast = LeoAst::new(&self.main_file_path, &program_string)?;
 
-        // Build program from syntax tree
+        // Derive the package name.
         let package_name = self.package_name.clone();
 
-        self.program = Program::from(syntax_tree, package_name);
+        // Use the typed parser to construct the typed syntax tree.
+        let typed_tree = LeoTypedAst::new(&package_name, &ast);
+
+        self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;
 
         log::debug!("Program parsing complete\n{:#?}", self.program);
 
         Ok(())
-    }
-
-    /// Loads the program file at `main_file_path`.
-    fn load_program(&mut self) -> Result<String, CompilerError> {
-        Ok(LeoParser::load_file(&self.main_file_path)?)
     }
 
     /// Manually sets main function inputs
@@ -158,7 +163,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         generate_constraints::<_, G, _>(cs, self.program, self.program_inputs, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(path);
-
                 error
             },
         )
