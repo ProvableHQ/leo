@@ -44,6 +44,10 @@ zip = { version = "0.5" }
 [dev-dependencies]
 rusty-hook = { version = "0.11.2" }
 
+[features]
+default = []
+ci_skip = ["leo-compiler/ci_skip"]
+
 [profile.release]
 opt-level = 3
 lto = "thin"

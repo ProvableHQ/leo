@@ -30,3 +30,7 @@ thiserror = { version = "1.0" }
 
 [dev-dependencies]
 num-bigint = { version = "0.3" }
+
+[features]
+default = []
+ci_skip = ["leo-ast/ci_skip", "leo-types/ci_skip"]
