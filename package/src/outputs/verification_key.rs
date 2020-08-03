@@ -1,6 +1,6 @@
 //! The verification key file.
 
-use crate::{directories::output::OUTPUT_DIRECTORY_NAME, errors::VerificationKeyFileError};
+use crate::{errors::VerificationKeyFileError, outputs::OUTPUT_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{

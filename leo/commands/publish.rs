@@ -1,7 +1,7 @@
 use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError};
 use leo_package::{
-    directories::output::OutputDirectory,
     files::{Manifest, ZipFile},
+    outputs::OutputDirectory,
 };
 
 use clap::ArgMatches;

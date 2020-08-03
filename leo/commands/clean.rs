@@ -1,5 +1,8 @@
 use crate::{cli::*, cli_types::*, errors::CLIError};
-use leo_package::files::{ChecksumFile, Manifest, ProofFile, ProvingKeyFile, VerificationKeyFile};
+use leo_package::{
+    files::Manifest,
+    outputs::{ChecksumFile, ProofFile, ProvingKeyFile, VerificationKeyFile},
+};
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};

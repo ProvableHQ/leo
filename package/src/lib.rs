@@ -7,3 +7,4 @@ pub use errors::*;
 pub mod directories;
 pub mod files;
 pub mod inputs;
+pub mod outputs;

@@ -6,3 +6,6 @@ pub use self::files::*;
 
 pub mod inputs;
 pub use inputs::*;
+
+pub mod outputs;
+pub use outputs::*;

@@ -1,6 +1,6 @@
-//! The proving key file.
+//! The build checksum file.
 
-use crate::{directories::output::OUTPUT_DIRECTORY_NAME, errors::ProvingKeyFileError};
+use crate::{errors::ChecksumFileError, outputs::OUTPUT_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
@@ -9,14 +9,14 @@ use std::{
     path::PathBuf,
 };
 
-pub static PROVING_KEY_FILE_EXTENSION: &str = ".lpk";
+pub static CHECKSUM_FILE_EXTENSION: &str = ".sum";
 
 #[derive(Deserialize)]
-pub struct ProvingKeyFile {
+pub struct ChecksumFile {
     pub package_name: String,
 }
 
-impl ProvingKeyFile {
+impl ChecksumFile {
     pub fn new(package_name: &str) -> Self {
         Self {
             package_name: package_name.to_string(),
@@ -28,32 +28,32 @@ impl ProvingKeyFile {
         path.exists()
     }
 
-    /// Reads the proving key from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, ProvingKeyFileError> {
+    /// Reads the checksum from the given file path if it exists.
+    pub fn read_from(&self, path: &PathBuf) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.clone()))?)
+        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.clone()))?)
     }
 
-    /// Writes the given proving key to a file.
-    pub fn write_to(&self, path: &PathBuf, proving_key: &[u8]) -> Result<(), ProvingKeyFileError> {
+    /// Writes the given checksum to a file.
+    pub fn write_to(&self, path: &PathBuf, checksum: String) -> Result<(), ChecksumFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
-        file.write_all(proving_key)?;
+        file.write_all(checksum.as_bytes())?;
 
         Ok(())
     }
 
-    /// Removes the proving key at the given path if it exists. Returns `true` on success,
+    /// Removes the checksum at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProvingKeyFileError> {
+    pub fn remove(&self, path: &PathBuf) -> Result<bool, ChecksumFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProvingKeyFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ChecksumFileError::FileRemovalError(path.clone()))?;
         Ok(true)
     }
 
@@ -65,7 +65,7 @@ impl ProvingKeyFile {
             }
             path.push(PathBuf::from(format!(
                 "{}{}",
-                self.package_name, PROVING_KEY_FILE_EXTENSION
+                self.package_name, CHECKSUM_FILE_EXTENSION
             )));
         }
         path

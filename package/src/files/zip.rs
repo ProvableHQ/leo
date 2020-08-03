@@ -1,15 +1,16 @@
 //! The program package zip file.
 
 use crate::{
-    directories::{IMPORTS_DIRECTORY_NAME, OUTPUT_DIRECTORY_NAME},
+    directories::IMPORTS_DIRECTORY_NAME,
     errors::ZipFileError,
-    files::{
+    inputs::{INPUT_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
+    outputs::{
         CHECKSUM_FILE_EXTENSION,
+        OUTPUT_DIRECTORY_NAME,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
         VERIFICATION_KEY_FILE_EXTENSION,
     },
-    inputs::{INPUT_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
 };
 
 use serde::Deserialize;

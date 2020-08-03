@@ -5,9 +5,10 @@ use crate::{
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
-    directories::{output::OUTPUT_DIRECTORY_NAME, source::SOURCE_DIRECTORY_NAME},
+    directories::source::SOURCE_DIRECTORY_NAME,
     files::{MainFile, Manifest, MAIN_FILE_NAME},
     inputs::*,
+    outputs::OUTPUT_DIRECTORY_NAME,
 };
 
 use snarkos_curves::edwards_bls12::Fq;
