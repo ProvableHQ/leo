@@ -119,7 +119,7 @@ macro_rules! test_int {
                     let mut program = parse_program(bytes).unwrap();
 
                     // expect an error when dividing by zero
-                    if b == 0 || b == <$type_>::MIN {
+                    if b == 0 || b == <$type_>::MIN || a == <$type_>::MIN {
                         let main_input = generate_main_input(vec![
                             ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
                             ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
