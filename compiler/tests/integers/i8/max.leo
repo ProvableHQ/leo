@@ -1,3 +1,3 @@
-function main() -> i8 {
-    return 127
+function main() {
+    let a: i8 = 127;
 }

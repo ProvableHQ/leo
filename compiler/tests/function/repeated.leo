@@ -2,6 +2,8 @@ function one() -> bool {
     return true
 }
 
-function main() -> bool {
-    return one() && one()
+function main() {
+    let a = one() && one();
+
+    assert_eq!(a, true);
 }

@@ -2,13 +2,12 @@
 
 use crate::{
     errors::FunctionError,
-    function::check_arguments_length,
     program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
     GroupType,
+    OutputBytes,
 };
 
-use leo_types::{Expression, Function, InputValue};
+use leo_types::{Expression, Function, Input, Inputs};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -21,31 +20,69 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: String,
         function: Function,
-        inputs: Vec<Option<InputValue>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+        inputs: Inputs,
+    ) -> Result<OutputBytes, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
-
-        // Make sure we are given the correct number of inputs
-        check_arguments_length(function.inputs.len(), inputs.len(), function.span.clone())?;
+        let registers = inputs.get_registers();
 
         // Iterate over main function inputs and allocate new passed-by variable values
         let mut input_variables = vec![];
-        for (input_model, input_option) in function.inputs.clone().into_iter().zip(inputs.into_iter()) {
-            let input_value = self.allocate_main_function_input(
-                cs,
-                input_model._type,
-                input_model.identifier.name.clone(),
-                input_option,
-                function.span.clone(),
-            )?;
+        for input_model in function.inputs.clone().into_iter() {
+            let (identifier, value) = match input_model {
+                Input::FunctionInput(input_model) => {
+                    let name = input_model.identifier.name.clone();
+                    let input_option = inputs
+                        .get(&name)
+                        .ok_or(FunctionError::input_not_found(name.clone(), function.span.clone()))?;
+                    let input_value = self.allocate_main_function_input(
+                        cs,
+                        input_model.type_,
+                        name.clone(),
+                        input_option,
+                        function.span.clone(),
+                    )?;
+
+                    (input_model.identifier, input_value)
+                }
+                Input::Registers(identifier) => {
+                    let section = inputs.get_registers().values();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
+                }
+                Input::Record(identifier) => {
+                    let section = inputs.get_record().values();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
+                }
+                Input::State(identifier) => {
+                    let section = inputs.get_state().values();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
+                }
+                Input::StateLeaf(identifier) => {
+                    let section = inputs.get_state_leaf().values();
+                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
+
+                    (identifier, value)
+                }
+            };
+
+            // Store input as variable with {function_name}_{identifier_name}
+            let input_name = new_scope(function_name.clone(), identifier.name.clone());
 
             // Store a new variable for every allocated main function input
-            let input_name = new_scope(function_name.clone(), input_model.identifier.name.clone());
-            self.store(input_name.clone(), input_value);
+            self.store(input_name, value);
 
-            input_variables.push(Expression::Identifier(input_model.identifier));
+            input_variables.push(Expression::Identifier(identifier));
         }
 
-        self.enforce_function(cs, scope, function_name, function, input_variables)
+        let span = function.span.clone();
+        let result_value = self.enforce_function(cs, scope, function_name, function, input_variables)?;
+        let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
+
+        Ok(output_bytes)
     }
 }

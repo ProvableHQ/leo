@@ -1,13 +1,13 @@
-function main(bit: u32) -> u32 {
-    let mut result = 0u32;
+function main(a: u32, b: u32) {
+    let mut c = 0u32;
 
-    if bit == 1 {
-        result = 1;
-    } else if bit == 2 {
-        result = 2;
+    if a == 1 {
+        c = 1;
+    } else if a == 2 {
+        c = 2;
     } else {
-        result = 3;
+        c = 3;
     }
 
-    return result
+    assert_eq!(c, b);
 }

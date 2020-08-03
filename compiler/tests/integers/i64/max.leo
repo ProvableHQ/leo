@@ -1,3 +1,3 @@
-function main() -> i64 {
-    return 9223372036854775807
+function main() {
+    let a: i64 = 9223372036854775807;
 }

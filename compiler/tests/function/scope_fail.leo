@@ -2,7 +2,7 @@ function foo() -> field {
     return myGlobal
 }
 
-function main() -> field {
+function main() {
     const myGlobal = 42field;
-    return foo()
+    let err = foo();
 }

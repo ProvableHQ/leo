@@ -57,6 +57,9 @@ pub enum CLIError {
     SourceDirectoryError(SourceDirectoryError),
 
     #[error("{}", _0)]
+    StateFileError(StateFileError),
+
+    #[error("{}", _0)]
     TestError(TestError),
 
     #[error("{}", _0)]
@@ -172,6 +175,13 @@ impl From<SourceDirectoryError> for CLIError {
     fn from(error: SourceDirectoryError) -> Self {
         log::error!("{}\n", error);
         CLIError::SourceDirectoryError(error)
+    }
+}
+
+impl From<StateFileError> for CLIError {
+    fn from(error: StateFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::StateFileError(error)
     }
 }
 

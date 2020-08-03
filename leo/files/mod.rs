@@ -25,5 +25,8 @@ pub use self::proof::*;
 pub mod proving_key;
 pub use self::proving_key::*;
 
+pub mod state;
+pub use self::state::*;
+
 pub mod verification_key;
 pub use self::verification_key::*;

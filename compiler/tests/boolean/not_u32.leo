@@ -1,3 +1,3 @@
 function main() -> bool {
-    return !1u32
+    assert_eq!(!1u32, 0u32);
 }

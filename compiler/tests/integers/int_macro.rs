@@ -2,405 +2,437 @@ macro_rules! test_int {
     ($name: ident, $type_: ty, $integer_type: expr, $gadget: ty) => {
         pub struct $name {}
 
-        impl $name {
-            fn test_min(min: $type_) {
-                let min_allocated = <$gadget>::constant(min);
-
+        impl IntegerTester for $name {
+            fn test_min() {
                 let bytes = include_bytes!("min.leo");
                 let program = parse_program(bytes).unwrap();
 
-                output_expected_allocated(program, min_allocated);
+                assert_satisfied(program);
             }
 
-            fn test_max(max: $type_) {
-                let max_allocated = <$gadget>::constant(max);
+            fn test_min_fail() {
+                let bytes = include_bytes!("min_fail.leo");
+                let program = parse_program(bytes).unwrap();
 
+                expect_parsing_error(program);
+            }
+
+            fn test_max() {
                 let bytes = include_bytes!("max.leo");
                 let program = parse_program(bytes).unwrap();
 
-                output_expected_allocated(program, max_allocated);
+                assert_satisfied(program);
             }
-        }
 
-        impl IntegerTester for $name {
-            fn test_input() {
-                // valid input
-                let num: $type_ = rand::random();
-                let expected = <$gadget>::constant(num);
+            fn test_max_fail() {
+                let bytes = include_bytes!("max_fail.leo");
+                let program = parse_program(bytes).unwrap();
 
-                let bytes = include_bytes!("input.leo");
-                let mut program = parse_program(bytes).unwrap();
-
-                program.set_inputs(vec![Some(InputValue::Integer($integer_type, num.to_string()))]);
-
-                output_expected_allocated(program, expected);
-
-                // invalid input
-                let mut program = parse_program(bytes).unwrap();
-
-                program.set_inputs(vec![Some(InputValue::Boolean(true))]);
-                fail_integer(program);
-
-                // None input
-                let mut program = parse_program(bytes).unwrap();
-                program.set_inputs(vec![None]);
-                fail_integer(program);
+                expect_parsing_error(program);
             }
 
             fn test_add() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
-                    let r2: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                    let sum = match r1.checked_add(r2) {
+                    let c = match a.checked_add(b) {
                         Some(valid) => valid,
                         None => continue,
                     };
 
-                    let cs = TestConstraintSystem::<Fq>::new();
-                    let sum_allocated = <$gadget>::alloc(cs, || Ok(sum)).unwrap();
-
                     let bytes = include_bytes!("add.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    output_expected_allocated(program, sum_allocated);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_sub() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
-                    let r2: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                    if r2.checked_neg().is_none() {
+                    if b.checked_neg().is_none() {
                         continue;
                     }
 
-                    let difference = match r1.checked_sub(r2) {
+                    let c = match a.checked_sub(b) {
                         Some(valid) => valid,
                         None => continue,
                     };
 
-                    let cs = TestConstraintSystem::<Fq>::new();
-                    let difference_allocated = <$gadget>::alloc(cs, || Ok(difference)).unwrap();
-
                     let bytes = include_bytes!("sub.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    output_expected_allocated(program, difference_allocated);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_mul() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
-                    let r2: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                    let product = match r1.checked_mul(r2) {
+                    let c = match a.checked_mul(b) {
                         Some(valid) => valid,
                         None => continue,
                     };
 
-                    let cs = TestConstraintSystem::<Fq>::new();
-                    let product_allocated = <$gadget>::alloc(cs, || Ok(product)).unwrap();
-
                     let bytes = include_bytes!("mul.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
                     ]);
 
-                    output_expected_allocated(program, product_allocated);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_div() {
-                // for _ in 0..10 {// these loops take an excessive amount of time
-                let r1: $type_ = rand::random();
-                let r2: $type_ = rand::random();
+                for _ in 0..10 {
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                let bytes = include_bytes!("div.leo");
-                let mut program = parse_program(bytes).unwrap();
+                    let bytes = include_bytes!("div.leo");
+                    let mut program = parse_program(bytes).unwrap();
 
-                program.set_inputs(vec![
-                    Some(InputValue::Integer($integer_type, r1.to_string())),
-                    Some(InputValue::Integer($integer_type, r2.to_string())),
-                ]);
+                    // expect an error when dividing by zero
+                    if b == 0 {
+                        let main_inputs = generate_main_inputs(vec![
+                            ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                            ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                            ("c", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ]);
 
-                // expect an error when dividing by zero
-                if r2 == 0 {
-                    let _err = get_error(program);
-                } else {
-                    let cs = TestConstraintSystem::<Fq>::new();
+                        program.set_main_inputs(main_inputs);
 
-                    let quotient = match r1.checked_div(r2) {
-                        Some(valid) => valid,
-                        None => return,
-                    };
-                    let quotient_allocated = <$gadget>::alloc(cs, || Ok(quotient)).unwrap();
+                        expect_computation_error(program);
+                    } else {
+                        let c = match a.checked_div(b) {
+                            Some(valid) => valid,
+                            None => continue,
+                        };
 
-                    output_expected_allocated(program, quotient_allocated);
+                        let main_inputs = generate_main_inputs(vec![
+                            ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                            ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                            ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
+                        ]);
+
+                        program.set_main_inputs(main_inputs);
+
+                        assert_satisfied(program);
+                    }
                 }
-                // }
             }
 
             fn test_pow() {
-                // for _ in 0..10 {// these loops take an excessive amount of time
-                let r1: $type_ = rand::random();
-                let r2: $type_ = rand::random();
-                let r2 = r2 as u32; // we cast to u32 here because of rust pow() requirements
+                for _ in 0..10 {
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                let result = match r1.checked_pow(r2) {
-                    Some(valid) => valid,
-                    None => return,
-                };
+                    // rust specific conversion see https://doc.rust-lang.org/std/primitive.u8.html#method.checked_pow
+                    let c = match a.checked_pow(b as u32) {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
 
-                let cs = TestConstraintSystem::<Fq>::new();
-                let result_allocated = <$gadget>::alloc(cs, || Ok(result)).unwrap();
+                    let bytes = include_bytes!("pow.leo");
+                    let mut program = parse_program(bytes).unwrap();
 
-                let bytes = include_bytes!("pow.leo");
-                let mut program = parse_program(bytes).unwrap();
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Integer($integer_type, c.to_string()))),
+                    ]);
 
-                program.set_inputs(vec![
-                    Some(InputValue::Integer($integer_type, r1.to_string())),
-                    Some(InputValue::Integer($integer_type, r2.to_string())),
-                ]);
+                    program.set_main_inputs(main_inputs);
 
-                output_expected_allocated(program, result_allocated);
-                // }
+                    assert_satisfied(program);
+                }
             }
 
             fn test_eq() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
                     // test equal
+
                     let bytes = include_bytes!("eq.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    output_true(program);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
 
                     // test not equal
-                    let r2: $type_ = rand::random();
 
-                    let result = r1.eq(&r2);
+                    let c = a.eq(&b);
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    output_expected_boolean(program, result);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_ge() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
                     // test equal
+
                     let bytes = include_bytes!("ge.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    output_true(program);
+                    program.set_main_inputs(main_inputs);
 
-                    // test not equal
-                    let r2: $type_ = rand::random();
+                    assert_satisfied(program);
 
-                    let result = r1.ge(&r2);
+                    // test greater or equal
+
+                    let c = a.ge(&b);
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    output_expected_boolean(program, result);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_gt() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
                     // test equal
+
                     let bytes = include_bytes!("gt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(false))),
                     ]);
 
-                    output_false(program);
+                    program.set_main_inputs(main_inputs);
 
-                    // test not equal
-                    let r2: $type_ = rand::random();
+                    assert_satisfied(program);
 
-                    let result = r1.gt(&r2);
+                    // test greater than
+
+                    let c = a.gt(&b);
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    output_expected_boolean(program, result);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_le() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
                     // test equal
+
                     let bytes = include_bytes!("le.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(true))),
                     ]);
 
-                    output_true(program);
+                    program.set_main_inputs(main_inputs);
 
-                    // test not equal
-                    let r2: $type_ = rand::random();
+                    assert_satisfied(program);
 
-                    let result = r1.le(&r2);
+                    // test less or equal
+
+                    let c = a.le(&b);
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    output_expected_boolean(program, result);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_lt() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
                     // test equal
+
                     let bytes = include_bytes!("lt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(false))),
                     ]);
 
-                    output_false(program);
+                    program.set_main_inputs(main_inputs);
 
-                    // test not equal
-                    let r2: $type_ = rand::random();
+                    assert_satisfied(program);
 
-                    let result = r1.lt(&r2);
+                    // test less or equal
+
+                    let c = a.lt(&b);
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
                     ]);
 
-                    output_expected_boolean(program, result);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
                 }
             }
 
             fn test_assert_eq() {
                 for _ in 0..10 {
-                    let r1: $type_ = rand::random();
+                    let a: $type_ = rand::random();
 
                     // test equal
                     let bytes = include_bytes!("assert_eq.leo");
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
                     ]);
 
-                    let _ = get_output(program);
+                    program.set_main_inputs(main_inputs);
+
+                    assert_satisfied(program);
 
                     // test not equal
-                    let r2: $type_ = rand::random();
+                    let b: $type_ = rand::random();
 
-                    if r1 == r2 {
+                    if a == b {
                         continue;
                     }
 
                     let mut program = parse_program(bytes).unwrap();
 
-                    program.set_inputs(vec![
-                        Some(InputValue::Integer($integer_type, r1.to_string())),
-                        Some(InputValue::Integer($integer_type, r2.to_string())),
+                    let main_inputs = generate_main_inputs(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
                     ]);
 
-                    let mut cs = TestConstraintSystem::<Fq>::new();
-                    let _ = program.compile_constraints(&mut cs).unwrap();
-                    assert!(!cs.is_satisfied());
+                    program.set_main_inputs(main_inputs);
+
+                    expect_synthesis_error(program);
                 }
             }
 
             fn test_ternary() {
-                let r1: $type_ = rand::random();
-                let r2: $type_ = rand::random();
-
-                let g1 = <$gadget>::constant(r1);
-                let g2 = <$gadget>::constant(r2);
+                let a: $type_ = rand::random();
+                let b: $type_ = rand::random();
 
                 let bytes = include_bytes!("ternary.leo");
-                let mut program_1 = parse_program(bytes).unwrap();
-
-                let mut program_2 = program_1.clone();
+                let mut program = parse_program(bytes).unwrap();
 
                 // true -> field 1
-                program_1.set_inputs(vec![
-                    Some(InputValue::Boolean(true)),
-                    Some(InputValue::Integer($integer_type, r1.to_string())),
-                    Some(InputValue::Integer($integer_type, r2.to_string())),
+                let main_inputs = generate_main_inputs(vec![
+                    ("s", Some(InputValue::Boolean(true))),
+                    ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                    ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                    ("c", Some(InputValue::Integer($integer_type, a.to_string()))),
                 ]);
 
-                output_expected_allocated(program_1, g1);
+                program.set_main_inputs(main_inputs);
+
+                assert_satisfied(program);
 
                 // false -> field 2
-                program_2.set_inputs(vec![
-                    Some(InputValue::Boolean(false)),
-                    Some(InputValue::Integer($integer_type, r1.to_string())),
-                    Some(InputValue::Integer($integer_type, r2.to_string())),
+                let mut program = parse_program(bytes).unwrap();
+
+                let main_inputs = generate_main_inputs(vec![
+                    ("s", Some(InputValue::Boolean(false))),
+                    ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                    ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                    ("c", Some(InputValue::Integer($integer_type, b.to_string()))),
                 ]);
 
-                output_expected_allocated(program_2, g2);
+                program.set_main_inputs(main_inputs);
+
+                assert_satisfied(program);
             }
         }
     };

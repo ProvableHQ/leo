@@ -72,8 +72,5 @@ fn test_serialize_deserialize_serialize() {
     // Reserializes the typed syntax tree into JSON format.
     let reserialized_typed_ast = typed_ast.to_json_string().unwrap();
 
-    // Load the expected typed syntax tree.
-    let expected = include_str!("expected_typed_ast.json");
-
     assert_eq!(serialized_typed_ast, reserialized_typed_ast);
 }

@@ -4,6 +4,6 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    return Foo::echoed(1u32)
+function main() {
+    let err = Foo::echoed(1u32);
 }

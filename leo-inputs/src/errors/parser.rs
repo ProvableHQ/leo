@@ -2,6 +2,8 @@ use crate::{
     ast::Rule,
     errors::SyntaxError as InputSyntaxError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
+    sections::Header,
+    tables::Table,
     types::{DataType, Type},
     values::{NumberImplicitValue, NumberValue, Value},
 };
@@ -78,6 +80,46 @@ impl InputParserError {
             array.count
         );
         let span = array.span.to_owned();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn input_section_header(header: Header) -> Self {
+        let message = format!("the section header `{}` is not valid in an input `.in` file", header);
+        let span = header.span();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn public_section(header: Header) -> Self {
+        let message = format!("the section header `{}` is not a public section", header);
+        let span = header.span();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn private_section(header: Header) -> Self {
+        let message = format!("the section header `{}` is not a private section", header);
+        let span = header.span();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn table(table: Table) -> Self {
+        let message = format!(
+            "the double bracket section `{}` is not valid in an input `.in` file",
+            table
+        );
+
+        Self::new_from_span(message, table.span)
+    }
+
+    pub fn section(header: Header) -> Self {
+        let message = format!(
+            "the section header `{}` must have a double bracket visibility in a state `.state` file",
+            header
+        );
+        let span = header.span();
 
         Self::new_from_span(message, span)
     }

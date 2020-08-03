@@ -1,57 +1,92 @@
-use crate::{FunctionInput, InputValue};
-use leo_inputs::{files::File, InputParserError};
+use crate::{InputValue, MainInputs, ProgramInputs, ProgramState, Record, Registers, State, StateLeaf};
+use leo_inputs::{
+    files::{File, TableOrSection},
+    InputParserError,
+};
 
-static MAIN_INPUT_FILE_HEADER: &'static str = "main";
-
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Inputs {
-    program_inputs: Vec<Option<InputValue>>,
+    inputs: ProgramInputs,
+    state: ProgramState,
 }
 
 impl Inputs {
     pub fn new() -> Self {
-        Self { program_inputs: vec![] }
+        Self {
+            inputs: ProgramInputs::new(),
+            state: ProgramState::new(),
+        }
     }
 
-    pub fn get_inputs(&self) -> Vec<Option<InputValue>> {
-        self.program_inputs.clone()
+    /// Returns an empty version of this struct with `None` values.
+    /// Called during constraint synthesis to provide private inputs.
+    pub fn empty(&self) -> Self {
+        let inputs = self.inputs.empty();
+        let state = self.state.empty();
+
+        Self { inputs, state }
     }
 
-    pub fn set_inputs(&mut self, inputs: Vec<Option<InputValue>>) {
-        self.program_inputs = inputs;
+    /// Returns the number of input variables to pass into the `main` program function
+    pub fn len(&self) -> usize {
+        self.inputs.len() + self.state.len()
     }
 
-    pub fn set_inputs_size(&mut self, size: usize) {
-        self.program_inputs = vec![None; size];
+    /// Manually set the input variables to the `main` program function
+    pub fn set_main_inputs(&mut self, inputs: MainInputs) {
+        self.inputs.main = inputs;
     }
 
-    pub fn from_inputs_file(file: File, expected_inputs: Vec<FunctionInput>) -> Result<Self, InputParserError> {
-        let mut program_inputs = vec![];
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse_inputs(&mut self, file: File) -> Result<(), InputParserError> {
+        for entry in file.entries.into_iter() {
+            match entry {
+                TableOrSection::Section(section) => {
+                    self.inputs.parse(section)?;
+                }
+                TableOrSection::Table(table) => return Err(InputParserError::table(table)),
+            }
+        }
 
-        for section in file.sections.into_iter() {
-            if section.header.name.value.eq(MAIN_INPUT_FILE_HEADER) {
-                for input in &expected_inputs {
-                    // find input with matching name
-                    let matched_input = section.assignments.clone().into_iter().find(|assignment| {
-                        // name match
-                        assignment.parameter.variable.value.eq(&input.identifier.name)
-                                // type match
-                                && assignment.parameter.type_.to_string().eq(&input._type.to_string())
-                    });
+        Ok(())
+    }
 
-                    match matched_input {
-                        Some(assignment) => {
-                            let value = InputValue::from_expression(assignment.parameter.type_, assignment.expression)?;
-
-                            // push value to vector
-                            program_inputs.push(Some(value));
-                        }
-                        None => return Err(InputParserError::InputNotFound(input.to_string())),
-                    }
+    /// Parse all inputs included in a file and store them in `self`.
+    pub fn parse_state(&mut self, file: File) -> Result<(), InputParserError> {
+        for entry in file.entries.into_iter() {
+            match entry {
+                TableOrSection::Section(section) => return Err(InputParserError::section(section.header)),
+                TableOrSection::Table(table) => {
+                    self.state.parse(table)?;
                 }
             }
         }
 
-        Ok(Self { program_inputs })
+        Ok(())
+    }
+
+    /// Returns the main function input value with the given `name`
+    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
+        self.inputs.get(name)
+    }
+
+    /// Returns the runtime register input values
+    pub fn get_registers(&self) -> &Registers {
+        self.inputs.get_registers()
+    }
+
+    /// Returns the runtime record input values
+    pub fn get_record(&self) -> &Record {
+        self.state.get_record()
+    }
+
+    /// Returns the runtime state input values
+    pub fn get_state(&self) -> &State {
+        self.state.get_state()
+    }
+
+    /// Returns the runtime state leaf input values
+    pub fn get_state_leaf(&self) -> &StateLeaf {
+        self.state.get_state_leaf()
     }
 }

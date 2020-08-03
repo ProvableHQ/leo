@@ -1,3 +1,3 @@
-function main(x: i64) -> i64 {
-    return x
+function main(a: i64, b: i64) {
+    assert_eq!(a, b);
 }

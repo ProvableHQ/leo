@@ -3,7 +3,7 @@ use crate::{
     cli_types::*,
     commands::SetupCommand,
     errors::CLIError,
-    files::{InputsFile, Manifest, ProofFile},
+    files::{Manifest, ProofFile},
 };
 
 use snarkos_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
@@ -35,17 +35,13 @@ impl CLI for ProveCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (mut program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+        let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
 
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
         log::info!("Proving...");
-
-        // Fetch program inputs here
-        let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
-        program.parse_inputs(&inputs_string)?;
 
         // Start the timer
         let start = Instant::now();

@@ -1,4 +1,4 @@
-use crate::{assignments::Assignment, ast::Rule, sections::Header};
+use crate::{ast::Rule, definitions::Definition, sections::Header};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -7,7 +7,7 @@ use pest_ast::FromPest;
 #[pest_ast(rule(Rule::section))]
 pub struct Section<'ast> {
     pub header: Header<'ast>,
-    pub assignments: Vec<Assignment<'ast>>,
+    pub definitions: Vec<Definition<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

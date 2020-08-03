@@ -1,3 +1,3 @@
-function main(a: u64, b: u64) -> bool {
-    return a == b
+function main(a: u64, b: u64, c: bool) {
+    assert_eq!(a == b, c);
 }

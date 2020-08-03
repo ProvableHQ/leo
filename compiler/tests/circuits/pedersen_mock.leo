@@ -16,9 +16,10 @@ circuit PedersenHash {
 }
 
 // The 'pedersen_hash' main function.
-function main() -> u32 {
+function main() {
     let parameters = [0u32; 512];
     let pedersen = PedersenHash::new(parameters);
     let input: bool[512] = [true; 512];
-    return pedersen.hash(input)
+
+    assert_eq!(pedersen.hash(input), 0u32);
 }

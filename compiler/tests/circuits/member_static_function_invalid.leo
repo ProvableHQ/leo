@@ -4,6 +4,6 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    return Foo::echo(1u32) // echo is a non-static function and must be accessed using `.`
+function main() {
+    let err = Foo::echo(1u32); // echo is a non-static function and must be accessed using `.`
 }

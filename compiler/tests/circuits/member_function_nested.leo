@@ -10,8 +10,9 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    let f = Foo { x: 1u32 };
+function main() {
+    let a = Foo { x: 1u32 };
+    let b = a.call_add_x(1u32);
 
-    return f.call_add_x(1u32)
+    assert_eq!(b, 2u32);
 }

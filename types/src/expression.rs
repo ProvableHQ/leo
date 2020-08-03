@@ -17,6 +17,7 @@ use leo_ast::{
 };
 
 use leo_ast::values::AddressValue;
+use leo_inputs::values::NumberValue;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -103,7 +104,7 @@ impl Expression {
 }
 
 impl<'ast> Expression {
-    pub(crate) fn get_count(count: Value<'ast>) -> usize {
+    pub(crate) fn get_count_from_value(count: Value<'ast>) -> usize {
         match count {
             Value::Integer(integer) => integer
                 .number
@@ -113,6 +114,10 @@ impl<'ast> Expression {
             Value::Implicit(number) => number.number.value.parse::<usize>().expect("Unable to read array size"),
             size => unimplemented!("Array size should be an integer {}", size),
         }
+    }
+
+    pub(crate) fn get_count_from_number(number: NumberValue<'ast>) -> usize {
+        number.value.parse::<usize>().expect("Unable to read array size")
     }
 }
 
@@ -398,7 +403,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let count = Expression::get_count(array.count);
+        let count = Expression::get_count_from_value(array.count);
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
         Expression::Array(vec![expression; count], Span::from(array.span))

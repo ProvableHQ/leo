@@ -1,3 +1,3 @@
-function main() -> i16 {
-    return -32768
+function main() {
+    let a: i16 = -32768;
 }

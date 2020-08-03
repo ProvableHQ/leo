@@ -4,7 +4,7 @@ circuit Foo {
     }
 }
 
-function main() -> u32 {
-    let c = Foo { };
-    return c.echo(1u32) // echo is a static function and must be accessed using `::`
+function main() {
+    let a = Foo { };
+    let err = a.echo(1u32); // echo is a static function and must be accessed using `::`
 }

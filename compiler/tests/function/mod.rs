@@ -1,39 +1,15 @@
 use crate::{
-    boolean::output_true,
-    get_error,
-    get_output,
-    integers::u32::{output_number, output_one},
+    assert_satisfied,
+    expect_compiler_error,
+    get_outputs,
     parse_program,
-    EdwardsConstrainedValue,
+    parse_program_with_inputs,
     EdwardsTestCompiler,
 };
-use leo_compiler::{
-    errors::{CompilerError, ExpressionError, FunctionError, StatementError},
-    ConstrainedValue,
-};
+use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 
-use snarkos_models::gadgets::utilities::boolean::Boolean;
-
-pub(crate) fn output_empty(program: EdwardsTestCompiler) {
-    let output = get_output(program);
-    assert_eq!(EdwardsConstrainedValue::Return(vec![]).to_string(), output.to_string());
-}
-
-// (true, false)
-pub(crate) fn output_multiple(program: EdwardsTestCompiler) {
-    let output = get_output(program);
-    assert_eq!(
-        EdwardsConstrainedValue::Return(vec![
-            ConstrainedValue::Boolean(Boolean::Constant(true)),
-            ConstrainedValue::Boolean(Boolean::Constant(false))
-        ])
-        .to_string(),
-        output.to_string()
-    )
-}
-
-fn fail_undefined_identifier(program: EdwardsTestCompiler) {
-    match get_error(program) {
+fn expect_undefined_identifier(program: EdwardsTestCompiler) {
+    match expect_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::Error(_),
         ))) => {}
@@ -41,14 +17,59 @@ fn fail_undefined_identifier(program: EdwardsTestCompiler) {
     }
 }
 
-// Inline function call
-
 #[test]
 fn test_empty() {
     let bytes = include_bytes!("empty.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_empty(program);
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_iteration() {
+    let bytes = include_bytes!("iteration.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_iteration_repeated() {
+    let bytes = include_bytes!("iteration_repeated.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_multiple_returns() {
+    let bytes = include_bytes!("multiple.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_multiple_returns_main() {
+    let program_bytes = include_bytes!("multiple_main.leo");
+    let inputs_bytes = include_bytes!("inputs/registers.in");
+
+    let program = parse_program_with_inputs(program_bytes, inputs_bytes).unwrap();
+
+    let expected_bytes = include_bytes!("outputs_/registers.out");
+    let expected = std::str::from_utf8(expected_bytes).unwrap();
+    let actual_bytes = get_outputs(program);
+    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+
+    assert_eq!(expected, actual);
+}
+
+#[test]
+fn test_repeated_function_call() {
+    let bytes = include_bytes!("repeated.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
 }
 
 #[test]
@@ -56,25 +77,15 @@ fn test_return() {
     let bytes = include_bytes!("return.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_one(program);
+    assert_satisfied(program);
 }
 
 #[test]
-fn test_undefined() {
-    let bytes = include_bytes!("undefined.leo");
-    let program = parse_program(bytes).unwrap();
-
-    fail_undefined_identifier(program);
-}
-
-// Function scope
-
-#[test]
-fn test_global_scope_fail() {
+fn test_scope_fail() {
     let bytes = include_bytes!("scope_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    match get_error(program) {
+    match expect_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::FunctionError(value),
         ))) => match *value {
@@ -86,52 +97,17 @@ fn test_global_scope_fail() {
 }
 
 #[test]
+fn test_undefined() {
+    let bytes = include_bytes!("undefined.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_undefined_identifier(program);
+}
+
+#[test]
 fn test_value_unchanged() {
     let bytes = include_bytes!("value_unchanged.leo");
     let program = parse_program(bytes).unwrap();
 
-    output_one(program);
-}
-
-// Multiple returns
-
-#[test]
-fn test_multiple_returns() {
-    let bytes = include_bytes!("multiple.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_multiple(program);
-}
-
-#[test]
-fn test_multiple_returns_main() {
-    let bytes = include_bytes!("multiple_main.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_multiple(program);
-}
-
-// Repeated calls
-
-#[test]
-fn test_repeated_function_call() {
-    let bytes = include_bytes!("repeated.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_true(program);
-}
-#[test]
-fn test_iteration() {
-    let bytes = include_bytes!("iteration.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_number(program, 10);
-}
-
-#[test]
-fn test_repeated_iteration() {
-    let bytes = include_bytes!("repeated_iteration.leo");
-    let program = parse_program(bytes).unwrap();
-
-    output_number(program, 20u32);
+    assert_satisfied(program);
 }

@@ -24,6 +24,9 @@ pub use self::import::*;
 pub mod macro_;
 pub use self::macro_::*;
 
+pub mod output;
+pub use self::output::*;
+
 pub mod program;
 pub use self::program::*;
 

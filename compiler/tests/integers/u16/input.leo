@@ -1,3 +1,3 @@
-function main(x: u16) -> u16 {
-    return x
+function main(a: u16, b: u16) {
+    assert_eq!(a, b);
 }

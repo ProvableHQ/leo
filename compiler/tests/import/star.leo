@@ -1,6 +1,7 @@
 import test_import.*;
 
-function main() -> u32 {
-    let p = Point { x: 1u32, y: 0u32 };
-    return foo()
+function main() {
+    let a = Point { x: 1u32, y: 0u32 };
+
+    assert_eq!(foo(), 1u32);
 }

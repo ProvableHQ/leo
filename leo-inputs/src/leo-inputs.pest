@@ -14,8 +14,15 @@ protected_name = {
     | "import"
     | "in"
     | "let"
+    | main
     | "mut"
+    | private
+    | public
+    | record
+    | registers
     | "return"
+    | state
+    | state_leaf
     | "static"
     | "test"
     | "true"
@@ -23,8 +30,6 @@ protected_name = {
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
-
-
 /// Types
 
 // Declared in types/type_.rs
@@ -71,7 +76,7 @@ type_boolean = { "bool" }
 type_address = { "address" }
 
 // Declared in types/data_type.rs
-type_data = { type_field | type_group | type_boolean | type_integer }
+type_data = { type_field | type_group | type_boolean | type_address | type_integer }
 
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ value_number ~ "]")+ }
@@ -138,15 +143,44 @@ parameter = { identifier ~ ":" ~ type_ }
 /// Section
 
 // Declared in sections/section.rs
-section = { header ~ NEWLINE+ ~ (assignment ~ NEWLINE*)* }
+section = { "["  ~ header ~ "]" ~ NEWLINE+ ~ (definition ~ NEWLINE*)* }
+
+// Declared in sections/main_.rs
+main = { "main" }
+
+// Declared in sections/record.rs
+record = { "record" }
+
+// Declared in sections/registers.rs
+registers = { "registers" }
+
+// Declared in sections/state.rs
+state = { "state" }
+
+// Declared in sections/state_leaf.rs
+state_leaf = { "state_leaf" }
 
 // Declared in sections/header.rs
-header = { "[" ~ identifier ~ "]" }
+header = { main | record | registers | state_leaf | state | identifier }
 
-/// Assignments
+/// Definitions
 
-// Declared in assignment/assignment.rs
-assignment = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
+// Declared in definition/definition.rs
+definition = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
+
+/// Table
+
+// Declared in tables/public.rs
+public = { "public" }
+
+// Declared in tables/private.rs
+private = { "private" }
+
+// Declared in tables/visibility.rs
+visibility = { public | private }
+
+// Declared in sections/table.rs
+table = {"[[" ~ visibility ~ "]]" ~ NEWLINE+ ~ section*}
 
 /// Utilities
 
@@ -155,5 +189,8 @@ WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* }
 
 /// Files
 
+// Declared in files/table_or_section.rs
+table_or_section = { table | section }
+
 // Declared in files/file.rs
-file = { SOI ~ NEWLINE* ~ section* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ table_or_section* ~ NEWLINE* ~ EOI }

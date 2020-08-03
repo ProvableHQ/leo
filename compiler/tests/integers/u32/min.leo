@@ -1,3 +1,3 @@
-function main() -> u32 {
-    return 0
+function main() {
+    let a: u32 = 0;
 }

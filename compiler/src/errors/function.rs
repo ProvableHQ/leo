@@ -5,6 +5,7 @@ use crate::errors::{
     FieldError,
     GroupError,
     IntegerError,
+    OutputBytesError,
     StatementError,
     ValueError,
 };
@@ -36,6 +37,9 @@ pub enum FunctionError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
+    OutputStringError(#[from] OutputBytesError),
+
+    #[error("{}", _0)]
     StatementError(#[from] StatementError),
 
     #[error("{}", _0)]
@@ -52,6 +56,7 @@ impl FunctionError {
             FunctionError::FieldError(error) => error.set_path(path),
             FunctionError::GroupError(error) => error.set_path(path),
             FunctionError::IntegerError(error) => error.set_path(path),
+            FunctionError::OutputStringError(error) => error.set_path(path),
             FunctionError::StatementError(error) => error.set_path(path),
             FunctionError::ValueError(error) => error.set_path(path),
         }
@@ -75,6 +80,12 @@ impl FunctionError {
 
     pub fn return_arguments_length(expected: usize, actual: usize, span: Span) -> Self {
         let message = format!("function expected {} returns, found {} returns", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn input_not_found(expected: String, span: Span) -> Self {
+        let message = format!("main function input {} not found", expected);
 
         Self::new_from_span(message, span)
     }

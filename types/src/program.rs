@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Function, FunctionInput, Identifier, Import, TestFunction};
+use crate::{Circuit, Function, Identifier, Import, Input, TestFunction};
 use leo_ast::files::File;
 
 use serde::{Deserialize, Serialize};
@@ -11,12 +11,14 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
-    pub expected_inputs: Vec<FunctionInput>,
+    pub expected_inputs: Vec<Input>,
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
     pub tests: HashMap<Identifier, TestFunction>,
 }
+
+const MAIN_FUNCTION_NAME: &str = "main";
 
 impl<'ast> Program {
     //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
@@ -39,7 +41,7 @@ impl<'ast> Program {
         });
         program_ast.functions.to_owned().into_iter().for_each(|function_def| {
             let function = Function::from(function_def);
-            if function.function_name.name.eq("main") {
+            if function.function_name.name.eq(MAIN_FUNCTION_NAME) {
                 expected_inputs = function.inputs.clone();
             }
             functions.insert(function.function_name.clone(), function);

@@ -1,3 +1,3 @@
-function main(x: i32) -> i32 {
-    return x
+function main(a: i32, b: i32) {
+    assert_eq!(a, b);
 }

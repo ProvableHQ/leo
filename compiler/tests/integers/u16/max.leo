@@ -1,3 +1,3 @@
-function main() -> u16 {
-    return 65535
+function main() {
+    let a: u16 = 65535;
 }

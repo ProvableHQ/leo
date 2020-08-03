@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory},
+    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     errors::CLIError,
-    files::{ChecksumFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
+    files::{ChecksumFile, InputsFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -47,6 +47,10 @@ impl CLI for BuildCommand {
             package_path.pop();
         }
 
+        // Construct the path to the outputs directory
+        let mut outputs_directory = package_path.clone();
+        outputs_directory.push(OUTPUTS_DIRECTORY_NAME);
+
         // Compile the package starting with the lib.leo file
         if LibFile::exists_at(&package_path) {
             // Construct the path to the library file in the source directory
@@ -55,8 +59,11 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Compile the library file but do not output
-            let _program =
-                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), lib_file_path.clone())?;
+            let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_inputs(
+                package_name.clone(),
+                lib_file_path.clone(),
+                outputs_directory.clone(),
+            )?;
 
             log::info!("Compiled library file {:?}", lib_file_path);
         };
@@ -71,9 +78,20 @@ impl CLI for BuildCommand {
             main_file_path.push(SOURCE_DIRECTORY_NAME);
             main_file_path.push(MAIN_FILE_NAME);
 
+            // Load the inputs file at `package_name.in`
+            let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+
+            // Load the state file at `package_name.in`
+            let state_string = StateFile::new(&package_name).read_from(&path)?;
+
             // Load the program at `main_file_path`
-            let program =
-                Compiler::<Fq, EdwardsGroupType>::new_from_path(package_name.clone(), main_file_path.clone())?;
+            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_inputs(
+                package_name.clone(),
+                main_file_path.clone(),
+                outputs_directory,
+                &inputs_string,
+                &state_string,
+            )?;
 
             // Compute the current program checksum
             let program_checksum = program.checksum()?;
