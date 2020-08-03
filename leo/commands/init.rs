@@ -4,9 +4,9 @@ use crate::{
     errors::{CLIError, InitError},
 };
 use leo_package::{
-    directories::SourceDirectory,
-    files::{Gitignore, LibFile, MainFile, Manifest},
+    files::{Gitignore, Manifest},
     inputs::*,
+    source::{LibFile, MainFile, SourceDirectory},
 };
 
 use clap::ArgMatches;

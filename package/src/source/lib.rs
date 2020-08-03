@@ -1,6 +1,6 @@
 //! The `lib.leo` file.
 
-use crate::{directories::source::SOURCE_DIRECTORY_NAME, errors::LibFileError};
+use crate::{errors::LibFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{fs::File, io::Write, path::PathBuf};

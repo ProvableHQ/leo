@@ -1,6 +1,6 @@
 //! The `main.leo` file.
 
-use crate::{directories::source::SOURCE_DIRECTORY_NAME, errors::MainFileError};
+use crate::{errors::MainFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{fs::File, io::Write, path::PathBuf};

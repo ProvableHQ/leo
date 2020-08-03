@@ -5,8 +5,8 @@ use crate::{
     errors::{CLIError, RunError},
 };
 use leo_package::{
-    directories::SOURCE_DIRECTORY_NAME,
-    files::{Manifest, MAIN_FILE_NAME},
+    files::Manifest,
+    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use clap::ArgMatches;

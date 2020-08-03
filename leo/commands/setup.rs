@@ -6,9 +6,9 @@ use crate::{
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
-    directories::SOURCE_DIRECTORY_NAME,
-    files::{Manifest, MAIN_FILE_NAME},
+    files::Manifest,
     outputs::{ProvingKeyFile, VerificationKeyFile},
+    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkos_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
