@@ -6,7 +6,7 @@ use crate::{
     parse_program,
     parse_program_with_input,
 };
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 

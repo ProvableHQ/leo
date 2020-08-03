@@ -1,5 +1,5 @@
 use leo_ast::{errors::ParserError, files::File, LeoAst};
-use leo_types::LeoTypedAst;
+use leo_typed::LeoTypedAst;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::path::{Path, PathBuf};

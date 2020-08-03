@@ -12,7 +12,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_types::{Expression, Type};
+use leo_typed::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

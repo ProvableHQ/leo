@@ -9,7 +9,7 @@ use crate::{
     ImportParser,
     OutputBytes,
 };
-use leo_types::{Input, Program};
+use leo_typed::{Input, Program};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

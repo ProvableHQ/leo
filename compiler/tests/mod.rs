@@ -20,7 +20,7 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
-use leo_types::{InputValue, MainInput};
+use leo_typed::{InputValue, MainInput};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;

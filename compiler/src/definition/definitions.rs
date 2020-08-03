@@ -7,7 +7,7 @@ use crate::{
     GroupType,
     ImportParser,
 };
-use leo_types::Program;
+use leo_typed::Program;
 
 use snarkos_models::curves::{Field, PrimeField};
 

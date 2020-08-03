@@ -6,7 +6,7 @@ use crate::{
     parse_program,
 };
 use leo_input::types::{I64Type, IntegerType};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 test_int!(Testi64, i64, IntegerType::I64Type(I64Type {}), Int64);
 

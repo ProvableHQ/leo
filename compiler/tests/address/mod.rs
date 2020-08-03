@@ -1,5 +1,5 @@
 use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 static TEST_ADDRESS_1: &'static str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";
 static TEST_ADDRESS_2: &'static str = "aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r";

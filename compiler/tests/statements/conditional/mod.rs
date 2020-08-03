@@ -8,7 +8,7 @@ use crate::{
     EdwardsTestCompiler,
 };
 use leo_input::types::{IntegerType, U32Type};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 #[test]
 fn test_assert() {

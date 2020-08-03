@@ -6,7 +6,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_types::{Expression, Span, SpreadOrExpression, Type};
+use leo_typed::{Expression, Span, SpreadOrExpression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

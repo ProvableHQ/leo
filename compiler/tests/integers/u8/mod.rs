@@ -6,7 +6,7 @@ use crate::{
     parse_program,
 };
 use leo_input::types::{IntegerType, U8Type};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 test_uint!(TestU8, u8, IntegerType::U8Type(U8Type {}), UInt8);
 

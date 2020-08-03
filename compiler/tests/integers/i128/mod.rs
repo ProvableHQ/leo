@@ -6,7 +6,7 @@ use crate::{
     parse_program,
 };
 use leo_input::types::{I128Type, IntegerType};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 test_int!(Testi128, i128, IntegerType::I128Type(I128Type {}), Int128);
 

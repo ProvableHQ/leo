@@ -1,4 +1,4 @@
-use leo_types::{Error as FormattedError, Span};
+use leo_typed::{Error as FormattedError, Span};
 
 use std::path::PathBuf;
 

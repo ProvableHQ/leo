@@ -7,8 +7,8 @@ edition = "2018"
 [dependencies]
 leo-ast = { path = "../ast", version = "0.1.0" }
 leo-gadgets = { path = "../gadgets", version = "0.1.0" }
-leo-input = { path = "../leo-input", version = "0.1.0" }
-leo-types = { path = "../types", version = "0.1.0" }
+leo-input = { path = "../input", version = "0.1.0" }
+leo-typed = { path = "../typed", version = "0.1.0" }
 
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
 snarkos-dpc = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-dpc", default-features = false }
@@ -33,4 +33,4 @@ num-bigint = { version = "0.3" }
 
 [features]
 default = []
-ci_skip = ["leo-ast/ci_skip", "leo-types/ci_skip"]
+ci_skip = ["leo-ast/ci_skip", "leo-typed/ci_skip"]
