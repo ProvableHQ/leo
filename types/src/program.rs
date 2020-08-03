@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A simple program with statement expressions, program arguments and program returns.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
     pub expected_input: Vec<InputVariable>,
@@ -22,10 +22,11 @@ const MAIN_FUNCTION_NAME: &str = "main";
 
 impl<'ast> Program {
     //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
-    pub fn from(file: File<'ast>, name: String) -> Self {
+    pub fn from(program_name: &str, program_ast: &File<'ast>) -> Self {
         // Compiled ast -> aleo program representation
-        let imports = file
+        let imports = program_ast
             .imports
+            .to_owned()
             .into_iter()
             .map(|import| Import::from(import))
             .collect::<Vec<Import>>();
@@ -35,23 +36,23 @@ impl<'ast> Program {
         let mut tests = HashMap::new();
         let mut expected_input = vec![];
 
-        file.circuits.into_iter().for_each(|circuit| {
+        program_ast.circuits.to_owned().into_iter().for_each(|circuit| {
             circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
         });
-        file.functions.into_iter().for_each(|function_def| {
+        program_ast.functions.to_owned().into_iter().for_each(|function_def| {
             let function = Function::from(function_def);
             if function.function_name.name.eq(MAIN_FUNCTION_NAME) {
                 expected_input = function.input.clone();
             }
             functions.insert(function.function_name.clone(), function);
         });
-        file.tests.into_iter().for_each(|test_def| {
+        program_ast.tests.to_owned().into_iter().for_each(|test_def| {
             let test = TestFunction::from(test_def);
             tests.insert(test.0.function_name.clone(), test);
         });
 
         Self {
-            name,
+            name: program_name.to_string(),
             expected_input,
             imports,
             circuits,

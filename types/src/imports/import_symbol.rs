@@ -4,7 +4,7 @@ use leo_ast::imports::ImportSymbol as AstImportSymbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ImportSymbol {
     pub symbol: Identifier,
     pub alias: Option<Identifier>,
@@ -31,7 +31,7 @@ impl fmt::Display for ImportSymbol {
     }
 }
 
-// todo: remove this
+// TODO (collin): remove this
 impl fmt::Debug for ImportSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.alias.is_some() {

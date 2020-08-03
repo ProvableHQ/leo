@@ -10,6 +10,9 @@ pub use self::deploy::*;
 pub mod init;
 pub use self::init::*;
 
+pub mod lint;
+pub use self::lint::*;
+
 pub mod load;
 pub use self::load::*;
 
