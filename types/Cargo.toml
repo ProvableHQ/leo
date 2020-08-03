@@ -14,7 +14,7 @@ harness = false
 
 [dependencies]
 leo-ast = { path = "../ast", version = "0.1.0" }
-leo-input = { path = "../leo-input", version = "0.1.0" }
+leo-input = { path = "../input", version = "0.1.0" }
 
 snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-errors", default-features = false }
 snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-models", default-features = false }

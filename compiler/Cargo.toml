@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 leo-ast = { path = "../ast", version = "0.1.0" }
 leo-gadgets = { path = "../gadgets", version = "0.1.0" }
-leo-input = { path = "../leo-input", version = "0.1.0" }
+leo-input = { path = "../input", version = "0.1.0" }
 leo-typed = { path = "../types", version = "0.1.0" }
 
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
