@@ -42,7 +42,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    env:
+#    env:
 #      RUSTFLAGS: -Dwarnings
     strategy:
       matrix:
