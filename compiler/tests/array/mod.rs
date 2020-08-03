@@ -43,6 +43,14 @@ fn test_registers() {
 // Expressions
 
 #[test]
+fn test_type_fail() {
+    let program_bytes = include_bytes!("type_fail.leo");
+    let syntax_error = parse_program(program_bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
 fn test_inline() {
     let program_bytes = include_bytes!("inline.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -66,6 +74,15 @@ fn test_initializer() {
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
+}
+
+#[test]
+fn test_initializer_fail() {
+    let program_bytes = include_bytes!("initializer_fail.leo");
+    let input_bytes = include_bytes!("input/three_ones.in");
+    let syntax_error = parse_program_with_input(program_bytes, input_bytes).is_err();
+
+    assert!(syntax_error);
 }
 
 #[test]
