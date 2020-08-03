@@ -7,7 +7,7 @@ use crate::{
     GroupType,
 };
 
-use leo_types::{InputValue, Span, Type};
+use leo_typed::{InputValue, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

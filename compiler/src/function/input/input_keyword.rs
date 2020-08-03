@@ -1,5 +1,5 @@
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_types::{Identifier, Input};
+use leo_typed::{Identifier, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

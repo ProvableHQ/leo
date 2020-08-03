@@ -1,7 +1,7 @@
 //! Evaluates a macro in a compiled Leo program.
 
 use crate::{errors::MacroError, program::ConstrainedProgram, GroupType};
-use leo_types::{FormattedMacro, MacroName};
+use leo_typed::{FormattedMacro, MacroName};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

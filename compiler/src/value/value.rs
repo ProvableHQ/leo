@@ -10,7 +10,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_types::{Circuit, Function, Identifier, Span, Type};
+use leo_typed::{Circuit, Function, Identifier, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

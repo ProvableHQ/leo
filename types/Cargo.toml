@@ -1,11 +1,11 @@
 [package]
-name = "leo-types"
+name = "leo-typed"
 version = "0.1.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
 [[bin]]
-name = "leo_types_ast"
+name = "leo_typed_ast"
 path = "src/main.rs"
 
 [[bench]]

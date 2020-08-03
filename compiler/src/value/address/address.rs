@@ -1,5 +1,5 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType};
-use leo_types::{InputValue, Span};
+use leo_typed::{InputValue, Span};
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_errors::gadgets::SynthesisError;

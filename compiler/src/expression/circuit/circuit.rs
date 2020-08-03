@@ -6,7 +6,7 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_types::{CircuitFieldDefinition, CircuitMember, Identifier, Span};
+use leo_typed::{CircuitFieldDefinition, CircuitMember, Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

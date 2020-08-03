@@ -1,12 +1,12 @@
 {
-  "name": "leo_types_tree",
-  "expected_inputs": [],
+  "name": "leo_typed_tree",
+  "expected_input": [],
   "imports": [],
   "circuits": {},
   "functions": {
     "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}": {
       "function_name": "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}",
-      "inputs": [],
+      "input": [],
       "returns": [],
       "statements": [
         {

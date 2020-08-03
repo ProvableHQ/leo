@@ -6,7 +6,7 @@ use crate::{
     parse_program,
 };
 use leo_input::types::{I16Type, IntegerType};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 test_int!(Testi16, i16, IntegerType::I16Type(I16Type {}), Int16);
 

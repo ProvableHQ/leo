@@ -6,7 +6,7 @@ use crate::{
     parse_program,
 };
 use leo_input::types::{I32Type, IntegerType};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 test_int!(Testi32, i32, IntegerType::I32Type(I32Type {}), Int32);
 

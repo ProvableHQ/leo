@@ -1,5 +1,5 @@
 use crate::{assert_satisfied, expect_compiler_error, expect_synthesis_error, generate_main_input, parse_program};
-use leo_types::InputValue;
+use leo_typed::InputValue;
 
 pub mod conditional;
 

@@ -7,7 +7,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_types::{Expression, Function, Input, InputVariable};
+use leo_typed::{Expression, Function, Input, InputVariable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
