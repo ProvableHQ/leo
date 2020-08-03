@@ -5,7 +5,7 @@ use crate::{
     errors::{CLIError, RunError},
 };
 use leo_package::{
-    files::Manifest,
+    root::Manifest,
     source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 

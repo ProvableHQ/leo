@@ -6,8 +6,8 @@ use crate::{
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
-    files::Manifest,
     outputs::{ProvingKeyFile, VerificationKeyFile},
+    root::Manifest,
     source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 

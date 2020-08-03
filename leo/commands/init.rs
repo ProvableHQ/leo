@@ -4,8 +4,8 @@ use crate::{
     errors::{CLIError, InitError},
 };
 use leo_package::{
-    files::{Gitignore, Manifest},
     inputs::*,
+    root::{Gitignore, Manifest},
     source::{LibFile, MainFile, SourceDirectory},
 };
 

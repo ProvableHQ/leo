@@ -1,5 +1,5 @@
 use crate::{cli::*, cli_types::*, commands::SetupCommand, errors::CLIError};
-use leo_package::{files::Manifest, outputs::ProofFile};
+use leo_package::{outputs::ProofFile, root::Manifest};
 
 use snarkos_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkos_curves::bls12_377::{Bls12_377, Fr};

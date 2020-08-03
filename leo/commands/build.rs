@@ -1,9 +1,9 @@
 use crate::{cli::*, cli_types::*, errors::CLIError};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
-    files::Manifest,
     inputs::*,
     outputs::{ChecksumFile, OutputDirectory, OUTPUT_DIRECTORY_NAME},
+    root::Manifest,
     source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 

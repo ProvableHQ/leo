@@ -1,9 +1,3 @@
-pub mod source;
-pub use self::source::*;
-
-pub mod files;
-pub use self::files::*;
-
 pub mod imports;
 pub use imports::*;
 
@@ -12,3 +6,9 @@ pub use inputs::*;
 
 pub mod outputs;
 pub use outputs::*;
+
+pub mod root;
+pub use self::root::*;
+
+pub mod source;
+pub use self::source::*;
