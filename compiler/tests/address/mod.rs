@@ -21,6 +21,14 @@ fn test_invalid() {
 }
 
 #[test]
+fn test_empty() {
+    let bytes = include_bytes!("empty.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
 fn test_implicit_valid() {
     let bytes = include_bytes!("implicit_valid.leo");
     let program = parse_program(bytes).unwrap();
