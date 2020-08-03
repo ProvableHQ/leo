@@ -1,3 +1,3 @@
-function main(registers) -> bool {
-    return registers.r
+function main(input) -> bool {
+    return input.registers.r
 }

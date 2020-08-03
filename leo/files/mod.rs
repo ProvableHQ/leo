@@ -4,8 +4,8 @@ pub use self::zip::*;
 pub mod checksum;
 pub use self::checksum::*;
 
-pub mod inputs;
-pub use self::inputs::*;
+pub mod input;
+pub use self::input::*;
 
 pub mod gitignore;
 pub use self::gitignore::*;

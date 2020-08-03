@@ -2,7 +2,7 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::BuildCommand,
-    directories::outputs::OutputsDirectory,
+    directories::output::OutputDirectory,
     errors::CLIError,
     files::{Manifest, ZipFile},
 };
@@ -39,8 +39,8 @@ impl CLI for PublishCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        // Create the outputs directory
-        OutputsDirectory::create(&path)?;
+        // Create the output directory
+        OutputDirectory::create(&path)?;
 
         // Create zip file
         let zip_file = ZipFile::new(&package_name);

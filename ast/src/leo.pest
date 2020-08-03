@@ -337,27 +337,15 @@ statement_return = { "return " ~ return_}
 // Declared in functions/function.rs
 function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-// Declared in functions/inputs/function_input.rs
+// Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
 
-// Declared in functions/inputs/record.rs
-record = { "record" }
+// Declared in functions/input/input_keyword.rs
+input_keyword = { "input" }
 
-// Declared in functions/inputs/registers.rs
-registers = { "registers" }
-
-// Declared in functions/inputs/state.rs
-state = { "state" }
-
-// Declared in functions/inputs/state_leaf.rs
-state_leaf = { "state_leaf" }
-
-// Declared in functions/inputs/input.rs
+// Declared in functions/input/input.rs
 input = {
-    record
-    | registers
-    | state_leaf
-    | state
+    input_keyword
     | function_input
 }
 input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }

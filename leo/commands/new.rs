@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{InputsDirectory, SourceDirectory},
+    directories::{InputDirectory, SourceDirectory},
     errors::{CLIError, NewError},
-    files::{Gitignore, InputsFile, LibFile, MainFile, Manifest},
+    files::{Gitignore, InputFile, LibFile, MainFile, Manifest},
 };
 
 use clap::ArgMatches;
@@ -84,11 +84,11 @@ impl CLI for NewCommand {
             // Create the library file in the source directory
             LibFile::new(&package_name).write_to(&path)?;
         } else {
-            // Create the inputs directory
-            InputsDirectory::create(&path)?;
+            // Create the input directory
+            InputDirectory::create(&path)?;
 
-            // Create the inputs file in the inputs directory
-            InputsFile::new(&package_name).write_to(&path)?;
+            // Create the input file in the input directory
+            InputFile::new(&package_name).write_to(&path)?;
 
             // Create the main file in the source directory
             MainFile::new(&package_name).write_to(&path)?;

@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{source::SOURCE_DIRECTORY_NAME, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    directories::{source::SOURCE_DIRECTORY_NAME, OutputDirectory, OUTPUT_DIRECTORY_NAME},
     errors::CLIError,
-    files::{ChecksumFile, InputsFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
+    files::{ChecksumFile, InputFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -47,9 +47,9 @@ impl CLI for BuildCommand {
             package_path.pop();
         }
 
-        // Construct the path to the outputs directory
-        let mut outputs_directory = package_path.clone();
-        outputs_directory.push(OUTPUTS_DIRECTORY_NAME);
+        // Construct the path to the output directory
+        let mut output_directory = package_path.clone();
+        output_directory.push(OUTPUT_DIRECTORY_NAME);
 
         // Compile the package starting with the lib.leo file
         if LibFile::exists_at(&package_path) {
@@ -59,10 +59,10 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Compile the library file but do not output
-            let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_inputs(
+            let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
                 package_name.clone(),
                 lib_file_path.clone(),
-                outputs_directory.clone(),
+                output_directory.clone(),
             )?;
 
             log::info!("Compiled library file {:?}", lib_file_path);
@@ -70,26 +70,26 @@ impl CLI for BuildCommand {
 
         // Compile the main.leo file along with constraints
         if MainFile::exists_at(&package_path) {
-            // Create the outputs directory
-            OutputsDirectory::create(&package_path)?;
+            // Create the output directory
+            OutputDirectory::create(&package_path)?;
 
             // Construct the path to the main file in the source directory
             let mut main_file_path = package_path.clone();
             main_file_path.push(SOURCE_DIRECTORY_NAME);
             main_file_path.push(MAIN_FILE_NAME);
 
-            // Load the inputs file at `package_name.in`
-            let inputs_string = InputsFile::new(&package_name).read_from(&path)?;
+            // Load the input file at `package_name.in`
+            let input_string = InputFile::new(&package_name).read_from(&path)?;
 
             // Load the state file at `package_name.in`
             let state_string = StateFile::new(&package_name).read_from(&path)?;
 
             // Load the program at `main_file_path`
-            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_inputs(
+            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
                 package_name.clone(),
                 main_file_path.clone(),
-                outputs_directory,
-                &inputs_string,
+                output_directory,
+                &input_string,
                 &state_string,
             )?;
 
@@ -124,7 +124,7 @@ impl CLI for BuildCommand {
 
             // If checksum differs, compile the program
             if checksum_differs {
-                // Write the new checksum to the outputs directory
+                // Write the new checksum to the output directory
                 checksum_file.write_to(&path, program_checksum)?;
 
                 log::debug!("Checksum saved ({:?})", path);

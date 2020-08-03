@@ -9,7 +9,7 @@ use crate::{
     ImportParser,
     OutputBytes,
 };
-use leo_types::{Inputs, Program};
+use leo_types::{Input, Program};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -19,7 +19,7 @@ use snarkos_models::{
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     program: Program,
-    inputs: Inputs,
+    input: Input,
     imported_programs: &ImportParser,
 ) -> Result<OutputBytes, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
@@ -34,7 +34,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, program_name, function, inputs)?;
+            let result = resolved_program.enforce_main_function(cs, program_name, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -44,7 +44,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     cs: &mut TestConstraintSystem<F>,
     program: Program,
-    inputs: Inputs,
+    input: Input,
     imported_programs: &ImportParser,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
@@ -63,7 +63,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             cs,
             program_name.clone(),
             test_function.0,
-            inputs.clone(), // pass program inputs into every test
+            input.clone(), // pass program input into every test
         );
 
         if result.is_ok() {

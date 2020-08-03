@@ -1,9 +1,9 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{InputsDirectory, SourceDirectory},
+    directories::{InputDirectory, SourceDirectory},
     errors::{CLIError, InitError},
-    files::{Gitignore, InputsFile, LibFile, MainFile, Manifest},
+    files::{Gitignore, InputFile, LibFile, MainFile, Manifest},
 };
 
 use clap::ArgMatches;
@@ -67,14 +67,14 @@ impl CLI for InitCommand {
                 LibFile::new(&package_name).write_to(&path)?;
             }
         } else {
-            // Create the inputs directory
-            InputsDirectory::create(&path)?;
+            // Create the input directory
+            InputDirectory::create(&path)?;
 
-            // Verify the inputs file does not exist
-            let inputs_file = InputsFile::new(&package_name);
-            if !inputs_file.exists_at(&path) {
-                // Create the inputs file in the inputs directory
-                inputs_file.write_to(&path)?;
+            // Verify the input file does not exist
+            let input_file = InputFile::new(&package_name);
+            if !input_file.exists_at(&path) {
+                // Create the input file in the input directory
+                input_file.write_to(&path)?;
             }
 
             // Verify the main file does not exist

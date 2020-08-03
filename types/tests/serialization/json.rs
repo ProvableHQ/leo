@@ -17,6 +17,7 @@ fn to_typed_ast(program_filepath: &PathBuf) -> LeoTypedAst {
 }
 
 #[test]
+#[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
     // Construct a typed syntax tree from the given test file.
     let typed_ast = {
@@ -37,6 +38,7 @@ fn test_serialize() {
 }
 
 #[test]
+#[cfg(not(feature = "ci_skip"))]
 fn test_deserialize() {
     // Load the expected typed syntax tree.
     let expected_typed_ast = {

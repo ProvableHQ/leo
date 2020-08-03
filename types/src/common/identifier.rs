@@ -1,6 +1,6 @@
 use crate::Span;
 use leo_ast::common::Identifier as AstIdentifier;
-use leo_inputs::common::Identifier as InputsAstIdentifier;
+use leo_input::common::Identifier as InputAstIdentifier;
 
 use serde::{
     de::{self, Visitor},
@@ -37,8 +37,8 @@ impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     }
 }
 
-impl<'ast> From<InputsAstIdentifier<'ast>> for Identifier {
-    fn from(identifier: InputsAstIdentifier<'ast>) -> Self {
+impl<'ast> From<InputAstIdentifier<'ast>> for Identifier {
+    fn from(identifier: InputAstIdentifier<'ast>) -> Self {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),

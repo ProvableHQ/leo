@@ -1,4 +1,4 @@
-use crate::{Identifier, Input, Span, Statement, Type};
+use crate::{Identifier, InputVariable, Span, Statement, Type};
 use leo_ast::functions::Function as AstFunction;
 
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Function {
     pub function_name: Identifier,
-    pub inputs: Vec<Input>,
+    pub input: Vec<InputVariable>,
     pub returns: Vec<Type>,
     pub statements: Vec<Statement>,
     pub span: Span,
@@ -19,7 +19,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
         let parameters = function_definition
             .parameters
             .into_iter()
-            .map(|parameter| Input::from(parameter))
+            .map(|parameter| InputVariable::from(parameter))
             .collect();
         let returns = function_definition
             .returns
@@ -34,7 +34,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
 
         Function {
             function_name,
-            inputs: parameters,
+            input: parameters,
             returns,
             statements,
             span: Span::from(function_definition.span),
@@ -50,7 +50,7 @@ impl Function {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.function_name)?;
         let parameters = self
-            .inputs
+            .input
             .iter()
             .map(|x| format!("{}", x))
             .collect::<Vec<_>>()

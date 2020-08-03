@@ -1,11 +1,11 @@
 use crate::{
     assert_satisfied,
     expect_synthesis_error,
-    generate_main_inputs,
+    generate_main_input,
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{I32Type, IntegerType};
+use leo_input::types::{I32Type, IntegerType};
 use leo_types::InputValue;
 
 test_int!(Testi32, i32, IntegerType::I32Type(I32Type {}), Int32);

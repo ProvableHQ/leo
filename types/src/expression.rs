@@ -17,7 +17,7 @@ use leo_ast::{
 };
 
 use leo_ast::values::AddressValue;
-use leo_inputs::values::NumberValue;
+use leo_input::values::NumberValue;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

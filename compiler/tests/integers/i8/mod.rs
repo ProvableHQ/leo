@@ -1,11 +1,11 @@
 use crate::{
     assert_satisfied,
     expect_synthesis_error,
-    generate_main_inputs,
+    generate_main_input,
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{I8Type, IntegerType};
+use leo_input::types::{I8Type, IntegerType};
 use leo_types::InputValue;
 
 test_int!(Testi8, i8, IntegerType::I8Type(I8Type {}), Int8);

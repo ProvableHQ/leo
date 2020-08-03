@@ -21,10 +21,10 @@ pub enum CLIError {
     InitError(InitError),
 
     #[error("{}", _0)]
-    InputsDirectoryError(InputsDirectoryError),
+    InputDirectoryError(InputDirectoryError),
 
     #[error("{}", _0)]
-    InputsFileError(InputsFileError),
+    InputFileError(InputFileError),
 
     #[error("{}", _0)]
     LibFileError(LibFileError),
@@ -39,7 +39,7 @@ pub enum CLIError {
     NewError(NewError),
 
     #[error("{}", _0)]
-    OutputsDirectoryError(OutputsDirectoryError),
+    OutputDirectoryError(OutputDirectoryError),
 
     #[error("{}", _0)]
     ProofFileError(ProofFileError),
@@ -101,17 +101,17 @@ impl From<InitError> for CLIError {
     }
 }
 
-impl From<InputsDirectoryError> for CLIError {
-    fn from(error: InputsDirectoryError) -> Self {
+impl From<InputDirectoryError> for CLIError {
+    fn from(error: InputDirectoryError) -> Self {
         log::error!("{}\n", error);
-        CLIError::InputsDirectoryError(error)
+        CLIError::InputDirectoryError(error)
     }
 }
 
-impl From<InputsFileError> for CLIError {
-    fn from(error: InputsFileError) -> Self {
+impl From<InputFileError> for CLIError {
+    fn from(error: InputFileError) -> Self {
         log::error!("{}\n", error);
-        CLIError::InputsFileError(error)
+        CLIError::InputFileError(error)
     }
 }
 
@@ -143,10 +143,10 @@ impl From<NewError> for CLIError {
     }
 }
 
-impl From<OutputsDirectoryError> for CLIError {
-    fn from(error: OutputsDirectoryError) -> Self {
+impl From<OutputDirectoryError> for CLIError {
+    fn from(error: OutputDirectoryError) -> Self {
         log::error!("{}\n", error);
-        CLIError::OutputsDirectoryError(error)
+        CLIError::OutputDirectoryError(error)
     }
 }
 
@@ -206,10 +206,10 @@ impl From<leo_compiler::errors::CompilerError> for CLIError {
     }
 }
 
-impl From<leo_inputs::errors::InputParserError> for CLIError {
-    fn from(error: leo_inputs::errors::InputParserError) -> Self {
+impl From<leo_input::errors::InputParserError> for CLIError {
+    fn from(error: leo_input::errors::InputParserError) -> Self {
         log::error!("{}\n", error);
-        CLIError::Crate("leo_inputs", "Program failed due to previous error".into())
+        CLIError::Crate("leo_input", "Program failed due to previous error".into())
     }
 }
 

@@ -94,7 +94,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --all --no-fail-fast
+          args: --release --all --features ci_skip --no-fail-fast
 
   codecov:
     name: Code Coverage
@@ -123,7 +123,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all
+          args: --all --features ci_skip
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
           CARGO_INCREMENTAL: "0"
@@ -143,7 +143,7 @@ jobs:
           make install DESTDIR=../../kcov-build
           cd ../..
           rm -rf kcov-master
-          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; fi done
+          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

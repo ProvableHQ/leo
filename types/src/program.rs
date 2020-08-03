@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Function, Identifier, Import, Input, TestFunction};
+use crate::{Circuit, Function, Identifier, Import, InputVariable, TestFunction};
 use leo_ast::files::File;
 
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
-    pub expected_inputs: Vec<Input>,
+    pub expected_input: Vec<InputVariable>,
     pub imports: Vec<Import>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
@@ -34,7 +34,7 @@ impl<'ast> Program {
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
         let mut tests = HashMap::new();
-        let mut expected_inputs = vec![];
+        let mut expected_input = vec![];
 
         program_ast.circuits.to_owned().into_iter().for_each(|circuit| {
             circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
@@ -42,7 +42,7 @@ impl<'ast> Program {
         program_ast.functions.to_owned().into_iter().for_each(|function_def| {
             let function = Function::from(function_def);
             if function.function_name.name.eq(MAIN_FUNCTION_NAME) {
-                expected_inputs = function.inputs.clone();
+                expected_input = function.input.clone();
             }
             functions.insert(function.function_name.clone(), function);
         });
@@ -53,7 +53,7 @@ impl<'ast> Program {
 
         Self {
             name: program_name.to_string(),
-            expected_inputs,
+            expected_input,
             imports,
             circuits,
             functions,
@@ -66,7 +66,7 @@ impl Program {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            expected_inputs: vec![],
+            expected_input: vec![],
             imports: vec![],
             circuits: HashMap::new(),
             functions: HashMap::new(),

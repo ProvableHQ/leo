@@ -1,11 +1,11 @@
 use crate::{
     assert_satisfied,
     expect_synthesis_error,
-    generate_main_inputs,
+    generate_main_input,
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_inputs::types::{IntegerType, U16Type};
+use leo_input::types::{IntegerType, U16Type};
 use leo_types::InputValue;
 
 test_uint!(TestU16, u16, IntegerType::U16Type(U16Type {}), UInt16);

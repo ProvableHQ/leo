@@ -1,6 +1,6 @@
-use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputsFileError};
+use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
-use leo_inputs::InputParserError;
+use leo_input::InputParserError;
 
 use bincode::Error as SerdeError;
 use std::path::PathBuf;
@@ -26,7 +26,7 @@ pub enum CompilerError {
     NoMainFunction,
 
     #[error("{}", _0)]
-    OutputError(#[from] OutputsFileError),
+    OutputError(#[from] OutputFileError),
 
     #[error("{}", _0)]
     OutputStringError(#[from] OutputBytesError),

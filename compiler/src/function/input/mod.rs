@@ -1,13 +1,16 @@
-//! Methods to enforce function inputs in a compiled Leo program.
+//! Methods to enforce function input variables in a compiled Leo program.
 
 pub mod array;
 pub use self::array::*;
 
-pub mod input;
-pub use self::input::*;
+pub mod function_input;
+pub use self::function_input::*;
 
-pub mod main_input;
-pub use self::main_input::*;
+pub mod main_function_input;
+pub use self::main_function_input::*;
 
-pub mod section;
-pub use self::section::*;
+pub mod input_keyword;
+pub use self::input_keyword::*;
+
+pub mod input_section;
+pub use self::input_section::*;

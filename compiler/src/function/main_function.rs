@@ -7,7 +7,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_types::{Expression, Function, Input, Inputs};
+use leo_types::{Expression, Function, Input, InputVariable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -20,18 +20,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: String,
         function: Function,
-        inputs: Inputs,
+        input: Input,
     ) -> Result<OutputBytes, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
-        let registers = inputs.get_registers();
+        let registers = input.get_registers();
 
-        // Iterate over main function inputs and allocate new passed-by variable values
+        // Iterate over main function input variables and allocate new values
         let mut input_variables = vec![];
-        for input_model in function.inputs.clone().into_iter() {
+        for input_model in function.input.clone().into_iter() {
             let (identifier, value) = match input_model {
-                Input::FunctionInput(input_model) => {
+                InputVariable::InputKeyword(identifier) => {
+                    let value = self.allocate_input_keyword(cs, identifier.clone(), &input)?;
+
+                    (identifier, value)
+                }
+                InputVariable::FunctionInput(input_model) => {
                     let name = input_model.identifier.name.clone();
-                    let input_option = inputs
+                    let input_option = input
                         .get(&name)
                         .ok_or(FunctionError::input_not_found(name.clone(), function.span.clone()))?;
                     let input_value = self.allocate_main_function_input(
@@ -43,30 +48,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     )?;
 
                     (input_model.identifier, input_value)
-                }
-                Input::Registers(identifier) => {
-                    let section = inputs.get_registers().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::Record(identifier) => {
-                    let section = inputs.get_record().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::State(identifier) => {
-                    let section = inputs.get_state().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
-                }
-                Input::StateLeaf(identifier) => {
-                    let section = inputs.get_state_leaf().values();
-                    let value = self.allocate_input_section(cs, identifier.clone(), section)?;
-
-                    (identifier, value)
                 }
             };
 

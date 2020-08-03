@@ -1,4 +1,4 @@
-// Function inputs are immutable by default.
+// Function input are immutable by default.
 function main(a: bool) {
     a = false;
 }

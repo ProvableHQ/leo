@@ -1,4 +1,4 @@
-// Functions inputs in leo are pass-by-value.
+// Functions input in leo are pass-by-value.
 //
 // Program execution:
 //   line 15: variable `a` is defined with value `1`.

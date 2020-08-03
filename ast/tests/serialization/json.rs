@@ -3,7 +3,8 @@ use leo_ast::LeoAst;
 use std::path::PathBuf;
 
 #[test]
-fn test_serialization() {
+#[cfg(not(feature = "ci_skip"))]
+fn test_serialize() {
     let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     program_filepath.push("tests/serialization/main.leo");
 

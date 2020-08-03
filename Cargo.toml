@@ -13,12 +13,12 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "ast", "compiler", "gadgets", "leo-inputs", "linter", "types" ]
+members = [ "ast", "compiler", "gadgets", "leo-input", "linter", "types" ]
 
 [dependencies]
 leo-compiler = { path = "compiler", version = "0.1.0" }
 leo-gadgets = { path = "gadgets", version = "0.1.0" }
-leo-inputs = { path = "leo-inputs", version = "0.1.0" }
+leo-input = { path = "leo-input", version = "0.1.0" }
 
 snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", default-features = false }
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
@@ -43,6 +43,10 @@ zip = { version = "0.5" }
 
 [dev-dependencies]
 rusty-hook = { version = "0.11.2" }
+
+[features]
+default = []
+ci_skip = ["leo-compiler/ci_skip"]
 
 [profile.release]
 opt-level = 3

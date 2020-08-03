@@ -1,11 +1,11 @@
 //! The program package zip file.
 
 use crate::{
-    directories::{IMPORTS_DIRECTORY_NAME, INPUTS_DIRECTORY_NAME, OUTPUTS_DIRECTORY_NAME},
+    directories::{IMPORTS_DIRECTORY_NAME, INPUT_DIRECTORY_NAME, OUTPUT_DIRECTORY_NAME},
     errors::ZipFileError,
     files::{
         CHECKSUM_FILE_EXTENSION,
-        INPUTS_FILE_EXTENSION,
+        INPUT_FILE_EXTENSION,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
         VERIFICATION_KEY_FILE_EXTENSION,
@@ -99,8 +99,8 @@ impl ZipFile {
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUT_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUT_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION)));
         }
@@ -109,9 +109,9 @@ impl ZipFile {
 }
 
 fn is_excluded(path: &Path) -> bool {
-    // excluded directories: `inputs`, `outputs`, `imports`
-    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
+    // excluded directories: `input`, `output`, `imports`
+    if path.ends_with(INPUT_DIRECTORY_NAME.trim_end_matches("/"))
+        | path.ends_with(OUTPUT_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
     {
         return true;
@@ -120,7 +120,7 @@ fn is_excluded(path: &Path) -> bool {
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`
     path.extension()
         .map(|ext| {
-            if ext.eq(INPUTS_FILE_EXTENSION.trim_start_matches("."))
+            if ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))

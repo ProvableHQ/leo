@@ -1,13 +1,13 @@
 use crate::{
     assert_satisfied,
     expect_synthesis_error,
-    generate_main_inputs,
-    get_outputs,
+    generate_main_input,
+    get_output,
     parse_program,
-    parse_program_with_inputs,
+    parse_program_with_input,
     EdwardsTestCompiler,
 };
-use leo_inputs::types::{IntegerType, U32Type};
+use leo_input::types::{IntegerType, U32Type};
 use leo_types::InputValue;
 
 #[test]
@@ -19,34 +19,34 @@ fn test_assert() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![(
+    let main_input = generate_main_input(vec![(
         "a",
         Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
     )]);
 
-    program_1_pass.set_main_inputs(main_inputs);
+    program_1_pass.set_main_input(main_input);
 
     assert_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![(
+    let main_input = generate_main_input(vec![(
         "a",
         Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0.to_string())),
     )]);
 
-    program_0_pass.set_main_inputs(main_inputs);
+    program_0_pass.set_main_input(main_input);
 
     assert_satisfied(program_0_pass);
 
     // Check that an input value of 2 does not satisfy the constraint system
 
-    let main_inputs = generate_main_inputs(vec![(
+    let main_input = generate_main_input(vec![(
         "a",
         Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2.to_string())),
     )]);
 
-    program_2_fail.set_main_inputs(main_inputs);
+    program_2_fail.set_main_input(main_input);
 
     expect_synthesis_error(program_2_fail);
 }
@@ -59,23 +59,23 @@ fn test_mutate() {
 
     // Check that an input value of 1 satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![(
+    let main_input = generate_main_input(vec![(
         "a",
         Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
     )]);
 
-    program_1_pass.set_main_inputs(main_inputs);
+    program_1_pass.set_main_input(main_input);
 
     assert_satisfied(program_1_pass);
 
     // Check that an input value of 0 satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![(
+    let main_input = generate_main_input(vec![(
         "a",
         Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 0.to_string())),
     )]);
 
-    program_0_pass.set_main_inputs(main_inputs);
+    program_0_pass.set_main_input(main_input);
 
     assert_satisfied(program_0_pass);
 }
@@ -88,17 +88,17 @@ fn test_for_loop() {
 
     // Check that an input value of true satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(true)))]);
+    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
-    program_true_6.set_main_inputs(main_inputs);
+    program_true_6.set_main_input(main_input);
 
     assert_satisfied(program_true_6);
 
     // Check that an input value of false satisfies the constraint system
 
-    let main_inputs = generate_main_inputs(vec![("a", Some(InputValue::Boolean(false)))]);
+    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(false)))]);
 
-    program_false_0.set_main_inputs(main_inputs);
+    program_false_0.set_main_input(main_input);
 
     assert_satisfied(program_false_0);
 }
@@ -112,7 +112,7 @@ fn test_chain() {
 
     // Check that an input of 1 outputs 1
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         (
             "a",
             Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 1.to_string())),
@@ -123,13 +123,13 @@ fn test_chain() {
         ),
     ]);
 
-    program_1_1.set_main_inputs(main_inputs);
+    program_1_1.set_main_input(main_input);
 
     assert_satisfied(program_1_1);
 
     // Check that an input of 2 outputs 2
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         (
             "a",
             Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 2.to_string())),
@@ -140,13 +140,13 @@ fn test_chain() {
         ),
     ]);
 
-    program_2_2.set_main_inputs(main_inputs);
+    program_2_2.set_main_input(main_input);
 
     assert_satisfied(program_2_2);
 
     // Check that an input of 4 outputs 3
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         (
             "a",
             Some(InputValue::Integer(IntegerType::U32Type(U32Type {}), 4.to_string())),
@@ -157,7 +157,7 @@ fn test_chain() {
         ),
     ]);
 
-    program_4_3.set_main_inputs(main_inputs);
+    program_4_3.set_main_input(main_input);
 
     assert_satisfied(program_4_3);
 }
@@ -171,7 +171,7 @@ fn test_nested() {
 
     // Check that an input value of true true outputs 3
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Boolean(true))),
         ("b", Some(InputValue::Boolean(true))),
         (
@@ -180,13 +180,13 @@ fn test_nested() {
         ),
     ]);
 
-    program_true_true_3.set_main_inputs(main_inputs);
+    program_true_true_3.set_main_input(main_input);
 
     assert_satisfied(program_true_true_3);
 
     // Check that an input value of true false outputs 1
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Boolean(true))),
         ("b", Some(InputValue::Boolean(false))),
         (
@@ -195,13 +195,13 @@ fn test_nested() {
         ),
     ]);
 
-    program_true_false_1.set_main_inputs(main_inputs);
+    program_true_false_1.set_main_input(main_input);
 
     assert_satisfied(program_true_false_1);
 
     // Check that an input value of false false outputs 0
 
-    let main_inputs = generate_main_inputs(vec![
+    let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Boolean(false))),
         ("b", Some(InputValue::Boolean(false))),
         (
@@ -210,21 +210,21 @@ fn test_nested() {
         ),
     ]);
 
-    program_false_false_0.set_main_inputs(main_inputs);
+    program_false_false_0.set_main_input(main_input);
 
     assert_satisfied(program_false_false_0);
 }
 
 fn output_one(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_one.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_one.out");
+    let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 fn output_zero(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("outputs_/registers_zero.out");
-    let actual = get_outputs(program);
+    let expected = include_bytes!("output_/registers_zero.out");
+    let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
@@ -235,15 +235,15 @@ fn test_multiple_returns() {
 
     // Check that an input value of 1 writes 1 to the output registers
 
-    let registers_one_bytes = include_bytes!("inputs/registers_one.in");
-    let program = parse_program_with_inputs(program_bytes, registers_one_bytes).unwrap();
+    let registers_one_bytes = include_bytes!("input/registers_one.in");
+    let program = parse_program_with_input(program_bytes, registers_one_bytes).unwrap();
 
     output_one(program);
 
     // Check that an input value of 0 writes 0 to the output registers
 
-    let registers_zero_bytes = include_bytes!("inputs/registers_zero.in");
-    let program = parse_program_with_inputs(program_bytes, registers_zero_bytes).unwrap();
+    let registers_zero_bytes = include_bytes!("input/registers_zero.in");
+    let program = parse_program_with_input(program_bytes, registers_zero_bytes).unwrap();
 
     output_zero(program);
 }
