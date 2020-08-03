@@ -169,7 +169,7 @@ type_self = { "Self" }
 type_circuit = { identifier }
 
 // Declared in types/array_type.rs
-type_array = { type_data ~ ("[" ~ value ~ "]")+ }
+type_array = { type_data ~ ("[" ~ positive_number ~ "]")+ }
 
 type_list = _{ (type_ ~ ("," ~ type_)*)? }
 
@@ -187,6 +187,9 @@ value = {
 
 // Declared in values/number_value.rs
 value_number = @{ (("-" ~ ASCII_NONZERO_DIGIT) | "0" | ASCII_NONZERO_DIGIT) ~ ASCII_DIGIT* }
+
+// Declared in values/number_positive.rs
+positive_number = @{ ("0" | ASCII_NONZERO_DIGIT) ~ ASCII_DIGIT*}
 
 // Declared in values/number_implicit_value.rs
 value_implicit = { value_number }
@@ -271,7 +274,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ value ~ "]" }
+expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ positive_number ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
