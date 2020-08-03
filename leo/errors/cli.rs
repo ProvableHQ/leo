@@ -22,7 +22,7 @@ pub enum CLIError {
     InitError(InitError),
 
     #[error("{}", _0)]
-    InputDirectoryError(InputDirectoryError),
+    InputDirectoryError(InputsDirectoryError),
 
     #[error("{}", _0)]
     InputFileError(InputFileError),
@@ -102,8 +102,8 @@ impl From<InitError> for CLIError {
     }
 }
 
-impl From<InputDirectoryError> for CLIError {
-    fn from(error: InputDirectoryError) -> Self {
+impl From<InputsDirectoryError> for CLIError {
+    fn from(error: InputsDirectoryError) -> Self {
         log::error!("{}\n", error);
         CLIError::InputDirectoryError(error)
     }

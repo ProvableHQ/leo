@@ -71,7 +71,7 @@ impl CLI for InitCommand {
             }
         } else {
             // Create the input directory
-            InputDirectory::create(&path)?;
+            InputsDirectory::create(&path)?;
 
             // Verify the input file does not exist
             let input_file = InputFile::new(&package_name);

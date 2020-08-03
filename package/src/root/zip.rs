@@ -3,7 +3,7 @@
 use crate::{
     errors::ZipFileError,
     imports::IMPORTS_DIRECTORY_NAME,
-    inputs::{INPUT_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
+    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
         OUTPUTS_DIRECTORY_NAME,
@@ -111,7 +111,7 @@ impl ZipFile {
 
 fn is_excluded(path: &Path) -> bool {
     // excluded directories: `input`, `output`, `imports`
-    if path.ends_with(INPUT_DIRECTORY_NAME.trim_end_matches("/"))
+    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
     {

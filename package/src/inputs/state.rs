@@ -1,6 +1,6 @@
 //! The `program.state` file.
 
-use crate::{errors::StateFileError, inputs::INPUT_DIRECTORY_NAME};
+use crate::{errors::StateFileError, inputs::INPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
@@ -79,8 +79,8 @@ leaf_randomness: u8[32] = [0u8; 32];
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(INPUT_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUT_DIRECTORY_NAME));
+            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, STATE_FILE_EXTENSION)));
         }
