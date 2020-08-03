@@ -2,7 +2,8 @@ use crate::{cli::*, cli_types::*, errors::CLIError};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     directories::{source::SOURCE_DIRECTORY_NAME, OutputDirectory, OUTPUT_DIRECTORY_NAME},
-    files::{ChecksumFile, InputFile, LibFile, MainFile, Manifest, StateFile, LIB_FILE_NAME, MAIN_FILE_NAME},
+    files::{ChecksumFile, LibFile, MainFile, Manifest, LIB_FILE_NAME, MAIN_FILE_NAME},
+    inputs::*,
 };
 
 use snarkos_algorithms::snark::groth16::KeypairAssembly;

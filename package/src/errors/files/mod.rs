@@ -7,9 +7,6 @@ pub use self::checksum::*;
 pub mod gitignore;
 pub use self::gitignore::*;
 
-pub mod input;
-pub use self::input::*;
-
 pub mod lib;
 pub use self::lib::*;
 
@@ -24,9 +21,6 @@ pub use self::proof::*;
 
 pub mod proving_key;
 pub use self::proving_key::*;
-
-pub mod state;
-pub use self::state::*;
 
 pub mod verification_key;
 pub use self::verification_key::*;

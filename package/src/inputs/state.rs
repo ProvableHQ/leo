@@ -1,6 +1,6 @@
 //! The `program.state` file.
 
-use crate::{directories::input::INPUT_DIRECTORY_NAME, errors::StateFileError};
+use crate::{errors::StateFileError, inputs::INPUT_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{

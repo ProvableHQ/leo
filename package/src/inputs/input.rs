@@ -1,6 +1,6 @@
 //! The `program.in` file.
 
-use crate::{directories::input::INPUT_DIRECTORY_NAME, errors::InputFileError};
+use crate::{errors::InputFileError, inputs::INPUT_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
