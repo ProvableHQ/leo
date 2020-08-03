@@ -1,6 +1,6 @@
 use crate::{cli::*, cli_types::*, commands::BuildCommand, errors::CLIError};
 use leo_package::{
-    outputs::OutputDirectory,
+    outputs::OutputsDirectory,
     root::{Manifest, ZipFile},
 };
 
@@ -37,7 +37,7 @@ impl CLI for PublishCommand {
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
         // Create the output directory
-        OutputDirectory::create(&path)?;
+        OutputsDirectory::create(&path)?;
 
         // Create zip file
         let zip_file = ZipFile::new(&package_name);

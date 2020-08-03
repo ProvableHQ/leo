@@ -1,6 +1,6 @@
 //! The proof file.
 
-use crate::{errors::ProofFileError, outputs::OUTPUT_DIRECTORY_NAME};
+use crate::{errors::ProofFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
@@ -63,8 +63,8 @@ impl ProofFile {
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
-            if !path.ends_with(OUTPUT_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUT_DIRECTORY_NAME));
+            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
+                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
             }
             path.push(PathBuf::from(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION)));
         }

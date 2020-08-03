@@ -1,7 +1,7 @@
 use std::{ffi::OsString, fs::FileType, io};
 
 #[derive(Debug, Error)]
-pub enum OutputDirectoryError {
+pub enum OutputsDirectoryError {
     #[error("creating: {}", _0)]
     Creating(io::Error),
 

@@ -6,7 +6,7 @@ use crate::{
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
-    outputs::OUTPUT_DIRECTORY_NAME,
+    outputs::OUTPUTS_DIRECTORY_NAME,
     root::Manifest,
     source::{MainFile, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
@@ -62,7 +62,7 @@ impl CLI for TestCommand {
 
         // Construct the path to the output directory;
         let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUT_DIRECTORY_NAME);
+        output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         // Load the input file at `package_name`
         let input_string = InputFile::new(&package_name).read_from(&path)?;

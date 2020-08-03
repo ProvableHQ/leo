@@ -40,7 +40,7 @@ pub enum CLIError {
     NewError(NewError),
 
     #[error("{}", _0)]
-    OutputDirectoryError(OutputDirectoryError),
+    OutputDirectoryError(OutputsDirectoryError),
 
     #[error("{}", _0)]
     ProofFileError(ProofFileError),
@@ -144,8 +144,8 @@ impl From<NewError> for CLIError {
     }
 }
 
-impl From<OutputDirectoryError> for CLIError {
-    fn from(error: OutputDirectoryError) -> Self {
+impl From<OutputsDirectoryError> for CLIError {
+    fn from(error: OutputsDirectoryError) -> Self {
         log::error!("{}\n", error);
         CLIError::OutputDirectoryError(error)
     }
