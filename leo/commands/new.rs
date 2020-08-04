@@ -90,8 +90,11 @@ impl CLI for NewCommand {
             // Create the input directory
             InputsDirectory::create(&path)?;
 
-            // Create the input file in the input directory
+            // Create the input file in the inputs directory
             InputFile::new(&package_name).write_to(&path)?;
+
+            // Create the state file in the inputs directory
+            StateFile::new(&package_name).write_to(&path)?;
 
             // Create the main file in the source directory
             MainFile::new(&package_name).write_to(&path)?;
