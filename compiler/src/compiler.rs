@@ -15,7 +15,7 @@ use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem, TestConstraintSystem},
+    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
 use sha2::{Digest, Sha256};
