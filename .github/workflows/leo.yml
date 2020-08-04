@@ -45,9 +45,6 @@ jobs:
           leo new hello_world
           ls -la
           cd hello_world && ls -la
-
-      - name: 'leo run'
-        run: |
           leo run
 
   init:
@@ -86,7 +83,4 @@ jobs:
           cd .. && mkdir hello_world && cd hello_world
           leo init
           ls -la
-
-      - name: 'leo run'
-        run: |
           leo run
