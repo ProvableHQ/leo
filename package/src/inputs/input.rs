@@ -50,6 +50,9 @@ impl InputFile {
 [main]
 a: u32 = 1;
 b: u32 = 2;
+
+[registers]
+r0: u32 = 0;
 "#,
             self.package_name
         )
