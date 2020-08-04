@@ -39,7 +39,7 @@ jobs:
           command: install
           args: --path .
 
-      - name: `leo new`
+      - name: 'leo new'
         run: |
           cd ..
           leo new hello_world
