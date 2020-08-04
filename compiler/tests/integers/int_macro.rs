@@ -118,7 +118,7 @@ macro_rules! test_int {
                     // make sure that we can calculate the inverse of each number
                     // Leo signed integer division is non-wrapping. Thus attempting to calculate a
                     // division result that wraps should be ignored here.
-                    if a.checked_neg().is_none() || b.checked_neg().is_none() {
+                    if a.checked_neg().is_none() {
                         continue;
                     }
 
