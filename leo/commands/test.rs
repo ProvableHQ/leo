@@ -12,7 +12,6 @@ use leo_package::{
 };
 
 use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
@@ -81,9 +80,8 @@ impl CLI for TestCommand {
 
         // Generate the program on the constraint system and verify correctness
         {
-            let mut cs = TestConstraintSystem::<Fq>::new();
             let temporary_program = program.clone();
-            let output = temporary_program.compile_test_constraints(&mut cs)?;
+            let output = temporary_program.compile_test_constraints()?;
             log::debug!("Compiled constraints - {:#?}", output);
         }
 

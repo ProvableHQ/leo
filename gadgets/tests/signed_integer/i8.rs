@@ -282,12 +282,16 @@ fn test_int8_div_constants() {
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-127i8, i8::MAX);
-        let b: i8 = rng.gen_range(-127i8, i8::MAX);
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        if a.checked_neg().is_none() {
+            return;
+        }
 
         let expected = match a.checked_div(b) {
             Some(valid) => valid,
-            None => continue,
+            None => return,
         };
 
         let a_bit = Int8::constant(a);
@@ -308,12 +312,16 @@ fn test_int8_div() {
     for _ in 0..100 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-127i8, i8::MAX);
-        let b: i8 = rng.gen_range(-127i8, i8::MAX);
+        let a: i8 = rng.gen();
+        let b: i8 = rng.gen();
+
+        if a.checked_neg().is_none() {
+            continue;
+        }
 
         let expected = match a.checked_div(b) {
             Some(valid) => valid,
-            None => continue,
+            None => return,
         };
 
         let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
