@@ -1,9 +1,12 @@
 use crate::{
     cli::*,
     cli_types::*,
-    directories::{InputDirectory, SourceDirectory},
     errors::{CLIError, NewError},
-    files::{Gitignore, InputFile, LibFile, MainFile, Manifest},
+};
+use leo_package::{
+    inputs::*,
+    root::{Gitignore, Manifest},
+    source::{LibFile, MainFile, SourceDirectory},
 };
 
 use clap::ArgMatches;
@@ -81,10 +84,13 @@ impl CLI for NewCommand {
             LibFile::new(&package_name).write_to(&path)?;
         } else {
             // Create the input directory
-            InputDirectory::create(&path)?;
+            InputsDirectory::create(&path)?;
 
-            // Create the input file in the input directory
+            // Create the input file in the inputs directory
             InputFile::new(&package_name).write_to(&path)?;
+
+            // Create the state file in the inputs directory
+            StateFile::new(&package_name).write_to(&path)?;
 
             // Create the main file in the source directory
             MainFile::new(&package_name).write_to(&path)?;

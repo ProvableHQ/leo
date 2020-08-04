@@ -1,8 +1,7 @@
-use crate::{
-    cli::*,
-    cli_types::*,
-    errors::CLIError,
-    files::{ChecksumFile, Manifest, ProofFile, ProvingKeyFile, VerificationKeyFile},
+use crate::{cli::*, cli_types::*, errors::CLIError};
+use leo_package::{
+    outputs::{ChecksumFile, ProofFile, ProvingKeyFile, VerificationKeyFile},
+    root::Manifest,
 };
 
 use clap::ArgMatches;

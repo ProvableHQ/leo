@@ -42,7 +42,6 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 }
 
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
-    cs: &mut TestConstraintSystem<F>,
     program: Program,
     input: Input,
     imported_programs: &ImportParser,
@@ -57,6 +56,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     log::info!("Running {} tests", tests.len());
 
     for (test_name, test_function) in tests.into_iter() {
+        let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
 
         let result = resolved_program.enforce_main_function(
@@ -68,7 +68,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
         if result.is_ok() {
             log::info!(
-                "test {} passed. Constraint system satisfied: {}",
+                "test {} compiled successfully. Constraint system satisfied: {}",
                 full_test_name,
                 cs.is_satisfied()
             );

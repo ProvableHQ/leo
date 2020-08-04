@@ -13,12 +13,13 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "ast", "compiler", "gadgets", "input", "linter", "typed" ]
+members = [ "ast", "compiler", "gadgets", "input", "linter", "package", "typed" ]
 
 [dependencies]
 leo-compiler = { path = "compiler", version = "0.1.0" }
 leo-gadgets = { path = "gadgets", version = "0.1.0" }
 leo-input = { path = "input", version = "0.1.0" }
+leo-package = { path = "package", version = "0.1.0" }
 
 snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", default-features = false }
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
@@ -38,8 +39,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 toml = { version = "0.5" }
 thiserror = { version = "1.0" }
-walkdir = { version = "2" }
-zip = { version = "0.5" }
 
 [dev-dependencies]
 rusty-hook = { version = "0.11.2" }
