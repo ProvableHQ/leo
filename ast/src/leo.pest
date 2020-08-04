@@ -348,8 +348,8 @@ input_keyword = { "input" }
 
 // Declared in functions/input/input.rs
 input = {
-    input_keyword
-    | function_input
+    function_input
+    | input_keyword
 }
 input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }
 
