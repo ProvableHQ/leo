@@ -150,8 +150,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit for test functions with program input.
-    pub fn compile_test_constraints(self, cs: &mut TestConstraintSystem<F>) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(cs, self.program, self.program_input, &self.imported_programs)
+    pub fn compile_test_constraints(self) -> Result<(), CompilerError> {
+        generate_test_constraints::<F, G>(self.program, self.program_input, &self.imported_programs)
     }
 
     /// Calls the internal generate_constraints method with arguments
