@@ -31,6 +31,21 @@ fn test_i128_max_fail() {
 }
 
 #[test]
+fn test_i128_neg() {
+    Testi128::test_negate();
+}
+
+#[test]
+fn test_i128_neg_max_fail() {
+    Testi128::test_negate_min_fail();
+}
+
+#[test]
+fn test_i128_neg_zero() {
+    Testi128::test_negate_zero();
+}
+
+#[test]
 fn test_i128_add() {
     Testi128::test_add();
 }
