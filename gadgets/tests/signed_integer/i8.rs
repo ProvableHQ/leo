@@ -472,8 +472,8 @@ fn test_int8_pow_max_edge_cases() {
 
 #[test]
 fn test_int8_underflow() {
-    // -11 ** 2 = -121
-    test_int8_pow(-11, 2, -121);
+    // -11 ** 2 = 121
+    test_int8_pow(-11, 2, 121);
 
     // -11 ** 3 = underflow error
     expect_underflow(-11, 3);
