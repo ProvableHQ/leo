@@ -101,7 +101,7 @@ impl<'ast> From<ArrayType<'ast>> for Type {
         let dimensions = array_type
             .dimensions
             .into_iter()
-            .map(|row| Expression::get_count_from_value(row))
+            .map(|row| Expression::get_count_from_positive_number(row))
             .collect();
 
         Type::Array(element_type, dimensions)
