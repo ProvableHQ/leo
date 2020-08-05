@@ -71,7 +71,7 @@ macro_rules! div_int_impl {
 
                 let allocated_one = Self::alloc(&mut cs.ns(|| "one"), || Ok(1 as <$gadget as Int>::IntegerType))?;
                 let one = Self::conditionally_select(
-                    &mut cs.ns(|| "constant_or_allocated_1"),
+                    &mut cs.ns(|| "constant_or_allocated_one"),
                     &is_constant,
                     &Self::constant(1 as <$gadget as Int>::IntegerType),
                     &allocated_one,
@@ -79,7 +79,7 @@ macro_rules! div_int_impl {
 
                 let allocated_zero = Self::alloc(&mut cs.ns(|| "zero"), || Ok(0 as <$gadget as Int>::IntegerType))?;
                 let zero = Self::conditionally_select(
-                    &mut cs.ns(|| "constant_or_allocated_0"),
+                    &mut cs.ns(|| "constant_or_allocated_zero"),
                     &is_constant,
                     &Self::constant(0 as <$gadget as Int>::IntegerType),
                     &allocated_zero,
@@ -108,8 +108,8 @@ macro_rules! div_int_impl {
 
 
                 // if other is the minimum, set other to -1 so the calculation will not fail
-                let negative_one = allocated_one.neg(&mut cs.ns(|| "allocated_one"))?;
-                let a_valid = min.add(&mut cs.ns(||"a_valid"), &allocated_one);
+                let negative_one = one.neg(&mut cs.ns(|| "negative_one"))?;
+                let a_valid = min.add(&mut cs.ns(||"a_valid"), &one);
                 let a_set = Self::conditionally_select(
                     &mut cs.ns(|| "a_set"),
                     &self_is_min,
@@ -216,11 +216,31 @@ macro_rules! div_int_impl {
                     &q_neg,
                 )?;
 
+                // add if we computed using the minimum value
+                // if q is the maximum value, add zero
+                // else add one
+                let max = Self::constant(<$gadget as Int>::IntegerType::MAX);
+                let q_is_max = q.evaluate_equal(cs.ns(|| "compare_max"), &max)?;
+                let to_add = Self::conditionally_select(
+                    &mut cs.ns(|| "select_add"),
+                    &q_is_max,
+                    &zero,
+                    &one,
+                )?;
+
+                let q_valid = q.add(&mut cs.ns(||"q_valid"), &to_add)?;
+                q = Self::conditionally_select(
+                    &mut cs.ns(|| "self_is_min_case"),
+                    &self_is_min,
+                    &q_valid,
+                    &q,
+                )?;
+
                 // set to zero if we know result is fractional
                 q = Self::conditionally_select(
                     &mut cs.ns(|| "fraction"),
                     &other_is_min,
-                    &allocated_zero,
+                    &zero,
                     &q,
                 )?;
 
@@ -228,7 +248,7 @@ macro_rules! div_int_impl {
                 q = Self::conditionally_select(
                     &mut cs.ns(|| "one_result"),
                     &both_min,
-                    &allocated_one,
+                    &one,
                     &q,
                 )?;
 
