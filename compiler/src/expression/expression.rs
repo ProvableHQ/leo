@@ -45,6 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Binary operations
+            Expression::Minus(expression, span) => unimplemented!("not yet"),
             Expression::Add(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
