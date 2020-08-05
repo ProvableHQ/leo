@@ -9,8 +9,8 @@ use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::number_positive))]
-pub struct PositiveNumber<'ast> {
+#[pest_ast(rule(Rule::number_negative))]
+pub struct NegativeNumber<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub value: String,
     #[pest_ast(outer())]
@@ -18,7 +18,7 @@ pub struct PositiveNumber<'ast> {
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for PositiveNumber<'ast> {
+impl<'ast> fmt::Display for NegativeNumber<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
     }

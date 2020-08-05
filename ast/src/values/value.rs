@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    values::{AddressValue, BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue},
+    values::{AddressValue, BooleanValue, FieldValue, GroupValue, IntegerValue, NumberValue},
 };
 
 use pest::Span;
@@ -15,7 +15,7 @@ pub enum Value<'ast> {
     Boolean(BooleanValue<'ast>),
     Field(FieldValue<'ast>),
     Group(GroupValue<'ast>),
-    Implicit(NumberImplicitValue<'ast>),
+    Implicit(NumberValue<'ast>),
     Integer(IntegerValue<'ast>),
 }
 
@@ -26,8 +26,8 @@ impl<'ast> Value<'ast> {
             Value::Boolean(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Group(value) => &value.span,
-            Value::Implicit(value) => &value.span,
-            Value::Integer(value) => &value.span,
+            Value::Implicit(value) => &value.span(),
+            Value::Integer(value) => &value.span(),
         }
     }
 }

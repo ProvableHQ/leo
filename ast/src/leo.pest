@@ -113,33 +113,41 @@ operation_pow_assign = { "**=" }
 // Declared in types/type_.rs
 type_ = { type_self | type_array | type_data | type_circuit }
 
-// Declared in types/integer.rs
+// Declared in types/integer_type.rs
 type_integer = {
-    type_u8
-    | type_u16
-    | type_u32
-    | type_u64
-    | type_u128
-    | type_i8
-    | type_i16
-    | type_i32
-    | type_i64
-    | type_i128
+    type_integer_signed
+    | type_integer_unsigned
 }
 
-// Declared in types/integer.rs
+// Declared in types/unsigned_integer_type.rs
 type_u8 = { "u8" }
 type_u16 = { "u16" }
 type_u32 = { "u32" }
 type_u64 = { "u64" }
 type_u128 = { "u128" }
 
-// Declared in types/integer.rs
+type_integer_unsigned = {
+    type_u8
+    | type_u16
+    | type_u32
+    | type_u64
+    | type_u128
+}
+
+// Declared in types/signed_integer_type.rs
 type_i8 = { "i8" }
 type_i16 = { "i16" }
 type_i32 = { "i32" }
 type_i64 = { "i64" }
 type_i128 = { "i128" }
+
+type_integer_signed = {
+    type_i8
+    | type_i16
+    | type_i32
+    | type_i64
+    | type_i128
+}
 
 // Declared in types/field_type.rs
 type_field = { "field" }
@@ -169,7 +177,7 @@ type_self = { "Self" }
 type_circuit = { identifier }
 
 // Declared in types/array_type.rs
-type_array = { type_data ~ ("[" ~ positive_number ~ "]")+ }
+type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
 type_list = _{ (type_ ~ ("," ~ type_)*)? }
 
@@ -182,37 +190,44 @@ value = {
     | value_field
     | value_group
     | value_integer
-    | value_implicit // must be last as a catch all
+    | value_number // must be last as a catch all
 }
 
 // Declared in values/number_value.rs
-value_number = @{ (("-" ~ ASCII_NONZERO_DIGIT) | "0" | ASCII_NONZERO_DIGIT) ~ ASCII_DIGIT* }
+value_number = { number_negative | number_positive }
+
+// Declared in values/number_negative.rs
+number_negative = @{ "-" ~ ASCII_DIGIT+ }
 
 // Declared in values/number_positive.rs
-positive_number = @{ ("0" | ASCII_NONZERO_DIGIT) ~ ASCII_DIGIT*}
+number_positive = @{ ASCII_DIGIT+ }
 
-// Declared in values/number_implicit_value.rs
-value_implicit = { value_number }
 
 // Declared in values/integer_value.rs
-value_integer = { value_number ~ type_integer }
+value_integer = { value_integer_signed | value_integer_unsigned}
+
+// Declared in values/signed_integer_value.rs
+value_integer_signed = @{ value_number ~ type_integer_signed }
+
+// Declared in values/unsigned_integer_value.rs
+value_integer_unsigned = @{ number_positive ~ type_integer_unsigned }
 
 // Declared in values/boolean_value.rs
 value_boolean = { "true" | "false" }
 
 // Declared in values/field_value.rs
-value_field = { value_number ~ type_field }
+value_field = @{ value_number ~ type_field }
 
 // Declared in values/group_value.rs
-value_group = { group_single_or_tuple ~ type_group }
-group_tuple = {"(" ~ value_number ~ "," ~ value_number ~ ")"}
+value_group = @{ group_single_or_tuple ~ type_group }
+group_tuple = !{"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
 
 // Declared in values/address.rs
 address = @{ "aleo" ~ ASCII_DIGIT ~ (LOWERCASE_LETTER | ASCII_DIGIT){58} }
 
 // Declared in values/address_value.rs
-value_address = { type_address ~ "(" ~ address ~ ")" }
+value_address = @{ type_address ~ "(" ~ address ~ ")" }
 
 /// Access
 
@@ -274,7 +289,7 @@ expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ positive_number ~ "]" }
+expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ number_positive ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
