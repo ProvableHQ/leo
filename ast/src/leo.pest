@@ -294,12 +294,11 @@ statement = {
     (statement_return
     | statement_conditional
     | statement_for
-      | (statement_multiple_assignment
-      | statement_macro
-      | statement_definition
-      | statement_assign
-      | statement_expression
-      )
+    | statement_multiple_assignment
+    | statement_macro
+    | statement_definition
+    | statement_assign
+    | statement_expression
     ) ~ NEWLINE*
 }
 
