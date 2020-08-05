@@ -62,7 +62,7 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_inline_length(number: NumberValue, array: ArrayInlineExpression) -> Self {
+    pub fn array_inline_length(number: PositiveNumber, array: ArrayInlineExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
             number.to_string(),

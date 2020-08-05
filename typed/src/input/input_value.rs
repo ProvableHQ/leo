@@ -2,7 +2,7 @@ use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
     types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue, NumberImplicitValue, NumberValue, Value},
+    values::{BooleanValue, FieldValue, GroupValue, NumberValue, Value},
 };
 
 use leo_input::values::Address;
@@ -28,8 +28,8 @@ impl InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
-    fn from_number(integer_type: IntegerType, number: NumberValue) -> Result<Self, InputParserError> {
-        Ok(InputValue::Integer(integer_type, number.value))
+    fn from_number(integer_type: IntegerType, number: String) -> Result<Self, InputParserError> {
+        Ok(InputValue::Integer(integer_type, number))
     }
 
     fn from_group(group: GroupValue) -> Self {
@@ -37,16 +37,16 @@ impl InputValue {
     }
 
     fn from_field(field: FieldValue) -> Self {
-        InputValue::Field(field.number.value)
+        InputValue::Field(field.number.to_string())
     }
 
-    fn from_implicit(data_type: DataType, implicit: NumberImplicitValue) -> Result<Self, InputParserError> {
+    fn from_implicit(data_type: DataType, implicit: NumberValue) -> Result<Self, InputParserError> {
         match data_type {
             DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
-            DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.number),
-            DataType::Group(_) => Ok(InputValue::Group(implicit.number.value)),
-            DataType::Field(_) => Ok(InputValue::Field(implicit.number.value)),
+            DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.to_string()),
+            DataType::Group(_) => Ok(InputValue::Group(implicit.to_string())),
+            DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),
         }
     }
 
@@ -55,7 +55,7 @@ impl InputValue {
             (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address(address.address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
-                InputValue::from_number(integer_type, integer.number)
+                InputValue::from_number(integer_type, integer.to_string())
             }
             (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
             (DataType::Field(_), Value::Field(field)) => Ok(InputValue::from_field(field)),
@@ -113,7 +113,7 @@ impl InputValue {
         mut array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
-        let initializer_count = initializer.count.value.parse::<usize>()?;
+        let initializer_count = initializer.count.to_string().parse::<usize>()?;
 
         if let Some(number) = array_type.next_dimension() {
             let outer_dimension = number.value.parse::<usize>()?;
