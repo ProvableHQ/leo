@@ -23,7 +23,11 @@ use snarkos_models::{
         },
     },
 };
-use std::{borrow::Borrow, ops::Sub, str::FromStr};
+use std::{
+    borrow::Borrow,
+    ops::{Neg, Sub},
+    str::FromStr,
+};
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
@@ -50,6 +54,18 @@ impl GroupType<Fq> for EdwardsGroupType {
             .map_err(|error| GroupError::synthesis_error(error, span))
     }
 
+    fn negate<CS: ConstraintSystem<Fq>>(&self, cs: CS, span: Span) -> Result<Self, GroupError> {
+        match self {
+            EdwardsGroupType::Constant(group) => Ok(EdwardsGroupType::Constant(group.neg())),
+            EdwardsGroupType::Allocated(group) => {
+                let result = <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::negate(group, cs)
+                    .map_err(|e| GroupError::negate_operation(e, span))?;
+
+                Ok(EdwardsGroupType::Allocated(result))
+            }
+        }
+    }
+
     fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
@@ -62,7 +78,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::cannot_enforce(format!("+"), e, span))?;
+                .map_err(|e| GroupError::binary_operation(format!("+"), e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(result))
             }
@@ -72,7 +88,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(
                     allocated_value
                         .add_constant(cs, constant_value)
-                        .map_err(|e| GroupError::cannot_enforce(format!("+"), e, span))?,
+                        .map_err(|e| GroupError::binary_operation(format!("+"), e, span))?,
                 ))
             }
         }
@@ -90,7 +106,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::cannot_enforce(format!("-"), e, span))?;
+                .map_err(|e| GroupError::binary_operation(format!("-"), e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(result))
             }
@@ -100,7 +116,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(
                     allocated_value
                         .sub_constant(cs, constant_value)
-                        .map_err(|e| GroupError::cannot_enforce(format!("-"), e, span))?,
+                        .map_err(|e| GroupError::binary_operation(format!("-"), e, span))?,
                 ))
             }
         }
