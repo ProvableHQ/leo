@@ -246,19 +246,19 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 access = { access_array | access_call | access_member | access_static_member}
 
 // Declared in access/array_access.rs
-access_array = { "[" ~ range_or_expression ~ "]" }
+access_array = !{ "[" ~ range_or_expression ~ "]" }
 
 // Declared in access/assignee_access.rs
 access_assignee = { access_array | access_member }
 
 // Declared in access/call_access.rs
-access_call = { "(" ~ expression_tuple ~ ")" }
+access_call = !{ "(" ~ expression_tuple ~ ")" }
 
 // Declared in access/member_access.rs
-access_member = { "." ~ identifier }
+access_member = ${ "." ~ identifier }
 
 // Declared in access/static_member_access.rs
-access_static_member = { "::" ~ identifier }
+access_static_member = ${ "::" ~ identifier }
 
 /// Circuits
 
@@ -315,7 +315,7 @@ circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ "
 expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
-expression_postfix = { identifier ~ access+ }
+expression_postfix = ${ identifier ~ access+ }
 
 /// Statements
 
