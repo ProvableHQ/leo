@@ -16,6 +16,9 @@ pub use self::lint::*;
 pub mod load;
 pub use self::load::*;
 
+pub mod login;
+pub use self::login::*;
+
 pub mod new;
 pub use self::new::*;
 
