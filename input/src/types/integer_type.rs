@@ -9,8 +9,8 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::type_integer))]
 pub enum IntegerType {
-    Signed(UnsignedIntegerType),
-    Unsigned(SignedIntegerType),
+    Signed(SignedIntegerType),
+    Unsigned(UnsignedIntegerType),
 }
 
 impl fmt::Display for IntegerType {

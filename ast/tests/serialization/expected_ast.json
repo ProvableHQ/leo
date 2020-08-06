@@ -23,18 +23,13 @@
                   "left": {
                     "Value": {
                       "Implicit": {
-                        "number": {
+                        "Positive": {
                           "value": "1",
                           "span": {
                             "input": "1",
                             "start": 29,
                             "end": 30
                           }
-                        },
-                        "span": {
-                          "input": "1",
-                          "start": 29,
-                          "end": 30
                         }
                       }
                     }
@@ -42,18 +37,13 @@
                   "right": {
                     "Value": {
                       "Implicit": {
-                        "number": {
+                        "Positive": {
                           "value": "1",
                           "span": {
                             "input": "1",
                             "start": 33,
                             "end": 34
                           }
-                        },
-                        "span": {
-                          "input": "1",
-                          "start": 33,
-                          "end": 34
                         }
                       }
                     }

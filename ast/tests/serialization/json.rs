@@ -19,5 +19,7 @@ fn test_serialize() {
     // Serializes the abstract syntax tree into JSON format.
     let serialized_ast = LeoAst::to_json_string(&ast).unwrap();
 
+    // println!("{:#?}", serialized_ast);
+
     assert_eq!(expected, serialized_ast);
 }

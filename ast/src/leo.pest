@@ -202,24 +202,23 @@ number_negative = @{ "-" ~ ASCII_DIGIT+ }
 // Declared in values/number_positive.rs
 number_positive = @{ ASCII_DIGIT+ }
 
-
 // Declared in values/integer_value.rs
 value_integer = { value_integer_signed | value_integer_unsigned}
 
 // Declared in values/signed_integer_value.rs
-value_integer_signed = @{ value_number ~ type_integer_signed }
+value_integer_signed = ${ value_number ~ type_integer_signed }
 
 // Declared in values/unsigned_integer_value.rs
-value_integer_unsigned = @{ number_positive ~ type_integer_unsigned }
+value_integer_unsigned = ${ number_positive ~ type_integer_unsigned }
 
 // Declared in values/boolean_value.rs
 value_boolean = { "true" | "false" }
 
 // Declared in values/field_value.rs
-value_field = @{ value_number ~ type_field }
+value_field = ${ value_number ~ type_field }
 
 // Declared in values/group_value.rs
-value_group = @{ group_single_or_tuple ~ type_group }
+value_group = ${ group_single_or_tuple ~ type_group }
 group_tuple = !{"(" ~ value_number ~ "," ~ value_number ~ ")"}
 group_single_or_tuple = {value_number | group_tuple}
 
@@ -227,7 +226,7 @@ group_single_or_tuple = {value_number | group_tuple}
 address = @{ "aleo" ~ ASCII_DIGIT ~ (LOWERCASE_LETTER | ASCII_DIGIT){58} }
 
 // Declared in values/address_value.rs
-value_address = @{ type_address ~ "(" ~ address ~ ")" }
+value_address = ${ type_address ~ "(" ~ address ~ ")" }
 
 /// Access
 
@@ -280,9 +279,9 @@ expression_term = {
     | expression_conditional
     | expression_not
     | expression_postfix
-    | expression_primitive
+    | value
+    | identifier
 }
-expression_primitive = { value | identifier }
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 // Declared in expressions/expression.rs

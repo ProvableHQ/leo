@@ -15,6 +15,6 @@ pub struct UnsignedIntegerValue<'ast> {
 
 impl<'ast> fmt::Display for UnsignedIntegerValue<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.number, self.type_)
+        write!(f, "{}", self.number)
     }
 }
