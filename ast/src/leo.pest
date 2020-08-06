@@ -3,8 +3,15 @@
 // Declared in common/assignee.rs
 assignee = { identifier ~ access_assignee* }
 
-// Declared in common/file.rs
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
+// Declared in files/file.rs
+file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
+
+// Declared in definitions/definition.rs
+definition = {
+    circuit
+    | function
+    | test_function
+}
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -265,7 +272,7 @@ circuit_field = { identifier ~ ":" ~ expression }
 circuit_field_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_function.rs
-circuit_function = { static_? ~ function_definition }
+circuit_function = { static_? ~ function }
 
 // Declared in circuits/circuit_member.rs
 circuit_member = { circuit_function | circuit_field_definition ~ NEWLINE*}
@@ -357,8 +364,11 @@ statement_return = { "return " ~ return_}
 
 /// Functions
 
+// Declared in functions/test_function.rs
+test_function = { "test " ~ function }
+
 // Declared in functions/function.rs
-function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
@@ -373,8 +383,6 @@ input = {
 }
 input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }
 
-// Declared in functions/test_function.rs
-test_function = { "test " ~ function_definition }
 
 /// Imports
 
