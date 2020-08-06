@@ -121,18 +121,13 @@ fn is_excluded(path: &Path) -> bool {
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`
     path.extension()
         .map(|ext| {
-            if ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
+            ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-            {
-                true
-            } else {
-                false
-            }
         })
         .unwrap_or(false)
 }
