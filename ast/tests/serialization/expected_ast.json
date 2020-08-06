@@ -3,7 +3,7 @@
   "definitions": [
     {
       "Function": {
-        "function_name": {
+        "identifier": {
           "value": "main",
           "span": {
             "input": "main",
