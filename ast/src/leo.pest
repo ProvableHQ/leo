@@ -292,7 +292,6 @@ expression_term = {
     | value
     | expression_unary // must be defined below value to avoid conflicts with negative values
     | expression_postfix
-    | value
     | identifier
 }
 
