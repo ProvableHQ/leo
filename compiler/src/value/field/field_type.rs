@@ -43,6 +43,17 @@ impl<F: Field + PrimeField> FieldType<F> {
         Ok(FieldType::Constant(value))
     }
 
+    pub fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: Span) -> Result<Self, FieldError> {
+        match self {
+            FieldType::Constant(field) => Ok(FieldType::Constant(field.neg())),
+            FieldType::Allocated(field) => {
+                let result = field.negate(cs).map_err(|e| FieldError::negate_operation(e, span))?;
+
+                Ok(FieldType::Allocated(result))
+            }
+        }
+    }
+
     pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
@@ -52,7 +63,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .add(cs, other_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -61,7 +72,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .add_constant(cs, constant_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?,
             )),
         }
     }
@@ -75,7 +86,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .sub(cs, other_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("-"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation(format!("-"), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -84,7 +95,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .sub_constant(cs, constant_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?,
             )),
         }
     }
@@ -98,7 +109,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .mul(cs, other_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("*"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation(format!("*"), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -107,7 +118,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .mul_by_constant(cs, constant_value)
-                    .map_err(|e| FieldError::cannot_enforce(format!("*"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation(format!("*"), e, span))?,
             )),
         }
     }
@@ -124,7 +135,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             FieldType::Allocated(allocated) => {
                 let allocated_inverse = allocated
                     .inverse(&mut cs)
-                    .map_err(|e| FieldError::cannot_enforce(format!("+"), e, span.clone()))?;
+                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span.clone()))?;
 
                 FieldType::Allocated(allocated_inverse)
             }

@@ -51,7 +51,13 @@ impl IntegerError {
         Self::new_from_span(message, span)
     }
 
-    pub fn cannot_evaluate(operation: String, span: Span) -> Self {
+    pub fn negate_operation(span: Span) -> Self {
+        let message = format!("integer negation can only be enforced on signed integers");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn binary_operation(operation: String, span: Span) -> Self {
         let message = format!(
             "the integer binary operation `{}` can only be enforced on integers of the same type",
             operation

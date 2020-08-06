@@ -36,6 +36,21 @@ fn test_i16_max_fail() {
 }
 
 #[test]
+fn test_i16_neg() {
+    TestI16::test_negate();
+}
+
+#[test]
+fn test_i16_neg_max_fail() {
+    TestI16::test_negate_min_fail();
+}
+
+#[test]
+fn test_i16_neg_zero() {
+    TestI16::test_negate_zero();
+}
+
+#[test]
 fn test_i16_add() {
     TestI16::test_add();
 }

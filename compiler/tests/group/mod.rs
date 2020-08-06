@@ -60,6 +60,32 @@ fn test_input() {
 }
 
 #[test]
+fn test_negate() {
+    use std::ops::Neg;
+
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..10 {
+        let a: EdwardsAffine = rng.gen();
+        let b = a.neg();
+
+        let a_string = group_to_decimal_string(a);
+        let b_string = group_to_decimal_string(b);
+
+        let bytes = include_bytes!("negate.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_input = generate_main_input(vec![
+            ("a", Some(InputValue::Group(a_string))),
+            ("b", Some(InputValue::Group(b_string))),
+        ]);
+        program.set_main_input(main_input);
+
+        assert_satisfied(program)
+    }
+}
+
+#[test]
 fn test_add() {
     use std::ops::Add;
 

@@ -36,6 +36,21 @@ fn test_i32_max_fail() {
 }
 
 #[test]
+fn test_i32_neg() {
+    TestI32::test_negate();
+}
+
+#[test]
+fn test_i32_neg_max_fail() {
+    TestI32::test_negate_min_fail();
+}
+
+#[test]
+fn test_i32_neg_zero() {
+    TestI32::test_negate_zero();
+}
+
+#[test]
 fn test_i32_add() {
     TestI32::test_add();
 }

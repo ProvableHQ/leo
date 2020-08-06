@@ -8,7 +8,6 @@ use crate::{
     parse_program_with_input,
     EdwardsTestCompiler,
 };
-use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 use leo_typed::InputValue;
 
 #[test]

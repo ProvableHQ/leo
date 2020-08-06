@@ -8,11 +8,11 @@ use leo_ast::{
         BinaryExpression,
         CircuitInlineExpression,
         Expression as AstExpression,
-        NotExpression,
         PostfixExpression,
         TernaryExpression,
+        UnaryExpression,
     },
-    operations::BinaryOperation,
+    operations::{BinaryOperation, UnaryOperation},
     values::{
         AddressValue,
         BooleanValue,
@@ -52,6 +52,7 @@ pub enum Expression {
 
     // Boolean operations
     Not(Box<Expression>, Span),
+    Minus(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),
@@ -142,6 +143,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
 
             // Number operations
+            Expression::Minus(ref expression, ref _span) => write!(f, "-{}", expression),
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
             Expression::Sub(ref left, ref right, ref _span) => write!(f, "{} - {}", left, right),
             Expression::Mul(ref left, ref right, ref _span) => write!(f, "{} * {}", left, right),
@@ -275,7 +277,7 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
         match expression {
             AstExpression::Value(value) => Expression::from(value),
             AstExpression::Identifier(variable) => Expression::from(variable),
-            AstExpression::Not(expression) => Expression::from(expression),
+            AstExpression::Unary(expression) => Expression::from(expression),
             AstExpression::Binary(expression) => Expression::from(expression),
             AstExpression::Ternary(expression) => Expression::from(expression),
             AstExpression::ArrayInline(expression) => Expression::from(expression),
@@ -429,12 +431,18 @@ impl<'ast> From<Value<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<NotExpression<'ast>> for Expression {
-    fn from(expression: NotExpression<'ast>) -> Self {
-        Expression::Not(
-            Box::new(Expression::from(*expression.expression)),
-            Span::from(expression.span),
-        )
+impl<'ast> From<UnaryExpression<'ast>> for Expression {
+    fn from(expression: UnaryExpression<'ast>) -> Self {
+        match expression.operation {
+            UnaryOperation::Not(_) => Expression::Not(
+                Box::new(Expression::from(*expression.expression)),
+                Span::from(expression.span),
+            ),
+            UnaryOperation::Minus(_) => Expression::Minus(
+                Box::new(Expression::from(*expression.expression)),
+                Span::from(expression.span),
+            ),
+        }
     }
 }
 

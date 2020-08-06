@@ -6,11 +6,11 @@ use crate::{
         ArrayInlineExpression,
         CircuitInlineExpression,
         Expression,
-        NotExpression,
         PostfixExpression,
         TernaryExpression,
+        UnaryExpression,
     },
-    operations::{BinaryOperation, NotOperation},
+    operations::{BinaryOperation, UnaryOperation},
     values::Value,
 };
 
@@ -76,17 +76,18 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 Rule::expression_conditional => {
                     Expression::Ternary(TernaryExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
-                Rule::expression_not => {
+                Rule::expression_unary => {
+                    // The following is necessary to match with the unary operator and its unary expression
                     let span = next.as_span();
                     let mut inner = next.into_inner();
                     let operation = match inner.next().unwrap().as_rule() {
-                        Rule::operation_not => {
-                            NotOperation::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
+                        Rule::operation_unary => {
+                            UnaryOperation::from_pest(&mut pair.into_inner().next().unwrap().into_inner()).unwrap()
                         }
-                        rule => unreachable!("`expression_not` should yield `operation_pre_not`, found {:#?}", rule),
+                        rule => unreachable!("`expression_unary` should yield `operation_unary`, found {:#?}", rule),
                     };
                     let expression = parse_term(inner.next().unwrap());
-                    Expression::Not(NotExpression {
+                    Expression::Unary(UnaryExpression {
                         operation,
                         expression,
                         span,

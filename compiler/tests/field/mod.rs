@@ -24,6 +24,33 @@ pub fn field_to_decimal_string(f: Fq) -> String {
 }
 
 #[test]
+fn test_negate() {
+    use std::ops::Neg;
+
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    for _ in 0..10 {
+        let a: Fq = rng.gen();
+        let b = a.neg();
+
+        let a_string = field_to_decimal_string(a);
+        let b_string = field_to_decimal_string(b);
+
+        let bytes = include_bytes!("negate.leo");
+        let mut program = parse_program(bytes).unwrap();
+
+        let main_input = generate_main_input(vec![
+            ("a", Some(InputValue::Field(a_string))),
+            ("b", Some(InputValue::Field(b_string))),
+        ]);
+
+        program.set_main_input(main_input);
+
+        assert_satisfied(program)
+    }
+}
+
+#[test]
 fn test_add() {
     use std::ops::Add;
 

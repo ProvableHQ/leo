@@ -36,6 +36,21 @@ fn test_i8_max_fail() {
 }
 
 #[test]
+fn test_i8_neg() {
+    TestI8::test_negate();
+}
+
+#[test]
+fn test_i8_neg_max_fail() {
+    TestI8::test_negate_min_fail();
+}
+
+#[test]
+fn test_i8_neg_zero() {
+    TestI8::test_negate_zero();
+}
+
+#[test]
 fn test_i8_add() {
     TestI8::test_add();
 }
