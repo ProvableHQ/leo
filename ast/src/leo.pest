@@ -68,8 +68,13 @@ let_ = { "let " }
 
 /// Operations
 
-// Declared in operations/not_operation.rs
+// Declared in operations/unary_operation.rs
+operation_unary = {
+    operation_not
+    | operation_negate
+}
 operation_not = { "!" }
+operation_negate = { "-" }
 
 // Declared in operations/binary_operation.rs
 operation_and = { "&&" }
@@ -263,11 +268,12 @@ expression_term = {
     | expression_array_inline
     | expression_circuit_inline
     | expression_conditional
-    | expression_not
+    | value
+    | expression_unary // must be defined below value to avoid conflicts with negative values
     | expression_postfix
-    | expression_primitive
+    | identifier
 }
-expression_primitive = { value | identifier }
+
 expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 // Declared in expressions/expression.rs
@@ -284,8 +290,8 @@ inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expre
 expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
 circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
 
-// Declared in expressions/not_expression.rs
-expression_not = { operation_not ~ expression_term }
+// Declared in expressions/unary_expression.rs
+expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
 expression_postfix = { identifier ~ access+ }

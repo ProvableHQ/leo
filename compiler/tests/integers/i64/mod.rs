@@ -31,6 +31,21 @@ fn test_i64_max_fail() {
 }
 
 #[test]
+fn test_i64_neg() {
+    Testi64::test_negate();
+}
+
+#[test]
+fn test_i64_neg_max_fail() {
+    Testi64::test_negate_min_fail();
+}
+
+#[test]
+fn test_i64_neg_zero() {
+    Testi64::test_negate_zero();
+}
+
+#[test]
 fn test_i64_add() {
     Testi64::test_add();
 }
