@@ -41,12 +41,13 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
-        uses: Ilshidur/action-slack@master
+        uses: 8398a7/action-slack@v3.5.2
         with:
           status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
+          fields: author,repo,message,commit,action,eventName,ref,workflow # selectable (default: repo,message)
 
   test:
     name: Test
@@ -107,12 +108,13 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
-        uses: Ilshidur/action-slack@master
+        uses: 8398a7/action-slack@v3.5.2
         with:
           status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
+          fields: author,repo,message,commit,action,eventName,ref,workflow # selectable (default: repo,message)
 
   codecov:
     name: Code Coverage
@@ -171,9 +173,10 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
-        uses: Ilshidur/action-slack@master
+        uses: 8398a7/action-slack@v3.5.2
         with:
           status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
+          fields: author,repo,message,commit,action,eventName,ref,workflow # selectable (default: repo,message)
