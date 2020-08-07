@@ -39,6 +39,15 @@ jobs:
           command: fmt
           args: --all -- --check
 
+      - name: Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
+        uses: 8398a7/action-slack@v3.5.2
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -96,6 +105,15 @@ jobs:
           command: test
           args: --release --all --features ci_skip --no-fail-fast
 
+      - name: Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
+        uses: 8398a7/action-slack@v3.5.2
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
+
   codecov:
     name: Code Coverage
     runs-on: ubuntu-latest
@@ -150,3 +168,12 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
+        uses: 8398a7/action-slack@v3.5.2
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow # selectable (default: repo,message)
