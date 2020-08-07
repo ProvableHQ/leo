@@ -52,7 +52,7 @@ pub enum Expression {
 
     // Boolean operations
     Not(Box<Expression>, Span),
-    Minus(Box<Expression>, Span),
+    Negate(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),
@@ -140,7 +140,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
 
             // Number operations
-            Expression::Minus(ref expression, ref _span) => write!(f, "-{}", expression),
+            Expression::Negate(ref expression, ref _span) => write!(f, "-{}", expression),
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
             Expression::Sub(ref left, ref right, ref _span) => write!(f, "{} - {}", left, right),
             Expression::Mul(ref left, ref right, ref _span) => write!(f, "{} * {}", left, right),
@@ -435,7 +435,7 @@ impl<'ast> From<UnaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.expression)),
                 Span::from(expression.span),
             ),
-            UnaryOperation::Minus(_) => Expression::Minus(
+            UnaryOperation::Negate(_) => Expression::Negate(
                 Box::new(Expression::from(*expression.expression)),
                 Span::from(expression.span),
             ),

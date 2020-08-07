@@ -15,7 +15,7 @@ pub struct UnaryExpression<'ast> {
     pub span: Span<'ast>,
 }
 
-impl<'ast> fmt::Display for UnaryExpression {
+impl<'ast> fmt::Display for UnaryExpression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}{}", self.operation, self.expression)
     }

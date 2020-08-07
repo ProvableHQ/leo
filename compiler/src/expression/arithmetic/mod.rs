@@ -6,8 +6,8 @@ pub use self::add::*;
 pub mod sub;
 pub use self::sub::*;
 
-pub mod minus;
-pub use self::minus::*;
+pub mod negate;
+pub use self::negate::*;
 
 pub mod mul;
 pub use self::mul::*;

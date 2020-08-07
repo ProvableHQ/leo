@@ -1,4 +1,4 @@
-//! Enforces a unary minus `-` operator in a resolved Leo program.
+//! Enforces a unary negate `-` operator in a resolved Leo program.
 
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_typed::Span;
@@ -8,7 +8,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn enforce_minus<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_negate<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     value: ConstrainedValue<F, G>,
     span: Span,

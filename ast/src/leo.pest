@@ -71,10 +71,10 @@ let_ = { "let " }
 // Declared in operations/unary_operation.rs
 operation_unary = {
     operation_not
-    | operation_minus
+    | operation_negate
 }
 operation_not = { "!" }
-operation_minus = { "-" }
+operation_negate = { "-" }
 
 // Declared in operations/binary_operation.rs
 operation_and = { "&&" }
