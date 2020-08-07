@@ -1,5 +1,13 @@
-use leo_ast::types::IntegerType as AstIntegerType;
-use leo_input::types::IntegerType as InputAstIntegerType;
+use leo_ast::types::{
+    IntegerType as AstIntegerType,
+    SignedIntegerType as AstSignedIntegerType,
+    UnsignedIntegerType as AstUnsignedIntegerType,
+};
+use leo_input::types::{
+    IntegerType as InputAstIntegerType,
+    SignedIntegerType as InputAstSignedIntegerType,
+    UnsignedIntegerType as InputAstUnsignedIntegerType,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,17 +31,32 @@ pub enum IntegerType {
 impl From<AstIntegerType> for IntegerType {
     fn from(integer_type: AstIntegerType) -> Self {
         match integer_type {
-            AstIntegerType::U8Type(_type) => IntegerType::U8,
-            AstIntegerType::U16Type(_type) => IntegerType::U16,
-            AstIntegerType::U32Type(_type) => IntegerType::U32,
-            AstIntegerType::U64Type(_type) => IntegerType::U64,
-            AstIntegerType::U128Type(_type) => IntegerType::U128,
+            AstIntegerType::Signed(signed) => Self::from(signed),
+            AstIntegerType::Unsigned(unsigned) => Self::from(unsigned),
+        }
+    }
+}
 
-            AstIntegerType::I8Type(_type) => IntegerType::I8,
-            AstIntegerType::I16Type(_type) => IntegerType::I16,
-            AstIntegerType::I32Type(_type) => IntegerType::I32,
-            AstIntegerType::I64Type(_type) => IntegerType::I64,
-            AstIntegerType::I128Type(_type) => IntegerType::I128,
+impl From<AstUnsignedIntegerType> for IntegerType {
+    fn from(integer_type: AstUnsignedIntegerType) -> Self {
+        match integer_type {
+            AstUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
+            AstUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
+            AstUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
+            AstUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
+            AstUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
+        }
+    }
+}
+
+impl From<AstSignedIntegerType> for IntegerType {
+    fn from(integer_type: AstSignedIntegerType) -> Self {
+        match integer_type {
+            AstSignedIntegerType::I8Type(_type) => IntegerType::I8,
+            AstSignedIntegerType::I16Type(_type) => IntegerType::I16,
+            AstSignedIntegerType::I32Type(_type) => IntegerType::I32,
+            AstSignedIntegerType::I64Type(_type) => IntegerType::I64,
+            AstSignedIntegerType::I128Type(_type) => IntegerType::I128,
         }
     }
 }
@@ -41,17 +64,32 @@ impl From<AstIntegerType> for IntegerType {
 impl From<InputAstIntegerType> for IntegerType {
     fn from(integer_type: InputAstIntegerType) -> Self {
         match integer_type {
-            InputAstIntegerType::U8Type(_type) => IntegerType::U8,
-            InputAstIntegerType::U16Type(_type) => IntegerType::U16,
-            InputAstIntegerType::U32Type(_type) => IntegerType::U32,
-            InputAstIntegerType::U64Type(_type) => IntegerType::U64,
-            InputAstIntegerType::U128Type(_type) => IntegerType::U128,
+            InputAstIntegerType::Signed(signed) => Self::from(signed),
+            InputAstIntegerType::Unsigned(unsigned) => Self::from(unsigned),
+        }
+    }
+}
 
-            InputAstIntegerType::I8Type(_type) => IntegerType::I8,
-            InputAstIntegerType::I16Type(_type) => IntegerType::I16,
-            InputAstIntegerType::I32Type(_type) => IntegerType::I32,
-            InputAstIntegerType::I64Type(_type) => IntegerType::I64,
-            InputAstIntegerType::I128Type(_type) => IntegerType::I128,
+impl From<InputAstUnsignedIntegerType> for IntegerType {
+    fn from(integer_type: InputAstUnsignedIntegerType) -> Self {
+        match integer_type {
+            InputAstUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
+            InputAstUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
+            InputAstUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
+            InputAstUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
+            InputAstUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
+        }
+    }
+}
+
+impl From<InputAstSignedIntegerType> for IntegerType {
+    fn from(integer_type: InputAstSignedIntegerType) -> Self {
+        match integer_type {
+            InputAstSignedIntegerType::I8Type(_type) => IntegerType::I8,
+            InputAstSignedIntegerType::I16Type(_type) => IntegerType::I16,
+            InputAstSignedIntegerType::I32Type(_type) => IntegerType::I32,
+            InputAstSignedIntegerType::I64Type(_type) => IntegerType::I64,
+            InputAstSignedIntegerType::I128Type(_type) => IntegerType::I128,
         }
     }
 }

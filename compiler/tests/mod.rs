@@ -20,6 +20,7 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
+use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 use leo_typed::{InputValue, MainInput};
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -167,4 +168,11 @@ pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> Mai
     }
 
     main_input
+}
+
+pub(crate) fn generate_test_input_u32(number: u32) -> Option<InputValue> {
+    Some(InputValue::Integer(
+        IntegerType::Unsigned(UnsignedIntegerType::U32Type(U32Type {})),
+        number.to_string(),
+    ))
 }

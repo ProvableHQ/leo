@@ -5,103 +5,108 @@ use crate::{
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_input::types::{I64Type, IntegerType};
+use leo_input::types::{I64Type, IntegerType, SignedIntegerType};
 use leo_typed::InputValue;
 
-test_int!(Testi64, i64, IntegerType::I64Type(I64Type {}), Int64);
+test_int!(
+    TestI64,
+    i64,
+    IntegerType::Signed(SignedIntegerType::I64Type(I64Type {})),
+    Int64
+);
 
 #[test]
 fn test_i64_min() {
-    Testi64::test_min();
+    TestI64::test_min();
 }
 
 #[test]
 fn test_i64_min_fail() {
-    Testi64::test_min_fail();
+    TestI64::test_min_fail();
 }
 
 #[test]
 fn test_i64_max() {
-    Testi64::test_max();
+    TestI64::test_max();
 }
 
 #[test]
 fn test_i64_max_fail() {
-    Testi64::test_max_fail();
+    TestI64::test_max_fail();
 }
 
 #[test]
 fn test_i64_neg() {
-    Testi64::test_negate();
+    TestI64::test_negate();
 }
 
 #[test]
 fn test_i64_neg_max_fail() {
-    Testi64::test_negate_min_fail();
+    TestI64::test_negate_min_fail();
 }
 
 #[test]
 fn test_i64_neg_zero() {
-    Testi64::test_negate_zero();
+    TestI64::test_negate_zero();
 }
 
 #[test]
 fn test_i64_add() {
-    Testi64::test_add();
+    TestI64::test_add();
 }
 
 #[test]
 fn test_i64_sub() {
-    Testi64::test_sub();
+    TestI64::test_sub();
 }
 
 #[test]
 fn test_i64_mul() {
-    Testi64::test_mul();
+    TestI64::test_mul();
 }
 
 #[test]
 #[ignore] // takes 2 minutes
 fn test_i64_div() {
-    Testi64::test_div();
+    TestI64::test_div();
 }
 
 #[test]
 fn test_i64_pow() {
-    Testi64::test_pow();
+    TestI64::test_pow();
 }
 
 #[test]
 fn test_i64_eq() {
-    Testi64::test_eq();
+    TestI64::test_eq();
 }
 
 #[test]
 fn test_i64_ge() {
-    Testi64::test_ge();
+    TestI64::test_ge();
 }
 
 #[test]
 fn test_i64_gt() {
-    Testi64::test_gt();
+    TestI64::test_gt();
 }
 
 #[test]
 fn test_i64_le() {
-    Testi64::test_le();
+    TestI64::test_le();
 }
 
 #[test]
 fn test_i64_lt() {
-    Testi64::test_lt();
+    TestI64::test_lt();
 }
 
 #[test]
 fn test_i64_assert_eq() {
-    Testi64::test_assert_eq();
+    TestI64::test_assert_eq();
 }
 
 #[test]
 fn test_i64_ternary() {
-    Testi64::test_ternary();
+    TestI64::test_ternary();
 }
