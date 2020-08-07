@@ -4,11 +4,12 @@
 assignee = { identifier ~ access_assignee* }
 
 // Declared in files/file.rs
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
 
 // Declared in definitions/definition.rs
 definition = {
-    circuit
+    import
+    | circuit
     | function
     | test_function
 }

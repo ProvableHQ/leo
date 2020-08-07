@@ -23,14 +23,7 @@ const MAIN_FUNCTION_NAME: &str = "main";
 impl<'ast> Program {
     //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
     pub fn from(program_name: &str, program_ast: &File<'ast>) -> Self {
-        // Compiled ast -> aleo program representation
-        let imports = program_ast
-            .imports
-            .to_owned()
-            .into_iter()
-            .map(|import| Import::from(import))
-            .collect::<Vec<Import>>();
-
+        let mut imports = vec![];
         let mut circuits = HashMap::new();
         let mut functions = HashMap::new();
         let mut tests = HashMap::new();
@@ -41,6 +34,7 @@ impl<'ast> Program {
             .to_owned()
             .into_iter()
             .for_each(|definition| match definition {
+                Definition::Import(import) => imports.push(Import::from(import)),
                 Definition::Circuit(circuit) => {
                     circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
                 }
