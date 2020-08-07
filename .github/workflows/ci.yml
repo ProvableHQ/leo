@@ -41,7 +41,7 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
         uses: 8398a7/action-slack@v3.5.2
         with:
@@ -107,7 +107,7 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
         uses: 8398a7/action-slack@v3.5.2
         with:
@@ -171,7 +171,7 @@ jobs:
 
       - name: Slack notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
         uses: 8398a7/action-slack@v3.5.2
         with:
