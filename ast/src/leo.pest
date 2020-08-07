@@ -3,8 +3,16 @@
 // Declared in common/assignee.rs
 assignee = { identifier ~ access_assignee* }
 
-// Declared in common/file.rs
-file = { SOI ~ NEWLINE* ~ import* ~ NEWLINE* ~ circuit* ~ NEWLINE* ~ function_definition* ~ NEWLINE* ~ test_function* ~ NEWLINE* ~ EOI }
+// Declared in files/file.rs
+file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
+
+// Declared in definitions/definition.rs
+definition = {
+    import
+    | circuit
+    | function
+    | test_function
+}
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -239,19 +247,19 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 access = { access_array | access_call | access_member | access_static_member}
 
 // Declared in access/array_access.rs
-access_array = { "[" ~ range_or_expression ~ "]" }
+access_array = !{ "[" ~ range_or_expression ~ "]" }
 
 // Declared in access/assignee_access.rs
 access_assignee = { access_array | access_member }
 
 // Declared in access/call_access.rs
-access_call = { "(" ~ expression_tuple ~ ")" }
+access_call = !{ "(" ~ expression_tuple ~ ")" }
 
 // Declared in access/member_access.rs
-access_member = { "." ~ identifier }
+access_member = ${ "." ~ identifier }
 
 // Declared in access/static_member_access.rs
-access_static_member = { "::" ~ identifier }
+access_static_member = ${ "::" ~ identifier }
 
 /// Circuits
 
@@ -265,7 +273,7 @@ circuit_field = { identifier ~ ":" ~ expression }
 circuit_field_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_function.rs
-circuit_function = { static_? ~ function_definition }
+circuit_function = { static_? ~ function }
 
 // Declared in circuits/circuit_member.rs
 circuit_member = { circuit_function | circuit_field_definition ~ NEWLINE*}
@@ -285,7 +293,6 @@ expression_term = {
     | value
     | expression_unary // must be defined below value to avoid conflicts with negative values
     | expression_postfix
-    | value
     | identifier
 }
 
@@ -309,7 +316,7 @@ circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ "
 expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
-expression_postfix = { identifier ~ access+ }
+expression_postfix = ${ identifier ~ access+ }
 
 /// Statements
 
@@ -357,8 +364,11 @@ statement_return = { "return " ~ return_}
 
 /// Functions
 
+// Declared in functions/test_function.rs
+test_function = { "test " ~ function }
+
 // Declared in functions/function.rs
-function_definition = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
@@ -373,8 +383,6 @@ input = {
 }
 input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }
 
-// Declared in functions/test_function.rs
-test_function = { "test " ~ function_definition }
 
 /// Imports
 

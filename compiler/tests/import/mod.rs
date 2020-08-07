@@ -6,7 +6,7 @@ static TEST_SOURCE_DIRECTORY: &str = "tests/import";
 
 // Import tests rely on knowledge of local directories. They should be run locally only.
 
-fn set_local_dir() {
+pub fn set_local_dir() {
     let mut local = current_dir().unwrap();
     local.push(TEST_SOURCE_DIRECTORY);
 
