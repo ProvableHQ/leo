@@ -22,5 +22,8 @@ pub use number_implicit_value::*;
 pub mod number_value;
 pub use number_value::*;
 
+pub mod positive_number;
+pub use positive_number::*;
+
 pub mod value;
 pub use value::*;

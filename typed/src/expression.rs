@@ -13,11 +13,19 @@ use leo_ast::{
         TernaryExpression,
     },
     operations::BinaryOperation,
-    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
+    values::{
+        AddressValue,
+        BooleanValue,
+        FieldValue,
+        GroupValue,
+        IntegerValue,
+        NumberImplicitValue,
+        PositiveNumber as LeoPositiveNumber,
+        Value,
+    },
 };
-
-use leo_ast::values::AddressValue;
 use leo_input::values::NumberValue;
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -104,20 +112,15 @@ impl Expression {
 }
 
 impl<'ast> Expression {
-    pub(crate) fn get_count_from_value(count: Value<'ast>) -> usize {
-        match count {
-            Value::Integer(integer) => integer
-                .number
-                .value
-                .parse::<usize>()
-                .expect("Unable to read array size"),
-            Value::Implicit(number) => number.number.value.parse::<usize>().expect("Unable to read array size"),
-            size => unimplemented!("Array size should be an integer {}", size),
-        }
-    }
-
     pub(crate) fn get_count_from_number(number: NumberValue<'ast>) -> usize {
         number.value.parse::<usize>().expect("Unable to read array size")
+    }
+
+    pub(crate) fn get_count_from_positive_number(number: LeoPositiveNumber<'ast>) -> usize {
+        number
+            .value
+            .parse::<usize>()
+            .expect("Array size should be a positive number")
     }
 }
 
@@ -403,7 +406,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let count = Expression::get_count_from_value(array.count);
+        let count = Expression::get_count_from_positive_number(array.count);
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
         Expression::Array(vec![expression; count], Span::from(array.span))

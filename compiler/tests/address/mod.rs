@@ -13,11 +13,27 @@ fn test_valid() {
 }
 
 #[test]
-fn test_invalid() {
-    let bytes = include_bytes!("invalid.leo");
-    let program = parse_program(bytes).unwrap();
+fn test_invalid_prefix() {
+    let bytes = include_bytes!("invalid_prefix.leo");
+    let syntax_error = parse_program(bytes).is_err();
 
-    let _output = expect_compiler_error(program);
+    assert!(syntax_error);
+}
+
+#[test]
+fn test_invalid_length() {
+    let bytes = include_bytes!("invalid_length.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
+fn test_empty() {
+    let bytes = include_bytes!("empty.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
 }
 
 #[test]
