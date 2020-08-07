@@ -41,11 +41,8 @@ impl CLI for LoginCommand {
             }
         };
 
-        match Path::new(LEO_CREDENTIALS_DIR).exists() {
-            true => {}
-            false => {
-                create_dir(LEO_CREDENTIALS_DIR)?;
-            }
+        if !Path::new(LEO_CREDENTIALS_DIR).exists() {
+            create_dir(LEO_CREDENTIALS_DIR)?;
         }
 
         let mut credentials = File::create(&format!("{}/{}", LEO_CREDENTIALS_DIR, LEO_CREDENTIALS_FILE))?;
@@ -56,7 +53,6 @@ impl CLI for LoginCommand {
     }
 }
 
-// Run tests in single thread
 #[cfg(test)]
 mod tests {
 
@@ -117,6 +113,7 @@ mod tests {
         let token = "SOME_TOKEN".to_string();
         let options = Some(token.clone());
         LoginCommand::output(options).unwrap();
+
         assert_eq!(token, get_token(suffix)?);
         clean(suffix)?;
         Ok(())
