@@ -49,7 +49,7 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF}`,
+                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
               }]
             }
         env:
@@ -124,7 +124,7 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF}`,
+                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
               }]
             }
         env:
@@ -197,7 +197,7 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF}`,
+                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
               }]
             }
         env:
