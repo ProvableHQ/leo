@@ -66,7 +66,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
         match *self {
             Expression::Value(ref expression) => write!(f, "{}", expression),
             Expression::Identifier(ref expression) => write!(f, "{}", expression),
-            Expression::Unary(ref expression) => write!(f, "!{}", expression.expression),
+            Expression::Unary(ref expression) => write!(f, "{}", expression),
             Expression::Binary(ref expression) => write!(f, "{} == {}", expression.left, expression.right),
             Expression::Ternary(ref expression) => write!(
                 f,
