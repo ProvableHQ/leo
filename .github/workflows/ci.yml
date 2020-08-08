@@ -43,13 +43,13 @@ jobs:
         uses: 8398a7/action-slack@v3.5.2
         with:
           status: custom
-          fields: author,repo,message,commit,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
           custom_payload: |
             {
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
+                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
@@ -118,13 +118,13 @@ jobs:
         uses: 8398a7/action-slack@v3.5.2
         with:
           status: custom
-          fields: author,repo,message,commit,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
           custom_payload: |
             {
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
+                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
@@ -191,13 +191,13 @@ jobs:
         uses: 8398a7/action-slack@v3.5.2
         with:
           status: custom
-          fields: author,repo,message,commit,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
           custom_payload: |
             {
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_AUTHOR}\n${{ job.status }} in ${process.env.AS_TOOK}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT})`,
+                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
