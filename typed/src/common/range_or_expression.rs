@@ -1,5 +1,5 @@
-use crate::{Error, Expression, Span};
-use leo_ast::{common::RangeOrExpression as AstRangeOrExpression, values::NumberValue};
+use crate::Expression;
+use leo_ast::common::RangeOrExpression as AstRangeOrExpression;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -9,15 +9,6 @@ use std::fmt;
 pub enum RangeOrExpression {
     Range(Option<Expression>, Option<Expression>),
     Expression(Expression),
-}
-
-pub fn unwrap_bound(bound: Option<NumberValue>) -> Option<usize> {
-    bound.map(|number| {
-        let message = format!("Range bounds should be integers");
-        let error = Error::new_from_span(message, Span::from(number.span.clone()));
-
-        number.value.parse::<usize>().expect(&error.to_string())
-    })
 }
 
 impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {

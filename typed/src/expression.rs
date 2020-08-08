@@ -8,16 +8,24 @@ use leo_ast::{
         BinaryExpression,
         CircuitInlineExpression,
         Expression as AstExpression,
-        NotExpression,
         PostfixExpression,
         TernaryExpression,
+        UnaryExpression,
     },
-    operations::BinaryOperation,
-    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberImplicitValue, Value},
+    operations::{BinaryOperation, UnaryOperation},
+    values::{
+        AddressValue,
+        BooleanValue,
+        FieldValue,
+        GroupValue,
+        IntegerValue,
+        NumberValue as AstNumber,
+        PositiveNumber as AstPositiveNumber,
+        Value,
+    },
 };
+use leo_input::values::PositiveNumber as InputAstPositiveNumber;
 
-use leo_ast::values::AddressValue;
-use leo_input::values::NumberValue;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -44,6 +52,7 @@ pub enum Expression {
 
     // Boolean operations
     Not(Box<Expression>, Span),
+    Negate(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),
@@ -104,20 +113,18 @@ impl Expression {
 }
 
 impl<'ast> Expression {
-    pub(crate) fn get_count_from_value(count: Value<'ast>) -> usize {
-        match count {
-            Value::Integer(integer) => integer
-                .number
-                .value
-                .parse::<usize>()
-                .expect("Unable to read array size"),
-            Value::Implicit(number) => number.number.value.parse::<usize>().expect("Unable to read array size"),
-            size => unimplemented!("Array size should be an integer {}", size),
-        }
+    pub(crate) fn get_count_from_input_ast(number: InputAstPositiveNumber<'ast>) -> usize {
+        number
+            .value
+            .parse::<usize>()
+            .expect("Array size should be a positive number")
     }
 
-    pub(crate) fn get_count_from_number(number: NumberValue<'ast>) -> usize {
-        number.value.parse::<usize>().expect("Unable to read array size")
+    pub(crate) fn get_count_from_ast(number: AstPositiveNumber<'ast>) -> usize {
+        number
+            .value
+            .parse::<usize>()
+            .expect("Array size should be a positive number")
     }
 }
 
@@ -136,6 +143,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
 
             // Number operations
+            Expression::Negate(ref expression, ref _span) => write!(f, "-{}", expression),
             Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
             Expression::Sub(ref left, ref right, ref _span) => write!(f, "{} - {}", left, right),
             Expression::Mul(ref left, ref right, ref _span) => write!(f, "{} * {}", left, right),
@@ -269,7 +277,7 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
         match expression {
             AstExpression::Value(value) => Expression::from(value),
             AstExpression::Identifier(variable) => Expression::from(variable),
-            AstExpression::Not(expression) => Expression::from(expression),
+            AstExpression::Unary(expression) => Expression::from(expression),
             AstExpression::Binary(expression) => Expression::from(expression),
             AstExpression::Ternary(expression) => Expression::from(expression),
             AstExpression::ArrayInline(expression) => Expression::from(expression),
@@ -403,7 +411,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let count = Expression::get_count_from_value(array.count);
+        let count = Expression::get_count_from_ast(array.count);
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
         Expression::Array(vec![expression; count], Span::from(array.span))
@@ -423,12 +431,18 @@ impl<'ast> From<Value<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<NotExpression<'ast>> for Expression {
-    fn from(expression: NotExpression<'ast>) -> Self {
-        Expression::Not(
-            Box::new(Expression::from(*expression.expression)),
-            Span::from(expression.span),
-        )
+impl<'ast> From<UnaryExpression<'ast>> for Expression {
+    fn from(expression: UnaryExpression<'ast>) -> Self {
+        match expression.operation {
+            UnaryOperation::Not(_) => Expression::Not(
+                Box::new(Expression::from(*expression.expression)),
+                Span::from(expression.span),
+            ),
+            UnaryOperation::Negate(_) => Expression::Negate(
+                Box::new(Expression::from(*expression.expression)),
+                Span::from(expression.span),
+            ),
+        }
     }
 }
 
@@ -446,7 +460,7 @@ impl<'ast> From<BooleanValue<'ast>> for Expression {
 
 impl<'ast> From<FieldValue<'ast>> for Expression {
     fn from(field: FieldValue<'ast>) -> Self {
-        Expression::Field(field.number.value, Span::from(field.span))
+        Expression::Field(field.number.to_string(), Span::from(field.span))
     }
 }
 
@@ -456,19 +470,39 @@ impl<'ast> From<GroupValue<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<NumberImplicitValue<'ast>> for Expression {
-    fn from(number: NumberImplicitValue<'ast>) -> Self {
-        Expression::Implicit(number.number.value, Span::from(number.span))
+impl<'ast> From<AstNumber<'ast>> for Expression {
+    fn from(number: AstNumber<'ast>) -> Self {
+        let (value, span) = match number {
+            AstNumber::Positive(number) => (number.value, number.span),
+            AstNumber::Negative(number) => (number.value, number.span),
+        };
+
+        Expression::Implicit(value, Span::from(span))
     }
 }
 
 impl<'ast> From<IntegerValue<'ast>> for Expression {
     fn from(integer: IntegerValue<'ast>) -> Self {
-        Expression::Integer(
-            IntegerType::from(integer._type),
-            integer.number.value,
-            Span::from(integer.span),
-        )
+        let span = Span::from(integer.span().clone());
+        let (type_, value) = match integer {
+            IntegerValue::Signed(integer) => {
+                let type_ = IntegerType::from(integer.type_);
+                let number = match integer.number {
+                    AstNumber::Negative(number) => number.value,
+                    AstNumber::Positive(number) => number.value,
+                };
+
+                (type_, number)
+            }
+            IntegerValue::Unsigned(integer) => {
+                let type_ = IntegerType::from(integer.type_);
+                let number = integer.number.value;
+
+                (type_, number)
+            }
+        };
+
+        Expression::Integer(type_, value, span)
     }
 }
 

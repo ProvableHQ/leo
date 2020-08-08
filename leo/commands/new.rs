@@ -36,11 +36,7 @@ impl CLI for NewCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        let mut is_lib = false;
-        if arguments.is_present("lib") {
-            is_lib = true;
-        }
-
+        let is_lib = arguments.is_present("lib");
         match arguments.value_of("NAME") {
             Some(name) => Ok((Some(name.to_string()), is_lib)),
             None => Ok((None, is_lib)),

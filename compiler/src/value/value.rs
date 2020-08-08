@@ -302,7 +302,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
             }
             ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit_name),
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "function {{ {}() }}", function.function_name)
+                write!(f, "function {{ {}() }}", function.identifier)
             }
             ConstrainedValue::Import(_, ref value) => write!(f, "{}", value),
             ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),

@@ -10,6 +10,7 @@ mod ast;
 pub mod access;
 pub mod circuits;
 pub mod common;
+pub mod definitions;
 pub mod expressions;
 pub mod files;
 pub mod functions;

@@ -5,7 +5,7 @@ use crate::{
     sections::Header,
     tables::Table,
     types::{DataType, Type},
-    values::{NumberImplicitValue, NumberValue, Value},
+    values::{NumberValue, PositiveNumber, Value},
 };
 
 use pest::{
@@ -42,10 +42,10 @@ impl InputParserError {
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
-    pub fn implicit_type(data_type: DataType, implicit: NumberImplicitValue) -> Self {
+    pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type.to_string(), implicit.to_string());
 
-        Self::new_from_span(message, implicit.span)
+        Self::new_from_span(message, implicit.span().clone())
     }
 
     pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
@@ -62,7 +62,7 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_inline_length(number: NumberValue, array: ArrayInlineExpression) -> Self {
+    pub fn array_inline_length(number: PositiveNumber, array: ArrayInlineExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
             number.to_string(),
@@ -73,7 +73,7 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_init_length(number: NumberValue, array: ArrayInitializerExpression) -> Self {
+    pub fn array_init_length(number: PositiveNumber, array: ArrayInitializerExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
             number.to_string(),

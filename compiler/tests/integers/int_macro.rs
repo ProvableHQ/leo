@@ -2,6 +2,44 @@ macro_rules! test_int {
     ($name: ident, $type_: ty, $integer_type: expr, $gadget: ty) => {
         pub struct $name {}
 
+        impl $name {
+            fn test_negate() {
+                for _ in 0..10 {
+                    let a: $type_ = rand::random();
+
+                    let b = match a.checked_neg() {
+                        Some(valid) => valid,
+                        None => continue,
+                    };
+
+                    let bytes = include_bytes!("negate.leo");
+                    let mut program = parse_program(bytes).unwrap();
+                    let main_input = generate_main_input(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                    ]);
+
+                    program.set_main_input(main_input);
+
+                    assert_satisfied(program);
+                }
+            }
+
+            fn test_negate_min_fail() {
+                let bytes = include_bytes!("negate_min.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program);
+            }
+
+            fn test_negate_zero() {
+                let bytes = include_bytes!("negate_zero.leo");
+                let program = parse_program(bytes).unwrap();
+
+                assert_satisfied(program);
+            }
+        }
+
         impl IntegerTester for $name {
             fn test_min() {
                 let bytes = include_bytes!("min.leo");

@@ -36,6 +36,8 @@ pub trait GroupType<F: Field>:
 
     fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: Span) -> Result<Self, GroupError>;
 
+    fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: Span) -> Result<Self, GroupError>;
+
     fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;
 
     fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError>;

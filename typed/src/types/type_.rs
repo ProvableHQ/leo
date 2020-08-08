@@ -57,7 +57,7 @@ impl<'ast> From<InputArrayType<'ast>> for Type {
         let dimensions = array_type
             .dimensions
             .into_iter()
-            .map(|row| Expression::get_count_from_number(row))
+            .map(|row| Expression::get_count_from_input_ast(row))
             .collect();
 
         Type::Array(element_type, dimensions)
@@ -101,7 +101,7 @@ impl<'ast> From<ArrayType<'ast>> for Type {
         let dimensions = array_type
             .dimensions
             .into_iter()
-            .map(|row| Expression::get_count_from_value(row))
+            .map(|row| Expression::get_count_from_ast(row))
             .collect();
 
         Type::Array(element_type, dimensions)

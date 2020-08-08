@@ -45,6 +45,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Binary operations
+            Expression::Negate(expression, span) => {
+                let resolved_value =
+                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *expression)?;
+
+                enforce_negate(cs, resolved_value, span)
+            }
             Expression::Add(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
