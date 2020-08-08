@@ -40,22 +40,14 @@ jobs:
           args: --all -- --check
 
       - name: Slack Notification
-        uses: 8398a7/action-slack@v3.5.2
+        uses: act10ns/slack@v1
         with:
-          status: custom
-          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
-          custom_payload: |
-            {
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
-              }]
-            }
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
 
   test:
     name: Test
@@ -115,22 +107,14 @@ jobs:
           args: --release --all --features ci_skip --no-fail-fast
 
       - name: Slack Notification
-        uses: 8398a7/action-slack@v3.5.2
+        uses: act10ns/slack@v1
         with:
-          status: custom
-          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
-          custom_payload: |
-            {
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
-              }]
-            }
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
 
   codecov:
     name: Code Coverage
@@ -188,20 +172,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Slack Notification
-        uses: 8398a7/action-slack@v3.5.2
+        uses: act10ns/slack@v1
         with:
-          status: custom
-          fields: author,repo,message,commit,eventName,ref,workflow,took,job # selectable (default: repo,message)
-          custom_payload: |
-            {
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
-              }]
-            }
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+        if: always()
         env:
-
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
