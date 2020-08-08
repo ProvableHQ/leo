@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
-            CircuitMember::CircuitFunction(_static, function) => function.function_name == circuit_member,
+            CircuitMember::CircuitFunction(_static, function) => function.identifier == circuit_member,
             _ => false,
         });
 
@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function
                 } else {
                     return Err(ExpressionError::invalid_member_access(
-                        function.function_name.to_string(),
+                        function.identifier.to_string(),
                         span,
                     ));
                 }

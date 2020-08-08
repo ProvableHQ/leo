@@ -6,7 +6,7 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Function {
-    pub function_name: Identifier,
+    pub identifier: Identifier,
     pub input: Vec<InputVariable>,
     pub returns: Vec<Type>,
     pub statements: Vec<Statement>,
@@ -14,41 +14,41 @@ pub struct Function {
 }
 
 impl<'ast> From<AstFunction<'ast>> for Function {
-    fn from(function_definition: AstFunction<'ast>) -> Self {
-        let function_name = Identifier::from(function_definition.function_name);
-        let parameters = function_definition
+    fn from(function: AstFunction<'ast>) -> Self {
+        let function_name = Identifier::from(function.identifier);
+        let parameters = function
             .parameters
             .into_iter()
             .map(|parameter| InputVariable::from(parameter))
             .collect();
-        let returns = function_definition
+        let returns = function
             .returns
             .into_iter()
             .map(|return_type| Type::from(return_type))
             .collect();
-        let statements = function_definition
+        let statements = function
             .statements
             .into_iter()
             .map(|statement| Statement::from(statement))
             .collect();
 
         Function {
-            function_name,
+            identifier: function_name,
             input: parameters,
             returns,
             statements,
-            span: Span::from(function_definition.span),
+            span: Span::from(function.span),
         }
     }
 }
 
 impl Function {
     pub fn get_name(&self) -> String {
-        self.function_name.name.clone()
+        self.identifier.name.clone()
     }
 
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "function {}", self.function_name)?;
+        write!(f, "function {}", self.identifier)?;
         let parameters = self
             .input
             .iter()

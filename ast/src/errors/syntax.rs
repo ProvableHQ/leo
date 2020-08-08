@@ -15,6 +15,7 @@ impl From<Error<Rule>> for SyntaxError {
             Rule::type_integer => "`u32`".to_owned(),
             Rule::type_field => "`field`".to_owned(),
             Rule::type_group => "`group`".to_owned(),
+            Rule::address => "an aleo address: `aleo1...`".to_owned(),
             Rule::file => "an import, circuit, or function".to_owned(),
             Rule::identifier => "a variable name".to_owned(),
             Rule::type_ => "a type".to_owned(),

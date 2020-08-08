@@ -25,5 +25,11 @@ pub use integer_type::*;
 pub mod self_type;
 pub use self_type::*;
 
+pub mod signed_integer_type;
+pub use signed_integer_type::*;
+
 pub mod type_;
 pub use type_::*;
+
+pub mod unsigned_integer_type;
+pub use unsigned_integer_type::*;
