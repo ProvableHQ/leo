@@ -49,7 +49,7 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
+                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
@@ -124,7 +124,7 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
+                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
@@ -197,10 +197,11 @@ jobs:
               icon_emoji: ':octocat:',
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${{ job.status }} - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
+                text: `${{ job.status }}.toUpperCase() - ${process.env.AS_AUTHOR}\n\n${process.env.AS_WORKFLOW} - ${process.env.AS_JOB} (${process.env.AS_REF})\n\n${process.env.AS_REPO} (commit ${process.env.AS_COMMIT}) ${process.env.AS_TOOK}`,
               }]
             }
         env:
+
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: git-leo # Optional. (defaults to webhook)
