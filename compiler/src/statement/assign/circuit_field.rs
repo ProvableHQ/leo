@@ -32,7 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     Some(object) => match &object.1 {
                         ConstrainedValue::Function(_circuit_identifier, function) => {
                             return Err(StatementError::immutable_circuit_function(
-                                function.function_name.to_string(),
+                                function.identifier.to_string(),
                                 span,
                             ));
                         }

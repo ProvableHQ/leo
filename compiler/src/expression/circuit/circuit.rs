@@ -61,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     }
                 }
                 CircuitMember::CircuitFunction(_static, function) => {
-                    let identifier = function.function_name.clone();
+                    let identifier = function.identifier.clone();
                     let mut constrained_function_value =
                         ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
 
