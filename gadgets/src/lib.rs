@@ -7,5 +7,5 @@ pub mod bits;
 
 pub mod errors;
 
-pub mod signed_integer;
-pub use self::signed_integer::*;
+// pub mod signed_integer;
+// pub use self::signed_integer::*;

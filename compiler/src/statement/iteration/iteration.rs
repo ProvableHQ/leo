@@ -1,21 +1,11 @@
 //! Enforces an iteration statement in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    new_scope,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    Integer,
-};
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_typed::{Expression, Identifier, Span, Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, uint::UInt32},
-    },
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -25,7 +15,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         indicator: Option<Boolean>,
-        index: Identifier,
+        _index: Identifier,
         start: Expression,
         stop: Expression,
         statements: Vec<Statement>,
@@ -40,12 +30,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
-            let index_name = new_scope(function_scope.clone(), index.to_string());
 
-            self.store(
-                index_name,
-                ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
-            );
+            // todo: store index once integers are implemented
+            // let index_name = new_scope(function_scope.clone(), index.to_string());
+            //
+            // self.store(
+            //     index_name,
+            //     ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
+            // );
 
             // Evaluate statements and possibly return early
             let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
