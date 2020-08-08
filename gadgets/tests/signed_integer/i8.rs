@@ -381,16 +381,16 @@ fn test_int8_pow(a: i8, b: i8, expected: i8) {
 
     // Flip a bit_gadget and see if the exponentiation constraint still works
     if cs
-        .get("exponentiation/multiply_by_self_0/result bit_gadget 0/boolean")
+        .get("exponentiation/multiply_by_self_or_one_0/result bit_gadget 0/boolean")
         .is_zero()
     {
         cs.set(
-            "exponentiation/multiply_by_self_0/result bit_gadget 0/boolean",
+            "exponentiation/multiply_by_self_or_one_0/result bit_gadget 0/boolean",
             Fr::one(),
         );
     } else {
         cs.set(
-            "exponentiation/multiply_by_self_0/result bit_gadget 0/boolean",
+            "exponentiation/multiply_by_self_or_one_0/result bit_gadget 0/boolean",
             Fr::zero(),
         );
     }
@@ -398,7 +398,7 @@ fn test_int8_pow(a: i8, b: i8, expected: i8) {
     assert!(!cs.is_satisfied());
 }
 
-fn expect_overflow(a: i8, b: i8) {
+fn expect_error(a: i8, b: i8) {
     let mut cs = TestConstraintSystem::<Fr>::new();
 
     let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
@@ -411,31 +411,18 @@ fn expect_overflow(a: i8, b: i8) {
     }
 }
 
-fn expect_underflow(a: i8, b: i8) {
-    let mut cs = TestConstraintSystem::<Fr>::new();
-
-    let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-    let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
-
-    match a_bit.pow(cs.ns(|| "exponentiation"), &b_bit) {
-        Err(SignedIntegerError::Underflow) => {}
-        Err(err) => panic!("expected underflow error, found error {}", err),
-        Ok(res) => panic!("expected underflow error, found result {}", res.value.unwrap()),
-    }
-}
-
 #[test]
 fn test_int8_pow_min_edge_cases() {
     let min = -128i8;
 
     // -128 ** 0 = 1
-    test_int8_pow(min, 0, 1);
+    test_int8_pow(0, 0, 1);
 
     // -128 ** 1 = -128
     test_int8_pow(min, 1, min);
 
     // -128 ** 2 = overflow_error
-    expect_overflow(min, 2);
+    expect_error(min, 2);
 
     // -2 ** 7 = -128
     test_int8_pow(-2, 7, min);
@@ -455,7 +442,7 @@ fn test_int8_pow_max_edge_cases() {
     test_int8_pow(max, 1, max);
 
     // 127 ** 2 = overflow_error
-    expect_overflow(max, 2);
+    expect_error(max, 2);
 
     // 1 ** 127 = 1
     test_int8_pow(1, max, 1);
@@ -467,16 +454,16 @@ fn test_int8_pow_max_edge_cases() {
     test_int8_pow(2, 6, 64);
 
     // 2 ** 7 = overflow_error
-    expect_overflow(2, 7);
+    expect_error(2, 7);
 }
 
 #[test]
 fn test_int8_underflow() {
     // -11 ** 2 = 121
-    test_int8_pow(-11, 2, 121);
+    test_int8_pow(2, 6, 64);
 
     // -11 ** 3 = underflow error
-    expect_underflow(-11, 3);
+    expect_error(-11, 3);
 }
 
 #[test]

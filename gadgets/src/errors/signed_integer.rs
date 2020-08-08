@@ -8,9 +8,6 @@ pub enum SignedIntegerError {
     #[error("Integer overflow")]
     Overflow,
 
-    #[error("Integer underflow")]
-    Underflow,
-
     #[error("{}", _0)]
     SynthesisError(#[from] SynthesisError),
 }
