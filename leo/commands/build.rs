@@ -12,6 +12,8 @@ use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
 use clap::ArgMatches;
+use serde::Serialize;
+use snarkos_models::curves::{PairingEngine, PrimeField};
 use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
