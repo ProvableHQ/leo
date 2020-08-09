@@ -33,7 +33,6 @@ fn test_serialize() {
     // Load the expected typed syntax tree.
     let expected = include_str!("expected_typed_ast.json");
 
-    println!("{}", serialized_typed_ast);
     assert_eq!(expected, serialized_typed_ast);
 }
 

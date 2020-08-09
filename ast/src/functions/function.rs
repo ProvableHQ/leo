@@ -5,9 +5,9 @@ use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::function_definition))]
+#[pest_ast(rule(Rule::function))]
 pub struct Function<'ast> {
-    pub function_name: Identifier<'ast>,
+    pub identifier: Identifier<'ast>,
     pub parameters: Vec<Input<'ast>>,
     pub returns: Vec<Type<'ast>>,
     pub statements: Vec<Statement<'ast>>,

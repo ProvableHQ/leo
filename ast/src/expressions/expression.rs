@@ -8,7 +8,7 @@ use std::fmt;
 pub enum Expression<'ast> {
     Value(Value<'ast>),
     Identifier(Identifier<'ast>),
-    Not(NotExpression<'ast>),
+    Unary(UnaryExpression<'ast>),
     Binary(BinaryExpression<'ast>),
     Ternary(TernaryExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
@@ -50,7 +50,7 @@ impl<'ast> Expression<'ast> {
         match self {
             Expression::Value(expression) => &expression.span(),
             Expression::Identifier(expression) => &expression.span,
-            Expression::Not(expression) => &expression.span,
+            Expression::Unary(expression) => &expression.span,
             Expression::Binary(expression) => &expression.span,
             Expression::Ternary(expression) => &expression.span,
             Expression::ArrayInline(expression) => &expression.span,
@@ -66,7 +66,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
         match *self {
             Expression::Value(ref expression) => write!(f, "{}", expression),
             Expression::Identifier(ref expression) => write!(f, "{}", expression),
-            Expression::Not(ref expression) => write!(f, "!{}", expression.expression),
+            Expression::Unary(ref expression) => write!(f, "{}", expression),
             Expression::Binary(ref expression) => write!(f, "{} == {}", expression.left, expression.right),
             Expression::Ternary(ref expression) => write!(
                 f,

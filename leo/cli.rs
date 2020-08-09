@@ -6,10 +6,10 @@ pub trait CLI {
     type Options;
     type Output;
 
-    const NAME: NameType;
     const ABOUT: AboutType;
     const ARGUMENTS: &'static [ArgumentType];
     const FLAGS: &'static [FlagType];
+    const NAME: NameType;
     const OPTIONS: &'static [OptionType];
     const SUBCOMMANDS: &'static [SubCommandType];
 
