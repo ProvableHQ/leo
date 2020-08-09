@@ -2,18 +2,19 @@ use crate::{cli::*, cli_types::*, errors::CLIError};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
-    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
     source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkos_algorithms::snark::groth16::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use snarkos_models::{
+    curves::PairingEngine,
+    gadgets::r1cs::{ConstraintSystem, Index},
+};
 
 use clap::ArgMatches;
-use serde::Serialize;
-use snarkos_models::curves::{PairingEngine, PrimeField};
 use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
@@ -100,6 +101,146 @@ impl CLI for BuildCommand {
 
             // Generate the program on the constraint system and verify correctness
             {
+                use snarkos_utilities::serialize::*;
+                fn serialize_circuit<E: PairingEngine, W: Write>(assembly: KeypairAssembly<E>, writer: &mut W) {
+                    let fr_size = <<E as PairingEngine>::Fr as ConstantSerializedSize>::SERIALIZED_SIZE;
+                    let index_size = <Index as ConstantSerializedSize>::SERIALIZED_SIZE;
+                    let tuple_size = fr_size + index_size;
+                    println!("tuple size {}", tuple_size);
+
+                    let mut total_size_bytes = 0;
+
+                    let num_inputs = assembly.num_inputs;
+                    CanonicalSerialize::serialize(&(num_inputs as u8), writer).unwrap();
+                    total_size_bytes += 1;
+
+                    let num_aux = assembly.num_aux;
+                    CanonicalSerialize::serialize(&(num_aux as u8), writer).unwrap();
+                    total_size_bytes += 1;
+
+                    let num_constraints = assembly.num_constraints;
+                    CanonicalSerialize::serialize(&(num_constraints as u8), writer).unwrap();
+                    total_size_bytes += 1;
+
+                    // println!("{}", assembly.num_constraints);
+                    // serialize each constraint
+                    for i in 0..num_constraints {
+                        // Serialize the at[i] vector of tuples Vec<(Fr, Index)>
+
+                        let a_len = assembly.at[i].len();
+                        CanonicalSerialize::serialize(&(a_len as u8), writer).unwrap();
+
+                        total_size_bytes += 1;
+                        total_size_bytes += a_len * tuple_size;
+
+                        for &(ref coeff, index) in assembly.at[i].iter() {
+                            // println!("a({:?}, {:?})", coeff, index);
+                            CanonicalSerialize::serialize(coeff, writer).unwrap();
+                            CanonicalSerialize::serialize(&index, writer).unwrap();
+                        }
+
+                        // Serialize the bt[i] vector of tuples Vec<(Fr, Index)>
+
+                        let b_len = assembly.bt[i].len();
+                        CanonicalSerialize::serialize(&(b_len as u8), writer).unwrap();
+
+                        total_size_bytes += 1;
+                        total_size_bytes += b_len * tuple_size;
+
+                        for &(ref coeff, index) in assembly.bt[i].iter() {
+                            // println!("b({:?}, {:?})", coeff, index);
+                            CanonicalSerialize::serialize(coeff, writer).unwrap();
+                            CanonicalSerialize::serialize(&index, writer).unwrap();
+                        }
+
+                        // Serialize the ct[i] vector of tuples Vec<(Fr, Index)>
+
+                        let c_len = assembly.ct[i].len();
+                        CanonicalSerialize::serialize(&(c_len as u8), writer).unwrap();
+
+                        total_size_bytes += 1;
+                        total_size_bytes += c_len * tuple_size;
+
+                        for &(ref coeff, index) in assembly.ct[i].iter() {
+                            // println!("c({:?}, {:?})", coeff, index);
+                            CanonicalSerialize::serialize(coeff, writer).unwrap();
+                            CanonicalSerialize::serialize(&index, writer).unwrap();
+                        }
+                    }
+
+                    println!("expected size bytes {:?}", total_size_bytes);
+                    // println!("actual size bytes {:?}", writer.len());
+                }
+
+                fn deserialize_circuit<E: PairingEngine, R: Read>(reader: &mut R) -> KeypairAssembly<E> {
+                    let fr_size = <<E as PairingEngine>::Fr as ConstantSerializedSize>::SERIALIZED_SIZE;
+                    let index_size = <Index as ConstantSerializedSize>::SERIALIZED_SIZE;
+                    let tuple_size = fr_size + index_size;
+                    println!("tuple size {}", tuple_size);
+
+                    let num_inputs = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+                    let num_aux = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+                    let num_constraints = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+
+                    let mut assembly = KeypairAssembly::<E> {
+                        num_inputs,
+                        num_aux,
+                        num_constraints,
+                        at: vec![],
+                        bt: vec![],
+                        ct: vec![],
+                    };
+
+                    for _ in 0..num_constraints {
+                        // deserialize each at[i] vector
+
+                        let a_len = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+                        let mut a_lc = vec![];
+
+                        for _ in 0..a_len {
+                            let fr = <<E as PairingEngine>::Fr as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let index = <Index as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let tuple = (fr, index);
+
+                            a_lc.push(tuple);
+                        }
+
+                        assembly.at.push(a_lc);
+
+                        // deserialize each bt[i] vector
+
+                        let b_len = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+                        let mut b_lc = vec![];
+
+                        for _ in 0..b_len {
+                            let fr = <<E as PairingEngine>::Fr as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let index = <Index as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let tuple = (fr, index);
+
+                            b_lc.push(tuple);
+                        }
+
+                        assembly.at.push(b_lc);
+
+                        // deserialize each ct[i] vector
+
+                        let c_len = <u8 as CanonicalDeserialize>::deserialize(reader).unwrap() as usize;
+                        let mut c_lc = vec![];
+
+                        for _ in 0..c_len {
+                            let fr = <<E as PairingEngine>::Fr as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let index = <Index as CanonicalDeserialize>::deserialize(reader).unwrap();
+                            let tuple = (fr, index);
+
+                            c_lc.push(tuple);
+                        }
+
+                        assembly.at.push(c_lc);
+                    }
+
+                    assembly
+                }
+
                 let mut cs = KeypairAssembly::<Bls12_377> {
                     num_inputs: 0,
                     num_aux: 0,
@@ -112,6 +253,31 @@ impl CLI for BuildCommand {
                 let output = temporary_program.compile_constraints(&mut cs)?;
                 log::debug!("Compiled constraints - {:#?}", output);
                 log::debug!("Number of constraints - {:#?}", cs.num_constraints());
+
+                // Serialize circuit
+                let mut writer = Vec::new();
+                serialize_circuit(cs, &mut writer);
+                println!("actual size bytes {:?}", writer.len());
+
+                // Write serialized circuit to circuit `.bytes` file.
+                let circuit_file = CircuitFile::new(&package_name);
+                circuit_file.write_to(&path, &writer[..])?;
+
+                // Read serialized circuit file
+                let serialized = circuit_file.read_from(&package_path)?;
+                let same = writer == serialized;
+                println!("same {}", same);
+
+                let deserialized = deserialize_circuit::<Bls12_377, _>(&mut &serialized[..]);
+
+                println!("deserialized {:?}", deserialized.num_constraints);
+
+                // println!("{}", std::mem::size_of::<snarkos_curves::bls12_377::Fq>());
+                // println!("{}", std::mem::size_of::<snarkos_curves::edwards_bls12::Fq>());
+                // println!("{}", <snarkos_models::gadgets::r1cs::Index as ConstantSerializedSize>::SERIALIZED_SIZE);
+                // println!("{}", <snarkos_curves::edwards_bls12::Fq as ConstantSerializedSize>::SERIALIZED_SIZE);
+
+                // println!("{}", std::mem::size_of::<snarkos_models::gadgets::r1cs::Index>());
             }
 
             // If a checksum file exists, check if it differs from the new checksum
