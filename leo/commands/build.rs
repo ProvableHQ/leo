@@ -186,6 +186,18 @@ impl SerializedKeypairAssembly {
 
 impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
     fn from(assembly: KeypairAssembly<E>) -> Self {
+        fn get_serialized_constraints(constraints: &Vec<(E::Fr, Index)>) -> Vec<(SerializedField, SerializedIndex)> {
+            let mut serialized = vec![];
+            for &(ref coeff, index) in constraints.iter() {
+                let field = SerializedField::from(coeff);
+                let index = SerializedIndex::from(index);
+
+                serialized.push((field, index))
+            }
+
+            serialized
+        }
+
         let mut result = Self {
             num_inputs: assembly.num_inputs,
             num_aux: assembly.num_aux,
@@ -196,14 +208,20 @@ impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
         };
 
         for i in 0..assembly.num_constraints {
-            let mut a_vec = vec![];
-            for &(ref coeff, index) in assembly.at[i].iter() {
-                let field = SerializedField::from(coeff);
-                let index = SerializedIndex::from(index);
+            // Serialize at[i]
 
-                a_vec.push((field, index))
-            }
-            result.at.push(a_vec);
+            let a_constraints = get_serialized_constraints(&assembly.at[i]);
+            result.at.push(a_constraints);
+
+            // Serialize bt[i]
+
+            let b_constraints = get_serialized_constraints(&assembly.bt[i]);
+            result.bt.push(b_constraints);
+
+            // Serialize ct[i]
+
+            let c_constraints = get_serialized_constraints(&assembly.ct[i]);
+            result.ct.push(c_constraints);
         }
 
         result
