@@ -50,6 +50,21 @@ macro_rules! match_integer {
 }
 
 #[macro_export]
+macro_rules! match_signed_integer {
+    ($integer: ident, $span: ident => $expression: expr) => {
+        match $integer {
+            Integer::I8($integer) => Some(Integer::I8($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I16($integer) => Some(Integer::I16($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I32($integer) => Some(Integer::I32($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I64($integer) => Some(Integer::I64($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I128($integer) => Some(Integer::I128($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+
+            _ => None,
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! match_integers {
     (($a: ident, $b: ident) => $expression:expr) => {
         match ($a, $b) {

@@ -9,7 +9,7 @@ use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::positive_number))]
+#[pest_ast(rule(Rule::number_positive))]
 pub struct PositiveNumber<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub value: String,

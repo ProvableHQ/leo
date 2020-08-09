@@ -13,8 +13,8 @@ pub use circuit_inline_expression::*;
 pub mod expression;
 pub use expression::*;
 
-pub mod not_expression;
-pub use not_expression::*;
+pub mod unary_expression;
+pub use unary_expression::*;
 
 pub mod postfix_expression;
 pub use postfix_expression::*;

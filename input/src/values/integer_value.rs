@@ -1,7 +1,6 @@
 use crate::{
     ast::Rule,
-    types::IntegerType,
-    values::{NumberImplicitValue, NumberValue},
+    values::{SignedIntegerValue, UnsignedIntegerValue},
 };
 
 use pest::Span;
@@ -10,25 +9,25 @@ use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::value_integer))]
-pub struct IntegerValue<'ast> {
-    pub number: NumberValue<'ast>,
-    pub type_: IntegerType,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
+pub enum IntegerValue<'ast> {
+    Signed(SignedIntegerValue<'ast>),
+    Unsigned(UnsignedIntegerValue<'ast>),
 }
 
 impl<'ast> IntegerValue<'ast> {
-    pub fn from_implicit(number: NumberImplicitValue<'ast>, type_: IntegerType) -> Self {
-        Self {
-            number: number.number,
-            type_,
-            span: number.span,
+    pub fn span(&self) -> &Span<'ast> {
+        match self {
+            IntegerValue::Signed(integer) => &integer.span,
+            IntegerValue::Unsigned(integer) => &integer.span,
         }
     }
 }
 
 impl<'ast> fmt::Display for IntegerValue<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.number, self.type_)
+        match self {
+            IntegerValue::Signed(integer) => write!(f, "{}", integer),
+            IntegerValue::Unsigned(integer) => write!(f, "{}", integer),
+        }
     }
 }

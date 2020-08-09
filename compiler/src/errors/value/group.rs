@@ -20,7 +20,13 @@ impl GroupError {
         GroupError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
+    pub fn negate_operation(error: SynthesisError, span: Span) -> Self {
+        let message = format!("group negation failed due to the synthesis error `{}`", error,);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn binary_operation(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
             "the group binary operation `{}` failed due to the synthesis error `{}`",
             operation, error,

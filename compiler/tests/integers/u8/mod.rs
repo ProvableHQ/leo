@@ -5,10 +5,15 @@ use crate::{
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_input::types::{IntegerType, U8Type};
+use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use leo_typed::InputValue;
 
-test_uint!(TestU8, u8, IntegerType::U8Type(U8Type {}), UInt8);
+test_uint!(
+    TestU8,
+    u8,
+    IntegerType::Unsigned(UnsignedIntegerType::U8Type(U8Type {})),
+    UInt8
+);
 
 #[test]
 fn test_u8_min() {
