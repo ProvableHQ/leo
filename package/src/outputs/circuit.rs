@@ -9,7 +9,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static CIRCUIT_FILE_EXTENSION: &str = ".bytes";
+pub static CIRCUIT_FILE_EXTENSION: &str = ".json";
 
 #[derive(Deserialize)]
 pub struct CircuitFile {
@@ -29,18 +29,18 @@ impl CircuitFile {
     }
 
     /// Reads the serialized circuit from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, CircuitFileError> {
+    pub fn read_from(&self, path: &PathBuf) -> Result<String, CircuitFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| CircuitFileError::FileReadError(path.clone()))?)
+        Ok(fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.clone()))?)
     }
 
     /// Writes the given serialized circuit to a file.
-    pub fn write_to(&self, path: &PathBuf, serialized_circuit: &[u8]) -> Result<(), CircuitFileError> {
+    pub fn write_to(&self, path: &PathBuf, circuit: String) -> Result<(), CircuitFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
-        file.write_all(serialized_circuit)?;
+        file.write_all(circuit.as_bytes())?;
 
         Ok(())
     }

@@ -115,21 +115,20 @@ impl CLI for BuildCommand {
                 log::debug!("Compiled constraints - {:#?}", output);
                 log::debug!("Number of constraints - {:#?}", cs.num_constraints());
 
-                // Serialize circuit
-                let mut writer = Vec::new();
-                <KeypairAssembly<Bls12_377> as CanonicalSerialize>::serialize(&cs, &mut writer).unwrap();
-                // serialize_circuit(cs, &mut writer);
-                println!("actual size bytes {:?}", writer.len());
+                // Serialize the circuit
+                let keypair_object = SerializedKeypairAssembly::from(cs);
+                let json = keypair_object.to_json_string().unwrap();
+                // println!("json: {}", json);
 
-                // Write serialized circuit to circuit `.bytes` file.
+                // Write serialized circuit to circuit `.json` file.
                 let circuit_file = CircuitFile::new(&package_name);
-                circuit_file.write_to(&path, &writer[..])?;
+                circuit_file.write_to(&path, json)?;
 
                 // Check that we can read the serialized circuit file
-                let serialized = circuit_file.read_from(&package_path)?;
-                let _deserialized =
-                    <KeypairAssembly<Bls12_377> as CanonicalDeserialize>::deserialize(&mut &serialized[..]).unwrap();
-                // let _deserialized = deserialize_circuit::<Bls12_377, _>(&mut &serialized[..]);
+                // let serialized = circuit_file.read_from(&package_path)?;
+
+                // Deserialize the circuit
+                // let deserialized = SerializedKeypairAssembly::from_json_string(&serialized).unwrap();
 
                 // println!("deserialized {:?}", deserialized);
             }
@@ -162,7 +161,10 @@ impl CLI for BuildCommand {
         Ok(None)
     }
 }
+
+use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
+use snarkos_models::curves::Field;
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedKeypairAssembly {
@@ -186,7 +188,9 @@ impl SerializedKeypairAssembly {
 
 impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
     fn from(assembly: KeypairAssembly<E>) -> Self {
-        fn get_serialized_constraints(constraints: &Vec<(E::Fr, Index)>) -> Vec<(SerializedField, SerializedIndex)> {
+        fn get_serialized_constraints<E: PairingEngine>(
+            constraints: &Vec<(E::Fr, Index)>,
+        ) -> Vec<(SerializedField, SerializedIndex)> {
             let mut serialized = vec![];
             for &(ref coeff, index) in constraints.iter() {
                 let field = SerializedField::from(coeff);
@@ -210,17 +214,17 @@ impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
         for i in 0..assembly.num_constraints {
             // Serialize at[i]
 
-            let a_constraints = get_serialized_constraints(&assembly.at[i]);
+            let a_constraints = get_serialized_constraints::<E>(&assembly.at[i]);
             result.at.push(a_constraints);
 
             // Serialize bt[i]
 
-            let b_constraints = get_serialized_constraints(&assembly.bt[i]);
+            let b_constraints = get_serialized_constraints::<E>(&assembly.bt[i]);
             result.bt.push(b_constraints);
 
             // Serialize ct[i]
 
-            let c_constraints = get_serialized_constraints(&assembly.ct[i]);
+            let c_constraints = get_serialized_constraints::<E>(&assembly.ct[i]);
             result.ct.push(c_constraints);
         }
 
@@ -229,15 +233,23 @@ impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct SerializedField(pub Vec<u8>);
+pub struct SerializedField(pub String);
 
-impl<E: PairingEngine> From<&<E as PairingEngine>::Fr> for SerializedField {
-    fn from(field: &<E as PairingEngine>::Fr) -> Self {
-        let mut writer = Vec::new();
+impl<F: Field> From<&F> for SerializedField {
+    fn from(field: &F) -> Self {
+        // write field to buffer
 
-        <<E as PairingEngine>::Fr as CanonicalSerialize>::serialize(field, &mut writer).unwrap();
+        let mut buf = Vec::new();
 
-        Self(writer)
+        field.write(&mut buf).unwrap();
+
+        // convert to big integer
+
+        let f_bigint = BigUint::from_bytes_le(&buf);
+
+        let f_string = f_bigint.to_str_radix(10);
+
+        Self(f_string)
     }
 }
 
