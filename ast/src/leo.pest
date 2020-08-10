@@ -249,13 +249,16 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 /// Access
 
 // Declared in access/access.rs
-access = { access_array | access_call | access_member | access_static_member}
+access = { access_array | access_tuple | access_call | access_member | access_static_member}
 
 // Declared in access/array_access.rs
 access_array = !{ "[" ~ range_or_expression ~ "]" }
 
+// Declared in access/tuple_access.rs
+access_tuple = ${ "." ~ number_positive }
+
 // Declared in access/assignee_access.rs
-access_assignee = { access_array | access_member }
+access_assignee = { access_array | access_tuple | access_member }
 
 // Declared in access/call_access.rs
 access_call = !{ expression_tuple }
