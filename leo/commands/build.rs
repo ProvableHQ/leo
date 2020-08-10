@@ -164,10 +164,9 @@ impl CLI for BuildCommand {
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
-use snarkos_curves::bls12_377::Fr;
 use snarkos_errors::curves::FieldError;
-use snarkos_models::curves::{Field, Fp256, Fp256Parameters, PrimeField};
-use std::{convert::TryInto, str::FromStr};
+use snarkos_models::curves::{Field, Fp256, Fp256Parameters};
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedKeypairAssembly {
@@ -242,11 +241,11 @@ impl TryFrom<SerializedKeypairAssembly> for KeypairAssembly<Bls12_377> {
     fn try_from(serialized: SerializedKeypairAssembly) -> Result<KeypairAssembly<Bls12_377>, Self::Error> {
         fn get_deserialized_constraints(
             constraints: &Vec<(SerializedField, SerializedIndex)>,
-        ) -> Result<Vec<(Fr, Index)>, FieldError> {
+        ) -> Result<Vec<(<Bls12_377 as PairingEngine>::Fr, Index)>, FieldError> {
             let mut deserialized = vec![];
 
             for &(ref serialized_coeff, ref serialized_index) in constraints.iter() {
-                let field = Fr::try_from(serialized_coeff)?;
+                let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_coeff)?;
                 let index = Index::from(serialized_index);
 
                 deserialized.push((field, index));
@@ -306,11 +305,11 @@ impl<F: Field> From<&F> for SerializedField {
     }
 }
 
-impl TryFrom<&SerializedField> for Fr {
+impl<P: Fp256Parameters> TryFrom<&SerializedField> for Fp256<P> {
     type Error = FieldError;
 
     fn try_from(serialized: &SerializedField) -> Result<Self, Self::Error> {
-        Ok(Fr::from_str(&serialized.0).unwrap())
+        Fp256::<P>::from_str(&serialized.0)
     }
 }
 
