@@ -66,8 +66,19 @@ return_tuple = {"(" ~ expression ~ ("," ~ expression)+ ~ ")"}
 // Declared in common/static_.rs
 static_ = { "static " }
 
+// Declared in common/variable_name.rs
+
+variable_name = {mutable? ~ identifier}
+variable_name_list = _{"(" ~ variable_name ~ ("," ~ variable_name)+ ~ ")"}
+
+// Declared in
+
 // Declared in common/variable.rs
-variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+// variable = { mutable? ~ identifier ~ (":" ~ type_)? }
+// variable_list = _{ variable ~ ("," ~ variable)* }
+
+// Declared in common/variables.rs
+variables = { ( variable_name_list | variable_name ) ~ (":" ~ ( type_list | type_ ))? }
 
 // Declared in common/declare.rs
 declare = { let_ | const_ }
@@ -192,7 +203,7 @@ type_circuit = { identifier }
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
-type_list = _{ (type_ ~ ("," ~ type_)*)? }
+type_list = _{ "(" ~ type_ ~ ("," ~ type_)+ ~ ")" }
 
 /// Values
 
@@ -253,7 +264,7 @@ access_array = !{ "[" ~ range_or_expression ~ "]" }
 access_assignee = { access_array | access_member }
 
 // Declared in access/call_access.rs
-access_call = !{ "(" ~ expression_tuple ~ ")" }
+access_call = !{ expression_list }
 
 // Declared in access/member_access.rs
 access_member = ${ "." ~ identifier }
@@ -296,10 +307,10 @@ expression_term = {
     | identifier
 }
 
-expression_tuple = _{ (expression ~ ("," ~ expression)*)? }
 
 // Declared in expressions/expression.rs
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
+expression_list = _{ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
 expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ number_positive ~ "]" }
@@ -325,7 +336,7 @@ statement = {
     (statement_return
     | statement_conditional
     | statement_for
-    | statement_multiple_assignment
+//     | statement_multiple_assignment
     | statement_macro
     | statement_definition
     | statement_assign
@@ -347,17 +358,13 @@ statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ N
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
-statement_definition = { declare ~ variable ~ "=" ~ expression ~ LINE_END}
+statement_definition = { declare ~ variables ~ "=" ~ (expression_list | expression) ~ LINE_END}
 
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
 
 // Declared in statements/for_statement.rs
 statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
-
-// Declared in statements/multiple_assignment_statement.rs
-statement_multiple_assignment = { declare ~ "(" ~ variable_tuple ~ ")" ~ "=" ~  identifier ~ "(" ~ expression_tuple ~ ")" ~ LINE_END}
-variable_tuple = _{ variable ~ ("," ~ variable)* }
 
 // Declared in statements/return_statement.rs
 statement_return = { "return " ~ return_}
@@ -368,7 +375,7 @@ statement_return = { "return " ~ return_}
 test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
-function = { "function " ~ identifier ~ "(" ~ NEWLINE* ~ input_list ~ NEWLINE* ~ ")" ~ ("->" ~ (type_ | "(" ~ type_list ~ ")"))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function = { "function " ~ identifier ~ input_list  ~ ("->" ~ (type_list| type_))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
@@ -381,7 +388,7 @@ input = {
     function_input
     | input_keyword
 }
-input_list = _{ (input ~ ("," ~ NEWLINE* ~ input)*)? }
+input_list = _{ "(" ~(input ~ ("," ~ NEWLINE* ~ input)*)? ~ ")"}
 
 
 /// Imports
