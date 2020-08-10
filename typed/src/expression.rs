@@ -68,6 +68,10 @@ pub enum Expression {
     Array(Vec<Box<SpreadOrExpression>>, Span),
     ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span), // (array name, range)
 
+    // Tuples
+    Tuple(Vec<Expression>, Span),
+    TupleAccess(Box<Expression>, usize, Span),
+
     // Circuits
     Circuit(Identifier, Vec<CircuitFieldDefinition>, Span),
     CircuitMemberAccess(Box<Expression>, Identifier, Span), // (declared circuit name, circuit member name)
@@ -178,6 +182,14 @@ impl<'ast> fmt::Display for Expression {
             }
             Expression::ArrayAccess(ref array, ref index, ref _span) => write!(f, "{}[{}]", array, index),
 
+            // Tuples
+            Expression::Tuple(ref tuple, ref _span) => {
+                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(",");
+
+                write!(f, "({})", values)
+            }
+            Expression::TupleAccess(ref tuple, ref index, ref _span) => write!(f, "{}.{}", tuple, index),
+
             // Circuits
             Expression::Circuit(ref var, ref members, ref _span) => {
                 write!(f, "{} {{", var)?;
@@ -241,6 +253,13 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                     Box::new(acc),
                     Box::new(RangeOrExpression::from(array.expression)),
                     Span::from(array.span),
+                ),
+
+                // Handle tuple access
+                Access::Tuple(tuple) => Expression::TupleAccess(
+                    Box::new(acc),
+                    Expression::get_count_from_ast(tuple.number),
+                    Span::from(tuple.span),
                 ),
 
                 // Handle function calls
@@ -307,6 +326,11 @@ impl<'ast> From<Assignee<'ast>> for Expression {
                     Box::new(acc),
                     Box::new(RangeOrExpression::from(array.expression)),
                     Span::from(array.span),
+                ),
+                AssigneeAccess::Tuple(tuple) => Expression::TupleAccess(
+                    Box::new(acc),
+                    Expression::get_count_from_ast(tuple.number),
+                    Span::from(tuple.span),
                 ),
             })
     }

@@ -1,21 +1,31 @@
-use crate::{ast::Rule, common::VariableName, types::Type, SpanDef};
+use crate::{Type, VariableName};
+use leo_ast::common::Variables as AstVariables;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::variables))]
-pub struct Variables<'ast> {
-    pub names: Vec<VariableName<'ast>>,
-    pub types: Vec<Type<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+/// A variable that is assigned to a value in the constrained program
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Variables {
+    pub names: Vec<VariableName>,
+    pub types: Vec<Type>,
 }
 
-impl<'ast> fmt::Display for Variables<'ast> {
+impl<'ast> From<AstVariables<'ast>> for Variables {
+    fn from(variables: AstVariables<'ast>) -> Self {
+        let names = variables
+            .names
+            .into_iter()
+            .map(|x| VariableName::from(x))
+            .collect::<Vec<_>>();
+
+        let types = variables.types.into_iter().map(|x| Type::from(x)).collect::<Vec<_>>();
+
+        Self { names, types }
+    }
+}
+
+impl fmt::Display for Variables {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.names.len() == 1 {
             // mut a
