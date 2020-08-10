@@ -125,12 +125,12 @@ impl CLI for BuildCommand {
                 circuit_file.write_to(&path, json)?;
 
                 // Check that we can read the serialized circuit file
-                // let serialized = circuit_file.read_from(&package_path)?;
+                let serialized = circuit_file.read_from(&package_path)?;
 
                 // Deserialize the circuit
-                // let deserialized = SerializedKeypairAssembly::from_json_string(&serialized).unwrap();
-
-                // println!("deserialized {:?}", deserialized);
+                let deserialized = SerializedKeypairAssembly::from_json_string(&serialized).unwrap();
+                let keypair_assembly = KeypairAssembly::<Bls12_377>::try_from(deserialized).unwrap();
+                println!("deserialized {:?}", keypair_assembly.num_constraints);
             }
 
             // If a checksum file exists, check if it differs from the new checksum
@@ -164,7 +164,10 @@ impl CLI for BuildCommand {
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
-use snarkos_models::curves::Field;
+use snarkos_curves::bls12_377::Fr;
+use snarkos_errors::curves::FieldError;
+use snarkos_models::curves::{Field, Fp256, Fp256Parameters, PrimeField};
+use std::{convert::TryInto, str::FromStr};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedKeypairAssembly {
@@ -192,6 +195,7 @@ impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
             constraints: &Vec<(E::Fr, Index)>,
         ) -> Vec<(SerializedField, SerializedIndex)> {
             let mut serialized = vec![];
+
             for &(ref coeff, index) in constraints.iter() {
                 let field = SerializedField::from(coeff);
                 let index = SerializedIndex::from(index);
@@ -232,6 +236,55 @@ impl<E: PairingEngine> From<KeypairAssembly<E>> for SerializedKeypairAssembly {
     }
 }
 
+impl TryFrom<SerializedKeypairAssembly> for KeypairAssembly<Bls12_377> {
+    type Error = FieldError;
+
+    fn try_from(serialized: SerializedKeypairAssembly) -> Result<KeypairAssembly<Bls12_377>, Self::Error> {
+        fn get_deserialized_constraints(
+            constraints: &Vec<(SerializedField, SerializedIndex)>,
+        ) -> Result<Vec<(Fr, Index)>, FieldError> {
+            let mut deserialized = vec![];
+
+            for &(ref serialized_coeff, ref serialized_index) in constraints.iter() {
+                let field = Fr::try_from(serialized_coeff)?;
+                let index = Index::from(serialized_index);
+
+                deserialized.push((field, index));
+            }
+
+            Ok(deserialized)
+        }
+
+        let mut result = KeypairAssembly::<Bls12_377> {
+            num_inputs: serialized.num_inputs,
+            num_aux: serialized.num_aux,
+            num_constraints: serialized.num_constraints,
+            at: vec![],
+            bt: vec![],
+            ct: vec![],
+        };
+
+        for i in 0..serialized.num_constraints {
+            // Deserialize at[i]
+
+            let a_constraints = get_deserialized_constraints(&serialized.at[i])?;
+            result.at.push(a_constraints);
+
+            // Deserialize bt[i]
+
+            let b_constraints = get_deserialized_constraints(&serialized.bt[i])?;
+            result.bt.push(b_constraints);
+
+            // Deserialize ct[i]
+
+            let c_constraints = get_deserialized_constraints(&serialized.ct[i])?;
+            result.ct.push(c_constraints);
+        }
+
+        Ok(result)
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct SerializedField(pub String);
 
@@ -253,6 +306,14 @@ impl<F: Field> From<&F> for SerializedField {
     }
 }
 
+impl TryFrom<&SerializedField> for Fr {
+    type Error = FieldError;
+
+    fn try_from(serialized: &SerializedField) -> Result<Self, Self::Error> {
+        Ok(Fr::from_str(&serialized.0).unwrap())
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub enum SerializedIndex {
     Input(usize),
@@ -264,6 +325,15 @@ impl From<Index> for SerializedIndex {
         match index {
             Index::Input(idx) => Self::Input(idx),
             Index::Aux(idx) => Self::Aux(idx),
+        }
+    }
+}
+
+impl From<&SerializedIndex> for Index {
+    fn from(serialized_index: &SerializedIndex) -> Self {
+        match serialized_index {
+            SerializedIndex::Input(idx) => Index::Input(idx.clone()),
+            SerializedIndex::Aux(idx) => Index::Aux(idx.clone()),
         }
     }
 }
