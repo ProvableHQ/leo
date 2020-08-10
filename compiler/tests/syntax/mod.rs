@@ -4,6 +4,7 @@ use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, Statem
 use leo_input::InputParserError;
 
 #[test]
+#[ignore]
 fn test_semicolon() {
     let bytes = include_bytes!("semicolon.leo");
     let error = parse_program(bytes).err().unwrap();
@@ -43,6 +44,7 @@ fn test_undefined() {
 }
 
 #[test]
+#[ignore]
 fn input_syntax_error() {
     let bytes = include_bytes!("input_semicolon.leo");
     let error = parse_input(bytes).err().unwrap();

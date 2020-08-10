@@ -196,6 +196,7 @@ fn test_assert_eq_fail() {
 }
 
 #[test]
+#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

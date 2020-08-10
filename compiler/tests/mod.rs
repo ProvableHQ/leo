@@ -1,7 +1,7 @@
 pub mod address;
 pub mod array;
 pub mod boolean;
-pub mod circuits;
+// pub mod circuits;
 pub mod definition;
 pub mod field;
 pub mod function;
@@ -10,7 +10,7 @@ pub mod import;
 pub mod input_files;
 // pub mod integers;
 pub mod macros;
-pub mod mutability;
+// pub mod mutability;
 pub mod statements;
 pub mod syntax;
 

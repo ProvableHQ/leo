@@ -17,6 +17,7 @@ fn test_print_fail() {
 }
 
 #[test]
+#[ignore]
 fn test_print_parameter() {
     let bytes = include_bytes!("print_parameter.leo");
     let program = parse_program(bytes).unwrap();
@@ -25,6 +26,7 @@ fn test_print_parameter() {
 }
 
 #[test]
+#[ignore]
 fn test_print_parameter_many() {
     let bytes = include_bytes!("print_parameter_many.leo");
     let program = parse_program(bytes).unwrap();

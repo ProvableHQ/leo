@@ -209,18 +209,8 @@ impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
 }
 
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        match (self, other) {
-            (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.eq(second))),
-            (FieldType::Allocated(allocated), FieldType::Constant(constant))
-            | (FieldType::Constant(constant), FieldType::Allocated(allocated)) => {
-                let bool_option = allocated.value.map(|f| f.eq(constant));
-                Boolean::alloc(&mut cs.ns(|| "evaluate_equal"), || {
-                    bool_option.ok_or(SynthesisError::AssignmentMissing)
-                })
-            }
-            (FieldType::Allocated(first), FieldType::Allocated(second)) => first.evaluate_equal(cs, second),
-        }
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
+        unimplemented!();
     }
 }
 
