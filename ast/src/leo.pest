@@ -197,7 +197,7 @@ type_circuit = { identifier }
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
-type_tuple = _{ "(" ~ type_ ~ ("," ~ type_)+ ~ ")" }
+type_tuple = _{ "(" ~ type_ ~ ("," ~ (type_tuple | type_))+ ~ ")" }
 
 /// Values
 

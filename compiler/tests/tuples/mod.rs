@@ -90,11 +90,11 @@ fn test_nested_access() {
     assert_satisfied(program);
 }
 
-// #[test]
-// fn test_nested_typed() {
-//     let program_bytes = include_bytes!("nested_typed.leo");
-//
-//     let program = parse_program(program_bytes).unwrap();
-//
-//     assert_satisfied(program);
-// }
+#[test]
+fn test_nested_typed() {
+    let program_bytes = include_bytes!("nested_typed.leo");
+
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
