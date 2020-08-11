@@ -8,7 +8,7 @@ use std::{
     path::PathBuf,
 };
 
-pub static MANIFEST_FILE_NAME: &str = "Leo.toml";
+pub const MANIFEST_FILE_NAME: &str = "Leo.toml";
 
 #[derive(Deserialize)]
 pub struct Package {
@@ -41,6 +41,10 @@ impl Manifest {
 
     pub fn get_package_name(&self) -> String {
         self.package.name.clone()
+    }
+
+    pub fn get_package_version(&self) -> String {
+        self.package.version.clone()
     }
 
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {

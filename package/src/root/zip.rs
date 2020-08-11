@@ -41,6 +41,10 @@ impl ZipFile {
         path.exists()
     }
 
+    pub fn get_file_path(&self, current_dir: &PathBuf) -> PathBuf {
+        self.setup_file_path(current_dir)
+    }
+
     // /// Reads the program bytes from the given file path if it exists.
     // pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, ZipFileError> {
     //     let path = self.setup_file_path(path);
