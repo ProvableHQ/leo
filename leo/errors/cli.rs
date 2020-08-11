@@ -34,6 +34,9 @@ pub enum CLIError {
     LibFileError(LibFileError),
 
     #[error("{}", _0)]
+    LoginError(LoginError),
+
+    #[error("{}", _0)]
     MainFileError(MainFileError),
 
     #[error("{}", _0)]
@@ -130,6 +133,13 @@ impl From<LibFileError> for CLIError {
     fn from(error: LibFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::LibFileError(error)
+    }
+}
+
+impl From<LoginError> for CLIError {
+    fn from(error: LoginError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::LoginError(error)
     }
 }
 
