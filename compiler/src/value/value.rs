@@ -37,6 +37,9 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     // Arrays
     Array(Vec<ConstrainedValue<F, G>>),
 
+    // Tuples
+    Tuple(Vec<ConstrainedValue<F, G>>),
+
     // Circuits
     CircuitDefinition(Circuit),
     CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
@@ -208,6 +211,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
+            ConstrainedValue::Tuple(tuple) => {
+                tuple
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, value)| {
+                        let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
+
+                        value.allocate_value(cs.ns(|| unique_name), span.clone())
+                    })
+                    .collect::<Result<(), ValueError>>()?;
+            }
             ConstrainedValue::CircuitExpression(_id, members) => {
                 members
                     .iter_mut()
@@ -279,6 +293,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                     }
                 }
                 write!(f, "]")
+            }
+            ConstrainedValue::Tuple(ref tuple) => {
+                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(",");
+
+                write!(f, "({})", values)
             }
             ConstrainedValue::CircuitExpression(ref identifier, ref members) => {
                 write!(f, "{} {{", identifier)?;

@@ -69,7 +69,6 @@ pub enum Expression {
     ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span), // (array name, range)
 
     // Tuples
-    Tuple(Vec<Expression>, Span),
     TupleAccess(Box<Expression>, usize, Span),
 
     // Circuits
@@ -183,11 +182,6 @@ impl<'ast> fmt::Display for Expression {
             Expression::ArrayAccess(ref array, ref index, ref _span) => write!(f, "{}[{}]", array, index),
 
             // Tuples
-            Expression::Tuple(ref tuple, ref _span) => {
-                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(",");
-
-                write!(f, "({})", values)
-            }
             Expression::TupleAccess(ref tuple, ref index, ref _span) => write!(f, "{}.{}", tuple, index),
 
             // Circuits

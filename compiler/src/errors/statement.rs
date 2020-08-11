@@ -122,6 +122,12 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn tuple_assign_index(span: Span) -> Self {
+        let message = format!("Cannot assign single index to tuple of values");
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn unassigned(name: String, span: Span) -> Self {
         let message = format!("Expected assignment of return values for expression `{}`", name);
 

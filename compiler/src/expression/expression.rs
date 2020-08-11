@@ -234,6 +234,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_array_access(cs, file_scope, function_scope, expected_types, array, *index, span)
             }
 
+            // Tuples
+            Expression::TupleAccess(tuple, index, span) => {
+                self.enforce_tuple_access(cs, file_scope, function_scope, expected_types, tuple, index, span)
+            }
+
             // Circuits
             Expression::Circuit(circuit_name, members, span) => {
                 self.enforce_circuit(cs, file_scope, function_scope, circuit_name, members, span)

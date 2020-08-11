@@ -34,11 +34,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 results.push(return_value);
             }
-            Statement::Definition(declare, variable, expression, span) => {
-                self.enforce_definition_statement(cs, file_scope, function_scope, declare, variable, expression, span)?;
-            }
-            Statement::MultipleDefinition(variables, function, span) => {
-                self.enforce_multiple_definition_statement(cs, file_scope, function_scope, variables, function, span)?;
+            Statement::Definition(declare, variables, expressions, span) => {
+                self.enforce_definition_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    declare,
+                    variables,
+                    expressions,
+                    span,
+                )?;
             }
             Statement::Assign(variable, expression, span) => {
                 self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression, span)?;

@@ -82,6 +82,12 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn index_out_of_bounds(index: usize, span: Span) -> Self {
+        let message = format!("cannot access index {} of tuple out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_index(actual: String, span: Span) -> Self {
         let message = format!("index must resolve to an integer, found `{}`", actual);
 

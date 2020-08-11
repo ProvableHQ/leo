@@ -62,6 +62,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 new_value,
                 span,
             ),
+            Assignee::Tuple(_tuple, index) => self.assign_tuple(cs, indicator, variable_name, index, new_value, span),
             Assignee::CircuitField(_assignee, object_name) => {
                 self.mutute_circuit_field(cs, indicator, variable_name, object_name, new_value, span)
             }
