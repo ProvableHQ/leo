@@ -293,13 +293,13 @@ expression_conditional = { "if " ~ expression ~ "? " ~ expression ~ ": " ~ expre
 /// Expressions
 
 expression_term = {
-    ("(" ~ expression ~ ")")
+    value
+    | ("(" ~ expression ~ ")")
+    | expression_conditional
     | expression_array_initializer
     | expression_array_inline
     | expression_circuit_inline
-    | expression_conditional
-    | value
-    | expression_unary // must be defined below value to avoid conflicts with negative values
+    | expression_unary
     | expression_postfix
     | identifier
 }
@@ -354,7 +354,7 @@ statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ N
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
-statement_definition = { declare ~ variables ~ "=" ~ (expression_tuple | expression) ~ LINE_END}
+statement_definition = { declare ~ variables ~ "=" ~ (expression | expression_tuple) ~ LINE_END}
 
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
