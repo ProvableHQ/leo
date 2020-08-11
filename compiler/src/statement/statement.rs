@@ -92,7 +92,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 // handle empty return value cases
                 match &value {
-                    ConstrainedValue::Return(values) => {
+                    ConstrainedValue::Tuple(values) => {
                         if !values.is_empty() {
                             return Err(StatementError::unassigned(expression_string, span));
                         }

@@ -9,7 +9,7 @@ use std::fmt;
 pub enum Expression<'ast> {
     ArrayInitializer(ArrayInitializerExpression<'ast>),
     ArrayInline(ArrayInlineExpression<'ast>),
-    Tuple(Vec<Expression<'ast>>),
+    Tuple(TupleExpression<'ast>),
     Value(Value<'ast>),
 }
 
@@ -18,7 +18,7 @@ impl<'ast> Expression<'ast> {
         match self {
             Expression::ArrayInitializer(expression) => &expression.span,
             Expression::ArrayInline(expression) => &expression.span,
-            Expression::Tuple(tuple) => tuple[0].span(),
+            Expression::Tuple(tuple) => &tuple.span,
             Expression::Value(value) => value.span(),
         }
     }
@@ -41,7 +41,12 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 write!(f, "array [{}]", values)
             }
             Expression::Tuple(ref tuple) => {
-                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let values = tuple
+                    .expressions
+                    .iter()
+                    .map(|x| format!("{}", x))
+                    .collect::<Vec<_>>()
+                    .join(", ");
 
                 write!(f, "({})", values)
             }

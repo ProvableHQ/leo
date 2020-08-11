@@ -47,6 +47,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         check_return_type(return_type, result.to_type(span.clone())?, span)?;
 
-        Ok(ConstrainedValue::Return(vec![result]))
+        Ok(result)
     }
 }

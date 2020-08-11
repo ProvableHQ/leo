@@ -288,8 +288,8 @@ expression_conditional = { "if " ~ expression ~ "? " ~ expression ~ ": " ~ expre
 
 expression_term = {
     value
-    | expression_tuple
     | ("(" ~ expression ~ ")")
+    | expression_tuple
     | expression_conditional
     | expression_array_initializer
     | expression_array_inline
@@ -304,7 +304,7 @@ expression_term = {
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 
 // Declared in expressions/expression_tuple.rs
-expression_tuple = { "(" ~ expression ~ ("," ~ expression)+ ~ ")" }
+expression_tuple = { "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
 expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ number_positive ~ "]" }

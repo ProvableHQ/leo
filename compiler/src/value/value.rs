@@ -46,7 +46,6 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     // Functions
     Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<F, G>>),
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -248,17 +247,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
-            ConstrainedValue::Return(array) => {
-                array
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate return member {} {}:{}", i, span.line, span.start);
-
-                        value.allocate_value(cs.ns(|| unique_name), span.clone())
-                    })
-                    .collect::<Result<(), ValueError>>()?;
-            }
             ConstrainedValue::Mutable(value) => {
                 value.allocate_value(cs, span)?;
             }
@@ -323,16 +311,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                     }
                 }
                 write!(f, "}}")
-            }
-            ConstrainedValue::Return(ref values) => {
-                write!(f, "Program output: [")?;
-                for (i, value) in values.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < values.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "]")
             }
             ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit_name),
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
@@ -468,20 +446,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 }
 
                 ConstrainedValue::CircuitExpression(identifier.clone(), members)
-            }
-            (ConstrainedValue::Return(returns_1), ConstrainedValue::Return(returns_2)) => {
-                let mut returns = vec![];
-
-                for (i, (first, second)) in returns_1.into_iter().zip(returns_2.into_iter()).enumerate() {
-                    returns.push(Self::conditionally_select(
-                        cs.ns(|| format!("return[{}]", i)),
-                        cond,
-                        first,
-                        second,
-                    )?);
-                }
-
-                ConstrainedValue::Return(returns)
             }
             (ConstrainedValue::Static(first), ConstrainedValue::Static(second)) => {
                 let value = Self::conditionally_select(cs, cond, first, second)?;

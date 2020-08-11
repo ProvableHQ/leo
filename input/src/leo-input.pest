@@ -136,8 +136,11 @@ group_single_or_tuple = {value_number | group_tuple}
 // Declared in values/address.rs
 address = @{ "aleo" ~ ASCII_DIGIT ~ (LOWERCASE_LETTER | ASCII_DIGIT){58} }
 
+// Declared in values/address_typed.rs
+address_typed = ${ type_address ~ "(" ~ address ~ ")" }
+
 // Declared in values/address_value.rs
-value_address = ${ type_address ~ "(" ~ address ~ ")" }
+value_address = {address | address_typed}
 
 /// Expressions
 

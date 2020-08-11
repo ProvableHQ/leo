@@ -5,7 +5,11 @@ use leo_input::{
     values::{BooleanValue, FieldValue, GroupValue, NumberValue, Value},
 };
 
-use leo_input::{types::TupleType, values::Address};
+use leo_input::{
+    expressions::TupleExpression,
+    types::TupleType,
+    values::{Address, AddressValue},
+};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
@@ -22,6 +26,13 @@ pub enum InputValue {
 impl InputValue {
     fn from_address(address: Address) -> Self {
         InputValue::Address(address.value)
+    }
+
+    fn from_address_value(value: AddressValue) -> Self {
+        match value {
+            AddressValue::Explicit(address) => Self::from_address(address.address),
+            AddressValue::Implicit(address) => Self::from_address(address),
+        }
     }
 
     fn from_boolean(boolean: BooleanValue) -> Result<Self, InputParserError> {
@@ -53,7 +64,7 @@ impl InputValue {
 
     fn from_value(data_type: DataType, value: Value) -> Result<Self, InputParserError> {
         match (data_type, value) {
-            (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address(address.address)),
+            (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 InputValue::from_number(integer_type, integer.to_string())
@@ -139,9 +150,9 @@ impl InputValue {
         Ok(InputValue::Array(values))
     }
 
-    pub(crate) fn from_tuple(tuple_type: TupleType, tuple: Vec<Expression>) -> Result<Self, InputParserError> {
+    pub(crate) fn from_tuple(tuple_type: TupleType, tuple: TupleExpression) -> Result<Self, InputParserError> {
         let num_types = tuple_type.types_.len();
-        let num_values = tuple.len();
+        let num_values = tuple.expressions.len();
 
         if num_types != num_values {
             return Err(InputParserError::tuple_length(
@@ -152,7 +163,7 @@ impl InputValue {
         }
 
         let mut values = vec![];
-        for (type_, value) in tuple_type.types_.into_iter().zip(tuple.into_iter()) {
+        for (type_, value) in tuple_type.types_.into_iter().zip(tuple.expressions.into_iter()) {
             let value = InputValue::from_expression(type_, value)?;
 
             values.push(value)

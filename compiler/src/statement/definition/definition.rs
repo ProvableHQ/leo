@@ -140,16 +140,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Define a single variable with a single value
 
             let variable = variables.names[0].clone();
-            let expression = match self.enforce_expression(
+            let expression = self.enforce_expression(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
                 variables.type_,
                 expressions[0].clone(),
-            )? {
-                ConstrainedValue::Return(values) => ConstrainedValue::Tuple(values),
-                value => value,
-            };
+            )?;
 
             self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, span)
         } else if num_variables == 1 && num_values > 1 {
@@ -174,7 +171,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 variables.type_.clone(),
                 expressions[0].clone(),
             )? {
-                ConstrainedValue::Return(values) => values,
+                // ConstrainedValue::Return(values) => values,
+                ConstrainedValue::Tuple(values) => values,
                 value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
             };
 

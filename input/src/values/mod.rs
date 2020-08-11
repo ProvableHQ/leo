@@ -1,6 +1,9 @@
 pub mod address;
 pub use address::*;
 
+pub mod address_typed;
+pub use address_typed::*;
+
 pub mod address_value;
 pub use address_value::*;
 

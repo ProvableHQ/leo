@@ -7,7 +7,7 @@ use crate::{
     GroupType,
 };
 
-use leo_typed::{Expression, Function, InputVariable, Span};
+use leo_typed::{Expression, Function, InputVariable, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -93,12 +93,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Conditionally select a result based on returned indicators
-        let mut return_values = ConstrainedValue::Return(vec![]);
+        let mut return_values = ConstrainedValue::Tuple(vec![]);
 
         Self::conditionally_select_result(cs, &mut return_values, results, function.span.clone())?;
 
-        if let ConstrainedValue::Return(ref returns) = return_values {
+        if let ConstrainedValue::Tuple(ref returns) = return_values {
             let return_types = match function.returns {
+                Some(Type::Tuple(types)) => types.len(),
                 Some(_) => 1usize,
                 None => 0usize,
             };
