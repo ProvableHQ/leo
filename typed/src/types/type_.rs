@@ -1,6 +1,6 @@
 use crate::{Expression, Identifier, IntegerType};
 use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
-use leo_input::types::{ArrayType as InputArrayType, DataType as InputDataType, Type as InputAstType};
+use leo_input::types::{ArrayType as InputArrayType, DataType as InputDataType, TupleType, Type as InputAstType};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -17,6 +17,7 @@ pub enum Type {
 
     // Data type wrappers
     Array(Box<Type>, Vec<usize>),
+    Tuple(Vec<Type>),
     Circuit(Identifier),
     SelfType,
 }
@@ -108,11 +109,20 @@ impl<'ast> From<ArrayType<'ast>> for Type {
     }
 }
 
+impl<'ast> From<TupleType<'ast>> for Type {
+    fn from(tuple_type: TupleType<'ast>) -> Self {
+        let types = tuple_type.types_.into_iter().map(|type_| Type::from(type_)).collect();
+
+        Type::Tuple(types)
+    }
+}
+
 impl<'ast> From<InputAstType<'ast>> for Type {
     fn from(type_: InputAstType<'ast>) -> Self {
         match type_ {
             InputAstType::Basic(type_) => Type::from(type_),
             InputAstType::Array(type_) => Type::from(type_),
+            InputAstType::Tuple(type_) => Type::from(type_),
         }
     }
 }
@@ -161,6 +171,11 @@ impl fmt::Display for Type {
                     write!(f, "[{}]", row)?;
                 }
                 write!(f, "")
+            }
+            Type::Tuple(ref tuple) => {
+                let types = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "({})", types)
             }
         }
     }
