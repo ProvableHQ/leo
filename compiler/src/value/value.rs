@@ -295,7 +295,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 write!(f, "]")
             }
             ConstrainedValue::Tuple(ref tuple) => {
-                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(",");
+                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", values)
             }
@@ -366,6 +366,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
                 }
                 Ok(())
             }
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
+                for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                    left.conditional_enforce_equal(cs.ns(|| format!("tuple index {}", i)), right, condition)?;
+                }
+                Ok(())
+            }
             (_, _) => return Err(SynthesisError::Unsatisfiable),
         }
     }
@@ -411,6 +417,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 }
 
                 ConstrainedValue::Array(array)
+            }
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
+                let mut array = vec![];
+
+                for (i, (first, second)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                    array.push(Self::conditionally_select(
+                        cs.ns(|| format!("tuple index {}", i)),
+                        cond,
+                        first,
+                        second,
+                    )?);
+                }
+
+                ConstrainedValue::Tuple(array)
             }
             (ConstrainedValue::Function(identifier_1, function_1), ConstrainedValue::Function(_, _)) => {
                 // This is a no-op. functions cannot hold circuit values

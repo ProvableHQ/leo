@@ -113,6 +113,12 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn multiple_definition(value: String, span: Span) -> Self {
+        let message = format!("cannot assign multiple variables to a single value: {}", value,);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn select_fail(first: String, second: String, span: Span) -> Self {
         let message = format!(
             "Conditional select gadget failed to select between `{}` or `{}`",
