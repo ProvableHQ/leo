@@ -134,6 +134,12 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn tuple_type(type_: String, span: Span) -> Self {
+        let message = format!("Expected tuple type, found type `{}`", type_);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn unassigned(name: String, span: Span) -> Self {
         let message = format!("Expected assignment of return values for expression `{}`", name);
 

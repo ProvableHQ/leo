@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Evaluate new value
         let mut new_value =
-            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), &vec![], expression)?;
+            self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, expression)?;
 
         // Mutate the old value into the new value
         match assignee {
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
                 let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
 
-                new_value.resolve_type(&vec![old_value.to_type(span.clone())?], span.clone())?;
+                new_value.resolve_type(Some(old_value.to_type(span.clone())?), span.clone())?;
 
                 let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                 let selected_value =

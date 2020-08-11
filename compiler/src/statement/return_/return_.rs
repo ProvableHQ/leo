@@ -1,11 +1,6 @@
 //! Enforces a return statement in a compiled Leo program.
 
-use crate::{
-    errors::{StatementError, ValueError},
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_typed::{Expression, Span, Type};
 
 use snarkos_models::{
@@ -13,25 +8,20 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-fn check_return_types(expected: &Vec<Type>, actual: &Vec<Type>, span: Span) -> Result<(), StatementError> {
-    expected
-        .iter()
-        .zip(actual.iter())
-        .map(|(type_1, type_2)| {
-            if type_1.ne(type_2) {
-                // catch return Self type
-                if type_1.is_self() && type_2.is_circuit() {
-                    Ok(())
+fn check_return_type(expected: Option<Type>, actual: Type, span: Span) -> Result<(), StatementError> {
+    match expected {
+        Some(expected) => {
+            if expected.ne(&actual) {
+                if expected.is_self() && actual.is_circuit() {
+                    return Ok(());
                 } else {
-                    Err(StatementError::arguments_type(type_1, type_2, span.clone()))
+                    return Err(StatementError::arguments_type(&expected, &actual, span));
                 }
-            } else {
-                Ok(())
             }
-        })
-        .collect::<Result<Vec<()>, StatementError>>()?;
-
-    Ok(())
+            Ok(())
+        }
+        None => Ok(()),
+    }
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -40,41 +30,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expressions: Vec<Expression>,
-        return_types: Vec<Type>,
+        expression: Expression,
+        return_type: Option<Type>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Make sure we return the correct number of values
-        if return_types.len() != expressions.len() {
-            return Err(StatementError::invalid_number_of_returns(
-                return_types.len(),
-                expressions.len(),
-                span,
-            ));
-        }
 
-        let mut returns = vec![];
-        for (expression, ty) in expressions.into_iter().zip(return_types.clone().into_iter()) {
-            let expected_types = vec![ty.clone()];
-            let result = self.enforce_operand(
-                cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                &expected_types,
-                expression,
-                span.clone(),
-            )?;
+        let result = self.enforce_operand(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            return_type.clone(),
+            expression,
+            span.clone(),
+        )?;
 
-            returns.push(result);
-        }
+        check_return_type(return_type, result.to_type(span.clone())?, span)?;
 
-        let actual_types = returns
-            .iter()
-            .map(|value| value.to_type(span.clone()))
-            .collect::<Result<Vec<Type>, ValueError>>()?;
-
-        check_return_types(&return_types, &actual_types, span)?;
-
-        Ok(ConstrainedValue::Return(returns))
+        Ok(ConstrainedValue::Return(vec![result]))
     }
 }

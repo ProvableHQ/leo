@@ -17,14 +17,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         expression: Expression,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_types, expression)?;
+        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_type.clone(), expression)?;
 
         branch.get_inner_mut();
-        branch.resolve_type(expected_types, span)?;
+        branch.resolve_type(expected_type, span)?;
 
         Ok(branch)
     }

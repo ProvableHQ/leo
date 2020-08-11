@@ -6,13 +6,12 @@ use leo_typed::{Span, Type};
 use snarkos_models::curves::{Field, PrimeField};
 
 pub fn enforce_number_implicit<F: Field + PrimeField, G: GroupType<F>>(
-    expected_types: &Vec<Type>,
+    expected_type: Option<Type>,
     value: String,
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, ValueError> {
-    if expected_types.len() == 1 {
-        return Ok(ConstrainedValue::from_type(value, &expected_types[0], span)?);
+    match expected_type {
+        Some(type_) => Ok(ConstrainedValue::from_type(value, &type_, span)?),
+        None => Ok(ConstrainedValue::Unresolved(value)),
     }
-
-    Ok(ConstrainedValue::Unresolved(value))
 }

@@ -12,8 +12,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
-    /// To indicate which of these return values to take,
-    /// we conditionally select the value according the `indicator` bit that evaluates to true.
+    /// To indicate which of these return values to take we conditionally select the value according
+    /// to the `indicator` bit that evaluates to true.
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -21,15 +21,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         indicator: Option<Boolean>,
         statement: Statement,
-        return_types: Vec<Type>,
+        return_type: Option<Type>,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
 
         match statement {
-            Statement::Return(expressions, span) => {
+            Statement::Return(expression, span) => {
                 let return_value = (
                     indicator,
-                    self.enforce_return_statement(cs, file_scope, function_scope, expressions, return_types, span)?,
+                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, span)?,
                 );
 
                 results.push(return_value);
@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     indicator,
                     statement,
-                    return_types,
+                    return_type,
                     span,
                 )?;
 
@@ -71,7 +71,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     start,
                     stop,
                     statements,
-                    return_types,
+                    return_type,
                     span,
                 )?;
 
@@ -79,7 +79,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             Statement::AssertEq(left, right, span) => {
                 let (resolved_left, resolved_right) =
-                    self.enforce_binary_expression(cs, file_scope, function_scope, &vec![], left, right, span.clone())?;
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, left, right, span.clone())?;
 
                 self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
             }
@@ -88,7 +88,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             Statement::Expression(expression, span) => {
                 let expression_string = expression.to_string();
-                let value = self.enforce_expression(cs, file_scope, function_scope, &vec![], expression)?;
+                let value = self.enforce_expression(cs, file_scope, function_scope, None, expression)?;
 
                 // handle empty return value cases
                 match &value {

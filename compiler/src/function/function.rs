@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         scope.clone(),
                         caller_scope.clone(),
                         function_name.clone(),
-                        vec![],
+                        None,
                         input_expression,
                     )?;
 
@@ -59,7 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         scope.clone(),
                         caller_scope.clone(),
                         function_name.clone(),
-                        vec![input_model.type_.clone()],
+                        Some(input_model.type_.clone()),
                         input_expression,
                     )?;
 
@@ -98,9 +98,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Self::conditionally_select_result(cs, &mut return_values, results, function.span.clone())?;
 
         if let ConstrainedValue::Return(ref returns) = return_values {
-            if function.returns.len() != returns.len() {
+            let return_types = match function.returns {
+                Some(_) => 1usize,
+                None => 0usize,
+            };
+
+            if return_types != returns.len() {
                 return Err(FunctionError::return_arguments_length(
-                    function.returns.len(),
+                    return_types,
                     returns.len(),
                     function.span.clone(),
                 ));

@@ -14,7 +14,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         circuit_identifier: Box<Expression>,
         circuit_member: Identifier,
         span: Span,
@@ -24,7 +24,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type,
             *circuit_identifier.clone(),
         )? {
             ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,

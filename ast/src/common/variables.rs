@@ -9,7 +9,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::variables))]
 pub struct Variables<'ast> {
     pub names: Vec<VariableName<'ast>>,
-    pub types: Vec<Type<'ast>>,
+    pub type_: Option<Type<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
@@ -32,23 +32,8 @@ impl<'ast> fmt::Display for Variables<'ast> {
             write!(f, "({})", names)?;
         }
 
-        if !self.types.is_empty() {
-            write!(f, ": ")?;
-
-            if self.types.len() == 1 {
-                // : u32
-                write!(f, "{}", self.types[0])?;
-            } else {
-                // : (bool, u32)
-                let types = self
-                    .types
-                    .iter()
-                    .map(|x| format!("{}", x))
-                    .collect::<Vec<_>>()
-                    .join(",");
-
-                write!(f, "({})", types)?;
-            }
+        if self.type_.is_some() {
+            write!(f, ": {}", self.type_.as_ref().unwrap())?;
         }
 
         write!(f, "")

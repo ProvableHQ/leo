@@ -57,12 +57,6 @@ spread = { "..." ~ expression }
 // Declared in common/spread_or_expression.rs
 spread_or_expression = { spread | expression }
 
-// Declared in common/return_.rs
-return_ = { return_tuple | expression }
-
-// Declared in common/return_tuple.rs
-return_tuple = {"(" ~ expression ~ ("," ~ expression)+ ~ ")"}
-
 // Declared in common/static_.rs
 static_ = { "static " }
 
@@ -72,7 +66,7 @@ variable_name = {mutable? ~ identifier}
 variable_name_tuple = _{"(" ~ variable_name ~ ("," ~ variable_name)+ ~ ")"}
 
 // Declared in common/variables.rs
-variables = { ( variable_name_tuple | variable_name ) ~ (":" ~ ( type_tuple | type_ ))? }
+variables = { ( variable_name_tuple | variable_name ) ~ (":" ~ type_ )? }
 
 // Declared in common/declare.rs
 declare = { let_ | const_ }
@@ -129,7 +123,7 @@ operation_pow_assign = { "**=" }
 /// Types
 
 // Declared in types/type_.rs
-type_ = { type_self | type_array | type_data | type_circuit }
+type_ = { type_self | type_tuple |  type_array | type_data | type_circuit }
 
 // Declared in types/integer_type.rs
 type_integer = {
@@ -197,7 +191,7 @@ type_circuit = { identifier }
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
-type_tuple = _{ "(" ~ type_ ~ ("," ~ (type_tuple | type_))+ ~ ")" }
+type_tuple = { "(" ~ type_ ~ ("," ~ type_)+ ~ ")" }
 
 /// Values
 
@@ -294,6 +288,7 @@ expression_conditional = { "if " ~ expression ~ "? " ~ expression ~ ": " ~ expre
 
 expression_term = {
     value
+    | expression_tuple
     | ("(" ~ expression ~ ")")
     | expression_conditional
     | expression_array_initializer
@@ -307,7 +302,9 @@ expression_term = {
 
 // Declared in expressions/expression.rs
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
-expression_tuple = _{ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
+
+// Declared in expressions/expression_tuple.rs
+expression_tuple = { "(" ~ expression ~ ("," ~ expression)+ ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
 expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ number_positive ~ "]" }
@@ -354,7 +351,7 @@ statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ N
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
-statement_definition = { declare ~ variables ~ "=" ~ (expression | expression_tuple) ~ LINE_END}
+statement_definition = { declare ~ variables ~ "=" ~ expression ~ LINE_END}
 
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
@@ -363,7 +360,7 @@ statement_expression = { expression ~ LINE_END }
 statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/return_statement.rs
-statement_return = { "return " ~ return_}
+statement_return = { "return " ~ expression}
 
 /// Functions
 
@@ -371,7 +368,7 @@ statement_return = { "return " ~ return_}
 test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
-function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ (type_tuple| type_))? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }

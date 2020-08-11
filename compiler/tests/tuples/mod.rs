@@ -98,3 +98,9 @@ fn test_nested_typed() {
 
     assert_satisfied(program);
 }
+
+// #[test]
+// fn test_input() {
+//     let input_bytes = include_bytes!("inputs/input.in");
+//     let program_bytes = include_bytes!("")
+// }

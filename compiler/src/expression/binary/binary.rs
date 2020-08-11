@@ -14,7 +14,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         left: Expression,
         right: Expression,
         span: Span,
@@ -23,7 +23,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type.clone(),
             left,
             span.clone(),
         )?;
@@ -31,12 +31,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type.clone(),
             right,
             span.clone(),
         )?;
 
-        resolved_left.resolve_types(&mut resolved_right, expected_types, span)?;
+        resolved_left.resolve_types(&mut resolved_right, expected_type, span)?;
 
         Ok((resolved_left, resolved_right))
     }

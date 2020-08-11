@@ -64,8 +64,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         ConstrainedValue::from_type(value, &other_type, span)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
-        match _type {
+    pub(crate) fn from_type(value: String, type_: &Type, span: Span) -> Result<Self, ValueError> {
+        match type_ {
             // Data types
             Type::Address => Ok(ConstrainedValue::Address(Address::new(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
@@ -106,15 +106,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
                 Type::Array(Box::new(array_type), vec![count])
             }
+            ConstrainedValue::Tuple(tuple) => {
+                let mut types = vec![];
+
+                for value in tuple {
+                    let type_ = value.to_type(span.clone())?;
+                    types.push(type_)
+                }
+
+                Type::Tuple(types)
+            }
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: Span) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
-            if !types.is_empty() {
-                *self = ConstrainedValue::from_type(string.clone(), &types[0], span)?
+            if type_.is_some() {
+                *self = ConstrainedValue::from_type(string.clone(), &type_.unwrap(), span)?
             }
         }
 
@@ -122,16 +132,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     }
 
     /// Expect both `self` and `other` to resolve to the same type
-    pub(crate) fn resolve_types(&mut self, other: &mut Self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
-        if !types.is_empty() {
-            self.resolve_type(types, span.clone())?;
-            return other.resolve_type(types, span);
+    pub(crate) fn resolve_types(
+        &mut self,
+        other: &mut Self,
+        type_: Option<Type>,
+        span: Span,
+    ) -> Result<(), ValueError> {
+        if type_.is_some() {
+            self.resolve_type(type_.clone(), span.clone())?;
+            return other.resolve_type(type_, span);
         }
 
         match (&self, &other) {
             (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type(span.clone())?], span),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type(span.clone())?], span),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(Some(other.to_type(span.clone())?), span),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(Some(self.to_type(span.clone())?), span),
             _ => Ok(()),
         }
     }

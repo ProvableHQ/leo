@@ -20,23 +20,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        mut expected_type: Option<Type>,
         array: Vec<Box<SpreadOrExpression>>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
-        let mut expected_types = expected_types.clone();
         let expected_dimensions = vec![];
 
-        if !expected_types.is_empty() {
-            match expected_types[0] {
-                Type::Array(ref _type, ref dimensions) => {
-                    expected_types = vec![expected_types[0].inner_dimension(dimensions)];
+        if expected_type.is_some() {
+            match expected_type.unwrap() {
+                Type::Array(ref type_, ref dimensions) => {
+                    expected_type = Some(type_.inner_dimension(dimensions).clone());
                 }
                 ref _type => {
                     return Err(ExpressionError::unexpected_array(
-                        expected_types[0].to_string(),
                         _type.to_string(),
+                        format!("{:?}", array),
                         span,
                     ));
                 }
@@ -66,7 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         cs,
                         file_scope.clone(),
                         function_scope.clone(),
-                        &expected_types,
+                        expected_type.clone(),
                         expression,
                     )?);
                 }

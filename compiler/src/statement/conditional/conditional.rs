@@ -27,7 +27,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         indicator: Option<Boolean>,
         statement: ConditionalStatement,
-        return_types: Vec<Type>,
+        return_type: Option<Type>,
         span: Span,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let statement_string = statement.to_string();
@@ -40,7 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            &vec![Type::Boolean],
+            Some(Type::Boolean),
             statement.condition.clone(),
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
@@ -70,7 +70,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             function_scope.clone(),
             Some(branch_1_indicator),
             statement.statements,
-            return_types.clone(),
+            return_type.clone(),
         )?;
 
         results.append(&mut branch_1_result);
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     Some(branch_2_indicator),
                     *nested,
-                    return_types,
+                    return_type,
                     span,
                 )?,
                 ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
@@ -107,7 +107,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     Some(branch_2_indicator),
                     statements,
-                    return_types,
+                    return_type,
                 )?,
             },
             None => vec![],

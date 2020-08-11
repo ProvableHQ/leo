@@ -8,7 +8,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Variables {
     pub names: Vec<VariableName>,
-    pub types: Vec<Type>,
+    pub type_: Option<Type>,
 }
 
 impl<'ast> From<AstVariables<'ast>> for Variables {
@@ -19,9 +19,9 @@ impl<'ast> From<AstVariables<'ast>> for Variables {
             .map(|x| VariableName::from(x))
             .collect::<Vec<_>>();
 
-        let types = variables.types.into_iter().map(|x| Type::from(x)).collect::<Vec<_>>();
+        let type_ = variables.type_.map(|type_| Type::from(type_));
 
-        Self { names, types }
+        Self { names, type_ }
     }
 }
 
@@ -42,23 +42,8 @@ impl fmt::Display for Variables {
             write!(f, "({})", names)?;
         }
 
-        if !self.types.is_empty() {
-            write!(f, ": ")?;
-
-            if self.types.len() == 1 {
-                // : u32
-                write!(f, "{}", self.types[0])?;
-            } else {
-                // : (bool, u32)
-                let types = self
-                    .types
-                    .iter()
-                    .map(|x| format!("{}", x))
-                    .collect::<Vec<_>>()
-                    .join(",");
-
-                write!(f, "({})", types)?;
-            }
+        if self.type_.is_some() {
+            write!(f, ": {}", self.type_.as_ref().unwrap())?;
         }
 
         write!(f, "")

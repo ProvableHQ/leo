@@ -1,6 +1,5 @@
 use crate::{Assignee, ConditionalStatement, Declare, Expression, FormattedMacro, Identifier, Span, Variables};
 use leo_ast::{
-    common::Return,
     operations::AssignOperation,
     statements::{
         AssignStatement,
@@ -19,7 +18,7 @@ use std::fmt;
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Statement {
-    Return(Vec<Expression>, Span),
+    Return(Expression, Span),
     Definition(Declare, Variables, Vec<Expression>, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
@@ -31,23 +30,7 @@ pub enum Statement {
 
 impl<'ast> From<ReturnStatement<'ast>> for Statement {
     fn from(statement: ReturnStatement<'ast>) -> Self {
-        let span = Span::from(statement.span);
-
-        let expressions = match statement.return_ {
-            Return::Single(expression) => vec![Expression::from(expression)],
-            Return::Tuple(tuple) => tuple
-                .expressions
-                .into_iter()
-                .map(|expression| {
-                    let mut expression = Expression::from(expression);
-                    expression.set_span(&span);
-
-                    expression
-                })
-                .collect(),
-        };
-
-        Statement::Return(expressions, span)
+        Statement::Return(Expression::from(statement.expression), Span::from(statement.span))
     }
 }
 
@@ -200,16 +183,7 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Statement::Return(ref statements, ref _span) => {
-                write!(f, "return (")?;
-                for (i, value) in statements.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < statements.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ")\n")
-            }
+            Statement::Return(ref expression, ref _span) => write!(f, "return {}", expression),
             Statement::Definition(ref declare, ref variable, ref expressions, ref _span) => {
                 let formatted_expressions = expressions
                     .iter()
