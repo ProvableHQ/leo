@@ -48,11 +48,11 @@ impl InputFile {
         format!(
             r#"// The program input for {}/src/main.leo
 [main]
-a: u32 = 1;
-b: u32 = 2;
+a: bool = true;
+b: bool = false;
 
 [registers]
-r0: u32 = 0;
+r0: bool = true;
 "#,
             self.package_name
         )

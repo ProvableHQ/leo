@@ -46,8 +46,8 @@ impl MainFile {
     fn template(&self) -> String {
         format!(
             r#"// The '{}' main function.
-function main(a: u32, b: u32) -> u32 {{
-    let c: u32 = a + b;
+function main(a: bool, b: bool) -> bool {{
+    let c: bool = a || b;
     return c
 }}
 "#,
