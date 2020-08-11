@@ -14,6 +14,8 @@ pub type ArgumentType = (NameType, DescriptionType, RequiredType, IndexType);
 
 pub type FlagType = &'static str;
 
+// Format
+// (argument, conflicts, possible_values, requires)
 pub type OptionType = (
     &'static str,
     &'static [&'static str],
