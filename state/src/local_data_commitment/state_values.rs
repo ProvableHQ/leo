@@ -16,15 +16,12 @@ impl TryFrom<&TypedState> for StateValues {
 
     fn try_from(state: &TypedState) -> Result<Self, Self::Error> {
         // Lookup leaf index
-        let leaf_index_value = get_parameter_value(LEAF_INDEX_PARAMETER_STRING.to_owned(), state).unwrap();
-        let leaf_index = input_to_integer_string(leaf_index_value)
-            .unwrap()
-            .parse::<u32>()
-            .unwrap();
+        let leaf_index_value = get_parameter_value(LEAF_INDEX_PARAMETER_STRING.to_owned(), state)?;
+        let leaf_index = input_to_integer_string(leaf_index_value)?.parse::<u32>()?;
 
         // Lookup root
-        let root_value = get_parameter_value(ROOT_PARAMETER_STRING.to_owned(), state).unwrap();
-        let root = input_to_u8_vec(root_value).unwrap();
+        let root_value = get_parameter_value(ROOT_PARAMETER_STRING.to_owned(), state)?;
+        let root = input_to_u8_vec(root_value)?;
 
         Ok(Self { leaf_index, root })
     }

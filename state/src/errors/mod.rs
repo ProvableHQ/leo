@@ -1,3 +1,6 @@
+pub mod dpc_record_values;
+pub use self::dpc_record_values::*;
+
 pub mod input_value;
 pub use self::input_value::*;
 

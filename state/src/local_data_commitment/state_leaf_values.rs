@@ -20,24 +20,20 @@ impl TryFrom<&TypedStateLeaf> for StateLeafValues {
 
     fn try_from(state_leaf: &TypedStateLeaf) -> Result<Self, Self::Error> {
         // Lookup path
-        let path_value = get_parameter_value(PATH_PARAMETER_STRING.to_owned(), state_leaf).unwrap();
-        let path = input_to_nested_u8_vec(path_value).unwrap();
+        let path_value = get_parameter_value(PATH_PARAMETER_STRING.to_owned(), state_leaf)?;
+        let path = input_to_nested_u8_vec(path_value)?;
 
         // Lookup memo
-        let memo_value = get_parameter_value(MEMO_PARAMETER_STRING.to_owned(), state_leaf).unwrap();
-        let memo = input_to_u8_vec(memo_value).unwrap();
+        let memo_value = get_parameter_value(MEMO_PARAMETER_STRING.to_owned(), state_leaf)?;
+        let memo = input_to_u8_vec(memo_value)?;
 
         // Lookup network id
-        let network_id_value = get_parameter_value(NETWORK_ID_PARAMETER_STRING.to_owned(), state_leaf).unwrap();
-        let network_id = input_to_integer_string(network_id_value)
-            .unwrap()
-            .parse::<u8>()
-            .unwrap();
+        let network_id_value = get_parameter_value(NETWORK_ID_PARAMETER_STRING.to_owned(), state_leaf)?;
+        let network_id = input_to_integer_string(network_id_value)?.parse::<u8>()?;
 
         // Lookup leaf randomness
-        let leaf_randomness_value =
-            get_parameter_value(LEAF_RANDOMNESS_PARAMETER_STRING.to_owned(), state_leaf).unwrap();
-        let leaf_randomness = input_to_u8_vec(leaf_randomness_value).unwrap();
+        let leaf_randomness_value = get_parameter_value(LEAF_RANDOMNESS_PARAMETER_STRING.to_owned(), state_leaf)?;
+        let leaf_randomness = input_to_u8_vec(leaf_randomness_value)?;
 
         Ok(Self {
             path,

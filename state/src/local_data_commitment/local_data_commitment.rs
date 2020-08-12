@@ -19,19 +19,19 @@ pub fn verify_local_data_commitment(
 ) -> Result<bool, LocalDataVerificationError> {
     // verify record commitment
     let typed_record = typed_input.get_record();
-    let dpc_record_values = verify_record_commitment(typed_record, record_commitment_params).unwrap();
+    let dpc_record_values = verify_record_commitment(typed_record, record_commitment_params)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
     // parse typed state values
     let typed_state = typed_input.get_state();
-    let state_values = StateValues::try_from(typed_state).unwrap();
+    let state_values = StateValues::try_from(typed_state)?;
     let leaf_index: u32 = state_values.leaf_index;
     let root: Vec<u8> = state_values.root;
 
     // parse typed state leaf values
     let typed_state_leaf = typed_input.get_state_leaf();
-    let state_leaf_values = StateLeafValues::try_from(typed_state_leaf).unwrap();
+    let state_leaf_values = StateLeafValues::try_from(typed_state_leaf)?;
     let _path: Vec<Vec<u8>> = state_leaf_values.path;
     let memo: Vec<u8> = state_leaf_values.memo;
     let network_id: u8 = state_leaf_values.network_id;
@@ -41,16 +41,16 @@ pub fn verify_local_data_commitment(
     let is_death = leaf_index < (Components::NUM_INPUT_RECORDS as u32);
 
     let input_bytes = if is_death {
-        to_bytes![record_serial_number, record_commitment, memo, network_id].unwrap()
+        to_bytes![record_serial_number, record_commitment, memo, network_id]?
     } else {
-        to_bytes![record_commitment, memo, network_id].unwrap()
+        to_bytes![record_commitment, memo, network_id]?
     };
 
     // Construct local data commitment leaf
-    let local_data_leaf_randomness = Fp256::read(&leaf_randomness[..]).unwrap();
+    let local_data_leaf_randomness = Fp256::read(&leaf_randomness[..])?;
 
     let local_data_commitment_leaf =
-        LocalDataCommitment::commit(&local_data_commitment_params, &input_bytes, &local_data_leaf_randomness).unwrap();
+        LocalDataCommitment::commit(&local_data_commitment_params, &input_bytes, &local_data_leaf_randomness)?;
 
     // Construct record commitment merkle path
 
@@ -74,11 +74,9 @@ pub fn verify_local_data_commitment(
     };
 
     // Check record commitment merkle path is valid for the given local data commitment root
-    let local_data_commitment_root = Fp256::read(&root[..]).unwrap();
+    let local_data_commitment_root = Fp256::read(&root[..])?;
 
-    let result = local_data_merkle_path
-        .verify(&local_data_commitment_root, &local_data_commitment_leaf)
-        .unwrap();
+    let result = local_data_merkle_path.verify(&local_data_commitment_root, &local_data_commitment_leaf)?;
 
     Ok(result)
 }

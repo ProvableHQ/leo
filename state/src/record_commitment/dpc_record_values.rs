@@ -1,4 +1,4 @@
-use crate::{utilities::*, RecordVerificationError};
+use crate::{utilities::*, DPCRecordValuesError};
 use leo_typed::{InputValue, Record as TypedRecord};
 
 use snarkos_dpc::base_dpc::instantiated::Components;
@@ -30,7 +30,7 @@ pub struct DPCRecordValues {
 }
 
 impl TryFrom<&TypedRecord> for DPCRecordValues {
-    type Error = RecordVerificationError;
+    type Error = DPCRecordValuesError;
 
     fn try_from(record: &TypedRecord) -> Result<Self, Self::Error> {
         // Lookup serial number
@@ -89,7 +89,7 @@ impl TryFrom<&TypedRecord> for DPCRecordValues {
     }
 }
 
-fn get_parameter_value(name: String, record: &TypedRecord) -> Result<InputValue, RecordVerificationError> {
+fn get_parameter_value(name: String, record: &TypedRecord) -> Result<InputValue, DPCRecordValuesError> {
     let parameters = record.values();
     let matched_parameter = parameters
         .iter()
@@ -98,8 +98,8 @@ fn get_parameter_value(name: String, record: &TypedRecord) -> Result<InputValue,
     match matched_parameter {
         Some((_parameter, value_option)) => match value_option {
             Some(value) => Ok(value.clone()),
-            None => Err(RecordVerificationError::MissingParameter(name)),
+            None => Err(DPCRecordValuesError::MissingParameter(name)),
         },
-        None => Err(RecordVerificationError::MissingParameter(name)),
+        None => Err(DPCRecordValuesError::MissingParameter(name)),
     }
 }

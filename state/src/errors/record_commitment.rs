@@ -1,14 +1,11 @@
-use crate::InputValueError;
+use crate::DPCRecordValuesError;
 
-use snarkos_errors::{algorithms::CommitmentError, objects::account::AccountError};
+use snarkos_errors::algorithms::CommitmentError;
 
-use std::{io::Error as IOError, num::ParseIntError, str::ParseBoolError};
+use std::io::Error as IOError;
 
 #[derive(Debug, Error)]
 pub enum RecordVerificationError {
-    #[error("{}", _0)]
-    AccountError(#[from] AccountError),
-
     #[error("record commitment does not match record data")]
     CommitmentsDoNotMatch,
 
@@ -16,17 +13,8 @@ pub enum RecordVerificationError {
     CommitmentError(#[from] CommitmentError),
 
     #[error("{}", _0)]
-    InputValueError(#[from] InputValueError),
+    DPCRecordValuesError(#[from] DPCRecordValuesError),
 
     #[error("{}", _0)]
     IOError(#[from] IOError),
-
-    #[error("record parameter `{}` not found in state file", _0)]
-    MissingParameter(String),
-
-    #[error("{}", _0)]
-    ParseBoolError(#[from] ParseBoolError),
-
-    #[error("{}", _0)]
-    ParseIntError(#[from] ParseIntError),
 }
