@@ -1,4 +1,4 @@
-use crate::{record_commitment::verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
+use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
 use leo_typed::Input as TypedInput;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
