@@ -7,6 +7,9 @@ pub enum RecordVerificationError {
     #[error("{}", _0)]
     AccountError(#[from] AccountError),
 
+    #[error("record commitment does not match record data")]
+    CommitmentsDoNotMatch,
+
     #[error("{}", _0)]
     CommitmentError(#[from] CommitmentError),
 
