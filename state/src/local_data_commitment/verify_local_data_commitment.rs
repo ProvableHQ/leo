@@ -1,4 +1,4 @@
-use crate::{record_commitment::verify_record_commitment, LocalDataVerificationError, StateValues};
+use crate::{record_commitment::verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
 use leo_typed::Input as TypedInput;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
@@ -30,10 +30,12 @@ pub fn verify_local_data_commitment(
     let root: Vec<u8> = state_values.root;
 
     // parse typed state leaf values
-    let _path: Vec<Vec<u8>> = vec![];
-    let memo: Vec<u8> = vec![];
-    let network_id: Vec<u8> = vec![];
-    let leaf_randomness: Vec<u8> = vec![];
+    let typed_state_leaf = typed_input.get_state_leaf();
+    let state_leaf_values = StateLeafValues::try_from(typed_state_leaf).unwrap();
+    let _path: Vec<Vec<u8>> = state_leaf_values.path;
+    let memo: Vec<u8> = state_leaf_values.memo;
+    let network_id: u8 = state_leaf_values.network_id;
+    let leaf_randomness: Vec<u8> = state_leaf_values.leaf_randomness;
 
     // Select local data commitment input bytes
     let is_death = leaf_index < (Components::NUM_INPUT_RECORDS as u32);
@@ -45,10 +47,10 @@ pub fn verify_local_data_commitment(
     };
 
     // Construct local data commitment leaf
-    let leaf_randomness = Fp256::read(&leaf_randomness[..]).unwrap();
+    let local_data_leaf_randomness = Fp256::read(&leaf_randomness[..]).unwrap();
 
     let local_data_commitment_leaf =
-        LocalDataCommitment::commit(&local_data_commitment_params, &input_bytes, &leaf_randomness).unwrap();
+        LocalDataCommitment::commit(&local_data_commitment_params, &input_bytes, &local_data_leaf_randomness).unwrap();
 
     // Construct record commitment merkle path
 

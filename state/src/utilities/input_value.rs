@@ -25,3 +25,20 @@ pub fn input_to_u8_vec(input: InputValue) -> Result<Vec<u8>, InputValueError> {
 
     Ok(result_vec)
 }
+
+pub fn input_to_nested_u8_vec(input: InputValue) -> Result<Vec<Vec<u8>>, InputValueError> {
+    let inner_arrays = match input {
+        InputValue::Array(arrays) => arrays,
+        value => return Err(InputValueError::ExpectedBytes(value.to_string())),
+    };
+
+    let mut result_vec = vec![];
+
+    for input_array in inner_arrays {
+        let array = input_to_u8_vec(input_array)?;
+
+        result_vec.push(array);
+    }
+
+    Ok(result_vec)
+}
