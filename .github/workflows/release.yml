@@ -2,7 +2,7 @@ name: Leo Release
 on:
   push:
     branches:
-      - feat/release
+      - feature/release
 env:
   RUST_BACKTRACE: 1
 
