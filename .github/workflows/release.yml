@@ -1,0 +1,49 @@
+name: Leo Release
+on:
+  push:
+    branches:
+      - feat/release
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  new:
+    name: Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+          command: build
+          args: --all --release && strip target/release/leo && mv target/release/leo target/release/leo_amd64
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/'
+        with:
+          files: |
+            target/release/leo_amd64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
