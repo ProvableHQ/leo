@@ -92,9 +92,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - uses: webfactory/ssh-agent@v0.4.0
+      - uses: shimataro/ssh-key-action@v2
         with:
-          ssh-private-key: ${{ secrets.SNARKOS_DEPLOY_KEY }}
+          key: ${{ secrets.SNARKOS_DEPLOY_KEY }}
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
