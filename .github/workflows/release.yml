@@ -31,12 +31,10 @@ jobs:
           components: rustfmt
 
       - name: Build Leo
-        uses: actions-rs/cargo@v1
+        run: |
+          cargo build --all --release && strip target/release/leo && mv target/release/leo target/release/leo_amd64
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
-        with:
-          command: build
-          args: --all --release && strip target/release/leo && mv target/release/leo target/release/leo_amd64
 
       - name: Release
         uses: softprops/action-gh-release@v1
