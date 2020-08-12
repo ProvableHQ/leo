@@ -48,7 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  name: macOS
+  macos:
+    name: macOS
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -85,7 +86,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  name: Windows
+  windows:
+    name: Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
