@@ -1,3 +1,5 @@
+use crate::InputValueError;
+
 use snarkos_errors::{algorithms::CommitmentError, objects::account::AccountError};
 
 use std::{io::Error as IOError, num::ParseIntError, str::ParseBoolError};
@@ -13,11 +15,8 @@ pub enum RecordVerificationError {
     #[error("{}", _0)]
     CommitmentError(#[from] CommitmentError),
 
-    #[error("expected parameter array of u8 bytes, found `{}`", _0)]
-    ExpectedBytes(String),
-
-    #[error("expected integer parameter, found `{}`", _0)]
-    ExpectedInteger(String),
+    #[error("{}", _0)]
+    InputValueError(#[from] InputValueError),
 
     #[error("{}", _0)]
     IOError(#[from] IOError),

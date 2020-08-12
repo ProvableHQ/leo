@@ -1,4 +1,4 @@
-use crate::{verify_record_commitment::verify_record_commitment, LocalDataVerificationError};
+use crate::{record_commitment::verify_record_commitment, LocalDataVerificationError, StateValues};
 use leo_typed::Input as TypedInput;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
@@ -9,6 +9,7 @@ use snarkos_models::{
     dpc::DPCComponents,
 };
 use snarkos_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+use std::convert::TryFrom;
 
 pub fn verify_local_data_commitment(
     typed_input: &TypedInput,
@@ -19,13 +20,14 @@ pub fn verify_local_data_commitment(
     // verify record commitment
     let typed_record = typed_input.get_record();
     let dpc_record_values = verify_record_commitment(typed_record, record_commitment_params).unwrap();
-
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
     // parse typed state values
-    let leaf_index: u32 = 0;
-    let root: Vec<u8> = vec![];
+    let typed_state = typed_input.get_state();
+    let state_values = StateValues::try_from(typed_state).unwrap();
+    let leaf_index: u32 = state_values.leaf_index;
+    let root: Vec<u8> = state_values.root;
 
     // parse typed state leaf values
     let _path: Vec<Vec<u8>> = vec![];

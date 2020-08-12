@@ -1,4 +1,4 @@
-use crate::RecordVerificationError;
+use crate::{utilities::*, RecordVerificationError};
 use leo_typed::{InputValue, Record as TypedRecord};
 
 use snarkos_dpc::base_dpc::instantiated::Components;
@@ -102,29 +102,4 @@ fn get_parameter_value(name: String, record: &TypedRecord) -> Result<InputValue,
         },
         None => Err(RecordVerificationError::MissingParameter(name)),
     }
-}
-
-fn input_to_integer_string(input: InputValue) -> Result<String, RecordVerificationError> {
-    match input {
-        InputValue::Integer(_type, string) => Ok(string),
-        value => Err(RecordVerificationError::ExpectedInteger(value.to_string())),
-    }
-}
-
-fn input_to_u8_vec(input: InputValue) -> Result<Vec<u8>, RecordVerificationError> {
-    let input_array = match input {
-        InputValue::Array(values) => values,
-        value => return Err(RecordVerificationError::ExpectedBytes(value.to_string())),
-    };
-
-    let mut result_vec = vec![];
-
-    for input in input_array {
-        let integer_string = input_to_integer_string(input)?;
-        let byte = integer_string.parse::<u8>()?;
-
-        result_vec.push(byte);
-    }
-
-    Ok(result_vec)
 }

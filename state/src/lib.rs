@@ -9,3 +9,6 @@ pub use self::local_data_commitment::*;
 
 pub mod record_commitment;
 pub use self::record_commitment::*;
+
+pub mod utilities;
+pub use self::utilities::*;

@@ -1,5 +1,11 @@
-pub mod local_data_verification_error;
-pub use self::local_data_verification_error::*;
+pub mod input_value;
+pub use self::input_value::*;
 
-pub mod record_verification_error;
-pub use self::record_verification_error::*;
+pub mod state_values;
+pub use self::state_values::*;
+
+pub mod verify_local_data_commitment;
+pub use self::verify_local_data_commitment::*;
+
+pub mod verify_record_commitment;
+pub use self::verify_record_commitment::*;
