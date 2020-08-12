@@ -9,6 +9,7 @@ use snarkos_models::{
     dpc::DPCComponents,
 };
 use snarkos_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+
 use std::convert::TryFrom;
 
 pub fn verify_local_data_commitment(

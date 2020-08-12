@@ -2,8 +2,9 @@ use crate::{DPCRecordValues, RecordVerificationError};
 use leo_typed::Record as TypedRecord;
 
 use snarkos_dpc::base_dpc::instantiated::RecordCommitment;
-use snarkos_models::{algorithms::CommitmentScheme, curves::Fp256};
+use snarkos_models::algorithms::CommitmentScheme;
 use snarkos_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+
 use std::convert::TryFrom;
 
 pub fn verify_record_commitment(
@@ -23,8 +24,9 @@ pub fn verify_record_commitment(
         record.serial_number_nonce
     ]?;
 
-    let commitment = Fp256::read(&record.commitment[..])?;
-    let commitment_randomness = Fp256::read(&record.commitment_randomness[..])?;
+    let commitment = <RecordCommitment as CommitmentScheme>::Output::read(&record.commitment[..])?;
+    let commitment_randomness =
+        <RecordCommitment as CommitmentScheme>::Randomness::read(&record.commitment_randomness[..])?;
 
     let record_commitment = RecordCommitment::commit(
         &record_commitment_params,

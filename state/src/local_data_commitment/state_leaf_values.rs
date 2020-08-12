@@ -1,6 +1,6 @@
 use crate::{find_input, input_to_integer_string, input_to_nested_u8_vec, input_to_u8_vec, StateLeafValuesError};
-
 use leo_typed::StateLeaf as TypedStateLeaf;
+
 use std::convert::TryFrom;
 
 static PATH_PARAMETER_STRING: &str = "path";

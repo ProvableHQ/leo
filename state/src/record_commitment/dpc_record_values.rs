@@ -3,13 +3,14 @@ use leo_typed::Record as TypedRecord;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
+
 use std::{convert::TryFrom, str::FromStr};
 
 static SERIAL_NUMBER_PARAMETER_STRING: &str = "serial_number";
 static OWNER_PARAMETER_STRING: &str = "owner";
 static IS_DUMMY_PARAMETER_STRING: &str = "is_dummy";
 static VALUE_PARAMETER_STRING: &str = "value";
-static PAYLOAD_PARAMETER_STRING: &str = "parameter";
+static PAYLOAD_PARAMETER_STRING: &str = "payload";
 static BIRTH_PROGRAM_ID_PARAMETER_STRING: &str = "birth_program_id";
 static DEATH_PROGRAM_ID_PARAMETER_STRING: &str = "death_program_id";
 static SERIAL_NUMBER_NONCE_PARAMETER_STRING: &str = "serial_number_nonce";
