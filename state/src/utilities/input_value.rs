@@ -1,5 +1,23 @@
 use crate::InputValueError;
-use leo_typed::InputValue;
+use leo_typed::{InputValue, Parameter};
+use std::collections::HashMap;
+
+pub fn find_input(
+    name: String,
+    parameters: &HashMap<Parameter, Option<InputValue>>,
+) -> Result<InputValue, InputValueError> {
+    let matched_parameter = parameters
+        .iter()
+        .find(|(parameter, _value)| parameter.variable.name == name);
+
+    match matched_parameter {
+        Some((_parameter, value_option)) => match value_option {
+            Some(value) => Ok(value.clone()),
+            None => Err(InputValueError::MissingParameter(name)),
+        },
+        None => Err(InputValueError::MissingParameter(name)),
+    }
+}
 
 pub fn input_to_integer_string(input: InputValue) -> Result<String, InputValueError> {
     match input {

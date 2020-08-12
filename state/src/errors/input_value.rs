@@ -8,6 +8,9 @@ pub enum InputValueError {
     #[error("expected integer parameter, found `{}`", _0)]
     ExpectedInteger(String),
 
+    #[error("input parameter `{}` not found in state file", _0)]
+    MissingParameter(String),
+
     #[error("{}", _0)]
     ParseIntError(#[from] ParseIntError),
 }

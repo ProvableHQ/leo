@@ -12,9 +12,6 @@ pub enum DPCRecordValuesError {
     #[error("{}", _0)]
     InputValueError(#[from] InputValueError),
 
-    #[error("record parameter `{}` not found in state file", _0)]
-    MissingParameter(String),
-
     #[error("{}", _0)]
     ParseBoolError(#[from] ParseBoolError),
 

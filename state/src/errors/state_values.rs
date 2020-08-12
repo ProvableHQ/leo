@@ -7,9 +7,6 @@ pub enum StateValuesError {
     #[error("{}", _0)]
     InputValueError(#[from] InputValueError),
 
-    #[error("state parameter `{}` not found in state file", _0)]
-    MissingParameter(String),
-
     #[error("{}", _0)]
     ParseBoolError(#[from] ParseBoolError),
 

@@ -1,5 +1,5 @@
 use crate::{utilities::*, DPCRecordValuesError};
-use leo_typed::{InputValue, Record as TypedRecord};
+use leo_typed::Record as TypedRecord;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
@@ -33,45 +33,46 @@ impl TryFrom<&TypedRecord> for DPCRecordValues {
     type Error = DPCRecordValuesError;
 
     fn try_from(record: &TypedRecord) -> Result<Self, Self::Error> {
+        let parameters = record.values();
+
         // Lookup serial number
-        let serial_number_value = get_parameter_value(SERIAL_NUMBER_PARAMETER_STRING.to_owned(), record)?;
+        let serial_number_value = find_input(SERIAL_NUMBER_PARAMETER_STRING.to_owned(), &parameters)?;
         let serial_number = input_to_u8_vec(serial_number_value)?;
 
         // Lookup record owner
-        let owner_value = get_parameter_value(OWNER_PARAMETER_STRING.to_owned(), record)?;
+        let owner_value = find_input(OWNER_PARAMETER_STRING.to_owned(), &parameters)?;
         let owner = AccountAddress::<Components>::from_str(&format!("{}", owner_value))?;
 
         // Lookup record is_dummy
-        let is_dummy_value = get_parameter_value(IS_DUMMY_PARAMETER_STRING.to_owned(), record)?;
+        let is_dummy_value = find_input(IS_DUMMY_PARAMETER_STRING.to_owned(), &parameters)?;
         let is_dummy = is_dummy_value.to_string().parse::<bool>()?;
 
         // Lookup record value
-        let value_value = get_parameter_value(VALUE_PARAMETER_STRING.to_owned(), record)?;
+        let value_value = find_input(VALUE_PARAMETER_STRING.to_owned(), &parameters)?;
         let value = input_to_integer_string(value_value)?.parse::<u64>()?;
 
         // Lookup record payload
-        let payload_value = get_parameter_value(PAYLOAD_PARAMETER_STRING.to_owned(), record)?;
+        let payload_value = find_input(PAYLOAD_PARAMETER_STRING.to_owned(), &parameters)?;
         let payload = input_to_u8_vec(payload_value)?;
 
         // Lookup record birth program id
-        let birth_program_id_value = get_parameter_value(BIRTH_PROGRAM_ID_PARAMETER_STRING.to_owned(), record)?;
+        let birth_program_id_value = find_input(BIRTH_PROGRAM_ID_PARAMETER_STRING.to_owned(), &parameters)?;
         let birth_program_id = input_to_u8_vec(birth_program_id_value)?;
 
         // Lookup record death program id
-        let death_program_id_value = get_parameter_value(DEATH_PROGRAM_ID_PARAMETER_STRING.to_owned(), record)?;
+        let death_program_id_value = find_input(DEATH_PROGRAM_ID_PARAMETER_STRING.to_owned(), &parameters)?;
         let death_program_id = input_to_u8_vec(death_program_id_value)?;
 
         // Lookup record serial number nonce
-        let serial_number_nonce_value = get_parameter_value(SERIAL_NUMBER_NONCE_PARAMETER_STRING.to_owned(), record)?;
+        let serial_number_nonce_value = find_input(SERIAL_NUMBER_NONCE_PARAMETER_STRING.to_owned(), &parameters)?;
         let serial_number_nonce = input_to_u8_vec(serial_number_nonce_value)?;
 
         // Lookup record commitment
-        let commitment_value = get_parameter_value(COMMITMENT_PARAMETER_STRING.to_owned(), record)?;
+        let commitment_value = find_input(COMMITMENT_PARAMETER_STRING.to_owned(), &parameters)?;
         let commitment = input_to_u8_vec(commitment_value)?;
 
         // Lookup record commitment randomness
-        let commitment_randomness_value =
-            get_parameter_value(COMMITMENT_RANDOMNESS_PARAMETER_STRING.to_owned(), record)?;
+        let commitment_randomness_value = find_input(COMMITMENT_RANDOMNESS_PARAMETER_STRING.to_owned(), &parameters)?;
         let commitment_randomness = input_to_u8_vec(commitment_randomness_value)?;
 
         Ok(Self {
@@ -86,20 +87,5 @@ impl TryFrom<&TypedRecord> for DPCRecordValues {
             commitment,
             commitment_randomness,
         })
-    }
-}
-
-fn get_parameter_value(name: String, record: &TypedRecord) -> Result<InputValue, DPCRecordValuesError> {
-    let parameters = record.values();
-    let matched_parameter = parameters
-        .iter()
-        .find(|(parameter, _value)| parameter.variable.name == name);
-
-    match matched_parameter {
-        Some((_parameter, value_option)) => match value_option {
-            Some(value) => Ok(value.clone()),
-            None => Err(DPCRecordValuesError::MissingParameter(name)),
-        },
-        None => Err(DPCRecordValuesError::MissingParameter(name)),
     }
 }
