@@ -1,0 +1,25 @@
+[package]
+name = "leo-state"
+version = "0.1.0"
+authors = ["The Aleo Team <hello@aleo.org>"]
+edition = "2018"
+
+[dependencies]
+leo-input = { path = "../input", version = "0.1.0" }
+leo-typed = { path = "../typed", version = "0.1.0" }
+
+snarkos-algorithms = { path = "../../snarkOS/algorithms" }
+snarkos-curves = { path = "../../snarkOS/curves" }
+snarkos-dpc = { path = "../../snarkOS/dpc" }
+snarkos-errors = { path = "../../snarkOS/errors" }
+snarkos-models = { path = "../../snarkOS/models" }
+snarkos-objects = { path = "../../snarkOS/objects" }
+snarkos-utilities = { path = "../../snarkOS/utilities" }
+
+rand = { version = "0.7" }
+rand_xorshift = { version = "0.2" }
+thiserror = { version = "1.0" }
+
+
+[dev-dependencies]
+snarkos-testing = { path = "../../snarkOS/testing" }
