@@ -8,8 +8,10 @@ protected_name = {
     | "const"
     | "else"
     | "false"
-    | "function"
+    | type_field
     | "for"
+    | "function"
+    | type_group
     | "if"
     | "import"
     | "in"
