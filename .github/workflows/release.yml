@@ -33,13 +33,13 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo
+          cargo build --all --release && strip target/release/leo && mv target/release/leo .
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -qq -r ./leo_ubuntu.zip target/release/leo
+          args: zip -qq -r ./leo_ubuntu.zip ./leo
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -74,13 +74,13 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo
+          cargo build --all --release && strip target/release/leo && mv target/release/leo .
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -qq -r ./leo_macOS.zip target/release/leo
+          args: zip -qq -r ./leo_macOS.zip ./leo
 
       - name: Release
         uses: softprops/action-gh-release@v1
