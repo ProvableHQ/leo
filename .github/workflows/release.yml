@@ -33,16 +33,20 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo target/release/leo_amd64
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./leo_ubuntu.zip target/release/leo
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            target/release/leo_amd64
+            leo_ubuntu.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -70,16 +74,20 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo target/release/leo_darwin
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./leo_macOS.zip target/release/leo
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            target/release/leo_darwin
+            leo_macOS.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
