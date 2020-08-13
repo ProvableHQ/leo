@@ -133,6 +133,7 @@ fn test_generate_values_from_dpc() {
         &mut rng,
     )
     .unwrap();
+
     let local_data = context.into_local_data();
     let leaf_index = 0;
     let record = &local_data.old_records[leaf_index];

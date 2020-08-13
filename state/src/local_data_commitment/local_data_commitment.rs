@@ -55,12 +55,15 @@ pub fn verify_local_data_commitment(
     )?;
 
     // Construct record commitment merkle path
-    let mut local_data_merkle_path = CommitmentMerklePath::<LocalDataCommitment, LocalDataCRH>::read(&path[..])?;
-    local_data_merkle_path.parameters = Some(system_parameters.local_data_crh.clone());
+    let local_data_merkle_path = CommitmentMerklePath::<LocalDataCommitment, LocalDataCRH>::read(&path[..])?;
 
     // Check record commitment merkle path is valid for the given local data commitment root
     let local_data_commitment_root = <LocalDataCRH as CRH>::Output::read(&root[..])?;
-    let result = local_data_merkle_path.verify(&local_data_commitment_root, &local_data_commitment_leaf)?;
+    let result = local_data_merkle_path.verify(
+        &system_parameters.local_data_crh,
+        &local_data_commitment_root,
+        &local_data_commitment_leaf,
+    )?;
 
     Ok(result)
 }
