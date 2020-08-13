@@ -140,13 +140,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Synthesizes the circuit without program input to verify correctness.
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
-        let input = self.program_input.empty();
 
-        generate_constraints::<F, G, CS>(cs, self.program, input, &self.imported_programs).map_err(|mut error| {
-            error.set_path(path);
+        generate_constraints::<F, G, CS>(cs, self.program, self.program_input, &self.imported_programs).map_err(
+            |mut error| {
+                error.set_path(path);
 
-            error
-        })
+                error
+            },
+        )
     }
 
     /// Synthesizes the circuit for test functions with program input.
