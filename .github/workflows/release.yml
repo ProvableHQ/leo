@@ -1,8 +1,8 @@
 name: Leo Release
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - master
 
 env:
   RUST_BACKTRACE: 1
