@@ -39,3 +39,6 @@ pub use self::test::*;
 
 pub mod unload;
 pub use self::unload::*;
+
+pub mod watch;
+pub use self::watch::*;
