@@ -82,12 +82,10 @@ impl CLI for PublishCommand {
             zip_file.write(&path)?;
         }
 
-        let is_public = "false";
         let form_data = Form::new()
             .text("name", package_name)
             .text("version", package_version)
-            .file("file", zip_file.get_file_path(&path))?
-            .text("public", is_public);
+            .file("file", zip_file.get_file_path(&path))?;
 
         // Client for make POST request
         let client = Client::new();
