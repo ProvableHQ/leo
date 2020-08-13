@@ -88,7 +88,6 @@ fn test_not_false() {
 }
 
 #[test]
-#[ignore]
 fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
@@ -123,7 +122,6 @@ fn test_false_or_false() {
 }
 
 #[test]
-#[ignore]
 fn test_true_or_u32() {
     let bytes = include_bytes!("true_or_u32.leo");
     let program = parse_program(bytes).unwrap();
@@ -158,7 +156,6 @@ fn test_false_and_false() {
 }
 
 #[test]
-#[ignore]
 fn test_true_and_u32() {
     let bytes = include_bytes!("true_and_u32.leo");
     let program = parse_program(bytes).unwrap();

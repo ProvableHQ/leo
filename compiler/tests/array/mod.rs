@@ -24,7 +24,6 @@ pub fn output_zeros(program: EdwardsTestCompiler) {
 // Registers
 
 #[test]
-#[ignore]
 fn test_registers() {
     let program_bytes = include_bytes!("registers.leo");
     let ones_input_bytes = include_bytes!("input/registers_ones.in");
@@ -52,7 +51,6 @@ fn test_type_fail() {
 }
 
 #[test]
-#[ignore]
 fn test_inline() {
     let program_bytes = include_bytes!("inline.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -70,7 +68,6 @@ fn test_inline_fail() {
 }
 
 #[test]
-#[ignore]
 fn test_initializer() {
     let program_bytes = include_bytes!("initializer.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -89,7 +86,6 @@ fn test_initializer_fail() {
 }
 
 #[test]
-#[ignore]
 fn test_spread() {
     let program_bytes = include_bytes!("spread.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -99,7 +95,6 @@ fn test_spread() {
 }
 
 #[test]
-#[ignore]
 fn test_slice() {
     let program_bytes = include_bytes!("slice.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -109,7 +104,6 @@ fn test_slice() {
 }
 
 #[test]
-#[ignore]
 fn test_multi() {
     let program_bytes = include_bytes!("multi.leo");
     let program = parse_program(program_bytes).unwrap();

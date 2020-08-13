@@ -1,8 +1,8 @@
-use crate::bits::FullAdder;
+use crate::{bits::FullAdder, signed_integer::*};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
-    curves::Field,
+    curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
@@ -34,14 +34,14 @@ impl<F: Field> RippleCarryAdder<F> for Vec<Boolean> {
     }
 }
 
-// macro_rules! rpc_impl {
-//     ($($gadget: ident)*) => ($(
-//         impl<F: Field + PrimeField> RippleCarryAdder<F> for $gadget {
-//             fn add_bits<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError> {
-//                 self.bits.add_bits(cs, &other.bits)
-//             }
-//         }
-//     )*)
-// }
+macro_rules! rpc_impl {
+    ($($gadget: ident)*) => ($(
+        impl<F: Field + PrimeField> RippleCarryAdder<F> for $gadget {
+            fn add_bits<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError> {
+                self.bits.add_bits(cs, &other.bits)
+            }
+        }
+    )*)
+}
 
-// rpc_impl!(Int8 Int16 Int32 Int64 Int128);
+rpc_impl!(Int8 Int16 Int32 Int64 Int128);

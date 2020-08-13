@@ -26,7 +26,6 @@ fn test_empty() {
 }
 
 #[test]
-#[ignore]
 fn test_iteration() {
     let bytes = include_bytes!("iteration.leo");
     let program = parse_program(bytes).unwrap();
@@ -35,7 +34,6 @@ fn test_iteration() {
 }
 
 #[test]
-#[ignore]
 fn test_iteration_repeated() {
     let bytes = include_bytes!("iteration_repeated.leo");
     let program = parse_program(bytes).unwrap();
@@ -75,7 +73,6 @@ fn test_repeated_function_call() {
 }
 
 #[test]
-#[ignore]
 fn test_return() {
     let bytes = include_bytes!("return.leo");
     let program = parse_program(bytes).unwrap();
@@ -108,7 +105,6 @@ fn test_undefined() {
 }
 
 #[test]
-#[ignore]
 fn test_value_unchanged() {
     let bytes = include_bytes!("value_unchanged.leo");
     let program = parse_program(bytes).unwrap();

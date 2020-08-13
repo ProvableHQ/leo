@@ -1,7 +1,7 @@
 use crate::{assert_satisfied, expect_compiler_error, expect_synthesis_error, generate_main_input, parse_program};
 use leo_typed::InputValue;
 
-// pub mod conditional;
+pub mod conditional;
 
 // Ternary if {bool}? {expression} : {expression};
 
@@ -34,7 +34,6 @@ fn test_ternary_basic() {
 // Iteration for i {start}..{stop} { statements }
 
 #[test]
-#[ignore]
 fn test_iteration_basic() {
     let bytes = include_bytes!("iteration_basic.leo");
     let program = parse_program(bytes).unwrap();

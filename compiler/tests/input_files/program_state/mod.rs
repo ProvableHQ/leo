@@ -15,7 +15,6 @@ fn test_token_withdraw() {
 }
 
 #[test]
-#[ignore]
 fn test_access_state() {
     let program_bytes = include_bytes!("access_state.leo");
     let state_bytes = include_bytes!("input/token_withdraw.state");
@@ -26,7 +25,6 @@ fn test_access_state() {
 }
 
 #[test]
-#[ignore]
 fn test_access_all() {
     let program_bytes = include_bytes!("access_all.leo");
     let state_bytes = include_bytes!("input/token_withdraw.state");

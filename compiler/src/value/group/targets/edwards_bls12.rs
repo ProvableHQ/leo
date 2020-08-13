@@ -237,8 +237,13 @@ impl PartialEq for EdwardsGroupType {
 impl Eq for EdwardsGroupType {}
 
 impl EvaluateEqGadget<Fq> for EdwardsGroupType {
-    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
-        unimplemented!()
+    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        match (self, other) {
+            (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
+                Ok(Boolean::constant(self_value.eq(other_value)))
+            }
+            _ => unimplemented!(),
+        }
     }
 }
 

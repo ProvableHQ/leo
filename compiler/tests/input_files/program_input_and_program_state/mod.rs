@@ -17,7 +17,6 @@ fn test_full() {
 }
 
 #[test]
-#[ignore]
 fn test_access() {
     let program_bytes = include_bytes!("access.leo");
     let input_bytes = include_bytes!("input/token_withdraw.in");
