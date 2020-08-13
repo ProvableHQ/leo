@@ -92,17 +92,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Load snarkOS
-        run: |
-          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > /c/Users/runneradmin/.ssh/id_rsa
-          chmod 600 /c/Users/runneradmin/.ssh/id_rsa
-          eval $(ssh-agent -s)
-          ssh-add -k /c/Users/runneradmin/.ssh/id_rsa
+#      - name: Load snarkOS
+#        run: |
+#          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > /c/Users/runneradmin/.ssh/id_rsa
+#          chmod 600 /c/Users/runneradmin/.ssh/id_rsa
+#          eval $(ssh-agent -s)
+#          ssh-add -k /c/Users/runneradmin/.ssh/id_rsa
 #      - uses: shimataro/ssh-key-action@v2
 #        with:
 #          key: ${{ secrets.SNARKOS_DEPLOY_KEY }}
 #          name: id_rsa
 #          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - uses: fusion-engineering/setup-git-credentials@v2
+        with:
+          credentials: ${{ secrets.SNARKOS_DEPLOY_KEY }}
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
