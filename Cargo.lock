@@ -1198,14 +1198,14 @@ dependencies = [
  "leo-typed",
  "rand",
  "rand_xorshift",
- "snarkos-algorithms 0.8.0",
- "snarkos-curves 0.8.0",
- "snarkos-dpc 0.8.0",
- "snarkos-errors 0.8.0",
- "snarkos-models 0.8.0",
- "snarkos-objects 0.8.0",
+ "snarkos-algorithms 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
+ "snarkos-curves 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
+ "snarkos-dpc 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
+ "snarkos-errors 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
+ "snarkos-models 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
+ "snarkos-objects 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
  "snarkos-testing",
- "snarkos-utilities 0.8.0",
+ "snarkos-utilities 0.8.0 (git+ssh://git@github.com/AleoHQ/snarkOS.git)",
  "thiserror",
 ]
 
@@ -2318,8 +2318,10 @@ dependencies = [
  "base58",
  "bech32",
  "bincode",
+ "curl",
  "hex",
  "jsonrpc-core",
+ "rocksdb",
  "thiserror",
 ]
 
