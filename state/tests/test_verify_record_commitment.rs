@@ -1,8 +1,9 @@
-use snarkos_dpc::base_dpc::instantiated::*;
-
 use leo_input::LeoInputParser;
 use leo_state::verify_record_commitment;
 use leo_typed::Input;
+
+use snarkos_dpc::base_dpc::instantiated::*;
+
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
@@ -14,7 +15,7 @@ fn test_verify_record_from_file() {
     let system_parameters = InstantiatedDPC::generate_system_parameters(&mut rng).unwrap();
 
     // Load test record state file from `inputs/test.state`
-    let file_bytes = include_bytes!("inputs/test.state");
+    let file_bytes = include_bytes!("inputs/test_record.state");
     let file_string = String::from_utf8_lossy(file_bytes);
     let file = LeoInputParser::parse_file(&file_string).unwrap();
 

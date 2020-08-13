@@ -14,6 +14,7 @@ pub fn verify_record_commitment(
     // generate a dpc record from the typed record
     let record = DPCRecordValues::try_from(typed_record)?;
 
+    // verify record commitment
     let record_commitment_input = to_bytes![
         record.owner,
         record.is_dummy,

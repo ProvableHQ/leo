@@ -1,4 +1,4 @@
-use crate::{find_input, input_to_integer_string, input_to_nested_u8_vec, input_to_u8_vec, StateLeafValuesError};
+use crate::{find_input, input_to_integer_string, input_to_u8_vec, StateLeafValuesError};
 use leo_typed::StateLeaf as TypedStateLeaf;
 
 use std::convert::TryFrom;
@@ -9,7 +9,7 @@ static NETWORK_ID_PARAMETER_STRING: &str = "network_id";
 static LEAF_RANDOMNESS_PARAMETER_STRING: &str = "leaf_randomness";
 
 pub struct StateLeafValues {
-    pub path: Vec<Vec<u8>>,
+    pub path: Vec<u8>,
     pub memo: Vec<u8>,
     pub network_id: u8,
     pub leaf_randomness: Vec<u8>,
@@ -23,7 +23,7 @@ impl TryFrom<&TypedStateLeaf> for StateLeafValues {
 
         // Lookup path
         let path_value = find_input(PATH_PARAMETER_STRING.to_owned(), &parameters)?;
-        let path = input_to_nested_u8_vec(path_value)?;
+        let path = input_to_u8_vec(path_value)?;
 
         // Lookup memo
         let memo_value = find_input(MEMO_PARAMETER_STRING.to_owned(), &parameters)?;
