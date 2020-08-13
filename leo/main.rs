@@ -30,9 +30,11 @@ fn main() -> Result<(), CLIError> {
             SetupCommand::new().display_order(7),
             ProveCommand::new().display_order(8),
             RunCommand::new().display_order(9),
-            PublishCommand::new().display_order(10),
-            DeployCommand::new().display_order(11),
-            CleanCommand::new().display_order(12),
+            LoginCommand::new().display_order(10),
+            PublishCommand::new().display_order(11),
+            DeployCommand::new().display_order(12),
+            CleanCommand::new().display_order(13),
+            WatchCommand::new().display_order(14),
         ])
         .set_term_width(0)
         .get_matches();
@@ -48,9 +50,11 @@ fn main() -> Result<(), CLIError> {
         ("setup", Some(arguments)) => SetupCommand::process(arguments),
         ("prove", Some(arguments)) => ProveCommand::process(arguments),
         ("run", Some(arguments)) => RunCommand::process(arguments),
+        ("login", Some(arguments)) => LoginCommand::process(arguments),
         ("publish", Some(arguments)) => PublishCommand::process(arguments),
         ("deploy", Some(arguments)) => DeployCommand::process(arguments),
         ("clean", Some(arguments)) => CleanCommand::process(arguments),
+        ("watch", Some(arguments)) => WatchCommand::process(arguments),
         _ => unreachable!(),
     }
 }

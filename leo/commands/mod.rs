@@ -16,6 +16,9 @@ pub use self::lint::*;
 pub mod load;
 pub use self::load::*;
 
+pub mod login;
+pub use self::login::*;
+
 pub mod new;
 pub use self::new::*;
 
@@ -36,3 +39,6 @@ pub use self::test::*;
 
 pub mod unload;
 pub use self::unload::*;
+
+pub mod watch;
+pub use self::watch::*;

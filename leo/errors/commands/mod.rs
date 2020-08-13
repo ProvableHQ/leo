@@ -4,6 +4,9 @@ pub use self::build::*;
 pub mod init;
 pub use self::init::*;
 
+pub mod login;
+pub use self::login::*;
+
 pub mod new;
 pub use self::new::*;
 
