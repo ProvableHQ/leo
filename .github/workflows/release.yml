@@ -1,0 +1,138 @@
+name: Leo Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  ubuntu:
+    name: Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release && strip target/release/leo && mv target/release/leo .
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./leo_ubuntu.zip ./leo
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_ubuntu.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release && strip target/release/leo && mv target/release/leo .
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./leo_macOS.zip ./leo
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#  windows:
+#    name: Windows
+#    runs-on: windows-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v1
+#
+##      - name: Load snarkOS
+##        run: |
+##          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > /c/Users/runneradmin/.ssh/id_rsa
+##          chmod 600 /c/Users/runneradmin/.ssh/id_rsa
+##          eval $(ssh-agent -s)
+##          ssh-add -k /c/Users/runneradmin/.ssh/id_rsa
+#      - uses: shimataro/ssh-key-action@v2
+#        with:
+#          key: ${{ secrets.SNARKOS_DEPLOY_KEY }}
+#          name: id_rsa
+#          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+##      - uses: fusion-engineering/setup-git-credentials@v2
+##        with:
+##          credentials: ${{ secrets.SNARKOS_DEPLOY_KEY }}
+#
+#      - name: Install Rust
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: stable
+#          override: true
+#          components: rustfmt
+#
+#      - name: Build Leo
+#        run: |
+#          cargo build --all --release
+#        env:
+#          CARGO_NET_GIT_FETCH_WITH_CLI: true
+#
+#      - name: Release
+#        uses: softprops/action-gh-release@v1
+#        if: startsWith(github.ref, 'refs/tags/')
+#        with:
+#          files: |
+#            target/release/leo.exe
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
