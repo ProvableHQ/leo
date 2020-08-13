@@ -25,5 +25,5 @@ fn test_verify_record_from_file() {
     let typed_record = program_input.get_record();
 
     // check record state is correct by verifying commitment
-    let _values = verify_record_commitment(typed_record, system_parameters.record_commitment).unwrap();
+    let _values = verify_record_commitment(&system_parameters, typed_record).unwrap();
 }

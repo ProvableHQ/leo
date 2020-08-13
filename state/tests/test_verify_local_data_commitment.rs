@@ -16,7 +16,29 @@ use rand_xorshift::XorShiftRng;
 use snarkos_models::dpc::DPCScheme;
 
 #[test]
-fn test_integrate_with_dpc() {
+fn test_verify_local_data_commitment_from_file() {
+    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+    // Generate parameters for the record commitment scheme
+    let system_parameters = InstantiatedDPC::generate_system_parameters(&mut rng).unwrap();
+
+    // Load test record state file from `inputs/test.state`
+    let file_bytes = include_bytes!("inputs/test_state.state");
+    let file_string = String::from_utf8_lossy(file_bytes);
+    let file = LeoInputParser::parse_file(&file_string).unwrap();
+
+    let mut program_input = Input::new();
+    program_input.parse_state(file).unwrap();
+
+    // check record state is correct by verifying commitment
+    let result = verify_local_data_commitment(&system_parameters, &program_input).unwrap();
+
+    assert!(result);
+}
+
+#[test]
+#[ignore]
+fn test_generate_values_from_dpc() {
     use snarkos_testing::storage::*;
     type L = Ledger<Tx, CommitmentMerkleParameters>;
 
@@ -174,31 +196,4 @@ fn test_integrate_with_dpc() {
     println!("leaf randomness {:?}", to_bytes![leaf_randomness].unwrap());
     println!();
     println!("////////////////////////////////////////////////////");
-}
-
-#[test]
-fn test_verify_local_data_commitment_from_file() {
-    let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
-
-    // Generate parameters for the record commitment scheme
-    let system_parameters = InstantiatedDPC::generate_system_parameters(&mut rng).unwrap();
-
-    // Load test record state file from `inputs/test.state`
-    let file_bytes = include_bytes!("inputs/test_state.state");
-    let file_string = String::from_utf8_lossy(file_bytes);
-    let file = LeoInputParser::parse_file(&file_string).unwrap();
-
-    let mut program_input = Input::new();
-    program_input.parse_state(file).unwrap();
-
-    // check record state is correct by verifying commitment
-    let result = verify_local_data_commitment(
-        &program_input,
-        system_parameters.record_commitment,
-        system_parameters.local_data_commitment,
-        system_parameters.local_data_crh,
-    )
-    .unwrap();
-
-    assert!(result);
 }
