@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo .
+          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -74,7 +74,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo .
+          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -91,48 +91,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#  windows:
-#    name: Windows
-#    runs-on: windows-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v1
-#
-##      - name: Load snarkOS
-##        run: |
-##          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > /c/Users/runneradmin/.ssh/id_rsa
-##          chmod 600 /c/Users/runneradmin/.ssh/id_rsa
-##          eval $(ssh-agent -s)
-##          ssh-add -k /c/Users/runneradmin/.ssh/id_rsa
-#      - uses: shimataro/ssh-key-action@v2
-#        with:
-#          key: ${{ secrets.SNARKOS_DEPLOY_KEY }}
-#          name: id_rsa
-#          known_hosts: ${{ secrets.KNOWN_HOSTS }}
-##      - uses: fusion-engineering/setup-git-credentials@v2
-##        with:
-##          credentials: ${{ secrets.SNARKOS_DEPLOY_KEY }}
-#
-#      - name: Install Rust
-#        uses: actions-rs/toolchain@v1
-#        with:
-#          profile: minimal
-#          toolchain: stable
-#          override: true
-#          components: rustfmt
-#
-#      - name: Build Leo
-#        run: |
-#          cargo build --all --release
-#        env:
-#          CARGO_NET_GIT_FETCH_WITH_CLI: true
-#
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        if: startsWith(github.ref, 'refs/tags/')
-#        with:
-#          files: |
-#            target/release/leo.exe
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir C:\Users\runneradmin\.ssh
+          echo $Env:SSH_KEY > C:\Users\runneradmin\.ssh\id_rsa
+          ssh -oStrictHostKeyChecking=no git@github.com
+        env:
+          SSH_KEY: ${{ secrets.SNARKOS_DEPLOY_KEY }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release && mv target/release/leo.exe leo.exe
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - uses: montudor/action-zip@v0.1.0
+          with:
+            args: zip -qq -r ./leo_windows.zip ./leo.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
