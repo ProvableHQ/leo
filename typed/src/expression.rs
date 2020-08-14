@@ -331,10 +331,16 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.right)),
                 Span::from(expression.span),
             ),
-            BinaryOperation::Ne => Expression::Not(
-                Box::new(Expression::from(expression.clone())),
-                Span::from(expression.span),
-            ),
+            BinaryOperation::Ne => {
+                let span = Span::from(expression.span);
+                let negated = Expression::Eq(
+                    Box::new(Expression::from(*expression.left)),
+                    Box::new(Expression::from(*expression.right)),
+                    span.clone(),
+                );
+
+                Expression::Not(Box::new(negated), span.clone())
+            }
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
