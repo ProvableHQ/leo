@@ -110,7 +110,8 @@ jobs:
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v1
         with:
-          key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+          private-key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+          public-key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS_PUBLIC }}
           name: id_rsa # optional
 #          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
