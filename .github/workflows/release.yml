@@ -99,13 +99,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Load snarkOS
-        run: |
-          mkdir C:\Users\runneradmin\.ssh
-          echo $Env:SSH_KEY > C:\Users\runneradmin\.ssh\id_rsa
-          ssh -oStrictHostKeyChecking=no git@github.com
-        env:
-          SSH_KEY: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+#      - name: Load snarkOS
+#        run: |
+#          mkdir C:\Users\runneradmin\.ssh
+#          echo $Env:SSH_KEY > C:\Users\runneradmin\.ssh\id_rsa
+#          ssh -oStrictHostKeyChecking=no git@github.com
+#        env:
+#          SSH_KEY: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v1
+        with:
+          key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+          name: id_rsa # optional
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
