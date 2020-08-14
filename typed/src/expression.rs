@@ -339,7 +339,7 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                     span.clone(),
                 );
 
-                Expression::Not(Box::new(negated), span.clone())
+                Expression::Not(Box::new(negated), span)
             }
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
