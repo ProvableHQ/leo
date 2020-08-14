@@ -1,4 +1,4 @@
-use leo_gadgets::{arithmetic::*, Int8};
+use leo_gadgets::{arithmetic::*, Int32};
 
 use snarkos_models::{
     curves::{One, Zero},
@@ -10,12 +10,12 @@ use snarkos_models::{
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use std::i8;
+use std::i32;
 
-fn check_all_constant_bits(expected: i8, actual: Int8) {
+fn check_all_constant_bits(expected: i32, actual: Int32) {
     for (i, b) in actual.bits.iter().enumerate() {
         // shift value by i
-        let mask = 1 << i as i8;
+        let mask = 1 << i as i32;
         let result = expected & mask;
 
         match b {
@@ -29,10 +29,10 @@ fn check_all_constant_bits(expected: i8, actual: Int8) {
     }
 }
 
-fn check_all_allocated_bits(expected: i8, actual: Int8) {
+fn check_all_allocated_bits(expected: i32, actual: Int32) {
     for (i, b) in actual.bits.iter().enumerate() {
         // shift value by i
-        let mask = 1 << i as i8;
+        let mask = 1 << i as i32;
         let result = expected & mask;
 
         match b {
@@ -50,21 +50,21 @@ fn check_all_allocated_bits(expected: i8, actual: Int8) {
 }
 
 #[test]
-fn test_int8_constant_and_alloc() {
+fn test_int32_constant_and_alloc() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
+        let a: i32 = rng.gen();
 
-        let a_const = Int8::constant(a);
+        let a_const = Int32::constant(a);
 
         assert!(a_const.value == Some(a));
 
         check_all_constant_bits(a, a_const);
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
 
         assert!(cs.is_satisfied());
         assert!(a_bit.value == Some(a));
@@ -74,22 +74,22 @@ fn test_int8_constant_and_alloc() {
 }
 
 #[test]
-fn test_int8_add_constants() {
+fn test_int32_add_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         let expected = match a.checked_add(b) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a_bit = Int32::constant(a);
+        let b_bit = Int32::constant(b);
 
         let r = a_bit.add(cs.ns(|| "addition"), &b_bit).unwrap();
 
@@ -100,22 +100,22 @@ fn test_int8_add_constants() {
 }
 
 #[test]
-fn test_int8_add() {
+fn test_int32_add() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         let expected = match a.checked_add(b) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int32::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
 
         let r = a_bit.add(cs.ns(|| "addition"), &b_bit).unwrap();
 
@@ -137,14 +137,14 @@ fn test_int8_add() {
 }
 
 #[test]
-fn test_int8_sub_constants() {
+fn test_int32_sub_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         if b.checked_neg().is_none() {
             // negate with overflows will fail: -128
@@ -156,8 +156,8 @@ fn test_int8_sub_constants() {
             None => continue,
         };
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a_bit = Int32::constant(a);
+        let b_bit = Int32::constant(b);
 
         let r = a_bit.sub(cs.ns(|| "subtraction"), &b_bit).unwrap();
 
@@ -168,14 +168,14 @@ fn test_int8_sub_constants() {
 }
 
 #[test]
-fn test_int8_sub() {
+fn test_int32_sub() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..1000 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         if b.checked_neg().is_none() {
             // negate with overflows will fail: -128
@@ -187,8 +187,8 @@ fn test_int8_sub() {
             None => continue,
         };
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int32::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
 
         let r = a_bit.sub(cs.ns(|| "subtraction"), &b_bit).unwrap();
 
@@ -213,22 +213,25 @@ fn test_int8_sub() {
 }
 
 #[test]
-fn test_int8_mul_constants() {
+fn test_int32_mul_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1000 {
+    for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let max = i16::MAX as i32;
+        let min = i16::MIN as i32;
+
+        let a: i32 = rng.gen_range(min, max);
+        let b: i32 = rng.gen_range(min, max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a_bit = Int32::constant(a);
+        let b_bit = Int32::constant(b);
 
         let r = a_bit.mul(cs.ns(|| "multiplication"), &b_bit).unwrap();
 
@@ -239,22 +242,25 @@ fn test_int8_mul_constants() {
 }
 
 #[test]
-fn test_int8_mul() {
+fn test_int32_mul() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1000 {
+    for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let max = i16::MAX as i32;
+        let min = i16::MIN as i32;
+
+        let a: i32 = rng.gen_range(min, max);
+        let b: i32 = rng.gen_range(min, max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int32::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
 
         let r = a_bit.mul(cs.ns(|| "multiplication"), &b_bit).unwrap();
 
@@ -276,14 +282,14 @@ fn test_int8_mul() {
 }
 
 #[test]
-fn test_int8_div_constants() {
+fn test_int32_div_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1000 {
+    for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         if a.checked_neg().is_none() {
             return;
@@ -294,8 +300,8 @@ fn test_int8_div_constants() {
             None => return,
         };
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a_bit = Int32::constant(a);
+        let b_bit = Int32::constant(b);
 
         let r = a_bit.div(cs.ns(|| "division"), &b_bit).unwrap();
 
@@ -306,14 +312,14 @@ fn test_int8_div_constants() {
 }
 
 #[test]
-fn test_int8_div() {
+fn test_int32_div() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..100 {
+    for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
+        let a: i32 = rng.gen();
+        let b: i32 = rng.gen();
 
         if a.checked_neg().is_none() {
             continue;
@@ -324,8 +330,8 @@ fn test_int8_div() {
             None => return,
         };
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int32::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
 
         let r = a_bit.div(cs.ns(|| "division"), &b_bit).unwrap();
 
@@ -337,23 +343,24 @@ fn test_int8_div() {
     }
 }
 
+#[ignore]
 #[test]
-fn test_int8_pow_constants() {
+fn test_int32_pow_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..100 {
+    for _ in 0..3 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-4, 4);
-        let b: i8 = rng.gen_range(-4, 4);
+        let a: i32 = rng.gen_range(-16, 16);
+        let b: i32 = rng.gen_range(-8, 8);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a_bit = Int32::constant(a);
+        let b_bit = Int32::constant(b);
 
         let r = a_bit.pow(cs.ns(|| "exponentiation"), &b_bit).unwrap();
 
@@ -363,23 +370,24 @@ fn test_int8_pow_constants() {
     }
 }
 
+#[ignore]
 #[test]
-fn test_int8_pow() {
+fn test_int32_pow() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..10 {
+    for _ in 0..3 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-4, 4);
-        let b: i8 = rng.gen_range(-4, 4);
+        let a: i32 = rng.gen_range(-16, 16);
+        let b: i32 = rng.gen_range(-8, 8);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
             None => continue,
         };
 
-        let a_bit = Int8::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
-        let b_bit = Int8::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
+        let a_bit = Int32::alloc(cs.ns(|| "a_bit"), || Ok(a)).unwrap();
+        let b_bit = Int32::alloc(cs.ns(|| "b_bit"), || Ok(b)).unwrap();
 
         let r = a_bit.pow(cs.ns(|| "exponentiation"), &b_bit).unwrap();
 
