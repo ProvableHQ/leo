@@ -112,7 +112,7 @@ jobs:
         with:
           key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
           name: id_rsa # optional
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+#          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
