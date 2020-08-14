@@ -78,9 +78,9 @@ jobs:
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
-      - uses: montudor/action-zip@v0.1.0
-        with:
-          args: zip -qq -r ./leo_macOS.zip ./leo
+      - name: Zip
+        run: |
+          zip -vr leo_mac.zip leo
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -94,6 +94,7 @@ jobs:
   windows:
     name: Windows
     runs-on: windows-latest
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -120,9 +121,9 @@ jobs:
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
-      - uses: montudor/action-zip@v0.1.0
-        with:
-          args: zip -qq -r ./leo_windows.zip ./leo.exe
+      - name: Zip
+        run: |
+          Compress-Archive leo.exe leo.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
