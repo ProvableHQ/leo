@@ -121,8 +121,8 @@ jobs:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - uses: montudor/action-zip@v0.1.0
-          with:
-            args: zip -qq -r ./leo_windows.zip ./leo.exe
+        with:
+          args: zip -qq -r ./leo_windows.zip ./leo.exe
 
       - name: Release
         uses: softprops/action-gh-release@v1
