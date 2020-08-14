@@ -81,6 +81,11 @@ fn test_i16_eq() {
 }
 
 #[test]
+fn test_i16_ne() {
+    TestI16::test_ne();
+}
+
+#[test]
 fn test_i16_ge() {
     TestI16::test_ge();
 }

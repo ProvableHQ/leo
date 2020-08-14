@@ -66,6 +66,11 @@ fn test_u8_eq() {
 }
 
 #[test]
+fn test_u8_ne() {
+    TestU8::test_ne();
+}
+
+#[test]
 fn test_u8_ge() {
     TestU8::test_ge();
 }

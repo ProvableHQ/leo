@@ -66,6 +66,11 @@ fn test_u16_eq() {
 }
 
 #[test]
+fn test_u16_ne() {
+    TestU16::test_ne();
+}
+
+#[test]
 fn test_u16_ge() {
     TestU16::test_ge();
 }
