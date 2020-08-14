@@ -10,6 +10,9 @@ pub use self::login::*;
 pub mod new;
 pub use self::new::*;
 
+pub mod publish;
+pub use self::publish::*;
+
 pub mod run;
 pub use self::run::*;
 
