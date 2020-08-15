@@ -1,19 +1,12 @@
 //
-// Usege:
+// Usage:
 //
 //    leo login <token>
 //    leo login -u username -p password
 //    leo login // not yet implemented
 //
 
-use crate::{
-    cli::CLI,
-    cli_types::*,
-    errors::{
-        CLIError::LoginError,
-        LoginError::{CannotGetToken, ConnectionUnavalaible, WrongLoginOrPassword},
-    },
-};
+use crate::{cli::CLI, cli_types::*, errors::LoginError};
 use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
@@ -56,10 +49,15 @@ impl CLI for LoginCommand {
     type Options = (Option<String>, Option<String>, Option<String>);
     type Output = String;
 
-    const ABOUT: AboutType = "Login to the package manager (*)";
+    const ABOUT: AboutType = "Login to the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[
         // (name, description, required, index)
-        ("NAME", "Sets token for login to the package manager", false, 1u64),
+        (
+            "NAME",
+            "Sets the authentication token for login to the package manager",
+            false,
+            1u64,
+        ),
     ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "login";
@@ -91,7 +89,7 @@ impl CLI for LoginCommand {
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
         let token = match options {
             // Login using existing token
-            (Some(token), _, _) => token,
+            (Some(token), _, _) => Some(token),
 
             // Login using username and password
             (None, Some(username), Some(password)) => {
@@ -107,37 +105,50 @@ impl CLI for LoginCommand {
                         Ok(json) => json,
                         Err(_error) => {
                             log::error!("Wrong login or password");
-                            return Err(LoginError(WrongLoginOrPassword("Wrong login or password".into())));
+                            return Err(LoginError::WrongLoginOrPassword("Wrong login or password".into()).into());
                         }
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(LoginError(ConnectionUnavalaible(
-                            "Could not connect to the package manager".into(),
-                        )));
+                        return Err(
+                            LoginError::NoConnectionFound("Could not connect to the package manager".into()).into(),
+                        );
                     }
                 };
 
                 match response.get("token") {
-                    Some(token) => token.clone(),
-                    None => return Err(LoginError(CannotGetToken("There is no token".into()))),
+                    Some(token) => Some(token.clone()),
+                    None => {
+                        return Err(LoginError::CannotGetToken("No token was provided in the response".into()).into());
+                    }
                 }
             }
 
             // Login using JWT
             (_, _, _) => {
                 // TODO JWT
-                unimplemented!()
+                None
             }
         };
 
-        // Create Leo credentials directory if it not exists
-        if !Path::new(LEO_CREDENTIALS_DIR).exists() {
-            create_dir(LEO_CREDENTIALS_DIR)?;
-        }
+        match token {
+            Some(token) => {
+                // Create Leo credentials directory if it not exists
+                if !Path::new(LEO_CREDENTIALS_DIR).exists() {
+                    create_dir(LEO_CREDENTIALS_DIR)?;
+                }
 
-        LoginCommand::write_token(token.as_str())?;
-        log::info!("Successfully logged in");
-        Ok(token)
+                LoginCommand::write_token(token.as_str())?;
+
+                log::info!("Login successful.");
+
+                Ok(token)
+            }
+            _ => {
+                log::error!("Failed to login. Please run `leo login -h` for help.");
+
+                Err(LoginError::NoCredentialsProvided.into())
+            }
+        }
     }
 }
