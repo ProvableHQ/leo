@@ -4,6 +4,9 @@ use leo_package::errors::*;
 #[derive(Debug, Error)]
 pub enum CLIError {
     #[error("{}", _0)]
+    AddError(AddError),
+
+    #[error("{}", _0)]
     BuildError(BuildError),
 
     #[error("{}", _0)]
@@ -74,6 +77,13 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     VerificationKeyFileError(VerificationKeyFileError),
+}
+
+impl From<AddError> for CLIError {
+    fn from(error: AddError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::AddError(error)
+    }
 }
 
 impl From<ZipFileError> for CLIError {

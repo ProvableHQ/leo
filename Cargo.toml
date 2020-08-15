@@ -30,8 +30,10 @@ snarkos-utilities = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package =
 
 clap = { version = "2.33.3" }
 colored = { version = "2.0" }
+console = { version = "0.12.0" }
 env_logger = { version = "0.7" }
 from-pest = { version = "0.3.1" }
+indicatif = { version = "0.15.0" }
 lazy_static = { version = "1.4.0" }
 log = { version = "0.4" }
 notify= { version = "4.0.15" }
@@ -41,8 +43,9 @@ rand_core = { version = "0.5.1" }
 reqwest = { version = "0.10.7", features = ["blocking", "json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-toml = { version = "0.5" }
 thiserror = { version = "1.0" }
+toml = { version = "0.5" }
+zip = { version = "0.5" }
 
 [dev-dependencies]
 rusty-hook = { version = "0.11.2" }

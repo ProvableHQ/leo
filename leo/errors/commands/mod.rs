@@ -1,3 +1,6 @@
+pub mod add;
+pub use self::add::*;
+
 pub mod build;
 pub use self::build::*;
 
