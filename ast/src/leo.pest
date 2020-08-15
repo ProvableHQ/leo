@@ -191,7 +191,7 @@ type_circuit = { identifier }
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
-type_tuple = { "(" ~ type_ ~ ("," ~ type_)+ ~ ")" }
+type_tuple = { "(" ~ NEWLINE* ~ type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","? ~ NEWLINE* ~ ")" }
 
 /// Values
 
@@ -381,7 +381,7 @@ input = {
     function_input
     | input_keyword
 }
-input_tuple = _{ "(" ~(input ~ ("," ~ NEWLINE* ~ input)*)? ~ ")"}
+input_tuple = _{ "(" ~ NEWLINE* ~ (input ~ ("," ~ NEWLINE* ~ input)* ~ ","?)? ~ NEWLINE* ~ ")"}
 
 
 /// Imports
