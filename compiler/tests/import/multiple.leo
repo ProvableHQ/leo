@@ -1,4 +1,4 @@
-import test_import.(
+import test-import.(
     Point,
     foo
 );
