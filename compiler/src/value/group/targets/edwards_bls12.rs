@@ -1,5 +1,5 @@
 use crate::{errors::GroupError, GroupType};
-use leo_typed::Span;
+use leo_typed::{GroupCoordinate, GroupValue, Span};
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -36,14 +36,43 @@ pub enum EdwardsGroupType {
 }
 
 impl GroupType<Fq> for EdwardsGroupType {
-    fn constant(string: String, span: Span) -> Result<Self, GroupError> {
-        // 1group = generator
-        if string.eq("1") {
-            return Ok(Self::one());
-        }
+    fn constant(group: GroupValue) -> Result<Self, GroupError> {
+        let span = group.span;
+        let x = group.x;
+        let y = group.y;
 
-        let value =
-            Self::edwards_affine_from_str(string.clone()).map_err(|_| GroupError::invalid_group(string, span))?;
+        let value = match (x, y) {
+            // (x, y)
+            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::Number(y_string, y_span)) => {
+                Self::edwards_affine_from_pair(x_string, y_string, x_span, y_span, span)?
+            }
+            // (x, +)
+            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::SignHigh) => {
+                Self::edwards_affine_from_x_str(x_string, x_span, Some(true), span)?
+            }
+            // (x, -)
+            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::SignLow) => {
+                Self::edwards_affine_from_x_str(x_string, x_span, Some(false), span)?
+            }
+            // (x, _)
+            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::Inferred) => {
+                Self::edwards_affine_from_x_str(x_string, x_span, None, span)?
+            }
+            // (+, y)
+            (GroupCoordinate::SignHigh, GroupCoordinate::Number(y_string, y_span)) => {
+                Self::edwards_affine_from_y_str(y_string, y_span, Some(true), span)?
+            }
+            // (-, y)
+            (GroupCoordinate::SignLow, GroupCoordinate::Number(y_string, y_span)) => {
+                Self::edwards_affine_from_y_str(y_string, y_span, Some(false), span)?
+            }
+            // (_, y)
+            (GroupCoordinate::Inferred, GroupCoordinate::Number(y_string, y_span)) => {
+                Self::edwards_affine_from_y_str(y_string, y_span, None, span)?
+            }
+            // Invalid
+            (x, y) => return Err(GroupError::invalid_group(format!("({}, {})", x, y), span)),
+        };
 
         Ok(EdwardsGroupType::Constant(value))
     }
@@ -124,8 +153,85 @@ impl GroupType<Fq> for EdwardsGroupType {
 }
 
 impl EdwardsGroupType {
+    pub fn edwards_affine_from_x_str(
+        x_string: String,
+        x_span: Span,
+        greatest: Option<bool>,
+        element_span: Span,
+    ) -> Result<EdwardsAffine, GroupError> {
+        let x = Fq::from_str(&x_string).map_err(|_| GroupError::x_invalid(x_string, x_span))?;
+        match greatest {
+            // Sign provided
+            Some(greatest) => EdwardsAffine::from_x_coordinate(x, greatest).ok_or(GroupError::x_recover(element_span)),
+            // Sign inferred
+            None => {
+                // Attempt to recover with a sign_low bit.
+                if let Some(element) = EdwardsAffine::from_x_coordinate(x.clone(), false) {
+                    return Ok(element);
+                }
+
+                // Attempt to recover with a sign_high bit.
+                if let Some(element) = EdwardsAffine::from_x_coordinate(x, true) {
+                    return Ok(element);
+                }
+
+                // Otherwise return error.
+                Err(GroupError::x_recover(element_span))
+            }
+        }
+    }
+
+    pub fn edwards_affine_from_y_str(
+        y_string: String,
+        y_span: Span,
+        _greatest: Option<bool>,
+        _element_span: Span,
+    ) -> Result<EdwardsAffine, GroupError> {
+        let _y = Fq::from_str(&y_string).map_err(|_| GroupError::y_invalid(y_string, y_span))?;
+
+        unimplemented!("recover from_y_coordinate not implemented for Edwards Affine")
+        // match greatest {
+        //     // Sign provided
+        //     Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest).ok_or(GroupError::y_recover(element_span)),
+        //     // Sign inferred
+        //     None => {
+        //         // Attempt to recover with a sign_low bit.
+        //         if let Some(element) = EdwardsAffine::from_y_coordinate(y.clone(), false) {
+        //             return Ok(element);
+        //         }
+        //
+        //         // Attempt to recover with a sign_high bit.
+        //         if let Some(element) = EdwardsAffine::from_y_coordinate(y, true) {
+        //             return Ok(element);
+        //         }
+        //
+        //         // Otherwise return error.
+        //         Err(GroupError::y_recover(element_span))
+        //     }
+        // }
+    }
+
+    pub fn edwards_affine_from_pair(
+        x_string: String,
+        y_string: String,
+        x_span: Span,
+        y_span: Span,
+        element_span: Span,
+    ) -> Result<EdwardsAffine, GroupError> {
+        let x = Fq::from_str(&x_string).map_err(|_| GroupError::x_invalid(x_string, x_span))?;
+        let y = Fq::from_str(&y_string).map_err(|_| GroupError::y_invalid(y_string, y_span))?;
+
+        let element = EdwardsAffine::new(x, y);
+
+        if element.is_on_curve() {
+            Ok(element)
+        } else {
+            Err(GroupError::not_on_curve(format!("{}", element), element_span))
+        }
+    }
+
     pub fn edwards_affine_from_str(string: String) -> Result<EdwardsAffine, SynthesisError> {
-        // x or (x, y)
+        // (x, y)
         match Fq::from_str(&string).ok() {
             Some(x) => {
                 // Attempt to recover with a sign_low bit.

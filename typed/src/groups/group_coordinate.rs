@@ -13,9 +13,9 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
     Number(String, Span),
-    SignHigh(Span),
-    SignLow(Span),
-    Inferred(Span),
+    SignHigh,
+    SignLow,
+    Inferred,
 }
 
 impl<'ast> From<AstGroupCoordinate<'ast>> for GroupCoordinate {
@@ -33,9 +33,9 @@ impl fmt::Display for GroupCoordinate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             GroupCoordinate::Number(number, _) => write!(f, "{}", number),
-            GroupCoordinate::SignHigh(_) => write!(f, "+"),
-            GroupCoordinate::SignLow(_) => write!(f, "-"),
-            GroupCoordinate::Inferred(_) => write!(f, "_"),
+            GroupCoordinate::SignHigh => write!(f, "+"),
+            GroupCoordinate::SignLow => write!(f, "-"),
+            GroupCoordinate::Inferred => write!(f, "_"),
         }
     }
 }
@@ -50,19 +50,19 @@ impl<'ast> From<AstNumberValue<'ast>> for GroupCoordinate {
 }
 
 impl<'ast> From<AstSignHigh<'ast>> for GroupCoordinate {
-    fn from(sign: AstSignHigh<'ast>) -> Self {
-        GroupCoordinate::SignHigh(Span::from(sign.span))
+    fn from(_sign: AstSignHigh<'ast>) -> Self {
+        GroupCoordinate::SignHigh
     }
 }
 
 impl<'ast> From<AstSignLow<'ast>> for GroupCoordinate {
-    fn from(sign: AstSignLow<'ast>) -> Self {
-        GroupCoordinate::SignLow(Span::from(sign.span))
+    fn from(_sign: AstSignLow<'ast>) -> Self {
+        GroupCoordinate::SignLow
     }
 }
 
 impl<'ast> From<AstInferred<'ast>> for GroupCoordinate {
-    fn from(sign: AstInferred<'ast>) -> Self {
-        GroupCoordinate::Inferred(Span::from(sign.span))
+    fn from(_sign: AstInferred<'ast>) -> Self {
+        GroupCoordinate::Inferred
     }
 }

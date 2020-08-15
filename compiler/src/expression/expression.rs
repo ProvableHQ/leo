@@ -38,7 +38,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::new(address, span)?)),
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
-            Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
+            Expression::Group(group_affine) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
             Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, span)?),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))

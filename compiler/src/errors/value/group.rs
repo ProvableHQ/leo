@@ -52,4 +52,34 @@ impl GroupError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn x_invalid(x: String, span: Span) -> Self {
+        let message = format!("invalid x coordinate `{}`", x);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn y_invalid(y: String, span: Span) -> Self {
+        let message = format!("invalid y coordinate `{}`", y);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn not_on_curve(element: String, span: Span) -> Self {
+        let message = format!("group element `{}` is not on the supported curve", element);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn x_recover(span: Span) -> Self {
+        let message = format!("could not recover group element from x coordinate");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn y_recover(span: Span) -> Self {
+        let message = format!("could not recover group element from x coordinate");
+
+        Self::new_from_span(message, span)
+    }
 }
