@@ -8,11 +8,12 @@ use crate::{
         CLIError::PublishError,
     },
 };
-use clap::ArgMatches;
 use leo_package::{
     outputs::OutputsDirectory,
     root::{Manifest, ZipFile},
 };
+
+use clap::ArgMatches;
 use reqwest::{
     blocking::{multipart::Form, Client},
     header::{HeaderMap, HeaderValue},
@@ -36,16 +37,8 @@ impl CLI for PublishCommand {
     type Options = ();
     type Output = Option<String>;
 
-    const ABOUT: AboutType = "Publish the current package to the package manager (*)";
-    const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
-        (
-            "NAME",
-            "Sets the resulting package name, defaults to the directory name",
-            true,
-            1u64,
-        ),
-    ];
+    const ABOUT: AboutType = "Publish the current package to the Aleo Package Manager";
+    const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "publish";
     const OPTIONS: &'static [OptionType] = &[];
@@ -53,17 +46,12 @@ impl CLI for PublishCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        // match arguments.value_of("NAME") {
-        //     Some(name) => Ok((Some(name.to_string()),)),
-        //     None => Ok((None,)),
-        // }
         Ok(())
     }
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Build all program files.
-        // It's okay if there's just a lib.leo file here
         // let _output = BuildCommand::output(options)?;
 
         // Get the package name
@@ -77,7 +65,9 @@ impl CLI for PublishCommand {
         // Create zip file
         let zip_file = ZipFile::new(&package_name);
         if zip_file.exists_at(&path) {
-            log::info!("Existing package zip file found. Skipping compression.")
+            log::debug!("Existing package zip file found. Clearing it to regenerate.");
+            // Remove the existing package zip file
+            ZipFile::new(&package_name).remove(&path)?;
         } else {
             zip_file.write(&path)?;
         }
@@ -94,8 +84,8 @@ impl CLI for PublishCommand {
         let token = match LoginCommand::read_token() {
             Ok(token) => token,
 
-            // If not logged then try to login using JWT
-            Err(_errorr) => {
+            // If not logged in, then try logging in using JWT.
+            Err(_error) => {
                 log::warn!("You should be logged before publish the package");
                 log::info!("Trying to log in using JWT...");
                 let options = (None, None, None);
@@ -133,7 +123,7 @@ impl CLI for PublishCommand {
             }
         };
 
-        log::info!("Packge published successfully");
+        log::info!("Package published successfully");
         Ok(Some(result.package_id))
     }
 }
