@@ -126,7 +126,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && mv target/release/leo.exe leo.exe
+          cargo build --all --release
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
