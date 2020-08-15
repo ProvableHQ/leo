@@ -136,7 +136,7 @@ jobs:
       - name: Zip
         run: |
           mkdir leo_${{ steps.get_version.outputs.version-without-v }}_windows
-          mv target/release/leo leo_${{ steps.get_version.outputs.version-without-v }}_windows
+          mv target/release/leo.exe leo_${{ steps.get_version.outputs.version-without-v }}_windows
           Compress-Archive leo_${{ steps.get_version.outputs.version-without-v }}_windows leo_${{ steps.get_version.outputs.version-without-v }}_windows.zip
 
       - name: Release
