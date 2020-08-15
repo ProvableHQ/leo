@@ -37,6 +37,9 @@ jobs:
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
       - name: Zip
         run: |
           mkdir leo_${{ steps.get_version.outputs.version }}_ubuntu && mv target/release/leo leo_${{ steps.get_version.outputs.version }}_ubuntu
@@ -79,7 +82,7 @@ jobs:
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
-      - id: Fetch version number
+      - id: get_version
         uses: battila7/get-version-action@v2
 
       - name: Zip
