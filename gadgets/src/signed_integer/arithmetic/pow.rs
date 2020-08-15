@@ -28,13 +28,6 @@ macro_rules! pow_int_impl {
                 // let mut found_one = false;
                 //
                 // for i in BitIterator::new(exp) {
-                //     if !found_one {
-                //         if i {
-                //             found_one = true;
-                //         } else {
-                //             continue;
-                //         }
-                //     }
                 //
                 //     res.square_in_place();
                 //
@@ -55,16 +48,7 @@ macro_rules! pow_int_impl {
                 )?;
 
                 for (i, bit) in other.bits.iter().rev().enumerate() {
-                    let found_one = Boolean::constant(result.eq(&one_const));
-                    let cond1 = Boolean::and(cs.ns(|| format!("found_one_{}", i)), &bit.not(), &found_one)?;
-                    let square = result.mul(cs.ns(|| format!("square_{}", i)), &result).unwrap();
-
-                    result = Self::conditionally_select(
-                        &mut cs.ns(|| format!("result_or_square_{}", i)),
-                        &cond1,
-                        &result,
-                        &square,
-                    )?;
+                    result = result.mul(cs.ns(|| format!("square_{}", i)), &result).unwrap();
 
                     let mul_by_self = result
                         .mul(cs.ns(|| format!("multiply_by_self_{}", i)), &self);
