@@ -39,8 +39,8 @@ jobs:
 
       - name: Zip
         run: |
-          ls
-          zip leo_ubuntu.zip leo
+          mkdir leo_ubuntu && mv leo leo_ubuntu/leo
+          zip -r leo_ubuntu.zip leo_ubuntu
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -81,8 +81,8 @@ jobs:
 
       - name: Zip
         run: |
-          ls
-          zip leo_macOS.zip leo
+          mkdir leo_macOS && mv leo leo_macOS/leo
+          zip -r leo_macOS.zip leo_macOS
 
       - name: Release
         uses: softprops/action-gh-release@v1
