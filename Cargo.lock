@@ -972,6 +972,7 @@ dependencies = [
  "leo-package",
  "log",
  "notify",
+ "num-bigint",
  "rand",
  "rand_core",
  "reqwest",

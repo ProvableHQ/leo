@@ -6,6 +6,7 @@ use crate::{
     inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
+        CIRCUIT_FILE_EXTENSION,
         OUTPUTS_DIRECTORY_NAME,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
@@ -123,7 +124,7 @@ fn is_excluded(path: &Path) -> bool {
         return true;
     }
 
-    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`
+    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     path.extension()
         .map(|ext| {
             ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
@@ -133,6 +134,7 @@ fn is_excluded(path: &Path) -> bool {
                 | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
+                | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
         })
         .unwrap_or(false)
 }
