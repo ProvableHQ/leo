@@ -66,6 +66,54 @@ fn test_alias() {
     assert_satisfied(program);
 }
 
+// naming tests
+#[test]
+#[ignore]
+fn test_names_pass() {
+    set_local_dir();
+
+    let bytes = include_bytes!("names.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+#[ignore]
+fn test_names_fail_1() {
+    set_local_dir();
+
+    let bytes = include_bytes!("names_dash_a.leo");
+    assert!(parse_program(bytes).is_err());
+}
+
+#[test]
+#[ignore]
+fn test_names_fail_2() {
+    set_local_dir();
+
+    let bytes = include_bytes!("names_a_dash.leo");
+    assert!(parse_program(bytes).is_err());
+}
+
+#[test]
+#[ignore]
+fn test_names_fail_3() {
+    set_local_dir();
+
+    let bytes = include_bytes!("names_underscore.leo");
+    assert!(parse_program(bytes).is_err());
+}
+
+#[test]
+#[ignore]
+fn test_names_fail_4() {
+    set_local_dir();
+
+    let bytes = include_bytes!("names_dollar.leo");
+    assert!(parse_program(bytes).is_err());
+}
+
 // more complex tests
 #[test]
 #[ignore]

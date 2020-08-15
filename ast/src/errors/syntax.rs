@@ -35,6 +35,11 @@ impl From<Error<Rule>> for SyntaxError {
             Rule::operation_div => "`/`".to_owned(),
             Rule::operation_pow => "`**`".to_owned(),
 
+            Rule::package => "package. Check package and import names for errors.".to_owned(),
+            Rule::package_name => {
+                "package name. Please use lowercase letters, numbers, and dashes `-` only.".to_owned()
+            }
+
             rule => format!("{:?}", rule),
         });
 

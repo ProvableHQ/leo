@@ -1,4 +1,4 @@
-import test_import.( // local import
+import test-import.( // local import
     Point,
     foo,
 );
