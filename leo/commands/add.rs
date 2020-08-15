@@ -13,16 +13,16 @@ use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
-pub struct UnloadCommand;
+pub struct AddCommand;
 
-impl CLI for UnloadCommand {
+impl CLI for AddCommand {
     type Options = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Uninstall a package from the current package (*)";
+    const ABOUT: AboutType = "Install a package from the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "unload";
+    const NAME: NameType = "add";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -34,13 +34,12 @@ impl CLI for UnloadCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let path = current_dir()?;
-
         match BuildCommand::output(options)? {
             Some((_program, _checksum_differs)) => {
                 // Get the package name
                 let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-                log::info!("Unimplemented - `leo load`");
+                log::info!("Unimplemented - `leo add`");
 
                 Ok(())
             }
