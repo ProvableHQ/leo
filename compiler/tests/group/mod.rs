@@ -1,5 +1,6 @@
 use crate::{
     assert_satisfied,
+    expect_compiler_error,
     expect_synthesis_error,
     field::field_to_decimal_string,
     generate_main_input,
@@ -21,27 +22,86 @@ pub fn group_to_decimal_string(g: EdwardsAffine) -> String {
 }
 
 #[test]
-fn test_zero() {
-    let bytes = include_bytes!("zero.leo");
-    let program = parse_program(bytes).unwrap();
-
-    assert_satisfied(program);
-}
-
-#[test]
-fn test_one() {
-    let bytes = include_bytes!("one.leo");
-    let program = parse_program(bytes).unwrap();
-
-    assert_satisfied(program)
-}
-
-#[test]
 fn test_point() {
     let bytes = include_bytes!("point.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
+}
+
+#[test]
+fn test_x_sign_high() {
+    let bytes = include_bytes!("x_sign_high.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_x_sign_low() {
+    let bytes = include_bytes!("x_sign_low.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_x_sign_inferred() {
+    let bytes = include_bytes!("x_sign_inferred.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+// #[test]
+// fn test_y_sign_high() {
+//     let bytes = include_bytes!("y_sign_high.leo");
+//     let program = parse_program(bytes).unwrap();
+//
+//     assert_satisfied(program);
+// }
+//
+// #[test]
+// fn test_y_sign_low() {
+//     let bytes = include_bytes!("y_sign_low.leo");
+//     let program = parse_program(bytes).unwrap();
+//
+//     assert_satisfied(program);
+// }
+//
+// #[test]
+// fn test_y_sign_inferred() {
+//     let bytes = include_bytes!("y_sign_inferred.leo");
+//     let program = parse_program(bytes).unwrap();
+//
+//     assert_satisfied(program);
+// }
+
+#[test]
+fn test_double_high() {
+    let bytes = include_bytes!("double_high.leo");
+
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_double_low() {
+    let bytes = include_bytes!("double_low.leo");
+
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_double_inferred() {
+    let bytes = include_bytes!("double_inferred.leo");
+
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
 }
 
 #[test]
