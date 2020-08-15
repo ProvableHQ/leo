@@ -33,13 +33,13 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - name: Zip
         run: |
-          mkdir leo_ubuntu && mv leo leo_ubuntu/leo
+          mkdir leo_ubuntu && mv target/release/leo leo_ubuntu
           zip -r leo_ubuntu.zip leo_ubuntu
 
       - name: Release
@@ -75,13 +75,13 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - name: Zip
         run: |
-          mkdir leo_macOS && mv leo leo_macOS/leo
+          mkdir leo_macOS && mv target/release/leo leo_macOS
           zip -r leo_macOS.zip leo_macOS
 
       - name: Release
