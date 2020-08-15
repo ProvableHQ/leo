@@ -9,7 +9,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::value_group))]
 pub struct GroupValue<'ast> {
     pub value: GroupTuple<'ast>,
-    pub _type: GroupType,
+    pub type_: GroupType,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

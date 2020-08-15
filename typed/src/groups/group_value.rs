@@ -1,5 +1,6 @@
 use crate::{common::span::Span, groups::GroupCoordinate};
 use leo_ast::values::GroupValue as AstGroupValue;
+use leo_input::values::GroupValue as InputGroupValue;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -13,6 +14,19 @@ pub struct GroupValue {
 
 impl<'ast> From<AstGroupValue<'ast>> for GroupValue {
     fn from(ast_group: AstGroupValue<'ast>) -> Self {
+        let ast_x = ast_group.value.x;
+        let ast_y = ast_group.value.y;
+
+        Self {
+            x: GroupCoordinate::from(ast_x),
+            y: GroupCoordinate::from(ast_y),
+            span: Span::from(ast_group.span),
+        }
+    }
+}
+
+impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
+    fn from(ast_group: InputGroupValue<'ast>) -> Self {
         let ast_x = ast_group.value.x;
         let ast_y = ast_group.value.y;
 

@@ -6,6 +6,13 @@ use leo_ast::values::{
     SignHigh as AstSignHigh,
     SignLow as AstSignLow,
 };
+use leo_input::values::{
+    GroupCoordinate as InputGroupCoordinate,
+    Inferred as InputInferred,
+    NumberValue as InputNumberValue,
+    SignHigh as InputSignHigh,
+    SignLow as InputSignLow,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,6 +32,17 @@ impl<'ast> From<AstGroupCoordinate<'ast>> for GroupCoordinate {
             AstGroupCoordinate::SignHigh(sign_high) => GroupCoordinate::from(sign_high),
             AstGroupCoordinate::SignLow(sign_low) => GroupCoordinate::from(sign_low),
             AstGroupCoordinate::Inferred(inferred) => GroupCoordinate::from(inferred),
+        }
+    }
+}
+
+impl<'ast> From<InputGroupCoordinate<'ast>> for GroupCoordinate {
+    fn from(coordinate: InputGroupCoordinate<'ast>) -> Self {
+        match coordinate {
+            InputGroupCoordinate::Number(number) => GroupCoordinate::from(number),
+            InputGroupCoordinate::SignHigh(sign_high) => GroupCoordinate::from(sign_high),
+            InputGroupCoordinate::SignLow(sign_low) => GroupCoordinate::from(sign_low),
+            InputGroupCoordinate::Inferred(inferred) => GroupCoordinate::from(inferred),
         }
     }
 }
@@ -63,6 +81,33 @@ impl<'ast> From<AstSignLow<'ast>> for GroupCoordinate {
 
 impl<'ast> From<AstInferred<'ast>> for GroupCoordinate {
     fn from(_sign: AstInferred<'ast>) -> Self {
+        GroupCoordinate::Inferred
+    }
+}
+
+impl<'ast> From<InputNumberValue<'ast>> for GroupCoordinate {
+    fn from(number: InputNumberValue<'ast>) -> Self {
+        let value = number.to_string();
+        let span = Span::from(number.span().clone());
+
+        GroupCoordinate::Number(value, span)
+    }
+}
+
+impl<'ast> From<InputSignHigh<'ast>> for GroupCoordinate {
+    fn from(_sign: InputSignHigh<'ast>) -> Self {
+        GroupCoordinate::SignHigh
+    }
+}
+
+impl<'ast> From<InputSignLow<'ast>> for GroupCoordinate {
+    fn from(_sign: InputSignLow<'ast>) -> Self {
+        GroupCoordinate::SignLow
+    }
+}
+
+impl<'ast> From<InputInferred<'ast>> for GroupCoordinate {
+    fn from(_sign: InputInferred<'ast>) -> Self {
         GroupCoordinate::Inferred
     }
 }
