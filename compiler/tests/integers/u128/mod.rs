@@ -66,6 +66,11 @@ fn test_u128_eq() {
 }
 
 #[test]
+fn test_u128_ne() {
+    TestU128::test_ne();
+}
+
+#[test]
 fn test_u128_ge() {
     TestU128::test_ge();
 }

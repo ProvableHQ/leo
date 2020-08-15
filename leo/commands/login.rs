@@ -54,7 +54,7 @@ impl LoginCommand {
 impl CLI for LoginCommand {
     // Format: token, username, password
     type Options = (Option<String>, Option<String>, Option<String>);
-    type Output = ();
+    type Output = String;
 
     const ABOUT: AboutType = "Login to the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[
@@ -138,6 +138,6 @@ impl CLI for LoginCommand {
 
         LoginCommand::write_token(token.as_str())?;
         log::info!("Successfully logged in");
-        Ok(())
+        Ok(token)
     }
 }

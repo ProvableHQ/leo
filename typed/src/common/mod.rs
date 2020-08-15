@@ -16,5 +16,8 @@ pub use span::*;
 pub mod spread_or_expression;
 pub use spread_or_expression::*;
 
-pub mod variable;
-pub use variable::*;
+pub mod variables;
+pub use variables::*;
+
+pub mod variable_name;
+pub use variable_name::*;

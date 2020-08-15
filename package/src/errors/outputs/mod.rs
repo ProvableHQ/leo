@@ -1,3 +1,6 @@
+pub mod circuit;
+pub use circuit::*;
+
 pub mod checksum;
 pub use checksum::*;
 

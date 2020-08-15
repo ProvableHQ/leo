@@ -195,6 +195,44 @@ macro_rules! test_uint {
                 }
             }
 
+            fn test_ne() {
+                for _ in 0..10 {
+                    let a: $type_ = rand::random();
+                    let b: $type_ = rand::random();
+
+                    // test a != a == false
+
+                    let bytes = include_bytes!("ne.leo");
+                    let mut program = parse_program(bytes).unwrap();
+
+                    let main_input = generate_main_input(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("c", Some(InputValue::Boolean(false))),
+                    ]);
+
+                    program.set_main_input(main_input);
+
+                    assert_satisfied(program);
+
+                    // test not equal
+
+                    let c = a.ne(&b);
+
+                    let mut program = parse_program(bytes).unwrap();
+
+                    let main_input = generate_main_input(vec![
+                        ("a", Some(InputValue::Integer($integer_type, a.to_string()))),
+                        ("b", Some(InputValue::Integer($integer_type, b.to_string()))),
+                        ("c", Some(InputValue::Boolean(c))),
+                    ]);
+
+                    program.set_main_input(main_input);
+
+                    assert_satisfied(program);
+                }
+            }
+
             fn test_ge() {
                 for _ in 0..10 {
                     let a: $type_ = rand::random();

@@ -45,6 +45,16 @@ fn test_point() {
 }
 
 #[test]
+fn test_point_input() {
+    let program_bytes = include_bytes!("point_input.leo");
+    let input_bytes = include_bytes!("input/point.in");
+
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_input() {
     let program_bytes = include_bytes!("input.leo");
     let input_bytes_pass = include_bytes!("input/one_one.in");
@@ -196,6 +206,7 @@ fn test_assert_eq_fail() {
 }
 
 #[test]
+#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

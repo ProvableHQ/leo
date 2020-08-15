@@ -1,5 +1,5 @@
 //! Conversion of integer declarations to constraints in Leo.
-use crate::{errors::IntegerError, integer::macros::IntegerTrait};
+use crate::{errors::IntegerError, IntegerTrait};
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
@@ -17,7 +17,7 @@ use snarkos_models::{
             boolean::Boolean,
             eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
-            uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
+            uint::*,
         },
     },
 };
@@ -489,7 +489,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
     }
 
     fn cost() -> usize {
-        <UInt128 as ConditionalEqGadget<F>>::cost() // upper bound. change trait to increase accuracy
+        unimplemented!() // cannot determine which integer we are enforcing
     }
 }
 
@@ -517,6 +517,6 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
     }
 
     fn cost() -> usize {
-        <UInt128 as CondSelectGadget<F>>::cost() // upper bound. change trait to increase accuracy
+        unimplemented!() // cannot determine which integer we are enforcing
     }
 }

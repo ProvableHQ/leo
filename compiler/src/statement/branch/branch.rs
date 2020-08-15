@@ -16,7 +16,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
-        return_types: Vec<Type>,
+        return_type: Option<Type>,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
         // Evaluate statements. Only allow a single return argument to be returned.
@@ -27,7 +27,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope.clone(),
                 indicator.clone(),
                 statement.clone(),
-                return_types.clone(),
+                return_type.clone(),
             )?;
 
             results.append(&mut value);

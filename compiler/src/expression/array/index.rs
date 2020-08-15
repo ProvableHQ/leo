@@ -17,12 +17,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         index: Expression,
         span: Span,
     ) -> Result<usize, ExpressionError> {
-        let expected_types = vec![Type::IntegerType(IntegerType::U32)];
+        let expected_type = Some(Type::IntegerType(IntegerType::U32));
         match self.enforce_operand(
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            &expected_types,
+            expected_type,
             index,
             span.clone(),
         )? {

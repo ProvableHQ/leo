@@ -169,6 +169,7 @@ fn test_mul() {
 }
 
 #[test]
+#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

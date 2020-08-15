@@ -26,6 +26,7 @@ use leo_ast::{
 };
 use leo_input::values::PositiveNumber as InputAstPositiveNumber;
 
+use leo_ast::expressions::TupleExpression;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -68,6 +69,10 @@ pub enum Expression {
     Array(Vec<Box<SpreadOrExpression>>, Span),
     ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span), // (array name, range)
 
+    // Tuples
+    Tuple(Vec<Expression>, Span),
+    TupleAccess(Box<Expression>, usize, Span),
+
     // Circuits
     Circuit(Identifier, Vec<CircuitFieldDefinition>, Span),
     CircuitMemberAccess(Box<Expression>, Identifier, Span), // (declared circuit name, circuit member name)
@@ -101,6 +106,9 @@ impl Expression {
             Expression::IfElse(_, _, _, old_span) => *old_span = new_span.clone(),
             Expression::Array(_, old_span) => *old_span = new_span.clone(),
             Expression::ArrayAccess(_, _, old_span) => *old_span = new_span.clone(),
+
+            Expression::Tuple(_, old_span) => *old_span = new_span.clone(),
+            Expression::TupleAccess(_, _, old_span) => *old_span = new_span.clone(),
 
             Expression::Circuit(_, _, old_span) => *old_span = new_span.clone(),
             Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span.clone(),
@@ -178,6 +186,14 @@ impl<'ast> fmt::Display for Expression {
             }
             Expression::ArrayAccess(ref array, ref index, ref _span) => write!(f, "{}[{}]", array, index),
 
+            // Tuples
+            Expression::Tuple(ref tuple, ref _span) => {
+                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "({})", values)
+            }
+            Expression::TupleAccess(ref tuple, ref index, ref _span) => write!(f, "{}.{}", tuple, index),
+
             // Circuits
             Expression::Circuit(ref var, ref members, ref _span) => {
                 write!(f, "{} {{", var)?;
@@ -243,12 +259,20 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                     Span::from(array.span),
                 ),
 
+                // Handle tuple access
+                Access::Tuple(tuple) => Expression::TupleAccess(
+                    Box::new(acc),
+                    Expression::get_count_from_ast(tuple.number),
+                    Span::from(tuple.span),
+                ),
+
                 // Handle function calls
                 Access::Call(function) => {
                     let span = Span::from(function.span);
                     Expression::FunctionCall(
                         Box::new(acc),
                         function
+                            .expressions
                             .expressions
                             .into_iter()
                             .map(|expression| Expression::from(expression))
@@ -282,6 +306,7 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
             AstExpression::Ternary(expression) => Expression::from(expression),
             AstExpression::ArrayInline(expression) => Expression::from(expression),
             AstExpression::ArrayInitializer(expression) => Expression::from(expression),
+            AstExpression::Tuple(expression) => Expression::from(expression),
             AstExpression::CircuitInline(expression) => Expression::from(expression),
             AstExpression::Postfix(expression) => Expression::from(expression),
         }
@@ -308,6 +333,11 @@ impl<'ast> From<Assignee<'ast>> for Expression {
                     Box::new(RangeOrExpression::from(array.expression)),
                     Span::from(array.span),
                 ),
+                AssigneeAccess::Tuple(tuple) => Expression::TupleAccess(
+                    Box::new(acc),
+                    Expression::get_count_from_ast(tuple.number),
+                    Span::from(tuple.span),
+                ),
             })
     }
 }
@@ -331,10 +361,16 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
                 Box::new(Expression::from(*expression.right)),
                 Span::from(expression.span),
             ),
-            BinaryOperation::Ne => Expression::Not(
-                Box::new(Expression::from(expression.clone())),
-                Span::from(expression.span),
-            ),
+            BinaryOperation::Ne => {
+                let span = Span::from(expression.span);
+                let negated = Expression::Eq(
+                    Box::new(Expression::from(*expression.left)),
+                    Box::new(Expression::from(*expression.right)),
+                    span.clone(),
+                );
+
+                Expression::Not(Box::new(negated), span)
+            }
             BinaryOperation::Ge => Expression::Ge(
                 Box::new(Expression::from(*expression.left)),
                 Box::new(Expression::from(*expression.right)),
@@ -415,6 +451,15 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
         Expression::Array(vec![expression; count], Span::from(array.span))
+    }
+}
+
+impl<'ast> From<TupleExpression<'ast>> for Expression {
+    fn from(tuple: TupleExpression<'ast>) -> Self {
+        Expression::Tuple(
+            tuple.expressions.into_iter().map(|e| Expression::from(e)).collect(),
+            Span::from(tuple.span),
+        )
     }
 }
 

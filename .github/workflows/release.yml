@@ -1,0 +1,149 @@
+name: Leo Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  ubuntu:
+    name: Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release && strip target/release/leo
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip
+        run: |
+          mkdir leo_${{ steps.get_version.outputs.version }}_ubuntu
+          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_ubuntu
+          zip -r leo_${{ steps.get_version.outputs.version }}_ubuntu.zip leo_${{ steps.get_version.outputs.version }}_ubuntu
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_${{ steps.get_version.outputs.version }}_ubuntu.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release && strip target/release/leo
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip
+        run: |
+          mkdir leo_${{ steps.get_version.outputs.version }}_mac
+          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_mac
+          zip -r leo_${{ steps.get_version.outputs.version }}_mac.zip leo_${{ steps.get_version.outputs.version }}_mac
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_${{ steps.get_version.outputs.version }}_mac.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v1
+        with:
+          private-key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS }}
+          public-key: ${{ secrets.SNARKOS_DEPLOY_KEY_WINDOWS_PUBLIC }}
+          name: id_rsa
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          cargo build --all --release
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip
+        run: |
+          mkdir leo_${{ steps.get_version.outputs.version }}_windows
+          mv target/release/leo.exe leo_${{ steps.get_version.outputs.version }}_windows
+          Compress-Archive leo_${{ steps.get_version.outputs.version }}_windows leo_${{ steps.get_version.outputs.version }}_windows.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo_${{ steps.get_version.outputs.version }}_windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

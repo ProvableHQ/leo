@@ -32,6 +32,9 @@ pub trait IntegerTester {
     /// Tests == evaluation
     fn test_eq();
 
+    /// Tests != evaluation
+    fn test_ne();
+
     /// Tests >= evaluation
     fn test_ge();
 

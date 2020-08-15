@@ -23,4 +23,5 @@ thiserror = { version = "1.0" }
 
 
 [dev-dependencies]
-snarkos-testing = { path = "../../snarkOS/testing" }
+snarkos-storage = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-storage" }
+

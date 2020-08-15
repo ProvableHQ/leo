@@ -66,6 +66,11 @@ fn test_u64_eq() {
 }
 
 #[test]
+fn test_u64_ne() {
+    TestU64::test_ne();
+}
+
+#[test]
 fn test_u64_ge() {
     TestU64::test_ge();
 }

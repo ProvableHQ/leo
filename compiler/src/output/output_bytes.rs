@@ -20,8 +20,8 @@ impl OutputBytes {
         span: Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
-            ConstrainedValue::Return(values) => values,
-            value => return Err(OutputBytesError::illegal_return(value.to_string(), span)),
+            ConstrainedValue::Tuple(values) => values,
+            value => vec![value],
         };
         let register_hashmap = registers.values();
 

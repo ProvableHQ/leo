@@ -82,6 +82,11 @@ fn test_i64_eq() {
 }
 
 #[test]
+fn test_i64_ne() {
+    TestI64::test_ne();
+}
+
+#[test]
 fn test_i64_ge() {
     TestI64::test_ge();
 }

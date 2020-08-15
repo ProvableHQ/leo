@@ -1,4 +1,4 @@
-use crate::{ast::Rule, common::Return, SpanDef};
+use crate::{ast::Rule, expressions::Expression, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -8,7 +8,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::statement_return))]
 pub struct ReturnStatement<'ast> {
-    pub return_: Return<'ast>,
+    pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
@@ -16,6 +16,6 @@ pub struct ReturnStatement<'ast> {
 
 impl<'ast> fmt::Display for ReturnStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.return_)
+        write!(f, "return {}", self.expression)
     }
 }

@@ -81,6 +81,11 @@ fn test_i32_eq() {
 }
 
 #[test]
+fn test_i32_ne() {
+    TestI32::test_ne();
+}
+
+#[test]
 fn test_i32_ge() {
     TestI32::test_ge();
 }

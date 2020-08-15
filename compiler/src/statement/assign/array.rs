@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name, span.clone())? {
                     ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(&vec![old[index].to_type(span.clone())?], span.clone())?;
+                        new_value.resolve_type(Some(old[index].to_type(span.clone())?), span.clone())?;
 
                         let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                         let selected_value = ConstrainedValue::conditionally_select(

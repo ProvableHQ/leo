@@ -6,6 +6,7 @@ use crate::{
     inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
+        CIRCUIT_FILE_EXTENSION,
         OUTPUTS_DIRECTORY_NAME,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
@@ -39,6 +40,10 @@ impl ZipFile {
     pub fn exists_at(&self, path: &PathBuf) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
+    }
+
+    pub fn get_file_path(&self, current_dir: &PathBuf) -> PathBuf {
+        self.setup_file_path(current_dir)
     }
 
     // /// Reads the program bytes from the given file path if it exists.
@@ -114,11 +119,12 @@ fn is_excluded(path: &Path) -> bool {
     if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
+        | path.starts_with(INPUTS_DIRECTORY_NAME)
     {
         return true;
     }
 
-    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`
+    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     path.extension()
         .map(|ext| {
             ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
@@ -128,6 +134,7 @@ fn is_excluded(path: &Path) -> bool {
                 | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
+                | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
         })
         .unwrap_or(false)
 }

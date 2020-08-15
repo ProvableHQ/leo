@@ -29,3 +29,6 @@ pub use self::logical::*;
 
 pub mod relational;
 pub use self::relational::*;
+
+pub mod tuple;
+pub use self::tuple::*;

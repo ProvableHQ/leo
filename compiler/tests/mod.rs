@@ -13,6 +13,7 @@ pub mod macros;
 pub mod mutability;
 pub mod statements;
 pub mod syntax;
+pub mod tuples;
 
 use leo_compiler::{
     compiler::Compiler,

@@ -9,11 +9,14 @@ pub enum CLIError {
     #[error("{}", _0)]
     BytesFileError(ZipFileError),
 
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
     #[error("{}", _0)]
     ChecksumFileError(ChecksumFileError),
+
+    #[error("{}", _0)]
+    CircuitFileError(CircuitFileError),
+
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
 
     #[error("{}", _0)]
     GitignoreError(GitignoreError),
@@ -52,6 +55,9 @@ pub enum CLIError {
     ProvingKeyFileError(ProvingKeyFileError),
 
     #[error("{}", _0)]
+    PublishError(PublishError),
+
+    #[error("{}", _0)]
     RunError(RunError),
 
     #[error("{}", _0)]
@@ -88,6 +94,13 @@ impl From<ChecksumFileError> for CLIError {
     fn from(error: ChecksumFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::ChecksumFileError(error)
+    }
+}
+
+impl From<CircuitFileError> for CLIError {
+    fn from(error: CircuitFileError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::CircuitFileError(error)
     }
 }
 
@@ -172,6 +185,13 @@ impl From<ProvingKeyFileError> for CLIError {
     fn from(error: ProvingKeyFileError) -> Self {
         log::error!("{}\n", error);
         CLIError::ProvingKeyFileError(error)
+    }
+}
+
+impl From<PublishError> for CLIError {
+    fn from(error: PublishError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::PublishError(error)
     }
 }
 

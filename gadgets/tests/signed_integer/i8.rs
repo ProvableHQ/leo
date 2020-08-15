@@ -83,13 +83,13 @@ fn test_int8_add_constants() {
         let a: i8 = rng.gen();
         let b: i8 = rng.gen();
 
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
-
         let expected = match a.checked_add(b) {
             Some(valid) => valid,
             None => continue,
         };
+
+        let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
 
         let r = a_bit.add(cs.ns(|| "addition"), &b_bit).unwrap();
 
@@ -341,19 +341,19 @@ fn test_int8_div() {
 fn test_int8_pow_constants() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for _ in 0..1000 {
+    for _ in 0..100 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen();
-        let b: i8 = rng.gen();
-
-        let a_bit = Int8::constant(a);
-        let b_bit = Int8::constant(b);
+        let a: i8 = rng.gen_range(-4, 4);
+        let b: i8 = rng.gen_range(-4, 4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
             None => continue,
         };
+
+        let a_bit = Int8::constant(a);
+        let b_bit = Int8::constant(b);
 
         let r = a_bit.pow(cs.ns(|| "exponentiation"), &b_bit).unwrap();
 
@@ -367,15 +367,11 @@ fn test_int8_pow_constants() {
 fn test_int8_pow() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
-    for i in 0..10 {
+    for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        // Test small ranges that we know won't overflow first
-        let (a, b): (i8, i8) = if i < 50 {
-            (rng.gen_range(-4, 4), rng.gen_range(0, 4))
-        } else {
-            (rng.gen(), rng.gen())
-        };
+        let a: i8 = rng.gen_range(-4, 4);
+        let b: i8 = rng.gen_range(-4, 4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,

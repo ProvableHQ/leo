@@ -113,11 +113,29 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn multiple_definition(value: String, span: Span) -> Self {
+        let message = format!("cannot assign multiple variables to a single value: {}", value,);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn select_fail(first: String, second: String, span: Span) -> Self {
         let message = format!(
             "Conditional select gadget failed to select between `{}` or `{}`",
             first, second
         );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn tuple_assign_index(span: Span) -> Self {
+        let message = format!("Cannot assign single index to tuple of values");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn tuple_type(type_: String, span: Span) -> Self {
+        let message = format!("Expected tuple type, found type `{}`", type_);
 
         Self::new_from_span(message, span)
     }

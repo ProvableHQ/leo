@@ -14,6 +14,7 @@ use snarkos_utilities::{bytes::ToBytes, to_bytes};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use snarkos_models::dpc::DPCScheme;
+use snarkos_storage::Ledger;
 
 #[test]
 fn test_verify_local_data_commitment_from_file() {
@@ -39,7 +40,6 @@ fn test_verify_local_data_commitment_from_file() {
 #[test]
 #[ignore]
 fn test_generate_values_from_dpc() {
-    use snarkos_testing::storage::*;
     type L = Ledger<Tx, CommitmentMerkleParameters>;
 
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);

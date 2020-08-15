@@ -25,13 +25,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => {
-                self.evaluate_identifier(file_scope, function_scope, expected_types, unresolved_variable)
+                self.evaluate_identifier(file_scope, function_scope, expected_type, unresolved_variable)
             }
 
             // Values
@@ -39,7 +39,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
             Expression::Group(group_affine, span) => Ok(ConstrainedValue::Group(G::constant(group_affine, span)?)),
-            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_types, value, span)?),
+            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, span)?),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
             }
@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Binary operations
             Expression::Negate(expression, span) => {
                 let resolved_value =
-                    self.enforce_expression(cs, file_scope, function_scope, expected_types, *expression)?;
+                    self.enforce_expression(cs, file_scope, function_scope, expected_type, *expression)?;
 
                 enforce_negate(cs, resolved_value, span)
             }
@@ -56,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -69,7 +69,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -82,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -95,7 +95,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -108,7 +108,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -119,7 +119,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Boolean operations
             Expression::Not(expression, span) => Ok(evaluate_not(
-                self.enforce_expression(cs, file_scope, function_scope, expected_types, *expression)?,
+                self.enforce_expression(cs, file_scope, function_scope, expected_type, *expression)?,
                 span,
             )?),
             Expression::Or(left, right, span) => {
@@ -127,7 +127,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -140,7 +140,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    expected_types,
+                    expected_type,
                     *left,
                     *right,
                     span.clone(),
@@ -153,7 +153,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    &vec![],
+                    None,
                     *left,
                     *right,
                     span.clone(),
@@ -166,7 +166,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    &vec![],
+                    None,
                     *left,
                     *right,
                     span.clone(),
@@ -179,7 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    &vec![],
+                    None,
                     *left,
                     *right,
                     span.clone(),
@@ -192,7 +192,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    &vec![],
+                    None,
                     *left,
                     *right,
                     span.clone(),
@@ -205,7 +205,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope.clone(),
                     function_scope.clone(),
-                    &vec![],
+                    None,
                     *left,
                     *right,
                     span.clone(),
@@ -219,7 +219,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope,
                 function_scope,
-                expected_types,
+                expected_type,
                 *conditional,
                 *first,
                 *second,
@@ -228,10 +228,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Arrays
             Expression::Array(array, span) => {
-                self.enforce_array(cs, file_scope, function_scope, expected_types, array, span)
+                self.enforce_array(cs, file_scope, function_scope, expected_type, array, span)
             }
             Expression::ArrayAccess(array, index, span) => {
-                self.enforce_array_access(cs, file_scope, function_scope, expected_types, array, *index, span)
+                self.enforce_array_access(cs, file_scope, function_scope, expected_type, array, *index, span)
+            }
+
+            // Tuples
+            Expression::Tuple(tuple, span) => {
+                self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
+            }
+            Expression::TupleAccess(tuple, index, span) => {
+                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, tuple, index, span)
             }
 
             // Circuits
@@ -242,7 +250,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope,
                 function_scope,
-                expected_types,
+                expected_type,
                 circuit_variable,
                 circuit_member,
                 span,
@@ -252,7 +260,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope,
                     function_scope,
-                    expected_types,
+                    expected_type,
                     circuit_identifier,
                     circuit_member,
                     span,
@@ -263,7 +271,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope,
                 function_scope,
-                expected_types,
+                expected_type,
                 function,
                 arguments,
                 span,

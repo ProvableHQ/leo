@@ -114,6 +114,15 @@ impl InputParserError {
         Self::new_from_span(message, table.span)
     }
 
+    pub fn tuple_length(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "expected a tuple with {} elements, found a tuple with {} elements",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn section(header: Header) -> Self {
         let message = format!(
             "the section header `{}` must have a double bracket visibility in a state `.state` file",

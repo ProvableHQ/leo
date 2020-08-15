@@ -14,6 +14,7 @@ use crate::{
     values::Value,
 };
 
+use crate::expressions::TupleExpression;
 use from_pest::{ConversionError, FromPest, Void};
 use pest::{
     error::Error,
@@ -64,6 +65,9 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             let next = clone.into_inner().next().unwrap();
             match next.as_rule() {
                 Rule::expression => Expression::from_pest(&mut pair.into_inner()).unwrap(), // Parenthesis case
+                Rule::expression_tuple => {
+                    Expression::Tuple(TupleExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
                 Rule::expression_array_inline => {
                     Expression::ArrayInline(ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }

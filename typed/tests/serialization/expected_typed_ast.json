@@ -7,44 +7,42 @@
     "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}": {
       "identifier": "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}",
       "input": [],
-      "returns": [],
+      "returns": null,
       "statements": [
         {
           "Return": [
-            [
-              {
-                "Add": [
-                  {
-                    "Implicit": [
-                      "1",
-                      {
-                        "text": "     return 1 + 1",
-                        "line": 2,
-                        "start": 12,
-                        "end": 13
-                      }
-                    ]
-                  },
-                  {
-                    "Implicit": [
-                      "1",
-                      {
-                        "text": "     return 1 + 1",
-                        "line": 2,
-                        "start": 16,
-                        "end": 17
-                      }
-                    ]
-                  },
-                  {
-                    "text": "     return 1 + 1",
-                    "line": 2,
-                    "start": 12,
-                    "end": 17
-                  }
-                ]
-              }
-            ],
+            {
+              "Add": [
+                {
+                  "Implicit": [
+                    "1",
+                    {
+                      "text": "     return 1 + 1",
+                      "line": 2,
+                      "start": 12,
+                      "end": 13
+                    }
+                  ]
+                },
+                {
+                  "Implicit": [
+                    "1",
+                    {
+                      "text": "     return 1 + 1",
+                      "line": 2,
+                      "start": 16,
+                      "end": 17
+                    }
+                  ]
+                },
+                {
+                  "text": "     return 1 + 1",
+                  "line": 2,
+                  "start": 12,
+                  "end": 17
+                }
+              ]
+            },
             {
               "text": "     return 1 + 1",
               "line": 2,

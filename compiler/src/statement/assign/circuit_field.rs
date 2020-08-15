@@ -40,7 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             return Err(StatementError::immutable_circuit_function("static".into(), span));
                         }
                         _ => {
-                            new_value.resolve_type(&vec![object.1.to_type(span.clone())?], span.clone())?;
+                            new_value.resolve_type(Some(object.1.to_type(span.clone())?), span.clone())?;
 
                             let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                             let selected_value = ConstrainedValue::conditionally_select(

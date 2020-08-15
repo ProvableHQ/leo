@@ -1,6 +1,6 @@
-use crate::{Identifier, RangeOrExpression};
+use crate::{Expression, Identifier, RangeOrExpression};
 use leo_ast::{
-    access::AssigneeAccess,
+    access::AssigneeAccess as AstAssigneeAccess,
     common::{Assignee as AstAssignee, Identifier as AstIdentifier},
 };
 
@@ -12,6 +12,7 @@ use std::fmt;
 pub enum Assignee {
     Identifier(Identifier),
     Array(Box<Assignee>, RangeOrExpression),
+    Tuple(Box<Assignee>, usize),
     CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
 }
 
@@ -30,10 +31,13 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
             .accesses
             .into_iter()
             .fold(variable, |acc, access| match access {
-                AssigneeAccess::Array(array) => {
+                AstAssigneeAccess::Array(array) => {
                     Assignee::Array(Box::new(acc), RangeOrExpression::from(array.expression))
                 }
-                AssigneeAccess::Member(circuit_field) => {
+                AstAssigneeAccess::Tuple(tuple) => {
+                    Assignee::Tuple(Box::new(acc), Expression::get_count_from_ast(tuple.number))
+                }
+                AstAssigneeAccess::Member(circuit_field) => {
                     Assignee::CircuitField(Box::new(acc), Identifier::from(circuit_field.identifier))
                 }
             })
@@ -45,6 +49,7 @@ impl fmt::Display for Assignee {
         match *self {
             Assignee::Identifier(ref variable) => write!(f, "{}", variable),
             Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
+            Assignee::Tuple(ref tuple, ref index) => write!(f, "{}.{}", tuple, index),
             Assignee::CircuitField(ref circuit_variable, ref member) => write!(f, "{}.{}", circuit_variable, member),
         }
     }
