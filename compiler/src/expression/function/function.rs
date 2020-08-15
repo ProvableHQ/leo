@@ -14,7 +14,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         function: Box<Expression>,
         arguments: Vec<Expression>,
         span: Span,
@@ -23,7 +23,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type,
             *function.clone(),
         )?;
 
@@ -36,22 +36,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             span.start,
         );
 
-        match self.enforce_function(
+        self.enforce_function(
             &mut cs.ns(|| name_unique),
             outer_scope,
             function_scope,
             function_call,
             arguments,
-        ) {
-            Ok(ConstrainedValue::Return(return_values)) => {
-                if return_values.len() == 1 {
-                    Ok(return_values[0].clone())
-                } else {
-                    Ok(ConstrainedValue::Return(return_values))
-                }
-            }
-            Ok(_) => Err(ExpressionError::function_no_return(function.to_string(), span)),
-            Err(error) => Err(ExpressionError::from(Box::new(error))),
-        }
+        )
+        .map_err(|error| ExpressionError::from(Box::new(error)))
     }
 }

@@ -16,16 +16,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: String,
         caller_scope: String,
         function_name: String,
-        expected_types: Vec<Type>,
+        expected_type: Option<Type>,
         input: Expression,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope
         match input {
             Expression::Identifier(identifier) => {
-                Ok(self.evaluate_identifier(caller_scope, function_name, &expected_types, identifier)?)
+                Ok(self.evaluate_identifier(caller_scope, function_name, expected_type, identifier)?)
             }
-            expression => Ok(self.enforce_expression(cs, scope, function_name, &expected_types, expression)?),
+            expression => Ok(self.enforce_expression(cs, scope, function_name, expected_type, expression)?),
         }
     }
 }

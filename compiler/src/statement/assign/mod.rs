@@ -11,3 +11,6 @@ pub use self::assignee::*;
 
 pub mod circuit_field;
 pub use self::circuit_field::*;
+
+pub mod tuple;
+pub use self::tuple::*;

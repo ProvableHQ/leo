@@ -29,7 +29,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         start: Expression,
         stop: Expression,
         statements: Vec<Statement>,
-        return_types: Vec<Type>,
+        return_type: Option<Type>,
         span: Span,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
@@ -40,6 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
+
             let index_name = new_scope(function_scope.clone(), index.to_string());
 
             self.store(
@@ -55,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope.clone(),
                 indicator,
                 statements.clone(),
-                return_types.clone(),
+                return_type.clone(),
             )?;
 
             results.append(&mut result);

@@ -8,7 +8,7 @@ use std::fmt;
 pub struct Function {
     pub identifier: Identifier,
     pub input: Vec<InputVariable>,
-    pub returns: Vec<Type>,
+    pub returns: Option<Type>,
     pub statements: Vec<Statement>,
     pub span: Span,
 }
@@ -21,11 +21,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
             .into_iter()
             .map(|parameter| InputVariable::from(parameter))
             .collect();
-        let returns = function
-            .returns
-            .into_iter()
-            .map(|return_type| Type::from(return_type))
-            .collect();
+        let returns = function.returns.map(|type_| Type::from(type_));
         let statements = function
             .statements
             .into_iter()
@@ -55,24 +51,17 @@ impl Function {
             .map(|x| format!("{}", x))
             .collect::<Vec<_>>()
             .join(",");
-        let returns = self
-            .returns
-            .iter()
-            .map(|r| format!("{}", r))
-            .collect::<Vec<_>>()
-            .join(",");
+        let returns = self.returns.as_ref().map(|type_| format!("{}", type_));
         let statements = self
             .statements
             .iter()
             .map(|s| format!("\t{}\n", s))
             .collect::<Vec<_>>()
             .join("");
-        if self.returns.len() == 0 {
+        if returns.is_none() {
             write!(f, "({}) {{\n{}}}", parameters, statements,)
-        } else if self.returns.len() == 1 {
-            write!(f, "({}) -> {} {{\n{}}}", parameters, returns, statements,)
         } else {
-            write!(f, "({}) -> ({}) {{\n{}}}", parameters, returns, statements,)
+            write!(f, "({}) -> {} {{\n{}}}", parameters, returns.unwrap(), statements,)
         }
     }
 }

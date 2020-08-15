@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    common::{Declare, LineEnd, Variable},
+    common::{Declare, LineEnd, Variables},
     expressions::Expression,
     SpanDef,
 };
@@ -14,8 +14,8 @@ use std::fmt;
 #[pest_ast(rule(Rule::statement_definition))]
 pub struct DefinitionStatement<'ast> {
     pub declare: Declare,
-    pub variable: Variable<'ast>,
-    pub expression: Expression<'ast>,
+    pub variables: Variables<'ast>,
+    pub expressions: Vec<Expression<'ast>>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
@@ -24,6 +24,13 @@ pub struct DefinitionStatement<'ast> {
 
 impl<'ast> fmt::Display for DefinitionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "let {} = {};", self.variable, self.expression)
+        let expressions = self
+            .expressions
+            .iter()
+            .map(|x| format!("{}", x))
+            .collect::<Vec<_>>()
+            .join(",");
+
+        write!(f, "let {} = {};", self.variables, expressions)
     }
 }

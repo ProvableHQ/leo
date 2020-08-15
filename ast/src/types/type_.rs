@@ -9,6 +9,7 @@ use std::fmt;
 pub enum Type<'ast> {
     Basic(DataType),
     Array(ArrayType<'ast>),
+    Tuple(TupleType<'ast>),
     Circuit(CircuitType<'ast>),
     SelfType(SelfType),
 }
@@ -18,6 +19,7 @@ impl<'ast> fmt::Display for Type<'ast> {
         match *self {
             Type::Basic(ref _type) => write!(f, "basic"),
             Type::Array(ref _type) => write!(f, "array"),
+            Type::Tuple(ref _type) => write!(f, "tuple"),
             Type::Circuit(ref _type) => write!(f, "struct"),
             Type::SelfType(ref _type) => write!(f, "Self"),
         }

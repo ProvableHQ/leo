@@ -1,6 +1,5 @@
-use crate::{Assignee, ConditionalStatement, Declare, Expression, FormattedMacro, Identifier, Span, Variable};
+use crate::{Assignee, ConditionalStatement, Declare, Expression, FormattedMacro, Identifier, Span, Variables};
 use leo_ast::{
-    common::Return,
     operations::AssignOperation,
     statements::{
         AssignStatement,
@@ -8,7 +7,6 @@ use leo_ast::{
         ExpressionStatement,
         ForStatement,
         MacroStatement,
-        MultipleAssignmentStatement,
         ReturnStatement,
         Statement as AstStatement,
     },
@@ -20,9 +18,8 @@ use std::fmt;
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Statement {
-    Return(Vec<Expression>, Span),
-    Definition(Declare, Variable, Expression, Span),
-    MultipleDefinition(Vec<Variable>, Expression, Span),
+    Return(Expression, Span),
+    Definition(Declare, Variables, Vec<Expression>, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
     Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
@@ -33,36 +30,29 @@ pub enum Statement {
 
 impl<'ast> From<ReturnStatement<'ast>> for Statement {
     fn from(statement: ReturnStatement<'ast>) -> Self {
-        let span = Span::from(statement.span);
-
-        let expressions = match statement.return_ {
-            Return::Single(expression) => vec![Expression::from(expression)],
-            Return::Tuple(tuple) => tuple
-                .expressions
-                .into_iter()
-                .map(|expression| {
-                    let mut expression = Expression::from(expression);
-                    expression.set_span(&span);
-
-                    expression
-                })
-                .collect(),
-        };
-
-        Statement::Return(expressions, span)
+        Statement::Return(Expression::from(statement.expression), Span::from(statement.span))
     }
 }
 
 impl<'ast> From<DefinitionStatement<'ast>> for Statement {
     fn from(statement: DefinitionStatement<'ast>) -> Self {
         let span = Span::from(statement.span);
-        let mut expression = Expression::from(statement.expression);
-        expression.set_span(&span);
+
+        let expressions = statement
+            .expressions
+            .into_iter()
+            .map(|e| {
+                let mut expression = Expression::from(e);
+                expression.set_span(&span);
+
+                expression
+            })
+            .collect::<Vec<_>>();
 
         Statement::Definition(
             Declare::from(statement.declare),
-            Variable::from(statement.variable),
-            expression,
+            Variables::from(statement.variables),
+            expressions,
             span,
         )
     }
@@ -133,26 +123,6 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<MultipleAssignmentStatement<'ast>> for Statement {
-    fn from(statement: MultipleAssignmentStatement<'ast>) -> Self {
-        let variables = statement
-            .variables
-            .into_iter()
-            .map(|typed_variable| Variable::from(typed_variable))
-            .collect();
-
-        Statement::MultipleDefinition(
-            variables,
-            Expression::FunctionCall(
-                Box::new(Expression::from(statement.function_name)),
-                statement.arguments.into_iter().map(|e| Expression::from(e)).collect(),
-                Span::from(statement.span.clone()),
-            ),
-            Span::from(statement.span),
-        )
-    }
-}
-
 impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         Statement::Iteration(
@@ -199,7 +169,6 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
             AstStatement::Return(statement) => Statement::from(statement),
             AstStatement::Definition(statement) => Statement::from(statement),
             AstStatement::Assign(statement) => Statement::from(statement),
-            AstStatement::MultipleAssignment(statement) => Statement::from(statement),
             AstStatement::Conditional(statement) => {
                 let span = Span::from(statement.span.clone());
                 Statement::Conditional(ConditionalStatement::from(statement), span)
@@ -214,30 +183,17 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Statement::Return(ref statements, ref _span) => {
-                write!(f, "return (")?;
-                for (i, value) in statements.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < statements.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ")\n")
-            }
-            Statement::Definition(ref declare, ref variable, ref expression, ref _span) => {
-                write!(f, "{} {} = {};", declare, variable, expression)
+            Statement::Return(ref expression, ref _span) => write!(f, "return {}", expression),
+            Statement::Definition(ref declare, ref variable, ref expressions, ref _span) => {
+                let formatted_expressions = expressions
+                    .iter()
+                    .map(|x| format!("{}", x))
+                    .collect::<Vec<_>>()
+                    .join(",");
+
+                write!(f, "{} {} = {};", declare, variable, formatted_expressions)
             }
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
-            Statement::MultipleDefinition(ref assignees, ref function, ref _span) => {
-                write!(f, "let (")?;
-                for (i, id) in assignees.iter().enumerate() {
-                    write!(f, "{}", id)?;
-                    if i < assignees.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, ") = {};", function)
-            }
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
             Statement::Iteration(ref var, ref start, ref stop, ref list, ref _span) => {
                 write!(f, "for {} in {}..{} {{\n", var, start, stop)?;

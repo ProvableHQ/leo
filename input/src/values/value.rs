@@ -22,7 +22,7 @@ pub enum Value<'ast> {
 impl<'ast> Value<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
-            Value::Address(value) => &value.span,
+            Value::Address(value) => &value.span(),
             Value::Boolean(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Group(value) => &value.span,

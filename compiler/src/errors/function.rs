@@ -78,6 +78,12 @@ impl FunctionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn invalid_tuple(actual: String, span: Span) -> Self {
+        let message = format!("Expected function input tuple, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn return_arguments_length(expected: usize, actual: usize, span: Span) -> Self {
         let message = format!("function expected {} returns, found {} returns", expected, actual);
 

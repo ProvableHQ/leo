@@ -37,13 +37,15 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     // Arrays
     Array(Vec<ConstrainedValue<F, G>>),
 
+    // Tuples
+    Tuple(Vec<ConstrainedValue<F, G>>),
+
     // Circuits
     CircuitDefinition(Circuit),
     CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Functions
     Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
-    Return(Vec<ConstrainedValue<F, G>>),
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -61,8 +63,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         ConstrainedValue::from_type(value, &other_type, span)
     }
 
-    pub(crate) fn from_type(value: String, _type: &Type, span: Span) -> Result<Self, ValueError> {
-        match _type {
+    pub(crate) fn from_type(value: String, type_: &Type, span: Span) -> Result<Self, ValueError> {
+        match type_ {
             // Data types
             Type::Address => Ok(ConstrainedValue::Address(Address::new(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
@@ -103,15 +105,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
                 Type::Array(Box::new(array_type), vec![count])
             }
+            ConstrainedValue::Tuple(tuple) => {
+                let mut types = vec![];
+
+                for value in tuple {
+                    let type_ = value.to_type(span.clone())?;
+                    types.push(type_)
+                }
+
+                Type::Tuple(types)
+            }
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
     }
 
-    pub(crate) fn resolve_type(&mut self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: Span) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
-            if !types.is_empty() {
-                *self = ConstrainedValue::from_type(string.clone(), &types[0], span)?
+            if type_.is_some() {
+                *self = ConstrainedValue::from_type(string.clone(), &type_.unwrap(), span)?
             }
         }
 
@@ -119,16 +131,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     }
 
     /// Expect both `self` and `other` to resolve to the same type
-    pub(crate) fn resolve_types(&mut self, other: &mut Self, types: &Vec<Type>, span: Span) -> Result<(), ValueError> {
-        if !types.is_empty() {
-            self.resolve_type(types, span.clone())?;
-            return other.resolve_type(types, span);
+    pub(crate) fn resolve_types(
+        &mut self,
+        other: &mut Self,
+        type_: Option<Type>,
+        span: Span,
+    ) -> Result<(), ValueError> {
+        if type_.is_some() {
+            self.resolve_type(type_.clone(), span.clone())?;
+            return other.resolve_type(type_, span);
         }
 
         match (&self, &other) {
             (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(&vec![other.to_type(span.clone())?], span),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(&vec![self.to_type(span.clone())?], span),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(Some(other.to_type(span.clone())?), span),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(Some(self.to_type(span.clone())?), span),
             _ => Ok(()),
         }
     }
@@ -208,6 +225,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
+            ConstrainedValue::Tuple(tuple) => {
+                tuple
+                    .iter_mut()
+                    .enumerate()
+                    .map(|(i, value)| {
+                        let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
+
+                        value.allocate_value(cs.ns(|| unique_name), span.clone())
+                    })
+                    .collect::<Result<(), ValueError>>()?;
+            }
             ConstrainedValue::CircuitExpression(_id, members) => {
                 members
                     .iter_mut()
@@ -216,17 +244,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                         let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
                         member.1.allocate_value(cs.ns(|| unique_name), span.clone())
-                    })
-                    .collect::<Result<(), ValueError>>()?;
-            }
-            ConstrainedValue::Return(array) => {
-                array
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate return member {} {}:{}", i, span.line, span.start);
-
-                        value.allocate_value(cs.ns(|| unique_name), span.clone())
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -280,6 +297,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "]")
             }
+            ConstrainedValue::Tuple(ref tuple) => {
+                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "({})", values)
+            }
             ConstrainedValue::CircuitExpression(ref identifier, ref members) => {
                 write!(f, "{} {{", identifier)?;
                 for (i, member) in members.iter().enumerate() {
@@ -289,16 +311,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                     }
                 }
                 write!(f, "}}")
-            }
-            ConstrainedValue::Return(ref values) => {
-                write!(f, "Program output: [")?;
-                for (i, value) in values.iter().enumerate() {
-                    write!(f, "{}", value)?;
-                    if i < values.len() - 1 {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "]")
             }
             ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit_name),
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
@@ -344,6 +356,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
                     left.conditional_enforce_equal(cs.ns(|| format!("array[{}]", i)), right, condition)?;
+                }
+                Ok(())
+            }
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
+                for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                    left.conditional_enforce_equal(cs.ns(|| format!("tuple index {}", i)), right, condition)?;
                 }
                 Ok(())
             }
@@ -393,6 +411,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
                 ConstrainedValue::Array(array)
             }
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
+                let mut array = vec![];
+
+                for (i, (first, second)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                    array.push(Self::conditionally_select(
+                        cs.ns(|| format!("tuple index {}", i)),
+                        cond,
+                        first,
+                        second,
+                    )?);
+                }
+
+                ConstrainedValue::Tuple(array)
+            }
             (ConstrainedValue::Function(identifier_1, function_1), ConstrainedValue::Function(_, _)) => {
                 // This is a no-op. functions cannot hold circuit values
                 // However, we must return a result here
@@ -414,20 +446,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 }
 
                 ConstrainedValue::CircuitExpression(identifier.clone(), members)
-            }
-            (ConstrainedValue::Return(returns_1), ConstrainedValue::Return(returns_2)) => {
-                let mut returns = vec![];
-
-                for (i, (first, second)) in returns_1.into_iter().zip(returns_2.into_iter()).enumerate() {
-                    returns.push(Self::conditionally_select(
-                        cs.ns(|| format!("return[{}]", i)),
-                        cond,
-                        first,
-                        second,
-                    )?);
-                }
-
-                ConstrainedValue::Return(returns)
             }
             (ConstrainedValue::Static(first), ConstrainedValue::Static(second)) => {
                 let value = Self::conditionally_select(cs, cond, first, second)?;

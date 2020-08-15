@@ -22,6 +22,9 @@ pub use integer_type::*;
 pub mod signed_integer_type;
 pub use signed_integer_type::*;
 
+pub mod tuple_type;
+pub use tuple_type::*;
+
 pub mod type_;
 pub use type_::*;
 
