@@ -23,8 +23,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Evaluate the identifier name in the current function scope
         let variable_name = new_scope(function_scope.clone(), unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
-        println!("expected variable {}", variable_name);
-        println!("expected identifier name {}", identifier_name);
 
         let mut result_value = if let Some(value) = self.get(&variable_name) {
             // Reassigning variable to another variable
