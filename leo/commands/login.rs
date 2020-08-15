@@ -30,17 +30,37 @@ lazy_static! {
 pub struct LoginCommand;
 
 impl LoginCommand {
+    // Write token to the leo credentials file
     fn write_token(token: &str) -> Result<(), io::Error> {
         let mut credentials = File::create(LEO_CREDENTIALS_PATH.as_str())?;
         credentials.write_all(&token.as_bytes())?;
         Ok(())
     }
 
+    // Read token from the leo credentials file
     pub fn read_token() -> Result<String, io::Error> {
         let mut credentials = File::open(LEO_CREDENTIALS_PATH.as_str())?;
         let mut buf = String::new();
         credentials.read_to_string(&mut buf)?;
         Ok(buf)
+    }
+
+    // Get token to make authorized requests
+    pub fn get_token() -> String {
+        // Get token to make an authorized request
+        let token = match LoginCommand::read_token() {
+            // Already logged in
+            Ok(token) => token,
+
+            // If not logged then try to login using JWT
+            Err(_errorr) => {
+                log::warn!("You should be logged before publish the package");
+                log::info!("Trying to log in using JWT...");
+                let options = (None, None, None);
+                LoginCommand::output(options).unwrap()
+            }
+        };
+        token
     }
 }
 

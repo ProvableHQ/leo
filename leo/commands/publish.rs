@@ -80,19 +80,7 @@ impl CLI for PublishCommand {
         // Client for make POST request
         let client = Client::new();
 
-        // Get token to make an authorized request
-        let token = match LoginCommand::read_token() {
-            Ok(token) => token,
-
-            // If not logged in, then try logging in using JWT.
-            Err(_error) => {
-                log::warn!("You should be logged before publish the package");
-                log::info!("Trying to log in using JWT...");
-                let options = (None, None, None);
-
-                LoginCommand::output(options)?
-            }
-        };
+        let token = LoginCommand::get_token();
 
         // Headers for request to publish package
         let mut headers = HeaderMap::new();
