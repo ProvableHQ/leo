@@ -81,6 +81,11 @@ fn test_i8_eq() {
 }
 
 #[test]
+fn test_i8_ne() {
+    TestI8::test_ne();
+}
+
+#[test]
 fn test_i8_ge() {
     TestI8::test_ge();
 }
