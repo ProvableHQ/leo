@@ -92,7 +92,7 @@ impl CLI for AddCommand {
         let mut path = current_dir()?;
         path.push(format!("{}.zip", package_name));
 
-        // TODO (raychu86) Display download progress
+        // TODO (raychu86) Display package download progress
         let mut buffer: Vec<u8> = vec![];
         result.copy_to(&mut buffer).unwrap();
 

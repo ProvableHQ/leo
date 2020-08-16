@@ -3,7 +3,6 @@
 //
 //    leo login <token>
 //    leo login -u username -p password
-//    leo login // not yet implemented
 //
 
 use crate::{
@@ -54,7 +53,6 @@ impl CLI for LoginCommand {
         match arguments.value_of("NAME") {
             Some(name) => Ok((Some(name.to_string()), None, None)),
             None => {
-                // TODO implement JWT
                 Ok((None, None, None))
             }
         }
@@ -96,9 +94,9 @@ impl CLI for LoginCommand {
                 }
             }
 
-            // Login using JWT
+            // Login using stored JWT credentials.
+            // TODO (raychu86) Package manager re-authentication from token
             (_, _, _) => {
-                // TODO JWT
                 read_token()?
             }
         };
