@@ -11,6 +11,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         symbol: &ImportSymbol,
         program: &Program,
     ) -> Result<(), ImportError> {
+        // Store the symbol that was imported by another file
         if symbol.is_star() {
             // evaluate and store all circuit definitions
             program.circuits.iter().for_each(|(identifier, circuit)| {

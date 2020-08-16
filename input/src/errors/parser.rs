@@ -31,7 +31,7 @@ pub enum InputParserError {
     #[error("{}", _0)]
     SyntaxError(#[from] InputSyntaxError),
 
-    #[error("Unable to construct abstract syntax tree")]
+    #[error("Unable to construct program input abstract syntax tree")]
     SyntaxTreeError,
 }
 

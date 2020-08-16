@@ -17,7 +17,7 @@ pub enum ParserError {
     #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
 
-    #[error("Unable to construct abstract syntax tree")]
+    #[error("Unable to construct program abstract syntax tree")]
     SyntaxTreeError,
 }
 

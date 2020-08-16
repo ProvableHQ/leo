@@ -12,14 +12,14 @@ the total number of constraints in the generate circuit can vary.
 
 To illustrate this, here are two examples to show the difference:
 ```
-const    = 00000001
+constant = 00000001
 variable = abcdefgh
 ---------------------------------
 output   = 0000000h (1 constraint)
 ```
 
 ```
-const    = 01110001
+constant = 01110001
 variable = abcdefgh
 ---------------------------------
 output   = 0bcd000h (4 constraints)

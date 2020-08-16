@@ -1,4 +1,4 @@
-import test_import.*; // local import
+import test-import.*; // local import
 
 import bar.*;         // imports directory import
 import bar.baz.*;     // imports directory import

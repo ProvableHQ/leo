@@ -31,7 +31,7 @@ impl CLI for WatchCommand {
         let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
         watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
 
-        log::info!("Watching leo's source files");
+        log::info!("Watching Leo source code");
         loop {
             match rx.recv() {
                 // See changes on the write event
@@ -39,7 +39,7 @@ impl CLI for WatchCommand {
                     let options = ();
                     match BuildCommand::output(options) {
                         Ok(_output) => {
-                            log::info!("Build successfully");
+                            log::info!("Built successfully");
                         }
                         Err(e) => {
                             // Syntax error
@@ -51,9 +51,11 @@ impl CLI for WatchCommand {
                 Ok(_event) => {}
 
                 // Watch error
-                Err(e) => println!("watch error: {:?}", e),
+                Err(e) => {
+                    log::error!("watch error: {:?}", e)
+                    // TODO (howardwu): Add graceful termination.
+                }
             }
         }
-        // Ok(())
     }
 }
