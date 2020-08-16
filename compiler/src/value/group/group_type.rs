@@ -27,7 +27,7 @@ pub trait GroupType<F: Field>:
     + EvaluateEqGadget<F>
     + EqGadget<F>
     + ConditionalEqGadget<F>
-    + AllocGadget<String, F>
+    + AllocGadget<GroupValue, F>
     + CondSelectGadget<F>
     + ToBitsGadget<F>
     + ToBytesGadget<F>
