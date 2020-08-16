@@ -78,7 +78,7 @@ impl GroupError {
     }
 
     pub fn y_recover(span: Span) -> Self {
-        let message = format!("could not recover group element from x coordinate");
+        let message = format!("could not recover group element from y coordinate");
 
         Self::new_from_span(message, span)
     }
