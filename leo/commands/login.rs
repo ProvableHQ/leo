@@ -1,5 +1,5 @@
 //
-// Usege:
+// Usage:
 //
 //    leo login <token>
 //    leo login -u username -p password
@@ -25,13 +25,13 @@ use std::{
 };
 
 const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
-const LOGIN_URL: &str = "api/account/login";
+const LOGIN_URL: &str = "api/account/authenticate";
 
 const LEO_CREDENTIALS_FILE: &str = "credentials";
 
 lazy_static! {
     static ref LEO_CREDENTIALS_DIR: PathBuf = {
-        let mut path = home_dir().unwrap_or(std::env::current_dir().unwrap());
+        let mut path = home_dir().expect("Invalid home directory");
         path.push(".leo");
         path
     };
@@ -136,7 +136,7 @@ impl CLI for LoginCommand {
             // Login using JWT
             (_, _, _) => {
                 // TODO JWT
-                unimplemented!()
+                LoginCommand::read_token()?
             }
         };
 
