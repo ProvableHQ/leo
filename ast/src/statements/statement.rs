@@ -1,4 +1,4 @@
-use crate::{ast::Rule, statements::*};
+use crate::{ast::Rule, console::ConsoleFunctionCall, statements::*};
 
 use pest_ast::FromPest;
 use serde::Serialize;
@@ -12,7 +12,7 @@ pub enum Statement<'ast> {
     Assign(AssignStatement<'ast>),
     Conditional(ConditionalStatement<'ast>),
     Iteration(ForStatement<'ast>),
-    Assert(MacroStatement<'ast>),
+    Console(ConsoleFunctionCall<'ast>),
     Expression(ExpressionStatement<'ast>),
 }
 
@@ -24,7 +24,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
             Statement::Assign(ref statement) => write!(f, "{}", statement),
             Statement::Conditional(ref statement) => write!(f, "{}", statement),
             Statement::Iteration(ref statement) => write!(f, "{}", statement),
-            Statement::Assert(ref statement) => write!(f, "{}", statement),
+            Statement::Console(ref statement) => write!(f, "{}", statement),
             Statement::Expression(ref statement) => write!(f, "{}", statement.expression),
         }
     }

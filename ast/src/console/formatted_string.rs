@@ -1,6 +1,6 @@
 use crate::{
     ast::{span_into_string, Rule},
-    macros::{FormattedContainer, FormattedParameter},
+    console::{FormattedContainer, FormattedParameter},
     SpanDef,
 };
 
