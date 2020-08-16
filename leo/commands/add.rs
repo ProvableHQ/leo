@@ -27,12 +27,7 @@ impl CLI for AddCommand {
     const ABOUT: AboutType = "Install a package from the package manager (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[
         // (name, description, required, index)
-        (
-            "NAME",
-            "Sets the resulting package name, defaults to the directory name",
-            true,
-            1u64,
-        ),
+        ("NAME", "Installs the package to the current directory", true, 1u64),
     ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "add";
