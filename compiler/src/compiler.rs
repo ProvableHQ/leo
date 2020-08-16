@@ -153,7 +153,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     /// Synthesizes the circuit for test functions with program input.
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(self.program, input_pairs, &self.imported_programs)
+        generate_test_constraints::<F, G>(
+            self.program,
+            input_pairs,
+            &self.imported_programs,
+            &self.output_directory,
+        )
     }
 
     /// Calls the internal generate_constraints method with arguments
@@ -205,6 +210,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
 
         // Write results to file
         let output_file = OutputFile::new(&package_name);
+
+        log::info!("Writing to output registers...");
+
         output_file.write(&output_directory, result.bytes()).unwrap();
 
         Ok(())

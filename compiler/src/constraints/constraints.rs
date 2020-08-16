@@ -8,6 +8,7 @@ use crate::{
     GroupType,
     ImportParser,
     OutputBytes,
+    OutputFile,
 };
 use leo_typed::{Input, Program};
 
@@ -17,6 +18,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
+use std::path::PathBuf;
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -47,6 +49,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
     input: InputPairs,
     imported_programs: &ImportParser,
+    output_directory: &PathBuf,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
@@ -64,13 +67,20 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+        let mut output_file_name = program_name.clone();
 
         // get input file name from annotation or use test_name
         let input_pair = match test.input_file {
-            Some(file_name) => match input.pairs.get(&file_name.name) {
-                Some(pair) => pair.to_owned(),
-                None => return Err(CompilerError::InvalidTestContext(file_name.name)),
-            },
+            Some(file_id) => {
+                let file_name = file_id.name;
+
+                output_file_name = file_name.clone();
+
+                match input.pairs.get(&file_name) {
+                    Some(pair) => pair.to_owned(),
+                    None => return Err(CompilerError::InvalidTestContext(file_name)),
+                }
+            }
             None => default.ok_or(CompilerError::NoTestInput)?,
         };
 
@@ -101,7 +111,13 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
                 cs.is_satisfied()
             );
 
-        // write result to file
+            // write result to file
+            let output = result?;
+            let output_file = OutputFile::new(&output_file_name);
+
+            log::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
+
+            output_file.write(output_directory, output.bytes()).unwrap();
         } else {
             log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
         }
