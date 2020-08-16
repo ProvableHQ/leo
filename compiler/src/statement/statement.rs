@@ -78,7 +78,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 results.append(&mut result);
             }
             Statement::Console(console) => {
-                self.evaluate_console_function_call(cs, file_scope, function_scope, console)?;
+                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, console)?;
             }
             Statement::Expression(expression, span) => {
                 let expression_string = expression.to_string();

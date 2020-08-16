@@ -40,7 +40,13 @@ impl ConsoleError {
     }
 
     pub fn assertion_failed(expression: String, span: Span) -> Self {
-        let message = format!("Assertion `true == {}` failed", expression);
+        let message = format!("Assertion `{}` failed", expression);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn assertion_must_be_boolean(expression: String, span: Span) -> Self {
+        let message = format!("Assertion expression `{}` must evaluate to a boolean value", expression);
 
         Self::new_from_span(message, span)
     }
