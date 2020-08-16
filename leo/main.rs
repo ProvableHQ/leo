@@ -35,6 +35,7 @@ fn main() -> Result<(), CLIError> {
             DeployCommand::new().display_order(12),
             CleanCommand::new().display_order(13),
             WatchCommand::new().display_order(14),
+            AddCommand::new().display_order(15), // TODO update add command order
         ])
         .set_term_width(0)
         .get_matches();
@@ -55,6 +56,7 @@ fn main() -> Result<(), CLIError> {
         ("deploy", Some(arguments)) => DeployCommand::process(arguments),
         ("clean", Some(arguments)) => CleanCommand::process(arguments),
         ("watch", Some(arguments)) => WatchCommand::process(arguments),
+        ("add", Some(arguments)) => AddCommand::process(arguments),
         _ => unreachable!(),
     }
 }

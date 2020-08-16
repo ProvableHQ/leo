@@ -12,7 +12,7 @@ use crate::{
     credentials::*,
     errors::{
         CLIError::LoginError,
-        LoginError::{CannotGetToken, ConnectionUnavalaible, WrongLoginOrPassword},
+        LoginError::{CannotGetToken, ConnectionUnavailable, WrongLoginOrPassword},
     },
 };
 
@@ -84,7 +84,7 @@ impl CLI for LoginCommand {
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(LoginError(ConnectionUnavalaible(
+                        return Err(LoginError(ConnectionUnavailable(
                             "Could not connect to the package manager".into(),
                         )));
                     }
