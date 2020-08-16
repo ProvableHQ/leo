@@ -63,27 +63,20 @@ impl CLI for TestCommand {
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
-        // Load the input file at `package_name`
-        let input_string = InputFile::new(&package_name).read_from(&path)?;
-
-        // Load the state file at `package_name.in`
-        let state_string = StateFile::new(&package_name).read_from(&path)?;
-
-        // Compute the current program checksum
-        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
+        // Parse the current main program file
+        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
             package_name.clone(),
             main_file_path.clone(),
             output_directory,
-            &input_string,
-            &state_string,
         )?;
 
-        // Generate the program on the constraint system and verify correctness
-        {
-            let temporary_program = program.clone();
-            let output = temporary_program.compile_test_constraints()?;
-            log::debug!("Compiled constraints - {:#?}", output);
-        }
+        // Parse all inputs as input pairs
+        let pairs = InputPairs::try_from(&package_path)?;
+
+        // Run tests
+        let temporary_program = program.clone();
+        let output = temporary_program.compile_test_constraints(pairs)?;
+        log::debug!("Compiled constraints - {:#?}", output);
 
         Ok(())
     }

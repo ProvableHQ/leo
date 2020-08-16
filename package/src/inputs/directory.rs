@@ -1,6 +1,6 @@
 use crate::errors::InputsDirectoryError;
 
-use std::{fs, path::PathBuf};
+use std::{fs, fs::ReadDir, path::PathBuf};
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 
@@ -24,24 +24,35 @@ impl InputsDirectory {
         let directory = fs::read_dir(&path).map_err(InputsDirectoryError::Reading)?;
 
         let mut file_paths = Vec::new();
-        for file_entry in directory.into_iter() {
-            let file_entry = file_entry.map_err(InputsDirectoryError::GettingFileEntry)?;
-            let file_path = file_entry.path();
-
-            // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|error| InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
-            if !file_type.is_file() {
-                return Err(InputsDirectoryError::InvalidFileType(
-                    file_path.as_os_str().to_owned(),
-                    file_type,
-                ));
-            }
-
-            file_paths.push(file_path);
-        }
+        parse_file_paths(directory, &mut file_paths)?;
 
         Ok(file_paths)
     }
+}
+
+fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<(), InputsDirectoryError> {
+    for file_entry in directory.into_iter() {
+        let file_entry = file_entry.map_err(InputsDirectoryError::GettingFileEntry)?;
+        let file_path = file_entry.path();
+
+        // Verify that the entry is structured as a valid file or directory
+        let file_type = file_entry
+            .file_type()
+            .map_err(|error| InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
+        if file_type.is_dir() {
+            let directory = fs::read_dir(&file_path).map_err(InputsDirectoryError::Reading)?;
+
+            parse_file_paths(directory, file_paths)?;
+            continue;
+        } else if !file_type.is_file() {
+            return Err(InputsDirectoryError::InvalidFileType(
+                file_path.as_os_str().to_owned(),
+                file_type,
+            ));
+        }
+
+        file_paths.push(file_path);
+    }
+
+    Ok(())
 }

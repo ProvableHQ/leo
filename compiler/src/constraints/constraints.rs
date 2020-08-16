@@ -11,6 +11,8 @@ use crate::{
 };
 use leo_typed::{Input, Program};
 
+use leo_input::LeoInputParser;
+use leo_package::inputs::InputPairs;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
@@ -43,7 +45,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
-    input: Input,
+    input: InputPairs,
     imported_programs: &ImportParser,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
@@ -51,19 +53,45 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
     let tests = program.tests.clone();
 
+    // Store definitions
     resolved_program.store_definitions(program, imported_programs)?;
+
+    // Get default input
+    let default = input.pairs.get(&program_name);
 
     log::info!("Running {} tests", tests.len());
 
-    for (test_name, test_function) in tests.into_iter() {
+    for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
 
-        let result = resolved_program.enforce_main_function(
+        // get input file name from annotation or use test_name
+        let input_pair = match test.input_file {
+            Some(file_name) => match input.pairs.get(&file_name.name) {
+                Some(pair) => pair.to_owned(),
+                None => return Err(CompilerError::InvalidTestContext(file_name.name)),
+            },
+            None => default.ok_or(CompilerError::NoTestInput)?,
+        };
+
+        // parse input files to abstract syntax trees
+        let input_file = &input_pair.input_file;
+        let state_file = &input_pair.state_file;
+
+        let input_ast = LeoInputParser::parse_file(input_file)?;
+        let state_ast = LeoInputParser::parse_file(state_file)?;
+
+        // parse input files into input struct
+        let mut input = Input::new();
+        input.parse_input(input_ast)?;
+        input.parse_state(state_ast)?;
+
+        // run test function on new program with input
+        let result = resolved_program.clone().enforce_main_function(
             cs,
             program_name.clone(),
-            test_function.0,
-            input.clone(), // pass program input into every test
+            test.function,
+            input, // pass program input into every test
         );
 
         if result.is_ok() {
@@ -72,6 +100,8 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
                 full_test_name,
                 cs.is_satisfied()
             );
+
+        // write result to file
         } else {
             log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
         }

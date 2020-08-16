@@ -6,6 +6,7 @@ use leo_input::{
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {
+    name: String,
     program_input: ProgramInput,
     program_state: ProgramState,
 }
@@ -13,6 +14,7 @@ pub struct Input {
 impl Input {
     pub fn new() -> Self {
         Self {
+            name: "default".to_owned(),
             program_input: ProgramInput::new(),
             program_state: ProgramState::new(),
         }
@@ -25,6 +27,7 @@ impl Input {
         let state = self.program_state.empty();
 
         Self {
+            name: self.name.clone(),
             program_input: input,
             program_state: state,
         }

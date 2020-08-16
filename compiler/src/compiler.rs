@@ -10,6 +10,7 @@ use crate::{
 };
 use leo_ast::LeoAst;
 use leo_input::LeoInputParser;
+use leo_package::inputs::InputPairs;
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -151,8 +152,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit for test functions with program input.
-    pub fn compile_test_constraints(self) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(self.program, self.program_input, &self.imported_programs)
+    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(), CompilerError> {
+        generate_test_constraints::<F, G>(self.program, input_pairs, &self.imported_programs)
     }
 
     /// Calls the internal generate_constraints method with arguments

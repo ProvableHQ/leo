@@ -35,12 +35,12 @@ impl TryFrom<&PathBuf> for InputPairs {
                 .ok_or_else(|| InputsDirectoryError::GettingFileExtension(file.as_os_str().to_owned()))?;
 
             let file_name = file
-                .file_name()
+                .file_stem()
                 .ok_or(InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?
                 .to_str()
                 .ok_or(InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?;
 
-            if file_extension == INPUT_FILE_EXTENSION {
+            if file_extension == INPUT_FILE_EXTENSION.trim_start_matches(".") {
                 let input_file = InputFile::new(file_name).read_from(&file)?;
 
                 if pairs.contains_key(file_name) {
@@ -53,7 +53,7 @@ impl TryFrom<&PathBuf> for InputPairs {
                     };
                     pairs.insert(file_name.to_owned(), pair);
                 }
-            } else if file_extension == STATE_FILE_EXTENSION {
+            } else if file_extension == STATE_FILE_EXTENSION.trim_start_matches(".") {
                 let state_file = StateFile::new(file_name).read_from(&file)?;
 
                 if pairs.contains_key(file_name) {

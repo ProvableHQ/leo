@@ -1,7 +1,7 @@
 use crate::{
     cli::*,
     cli_types::*,
-    commands::{BuildCommand, LoginCommand},
+    commands::LoginCommand,
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
