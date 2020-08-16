@@ -1,8 +1,5 @@
 //! Methods to enforce constraints on statements in a Leo program.
 
-pub mod assert;
-pub use self::assert::*;
-
 pub mod assign;
 pub use self::assign::*;
 

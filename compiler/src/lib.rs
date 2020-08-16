@@ -5,6 +5,9 @@ extern crate thiserror;
 
 pub mod compiler;
 
+pub mod console;
+pub use self::console::*;
+
 pub mod constraints;
 pub use self::constraints::*;
 
@@ -20,9 +23,6 @@ pub use self::function::*;
 
 pub mod import;
 pub use self::import::*;
-
-pub mod macro_;
-pub use self::macro_::*;
 
 pub mod output;
 pub use self::output::*;

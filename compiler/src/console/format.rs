@@ -1,6 +1,6 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::{errors::MacroError, program::ConstrainedProgram, GroupType};
+use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
 use leo_typed::FormattedString;
 
 use snarkos_models::{
@@ -15,10 +15,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         formatted: FormattedString,
-    ) -> Result<String, MacroError> {
+    ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
         if formatted.containers.len() != formatted.parameters.len() {
-            return Err(MacroError::length(
+            return Err(ConsoleError::length(
                 formatted.containers.len(),
                 formatted.parameters.len(),
                 formatted.span.clone(),
