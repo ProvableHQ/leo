@@ -1,5 +1,5 @@
 use crate::Span;
-use leo_ast::macros::FormattedContainer as AstFormattedContainer;
+use leo_ast::console::FormattedContainer as AstFormattedContainer;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

@@ -1,5 +1,5 @@
 use crate::{Expression, Span};
-use leo_ast::macros::FormattedParameter as AstFormattedParameter;
+use leo_ast::console::FormattedParameter as AstFormattedParameter;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

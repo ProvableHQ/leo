@@ -1,6 +1,6 @@
 use crate::{
     ast::Rule,
-    console::{ConsoleAssert, ConsoleDebug, ConsoleError, ConsolePrint},
+    console::{ConsoleAssert, ConsoleDebug, ConsoleError, ConsoleLog},
 };
 
 use pest_ast::FromPest;
@@ -13,7 +13,7 @@ pub enum ConsoleFunction<'ast> {
     Assert(ConsoleAssert<'ast>),
     Debug(ConsoleDebug<'ast>),
     Error(ConsoleError<'ast>),
-    Print(ConsolePrint<'ast>),
+    Log(ConsoleLog<'ast>),
 }
 
 impl<'ast> fmt::Display for ConsoleFunction<'ast> {
@@ -22,7 +22,7 @@ impl<'ast> fmt::Display for ConsoleFunction<'ast> {
             ConsoleFunction::Assert(assert) => write!(f, "{}", assert),
             ConsoleFunction::Debug(debug) => write!(f, "{}", debug),
             ConsoleFunction::Error(error) => write!(f, "{}", error),
-            ConsoleFunction::Print(print) => write!(f, "{}", print),
+            ConsoleFunction::Log(log) => write!(f, "{}", log),
         }
     }
 }

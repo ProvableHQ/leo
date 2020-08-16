@@ -424,7 +424,7 @@ console_function = {
     console_assert
     | console_debug
     | console_error
-    | console_print
+    | console_log
 }
 
 // Declared in console/console_assert.rs
@@ -436,8 +436,8 @@ console_debug = !{"debug(" ~ formatted_string? ~ ")"}
 // Declared in console/console_error.rs
 console_error = !{"error(" ~ formatted_string? ~ ")"}
 
-// Declared in console/console_print.rs
-console_print = !{"print(" ~ formatted_string? ~ ")"}
+// Declared in console/console_log.rs
+console_log = !{"log(" ~ formatted_string? ~ ")"}
 
 // Declared in console/formatted_string.rs
 formatted_string = {
