@@ -1,4 +1,4 @@
-use crate::{errors::InputsDirectoryError, inputs::INPUT_FILE_EXTENSION};
+use crate::errors::InputsDirectoryError;
 
 use std::{fs, path::PathBuf};
 
@@ -17,7 +17,7 @@ impl InputsDirectory {
         fs::create_dir_all(&path).map_err(InputsDirectoryError::Creating)
     }
 
-    /// Returns a list of files in the source directory.
+    /// Returns a list of files in the input directory.
     pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, InputsDirectoryError> {
         let mut path = path.to_owned();
         path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
@@ -36,17 +36,6 @@ impl InputsDirectory {
                 return Err(InputsDirectoryError::InvalidFileType(
                     file_path.as_os_str().to_owned(),
                     file_type,
-                ));
-            }
-
-            // Verify that the file has the default file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| InputsDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
-            if file_extension != INPUT_FILE_EXTENSION {
-                return Err(InputsDirectoryError::InvalidFileExtension(
-                    file_path.as_os_str().to_owned(),
-                    file_extension.to_owned(),
                 ));
             }
 
