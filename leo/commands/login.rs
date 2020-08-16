@@ -14,23 +14,32 @@ use crate::{
         LoginError::{CannotGetToken, ConnectionUnavalaible, WrongLoginOrPassword},
     },
 };
+use dirs::home_dir;
 use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
-    fs::{create_dir, File},
+    fs::{create_dir_all, File},
     io,
     io::prelude::*,
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
 const LOGIN_URL: &str = "api/account/login";
 
-const LEO_CREDENTIALS_DIR: &str = ".leo";
 const LEO_CREDENTIALS_FILE: &str = "credentials";
 
 lazy_static! {
-    static ref LEO_CREDENTIALS_PATH: String = format!("{}/{}", LEO_CREDENTIALS_DIR, LEO_CREDENTIALS_FILE);
+    static ref LEO_CREDENTIALS_DIR: PathBuf = {
+        let mut path = home_dir().unwrap_or(std::env::current_dir().unwrap());
+        path.push(".leo");
+        path
+    };
+    static ref LEO_CREDENTIALS_PATH: PathBuf = {
+        let mut path = LEO_CREDENTIALS_DIR.to_path_buf();
+        path.push(LEO_CREDENTIALS_FILE);
+        path
+    };
 }
 
 #[derive(Debug)]
@@ -38,13 +47,13 @@ pub struct LoginCommand;
 
 impl LoginCommand {
     fn write_token(token: &str) -> Result<(), io::Error> {
-        let mut credentials = File::create(LEO_CREDENTIALS_PATH.as_str())?;
+        let mut credentials = File::create(&LEO_CREDENTIALS_PATH.to_path_buf())?;
         credentials.write_all(&token.as_bytes())?;
         Ok(())
     }
 
     pub fn read_token() -> Result<String, io::Error> {
-        let mut credentials = File::open(LEO_CREDENTIALS_PATH.as_str())?;
+        let mut credentials = File::open(&LEO_CREDENTIALS_PATH.to_path_buf())?;
         let mut buf = String::new();
         credentials.read_to_string(&mut buf)?;
         Ok(buf)
@@ -132,8 +141,8 @@ impl CLI for LoginCommand {
         };
 
         // Create Leo credentials directory if it not exists
-        if !Path::new(LEO_CREDENTIALS_DIR).exists() {
-            create_dir(LEO_CREDENTIALS_DIR)?;
+        if !Path::new(&LEO_CREDENTIALS_DIR.to_path_buf()).exists() {
+            create_dir_all(&LEO_CREDENTIALS_DIR.to_path_buf())?;
         }
 
         LoginCommand::write_token(token.as_str())?;
