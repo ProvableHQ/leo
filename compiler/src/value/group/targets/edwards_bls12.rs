@@ -188,31 +188,30 @@ impl EdwardsGroupType {
     pub fn edwards_affine_from_y_str(
         y_string: String,
         y_span: Span,
-        _greatest: Option<bool>,
-        _element_span: Span,
+        greatest: Option<bool>,
+        element_span: Span,
     ) -> Result<EdwardsAffine, GroupError> {
-        let _y = Fq::from_str(&y_string).map_err(|_| GroupError::y_invalid(y_string, y_span))?;
+        let y = Fq::from_str(&y_string).map_err(|_| GroupError::y_invalid(y_string, y_span))?;
 
-        unimplemented!("recover from_y_coordinate not implemented for Edwards Affine")
-        // match greatest {
-        //     // Sign provided
-        //     Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest).ok_or(GroupError::y_recover(element_span)),
-        //     // Sign inferred
-        //     None => {
-        //         // Attempt to recover with a sign_low bit.
-        //         if let Some(element) = EdwardsAffine::from_y_coordinate(y.clone(), false) {
-        //             return Ok(element);
-        //         }
-        //
-        //         // Attempt to recover with a sign_high bit.
-        //         if let Some(element) = EdwardsAffine::from_y_coordinate(y, true) {
-        //             return Ok(element);
-        //         }
-        //
-        //         // Otherwise return error.
-        //         Err(GroupError::y_recover(element_span))
-        //     }
-        // }
+        match greatest {
+            // Sign provided
+            Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest).ok_or(GroupError::y_recover(element_span)),
+            // Sign inferred
+            None => {
+                // Attempt to recover with a sign_low bit.
+                if let Some(element) = EdwardsAffine::from_y_coordinate(y.clone(), false) {
+                    return Ok(element);
+                }
+
+                // Attempt to recover with a sign_high bit.
+                if let Some(element) = EdwardsAffine::from_y_coordinate(y, true) {
+                    return Ok(element);
+                }
+
+                // Otherwise return error.
+                Err(GroupError::y_recover(element_span))
+            }
+        }
     }
 
     pub fn edwards_affine_from_pair(

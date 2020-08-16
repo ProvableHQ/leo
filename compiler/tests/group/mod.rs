@@ -66,29 +66,29 @@ fn test_x_sign_inferred() {
     assert_satisfied(program);
 }
 
-// #[test]
-// fn test_y_sign_high() {
-//     let bytes = include_bytes!("y_sign_high.leo");
-//     let program = parse_program(bytes).unwrap();
-//
-//     assert_satisfied(program);
-// }
-//
-// #[test]
-// fn test_y_sign_low() {
-//     let bytes = include_bytes!("y_sign_low.leo");
-//     let program = parse_program(bytes).unwrap();
-//
-//     assert_satisfied(program);
-// }
-//
-// #[test]
-// fn test_y_sign_inferred() {
-//     let bytes = include_bytes!("y_sign_inferred.leo");
-//     let program = parse_program(bytes).unwrap();
-//
-//     assert_satisfied(program);
-// }
+#[test]
+fn test_y_sign_high() {
+    let bytes = include_bytes!("y_sign_high.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_y_sign_low() {
+    let bytes = include_bytes!("y_sign_low.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_y_sign_inferred() {
+    let bytes = include_bytes!("y_sign_inferred.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
 
 #[test]
 fn test_double_high() {
