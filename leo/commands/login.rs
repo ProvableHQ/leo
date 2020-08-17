@@ -11,7 +11,7 @@ use crate::{
     credentials::*,
     errors::{
         CLIError::LoginError,
-        LoginError::{CannotGetToken, NoCredentialsProvided, NoConnectionFound, WrongLoginOrPassword},
+        LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
     },
 };
 
@@ -57,9 +57,7 @@ impl CLI for LoginCommand {
 
         match arguments.value_of("NAME") {
             Some(name) => Ok((Some(name.to_string()), None, None)),
-            None => {
-                Ok((None, None, None))
-            }
+            None => Ok((None, None, None)),
         }
     }
 
@@ -103,9 +101,7 @@ impl CLI for LoginCommand {
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
-            (_, _, _) => {
-                Some(read_token()?)
-            }
+            (_, _, _) => Some(read_token()?),
         };
 
         match token {

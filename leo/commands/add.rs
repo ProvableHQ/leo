@@ -11,9 +11,18 @@ use crate::{
     credentials::*,
     errors::{AddError::*, CLIError::AddError},
 };
-use leo_package::{imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME}, root::Manifest};
+use leo_package::{
+    imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME},
+    root::Manifest,
+};
 
-use std::{convert::TryFrom, collections::HashMap, env::current_dir, fs::{File, create_dir_all}, io::{Read, Write}};
+use std::{
+    collections::HashMap,
+    convert::TryFrom,
+    env::current_dir,
+    fs::{create_dir_all, File},
+    io::{Read, Write},
+};
 
 pub const ADD_URL: &str = "api/package/fetch";
 
@@ -119,7 +128,6 @@ impl CLI for AddCommand {
                 if let Some(parent_directory) = path.parent() {
                     create_dir_all(parent_directory)?;
                 }
-
 
                 File::create(file_path)?.write_all(&file.bytes().map(|e| e.unwrap()).collect::<Vec<u8>>())?;
             }

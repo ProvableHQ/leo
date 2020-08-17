@@ -265,7 +265,7 @@ impl From<leo_input::errors::InputParserError> for CLIError {
 }
 
 impl From<reqwest::Error> for CLIError {
-    fn from(error:reqwest::Error) -> Self {
+    fn from(error: reqwest::Error) -> Self {
         log::error!("{}\n", error);
         CLIError::Crate("rewquest", format!("{}", error))
     }
