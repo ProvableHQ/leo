@@ -17,7 +17,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         unresolved_identifier: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         } else if let Some(value) = self.get(&unresolved_identifier.name) {
             // Check imported file scope
             value.clone()
-        } else if expected_types.contains(&Type::Address) {
+        } else if expected_type.is_some() && expected_type.unwrap() == Type::Address {
             // If we expect an address type, try to return an address
             let address = Address::new(unresolved_identifier.name, unresolved_identifier.span)?;
 
@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
 
-        result_value.resolve_type(expected_types, unresolved_identifier.span.clone())?;
+        result_value.resolve_type(expected_type, unresolved_identifier.span.clone())?;
 
         Ok(result_value)
     }

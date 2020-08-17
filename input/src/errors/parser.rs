@@ -31,7 +31,7 @@ pub enum InputParserError {
     #[error("{}", _0)]
     SyntaxError(#[from] InputSyntaxError),
 
-    #[error("Unable to construct abstract syntax tree")]
+    #[error("Unable to construct program input abstract syntax tree")]
     SyntaxTreeError,
 }
 
@@ -112,6 +112,15 @@ impl InputParserError {
         );
 
         Self::new_from_span(message, table.span)
+    }
+
+    pub fn tuple_length(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "expected a tuple with {} elements, found a tuple with {} elements",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
     }
 
     pub fn section(header: Header) -> Self {

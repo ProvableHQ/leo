@@ -33,20 +33,25 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
       - name: Zip
         run: |
-          zip leo_ubuntu.zip ./leo
+          mkdir leo_${{ steps.get_version.outputs.version }}_ubuntu
+          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_ubuntu
+          zip -r leo_${{ steps.get_version.outputs.version }}_ubuntu.zip leo_${{ steps.get_version.outputs.version }}_ubuntu
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_ubuntu.zip
+            leo_${{ steps.get_version.outputs.version }}_ubuntu.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -74,20 +79,25 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo && mv target/release/leo leo
+          cargo build --all --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
       - name: Zip
         run: |
-          zip leo_macOS.zip ./leo
+          mkdir leo_${{ steps.get_version.outputs.version }}_mac
+          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_mac
+          zip -r leo_${{ steps.get_version.outputs.version }}_mac.zip leo_${{ steps.get_version.outputs.version }}_mac
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_macOS.zip
+            leo_${{ steps.get_version.outputs.version }}_mac.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -116,20 +126,24 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && mv target/release/leo.exe leo.exe
+          cargo build --all --release
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
       - name: Zip
         run: |
-          Compress-Archive leo.exe leo_windows.zip
+          mkdir leo_${{ steps.get_version.outputs.version }}_windows
+          mv target/release/leo.exe leo_${{ steps.get_version.outputs.version }}_windows
+          Compress-Archive leo_${{ steps.get_version.outputs.version }}_windows leo_${{ steps.get_version.outputs.version }}_windows.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_windows.zip
+            leo_${{ steps.get_version.outputs.version }}_windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

@@ -8,3 +8,4 @@ pub mod commands;
 pub mod credentials;
 pub mod errors;
 pub mod logger;
+pub mod synthesizer;

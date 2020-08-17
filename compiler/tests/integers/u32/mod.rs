@@ -66,6 +66,11 @@ fn test_u32_eq() {
 }
 
 #[test]
+fn test_u32_ne() {
+    TestU32::test_ne();
+}
+
+#[test]
 fn test_u32_ge() {
     TestU32::test_ge();
 }

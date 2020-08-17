@@ -1,5 +1,5 @@
 use crate::Span;
-use leo_ast::common::Identifier as AstIdentifier;
+use leo_ast::{common::Identifier as AstIdentifier, imports::PackageName as AstPackageName};
 use leo_input::common::Identifier as InputAstIdentifier;
 
 use serde::{
@@ -33,6 +33,15 @@ impl<'ast> From<AstIdentifier<'ast>> for Identifier {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),
+        }
+    }
+}
+
+impl<'ast> From<AstPackageName<'ast>> for Identifier {
+    fn from(name: AstPackageName<'ast>) -> Self {
+        Self {
+            name: name.value,
+            span: Span::from(name.span),
         }
     }
 }

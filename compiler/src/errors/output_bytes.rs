@@ -19,12 +19,6 @@ impl OutputBytesError {
         OutputBytesError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn illegal_return(value: String, span: Span) -> Self {
-        let message = format!("program return must be a return value, found `{}`", value);
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn not_enough_registers(span: Span) -> Self {
         let message = format!("number of input registers must be greater than or equal to output registers");
 

@@ -13,16 +13,16 @@ use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
-pub struct UnloadCommand;
+pub struct RemoveCommand;
 
-impl CLI for UnloadCommand {
+impl CLI for RemoveCommand {
     type Options = ();
     type Output = ();
 
     const ABOUT: AboutType = "Uninstall a package from the current package (*)";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "unload";
+    const NAME: NameType = "remove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
@@ -40,7 +40,7 @@ impl CLI for UnloadCommand {
                 // Get the package name
                 let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-                log::info!("Unimplemented - `leo load`");
+                log::info!("Unimplemented - `leo remove`");
 
                 Ok(())
             }

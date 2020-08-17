@@ -82,6 +82,11 @@ fn test_i128_eq() {
 }
 
 #[test]
+fn test_i128_ne() {
+    TestI128::test_ne();
+}
+
+#[test]
 fn test_i128_ge() {
     TestI128::test_ge();
 }

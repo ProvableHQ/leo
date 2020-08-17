@@ -1,6 +1,11 @@
 use crate::{Expression, Identifier, IntegerType};
-use leo_ast::types::{ArrayType, CircuitType, DataType, Type as AstType};
-use leo_input::types::{ArrayType as InputArrayType, DataType as InputDataType, Type as InputAstType};
+use leo_ast::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
+use leo_input::types::{
+    ArrayType as InputArrayType,
+    DataType as InputDataType,
+    TupleType as InputTupleType,
+    Type as InputAstType,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -17,6 +22,7 @@ pub enum Type {
 
     // Data type wrappers
     Array(Box<Type>, Vec<usize>),
+    Tuple(Vec<Type>),
     Circuit(Identifier),
     SelfType,
 }
@@ -35,89 +41,7 @@ impl Type {
         }
         false
     }
-}
 
-/// pest ast -> Explicit Type for defining circuit members and function params
-
-impl From<DataType> for Type {
-    fn from(data_type: DataType) -> Self {
-        match data_type {
-            DataType::Address(_type) => Type::Address,
-            DataType::Boolean(_type) => Type::Boolean,
-            DataType::Field(_type) => Type::Field,
-            DataType::Group(_type) => Type::Group,
-            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
-        }
-    }
-}
-
-impl<'ast> From<InputArrayType<'ast>> for Type {
-    fn from(array_type: InputArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(array_type._type));
-        let dimensions = array_type
-            .dimensions
-            .into_iter()
-            .map(|row| Expression::get_count_from_input_ast(row))
-            .collect();
-
-        Type::Array(element_type, dimensions)
-    }
-}
-
-impl<'ast> From<CircuitType<'ast>> for Type {
-    fn from(circuit_type: CircuitType<'ast>) -> Self {
-        Type::Circuit(Identifier::from(circuit_type.identifier))
-    }
-}
-
-impl<'ast> From<AstType<'ast>> for Type {
-    fn from(type_: AstType<'ast>) -> Self {
-        match type_ {
-            AstType::Basic(type_) => Type::from(type_),
-            AstType::Array(type_) => Type::from(type_),
-            AstType::Circuit(type_) => Type::from(type_),
-            AstType::SelfType(_type) => Type::SelfType,
-        }
-    }
-}
-
-/// input pest ast -> Explicit Type
-
-impl From<InputDataType> for Type {
-    fn from(data_type: InputDataType) -> Self {
-        match data_type {
-            InputDataType::Address(_type) => Type::Address,
-            InputDataType::Boolean(_type) => Type::Boolean,
-            InputDataType::Field(_type) => Type::Field,
-            InputDataType::Group(_type) => Type::Group,
-            InputDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
-        }
-    }
-}
-
-impl<'ast> From<ArrayType<'ast>> for Type {
-    fn from(array_type: ArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(array_type._type));
-        let dimensions = array_type
-            .dimensions
-            .into_iter()
-            .map(|row| Expression::get_count_from_ast(row))
-            .collect();
-
-        Type::Array(element_type, dimensions)
-    }
-}
-
-impl<'ast> From<InputAstType<'ast>> for Type {
-    fn from(type_: InputAstType<'ast>) -> Self {
-        match type_ {
-            InputAstType::Basic(type_) => Type::from(type_),
-            InputAstType::Array(type_) => Type::from(type_),
-        }
-    }
-}
-
-impl Type {
     pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
         let type_ = self.clone();
 
@@ -145,6 +69,104 @@ impl Type {
     }
 }
 
+/// pest ast -> Explicit Type for defining circuit members and function params
+
+impl From<DataType> for Type {
+    fn from(data_type: DataType) -> Self {
+        match data_type {
+            DataType::Address(_type) => Type::Address,
+            DataType::Boolean(_type) => Type::Boolean,
+            DataType::Field(_type) => Type::Field,
+            DataType::Group(_type) => Type::Group,
+            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
+        }
+    }
+}
+
+impl<'ast> From<ArrayType<'ast>> for Type {
+    fn from(array_type: ArrayType<'ast>) -> Self {
+        let element_type = Box::new(Type::from(array_type._type));
+        let dimensions = array_type
+            .dimensions
+            .into_iter()
+            .map(|row| Expression::get_count_from_ast(row))
+            .collect();
+
+        Type::Array(element_type, dimensions)
+    }
+}
+
+impl<'ast> From<TupleType<'ast>> for Type {
+    fn from(tuple_type: TupleType<'ast>) -> Self {
+        let types = tuple_type.types.into_iter().map(|type_| Type::from(type_)).collect();
+
+        Type::Tuple(types)
+    }
+}
+
+impl<'ast> From<CircuitType<'ast>> for Type {
+    fn from(circuit_type: CircuitType<'ast>) -> Self {
+        Type::Circuit(Identifier::from(circuit_type.identifier))
+    }
+}
+
+impl<'ast> From<AstType<'ast>> for Type {
+    fn from(type_: AstType<'ast>) -> Self {
+        match type_ {
+            AstType::Basic(type_) => Type::from(type_),
+            AstType::Array(type_) => Type::from(type_),
+            AstType::Tuple(type_) => Type::from(type_),
+            AstType::Circuit(type_) => Type::from(type_),
+            AstType::SelfType(_type) => Type::SelfType,
+        }
+    }
+}
+
+/// input pest ast -> Explicit Type
+
+impl From<InputDataType> for Type {
+    fn from(data_type: InputDataType) -> Self {
+        match data_type {
+            InputDataType::Address(_type) => Type::Address,
+            InputDataType::Boolean(_type) => Type::Boolean,
+            InputDataType::Field(_type) => Type::Field,
+            InputDataType::Group(_type) => Type::Group,
+            InputDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
+        }
+    }
+}
+
+impl<'ast> From<InputArrayType<'ast>> for Type {
+    fn from(array_type: InputArrayType<'ast>) -> Self {
+        let element_type = Box::new(Type::from(array_type._type));
+        let dimensions = array_type
+            .dimensions
+            .into_iter()
+            .map(|row| Expression::get_count_from_input_ast(row))
+            .collect();
+
+        Type::Array(element_type, dimensions)
+    }
+}
+
+impl<'ast> From<InputTupleType<'ast>> for Type {
+    fn from(tuple_type: InputTupleType<'ast>) -> Self {
+        let types = tuple_type.types_.into_iter().map(|type_| Type::from(type_)).collect();
+
+        Type::Tuple(types)
+    }
+}
+
+impl<'ast> From<InputAstType<'ast>> for Type {
+    fn from(type_: InputAstType<'ast>) -> Self {
+        match type_ {
+            InputAstType::Basic(type_) => Type::from(type_),
+            InputAstType::Array(type_) => Type::from(type_),
+            InputAstType::Tuple(type_) => Type::from(type_),
+        }
+    }
+}
+
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -161,6 +183,11 @@ impl fmt::Display for Type {
                     write!(f, "[{}]", row)?;
                 }
                 write!(f, "")
+            }
+            Type::Tuple(ref tuple) => {
+                let types = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "({})", types)
             }
         }
     }

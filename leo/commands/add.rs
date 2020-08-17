@@ -13,7 +13,7 @@ use crate::{
 };
 use leo_package::{imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME}, root::Manifest};
 
-use std::{convert::TryFrom, collections::HashMap, env::current_dir, fs::{File, create_dir_all}, io::{Read, Write}, path::Path};
+use std::{convert::TryFrom, collections::HashMap, env::current_dir, fs::{File, create_dir_all}, io::{Read, Write}};
 
 pub const ADD_URL: &str = "api/package/fetch";
 

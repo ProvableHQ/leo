@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct Function<'ast> {
     pub identifier: Identifier<'ast>,
     pub parameters: Vec<Input<'ast>>,
-    pub returns: Vec<Type<'ast>>,
+    pub returns: Option<Type<'ast>>,
     pub statements: Vec<Statement<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]

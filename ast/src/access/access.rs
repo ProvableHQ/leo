@@ -7,6 +7,7 @@ use serde::Serialize;
 #[pest_ast(rule(Rule::access))]
 pub enum Access<'ast> {
     Array(ArrayAccess<'ast>),
+    Tuple(TupleAccess<'ast>),
     Call(CallAccess<'ast>),
     Object(MemberAccess<'ast>),
     StaticObject(StaticMemberAccess<'ast>),

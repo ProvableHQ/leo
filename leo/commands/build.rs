@@ -1,13 +1,17 @@
-use crate::{cli::*, cli_types::*, errors::CLIError};
+use crate::{
+    cli::*,
+    cli_types::*,
+    errors::CLIError,
+    synthesizer::{CircuitSynthesizer, SerializedCircuit},
+};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
-    outputs::{ChecksumFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
+    outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
     source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkos_algorithms::snark::groth16::KeypairAssembly;
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
@@ -98,18 +102,34 @@ impl CLI for BuildCommand {
 
             // Generate the program on the constraint system and verify correctness
             {
-                let mut cs = KeypairAssembly::<Bls12_377> {
-                    num_inputs: 0,
-                    num_aux: 0,
-                    num_constraints: 0,
+                let mut cs = CircuitSynthesizer::<Bls12_377> {
                     at: vec![],
                     bt: vec![],
                     ct: vec![],
+                    input_assignment: vec![],
+                    aux_assignment: vec![],
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
                 log::debug!("Compiled constraints - {:#?}", output);
                 log::debug!("Number of constraints - {:#?}", cs.num_constraints());
+
+                // Serialize the circuit
+                let circuit_object = SerializedCircuit::from(cs);
+                let json = circuit_object.to_json_string().unwrap();
+                // println!("json: {}", json);
+
+                // Write serialized circuit to circuit `.json` file.
+                let circuit_file = CircuitFile::new(&package_name);
+                circuit_file.write_to(&path, json)?;
+
+                // Check that we can read the serialized circuit file
+                let serialized = circuit_file.read_from(&package_path)?;
+
+                // Deserialize the circuit
+                let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
+                let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
+                // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
             }
 
             // If a checksum file exists, check if it differs from the new checksum

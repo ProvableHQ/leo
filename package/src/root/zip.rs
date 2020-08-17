@@ -6,6 +6,7 @@ use crate::{
     inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
+        CIRCUIT_FILE_EXTENSION,
         OUTPUTS_DIRECTORY_NAME,
         PROOF_FILE_EXTENSION,
         PROVING_KEY_FILE_EXTENSION,
@@ -15,7 +16,7 @@ use crate::{
 
 use serde::Deserialize;
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{Read, Write},
     path::{Path, PathBuf},
 };
@@ -39,6 +40,10 @@ impl ZipFile {
     pub fn exists_at(&self, path: &PathBuf) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
+    }
+
+    pub fn get_file_path(&self, current_dir: &PathBuf) -> PathBuf {
+        self.setup_file_path(current_dir)
     }
 
     // /// Reads the program bytes from the given file path if it exists.
@@ -75,7 +80,7 @@ impl ZipFile {
 
             // write file or directory
             if path.is_file() {
-                log::info!("\tadding file {:?} as {:?}", path, name);
+                log::info!("Adding file {:?} as {:?}", path, name);
                 zip.start_file_from_path(name, options)?;
                 let mut f = File::open(path)?;
 
@@ -85,7 +90,7 @@ impl ZipFile {
             } else if name.as_os_str().len() != 0 {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
-                log::info!("\tadding dir {:?} as {:?}", path, name);
+                log::info!("Adding directory {:?} as {:?}", path, name);
                 zip.add_directory_from_path(name, options)?;
             }
         }
@@ -95,6 +100,18 @@ impl ZipFile {
         log::info!("Package zip file created successfully {:?}", path);
 
         Ok(())
+    }
+
+    /// Removes the zip file at the given path if it exists. Returns `true` on success,
+    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
+    pub fn remove(&self, path: &PathBuf) -> Result<bool, ZipFileError> {
+        let path = self.setup_file_path(path);
+        if !path.exists() {
+            return Ok(false);
+        }
+
+        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.clone()))?;
+        Ok(true)
     }
 
     fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
@@ -110,6 +127,8 @@ impl ZipFile {
 }
 
 fn is_excluded(path: &Path) -> bool {
+    log::debug!("Checking if {:?} is excluded", path);
+
     // excluded directories: `input`, `output`, `imports`
     if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
@@ -118,7 +137,7 @@ fn is_excluded(path: &Path) -> bool {
         return true;
     }
 
-    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`
+    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     path.extension()
         .map(|ext| {
             ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
@@ -128,6 +147,7 @@ fn is_excluded(path: &Path) -> bool {
                 | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
                 | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
+                | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
         })
         .unwrap_or(false)
 }

@@ -21,7 +21,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         circuit_identifier: Box<Expression>,
         circuit_member: Identifier,
         span: Span,
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let self_function_scope = new_scope(self_file_scope.clone(), identifier.name.to_string());
 
                 let member_value =
-                    self.evaluate_identifier(self_file_scope, self_function_scope, &vec![], circuit_member.clone())?;
+                    self.evaluate_identifier(self_file_scope, self_function_scope, None, circuit_member.clone())?;
 
                 return Ok(member_value);
             }
@@ -43,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type,
             *circuit_identifier.clone(),
             span.clone(),
         )? {

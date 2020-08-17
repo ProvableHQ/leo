@@ -6,3 +6,6 @@ pub use array_inline_expression::*;
 
 pub mod expression;
 pub use expression::*;
+
+pub mod tuple_expression;
+pub use tuple_expression::*;

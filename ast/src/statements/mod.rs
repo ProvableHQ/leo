@@ -19,9 +19,6 @@ pub use expression_statement::*;
 pub mod for_statement;
 pub use for_statement::*;
 
-pub mod multiple_assignment_statement;
-pub use multiple_assignment_statement::*;
-
 pub mod return_statement;
 pub use return_statement::*;
 

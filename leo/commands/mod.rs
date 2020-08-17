@@ -16,9 +16,6 @@ pub use self::init::*;
 pub mod lint;
 pub use self::lint::*;
 
-pub mod load;
-pub use self::load::*;
-
 pub mod login;
 pub use self::login::*;
 
@@ -40,8 +37,8 @@ pub use self::setup::*;
 pub mod test;
 pub use self::test::*;
 
-pub mod unload;
-pub use self::unload::*;
+pub mod remove;
+pub use self::remove::*;
 
 pub mod watch;
 pub use self::watch::*;

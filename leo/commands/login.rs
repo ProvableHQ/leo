@@ -11,7 +11,7 @@ use crate::{
     credentials::*,
     errors::{
         CLIError::LoginError,
-        LoginError::{CannotGetToken, ConnectionUnavailable, WrongLoginOrPassword},
+        LoginError::{CannotGetToken, NoCredentialsProvided, NoConnectionFound, WrongLoginOrPassword},
     },
 };
 
@@ -25,12 +25,17 @@ pub struct LoginCommand;
 impl CLI for LoginCommand {
     // Format: token, username, password
     type Options = (Option<String>, Option<String>, Option<String>);
-    type Output = ();
+    type Output = String;
 
-    const ABOUT: AboutType = "Login to the package manager (*)";
+    const ABOUT: AboutType = "Login to the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[
         // (name, description, required, index)
-        ("NAME", "Sets token for login to the package manager", false, 1u64),
+        (
+            "NAME",
+            "Sets the authentication token for login to the package manager",
+            false,
+            1u64,
+        ),
     ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "login";
@@ -61,7 +66,7 @@ impl CLI for LoginCommand {
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
         let token = match options {
             // Login using existing token
-            (Some(token), _, _) => token,
+            (Some(token), _, _) => Some(token),
 
             // Login using username and password
             (None, Some(username), Some(password)) => {
@@ -77,32 +82,45 @@ impl CLI for LoginCommand {
                         Ok(json) => json,
                         Err(_error) => {
                             log::error!("Wrong login or password");
-                            return Err(LoginError(WrongLoginOrPassword("Wrong login or password".into())));
+                            return Err(WrongLoginOrPassword("Wrong login or password".into()).into());
                         }
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(LoginError(ConnectionUnavailable(
+                        return Err(LoginError(NoConnectionFound(
                             "Could not connect to the package manager".into(),
                         )));
                     }
                 };
 
                 match response.get("token") {
-                    Some(token) => token.clone(),
-                    None => return Err(LoginError(CannotGetToken("There is no token".into()))),
+                    Some(token) => Some(token.clone()),
+                    None => {
+                        return Err(CannotGetToken("No token was provided in the response".into()).into());
+                    }
                 }
             }
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
             (_, _, _) => {
-                read_token()?
+                Some(read_token()?)
             }
         };
 
-        write_token(token.as_str())?;
-        log::info!("Successfully logged in");
-        Ok(())
+        match token {
+            Some(token) => {
+                write_token(token.as_str())?;
+
+                log::info!("Login successful.");
+
+                Ok(token)
+            }
+            _ => {
+                log::error!("Failed to login. Please run `leo login -h` for help.");
+
+                Err(NoCredentialsProvided.into())
+            }
+        }
     }
 }

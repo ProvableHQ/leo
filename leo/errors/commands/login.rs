@@ -5,9 +5,12 @@ pub enum LoginError {
     #[error("{:?}", _0)]
     CannotGetToken(OsString),
 
-    #[error("connection unavailable {:?}", _0)]
-    ConnectionUnavailable(OsString),
+    #[error("No connection found {:?}", _0)]
+    NoConnectionFound(OsString),
 
-    #[error("wrong login or password {:?}", _0)]
+    #[error("No login credentials were provided")]
+    NoCredentialsProvided,
+
+    #[error("Wrong login or password {:?}", _0)]
     WrongLoginOrPassword(OsString),
 }

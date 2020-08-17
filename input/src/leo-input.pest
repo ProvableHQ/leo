@@ -8,8 +8,10 @@ protected_name = {
     | "const"
     | "else"
     | "false"
-    | "function"
+    | type_field
     | "for"
+    | "function"
+    | type_group
     | "if"
     | "import"
     | "in"
@@ -33,7 +35,7 @@ LINE_END = { ";" ~ NEWLINE* }
 /// Types
 
 // Declared in types/type_.rs
-type_ = { type_array | type_data }
+type_ = { type_tuple | type_array | type_data }
 
 // Declared in types/integer_type.rs
 type_integer = {
@@ -89,6 +91,8 @@ type_data = { type_field | type_group | type_boolean | type_address | type_integ
 // Declared in types/array_type.rs
 type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
 
+type_tuple = { "(" ~ type_ ~ ("," ~ (type_tuple | type_))+ ~ ")" }
+
 /// Values
 
 // Declared in values/value.rs
@@ -134,8 +138,11 @@ group_single_or_tuple = {value_number | group_tuple}
 // Declared in values/address.rs
 address = @{ "aleo" ~ ASCII_DIGIT ~ (LOWERCASE_LETTER | ASCII_DIGIT){58} }
 
+// Declared in values/address_typed.rs
+address_typed = ${ type_address ~ "(" ~ address ~ ")" }
+
 // Declared in values/address_value.rs
-value_address = ${ type_address ~ "(" ~ address ~ ")" }
+value_address = {address | address_typed}
 
 /// Expressions
 
@@ -148,11 +155,12 @@ inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
 
 // Declared in expressions/expression.rs
 expression = {
-    expression_array_inline
+    value
+    | expression_tuple
+    | expression_array_inline
     | expression_array_initializer
-    | value
-    | address // address conflicts with identifier namespaces so we catch implicit address values as expressions here
 }
+expression_tuple = { "(" ~ expression ~ ("," ~ expression)+ ~")" }
 
 /// Parameters
 
@@ -185,7 +193,7 @@ header = { main | record | registers | state_leaf | state | identifier }
 /// Definitions
 
 // Declared in definition/definition.rs
-definition = { parameter ~ "=" ~ NEWLINE* ~ expression ~ LINE_END }
+definition = { parameter ~ "=" ~ expression ~ LINE_END }
 
 /// Table
 

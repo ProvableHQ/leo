@@ -70,14 +70,14 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn unexpected_array(expected: String, actual: String, span: Span) -> Self {
-        let message = format!("expected type `{}`, found array with elements `{}`", expected, actual);
+    pub fn incompatible_types(operation: String, span: Span) -> Self {
+        let message = format!("no implementation for `{}`", operation);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn incompatible_types(operation: String, span: Span) -> Self {
-        let message = format!("no implementation for `{}`", operation);
+    pub fn index_out_of_bounds(index: usize, span: Span) -> Self {
+        let message = format!("cannot access index {} of tuple out of bounds", index);
 
         Self::new_from_span(message, span)
     }
@@ -156,6 +156,18 @@ impl ExpressionError {
 
     pub fn undefined_static_access(circuit: String, member: String, span: Span) -> Self {
         let message = format!("Circuit `{}` has no static member `{}`", circuit, member);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unexpected_array(expected: String, actual: String, span: Span) -> Self {
+        let message = format!("expected type `{}`, found array with elements `{}`", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unexpected_tuple(expected: String, actual: String, span: Span) -> Self {
+        let message = format!("expected type `{}`, found tuple with values `{}`", expected, actual);
 
         Self::new_from_span(message, span)
     }

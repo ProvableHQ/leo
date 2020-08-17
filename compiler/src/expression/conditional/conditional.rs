@@ -15,7 +15,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_types: &Vec<Type>,
+        expected_type: Option<Type>,
         conditional: Expression,
         first: Expression,
         second: Expression,
@@ -25,7 +25,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            &vec![Type::Boolean],
+            Some(Type::Boolean),
             conditional,
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type.clone(),
             first,
             span.clone(),
         )?;
@@ -45,7 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             cs,
             file_scope.clone(),
             function_scope.clone(),
-            expected_types,
+            expected_type,
             second,
             span.clone(),
         )?;

@@ -15,3 +15,6 @@ pub use member_access::*;
 
 pub mod static_member_access;
 pub use static_member_access::*;
+
+pub mod tuple_access;
+pub use tuple_access::*;

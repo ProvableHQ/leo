@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 cs,
                                 file_scope.clone(),
                                 function_scope.clone(),
-                                &vec![_type.clone()],
+                                Some(_type.clone()),
                                 field.expression,
                             )?;
 
