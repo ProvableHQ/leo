@@ -48,6 +48,12 @@ impl InputParserError {
         Self::new_from_span(message, implicit.span().clone())
     }
 
+    pub fn implicit_group(number: NumberValue) -> Self {
+        let message = format!("group coordinates should be in (x, y)group format, found `{}`", number);
+
+        Self::new_from_span(message, number.span().clone())
+    }
+
     pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type.to_string(), value.to_string());
         let span = value.span().to_owned();

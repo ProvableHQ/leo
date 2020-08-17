@@ -10,6 +10,9 @@ pub use boolean_value::*;
 pub mod field_value;
 pub use field_value::*;
 
+pub mod group_coordinate;
+pub use group_coordinate::*;
+
 pub mod group_value;
 pub use group_value::*;
 
