@@ -7,4 +7,7 @@ pub enum AddError {
 
     #[error("missing author or package name")]
     MissingAuthorOrPackageName,
+
+    #[error("{:?}", _0)]
+    ZipError(OsString),
 }

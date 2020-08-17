@@ -113,10 +113,17 @@ impl CLI for AddCommand {
         let bytes = response.bytes()?;
         let reader = std::io::Cursor::new(bytes);
 
-        let mut zip_arhive = zip::ZipArchive::new(reader).unwrap();
+        let mut zip_arhive = match zip::ZipArchive::new(reader) {
+            Ok(zip) => zip,
+            Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+        };
 
         for i in 0..zip_arhive.len() {
-            let file = zip_arhive.by_index(i).unwrap();
+            let file = match zip_arhive.by_index(i) {
+                Ok(file) => file,
+                Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+            };
+
             let file_name = file.name();
 
             let mut file_path = path.clone();

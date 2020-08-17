@@ -2,7 +2,7 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::LoginCommand,
-    credentials::read_token,
+    credentials::{read_token, PACKAGE_MANAGER_URL},
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
@@ -22,7 +22,6 @@ use reqwest::{
 use serde::Deserialize;
 use std::{convert::TryFrom, env::current_dir};
 
-const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
 const PUBLISH_URL: &str = "api/package/publish";
 
 #[derive(Deserialize)]
