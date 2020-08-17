@@ -510,21 +510,6 @@ function main() {
 }
 ```
 
-## Constraints
-
-### Assert Equals
-This will enforce that the two values are equal in the constraint system.
-
-```js
-function main() {
-    assert_eq!(45, 45);
-  
-    assert_eq!(2fe, 2fe);
-  
-    assert_eq!(true, true);
-}
-```
-
 ## Testing
 
 Use the `test` keyword to add tests to a leo program. Tests must have 0 function inputs and 0 function returns.
@@ -549,14 +534,14 @@ test function expect_fail() {
 
 ## Logging
 
-Leo supports `console.log(`, `debug!`, and `error!` logging macros.
+Leo supports `console.log`, `console.debug`, and `console.error` logging macros.
 
 The first argument a macro receives is a format string. This must be a string literal. The power of the formatting string is in the `{}`s contained.
 
 Additional parameters passed to a macro replace the `{}`s within the formatting string in the order given.
 
 #### `console.log(`
-Directly calls the `println!` macro in rust.
+Logs the formatted string to the console.
 ```js
 function main(a: u32) {
     console.log("a is {}", a);
@@ -567,7 +552,7 @@ function main(a: u32) {
 Enabled by specifying the `-d` flag after a Leo command.
 ```js
 function main(a: u32) {
-    debug!("a is {}", a);
+   console.debug("a is {}", a);
 }
 ```
 
