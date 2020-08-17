@@ -1,3 +1,3 @@
 function main() {
-    debug!("hello debug");
+    console.debug("hello debug");
 }

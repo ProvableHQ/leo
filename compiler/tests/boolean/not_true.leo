@@ -1,3 +1,3 @@
 function main() {
-    assert_eq!(!true, false);
+    console.assert(!true == false);
 }

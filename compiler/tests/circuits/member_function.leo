@@ -7,5 +7,5 @@ circuit Foo {
 function main() {
     let a = Foo { };
 
-    assert_eq!(a.echo(1u32), 1u32);
+    console.assert(a.echo(1u32) == 1u32);
 }

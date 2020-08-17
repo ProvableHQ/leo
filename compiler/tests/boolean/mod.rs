@@ -49,7 +49,7 @@ fn test_input_fail() {
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
-    expect_synthesis_error(program);
+    expect_compiler_error(program);
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_boolean_statement(program);
+    expect_compiler_error(program);
 }
 
 // Boolean or ||

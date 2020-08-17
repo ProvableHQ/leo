@@ -4,5 +4,5 @@ function main() {
     const b = false || a;
     const c = !(true && b);
 
-    assert_eq!(c, false);
+    console.assert(c == false);
 }

@@ -21,6 +21,7 @@ protected_name = {
     | "as"
     | "circuit"
     | "const"
+    | "console"
     | "else"
     | "false"
     | "field"

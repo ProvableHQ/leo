@@ -4,5 +4,5 @@ function main() {
 
     const b: u32[3][2] = [[0; 3]; 2]; // initializer
 
-    assert_eq!(a, b);
+    console.assert(a == b);
 }

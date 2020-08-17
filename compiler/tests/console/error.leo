@@ -1,3 +1,3 @@
 function main() {
-    error!("hello error");
+    console.error("hello error");
 }

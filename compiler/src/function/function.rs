@@ -11,7 +11,7 @@ use leo_typed::{Expression, Function, InputVariable, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
+    gadgets::r1cs::ConstraintSystem,
 };
 
 pub fn check_arguments_length(expected: usize, actual: usize, span: Span) -> Result<(), FunctionError> {
@@ -78,7 +78,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
-        let indicator = Some(Boolean::constant(true));
 
         for statement in function.statements.iter() {
             let mut result = self.enforce_statement(

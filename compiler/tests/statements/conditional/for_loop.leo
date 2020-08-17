@@ -9,5 +9,5 @@ function main(a: bool) {
 
     let r: u32 = if a ? 6 : 0;
 
-    assert_eq!(r, b);
+    console.assert(r == b);
 }

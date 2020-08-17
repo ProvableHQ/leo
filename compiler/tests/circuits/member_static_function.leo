@@ -7,5 +7,5 @@ circuit Foo {
 function main() {
     let a = Foo::echo(1u32);
 
-    assert_eq!(a, 1u32);
+    console.assert(a == 1u32);
 }
