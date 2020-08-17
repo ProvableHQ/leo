@@ -14,6 +14,9 @@ pub const MANIFEST_FILE_NAME: &str = "Leo.toml";
 pub struct Package {
     pub name: String,
     pub version: String,
+    pub description: Option<String>,
+    pub license: Option<String>,
+    pub remote: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -27,6 +30,9 @@ impl Manifest {
             package: Package {
                 name: package_name.to_owned(),
                 version: "0.1.0".to_owned(),
+                description: None,
+                license: None,
+                remote: None,
             },
         }
     }
@@ -45,6 +51,18 @@ impl Manifest {
 
     pub fn get_package_version(&self) -> String {
         self.package.version.clone()
+    }
+
+    pub fn get_package_description(&self) -> Option<String> {
+        self.package.description.clone()
+    }
+
+    pub fn get_package_license(&self) -> Option<String> {
+        self.package.license.clone()
+    }
+
+    pub fn get_package_remote(&self) -> Option<String> {
+        self.package.remote.clone()
     }
 
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {

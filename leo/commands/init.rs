@@ -5,7 +5,7 @@ use crate::{
 };
 use leo_package::{
     inputs::*,
-    root::{Gitignore, Manifest},
+    root::{Gitignore, Manifest, README},
     source::{LibFile, MainFile, SourceDirectory},
 };
 
@@ -57,6 +57,9 @@ impl CLI for InitCommand {
 
         // Create the .gitignore file
         Gitignore::new().write_to(&path)?;
+
+        // Create the README.md file
+        README::new(&package_name).write_to(&path)?;
 
         // Create the source directory
         SourceDirectory::create(&path)?;

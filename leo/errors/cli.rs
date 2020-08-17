@@ -64,6 +64,9 @@ pub enum CLIError {
     PublishError(PublishError),
 
     #[error("{}", _0)]
+    READMEError(READMEError),
+
+    #[error("{}", _0)]
     RunError(RunError),
 
     #[error("{}", _0)]
@@ -212,6 +215,13 @@ impl From<PublishError> for CLIError {
     fn from(error: PublishError) -> Self {
         log::error!("{}\n", error);
         CLIError::PublishError(error)
+    }
+}
+
+impl From<READMEError> for CLIError {
+    fn from(error: READMEError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::READMEError(error)
     }
 }
 
