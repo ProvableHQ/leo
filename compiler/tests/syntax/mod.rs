@@ -54,3 +54,12 @@ fn input_syntax_error() {
         _ => panic!("input syntax error should be a ParserError"),
     }
 }
+
+#[test]
+fn test_compare_mismatched_types() {
+    let bytes = include_bytes!("compare_mismatched_types.leo");
+    let program = parse_program(bytes).unwrap();
+
+    // previously this bug caused a stack overflow
+    expect_compiler_error(program);
+}
