@@ -11,8 +11,10 @@ use crate::{
 use leo_ast::LeoAst;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
+use leo_state::verify_local_data_commitment;
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
+use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -123,6 +125,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Manually sets main function input
     pub fn set_main_input(&mut self, input: MainInput) {
         self.program_input.set_main_input(input);
+    }
+
+    /// Verifies the input to the program
+    pub fn verify_local_data_commitment(
+        &self,
+        system_parameters: &SystemParameters<Components>,
+    ) -> Result<bool, CompilerError> {
+        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
+
+        Ok(result)
     }
 
     pub fn checksum(&self) -> Result<String, CompilerError> {
