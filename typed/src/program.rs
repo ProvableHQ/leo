@@ -1,7 +1,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Function, Identifier, Import, InputVariable, TestFunction};
+use crate::{load_annotation, Circuit, Function, Identifier, Import, InputVariable, TestFunction};
 use leo_ast::{definitions::Definition, files::File};
 
 use serde::{Deserialize, Serialize};
@@ -47,7 +47,17 @@ impl<'ast> Program {
                 }
                 Definition::TestFunction(test_def) => {
                     let test = TestFunction::from(test_def);
-                    tests.insert(test.0.identifier.clone(), test);
+                    tests.insert(test.function.identifier.clone(), test);
+                }
+                Definition::Annotated(annotated_definition) => {
+                    load_annotation(
+                        annotated_definition,
+                        &mut imports,
+                        &mut circuits,
+                        &mut functions,
+                        &mut tests,
+                        &mut expected_input,
+                    );
                 }
             });
 

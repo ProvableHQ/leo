@@ -6,6 +6,7 @@ use snarkos_models::curves::{Field, PrimeField};
 
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
     pub identifiers: HashMap<String, ConstrainedValue<F, G>>,
 }

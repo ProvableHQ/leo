@@ -1,6 +1,7 @@
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
 use leo_input::InputParserError;
+use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
 use std::path::PathBuf;
@@ -13,17 +14,26 @@ pub enum CompilerError {
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
 
+    #[error("Cannot find input files with context name `{}`", _0)]
+    InvalidTestContext(String),
+
     #[error("{}", _0)]
     FunctionError(#[from] FunctionError),
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
+    #[error("{}", _0)]
+    LocalDataVerificationError(#[from] LocalDataVerificationError),
+
     #[error("`main` function not found")]
     NoMain,
 
     #[error("`main` must be a function")]
     NoMainFunction,
+
+    #[error("Failed to find input files for the current test")]
+    NoTestInput,
 
     #[error("{}", _0)]
     OutputError(#[from] OutputFileError),

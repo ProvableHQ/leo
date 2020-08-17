@@ -1,8 +1,9 @@
+use crate::GroupValue;
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
     types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue, NumberValue, Value},
+    values::{BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
 };
 
 use leo_input::{
@@ -17,7 +18,7 @@ pub enum InputValue {
     Address(String),
     Boolean(bool),
     Field(String),
-    Group(String),
+    Group(GroupValue),
     Integer(IntegerType, String),
     Array(Vec<InputValue>),
     Tuple(Vec<InputValue>),
@@ -44,8 +45,8 @@ impl InputValue {
         Ok(InputValue::Integer(integer_type, number))
     }
 
-    fn from_group(group: GroupValue) -> Self {
-        InputValue::Group(group.to_string())
+    fn from_group(group: InputGroupValue) -> Self {
+        InputValue::Group(GroupValue::from(group))
     }
 
     fn from_field(field: FieldValue) -> Self {
@@ -57,7 +58,7 @@ impl InputValue {
             DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.to_string()),
-            DataType::Group(_) => Ok(InputValue::Group(implicit.to_string())),
+            DataType::Group(_) => Err(InputParserError::implicit_group(implicit)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),
         }
     }

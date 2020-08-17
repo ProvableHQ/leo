@@ -1,7 +1,7 @@
 //! Methods to enforce constraints on input group values in a Leo program.
 
 use crate::{errors::GroupError, ConstrainedValue, GroupType};
-use leo_typed::{InputValue, Span};
+use leo_typed::{GroupValue, InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -12,7 +12,7 @@ use snarkos_models::{
 pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: String,
-    option: Option<String>,
+    option: Option<GroupValue>,
     span: Span,
 ) -> Result<G, GroupError> {
     let group_name = format!("{}: group", name);
