@@ -15,5 +15,5 @@ function main() {
     let a = 1u32;
     bad_mutate(a);
 
-    assert_eq!(a, 1u32); // <- value `a` is still `1u32`
+    console.assert(a == 1u32); // <- value `a` is still `1u32`
 }

@@ -9,5 +9,5 @@ function main() {
         a += one();
     }
 
-    assert_eq!(a, 10u32);
+    console.assert(a == 10u32);
 }

@@ -109,3 +109,22 @@ fn test_assert() {
 
     expect_compiler_error(program);
 }
+
+#[test]
+fn test_conditional_assert() {
+    let bytes = include_bytes!("conditional_assert.leo");
+    let mut program = parse_program(bytes).unwrap();
+
+    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
+    program.set_main_input(main_input);
+
+    assert_satisfied(program);
+
+    let mut program = parse_program(bytes).unwrap();
+
+    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(false)))]);
+
+    program.set_main_input(main_input);
+
+    assert_satisfied(program);
+}

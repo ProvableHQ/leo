@@ -1,5 +1,6 @@
 use crate::{
     assert_satisfied,
+    expect_compiler_error,
     expect_synthesis_error,
     field::field_to_decimal_string,
     generate_main_input,
@@ -66,7 +67,7 @@ fn test_input() {
 
     let program = parse_program_with_input(program_bytes, input_bytes_fail).unwrap();
 
-    expect_synthesis_error(program);
+    expect_compiler_error(program);
 }
 
 #[test]
@@ -154,7 +155,7 @@ fn test_sub() {
 }
 
 #[test]
-fn test_assert_eq_pass() {
+fn test_console_assert_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -177,7 +178,7 @@ fn test_assert_eq_pass() {
 }
 
 #[test]
-fn test_assert_eq_fail() {
+fn test_console_assert_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -201,12 +202,11 @@ fn test_assert_eq_fail() {
 
         program.set_main_input(main_input);
 
-        expect_synthesis_error(program);
+        expect_compiler_error(program);
     }
 }
 
 #[test]
-#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

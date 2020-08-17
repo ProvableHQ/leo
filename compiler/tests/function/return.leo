@@ -3,5 +3,5 @@ function one() -> u32 {
 }
 
 function main() {
-    assert_eq!(one(), 1u32);
+    console.assert(one() == 1u32);
 }

@@ -1,6 +1,6 @@
 use crate::{
     assert_satisfied,
-    expect_synthesis_error,
+    expect_compiler_error,
     generate_main_input,
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
@@ -91,8 +91,8 @@ fn test_u8_lt() {
 }
 
 #[test]
-fn test_u8_assert_eq() {
-    TestU8::test_assert_eq();
+fn test_u8_console_assert() {
+    TestU8::test_console_assert();
 }
 
 #[test]
