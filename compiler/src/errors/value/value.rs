@@ -45,4 +45,10 @@ impl ValueError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn implicit_group(span: Span) -> Self {
+        let message = format!("group coordinates should be in (x, y)group format");
+
+        Self::new_from_span(message, span)
+    }
 }

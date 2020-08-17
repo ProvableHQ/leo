@@ -8,6 +8,7 @@ extern crate thiserror;
 mod ast;
 
 pub mod access;
+pub mod annotations;
 pub mod circuits;
 pub mod common;
 pub mod definitions;

@@ -40,7 +40,6 @@ impl OutputFile {
         // create output file
         let path = self.setup_file_path(path);
         let mut file = File::create(&path)?;
-        log::info!("Writing to output registers...");
 
         Ok(file.write_all(bytes)?)
     }
