@@ -1,3 +1,6 @@
+pub mod add;
+pub use self::add::*;
+
 pub mod build;
 pub use self::build::*;
 
@@ -12,9 +15,6 @@ pub use self::init::*;
 
 pub mod lint;
 pub use self::lint::*;
-
-pub mod add;
-pub use self::add::*;
 
 pub mod login;
 pub use self::login::*;

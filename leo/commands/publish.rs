@@ -2,6 +2,7 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::LoginCommand,
+    credentials::{read_token, PACKAGE_MANAGER_URL},
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
@@ -21,7 +22,6 @@ use reqwest::{
 use serde::Deserialize;
 use std::{convert::TryFrom, env::current_dir};
 
-const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
 const PUBLISH_URL: &str = "api/package/publish";
 
 #[derive(Deserialize)]
@@ -81,7 +81,7 @@ impl CLI for PublishCommand {
         let client = Client::new();
 
         // Get token to make an authorized request
-        let token = match LoginCommand::read_token() {
+        let token = match read_token() {
             Ok(token) => token,
 
             // If not logged in, then try logging in using JWT.

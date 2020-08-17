@@ -4,6 +4,9 @@ use leo_package::errors::*;
 #[derive(Debug, Error)]
 pub enum CLIError {
     #[error("{}", _0)]
+    AddError(AddError),
+
+    #[error("{}", _0)]
     BuildError(BuildError),
 
     #[error("{}", _0)]
@@ -23,6 +26,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     InitError(InitError),
+
+    #[error("{}", _0)]
+    ImportsDirectoryError(ImportsDirectoryError),
 
     #[error("{}", _0)]
     InputDirectoryError(InputsDirectoryError),
@@ -90,6 +96,13 @@ impl From<BuildError> for CLIError {
     }
 }
 
+impl From<AddError> for CLIError {
+    fn from(error: AddError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::AddError(error)
+    }
+}
+
 impl From<ChecksumFileError> for CLIError {
     fn from(error: ChecksumFileError) -> Self {
         log::error!("{}\n", error);
@@ -115,6 +128,13 @@ impl From<InitError> for CLIError {
     fn from(error: InitError) -> Self {
         log::error!("{}\n", error);
         CLIError::InitError(error)
+    }
+}
+
+impl From<ImportsDirectoryError> for CLIError {
+    fn from(error: ImportsDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ImportsDirectoryError(error)
     }
 }
 
@@ -241,6 +261,13 @@ impl From<leo_input::errors::InputParserError> for CLIError {
     fn from(error: leo_input::errors::InputParserError) -> Self {
         log::error!("{}\n", error);
         CLIError::Crate("leo_input", "Program failed due to previous error".into())
+    }
+}
+
+impl From<reqwest::Error> for CLIError {
+    fn from(error: reqwest::Error) -> Self {
+        log::error!("{}\n", error);
+        CLIError::Crate("rewquest", format!("{}", error))
     }
 }
 
