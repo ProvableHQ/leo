@@ -548,7 +548,7 @@ function main(a: u32) {
 }
 ```
 
-#### `debug!`
+#### `console.debug`
 Enabled by specifying the `-d` flag after a Leo command.
 ```js
 function main(a: u32) {
@@ -557,7 +557,7 @@ function main(a: u32) {
 ```
 
 
-#### `error!`
+#### `console.error`
 Prints the error to console.
 ```js
 function main(a: u32) {

@@ -155,12 +155,12 @@ pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerErr
     program.generate_constraints_helper(&mut cs).unwrap_err()
 }
 
-pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    let _output = program.generate_constraints_helper(&mut cs).unwrap();
-
-    assert!(!cs.is_satisfied());
-}
+// pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
+//     let mut cs = TestConstraintSystem::<Fq>::new();
+//     let _output = program.generate_constraints_helper(&mut cs).unwrap();
+//
+//     assert!(!cs.is_satisfied());
+// }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {
     let mut main_input = MainInput::new();

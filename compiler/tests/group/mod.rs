@@ -1,7 +1,6 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_synthesis_error,
     field::field_to_decimal_string,
     generate_main_input,
     parse_program,
