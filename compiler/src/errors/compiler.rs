@@ -1,6 +1,7 @@
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
 use leo_input::InputParserError;
+use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
 use std::path::PathBuf;
@@ -18,6 +19,9 @@ pub enum CompilerError {
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
+
+    #[error("{}", _0)]
+    LocalDataVerificationError(#[from] LocalDataVerificationError),
 
     #[error("`main` function not found")]
     NoMain,
