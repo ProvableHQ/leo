@@ -266,18 +266,19 @@ impl EvaluateEqGadget<Fq> for EdwardsGroupType {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(Boolean::constant(self_value.eq(other_value)))
             }
-            (EdwardsGroupType::Allocated(first), EdwardsGroupType::Allocated(second)) => {
-                compare_allocated_edwards_bls_gadgets(cs, first, second)
-            }
-            (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
-            | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
-                let allocated_constant_value =
-                    <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
-                        &mut cs.ns(|| format!("alloc constant for eq")),
-                        || Ok(constant_value),
-                    )?;
-                compare_allocated_edwards_bls_gadgets(cs, allocated_value, &allocated_constant_value)
-            }
+            _ => unimplemented!(),
+            // (EdwardsGroupType::Allocated(first), EdwardsGroupType::Allocated(second)) => {
+            //     compare_allocated_edwards_bls_gadgets(cs, first, second)
+            // }
+            // (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            // | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+            //     let allocated_constant_value =
+            //         <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
+            //             &mut cs.ns(|| format!("alloc constant for eq")),
+            //             || Ok(constant_value),
+            //         )?;
+            //     compare_allocated_edwards_bls_gadgets(cs, allocated_value, &allocated_constant_value)
+            // }
         }
     }
 }
