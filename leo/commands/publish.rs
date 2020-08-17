@@ -1,12 +1,13 @@
 use crate::{
     cli::*,
     cli_types::*,
-    commands::LoginCommand,
+    commands::{BuildCommand, LoginCommand},
     credentials::{read_token, PACKAGE_MANAGER_URL},
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
         CLIError::PublishError,
+        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote}
     },
 };
 use leo_package::{
@@ -27,7 +28,6 @@ const PUBLISH_URL: &str = "api/package/publish";
 #[derive(Deserialize)]
 struct ResponseJson {
     package_id: String,
-    _success: bool,
 }
 
 #[derive(Debug)]
@@ -52,12 +52,27 @@ impl CLI for PublishCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Build all program files.
-        // let _output = BuildCommand::output(options)?;
+        let _output = BuildCommand::output(())?;
 
-        // Get the package name
+        // Get the package manifest
         let path = current_dir()?;
-        let package_name = Manifest::try_from(&path)?.get_package_name();
-        let package_version = Manifest::try_from(&path)?.get_package_version();
+        let package_manifest = Manifest::try_from(&path)?;
+
+        let package_name = package_manifest.get_package_name();
+        let package_version = package_manifest.get_package_version();
+
+        if package_manifest.get_package_description().is_none() {
+            return Err(PublishError(MissingPackageDescription));
+        }
+
+        if package_manifest.get_package_license().is_none() {
+            return Err(PublishError(MissingPackageLicense));
+        }
+
+        let package_remote = match package_manifest.get_package_remote() {
+            Some(remote) => remote,
+            None => return Err(PublishError(MissingPackageRemote))
+        };
 
         // Create the output directory
         OutputsDirectory::create(&path)?;
@@ -68,12 +83,13 @@ impl CLI for PublishCommand {
             log::debug!("Existing package zip file found. Clearing it to regenerate.");
             // Remove the existing package zip file
             ZipFile::new(&package_name).remove(&path)?;
-        } else {
-            zip_file.write(&path)?;
         }
+
+        zip_file.write(&path)?;
 
         let form_data = Form::new()
             .text("name", package_name)
+            .text("remote", package_remote)
             .text("version", package_version)
             .file("file", zip_file.get_file_path(&path))?;
 
@@ -123,7 +139,7 @@ impl CLI for PublishCommand {
             }
         };
 
-        log::info!("Package published successfully");
+        log::info!("Package published successfully with id: {}", result.package_id);
         Ok(Some(result.package_id))
     }
 }
