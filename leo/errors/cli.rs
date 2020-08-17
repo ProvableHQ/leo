@@ -25,6 +25,9 @@ pub enum CLIError {
     InitError(InitError),
 
     #[error("{}", _0)]
+    ImportsDirectoryError(ImportsDirectoryError),
+
+    #[error("{}", _0)]
     InputDirectoryError(InputsDirectoryError),
 
     #[error("{}", _0)]
@@ -112,6 +115,13 @@ impl From<InitError> for CLIError {
     fn from(error: InitError) -> Self {
         log::error!("{}\n", error);
         CLIError::InitError(error)
+    }
+}
+
+impl From<ImportsDirectoryError> for CLIError {
+    fn from(error: ImportsDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ImportsDirectoryError(error)
     }
 }
 
@@ -231,6 +241,13 @@ impl From<leo_input::errors::InputParserError> for CLIError {
     fn from(error: leo_input::errors::InputParserError) -> Self {
         log::error!("{}\n", error);
         CLIError::Crate("leo_input", "Program failed due to previous error".into())
+    }
+}
+
+impl From<reqwest::Error> for CLIError {
+    fn from(error:reqwest::Error) -> Self {
+        log::error!("{}\n", error);
+        CLIError::Crate("rewquest", format!("{}", error))
     }
 }
 

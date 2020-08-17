@@ -1042,6 +1042,7 @@ dependencies = [
  "snarkos-utilities",
  "thiserror",
  "toml",
+ "zip",
 ]
 
 [[package]]
