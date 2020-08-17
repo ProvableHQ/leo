@@ -1,37 +1,27 @@
 [package]
-name = "leo-compiler"
+name = "leo-state"
 version = "0.1.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
 [dependencies]
-leo-ast = { path = "../ast", version = "0.1.0" }
-leo-gadgets = { path = "../gadgets", version = "0.1.0" }
 leo-input = { path = "../input", version = "0.1.0" }
 leo-typed = { path = "../typed", version = "0.1.0" }
-leo-state = { path = "../state", version = "0.1.0" }
 
+snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", default-features = false }
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
 snarkos-dpc = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-dpc", default-features = false }
 snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-errors", default-features = false }
-snarkos-gadgets = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-gadgets", default-features = false }
 snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-models", default-features = false }
-snarkos-objects = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-objects", default-features = false }
+snarkos-objects = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-objects" }
 snarkos-utilities = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-utilities" }
 
-bincode = { version = "1.0" }
-hex = { version = "0.4.2" }
-log = { version = "0.4" }
-pest = { version = "2.0" }
+
 rand = { version = "0.7" }
-rand_xorshift = { version = "0.2", default-features = false }
-serde = { version = "1.0" }
-sha2 = { version = "0.9" }
+rand_xorshift = { version = "0.2" }
 thiserror = { version = "1.0" }
 
-[dev-dependencies]
-num-bigint = { version = "0.3" }
 
-[features]
-default = []
-ci_skip = ["leo-ast/ci_skip", "leo-typed/ci_skip"]
+[dev-dependencies]
+snarkos-storage = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-storage" }
+
