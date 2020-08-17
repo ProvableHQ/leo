@@ -14,6 +14,9 @@ pub enum CompilerError {
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
 
+    #[error("Cannot find input files with context name `{}`", _0)]
+    InvalidTestContext(String),
+
     #[error("{}", _0)]
     FunctionError(#[from] FunctionError),
 
@@ -28,6 +31,9 @@ pub enum CompilerError {
 
     #[error("`main` must be a function")]
     NoMainFunction,
+
+    #[error("Failed to find input files for the current test")]
+    NoTestInput,
 
     #[error("{}", _0)]
     OutputError(#[from] OutputFileError),

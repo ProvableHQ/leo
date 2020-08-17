@@ -8,11 +8,15 @@ file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
 
 // Declared in definitions/definition.rs
 definition = {
-    import
+    definition_annotated
+    | import
     | circuit
     | function
     | test_function
 }
+
+// Declared in definitions/annotated_definition.rs
+definition_annotated = { annotation ~ NEWLINE* ~ definition}
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -468,3 +472,23 @@ debug = {"debug"}
 // Declared in macros/error.rs
 error = {"error"}
 
+/// Annotations
+
+// Declared in annotations/annotation.rs
+annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments}
+
+// Declared in annotations/annotation_symbol.rs
+annotation_symbol = ${"@"}
+
+// Declared in annotations/annotation_name.rs
+annotation_name = {
+    context
+}
+
+// Declared in annotations/context.rs
+context = {"context"}
+
+// Declared in annotations/annotation_argument.rs
+annotation_arguments = !{"(" ~ NEWLINE* ~ annotation_argument ~ ("," ~ NEWLINE* ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
+
+annotation_argument = @{ (ASCII_ALPHANUMERIC | "_")+ }

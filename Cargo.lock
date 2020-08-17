@@ -1122,6 +1122,7 @@ dependencies = [
  "leo-ast",
  "leo-gadgets",
  "leo-input",
+ "leo-package",
  "leo-state",
  "leo-typed",
  "log",

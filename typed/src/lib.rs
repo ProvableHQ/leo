@@ -1,6 +1,9 @@
 //! A typed syntax tree is represented as a `Program` and consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
+pub mod annotation;
+pub use self::annotation::*;
+
 pub mod circuits;
 pub use self::circuits::*;
 

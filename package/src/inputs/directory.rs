@@ -1,6 +1,6 @@
-use crate::{errors::InputsDirectoryError, inputs::INPUT_FILE_EXTENSION};
+use crate::errors::InputsDirectoryError;
 
-use std::{fs, path::PathBuf};
+use std::{fs, fs::ReadDir, path::PathBuf};
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 
@@ -17,42 +17,42 @@ impl InputsDirectory {
         fs::create_dir_all(&path).map_err(InputsDirectoryError::Creating)
     }
 
-    /// Returns a list of files in the source directory.
+    /// Returns a list of files in the input directory.
     pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, InputsDirectoryError> {
         let mut path = path.to_owned();
         path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
         let directory = fs::read_dir(&path).map_err(InputsDirectoryError::Reading)?;
 
         let mut file_paths = Vec::new();
-        for file_entry in directory.into_iter() {
-            let file_entry = file_entry.map_err(InputsDirectoryError::GettingFileEntry)?;
-            let file_path = file_entry.path();
-
-            // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|error| InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
-            if !file_type.is_file() {
-                return Err(InputsDirectoryError::InvalidFileType(
-                    file_path.as_os_str().to_owned(),
-                    file_type,
-                ));
-            }
-
-            // Verify that the file has the default file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| InputsDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
-            if file_extension != INPUT_FILE_EXTENSION {
-                return Err(InputsDirectoryError::InvalidFileExtension(
-                    file_path.as_os_str().to_owned(),
-                    file_extension.to_owned(),
-                ));
-            }
-
-            file_paths.push(file_path);
-        }
+        parse_file_paths(directory, &mut file_paths)?;
 
         Ok(file_paths)
     }
+}
+
+fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<(), InputsDirectoryError> {
+    for file_entry in directory.into_iter() {
+        let file_entry = file_entry.map_err(InputsDirectoryError::GettingFileEntry)?;
+        let file_path = file_entry.path();
+
+        // Verify that the entry is structured as a valid file or directory
+        let file_type = file_entry
+            .file_type()
+            .map_err(|error| InputsDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
+        if file_type.is_dir() {
+            let directory = fs::read_dir(&file_path).map_err(InputsDirectoryError::Reading)?;
+
+            parse_file_paths(directory, file_paths)?;
+            continue;
+        } else if !file_type.is_file() {
+            return Err(InputsDirectoryError::InvalidFileType(
+                file_path.as_os_str().to_owned(),
+                file_type,
+            ));
+        }
+
+        file_paths.push(file_path);
+    }
+
+    Ok(())
 }
