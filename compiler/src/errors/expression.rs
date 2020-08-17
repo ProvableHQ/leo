@@ -51,9 +51,15 @@ impl ExpressionError {
 
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the gadget operation `{}` failed due to synthesis error `{}`",
+            "the gadget operation `{}` failed due to synthesis error `{:?}`",
             operation, error,
         );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn cannot_evaluate(operation: String, span: Span) -> Self {
+        let message = format!("Mismatched types found for operation `{}`", operation);
 
         Self::new_from_span(message, span)
     }

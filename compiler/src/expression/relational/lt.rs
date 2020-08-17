@@ -36,8 +36,7 @@ pub fn evaluate_lt<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         }
     };
 
-    let boolean =
-        constraint_result.map_err(|e| ExpressionError::cannot_enforce(format!("evaluate less than"), e, span))?;
+    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate(format!("<"), span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

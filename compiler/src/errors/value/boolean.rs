@@ -22,7 +22,7 @@ impl BooleanError {
 
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the boolean operation `{}` failed due to the synthesis error `{}`",
+            "the boolean operation `{}` failed due to the synthesis error `{:?}`",
             operation, error,
         );
 
