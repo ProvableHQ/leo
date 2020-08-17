@@ -7,7 +7,7 @@ use crate::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
         CLIError::PublishError,
-        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote}
+        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
     },
 };
 use leo_package::{
@@ -71,7 +71,7 @@ impl CLI for PublishCommand {
 
         let package_remote = match package_manifest.get_package_remote() {
             Some(remote) => remote,
-            None => return Err(PublishError(MissingPackageRemote))
+            None => return Err(PublishError(MissingPackageRemote)),
         };
 
         // Create the output directory
