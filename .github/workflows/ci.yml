@@ -171,8 +171,13 @@ jobs:
 
       - name: Commit changes (if any)
         run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add .
-          git config --local user.email "bot@aleo.org"
-          git config --local user.name "Aleobot"
           git diff-index --quiet HEAD || git commit -m "Sync license"
-          git push
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
