@@ -150,3 +150,21 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  license:
+    name: Check License
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Load snarkOS
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Perform check
+        uses: kt3k/license_checker@v1.0.3
