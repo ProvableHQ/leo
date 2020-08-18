@@ -171,8 +171,8 @@ jobs:
 
       - name: Commit changes (if any)
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "bot@aleo.org"
+          git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
