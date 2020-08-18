@@ -179,6 +179,7 @@ jobs:
         run: |
           git config --local user.email "bot@aleo.org"
           git config --local user.name "Aleobot"
+          git fetch --unshallow
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
 
