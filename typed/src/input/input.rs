@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
 use leo_input::{
     files::{File, TableOrSection},
@@ -6,6 +22,7 @@ use leo_input::{
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {
+    name: String,
     program_input: ProgramInput,
     program_state: ProgramState,
 }
@@ -13,6 +30,7 @@ pub struct Input {
 impl Input {
     pub fn new() -> Self {
         Self {
+            name: "default".to_owned(),
             program_input: ProgramInput::new(),
             program_state: ProgramState::new(),
         }
@@ -25,6 +43,7 @@ impl Input {
         let state = self.program_state.empty();
 
         Self {
+            name: self.name.clone(),
             program_input: input,
             program_state: state,
         }

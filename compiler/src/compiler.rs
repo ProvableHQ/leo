@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! Compiles a Leo program from a file path.
 
 use crate::{
@@ -10,8 +26,11 @@ use crate::{
 };
 use leo_ast::LeoAst;
 use leo_input::LeoInputParser;
+use leo_package::inputs::InputPairs;
+use leo_state::verify_local_data_commitment;
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
+use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -124,6 +143,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.program_input.set_main_input(input);
     }
 
+    /// Verifies the input to the program
+    pub fn verify_local_data_commitment(
+        &self,
+        system_parameters: &SystemParameters<Components>,
+    ) -> Result<bool, CompilerError> {
+        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
+
+        Ok(result)
+    }
+
     pub fn checksum(&self) -> Result<String, CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
@@ -151,8 +180,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit for test functions with program input.
-    pub fn compile_test_constraints(self) -> Result<(), CompilerError> {
-        generate_test_constraints::<F, G>(self.program, self.program_input, &self.imported_programs)
+    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(), CompilerError> {
+        generate_test_constraints::<F, G>(
+            self.program,
+            input_pairs,
+            &self.imported_programs,
+            &self.output_directory,
+        )
     }
 
     /// Calls the internal generate_constraints method with arguments
@@ -204,6 +238,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
 
         // Write results to file
         let output_file = OutputFile::new(&package_name);
+
+        log::info!("Writing to output registers...");
+
         output_file.write(&output_directory, result.bytes()).unwrap();
 
         Ok(())

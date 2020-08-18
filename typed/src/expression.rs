@@ -1,4 +1,20 @@
-use crate::{CircuitFieldDefinition, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{CircuitFieldDefinition, GroupValue, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
@@ -17,7 +33,7 @@ use leo_ast::{
         AddressValue,
         BooleanValue,
         FieldValue,
-        GroupValue,
+        GroupValue as AstGroupValue,
         IntegerValue,
         NumberValue as AstNumber,
         PositiveNumber as AstPositiveNumber,
@@ -40,7 +56,7 @@ pub enum Expression {
     Address(String, Span),
     Boolean(String, Span),
     Field(String, Span),
-    Group(String, Span),
+    Group(GroupValue),
     Implicit(String, Span),
     Integer(IntegerType, String, Span),
 
@@ -86,7 +102,7 @@ impl Expression {
     pub fn set_span(&mut self, new_span: &Span) {
         match self {
             Expression::Field(_, old_span) => *old_span = new_span.clone(),
-            Expression::Group(_, old_span) => *old_span = new_span.clone(),
+            Expression::Group(value) => value.span = new_span.clone(),
 
             Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),
@@ -146,7 +162,7 @@ impl<'ast> fmt::Display for Expression {
             Expression::Address(ref address, ref _span) => write!(f, "{}", address),
             Expression::Boolean(ref bool, ref _span) => write!(f, "{}", bool),
             Expression::Field(ref field, ref _span) => write!(f, "{}", field),
-            Expression::Group(ref group, ref _span) => write!(f, "{}", group),
+            Expression::Group(ref group) => write!(f, "{}", group),
             Expression::Implicit(ref value, ref _span) => write!(f, "{}", value),
             Expression::Integer(ref type_, ref integer, ref _span) => write!(f, "{}{}", integer, type_),
 
@@ -509,9 +525,9 @@ impl<'ast> From<FieldValue<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<GroupValue<'ast>> for Expression {
-    fn from(group: GroupValue<'ast>) -> Self {
-        Expression::Group(group.to_string(), Span::from(group.span))
+impl<'ast> From<AstGroupValue<'ast>> for Expression {
+    fn from(ast_group: AstGroupValue<'ast>) -> Self {
+        Expression::Group(GroupValue::from(ast_group))
     }
 }
 

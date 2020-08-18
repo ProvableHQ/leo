@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! Generates R1CS constraints for a compiled Leo program.
 
 use crate::{
@@ -8,13 +24,17 @@ use crate::{
     GroupType,
     ImportParser,
     OutputBytes,
+    OutputFile,
 };
 use leo_typed::{Input, Program};
 
+use leo_input::LeoInputParser;
+use leo_package::inputs::InputPairs;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
+use std::path::PathBuf;
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -43,27 +63,61 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
-    input: Input,
+    input: InputPairs,
     imported_programs: &ImportParser,
+    output_directory: &PathBuf,
 ) -> Result<(), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
 
     let tests = program.tests.clone();
 
+    // Store definitions
     resolved_program.store_definitions(program, imported_programs)?;
+
+    // Get default input
+    let default = input.pairs.get(&program_name);
 
     log::info!("Running {} tests", tests.len());
 
-    for (test_name, test_function) in tests.into_iter() {
+    for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+        let mut output_file_name = program_name.clone();
 
-        let result = resolved_program.enforce_main_function(
+        // get input file name from annotation or use test_name
+        let input_pair = match test.input_file {
+            Some(file_id) => {
+                let file_name = file_id.name;
+
+                output_file_name = file_name.clone();
+
+                match input.pairs.get(&file_name) {
+                    Some(pair) => pair.to_owned(),
+                    None => return Err(CompilerError::InvalidTestContext(file_name)),
+                }
+            }
+            None => default.ok_or(CompilerError::NoTestInput)?,
+        };
+
+        // parse input files to abstract syntax trees
+        let input_file = &input_pair.input_file;
+        let state_file = &input_pair.state_file;
+
+        let input_ast = LeoInputParser::parse_file(input_file)?;
+        let state_ast = LeoInputParser::parse_file(state_file)?;
+
+        // parse input files into input struct
+        let mut input = Input::new();
+        input.parse_input(input_ast)?;
+        input.parse_state(state_ast)?;
+
+        // run test function on new program with input
+        let result = resolved_program.clone().enforce_main_function(
             cs,
             program_name.clone(),
-            test_function.0,
-            input.clone(), // pass program input into every test
+            test.function,
+            input, // pass program input into every test
         );
 
         if result.is_ok() {
@@ -72,6 +126,14 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
                 full_test_name,
                 cs.is_satisfied()
             );
+
+            // write result to file
+            let output = result?;
+            let output_file = OutputFile::new(&output_file_name);
+
+            log::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
+
+            output_file.write(output_directory, output.bytes()).unwrap();
         } else {
             log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
         }

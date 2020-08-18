@@ -1,48 +1,42 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //
 // Usage:
 //
 //    leo login <token>
 //    leo login -u username -p password
-//    leo login // not yet implemented
 //
 
-use crate::{cli::CLI, cli_types::*, errors::LoginError};
-use lazy_static::lazy_static;
-use std::{
-    collections::HashMap,
-    fs::{create_dir, File},
-    io,
-    io::prelude::*,
-    path::Path,
+use crate::{
+    cli::CLI,
+    cli_types::*,
+    credentials::*,
+    errors::{
+        CLIError::LoginError,
+        LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
+    },
 };
 
-const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
-const LOGIN_URL: &str = "api/account/login";
+use std::collections::HashMap;
 
-const LEO_CREDENTIALS_DIR: &str = ".leo";
-const LEO_CREDENTIALS_FILE: &str = "credentials";
-
-lazy_static! {
-    static ref LEO_CREDENTIALS_PATH: String = format!("{}/{}", LEO_CREDENTIALS_DIR, LEO_CREDENTIALS_FILE);
-}
+pub const LOGIN_URL: &str = "api/account/authenticate";
 
 #[derive(Debug)]
 pub struct LoginCommand;
-
-impl LoginCommand {
-    fn write_token(token: &str) -> Result<(), io::Error> {
-        let mut credentials = File::create(LEO_CREDENTIALS_PATH.as_str())?;
-        credentials.write_all(&token.as_bytes())?;
-        Ok(())
-    }
-
-    pub fn read_token() -> Result<String, io::Error> {
-        let mut credentials = File::open(LEO_CREDENTIALS_PATH.as_str())?;
-        let mut buf = String::new();
-        credentials.read_to_string(&mut buf)?;
-        Ok(buf)
-    }
-}
 
 impl CLI for LoginCommand {
     // Format: token, username, password
@@ -79,10 +73,7 @@ impl CLI for LoginCommand {
 
         match arguments.value_of("NAME") {
             Some(name) => Ok((Some(name.to_string()), None, None)),
-            None => {
-                // TODO implement JWT
-                Ok((None, None, None))
-            }
+            None => Ok((None, None, None)),
         }
     }
 
@@ -105,40 +96,33 @@ impl CLI for LoginCommand {
                         Ok(json) => json,
                         Err(_error) => {
                             log::error!("Wrong login or password");
-                            return Err(LoginError::WrongLoginOrPassword("Wrong login or password".into()).into());
+                            return Err(WrongLoginOrPassword("Wrong login or password".into()).into());
                         }
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(
-                            LoginError::NoConnectionFound("Could not connect to the package manager".into()).into(),
-                        );
+                        return Err(LoginError(NoConnectionFound(
+                            "Could not connect to the package manager".into(),
+                        )));
                     }
                 };
 
                 match response.get("token") {
                     Some(token) => Some(token.clone()),
                     None => {
-                        return Err(LoginError::CannotGetToken("No token was provided in the response".into()).into());
+                        return Err(CannotGetToken("No token was provided in the response".into()).into());
                     }
                 }
             }
 
-            // Login using JWT
-            (_, _, _) => {
-                // TODO JWT
-                None
-            }
+            // Login using stored JWT credentials.
+            // TODO (raychu86) Package manager re-authentication from token
+            (_, _, _) => Some(read_token()?),
         };
 
         match token {
             Some(token) => {
-                // Create Leo credentials directory if it not exists
-                if !Path::new(LEO_CREDENTIALS_DIR).exists() {
-                    create_dir(LEO_CREDENTIALS_DIR)?;
-                }
-
-                LoginCommand::write_token(token.as_str())?;
+                write_token(token.as_str())?;
 
                 log::info!("Login successful.");
 
@@ -147,7 +131,7 @@ impl CLI for LoginCommand {
             _ => {
                 log::error!("Failed to login. Please run `leo login -h` for help.");
 
-                Err(LoginError::NoCredentialsProvided.into())
+                Err(NoCredentialsProvided.into())
             }
         }
     }

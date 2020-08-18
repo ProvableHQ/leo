@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::errors::ManifestError;
 
 use serde::Deserialize;
@@ -14,6 +30,9 @@ pub const MANIFEST_FILE_NAME: &str = "Leo.toml";
 pub struct Package {
     pub name: String,
     pub version: String,
+    pub description: Option<String>,
+    pub license: Option<String>,
+    pub remote: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -27,6 +46,9 @@ impl Manifest {
             package: Package {
                 name: package_name.to_owned(),
                 version: "0.1.0".to_owned(),
+                description: None,
+                license: None,
+                remote: None,
             },
         }
     }
@@ -45,6 +67,18 @@ impl Manifest {
 
     pub fn get_package_version(&self) -> String {
         self.package.version.clone()
+    }
+
+    pub fn get_package_description(&self) -> Option<String> {
+        self.package.description.clone()
+    }
+
+    pub fn get_package_license(&self) -> Option<String> {
+        self.package.license.clone()
+    }
+
+    pub fn get_package_remote(&self) -> Option<String> {
+        self.package.remote.clone()
     }
 
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
