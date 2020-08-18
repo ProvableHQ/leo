@@ -175,9 +175,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
