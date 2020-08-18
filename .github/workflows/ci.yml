@@ -167,4 +167,4 @@ jobs:
           ssh-add -k ~/.ssh/id_rsa
 
       - name: Perform check
-        uses: kt3k/license_checker@v1.0.3
+        uses: AleoHQ/license_bot@v1.0.0
