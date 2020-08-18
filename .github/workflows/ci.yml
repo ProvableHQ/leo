@@ -181,10 +181,13 @@ jobs:
           git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
-          git fetch --unshallow
+          git push origin HEAD:${GITHUB_REF##*/}
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+#        env:
+#          GITHUB_TOKEN: $LICENSE_GITHUB_TOKEN
+
+#        - name: Push changes
+#          uses: ad-m/github-push-action@master
+#          with:
+#            github_token: ${{ secrets.GITHUB_TOKEN }}
+#            branch: ${{ github.ref }}
