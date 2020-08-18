@@ -209,7 +209,7 @@ impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
 }
 
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         match (self, other) {
             (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.eq(second))),
             _ => unimplemented!(),

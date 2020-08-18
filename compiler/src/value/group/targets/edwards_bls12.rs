@@ -236,32 +236,32 @@ impl PartialEq for EdwardsGroupType {
 
 impl Eq for EdwardsGroupType {}
 
-fn compare_allocated_edwards_bls_gadgets<CS: ConstraintSystem<Fq>>(
-    mut cs: CS,
-    first: &EdwardsBlsGadget,
-    second: &EdwardsBlsGadget,
-) -> Result<Boolean, SynthesisError> {
-    // compare x coordinates
-    let x_first = &first.x;
-    let x_second = &second.x;
-
-    let compare_x = x_first.evaluate_equal(&mut cs.ns(|| format!("compare x")), x_second)?;
-
-    // compare y coordinates
-    let y_first = &first.y;
-    let y_second = &second.y;
-
-    let compare_y = y_first.evaluate_equal(&mut cs.ns(|| format!("compare y")), y_second)?;
-
-    Boolean::and(
-        &mut cs.ns(|| format!("compare x and y results")),
-        &compare_x,
-        &compare_y,
-    )
-}
+// fn compare_allocated_edwards_bls_gadgets<CS: ConstraintSystem<Fq>>(
+//     mut cs: CS,
+//     first: &EdwardsBlsGadget,
+//     second: &EdwardsBlsGadget,
+// ) -> Result<Boolean, SynthesisError> {
+//     // compare x coordinates
+//     let x_first = &first.x;
+//     let x_second = &second.x;
+//
+//     let compare_x = x_first.evaluate_equal(&mut cs.ns(|| format!("compare x")), x_second)?;
+//
+//     // compare y coordinates
+//     let y_first = &first.y;
+//     let y_second = &second.y;
+//
+//     let compare_y = y_first.evaluate_equal(&mut cs.ns(|| format!("compare y")), y_second)?;
+//
+//     Boolean::and(
+//         &mut cs.ns(|| format!("compare x and y results")),
+//         &compare_x,
+//         &compare_y,
+//     )
+// }
 
 impl EvaluateEqGadget<Fq> for EdwardsGroupType {
-    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(Boolean::constant(self_value.eq(other_value)))
