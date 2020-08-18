@@ -181,6 +181,9 @@ jobs:
           git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
-          git push HEAD:refs/pull/253/merge HEAD:${GITHUB_REF#refs/heads/}
-        env:
-          GITHUB_TOKEN: $LICENSE_GITHUB_TOKEN
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.BRANCH }}
