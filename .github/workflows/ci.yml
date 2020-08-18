@@ -168,7 +168,7 @@ jobs:
       
       - name: Store token
         run: |
-          PR_NUMBER=$(echo $GITHUB_REF | awk ‘BEGIN { FS = “/” } ; { print $3 }’)
+          export PR_NUMBER=$(echo $GITHUB_REF | awk ‘BEGIN { FS = “/” } ; { print $3 }’)
           echo "${GITHUB_REF#refs/heads/}"
           echo "${PR_NUMBER}"
         env:
