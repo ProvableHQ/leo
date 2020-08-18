@@ -167,6 +167,8 @@ jobs:
           ssh-add -k ~/.ssh/id_rsa
 
       - name: Store token
+        run: |
+          ls
         env:
           LICENSE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
