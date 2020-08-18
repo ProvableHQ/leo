@@ -171,14 +171,6 @@ jobs:
 
       - name: Commit changes (if any)
         run: |
-          git config --local user.email "bot@aleo.org"
-          git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
-      
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: HEAD:${GITHUB_REF#refs/heads/}
-
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
