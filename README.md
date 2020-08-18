@@ -103,7 +103,7 @@ Congratulations! You've just run your first Leo program.
 ## 4. Flying Tour
 
 The best way to get to know Leo is by writing some code. We will fly through a high level overview of a Leo file.
-If you want to gain a deeper understanding of the Leo language, then check out the [developer docs](https://developer.aleo.org/developer/getting_started/overview)
+To gain a deeper understanding of the Leo language, then check out the [developer documentation](https://developer.aleo.org/developer/getting_started/overview)
 
 
 **Square Root Example**: Let's prove that we know the square root of a number.
@@ -202,7 +202,7 @@ Importing packages can be accomplished using the `leo add` command in the CLI.
 
 ## 5. Contributing
  
-Please see our guidelines in the [developer docs](https://developer.aleo.org/developer/additional_material/contributing)
+Please see our guidelines in the [developer documentation](https://developer.aleo.org/developer/additional_material/contributing)
 
 Thank you for helping make Leo better!
 
