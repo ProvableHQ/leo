@@ -166,11 +166,19 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add -k ~/.ssh/id_rsa
 
+      - name: Store token
+        env:
+          LICENSE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Perform check
         uses: AleoHQ/license_bot@v1.0.0
 
       - name: Commit changes (if any)
         run: |
+          git config --local user.email "bot@aleo.org"
+          git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
+        env:
+          GITHUB_TOKEN: $LICENSE_GITHUB_TOKEN
