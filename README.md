@@ -103,7 +103,7 @@ Congratulations! You've just run your first Leo program.
 
 ## 4. Documentation
 
-* [Leo Hello World](https://developer.aleo.org/developer/getting_started/hello_world)
+* [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
 * [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
 * [Leo CLI Documentation](https://developer.aleo.org/developer/cli/new)
 * [Homepage](https://developer.aleo.org/developer/getting_started/overview)
