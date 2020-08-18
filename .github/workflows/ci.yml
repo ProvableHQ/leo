@@ -168,9 +168,7 @@ jobs:
       
       - name: Store token
         run: |
-          export PR_NUMBER=$(echo $GITHUB_REF | awk ‘BEGIN { FS = “/” } ; { print $3 }’)
           echo "${GITHUB_REF#refs/heads/}"
-          echo "${PR_NUMBER}"
         env:
           LICENSE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -183,6 +181,6 @@ jobs:
           git config --local user.name "Aleobot"
           git add .
           git diff-index --quiet HEAD || git commit -m "Sync license"
-          git push HEAD:${GITHUB_REF#refs/heads/} HEAD:${GITHUB_REF#refs/heads/}
+          git push HEAD:refs/pull/253/merge HEAD:${GITHUB_REF#refs/heads/}
         env:
           GITHUB_TOKEN: $LICENSE_GITHUB_TOKEN
