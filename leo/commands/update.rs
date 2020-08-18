@@ -18,9 +18,10 @@ use crate::{cli::CLI, cli_types::*};
 
 use self_update::{backends::github, cargo_crate_version};
 
+const LEO_BIN_NAME: &str = "leo";
 const LEO_REPO_OWNER: &str = "AleoHQ";
 const LEO_REPO_NAME: &str = "leo";
-const LEO_BIN_NAME: &str = "leo";
+
 #[derive(Debug)]
 pub struct UpdateCommand;
 
