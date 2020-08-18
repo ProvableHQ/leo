@@ -168,3 +168,11 @@ jobs:
 
       - name: Perform check
         uses: AleoHQ/license_bot@v1.0.0
+
+      - name: Commit changes (if any)
+        run: |
+          git add .
+          git config --local user.email "bot@aleo.org"
+          git config --local user.name "Aleobot"
+          git diff-index --quiet HEAD || git commit -m "Sync license"
+          git push
