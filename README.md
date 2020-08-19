@@ -24,12 +24,11 @@ Leo is a functional, statically-typed programming language built for writing pri
 ## 1. Overview
 Welcome to the Leo programming language.
 
-Leo exists to provide a simple high-level language that abstracts low-level cryptographic concepts and makes it easy to 
-integrate private applications into your stack. Leo compiles to R1CS circuits making zero-knowledge proofs practical. 
-With Leo, you can support zero-knowledge tokens, private stable coins, and decentralized marketplaces.
+Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to 
+integrate private applications into your stack. Leo compiles to circuits making zero-knowledge proofs practical.
 
-The syntax of Leo is influenced by JavaScript, Python, Scala, and Rust with a strong emphasis on readability and ease-of-use.
-Leo provides developers with never before seen tools to sanity check circuits including unit tests, integration tests, and console functions.
+The syntax of Leo is influenced by traditional programming languages like JavaScript, Scala, and Rust, with a strong emphasis on readability and ease-of-use.
+Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.
 
 Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). If your goal is to build a user experience
 on the web that is both truly personal and truly private, then we recommend downloading the [Aleo Studio IDE](https://aleo.studio/)
