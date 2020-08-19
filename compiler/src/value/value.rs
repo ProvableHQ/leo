@@ -26,7 +26,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_typed::{Circuit, Function, Identifier, Span, Type};
+use leo_typed::{Circuit, Function, Identifier, Span, Type, GroupValue};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -85,7 +85,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             Type::Address => Ok(ConstrainedValue::Address(Address::new(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-            Type::Group => Err(ValueError::implicit_group(span)),
+            Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(value, span))?)),
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
                 integer_type,
                 value,
