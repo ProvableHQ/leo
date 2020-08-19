@@ -1,4 +1,4 @@
-# The Leo Programming Language
+<h1 align="center">The Leo Programming Language</h1>
 
 <p align="center">
     <a href="https://github.com/AleoHQ/leo/actions"><img src="https://github.com/AleoHQ/leo/workflows/CI/badge.svg"></a>
