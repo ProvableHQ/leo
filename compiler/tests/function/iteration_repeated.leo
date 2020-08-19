@@ -11,5 +11,5 @@ function iteration() -> u32 {
 function main() {
     let total = iteration() + iteration();
 
-    assert_eq!(total, 20);
+    console.assert(total == 20);
 }

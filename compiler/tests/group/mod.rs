@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{
     assert_satisfied,
     expect_compiler_error,
@@ -7,7 +23,7 @@ use crate::{
     parse_program,
     parse_program_with_input,
 };
-use leo_typed::{GroupCoordinate, GroupValue, InputValue, Span};
+use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 
@@ -27,11 +43,27 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
         end: 0,
     };
 
-    GroupValue {
+    GroupValue::Tuple(GroupTuple {
         x: GroupCoordinate::Number(x, fake_span.clone()),
         y: GroupCoordinate::Number(y, fake_span.clone()),
         span: fake_span,
-    }
+    })
+}
+
+#[test]
+fn test_one() {
+    let bytes = include_bytes!("one.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_zero() {
+    let bytes = include_bytes!("zero.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
 }
 
 #[test]
@@ -91,8 +123,8 @@ fn test_y_sign_inferred() {
 }
 
 #[test]
-fn test_double_high() {
-    let bytes = include_bytes!("double_high.leo");
+fn test_both_sign_high() {
+    let bytes = include_bytes!("both_sign_high.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -100,8 +132,8 @@ fn test_double_high() {
 }
 
 #[test]
-fn test_double_low() {
-    let bytes = include_bytes!("double_low.leo");
+fn test_both_sign_low() {
+    let bytes = include_bytes!("both_sign_low.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -109,8 +141,8 @@ fn test_double_low() {
 }
 
 #[test]
-fn test_double_inferred() {
-    let bytes = include_bytes!("double_inferred.leo");
+fn test_both_sign_inferred() {
+    let bytes = include_bytes!("both_sign_inferred.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -227,7 +259,7 @@ fn test_sub() {
 }
 
 #[test]
-fn test_assert_eq_pass() {
+fn test_console_assert_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -250,7 +282,7 @@ fn test_assert_eq_pass() {
 }
 
 #[test]
-fn test_assert_eq_fail() {
+fn test_console_assert_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -274,12 +306,11 @@ fn test_assert_eq_fail() {
 
         program.set_main_input(main_input);
 
-        expect_synthesis_error(program);
+        expect_compiler_error(program);
     }
 }
 
 #[test]
-#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

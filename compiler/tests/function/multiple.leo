@@ -5,6 +5,6 @@ function tuple() -> (bool, bool) {
 function main() {
     let (a, b) = tuple();
 
-    assert_eq!(a, true);
-    assert_eq!(b, false);
+    console.assert(a == true);
+    console.assert(b == false);
 }

@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{
     assert_satisfied,
     expect_compiler_error,
@@ -8,14 +24,14 @@ use crate::{
 };
 
 pub fn output_ones(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_ones.out");
+    let expected = include_bytes!("output/registers_ones.out");
     let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
 }
 
 pub fn output_zeros(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_zeros.out");
+    let expected = include_bytes!("output/registers_zeros.out");
     let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));

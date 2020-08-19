@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
@@ -77,14 +93,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 results.append(&mut result);
             }
-            Statement::AssertEq(left, right, span) => {
-                let (resolved_left, resolved_right) =
-                    self.enforce_binary_expression(cs, file_scope, function_scope, None, left, right, span.clone())?;
-
-                self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
-            }
-            Statement::Macro(macro_) => {
-                self.evaluate_macro(cs, file_scope, function_scope, macro_)?;
+            Statement::Console(console) => {
+                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, console)?;
             }
             Statement::Expression(expression, span) => {
                 let expression_string = expression.to_string();

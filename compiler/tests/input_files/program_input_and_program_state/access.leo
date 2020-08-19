@@ -1,11 +1,11 @@
 function main(input, data: u8[32]) {
-    assert_eq!(input.registers.value_balance, 0u64);
+    console.assert(input.registers.value_balance == 0u64);
 
-    assert_eq!(input.state.leaf_index, 0u32);
+    console.assert(input.state.leaf_index == 0u32);
 
-    assert_eq!(input.record.value, 5u64);
+    console.assert(input.record.value == 5u64);
 
-    assert_eq!(input.state_leaf.network_id, 0u8);
+    console.assert(input.state_leaf.network_id == 0u8);
 
-    assert_eq!(data, [0u8; 32]);
+    console.assert(data == [0u8; 32]);
 }

@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! Enforce constraints on an expression in a compiled Leo program.
 
 use crate::{
@@ -38,7 +54,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::new(address, span)?)),
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
-            Expression::Group(group_affine) => Ok(ConstrainedValue::Group(G::constant(group_affine)?)),
+            Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(group_element)?)),
             Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, span)?),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))

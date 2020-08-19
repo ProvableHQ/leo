@@ -1,6 +1,6 @@
 function main() {
     let a = (true, false);
 
-    assert_eq!(a.0, true);
-    assert_eq!(a.1, false);
+    console.assert(a.0 == true);
+    console.assert(a.1 == false);
 }

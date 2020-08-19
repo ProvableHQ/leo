@@ -5,5 +5,5 @@ circuit Foo {
 function main() {
     let a = Foo { x: 1u32 };
 
-    assert_eq!(a.x, 1u32);
+    console.assert(a.x == 1u32);
 }

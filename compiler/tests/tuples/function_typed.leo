@@ -5,6 +5,6 @@ function foo() -> (bool, bool) {
 function main() {
     let a: (bool, bool) = foo();
 
-    assert_eq!(a.0, true);
-    assert_eq!(a.1, false);
+    console.assert(a.0 == true);
+    console.assert(a.1 == false);
 }

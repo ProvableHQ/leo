@@ -15,5 +15,5 @@ function main() {
 
     const car = Car { c: 1u32 };
 
-    assert_eq!(car.c, 1u32);
+    console.assert(car.c == 1u32);
 }

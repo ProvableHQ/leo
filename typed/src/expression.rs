@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{CircuitFieldDefinition, GroupValue, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
 use leo_ast::{
     access::{Access, AssigneeAccess},
@@ -86,7 +102,7 @@ impl Expression {
     pub fn set_span(&mut self, new_span: &Span) {
         match self {
             Expression::Field(_, old_span) => *old_span = new_span.clone(),
-            Expression::Group(value) => value.span = new_span.clone(),
+            Expression::Group(value) => value.set_span(new_span),
 
             Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),

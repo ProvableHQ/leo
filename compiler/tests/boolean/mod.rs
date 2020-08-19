@@ -1,7 +1,22 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_synthesis_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -10,14 +25,14 @@ use crate::{
 use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_true.out");
+    let expected = include_bytes!("output/registers_true.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 pub fn output_false(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_false.out");
+    let expected = include_bytes!("output/registers_false.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
@@ -49,7 +64,7 @@ fn test_input_fail() {
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
-    expect_synthesis_error(program);
+    expect_compiler_error(program);
 }
 
 #[test]
@@ -92,7 +107,7 @@ fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_boolean_statement(program);
+    expect_compiler_error(program);
 }
 
 // Boolean or ||

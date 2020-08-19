@@ -4,5 +4,5 @@ function main(s: bool, c: address) {
 
     let r = if s? a: b;
 
-    assert_eq!(r, c);
+    console.assert(r == c);
 }

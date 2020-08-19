@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! A data type that represents a field value
 
 use crate::errors::FieldError;
@@ -209,10 +225,17 @@ impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
 }
 
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         match (self, other) {
             (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.eq(second))),
             _ => unimplemented!(),
+            // (FieldType::Allocated(first), FieldType::Allocated(second)) => first.evaluate_equal(cs, second),
+            // (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
+            // | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
+            //     let allocated_constant_value =
+            //         FpGadget::alloc(&mut cs.ns(|| format!("alloc constant for eq")), || Ok(constant_value))?;
+            //     allocated_value.evaluate_equal(cs, &allocated_constant_value)
+            // }
         }
     }
 }

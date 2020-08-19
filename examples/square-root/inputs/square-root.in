@@ -1,0 +1,7 @@
+// The program input for square_root/src/main.leo
+[main]
+a: u32 = 337;
+b: u32 = 113569;
+
+[registers]
+r0: bool = false;

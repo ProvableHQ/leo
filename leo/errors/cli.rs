@@ -1,8 +1,27 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::errors::*;
 use leo_package::errors::*;
 
 #[derive(Debug, Error)]
 pub enum CLIError {
+    #[error("{}", _0)]
+    AddError(AddError),
+
     #[error("{}", _0)]
     BuildError(BuildError),
 
@@ -23,6 +42,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     InitError(InitError),
+
+    #[error("{}", _0)]
+    ImportsDirectoryError(ImportsDirectoryError),
 
     #[error("{}", _0)]
     InputDirectoryError(InputsDirectoryError),
@@ -58,6 +80,9 @@ pub enum CLIError {
     PublishError(PublishError),
 
     #[error("{}", _0)]
+    READMEError(READMEError),
+
+    #[error("{}", _0)]
     RunError(RunError),
 
     #[error("{}", _0)]
@@ -90,6 +115,13 @@ impl From<BuildError> for CLIError {
     }
 }
 
+impl From<AddError> for CLIError {
+    fn from(error: AddError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::AddError(error)
+    }
+}
+
 impl From<ChecksumFileError> for CLIError {
     fn from(error: ChecksumFileError) -> Self {
         log::error!("{}\n", error);
@@ -115,6 +147,13 @@ impl From<InitError> for CLIError {
     fn from(error: InitError) -> Self {
         log::error!("{}\n", error);
         CLIError::InitError(error)
+    }
+}
+
+impl From<ImportsDirectoryError> for CLIError {
+    fn from(error: ImportsDirectoryError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::ImportsDirectoryError(error)
     }
 }
 
@@ -195,6 +234,13 @@ impl From<PublishError> for CLIError {
     }
 }
 
+impl From<READMEError> for CLIError {
+    fn from(error: READMEError) -> Self {
+        log::error!("{}\n", error);
+        CLIError::READMEError(error)
+    }
+}
+
 impl From<RunError> for CLIError {
     fn from(error: RunError) -> Self {
         log::error!("{}\n", error);
@@ -241,6 +287,13 @@ impl From<leo_input::errors::InputParserError> for CLIError {
     fn from(error: leo_input::errors::InputParserError) -> Self {
         log::error!("{}\n", error);
         CLIError::Crate("leo_input", "Program failed due to previous error".into())
+    }
+}
+
+impl From<reqwest::Error> for CLIError {
+    fn from(error: reqwest::Error) -> Self {
+        log::error!("{}\n", error);
+        CLIError::Crate("rewquest", format!("{}", error))
     }
 }
 

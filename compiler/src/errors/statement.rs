@@ -1,4 +1,20 @@
-use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, MacroError, ValueError};
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::errors::{AddressError, BooleanError, ConsoleError, ExpressionError, IntegerError, ValueError};
 use leo_typed::{Error as FormattedError, Span, Type};
 
 use std::path::PathBuf;
@@ -21,7 +37,7 @@ pub enum StatementError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    MacroError(#[from] MacroError),
+    MacroError(#[from] ConsoleError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
@@ -58,12 +74,6 @@ impl StatementError {
 
     pub fn array_assign_range(span: Span) -> Self {
         let message = format!("Cannot assign range of array values to single value");
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn assertion_failed(left: String, right: String, span: Span) -> Self {
-        let message = format!("Assertion `{} == {}` failed", left, right);
 
         Self::new_from_span(message, span)
     }
