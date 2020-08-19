@@ -23,7 +23,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
+pub const PACKAGE_MANAGER_URL: &str = "https://apm-backend-prod.herokuapp.com/";
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 
