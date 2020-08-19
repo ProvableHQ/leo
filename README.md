@@ -173,90 +173,12 @@ circuit Point {
         return self.x + self.y
     }
 }
-<<<<<<< HEAD
-```
-
-## Testing
-
-Use the `test` keyword to add tests to a leo program. Tests must have 0 function inputs and 0 function returns.
-
-```js
-function main(a: u32) -> u32 {
-    return a
-}
-
-test function expect_pass() {
-    let a = 1u32;
-
-    let res = main(a);
-
-    assert_eq!(res, 1u32);
-}
-
-test function expect_fail() {
-    assert_eq!(1u8, 0u8);
-}
-```
-
-## Logging
-
-Leo supports `console.log`, `console.debug`, and `console.error` logging macros.
-
-The first argument a macro receives is a format string. This must be a string literal. The power of the formatting string is in the `{}`s contained.
-
-Additional parameters passed to a macro replace the `{}`s within the formatting string in the order given.
-
-#### `console.log(`
-Logs the formatted string to the console.
-```js
-function main(a: u32) {
-    console.log("a is {}", a);
-}
-```
-
-#### `console.debug`
-Enabled by specifying the `-d` flag after a Leo command.
-```js
-function main(a: u32) {
-   console.debug("a is {}", a);
-}
-```
-
-
-#### `console.error`
-Prints the error to console.
-```js
-function main(a: u32) {
-    error!("a is {}", a);
-}
-```
-
-# Leo Inputs
-
-Private inputs for a Leo program are specified in the `inputs/` directory. The syntax for an input file is a limited subset of the Leo program syntax. The default inputs file is `inputs/inputs.leo`.
-
-## Sections
-A Leo input file is made up of sections. Sections are defined by a section header in brackets followed by one or more input definitions. 
-
-Section headers specify the target file which must have a main function with matching input names and types.
-
-`inputs/inputs.leo`
-
-```rust
-[main] // <- section header
-a: u32 = 1;
-b: u32 = 2;
-```
-
-`src/main.leo`
-=======
 
 function main() {
     let mut p = Point::new();
     
     p.x = 4u32;
     p.y = 6u32;
->>>>>>> e1c0fbf9f6941183347b24cae9c1a539efcbf481
 
     let sum = p.add();
     
