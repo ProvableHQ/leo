@@ -1,6 +1,6 @@
 [package]
 name = "leo"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
 edition = "2018"
 
@@ -16,11 +16,11 @@ path = "leo/main.rs"
 members = [ "ast", "compiler", "gadgets", "input", "linter", "package", "typed", "state"]
 
 [dependencies]
-leo-compiler = { path = "compiler", version = "0.1.0" }
-leo-gadgets = { path = "gadgets", version = "0.1.0" }
-leo-input = { path = "input", version = "0.1.0" }
-leo-package = { path = "package", version = "0.1.0" }
-leo-state = { path = "state", version = "0.1.0" }
+leo-compiler = { path = "compiler", version = "1.0.0" }
+leo-gadgets = { path = "gadgets", version = "1.0.0" }
+leo-input = { path = "input", version = "1.0.0" }
+leo-package = { path = "package", version = "1.0.0" }
+leo-state = { path = "state", version = "1.0.0" }
 
 snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", default-features = false }
 snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
