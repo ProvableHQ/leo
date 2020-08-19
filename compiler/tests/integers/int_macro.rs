@@ -189,7 +189,7 @@ macro_rules! test_int {
 
                         program.set_main_input(main_input);
 
-                        expect_computation_error(program);
+                        expect_compiler_error(program);
                     } else {
                         let c = match a.checked_div(b) {
                             Some(valid) => valid,
