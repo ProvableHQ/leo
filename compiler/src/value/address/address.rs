@@ -27,22 +27,44 @@ use snarkos_models::{
             boolean::Boolean,
             eq::{ConditionalEqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
+            uint::{UInt, UInt8},
         },
     },
 };
 use snarkos_objects::account::AccountAddress;
+use snarkos_utilities::ToBytes;
 use std::str::FromStr;
 
 /// A public address
-/// Addresses are currently constant values in the constraint system only
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Address(pub Option<AccountAddress<Components>>);
+pub struct Address {
+    pub address: Option<AccountAddress<Components>>,
+    pub bytes: Vec<UInt8>,
+}
 
 impl Address {
-    pub(crate) fn new(address: String, span: Span) -> Result<Self, AddressError> {
+    pub(crate) fn constant(address: String, span: Span) -> Result<Self, AddressError> {
         let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
-        Ok(Address(Some(address)))
+        let mut address_bytes = vec![];
+        address.write(&mut address_bytes);
+
+        let bytes = UInt8::constant_vec(&address_bytes[..]);
+
+        Ok(Address {
+            address: Some(address),
+            bytes,
+        })
+    }
+
+    pub(crate) fn is_constant(&self) -> bool {
+        let mut result = true;
+
+        for byte in self.bytes {
+            result = result && byte.is_constant()
+        }
+
+        result
     }
 
     pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -55,14 +77,14 @@ impl Address {
         let address_value = match input_value {
             Some(input) => {
                 if let InputValue::Address(string) = input {
-                    let address = Address::new(string, span)?;
+                    let address = Address::constant(string, span)?;
 
                     address
                 } else {
                     return Err(AddressError::invalid_address(name, span));
                 }
             }
-            None => Address(None),
+            None => unimplemented!(),
         };
 
         Ok(ConstrainedValue::Address(address_value))
@@ -76,15 +98,16 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
 }
 
 fn cond_equal_helper(first: &Address, second: &Address, cond: bool) -> Result<(), SynthesisError> {
-    if cond && first.0.is_some() && second.0.is_some() {
-        if first.eq(second) {
-            Ok(())
-        } else {
-            Err(SynthesisError::Unsatisfiable)
-        }
-    } else {
-        Ok(())
-    }
+    unimplemented!()
+    // if cond && first.0.is_some() && second.0.is_some() {
+    //     if first.eq(second) {
+    //         Ok(())
+    //     } else {
+    //         Err(SynthesisError::Unsatisfiable)
+    //     }
+    // } else {
+    //     Ok(())
+    // }
 }
 
 impl<F: Field + PrimeField> ConditionalEqGadget<F> for Address {
@@ -131,10 +154,11 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
 
 impl std::fmt::Display for Address {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            self.0.as_ref().map(|v| v.to_string()).unwrap_or(format!("[allocated]"))
-        )
+        unimplemented!()
+        // write!(
+        //     f,
+        //     "{}",
+        //     self.0.as_ref().map(|v| v.to_string()).unwrap_or(format!("[allocated]"))
+        // )
     }
 }
