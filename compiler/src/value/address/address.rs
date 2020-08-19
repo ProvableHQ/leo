@@ -69,7 +69,7 @@ impl Address {
     }
 
     pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-        _cs: &mut CS,
+        cs: &mut CS,
         name: String,
         input_value: Option<InputValue>,
         span: Span,
@@ -78,17 +78,23 @@ impl Address {
         let address_value = match input_value {
             Some(input) => {
                 if let InputValue::Address(string) = input {
-                    let address = Address::constant(string, span)?;
-
-                    address
+                    Some(string)
                 } else {
                     return Err(AddressError::invalid_address(name, span));
                 }
             }
-            None => unimplemented!(),
+            None => None,
         };
 
-        Ok(ConstrainedValue::Address(address_value))
+        let address_name = format!("{}: address", name);
+        let address_namespace = format!("`{}` {}:{}", address_name, span.line, span.start);
+
+        let address = Address::alloc(cs.ns(|| address_namespace), || {
+            address_value.ok_or(SynthesisError::AssignmentMissing)
+        })
+        .map_err(|_| AddressError::missing_address(span))?;
+
+        Ok(ConstrainedValue::Address(address))
     }
 
     pub(crate) fn alloc_helper<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>>(
