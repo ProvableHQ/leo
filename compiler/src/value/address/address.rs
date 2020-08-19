@@ -24,6 +24,7 @@ use snarkos_models::{
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{
+            alloc::AllocGadget,
             boolean::Boolean,
             eq::{ConditionalEqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
@@ -33,7 +34,7 @@ use snarkos_models::{
 };
 use snarkos_objects::account::AccountAddress;
 use snarkos_utilities::ToBytes;
-use std::str::FromStr;
+use std::{borrow::Borrow, str::FromStr};
 
 /// A public address
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -47,7 +48,7 @@ impl Address {
         let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         let mut address_bytes = vec![];
-        address.write(&mut address_bytes);
+        address.write(&mut address_bytes).unwrap();
 
         let bytes = UInt8::constant_vec(&address_bytes[..]);
 
@@ -60,7 +61,7 @@ impl Address {
     pub(crate) fn is_constant(&self) -> bool {
         let mut result = true;
 
-        for byte in self.bytes {
+        for byte in self.bytes.iter() {
             result = result && byte.is_constant()
         }
 
@@ -89,43 +90,118 @@ impl Address {
 
         Ok(ConstrainedValue::Address(address_value))
     }
+
+    pub(crate) fn alloc_helper<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>>(
+        value_gen: Fn,
+    ) -> Result<AccountAddress<Components>, SynthesisError> {
+        let address_string = match value_gen() {
+            Ok(value) => {
+                let string_value = value.borrow().clone();
+                Ok(string_value)
+            }
+            _ => Err(SynthesisError::AssignmentMissing),
+        }?;
+
+        AccountAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)
+    }
+}
+
+impl<F: Field + PrimeField> AllocGadget<String, F> for Address {
+    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
+        cs: CS,
+        value_gen: Fn,
+    ) -> Result<Self, SynthesisError> {
+        let address = Self::alloc_helper(value_gen)?;
+        let mut address_bytes = vec![];
+        address
+            .write(&mut address_bytes)
+            .map_err(|_| SynthesisError::AssignmentMissing)?;
+
+        let bytes = UInt8::alloc_vec(cs, &address_bytes[..])?;
+
+        Ok(Address {
+            address: Some(address),
+            bytes,
+        })
+    }
+
+    fn alloc_input<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
+        cs: CS,
+        value_gen: Fn,
+    ) -> Result<Self, SynthesisError> {
+        let address = Self::alloc_helper(value_gen)?;
+        let mut address_bytes = vec![];
+        address
+            .write(&mut address_bytes)
+            .map_err(|_| SynthesisError::AssignmentMissing)?;
+
+        let bytes = UInt8::alloc_input_vec(cs, &address_bytes[..])?;
+
+        Ok(Address {
+            address: Some(address),
+            bytes,
+        })
+    }
 }
 
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
-        unimplemented!()
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        if self.is_constant() && other.is_constant() {
+            return Ok(Boolean::Constant(self.eq(other)));
+        } else {
+            let mut result = Boolean::constant(true);
+
+            for (i, (a, b)) in self.bytes.iter().zip(&other.bytes).enumerate() {
+                let equal =
+                    a.evaluate_equal(&mut cs.ns(|| format!("address evaluate equality for {}-th byte", i)), b)?;
+
+                result = Boolean::and(
+                    &mut cs.ns(|| format!("address and result for {}-th byte", i)),
+                    &equal,
+                    &result,
+                )?;
+            }
+
+            Ok(result)
+        }
     }
 }
 
 fn cond_equal_helper(first: &Address, second: &Address, cond: bool) -> Result<(), SynthesisError> {
-    unimplemented!()
-    // if cond && first.0.is_some() && second.0.is_some() {
-    //     if first.eq(second) {
-    //         Ok(())
-    //     } else {
-    //         Err(SynthesisError::Unsatisfiable)
-    //     }
-    // } else {
-    //     Ok(())
-    // }
+    if cond && first.address.is_some() && second.address.is_some() {
+        if first.eq(second) {
+            Ok(())
+        } else {
+            Err(SynthesisError::Unsatisfiable)
+        }
+    } else {
+        Ok(())
+    }
 }
 
 impl<F: Field + PrimeField> ConditionalEqGadget<F> for Address {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
-        _cs: CS,
+        mut cs: CS,
         other: &Self,
         condition: &Boolean,
     ) -> Result<(), SynthesisError> {
         if let Boolean::Constant(cond) = *condition {
             cond_equal_helper(self, other, cond)
         } else {
-            unimplemented!()
+            for (i, (a, b)) in self.bytes.iter().zip(&other.bytes).enumerate() {
+                a.conditional_enforce_equal(
+                    &mut cs.ns(|| format!("address equality check for {}-th byte", i)),
+                    b,
+                    condition,
+                )?;
+            }
+            Ok(())
         }
     }
 
     fn cost() -> usize {
-        unimplemented!()
+        <UInt8 as ConditionalEqGadget<F>>::cost() * 32 // address 32 bytes
     }
 }
 
@@ -135,7 +211,7 @@ fn cond_select_helper(first: &Address, second: &Address, cond: bool) -> Address 
 
 impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
     fn conditionally_select<CS: ConstraintSystem<F>>(
-        _cs: CS,
+        mut _cs: CS,
         cond: &Boolean,
         first: &Self,
         second: &Self,
@@ -143,6 +219,31 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
         if let Boolean::Constant(cond) = *cond {
             Ok(cond_select_helper(first, second, cond))
         } else {
+            // let mut result = Self::alloc(cs.ns(|| "cond_select_result"), || result_val.get().map(|v| v))?;
+            //
+            // result.negated = is_negated;
+            //
+            // let expected_bits = first
+            //     .bits
+            //     .iter()
+            //     .zip(&second.bits)
+            //     .enumerate()
+            //     .map(|(i, (a, b))| {
+            //         Boolean::conditionally_select(
+            //             &mut cs.ns(|| format!("{}_cond_select_{}", $size, i)),
+            //             cond,
+            //             a,
+            //             b,
+            //         )
+            //             .unwrap()
+            //     })
+            //     .collect::<Vec<Boolean>>();
+            //
+            // for (i, (actual, expected)) in result.to_bits_le().iter().zip(expected_bits.iter()).enumerate() {
+            //     actual.enforce_equal(&mut cs.ns(|| format!("selected_result_bit_{}", i)), expected)?;
+            // }
+            //
+            // Ok(result)
             unimplemented!()
         }
     }
