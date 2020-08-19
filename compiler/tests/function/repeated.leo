@@ -5,5 +5,5 @@ function one() -> bool {
 function main() {
     let a = one() && one();
 
-    assert_eq!(a, true);
+    console.assert(a == true);
 }

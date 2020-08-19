@@ -93,14 +93,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 results.append(&mut result);
             }
-            Statement::AssertEq(left, right, span) => {
-                let (resolved_left, resolved_right) =
-                    self.enforce_binary_expression(cs, file_scope, function_scope, None, left, right, span.clone())?;
-
-                self.enforce_assert_eq_statement(cs, indicator, &resolved_left, &resolved_right, span)?;
-            }
-            Statement::Macro(macro_) => {
-                self.evaluate_macro(cs, file_scope, function_scope, macro_)?;
+            Statement::Console(console) => {
+                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, console)?;
             }
             Statement::Expression(expression, span) => {
                 let expression_string = expression.to_string();

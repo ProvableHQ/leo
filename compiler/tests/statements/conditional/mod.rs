@@ -16,7 +16,7 @@
 
 use crate::{
     assert_satisfied,
-    expect_synthesis_error,
+    expect_compiler_error,
     generate_main_input,
     generate_test_input_u32,
     get_output,
@@ -55,7 +55,7 @@ fn test_assert() {
 
     program_2_fail.set_main_input(main_input);
 
-    expect_synthesis_error(program_2_fail);
+    expect_compiler_error(program_2_fail);
 }
 
 #[test]

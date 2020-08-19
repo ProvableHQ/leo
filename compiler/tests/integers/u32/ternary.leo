@@ -1,5 +1,5 @@
 function main(s: bool, a: u32, b: u32, c: u32) {
     let r = if s ? a : b;
 
-    assert_eq!(r, c);
+    console.assert(r == c);
 }

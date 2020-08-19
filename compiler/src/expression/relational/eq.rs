@@ -16,12 +16,15 @@
 
 //! Enforces a relational `==` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
+use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_typed::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::eq::EvaluateEqGadget},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{boolean::Boolean, eq::EvaluateEqGadget},
+    },
 };
 
 pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -30,28 +33,64 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     right: ConstrainedValue<F, G>,
     span: Span,
 ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-    let mut unique_namespace = cs.ns(|| format!("evaluate {} == {} {}:{}", left, right, span.line, span.start));
+    let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line, span.start);
     let constraint_result = match (left, right) {
         (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
             address_1.evaluate_equal(unique_namespace, &address_2)
         }
         (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
             bool_1.evaluate_equal(unique_namespace, &bool_2)
         }
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
             num_1.evaluate_equal(unique_namespace, &num_2)
         }
         (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
             field_1.evaluate_equal(unique_namespace, &field_2)
         }
         (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
             point_1.evaluate_equal(unique_namespace, &point_2)
         }
+        (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
+            let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
+            for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
+                let next = evaluate_eq(&mut cs.ns(|| format!("array[{}]", i)), left, right, span.clone())?;
+
+                current = enforce_and(
+                    &mut cs.ns(|| format!("array result {}", i)),
+                    current,
+                    next,
+                    span.clone(),
+                )?;
+            }
+            return Ok(current);
+        }
+        (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
+            let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
+
+            for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                let next = evaluate_eq(&mut cs.ns(|| format!("tuple_index {}", i)), left, right, span.clone())?;
+
+                current = enforce_and(
+                    &mut cs.ns(|| format!("array result {}", i)),
+                    current,
+                    next,
+                    span.clone(),
+                )?;
+            }
+            return Ok(current);
+        }
         (ConstrainedValue::Unresolved(string), val_2) => {
+            let mut unique_namespace = cs.ns(|| namespace_string);
             let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
             return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, ConstrainedValue::Unresolved(string)) => {
+            let mut unique_namespace = cs.ns(|| namespace_string);
             let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
             return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }

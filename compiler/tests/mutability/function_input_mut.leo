@@ -2,5 +2,5 @@
 function main(mut a: bool) {
     a = true;
 
-    assert_eq!(a, true);
+    console.assert(a == true);
 }

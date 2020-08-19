@@ -8,5 +8,5 @@ function main(a: bool, b: bool, c: u32) {
         }
     }
 
-    assert_eq!(d, c);
+    console.assert(d == c);
 }

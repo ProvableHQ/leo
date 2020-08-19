@@ -10,5 +10,5 @@ function main() {
     let a = Foo { f: 1u32 };
     let b = a.bar();
 
-    assert_eq!(b, 1u32);
+    console.assert(b == 1u32);
 }

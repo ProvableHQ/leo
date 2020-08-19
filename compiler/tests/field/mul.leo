@@ -1,3 +1,3 @@
 function main(a: field, b: field, c: field) {
-    assert_eq!(a * b, c);
+    console.assert(a * b == c);
 }

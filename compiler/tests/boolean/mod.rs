@@ -17,7 +17,6 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_synthesis_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -26,14 +25,14 @@ use crate::{
 use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_true.out");
+    let expected = include_bytes!("output/registers_true.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 pub fn output_false(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_false.out");
+    let expected = include_bytes!("output/registers_false.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
@@ -65,7 +64,7 @@ fn test_input_fail() {
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
-    expect_synthesis_error(program);
+    expect_compiler_error(program);
 }
 
 #[test]
@@ -108,7 +107,7 @@ fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
 
-    fail_boolean_statement(program);
+    expect_compiler_error(program);
 }
 
 // Boolean or ||

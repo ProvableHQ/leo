@@ -259,7 +259,7 @@ fn test_sub() {
 }
 
 #[test]
-fn test_assert_eq_pass() {
+fn test_console_assert_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -282,7 +282,7 @@ fn test_assert_eq_pass() {
 }
 
 #[test]
-fn test_assert_eq_fail() {
+fn test_console_assert_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -306,12 +306,11 @@ fn test_assert_eq_fail() {
 
         program.set_main_input(main_input);
 
-        expect_synthesis_error(program);
+        expect_compiler_error(program);
     }
 }
 
 #[test]
-#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

@@ -63,7 +63,7 @@ fn test_newlines() {
     let program_bytes = include_bytes!("newlines.leo");
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
-    let expected_bytes = include_bytes!("output_/newlines.out");
+    let expected_bytes = include_bytes!("output/newlines.out");
     let expected = std::str::from_utf8(expected_bytes).unwrap();
     let actual_bytes = get_output(program);
     let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
@@ -86,7 +86,7 @@ fn test_multiple_returns_main() {
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
-    let expected_bytes = include_bytes!("output_/registers.out");
+    let expected_bytes = include_bytes!("output/registers.out");
     let expected = std::str::from_utf8(expected_bytes).unwrap();
     let actual_bytes = get_output(program);
     let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();

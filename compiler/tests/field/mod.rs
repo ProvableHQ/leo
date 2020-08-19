@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_synthesis_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
 use leo_typed::InputValue;
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -185,7 +185,6 @@ fn test_mul() {
 }
 
 #[test]
-#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
@@ -230,7 +229,7 @@ fn test_eq() {
 }
 
 #[test]
-fn test_assert_eq_pass() {
+fn test_console_assert_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -238,7 +237,7 @@ fn test_assert_eq_pass() {
 
         let a_string = field_to_decimal_string(a);
 
-        let bytes = include_bytes!("assert_eq.leo");
+        let bytes = include_bytes!("console_assert.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -253,7 +252,7 @@ fn test_assert_eq_pass() {
 }
 
 #[test]
-fn test_assert_eq_fail() {
+fn test_console_assert_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -267,7 +266,7 @@ fn test_assert_eq_fail() {
         let a_string = field_to_decimal_string(a);
         let b_string = field_to_decimal_string(b);
 
-        let bytes = include_bytes!("assert_eq.leo");
+        let bytes = include_bytes!("console_assert.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -277,7 +276,7 @@ fn test_assert_eq_fail() {
 
         program.set_main_input(main_input);
 
-        expect_synthesis_error(program);
+        expect_compiler_error(program);
     }
 }
 

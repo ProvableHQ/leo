@@ -64,7 +64,7 @@ pub trait IntegerTester {
     fn test_lt();
 
     /// Test assert equals constraint keyword
-    fn test_assert_eq();
+    fn test_console_assert();
 
     /// Test ternary if bool ? num_1 : num_2;
     fn test_ternary();

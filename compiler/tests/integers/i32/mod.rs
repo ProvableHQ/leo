@@ -16,7 +16,7 @@
 
 use crate::{
     assert_satisfied,
-    expect_synthesis_error,
+    expect_compiler_error,
     generate_main_input,
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
@@ -122,8 +122,8 @@ fn test_i32_lt() {
 }
 
 #[test]
-fn test_i32_assert_eq() {
-    TestI32::test_assert_eq();
+fn test_i32_console_assert() {
+    TestI32::test_console_assert();
 }
 
 #[test]

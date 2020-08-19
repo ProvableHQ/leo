@@ -21,5 +21,7 @@ function main() {
     let pedersen = PedersenHash::new(parameters);
     let input: bool[512] = [true; 512];
 
-    assert_eq!(pedersen.hash(input), 0u32);
+    let res = pedersen.hash(input);
+
+    console.assert(res == 0u32);
 }

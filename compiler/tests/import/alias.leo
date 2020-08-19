@@ -1,5 +1,5 @@
 import test_import.foo  as bar;
 
 function main() {
-    assert_eq!(bar(), 1u32);
+    console.assert(bar() == 1u32);
 }
