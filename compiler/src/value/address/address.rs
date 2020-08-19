@@ -22,11 +22,11 @@ use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
-        r1cs::ConstraintSystem,
+        r1cs::{Assignment, ConstraintSystem},
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EvaluateEqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::{UInt, UInt8},
         },
@@ -211,7 +211,7 @@ fn cond_select_helper(first: &Address, second: &Address, cond: bool) -> Address 
 
 impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
     fn conditionally_select<CS: ConstraintSystem<F>>(
-        mut _cs: CS,
+        mut cs: CS,
         cond: &Boolean,
         first: &Self,
         second: &Self,
@@ -219,47 +219,47 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
         if let Boolean::Constant(cond) = *cond {
             Ok(cond_select_helper(first, second, cond))
         } else {
-            // let mut result = Self::alloc(cs.ns(|| "cond_select_result"), || result_val.get().map(|v| v))?;
-            //
-            // result.negated = is_negated;
-            //
-            // let expected_bits = first
-            //     .bits
-            //     .iter()
-            //     .zip(&second.bits)
-            //     .enumerate()
-            //     .map(|(i, (a, b))| {
-            //         Boolean::conditionally_select(
-            //             &mut cs.ns(|| format!("{}_cond_select_{}", $size, i)),
-            //             cond,
-            //             a,
-            //             b,
-            //         )
-            //             .unwrap()
-            //     })
-            //     .collect::<Vec<Boolean>>();
-            //
-            // for (i, (actual, expected)) in result.to_bits_le().iter().zip(expected_bits.iter()).enumerate() {
-            //     actual.enforce_equal(&mut cs.ns(|| format!("selected_result_bit_{}", i)), expected)?;
-            // }
-            //
-            // Ok(result)
-            unimplemented!()
+            let result_val = cond.get_value().and_then(|c| {
+                if c {
+                    first.address.clone()
+                } else {
+                    second.address.clone()
+                }
+            });
+
+            let result = Self::alloc(cs.ns(|| "cond_select_result"), || {
+                result_val.get().map(|v| v.to_string())
+            })?;
+
+            let expected_bytes = first
+                .bytes
+                .iter()
+                .zip(&second.bytes)
+                .enumerate()
+                .map(|(i, (a, b))| {
+                    UInt8::conditionally_select(&mut cs.ns(|| format!("address_cond_select_{}", i)), cond, a, b)
+                        .unwrap()
+                })
+                .collect::<Vec<UInt8>>();
+
+            for (i, (actual, expected)) in result.bytes.iter().zip(expected_bytes.iter()).enumerate() {
+                actual.enforce_equal(&mut cs.ns(|| format!("selected_result_byte_{}", i)), expected)?;
+            }
+
+            Ok(result)
         }
     }
 
     fn cost() -> usize {
-        unimplemented!()
+        <UInt8 as CondSelectGadget<F>>::cost() * 32
     }
 }
 
 impl std::fmt::Display for Address {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        unimplemented!()
-        // write!(
-        //     f,
-        //     "{}",
-        //     self.0.as_ref().map(|v| v.to_string()).unwrap_or(format!("[allocated]"))
-        // )
+        match self.address {
+            Some(ref address) => write!(f, "{}", address),
+            None => write!(f, "[input address]"),
+        }
     }
 }
