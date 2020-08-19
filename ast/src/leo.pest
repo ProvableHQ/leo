@@ -8,11 +8,15 @@ file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
 
 // Declared in definitions/definition.rs
 definition = {
-    import
+    definition_annotated
+    | import
     | circuit
     | function
     | test_function
 }
+
+// Declared in definitions/annotated_definition.rs
+definition_annotated = { annotation ~ NEWLINE* ~ definition}
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -230,9 +234,20 @@ value_boolean = { "true" | "false" }
 value_field = ${ value_number ~ type_field }
 
 // Declared in values/group_value.rs
-value_group = ${ group_single_or_tuple ~ type_group }
-group_tuple = !{"(" ~ value_number ~ "," ~ value_number ~ ")"}
-group_single_or_tuple = {value_number | group_tuple}
+value_group = ${ group_tuple ~ type_group }
+group_tuple = !{"(" ~ group_coordinate ~ "," ~ group_coordinate ~ ")"}
+
+// Declared in values/group_coordinate.rs
+group_coordinate = {
+    value_number
+    | sign_high
+    | sign_low
+    | inferred
+}
+
+sign_high = @{"+"}
+sign_low = @{"-"}
+inferred = @{"_"}
 
 // Declared in values/address.rs
 address = @{ "aleo1" ~ (LOWERCASE_LETTER | ASCII_DIGIT){58} }
@@ -452,3 +467,24 @@ formatted_container = { "{" ~ "}"}
 
 // Declared in console/formatted_parameter.rs
 formatted_parameter = { expression }
+
+/// Annotations
+
+// Declared in annotations/annotation.rs
+annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments}
+
+// Declared in annotations/annotation_symbol.rs
+annotation_symbol = ${"@"}
+
+// Declared in annotations/annotation_name.rs
+annotation_name = {
+    context
+}
+
+// Declared in annotations/context.rs
+context = {"context"}
+
+// Declared in annotations/annotation_argument.rs
+annotation_arguments = !{"(" ~ NEWLINE* ~ annotation_argument ~ ("," ~ NEWLINE* ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
+
+annotation_argument = @{ (ASCII_ALPHANUMERIC | "_")+ }

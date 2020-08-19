@@ -1,7 +1,23 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{Circuit, Function, Identifier, Import, InputVariable, TestFunction};
+use crate::{load_annotation, Circuit, Function, Identifier, Import, InputVariable, TestFunction};
 use leo_ast::{definitions::Definition, files::File};
 
 use serde::{Deserialize, Serialize};
@@ -47,7 +63,17 @@ impl<'ast> Program {
                 }
                 Definition::TestFunction(test_def) => {
                     let test = TestFunction::from(test_def);
-                    tests.insert(test.0.identifier.clone(), test);
+                    tests.insert(test.function.identifier.clone(), test);
+                }
+                Definition::Annotated(annotated_definition) => {
+                    load_annotation(
+                        annotated_definition,
+                        &mut imports,
+                        &mut circuits,
+                        &mut functions,
+                        &mut tests,
+                        &mut expected_input,
+                    );
                 }
             });
 

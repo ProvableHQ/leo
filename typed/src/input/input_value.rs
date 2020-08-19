@@ -1,8 +1,25 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::GroupValue;
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
     types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue, NumberValue, Value},
+    values::{BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
 };
 
 use leo_input::{
@@ -17,7 +34,7 @@ pub enum InputValue {
     Address(String),
     Boolean(bool),
     Field(String),
-    Group(String),
+    Group(GroupValue),
     Integer(IntegerType, String),
     Array(Vec<InputValue>),
     Tuple(Vec<InputValue>),
@@ -44,8 +61,8 @@ impl InputValue {
         Ok(InputValue::Integer(integer_type, number))
     }
 
-    fn from_group(group: GroupValue) -> Self {
-        InputValue::Group(group.to_string())
+    fn from_group(group: InputGroupValue) -> Self {
+        InputValue::Group(GroupValue::from(group))
     }
 
     fn from_field(field: FieldValue) -> Self {
@@ -57,7 +74,7 @@ impl InputValue {
             DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Integer(integer_type) => InputValue::from_number(integer_type, implicit.to_string()),
-            DataType::Group(_) => Ok(InputValue::Group(implicit.to_string())),
+            DataType::Group(_) => Err(InputParserError::implicit_group(implicit)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),
         }
     }

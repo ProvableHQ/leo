@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use leo_typed::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -49,6 +65,36 @@ impl GroupError {
 
     pub fn synthesis_error(error: SynthesisError, span: Span) -> Self {
         let message = format!("compilation failed due to group synthesis error `{}`", error);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn x_invalid(x: String, span: Span) -> Self {
+        let message = format!("invalid x coordinate `{}`", x);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn y_invalid(y: String, span: Span) -> Self {
+        let message = format!("invalid y coordinate `{}`", y);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn not_on_curve(element: String, span: Span) -> Self {
+        let message = format!("group element `{}` is not on the supported curve", element);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn x_recover(span: Span) -> Self {
+        let message = format!("could not recover group element from x coordinate");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn y_recover(span: Span) -> Self {
+        let message = format!("could not recover group element from y coordinate");
 
         Self::new_from_span(message, span)
     }

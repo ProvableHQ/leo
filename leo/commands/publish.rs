@@ -1,11 +1,29 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::{
     cli::*,
     cli_types::*,
     commands::{BuildCommand, LoginCommand},
+    credentials::{read_token, PACKAGE_MANAGER_URL},
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
         CLIError::PublishError,
+        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
     },
 };
 use leo_package::{
@@ -21,13 +39,11 @@ use reqwest::{
 use serde::Deserialize;
 use std::{convert::TryFrom, env::current_dir};
 
-const PACKAGE_MANAGER_URL: &str = "https://apm-backend-dev.herokuapp.com/";
 const PUBLISH_URL: &str = "api/package/publish";
 
 #[derive(Deserialize)]
 struct ResponseJson {
     package_id: String,
-    _success: bool,
 }
 
 #[derive(Debug)]
@@ -52,12 +68,27 @@ impl CLI for PublishCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Build all program files.
-        // let _output = BuildCommand::output(options)?;
+        let _output = BuildCommand::output(())?;
 
-        // Get the package name
+        // Get the package manifest
         let path = current_dir()?;
-        let package_name = Manifest::try_from(&path)?.get_package_name();
-        let package_version = Manifest::try_from(&path)?.get_package_version();
+        let package_manifest = Manifest::try_from(&path)?;
+
+        let package_name = package_manifest.get_package_name();
+        let package_version = package_manifest.get_package_version();
+
+        if package_manifest.get_package_description().is_none() {
+            return Err(PublishError(MissingPackageDescription));
+        }
+
+        if package_manifest.get_package_license().is_none() {
+            return Err(PublishError(MissingPackageLicense));
+        }
+
+        let package_remote = match package_manifest.get_package_remote() {
+            Some(remote) => remote,
+            None => return Err(PublishError(MissingPackageRemote)),
+        };
 
         // Create the output directory
         OutputsDirectory::create(&path)?;
@@ -68,12 +99,13 @@ impl CLI for PublishCommand {
             log::debug!("Existing package zip file found. Clearing it to regenerate.");
             // Remove the existing package zip file
             ZipFile::new(&package_name).remove(&path)?;
-        } else {
-            zip_file.write(&path)?;
         }
+
+        zip_file.write(&path)?;
 
         let form_data = Form::new()
             .text("name", package_name)
+            .text("remote", package_remote)
             .text("version", package_version)
             .file("file", zip_file.get_file_path(&path))?;
 
@@ -81,7 +113,7 @@ impl CLI for PublishCommand {
         let client = Client::new();
 
         // Get token to make an authorized request
-        let token = match LoginCommand::read_token() {
+        let token = match read_token() {
             Ok(token) => token,
 
             // If not logged in, then try logging in using JWT.
@@ -123,7 +155,7 @@ impl CLI for PublishCommand {
             }
         };
 
-        log::info!("Package published successfully");
+        log::info!("Package published successfully with id: {}", result.package_id);
         Ok(Some(result.package_id))
     }
 }
