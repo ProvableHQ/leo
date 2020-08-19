@@ -1,0 +1,6 @@
+[package]
+name = "hello-world"
+version = "0.1.0"
+description = "Returns the sum of two u32 integers"
+remote = "aleo/hello-world"
+license = "LICENSE-MIT"
