@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, types::GroupType, values::GroupCoordinate};
+use crate::{
+    ast::Rule,
+    types::GroupType,
+    values::{GroupCoordinate, NumberValue},
+};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,7 +27,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::value_group))]
 pub struct GroupValue<'ast> {
-    pub value: GroupTuple<'ast>,
+    pub value: GroupRepresentation<'ast>,
     pub type_: GroupType,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
@@ -32,6 +36,22 @@ pub struct GroupValue<'ast> {
 impl<'ast> fmt::Display for GroupValue<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
+    }
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
+#[pest_ast(rule(Rule::group_single_or_tuple))]
+pub enum GroupRepresentation<'ast> {
+    Single(NumberValue<'ast>),
+    Tuple(GroupTuple<'ast>),
+}
+
+impl<'ast> fmt::Display for GroupRepresentation<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            GroupRepresentation::Single(number) => write!(f, "{}", number),
+            GroupRepresentation::Tuple(tuple) => write!(f, "{}", tuple),
+        }
     }
 }
 

@@ -4,5 +4,5 @@ function main() {
         x -= 1;
     }
 
-    assert_eq!(x, 1u32);
+    console.assert(x == 1u32);
 }

@@ -9,5 +9,5 @@ function main(a: u32, b: u32) {
         c = 3;
     }
 
-    assert_eq!(c, b);
+    console.assert(c == b);
 }

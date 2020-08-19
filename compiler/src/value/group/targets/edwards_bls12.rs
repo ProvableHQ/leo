@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::GroupError, GroupType};
-use leo_typed::{GroupCoordinate, GroupValue, Span};
+use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, Span};
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -24,7 +24,7 @@ use snarkos_curves::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::{AffineCurve, One, TEModelParameters},
+    curves::{AffineCurve, One, TEModelParameters, Zero},
     gadgets::{
         curves::{FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
@@ -134,7 +134,24 @@ impl GroupType<Fq> for EdwardsGroupType {
 }
 
 impl EdwardsGroupType {
-    pub fn edwards_affine_from_value(group: GroupValue) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_value(value: GroupValue) -> Result<EdwardsAffine, GroupError> {
+        match value {
+            GroupValue::Single(number, span) => Self::edwards_affine_from_single(number, span),
+            GroupValue::Tuple(tuple) => Self::edwards_affine_from_tuple(tuple),
+        }
+    }
+
+    pub fn edwards_affine_from_single(number: String, span: Span) -> Result<EdwardsAffine, GroupError> {
+        if number.eq("1") {
+            return Ok(edwards_affine_one());
+        } else if number.eq("0") {
+            return Ok(EdwardsAffine::zero());
+        } else {
+            Self::edwards_affine_from_x_str(number, span.clone(), None, span)
+        }
+    }
+
+    pub fn edwards_affine_from_tuple(group: GroupTuple) -> Result<EdwardsAffine, GroupError> {
         let span = group.span;
         let x = group.x;
         let y = group.y;
@@ -335,13 +352,49 @@ impl PartialEq for EdwardsGroupType {
 
 impl Eq for EdwardsGroupType {}
 
+// fn compare_allocated_edwards_bls_gadgets<CS: ConstraintSystem<Fq>>(
+//     mut cs: CS,
+//     first: &EdwardsBlsGadget,
+//     second: &EdwardsBlsGadget,
+// ) -> Result<Boolean, SynthesisError> {
+//     // compare x coordinates
+//     let x_first = &first.x;
+//     let x_second = &second.x;
+//
+//     let compare_x = x_first.evaluate_equal(&mut cs.ns(|| format!("compare x")), x_second)?;
+//
+//     // compare y coordinates
+//     let y_first = &first.y;
+//     let y_second = &second.y;
+//
+//     let compare_y = y_first.evaluate_equal(&mut cs.ns(|| format!("compare y")), y_second)?;
+//
+//     Boolean::and(
+//         &mut cs.ns(|| format!("compare x and y results")),
+//         &compare_x,
+//         &compare_y,
+//     )
+// }
+
 impl EvaluateEqGadget<Fq> for EdwardsGroupType {
-    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+    fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(Boolean::constant(self_value.eq(other_value)))
             }
             _ => unimplemented!(),
+            // (EdwardsGroupType::Allocated(first), EdwardsGroupType::Allocated(second)) => {
+            //     compare_allocated_edwards_bls_gadgets(cs, first, second)
+            // }
+            // (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
+            // | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
+            //     let allocated_constant_value =
+            //         <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
+            //             &mut cs.ns(|| format!("alloc constant for eq")),
+            //             || Ok(constant_value),
+            //         )?;
+            //     compare_allocated_edwards_bls_gadgets(cs, allocated_value, &allocated_constant_value)
+            // }
         }
     }
 }

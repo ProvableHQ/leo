@@ -95,10 +95,13 @@ impl Manifest {
     fn template(&self) -> String {
         format!(
             r#"[package]
-name = "{}"
+name = "{name}"
 version = "0.1.0"
+description = "The {name} package"
+remote = "[AUTHOR]/{name}"
+license = "LICENSE-MIT"
 "#,
-            self.package.name
+            name = self.package.name
         )
     }
 }

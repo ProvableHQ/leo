@@ -26,6 +26,9 @@ pub use self::circuits::*;
 pub mod common;
 pub use self::common::*;
 
+pub mod console;
+pub use self::console::*;
+
 pub mod errors;
 pub use self::errors::*;
 
@@ -43,9 +46,6 @@ pub use self::imports::*;
 
 pub mod input;
 pub use self::input::*;
-
-pub mod macros;
-pub use self::macros::*;
 
 pub mod program;
 pub use self::program::*;

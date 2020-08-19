@@ -2,5 +2,5 @@
 function main(a: u8[3]) {
     let b = [1u8, 1u8];
 
-    assert_eq!(a, [1u8, ...b]);
+    console.assert(a == [1u8, ...b]);
 }

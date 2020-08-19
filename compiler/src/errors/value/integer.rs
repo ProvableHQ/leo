@@ -39,7 +39,7 @@ impl IntegerError {
 
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the integer operation `{}` failed due to the synthesis error `{}`",
+            "the integer operation `{}` failed due to the synthesis error `{:?}`",
             operation, error,
         );
 

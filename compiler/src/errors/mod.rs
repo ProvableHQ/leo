@@ -26,8 +26,8 @@ pub use self::function::*;
 pub mod import;
 pub use self::import::*;
 
-pub mod macro_;
-pub use self::macro_::*;
+pub mod console;
+pub use self::console::*;
 
 pub mod output_file;
 pub use self::output_file::*;

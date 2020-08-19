@@ -37,14 +37,14 @@ impl FieldError {
     }
 
     pub fn negate_operation(error: SynthesisError, span: Span) -> Self {
-        let message = format!("field negation failed due to synthesis error `{}`", error,);
+        let message = format!("field negation failed due to synthesis error `{:?}`", error,);
 
         Self::new_from_span(message, span)
     }
 
     pub fn binary_operation(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the field binary operation `{}` failed due to synthesis error `{}`",
+            "the field binary operation `{}` failed due to synthesis error `{:?}`",
             operation, error,
         );
 
@@ -70,7 +70,7 @@ impl FieldError {
     }
 
     pub fn synthesis_error(error: SynthesisError, span: Span) -> Self {
-        let message = format!("compilation failed due to field synthesis error `{}`", error);
+        let message = format!("compilation failed due to field synthesis error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }

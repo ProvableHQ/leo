@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod macro_statement;
-pub use macro_statement::*;
-
 pub mod assign_statement;
 pub use assign_statement::*;
 

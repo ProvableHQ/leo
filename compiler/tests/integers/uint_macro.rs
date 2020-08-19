@@ -401,12 +401,12 @@ macro_rules! test_uint {
                 }
             }
 
-            fn test_assert_eq() {
+            fn test_console_assert() {
                 for _ in 0..10 {
                     let a: $type_ = rand::random();
 
                     // test equal
-                    let bytes = include_bytes!("assert_eq.leo");
+                    let bytes = include_bytes!("console_assert.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -434,7 +434,7 @@ macro_rules! test_uint {
 
                     program.set_main_input(main_input);
 
-                    expect_synthesis_error(program);
+                    expect_compiler_error(program);
                 }
             }
 

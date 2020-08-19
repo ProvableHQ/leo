@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_synthesis_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
 use leo_typed::InputValue;
 
 pub mod conditional;
@@ -55,28 +55,6 @@ fn test_iteration_basic() {
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
-}
-
-// Assertion
-
-#[test]
-fn test_assertion_basic() {
-    let bytes = include_bytes!("assertion_basic.leo");
-    let mut program = parse_program(bytes).unwrap();
-
-    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
-
-    program.set_main_input(main_input);
-
-    assert_satisfied(program);
-
-    let mut program = parse_program(bytes).unwrap();
-
-    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(false)))]);
-
-    program.set_main_input(main_input);
-
-    expect_synthesis_error(program);
 }
 
 #[test]

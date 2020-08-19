@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{AddressError, BooleanError, ExpressionError, IntegerError, MacroError, ValueError};
+use crate::errors::{AddressError, BooleanError, ConsoleError, ExpressionError, IntegerError, ValueError};
 use leo_typed::{Error as FormattedError, Span, Type};
 
 use std::path::PathBuf;
@@ -37,7 +37,7 @@ pub enum StatementError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    MacroError(#[from] MacroError),
+    MacroError(#[from] ConsoleError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
@@ -74,12 +74,6 @@ impl StatementError {
 
     pub fn array_assign_range(span: Span) -> Self {
         let message = format!("Cannot assign range of array values to single value");
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn assertion_failed(left: String, right: String, span: Span) -> Self {
-        let message = format!("Assertion `{} == {}` failed", left, right);
 
         Self::new_from_span(message, span)
     }

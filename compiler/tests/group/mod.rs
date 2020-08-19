@@ -23,7 +23,7 @@ use crate::{
     parse_program,
     parse_program_with_input,
 };
-use leo_typed::{GroupCoordinate, GroupValue, InputValue, Span};
+use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 
@@ -43,11 +43,27 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
         end: 0,
     };
 
-    GroupValue {
+    GroupValue::Tuple(GroupTuple {
         x: GroupCoordinate::Number(x, fake_span.clone()),
         y: GroupCoordinate::Number(y, fake_span.clone()),
         span: fake_span,
-    }
+    })
+}
+
+#[test]
+fn test_one() {
+    let bytes = include_bytes!("one.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_zero() {
+    let bytes = include_bytes!("zero.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
 }
 
 #[test]
@@ -107,8 +123,8 @@ fn test_y_sign_inferred() {
 }
 
 #[test]
-fn test_double_high() {
-    let bytes = include_bytes!("double_high.leo");
+fn test_both_sign_high() {
+    let bytes = include_bytes!("both_sign_high.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -116,8 +132,8 @@ fn test_double_high() {
 }
 
 #[test]
-fn test_double_low() {
-    let bytes = include_bytes!("double_low.leo");
+fn test_both_sign_low() {
+    let bytes = include_bytes!("both_sign_low.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -125,8 +141,8 @@ fn test_double_low() {
 }
 
 #[test]
-fn test_double_inferred() {
-    let bytes = include_bytes!("double_inferred.leo");
+fn test_both_sign_inferred() {
+    let bytes = include_bytes!("both_sign_inferred.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -243,7 +259,7 @@ fn test_sub() {
 }
 
 #[test]
-fn test_assert_eq_pass() {
+fn test_console_assert_pass() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -266,7 +282,7 @@ fn test_assert_eq_pass() {
 }
 
 #[test]
-fn test_assert_eq_fail() {
+fn test_console_assert_fail() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 
     for _ in 0..10 {
@@ -290,12 +306,11 @@ fn test_assert_eq_fail() {
 
         program.set_main_input(main_input);
 
-        expect_synthesis_error(program);
+        expect_compiler_error(program);
     }
 }
 
 #[test]
-#[ignore]
 fn test_eq() {
     let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
 

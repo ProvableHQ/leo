@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assignee, ConditionalStatement, Declare, Expression, FormattedMacro, Identifier, Span, Variables};
+use crate::{Assignee, ConditionalStatement, ConsoleFunctionCall, Declare, Expression, Identifier, Span, Variables};
 use leo_ast::{
+    console::ConsoleFunctionCall as AstConsoleFunctionCall,
     operations::AssignOperation,
     statements::{
         AssignStatement,
         DefinitionStatement,
         ExpressionStatement,
         ForStatement,
-        MacroStatement,
         ReturnStatement,
         Statement as AstStatement,
     },
@@ -39,8 +39,7 @@ pub enum Statement {
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
     Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
-    AssertEq(Expression, Expression, Span),
-    Macro(FormattedMacro),
+    Console(ConsoleFunctionCall),
     Expression(Expression, Span),
 }
 
@@ -155,16 +154,9 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<MacroStatement<'ast>> for Statement {
-    fn from(statement: MacroStatement<'ast>) -> Self {
-        match statement {
-            MacroStatement::AssertEq(assert_eq) => Statement::AssertEq(
-                Expression::from(assert_eq.left),
-                Expression::from(assert_eq.right),
-                Span::from(assert_eq.span),
-            ),
-            MacroStatement::Formatted(formatted) => Statement::Macro(FormattedMacro::from(formatted)),
-        }
+impl<'ast> From<AstConsoleFunctionCall<'ast>> for Statement {
+    fn from(function_call: AstConsoleFunctionCall<'ast>) -> Self {
+        Statement::Console(ConsoleFunctionCall::from(function_call))
     }
 }
 
@@ -190,7 +182,7 @@ impl<'ast> From<AstStatement<'ast>> for Statement {
                 Statement::Conditional(ConditionalStatement::from(statement), span)
             }
             AstStatement::Iteration(statement) => Statement::from(statement),
-            AstStatement::Assert(statement) => Statement::from(statement),
+            AstStatement::Console(console) => Statement::from(console),
             AstStatement::Expression(statement) => Statement::from(statement),
         }
     }
@@ -218,8 +210,7 @@ impl fmt::Display for Statement {
                 }
                 write!(f, "\t}}")
             }
-            Statement::AssertEq(ref left, ref right, ref _span) => write!(f, "assert_eq({}, {});", left, right),
-            Statement::Macro(ref macro_) => write!(f, "{}", macro_),
+            Statement::Console(ref console) => write!(f, "{}", console),
             Statement::Expression(ref expression, ref _span) => write!(f, "{};", expression),
         }
     }

@@ -70,8 +70,8 @@ impl Address {
 }
 
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        Ok(Boolean::constant(self.eq(other)))
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
+        unimplemented!()
     }
 }
 
@@ -97,15 +97,12 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Address {
         if let Boolean::Constant(cond) = *condition {
             cond_equal_helper(self, other, cond)
         } else {
-            condition
-                .get_value()
-                .map(|cond| cond_equal_helper(self, other, cond))
-                .unwrap_or(Ok(()))
+            unimplemented!()
         }
     }
 
     fn cost() -> usize {
-        0
+        unimplemented!()
     }
 }
 
@@ -123,15 +120,12 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
         if let Boolean::Constant(cond) = *cond {
             Ok(cond_select_helper(first, second, cond))
         } else {
-            Ok(cond
-                .get_value()
-                .map(|cond| cond_select_helper(first, second, cond))
-                .unwrap_or(first.clone()))
+            unimplemented!()
         }
     }
 
     fn cost() -> usize {
-        0
+        unimplemented!()
     }
 }
 

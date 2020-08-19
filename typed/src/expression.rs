@@ -102,7 +102,7 @@ impl Expression {
     pub fn set_span(&mut self, new_span: &Span) {
         match self {
             Expression::Field(_, old_span) => *old_span = new_span.clone(),
-            Expression::Group(value) => value.span = new_span.clone(),
+            Expression::Group(value) => value.set_span(new_span),
 
             Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
             Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),

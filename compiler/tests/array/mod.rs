@@ -24,14 +24,14 @@ use crate::{
 };
 
 pub fn output_ones(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_ones.out");
+    let expected = include_bytes!("output/registers_ones.out");
     let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
 }
 
 pub fn output_zeros(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_zeros.out");
+    let expected = include_bytes!("output/registers_zeros.out");
     let actual = get_output(program);
 
     assert!(expected.eq(actual.bytes().as_slice()));
