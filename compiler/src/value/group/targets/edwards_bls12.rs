@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::GroupError, GroupType};
-use leo_typed::{GroupCoordinate, GroupValue, Span};
+use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, Span};
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -24,7 +24,7 @@ use snarkos_curves::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::{AffineCurve, One, TEModelParameters},
+    curves::{AffineCurve, One, TEModelParameters, Zero},
     gadgets::{
         curves::{FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
@@ -134,7 +134,24 @@ impl GroupType<Fq> for EdwardsGroupType {
 }
 
 impl EdwardsGroupType {
-    pub fn edwards_affine_from_value(group: GroupValue) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_value(value: GroupValue) -> Result<EdwardsAffine, GroupError> {
+        match value {
+            GroupValue::Single(number, span) => Self::edwards_affine_from_single(number, span),
+            GroupValue::Tuple(tuple) => Self::edwards_affine_from_tuple(tuple),
+        }
+    }
+
+    pub fn edwards_affine_from_single(number: String, span: Span) -> Result<EdwardsAffine, GroupError> {
+        if number.eq("1") {
+            return Ok(edwards_affine_one());
+        } else if number.eq("0") {
+            return Ok(EdwardsAffine::zero());
+        } else {
+            Self::edwards_affine_from_x_str(number, span.clone(), None, span)
+        }
+    }
+
+    pub fn edwards_affine_from_tuple(group: GroupTuple) -> Result<EdwardsAffine, GroupError> {
         let span = group.span;
         let x = group.x;
         let y = group.y;

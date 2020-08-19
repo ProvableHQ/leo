@@ -15,36 +15,77 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{common::span::Span, groups::GroupCoordinate};
-use leo_ast::values::GroupValue as AstGroupValue;
-use leo_input::values::GroupValue as InputGroupValue;
+use leo_ast::values::{
+    GroupRepresentation as AstGroupRepresentation,
+    GroupTuple as AstGroupTuple,
+    GroupValue as AstGroupValue,
+};
+use leo_input::values::{
+    GroupRepresentation as InputGroupRepresentation,
+    GroupTuple as InputGroupTuple,
+    GroupValue as InputGroupValue,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GroupValue {
-    pub x: GroupCoordinate,
-    pub y: GroupCoordinate,
-    pub span: Span,
+pub enum GroupValue {
+    Single(String, Span),
+    Tuple(GroupTuple),
+}
+
+impl GroupValue {
+    pub fn set_span(&mut self, new_span: &Span) {
+        match self {
+            GroupValue::Single(_, old_span) => *old_span = new_span.clone(),
+            GroupValue::Tuple(tuple) => tuple.span = new_span.clone(),
+        }
+    }
 }
 
 impl<'ast> From<AstGroupValue<'ast>> for GroupValue {
-    fn from(ast_group: AstGroupValue<'ast>) -> Self {
-        let ast_x = ast_group.value.x;
-        let ast_y = ast_group.value.y;
+    fn from(ast_group: AstGroupValue) -> Self {
+        let span = Span::from(ast_group.span);
 
-        Self {
-            x: GroupCoordinate::from(ast_x),
-            y: GroupCoordinate::from(ast_y),
-            span: Span::from(ast_group.span),
+        match ast_group.value {
+            AstGroupRepresentation::Single(number) => GroupValue::Single(number.to_string(), span),
+            AstGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
         }
     }
 }
 
 impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
-    fn from(ast_group: InputGroupValue<'ast>) -> Self {
-        let ast_x = ast_group.value.x;
-        let ast_y = ast_group.value.y;
+    fn from(ast_group: InputGroupValue) -> Self {
+        let span = Span::from(ast_group.span);
+
+        match ast_group.value {
+            InputGroupRepresentation::Single(number) => GroupValue::Single(number.to_string(), span),
+            InputGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
+        }
+    }
+}
+
+impl fmt::Display for GroupValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            GroupValue::Single(string, _) => write!(f, "{}", string),
+            GroupValue::Tuple(tuple) => write!(f, "{}", tuple),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct GroupTuple {
+    pub x: GroupCoordinate,
+    pub y: GroupCoordinate,
+    pub span: Span,
+}
+
+impl<'ast> From<AstGroupTuple<'ast>> for GroupTuple {
+    fn from(ast_group: AstGroupTuple<'ast>) -> Self {
+        let ast_x = ast_group.x;
+        let ast_y = ast_group.y;
 
         Self {
             x: GroupCoordinate::from(ast_x),
@@ -54,7 +95,20 @@ impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
     }
 }
 
-impl fmt::Display for GroupValue {
+impl<'ast> From<InputGroupTuple<'ast>> for GroupTuple {
+    fn from(ast_group: InputGroupTuple<'ast>) -> Self {
+        let ast_x = ast_group.x;
+        let ast_y = ast_group.y;
+
+        Self {
+            x: GroupCoordinate::from(ast_x),
+            y: GroupCoordinate::from(ast_y),
+            span: Span::from(ast_group.span),
+        }
+    }
+}
+
+impl fmt::Display for GroupTuple {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }

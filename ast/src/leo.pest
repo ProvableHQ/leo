@@ -234,7 +234,8 @@ value_boolean = { "true" | "false" }
 value_field = ${ value_number ~ type_field }
 
 // Declared in values/group_value.rs
-value_group = ${ group_tuple ~ type_group }
+value_group = ${ group_single_or_tuple ~ type_group }
+group_single_or_tuple = {value_number | group_tuple}
 group_tuple = !{"(" ~ group_coordinate ~ "," ~ group_coordinate ~ ")"}
 
 // Declared in values/group_coordinate.rs
