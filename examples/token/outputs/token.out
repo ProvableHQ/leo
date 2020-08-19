@@ -1,3 +1,0 @@
-[registers]
-id: u8 = 1u8;
-value_balance: u8 = 0u8;
