@@ -56,5 +56,8 @@ pub use self::test::*;
 pub mod remove;
 pub use self::remove::*;
 
+pub mod update;
+pub use self::update::*;
+
 pub mod watch;
 pub use self::watch::*;

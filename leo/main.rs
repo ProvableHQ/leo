@@ -51,6 +51,7 @@ fn main() -> Result<(), CLIError> {
             DeployCommand::new().display_order(12),
             CleanCommand::new().display_order(13),
             LintCommand::new().display_order(14),
+            UpdateCommand::new().display_order(15),
         ])
         .set_term_width(0)
         .get_matches();
@@ -71,6 +72,7 @@ fn main() -> Result<(), CLIError> {
         ("deploy", Some(arguments)) => DeployCommand::process(arguments),
         ("clean", Some(arguments)) => CleanCommand::process(arguments),
         ("lint", Some(arguments)) => LintCommand::process(arguments),
+        ("update", Some(arguments)) => UpdateCommand::process(arguments),
         _ => unreachable!(),
     }
 }
