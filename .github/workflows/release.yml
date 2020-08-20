@@ -42,16 +42,19 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_ubuntu
-          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_ubuntu
-          zip -r leo_${{ steps.get_version.outputs.version }}_ubuntu.zip leo_${{ steps.get_version.outputs.version }}_ubuntu
+          target=$(rustup show active-toolchain)
+          target=${target%"(default)"}
+          target=${target#"nightly-"}
+          mkdir leo-${{ steps.get_version.outputs.version }}-${target}
+          mv target/release/leo leo-${{ steps.get_version.outputs.version }}-${target}
+          zip -r leo-${{ steps.get_version.outputs.version }}-${target}.zip leo-${{ steps.get_version.outputs.version }}-${target}
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_ubuntu.zip
+            leo-${{ steps.get_version.outputs.version }}-${target}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -88,16 +91,19 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_mac
-          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_mac
-          zip -r leo_${{ steps.get_version.outputs.version }}_mac.zip leo_${{ steps.get_version.outputs.version }}_mac
+          target=$(rustup show active-toolchain)
+          target=${target%"(default)"}
+          target=${target#"nightly-"}
+          mkdir leo-${{ steps.get_version.outputs.version }}-${target}
+          mv target/release/leo leo-${{ steps.get_version.outputs.version }}-${target}
+          zip -r leo-${{ steps.get_version.outputs.version }}-${target}.zip leo-${{ steps.get_version.outputs.version }}-${target}
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_mac.zip
+            leo-${{ steps.get_version.outputs.version }}-${target}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -135,15 +141,19 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_windows
-          mv target/release/leo.exe leo_${{ steps.get_version.outputs.version }}_windows
-          Compress-Archive leo_${{ steps.get_version.outputs.version }}_windows leo_${{ steps.get_version.outputs.version }}_windows.zip
+          target=$(rustup show active-toolchain)
+          target=${target%"(default)"}
+          target=${target#"nightly-"}
+
+          mkdir leo-${{ steps.get_version.outputs.version }}-${target}
+          mv target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-${target}
+          Compress-Archive leo-${{ steps.get_version.outputs.version }}-${target} leo-${{ steps.get_version.outputs.version }}-${target}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_windows.zip
+            leo-${{ steps.get_version.outputs.version }}-${target}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
