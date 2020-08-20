@@ -1,8 +1,8 @@
 name: Leo Release
 on:
   push:
-#    tags:
-#      - 'v*.*.*'
+    tags:
+      - 'v*.*.*'
 
 env:
   RUST_BACKTRACE: 1
@@ -45,6 +45,7 @@ jobs:
           target=$(rustup show active-toolchain)
           target=${target%"(default)"}
           target=${target#"nightly-"}
+          target=${target#"stable-"}
           mkdir leo-${{ steps.get_version.outputs.version }}-${target}
           mv target/release/leo leo-${{ steps.get_version.outputs.version }}-${target}
           zip -r leo-${{ steps.get_version.outputs.version }}-${target}.zip leo-${{ steps.get_version.outputs.version }}-${target}
@@ -94,6 +95,7 @@ jobs:
           target=$(rustup show active-toolchain)
           target=${target%"(default)"}
           target=${target#"nightly-"}
+          target=${target#"stable-"}
           mkdir leo-${{ steps.get_version.outputs.version }}-${target}
           mv target/release/leo leo-${{ steps.get_version.outputs.version }}-${target}
           zip -r leo-${{ steps.get_version.outputs.version }}-${target}.zip leo-${{ steps.get_version.outputs.version }}-${target}
@@ -144,7 +146,7 @@ jobs:
           target=$(rustup show active-toolchain)
           target=${target%"(default)"}
           target=${target#"nightly-"}
-
+          target=${target#"stable-"}
           mkdir leo-${{ steps.get_version.outputs.version }}-${target}
           mv target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-${target}
           Compress-Archive leo-${{ steps.get_version.outputs.version }}-${target} leo-${{ steps.get_version.outputs.version }}-${target}.zip
