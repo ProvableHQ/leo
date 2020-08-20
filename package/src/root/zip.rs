@@ -28,6 +28,8 @@ use crate::{
         PROVING_KEY_FILE_EXTENSION,
         VERIFICATION_KEY_FILE_EXTENSION,
     },
+    root::{MANIFEST_FILE_NAME, README_FILE_NAME},
+    source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
 };
 
 use serde::Deserialize;
@@ -89,12 +91,15 @@ impl ZipFile {
             let path = entry.path();
             let name = path.strip_prefix(src_dir.as_path()).unwrap();
 
-            // filter excluded paths
-            if is_excluded(name) {
+            // Add file/directory exclusion
+
+            let included = is_included(name);
+            log::debug!("Checking if {:?} is included - {}", name, included);
+            if !included {
                 continue;
             }
 
-            // write file or directory
+            // Write file or directory
             if path.is_file() {
                 log::info!("Adding file {:?} as {:?}", path, name);
                 zip.start_file_from_path(name, options)?;
@@ -142,28 +147,43 @@ impl ZipFile {
     }
 }
 
-fn is_excluded(path: &Path) -> bool {
-    log::debug!("Checking if {:?} is excluded", path);
-
+/// Check if the file path should be included in the package zip file.
+fn is_included(path: &Path) -> bool {
     // excluded directories: `input`, `output`, `imports`
     if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
     {
-        return true;
+        return false;
     }
 
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
+    if let Some(true) = path.extension().map(|ext| {
+        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
+            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
+    }) {
+        return false;
+    }
+
+    // Allow the README.md and Leo.toml files in the root directory
+    if (path.ends_with(README_FILE_NAME) | path.ends_with(MANIFEST_FILE_NAME)) & (path.parent() == Some(Path::new("")))
+    {
+        return true;
+    }
+
+    // Only allow additional files in the `src/` directory
+    if !path.starts_with(SOURCE_DIRECTORY_NAME.trim_end_matches("/")) {
+        return false;
+    }
+
+    // Allow the `.leo` files in the `src/` directory
     path.extension()
-        .map(|ext| {
-            ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-                | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
-        })
+        .map(|ext| ext.eq(SOURCE_FILE_EXTENSION.trim_start_matches(".")))
         .unwrap_or(false)
 }
