@@ -32,7 +32,7 @@ Leo offers developers with tools to sanity check circuits including unit tests, 
 
 Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). If your goal is to build a user experience
 on the web that is both truly personal and truly private, then we recommend downloading the [Aleo Studio IDE](https://aleo.studio/)
-and checking out the [Aleo Package Manager]().
+and checking out the [Aleo Package Manager](https://aleo.pm/).
 
 ## 2. Build Guide
 
