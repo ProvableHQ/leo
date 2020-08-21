@@ -29,7 +29,7 @@ use std::{
 pub const PACKAGE_MANAGER_URL: &str = "https://apm-backend-prod.herokuapp.com/";
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
-pub const LEO_CONFIG_FILE: &str = "leo.config";
+pub const LEO_CONFIG_FILE: &str = "config.toml";
 
 lazy_static! {
     pub static ref LEO_CONFIG_DIRECTORY: PathBuf = {
@@ -61,13 +61,13 @@ impl Default for Config {
 }
 
 impl Config {
-    /// Read the config from the leo.config file
+    /// Read the config from the `config.toml` file
     pub fn read_config() -> Result<Self, CLIError> {
         let config_dir = LEO_CONFIG_DIRECTORY.clone();
         let config_path = LEO_CONFIG_PATH.clone();
 
         if !Path::exists(&config_path) {
-            // Create a new default leo.config file if it doesn't already exist
+            // Create a new default `config.toml` file if it doesn't already exist
             create_dir_all(&config_dir)?;
 
             let default_config_string = toml::to_string(&Config::default())?;
