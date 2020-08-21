@@ -82,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
     pub(crate) fn from_type(value: String, type_: &Type, span: Span) -> Result<Self, ValueError> {
         match type_ {
             // Data types
-            Type::Address => Ok(ConstrainedValue::Address(Address::new(value, span)?)),
+            Type::Address => Ok(ConstrainedValue::Address(Address::constant(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(value, span))?)),
