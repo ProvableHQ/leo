@@ -16,7 +16,7 @@
 
 use crate::{cli::CLI, cli_types::*};
 
-use self_update::{backends::github, cargo_crate_version};
+use self_update::{backends::github, cargo_crate_version, Status};
 
 const LEO_BIN_NAME: &str = "leo";
 const LEO_REPO_OWNER: &str = "AleoHQ";
@@ -42,7 +42,7 @@ impl UpdateCommand {
     }
 
     // Update to the latest release on the current platform
-    fn update_to_latest_release() -> Result<(), self_update::errors::Error> {
+    pub fn update_to_latest_release() -> Result<Status, self_update::errors::Error> {
         let status = github::Update::configure()
             .repo_owner(LEO_REPO_OWNER)
             .repo_name(LEO_REPO_NAME)
@@ -52,8 +52,7 @@ impl UpdateCommand {
             .build()?
             .update()?;
 
-        log::info!("Leo has successfully updated to {} version", status.version());
-        Ok(())
+        Ok(status)
     }
 }
 
@@ -83,7 +82,14 @@ impl CLI for UpdateCommand {
                 }
             },
             (false,) => match UpdateCommand::update_to_latest_release() {
-                Ok(_) => return Ok(()),
+                Ok(status) => {
+                    if status.uptodate() {
+                        log::info!("Leo is already on the latest version: {}", status.version());
+                    } else if status.updated() {
+                        log::info!("Leo has successfully updated to version: {}", status.version());
+                    }
+                    return Ok(());
+                }
                 Err(e) => {
                     log::error!("Could not update Leo to the latest version");
                     log::error!("{}", e);

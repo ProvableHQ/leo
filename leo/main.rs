@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo::{cli::*, commands::*, errors::CLIError};
+use leo::{cli::*, commands::*, config::Config, errors::CLIError};
 
 use clap::{App, AppSettings, Arg};
 
@@ -55,6 +55,18 @@ fn main() -> Result<(), CLIError> {
         ])
         .set_term_width(0)
         .get_matches();
+
+    let config = Config::read_config()?;
+
+    if config.auto_update {
+        if let Ok(status) = UpdateCommand::update_to_latest_release() {
+            if status.updated() {
+                log::info!("Leo has successfully updated to version: {}", status.version());
+            }
+        }
+    }
+
+    // Save the config file
 
     match arguments.subcommand() {
         ("new", Some(arguments)) => NewCommand::process(arguments),
