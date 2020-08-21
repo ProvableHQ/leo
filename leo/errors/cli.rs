@@ -26,7 +26,7 @@ pub enum CLIError {
     BuildError(BuildError),
 
     #[error("{}", _0)]
-    BytesFileError(ZipFileError),
+    ZipFileError(ZipFileError),
 
     #[error("{}", _0)]
     ChecksumFileError(ChecksumFileError),
@@ -47,7 +47,7 @@ pub enum CLIError {
     ImportsDirectoryError(ImportsDirectoryError),
 
     #[error("{}", _0)]
-    InputDirectoryError(InputsDirectoryError),
+    InputsDirectoryError(InputsDirectoryError),
 
     #[error("{}", _0)]
     InputFileError(InputFileError),
@@ -68,7 +68,7 @@ pub enum CLIError {
     NewError(NewError),
 
     #[error("{}", _0)]
-    OutputDirectoryError(OutputsDirectoryError),
+    OutputsDirectoryError(OutputsDirectoryError),
 
     #[error("{}", _0)]
     ProofFileError(ProofFileError),
@@ -119,180 +119,33 @@ macro_rules! impl_T {
     }
 }
 
-impl From<ZipFileError> for CLIError {
-    fn from(error: ZipFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::BytesFileError(error)
-    }
-}
-
-impl From<BuildError> for CLIError {
-    fn from(error: BuildError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::BuildError(error)
-    }
-}
-
-impl From<AddError> for CLIError {
-    fn from(error: AddError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::AddError(error)
-    }
-}
-
-impl From<ChecksumFileError> for CLIError {
-    fn from(error: ChecksumFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::ChecksumFileError(error)
-    }
-}
-
-impl From<CircuitFileError> for CLIError {
-    fn from(error: CircuitFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::CircuitFileError(error)
-    }
-}
-
-impl From<GitignoreError> for CLIError {
-    fn from(error: GitignoreError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::GitignoreError(error)
-    }
-}
-
-impl From<InitError> for CLIError {
-    fn from(error: InitError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::InitError(error)
-    }
-}
-
-impl From<ImportsDirectoryError> for CLIError {
-    fn from(error: ImportsDirectoryError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::ImportsDirectoryError(error)
-    }
-}
-
-impl From<InputsDirectoryError> for CLIError {
-    fn from(error: InputsDirectoryError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::InputDirectoryError(error)
-    }
-}
-
-impl From<InputFileError> for CLIError {
-    fn from(error: InputFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::InputFileError(error)
-    }
-}
-
-impl From<LibFileError> for CLIError {
-    fn from(error: LibFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::LibFileError(error)
-    }
-}
-
-impl From<LoginError> for CLIError {
-    fn from(error: LoginError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::LoginError(error)
-    }
-}
-
-impl From<MainFileError> for CLIError {
-    fn from(error: MainFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::MainFileError(error)
-    }
-}
-
-impl From<ManifestError> for CLIError {
-    fn from(error: ManifestError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::ManifestError(error)
-    }
-}
-
-impl From<NewError> for CLIError {
-    fn from(error: NewError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::NewError(error)
-    }
-}
-
-impl From<OutputsDirectoryError> for CLIError {
-    fn from(error: OutputsDirectoryError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::OutputDirectoryError(error)
-    }
-}
-
-impl From<ProofFileError> for CLIError {
-    fn from(error: ProofFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::ProofFileError(error)
-    }
-}
-
-impl From<ProvingKeyFileError> for CLIError {
-    fn from(error: ProvingKeyFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::ProvingKeyFileError(error)
-    }
-}
-
-impl From<PublishError> for CLIError {
-    fn from(error: PublishError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::PublishError(error)
-    }
-}
-
-impl From<READMEError> for CLIError {
-    fn from(error: READMEError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::READMEError(error)
-    }
-}
-
-impl From<RunError> for CLIError {
-    fn from(error: RunError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::RunError(error)
-    }
-}
-
-impl From<SourceDirectoryError> for CLIError {
-    fn from(error: SourceDirectoryError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::SourceDirectoryError(error)
-    }
-}
-
-impl From<StateFileError> for CLIError {
-    fn from(error: StateFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::StateFileError(error)
-    }
-}
-
-impl From<TestError> for CLIError {
-    fn from(error: TestError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::TestError(error)
-    }
-}
-
-impl From<VerificationKeyFileError> for CLIError {
-    fn from(error: VerificationKeyFileError) -> Self {
-        tracing::error!("{}\n", error);
-        CLIError::VerificationKeyFileError(error)
-    }
-}
+impl_T!(for
+    AddError,
+    BuildError,
+    CircuitFileError,
+    ChecksumFileError,
+    GitignoreError,
+    ImportsDirectoryError,
+    InitError,
+    InputsDirectoryError,
+    InputFileError,
+    LibFileError,
+    LoginError,
+    MainFileError,
+    ManifestError,
+    NewError,
+    OutputsDirectoryError,
+    ProofFileError,
+    ProvingKeyFileError,
+    PublishError,
+    READMEError,
+    RunError,
+    SourceDirectoryError,
+    StateFileError,
+    TestError,
+    VerificationKeyFileError
+    ZipFileError,
+);
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
