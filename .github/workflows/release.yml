@@ -42,16 +42,19 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_ubuntu
-          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_ubuntu
-          zip -r leo_${{ steps.get_version.outputs.version }}_ubuntu.zip leo_${{ steps.get_version.outputs.version }}_ubuntu
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_ubuntu.zip
+            leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -88,16 +91,19 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_mac
-          mv target/release/leo leo_${{ steps.get_version.outputs.version }}_mac
-          zip -r leo_${{ steps.get_version.outputs.version }}_mac.zip leo_${{ steps.get_version.outputs.version }}_mac
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_mac.zip
+            leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -135,15 +141,18 @@ jobs:
 
       - name: Zip
         run: |
-          mkdir leo_${{ steps.get_version.outputs.version }}_windows
-          mv target/release/leo.exe leo_${{ steps.get_version.outputs.version }}_windows
-          Compress-Archive leo_${{ steps.get_version.outputs.version }}_windows leo_${{ steps.get_version.outputs.version }}_windows.zip
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          Compress-Archive leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu leo
+          cd ..
+          mv leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu .
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            leo_${{ steps.get_version.outputs.version }}_windows.zip
+            leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
