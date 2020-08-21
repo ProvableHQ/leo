@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo::{cli::*, commands::*, config::Config, errors::CLIError};
+use leo_lang::{cli::*, commands::*, config::Config, errors::CLIError};
 
 use clap::{App, AppSettings, Arg};
 
