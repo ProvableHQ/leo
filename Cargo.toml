@@ -7,7 +7,7 @@ homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
 categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+include = ["Cargo.toml", "leo", "README.md", "LICENSE.md"]
 license = "GPL-3.0"
 edition = "2018"
 
