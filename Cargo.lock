@@ -1315,7 +1315,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-linter"
+name = "leo-liner"
 version = "1.0.0"
 
 [[package]]

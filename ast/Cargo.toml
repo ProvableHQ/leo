@@ -2,6 +2,13 @@
 name = "leo-ast"
 version = "1.0.0"
 authors = ["The Aleo Team <hello@aleo.org>"]
+description = "AST of the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
+categories = ["cryptography::cryptocurrencies", "web-programming"]
+include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+license = "GPL-3.0"
 edition = "2018"
 
 [[bin]]
