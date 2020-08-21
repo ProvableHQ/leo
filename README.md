@@ -58,7 +58,7 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
 We recommend installing Leo this way. In your terminal, run:
 
 ```bash
-cargo install leo
+cargo install leo-lang
 ```
 
 Now to use Leo, in your terminal, run:

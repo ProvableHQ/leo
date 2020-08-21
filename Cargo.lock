@@ -1204,44 +1204,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
-name = "leo"
-version = "1.0.0"
-dependencies = [
- "clap",
- "colored",
- "console",
- "dirs",
- "dotenv",
- "env_logger",
- "from-pest",
- "lazy_static",
- "leo-compiler",
- "leo-gadgets",
- "leo-input",
- "leo-package",
- "leo-state",
- "log",
- "notify",
- "num-bigint",
- "rand",
- "rand_core",
- "reqwest",
- "rusty-hook",
- "self_update",
- "serde",
- "serde_json",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
- "snarkos-utilities",
- "thiserror",
- "toml",
- "zip",
-]
-
-[[package]]
 name = "leo-ast"
 version = "1.0.0"
 dependencies = [
@@ -1312,6 +1274,44 @@ dependencies = [
  "snarkos-gadgets",
  "snarkos-models",
  "thiserror",
+]
+
+[[package]]
+name = "leo-lang"
+version = "1.0.0"
+dependencies = [
+ "clap",
+ "colored",
+ "console",
+ "dirs",
+ "dotenv",
+ "env_logger",
+ "from-pest",
+ "lazy_static",
+ "leo-compiler",
+ "leo-gadgets",
+ "leo-input",
+ "leo-package",
+ "leo-state",
+ "log",
+ "notify",
+ "num-bigint",
+ "rand",
+ "rand_core",
+ "reqwest",
+ "rusty-hook",
+ "self_update",
+ "serde",
+ "serde_json",
+ "snarkos-algorithms",
+ "snarkos-curves",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+ "snarkos-utilities",
+ "thiserror",
+ "toml",
+ "zip",
 ]
 
 [[package]]
