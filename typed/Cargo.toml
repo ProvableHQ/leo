@@ -17,6 +17,7 @@ path = "src/main.rs"
 
 [[bench]]
 name = "typed_ast"
+path = "benches/typed_ast.rs"
 harness = false
 
 [dependencies]
