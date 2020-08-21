@@ -36,16 +36,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get defined circuit
-        let circuit = match self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            *circuit_identifier.clone(),
-        )? {
-            ConstrainedValue::CircuitDefinition(circuit_definition) => circuit_definition,
-            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
-        };
+        let circuit = self
+            .enforce_expression(
+                cs,
+                file_scope.clone(),
+                function_scope.clone(),
+                expected_type,
+                *circuit_identifier.clone(),
+            )?
+            .extract_circuit(span.clone())?;
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
