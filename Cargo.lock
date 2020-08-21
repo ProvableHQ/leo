@@ -1219,13 +1219,13 @@ dependencies = [
  "criterion",
  "from-pest",
  "lazy_static",
- "log",
  "pest",
  "pest-ast",
  "pest_derive",
  "serde",
  "serde_json",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]

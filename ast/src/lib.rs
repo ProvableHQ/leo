@@ -63,7 +63,7 @@ impl<'ast> LeoAst<'ast> {
 
         // Builds the abstract syntax tree using pest derivation.
         let ast = files::File::<'ast>::from_pest(file).map_err(|_| ParserError::SyntaxTreeError)?;
-        log::debug!("{:#?}", ast);
+        tracing::debug!("{:#?}", ast);
 
         Ok(Self { ast })
     }
