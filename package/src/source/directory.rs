@@ -73,4 +73,27 @@ impl SourceDirectory {
 
         Ok(file_paths)
     }
+
+    /// Remove all source files in the source directory
+    pub fn remove_files(path: &PathBuf) -> Result<(), SourceDirectoryError> {
+        let files = SourceDirectory::files(path)?;
+        files.iter().for_each(|file| match std::fs::remove_file(file) {
+            Ok(_) => log::info!("File {:?} removed", file),
+            Err(_) => log::warn!("Cannot remove {:?} file, please check permitions", file),
+        });
+        Ok(())
+    }
+
+    /// Remove Leo source directory if it is empty and permissions allowed
+    pub fn remove_dir(path: &PathBuf) -> Result<(), SourceDirectoryError> {
+        let mut path = path.to_owned();
+        if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
+            path.push(PathBuf::from(SOURCE_DIRECTORY_NAME))
+        }
+        match std::fs::remove_dir(path.clone()) {
+            Ok(_) => log::info!("Directory {:?} removed", path),
+            Err(_error) => log::warn!("Cannot remove {:?} directory", path),
+        }
+        Ok(())
+    }
 }

@@ -44,6 +44,29 @@ impl InputsDirectory {
 
         Ok(file_paths)
     }
+
+    /// Remove all inputs files in the input directory
+    pub fn remove_files(path: &PathBuf) -> Result<(), InputsDirectoryError> {
+        let files = InputsDirectory::files(path)?;
+        files.iter().for_each(|file| match std::fs::remove_file(file) {
+            Ok(_) => log::info!("File {:?} removed", file),
+            Err(_) => log::warn!("Cannot remove {:?} file, please check permitions", file),
+        });
+        Ok(())
+    }
+
+    /// Remove Leo inputs directory if it is empty and permissions allowed
+    pub fn remove_dir(path: &PathBuf) -> Result<(), InputsDirectoryError> {
+        let mut path = path.to_owned();
+        if path.is_dir() && !path.ends_with(INPUTS_DIRECTORY_NAME) {
+            path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+        }
+        match std::fs::remove_dir(path.clone()) {
+            Ok(_) => log::info!("Directory {:?} removed", path),
+            Err(_error) => log::warn!("Cannot remove {:?} directory", path),
+        }
+        Ok(())
+    }
 }
 
 fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<(), InputsDirectoryError> {

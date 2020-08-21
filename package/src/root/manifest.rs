@@ -92,6 +92,18 @@ impl Manifest {
             .map_err(|error| ManifestError::Writing(MANIFEST_FILE_NAME, error))
     }
 
+    pub fn remove(path: &PathBuf) -> Result<(), ManifestError> {
+        let mut path = path.to_owned();
+        path.push(MANIFEST_FILE_NAME);
+        if Manifest::exists_at(&path) {
+            match std::fs::remove_file(path.as_os_str()) {
+                Ok(_) => log::info!("File {:?} removed", path),
+                Err(_) => log::warn!("Cannot remove file {:?}", path),
+            }
+        }
+        Ok(())
+    }
+
     fn template(&self) -> String {
         format!(
             r#"[package]

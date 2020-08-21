@@ -19,7 +19,11 @@
 use crate::errors::GitignoreError;
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{
+    fs::{remove_file, File},
+    io::Write,
+    path::PathBuf,
+};
 
 pub static GITIGNORE_FILE_NAME: &str = ".gitignore";
 
@@ -47,6 +51,16 @@ impl Gitignore {
 
         let mut file = File::create(&path)?;
         Ok(file.write_all(self.template().as_bytes())?)
+    }
+
+    pub fn remove(path: &PathBuf) -> Result<(), GitignoreError> {
+        if Gitignore::exists_at(path) {
+            match remove_file(path) {
+                Ok(_) => log::info!("File {:?} removed", path),
+                Err(_) => log::warn!("Cannot remove file {:?}", path),
+            }
+        }
+        Ok(())
     }
 
     fn template(&self) -> String {
