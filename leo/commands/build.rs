@@ -112,7 +112,7 @@ impl CLI for BuildCommand {
             // Load the state file at `package_name.in`
             let state_string = StateFile::new(&package_name).read_from(&path)?;
 
-            // Log compilation of main file to console
+            // Log compilation of files to console
             tracing::info!("program file ({:?})", main_file_path);
 
             // Load the program at `main_file_path`

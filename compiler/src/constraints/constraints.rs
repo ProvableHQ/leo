@@ -78,7 +78,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     // Get default input
     let default = input.pairs.get(&program_name);
 
-    log::info!("Running {} tests", tests.len());
+    tracing::info!("Running {} tests", tests.len());
 
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
@@ -121,7 +121,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
         );
 
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "test {} compiled successfully. Constraint system satisfied: {}",
                 full_test_name,
                 cs.is_satisfied()
@@ -131,11 +131,11 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             let output = result?;
             let output_file = OutputFile::new(&output_file_name);
 
-            log::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
+            tracing::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
 
             output_file.write(output_directory, output.bytes()).unwrap();
         } else {
-            log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
+            // tracing::error!("test {} errored: {}", full_test_name, result.unwrap_err());
         }
     }
 

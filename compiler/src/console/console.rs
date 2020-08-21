@@ -25,21 +25,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
                 if unwrap_indicator_value(indicator) {
-                    log::debug!("{}", string);
+                    tracing::debug!("{}", string);
                 }
             }
             ConsoleFunction::Error(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
                 if unwrap_indicator_value(indicator) {
-                    log::error!("{}", string);
+                    tracing::error!("{}", string);
                 }
             }
             ConsoleFunction::Log(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
                 if unwrap_indicator_value(indicator) {
-                    log::info!("{}", string);
+                    tracing::info!("{}", string);
                 }
             }
         }

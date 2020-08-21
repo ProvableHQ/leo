@@ -1240,7 +1240,6 @@ dependencies = [
  "leo-package",
  "leo-state",
  "leo-typed",
- "log",
  "num-bigint",
  "pest",
  "rand",

@@ -107,8 +107,8 @@ pub enum CLIError {
     VerificationKeyFileError(VerificationKeyFileError),
 }
 
-macro_rules! impl_T {
-    (for $($t:tt), +) => {
+macro_rules! impl_cli_error {
+    ($($t:tt), +) => {
         $(impl From<$t> for CLIError {
             fn from(error: $t) -> Self {
                 tracing::error!("{}\n", error);
@@ -119,7 +119,7 @@ macro_rules! impl_T {
     }
 }
 
-impl_T!(for
+impl_cli_error!(
     AddError,
     BuildError,
     CircuitFileError,
@@ -143,8 +143,8 @@ impl_T!(for
     SourceDirectoryError,
     StateFileError,
     TestError,
-    VerificationKeyFileError
-    ZipFileError,
+    VerificationKeyFileError,
+    ZipFileError
 );
 
 impl From<leo_compiler::errors::CompilerError> for CLIError {
