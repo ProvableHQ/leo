@@ -24,7 +24,7 @@
 use crate::{
     cli::CLI,
     cli_types::*,
-    credentials::*,
+    config::*,
     errors::{
         CLIError::LoginError,
         LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},

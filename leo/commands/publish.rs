@@ -18,7 +18,7 @@ use crate::{
     cli::*,
     cli_types::*,
     commands::{BuildCommand, LoginCommand},
-    credentials::{read_token, PACKAGE_MANAGER_URL},
+    config::{read_token, PACKAGE_MANAGER_URL},
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
