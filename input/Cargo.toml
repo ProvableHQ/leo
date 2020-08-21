@@ -12,11 +12,11 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies]
-snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", default-features = false }
-snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", default-features = false }
-snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-errors", default-features = false }
-snarkos-gadgets = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-gadgets", default-features = false }
-snarkos-models = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-models", default-features = false }
+snarkos-algorithms = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-algorithms", version = "1.0.0", default-features = false }
+snarkos-curves = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-curves", version = "1.0.0", default-features = false }
+snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-errors", version = "1.0.0", default-features = false }
+snarkos-gadgets = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-gadgets", version = "1.0.0", default-features = false }
+snarkos-models = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-models", version = "1.0.0", default-features = false }
 
 from-pest = { version = "0.3.1" }
 pest = { version = "2.0" }
