@@ -39,7 +39,6 @@ thiserror = { version = "1.0" }
 tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.2" }
 
-
 [dev-dependencies]
 num-bigint = { version = "0.3" }
 

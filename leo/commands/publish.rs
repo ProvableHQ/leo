@@ -96,7 +96,7 @@ impl CLI for PublishCommand {
         // Create zip file
         let zip_file = ZipFile::new(&package_name);
         if zip_file.exists_at(&path) {
-            log::debug!("Existing package zip file found. Clearing it to regenerate.");
+            tracing::debug!("Existing package zip file found. Clearing it to regenerate.");
             // Remove the existing package zip file
             ZipFile::new(&package_name).remove(&path)?;
         }
@@ -118,8 +118,8 @@ impl CLI for PublishCommand {
 
             // If not logged in, then try logging in using JWT.
             Err(_error) => {
-                log::warn!("You should be logged in before attempting to publish a package");
-                log::info!("Trying to log in using JWT...");
+                tracing::warn!("You should be tracingged in before attempting to publish a package");
+                tracing::info!("Trying to log in using JWT...");
                 let options = (None, None, None);
 
                 LoginCommand::output(options)?
@@ -145,17 +145,17 @@ impl CLI for PublishCommand {
             Ok(json_result) => match json_result.json::<ResponseJson>() {
                 Ok(json) => json,
                 Err(error) => {
-                    log::warn!("{:?}", error);
+                    tracing::warn!("{:?}", error);
                     return Err(PublishError(PackageNotPublished("Package not published".into())));
                 }
             },
             Err(error) => {
-                log::warn!("{:?}", error);
+                tracing::warn!("{:?}", error);
                 return Err(PublishError(ConnectionUnavalaible("Connection error".into())));
             }
         };
 
-        log::info!("Package published successfully with id: {}", result.package_id);
+        tracing::info!("Package published successfully with id: {}", result.package_id);
         Ok(Some(result.package_id))
     }
 }

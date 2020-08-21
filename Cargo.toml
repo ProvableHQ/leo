@@ -43,7 +43,6 @@ dotenv = { version = "0.15.0" }
 env_logger = { version = "0.7" }
 from-pest = { version = "0.3.1" }
 lazy_static = { version = "1.4.0" }
-log = { version = "0.4" }
 notify= { version = "4.0.15" }
 num-bigint = { version = "0.3" }
 rand = { version = "0.7" }

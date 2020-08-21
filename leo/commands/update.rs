@@ -34,9 +34,9 @@ impl UpdateCommand {
             .build()?
             .fetch()?;
 
-        log::info!("List of available Leo's versions");
+        tracing::info!("List of available Leo's versions");
         for release in releases {
-            log::info!("* {}", release.version);
+            tracing::info!("* {}", release.version);
         }
         Ok(())
     }
@@ -77,22 +77,22 @@ impl CLI for UpdateCommand {
             (true,) => match UpdateCommand::show_available_releases() {
                 Ok(_) => return Ok(()),
                 Err(e) => {
-                    log::error!("Could not fetch that latest version of Leo");
-                    log::error!("{}", e);
+                    tracing::error!("Could not fetch that latest version of Leo");
+                    tracing::error!("{}", e);
                 }
             },
             (false,) => match UpdateCommand::update_to_latest_release() {
                 Ok(status) => {
                     if status.uptodate() {
-                        log::info!("Leo is already on the latest version: {}", status.version());
+                        tracing::info!("Leo is already on the latest version: {}", status.version());
                     } else if status.updated() {
-                        log::info!("Leo has successfully updated to version: {}", status.version());
+                        tracing::info!("Leo has successfully updated to version: {}", status.version());
                     }
                     return Ok(());
                 }
                 Err(e) => {
-                    log::error!("Could not update Leo to the latest version");
-                    log::error!("{}", e);
+                    tracing::error!("Could not update Leo to the latest version");
+                    tracing::error!("{}", e);
                 }
             },
         }

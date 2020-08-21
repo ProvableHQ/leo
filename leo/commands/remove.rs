@@ -56,7 +56,7 @@ impl CLI for RemoveCommand {
                 // Get the package name
                 let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-                log::info!("Unimplemented - `leo remove`");
+                tracing::info!("Unimplemented - `leo remove`");
 
                 Ok(())
             }

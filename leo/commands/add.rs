@@ -156,7 +156,7 @@ impl CLI for AddCommand {
             }
         }
 
-        log::info!("Successfully added a package");
+        tracing::info!("Successfully added a package");
         Ok(())
     }
 }

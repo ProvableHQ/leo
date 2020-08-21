@@ -95,7 +95,7 @@ impl CLI for TestCommand {
         // Run tests
         let temporary_program = program.clone();
         let output = temporary_program.compile_test_constraints(pairs)?;
-        log::debug!("Compiled constraints - {:#?}", output);
+        tracing::debug!("Compiled constraints - {:#?}", output);
 
         Ok(())
     }

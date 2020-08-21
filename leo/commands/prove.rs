@@ -52,7 +52,7 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        log::info!("Proving...");
+        tracing::info!("Proving...");
 
         // Start the timer
         let start = Instant::now();
@@ -61,14 +61,14 @@ impl CLI for ProveCommand {
         let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, program, rng)?;
 
         // Output the proving time
-        log::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
+        tracing::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
 
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
-        log::info!("Completed program proving");
+        tracing::info!("Completed program proving");
 
         Ok((program_proof, prepared_verifying_key))
     }

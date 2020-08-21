@@ -1304,7 +1304,6 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
- "log",
  "notify",
  "num-bigint",
  "rand",
@@ -1335,11 +1334,11 @@ version = "1.0.0"
 name = "leo-package"
 version = "1.0.0"
 dependencies = [
- "log",
  "serde",
  "serde_json",
  "thiserror",
  "toml",
+ "tracing",
  "walkdir",
  "zip",
 ]

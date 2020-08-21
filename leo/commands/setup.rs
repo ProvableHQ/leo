@@ -73,7 +73,7 @@ impl CLI for SetupCommand {
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
                 let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
-                    log::info!("Setup starting...");
+                    tracing::info!("Setup starting...");
 
                     // Start the timer
                     let start = Instant::now();
@@ -84,24 +84,24 @@ impl CLI for SetupCommand {
                         Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
 
                     // Output the setup time
-                    log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+                    tracing::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory
                     let mut proving_key_bytes = vec![];
                     proving_key.write(&mut proving_key_bytes)?;
                     ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
-                    log::info!("Saving proving key ({:?})", path);
+                    tracing::info!("Saving proving key ({:?})", path);
 
                     // Write the verification key file to the output directory
                     let mut verification_key = vec![];
                     proving_key.vk.write(&mut verification_key)?;
                     VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
-                    log::info!("Saving verification key ({:?})", path);
+                    tracing::info!("Saving verification key ({:?})", path);
 
                     (proving_key, prepared_verifying_key)
                 } else {
-                    log::info!("Loading saved setup...");
+                    tracing::info!("Loading saved setup...");
 
                     // Read the proving key file from the output directory
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
@@ -117,7 +117,7 @@ impl CLI for SetupCommand {
                     (proving_key, prepared_verifying_key)
                 };
 
-                log::info!("Program setup complete");
+                tracing::info!("Program setup complete");
 
                 Ok((program, proving_key, prepared_verifying_key))
             }

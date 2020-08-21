@@ -95,7 +95,7 @@ impl CLI for LoginCommand {
                     Ok(result) => match result.json() {
                         Ok(json) => json,
                         Err(_error) => {
-                            log::error!("Wrong login or password");
+                            tracing::error!("Wrong login or password");
                             return Err(WrongLoginOrPassword("Wrong login or password".into()).into());
                         }
                     },
@@ -124,12 +124,12 @@ impl CLI for LoginCommand {
             Some(token) => {
                 write_token(token.as_str())?;
 
-                log::info!("Login successful.");
+                tracing::info!("login successful.");
 
                 Ok(token)
             }
             _ => {
-                log::error!("Failed to login. Please run `leo login -h` for help.");
+                tracing::error!("Failed to login. Please run `leo login -h` for help.");
 
                 Err(NoCredentialsProvided.into())
             }
