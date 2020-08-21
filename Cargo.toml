@@ -12,7 +12,6 @@ license = "GPL-3.0"
 edition = "2018"
 
 [lib]
-name = "leo"
 path = "leo/lib.rs"
 
 [[bin]]
