@@ -24,7 +24,7 @@
 use crate::{
     cli::CLI,
     cli_types::*,
-    credentials::*,
+    config::*,
     errors::{AddError::*, CLIError::AddError},
 };
 use leo_package::{

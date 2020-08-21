@@ -97,6 +97,12 @@ pub enum CLIError {
     #[error("{}", _0)]
     TestError(TestError),
 
+    #[error("TomlSerError: {0}")]
+    TomlSerError(#[from] toml::ser::Error),
+
+    #[error("TomlDeError: {0}")]
+    TomlDeError(#[from] toml::de::Error),
+
     #[error("{}", _0)]
     VerificationKeyFileError(VerificationKeyFileError),
 }

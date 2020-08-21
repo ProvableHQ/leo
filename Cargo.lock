@@ -2202,6 +2202,7 @@ dependencies = [
  "semver",
  "serde_json",
  "tempfile",
+ "zip",
 ]
 
 [[package]]
