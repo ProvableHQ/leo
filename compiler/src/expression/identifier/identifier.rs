@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value.clone()
         } else if expected_type.is_some() && expected_type.unwrap() == Type::Address {
             // If we expect an address type, try to return an address
-            let address = Address::new(unresolved_identifier.name, unresolved_identifier.span)?;
+            let address = Address::constant(unresolved_identifier.name, unresolved_identifier.span)?;
 
             return Ok(ConstrainedValue::Address(address));
         } else {
