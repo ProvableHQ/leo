@@ -58,8 +58,8 @@ fn main() -> Result<(), CLIError> {
 
     let config = Config::read_config()?;
 
-    if config.auto_update {
-        if let Ok(status) = UpdateCommand::update_to_latest_release() {
+    if config.auto_update && arguments.subcommand().0 != "update" {
+        if let Ok(status) = UpdateCommand::update_to_latest_release(false) {
             if status.updated() {
                 log::info!("Leo has successfully updated to version: {}", status.version());
             }

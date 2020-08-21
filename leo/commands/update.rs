@@ -25,6 +25,7 @@ const LEO_REPO_NAME: &str = "leo";
 #[derive(Debug)]
 pub struct UpdateCommand;
 
+// TODO Add logic for users to easily select release versions.
 impl UpdateCommand {
     /// Show all available releases for `leo`
     pub fn show_available_releases() -> Result<(), self_update::errors::Error> {
@@ -42,13 +43,15 @@ impl UpdateCommand {
     }
 
     /// Update `leo` to the latest release
-    pub fn update_to_latest_release() -> Result<Status, self_update::errors::Error> {
+    pub fn update_to_latest_release(show_output: bool) -> Result<Status, self_update::errors::Error> {
         let status = github::Update::configure()
             .repo_owner(LEO_REPO_OWNER)
             .repo_name(LEO_REPO_NAME)
             .bin_name(LEO_BIN_NAME)
-            .show_download_progress(true)
             .current_version(cargo_crate_version!())
+            .show_download_progress(true)
+            .no_confirm(true)
+            .show_output(show_output)
             .build()?
             .update()?;
 
@@ -81,7 +84,7 @@ impl CLI for UpdateCommand {
                     log::error!("{}", e);
                 }
             },
-            (false,) => match UpdateCommand::update_to_latest_release() {
+            (false,) => match UpdateCommand::update_to_latest_release(true) {
                 Ok(status) => {
                     if status.uptodate() {
                         log::info!("Leo is already on the latest version: {}", status.version());
