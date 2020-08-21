@@ -42,7 +42,12 @@ jobs:
 
       - name: Zip
         run: |
-          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip target/release/leo
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -86,7 +91,12 @@ jobs:
 
       - name: Zip
         run: |
-          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip target/release/leo
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -131,7 +141,12 @@ jobs:
 
       - name: Zip
         run: |
-          Compress-Archive leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu target/release/leo
+          mkdir tempdir
+          mv target/release/leo tempdir
+          cd tempdir
+          Compress-Archive leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu leo
+          cd ..
+          mv leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-gnu .
 
       - name: Release
         uses: softprops/action-gh-release@v1
