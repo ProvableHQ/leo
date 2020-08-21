@@ -16,6 +16,7 @@
 
 use colored::Colorize;
 use std::io::Write;
+use tracing_subscriber::FmtSubscriber;
 
 const LEVEL_NAME_LENGTH: usize = 10;
 
@@ -32,6 +33,22 @@ fn colored_string(level: log::Level, message: &str) -> colored::ColoredString {
 
 /// Initialize logger with custom format and verbosity.
 pub fn init_logger(app_name: &'static str, verbosity: usize) {
+    let subscriber = FmtSubscriber::builder()
+        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
+        // will be written to stdout.
+        .with_max_level(match verbosity {
+            0 => tracing::Level::WARN,
+            1 => tracing::Level::INFO,
+            2 => tracing::Level::DEBUG,
+            _ => tracing::Level::TRACE
+        })
+        .without_time()
+        .with_target(false)
+        // completes the builder.
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+
     env_logger::builder()
         .filter_level(match verbosity {
             0 => log::LevelFilter::Warn,

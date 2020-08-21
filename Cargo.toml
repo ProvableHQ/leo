@@ -52,8 +52,10 @@ reqwest = { version = "0.10.7", features = ["blocking", "json"] }
 self_update = { version = "0.19.0", features = ["archive-zip"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-toml = { version = "0.5" }
 thiserror = { version = "1.0" }
+toml = { version = "0.5" }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.2" }
 zip = { version = "0.5" }
 
 [dev-dependencies]

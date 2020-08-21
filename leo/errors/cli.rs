@@ -116,7 +116,7 @@ impl From<ZipFileError> for CLIError {
 
 impl From<BuildError> for CLIError {
     fn from(error: BuildError) -> Self {
-        log::error!("{}\n", error);
+        tracing::error!("{}\n", error);
         CLIError::BuildError(error)
     }
 }
