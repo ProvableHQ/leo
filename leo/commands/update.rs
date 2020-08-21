@@ -26,8 +26,8 @@ const LEO_REPO_NAME: &str = "leo";
 pub struct UpdateCommand;
 
 impl UpdateCommand {
-    // Show all available releases for all platforms
-    fn show_available_releases() -> Result<(), self_update::errors::Error> {
+    /// Show all available releases for `leo`
+    pub fn show_available_releases() -> Result<(), self_update::errors::Error> {
         let releases = github::ReleaseList::configure()
             .repo_owner(LEO_REPO_OWNER)
             .repo_name(LEO_REPO_NAME)
@@ -41,7 +41,7 @@ impl UpdateCommand {
         Ok(())
     }
 
-    // Update to the latest release on the current platform
+    /// Update `leo` to the latest release
     pub fn update_to_latest_release() -> Result<Status, self_update::errors::Error> {
         let status = github::Update::configure()
             .repo_owner(LEO_REPO_OWNER)

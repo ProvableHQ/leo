@@ -66,8 +66,6 @@ fn main() -> Result<(), CLIError> {
         }
     }
 
-    // Save the config file
-
     match arguments.subcommand() {
         ("new", Some(arguments)) => NewCommand::process(arguments),
         ("init", Some(arguments)) => InitCommand::process(arguments),
