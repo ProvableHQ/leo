@@ -70,6 +70,10 @@ impl CLI for PublishCommand {
         // Build all program files.
         let _output = BuildCommand::output(())?;
 
+        // Begin "Publishing" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Publishing");
+        let _enter = span.enter();
+
         // Get the package manifest
         let path = current_dir()?;
         let package_manifest = Manifest::try_from(&path)?;

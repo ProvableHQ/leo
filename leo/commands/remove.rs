@@ -49,6 +49,10 @@ impl CLI for RemoveCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Removing" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Removing");
+        let _enter = span.enter();
+
         let path = current_dir()?;
 
         match BuildCommand::output(options)? {

@@ -88,6 +88,10 @@ impl CLI for AddCommand {
     }
 
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+        // Begin "Adding" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Adding");
+        let enter = span.enter();
+
         let token = read_token()?;
 
         let path = current_dir()?;

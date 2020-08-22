@@ -52,13 +52,13 @@ impl ProvingKeyFile {
     }
 
     /// Writes the given proving key to a file.
-    pub fn write_to(&self, path: &PathBuf, proving_key: &[u8]) -> Result<(), ProvingKeyFileError> {
+    pub fn write_to(&self, path: &PathBuf, proving_key: &[u8]) -> Result<PathBuf, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
         file.write_all(proving_key)?;
 
-        Ok(())
+        Ok(path)
     }
 
     /// Removes the proving key at the given path if it exists. Returns `true` on success,

@@ -43,11 +43,16 @@ impl CLI for WatchCommand {
     }
 
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Watching" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Watching");
+        let _enter = span.enter();
+
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
         watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
 
         tracing::info!("Watching Leo source code");
+
         loop {
             match rx.recv() {
                 // See changes on the write event

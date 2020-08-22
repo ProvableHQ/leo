@@ -73,6 +73,10 @@ impl CLI for UpdateCommand {
     }
 
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+        // Begin "Updating" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Updating");
+        let _enter = span.enter();
+
         match options {
             (true,) => match UpdateCommand::show_available_releases() {
                 Ok(_) => return Ok(()),

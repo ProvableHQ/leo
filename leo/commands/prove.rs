@@ -48,13 +48,13 @@ impl CLI for ProveCommand {
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
 
-        // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(&path)?.get_package_name();
-
         // Begin "Proving" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Proving");
         let enter = span.enter();
+
+        // Get the package name
+        let path = current_dir()?;
+        let package_name = Manifest::try_from(&path)?.get_package_name();
 
         tracing::info!("Starting...");
 

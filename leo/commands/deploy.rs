@@ -49,6 +49,10 @@ impl CLI for DeployCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Deploy" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Deploying");
+        let enter = span.enter();
+
         let path = current_dir()?;
 
         match BuildCommand::output(options)? {

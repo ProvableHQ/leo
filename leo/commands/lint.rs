@@ -49,6 +49,10 @@ impl CLI for LintCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Linting" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Linting");
+        let _enter = span.enter();
+
         let path = current_dir()?;
 
         match BuildCommand::output(options)? {
@@ -56,7 +60,7 @@ impl CLI for LintCommand {
                 // Get the package name
                 let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-                tracing::info!("Unimplemented - `leo lint`");
+                tracing::error!("Unimplemented - `leo lint`");
 
                 Ok(())
             }

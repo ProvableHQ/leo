@@ -47,6 +47,10 @@ impl CLI for RunCommand {
     fn output(options: Self::Options) -> Result<(), CLIError> {
         let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
 
+        // Begin "Verifying" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Verifying");
+        let _enter = span.enter();
+
         let mut verifying = Duration::new(0, 0);
 
         let start = Instant::now();

@@ -94,14 +94,14 @@ impl CLI for SetupCommand {
                     // Write the proving key file to the output directory
                     let mut proving_key_bytes = vec![];
                     proving_key.write(&mut proving_key_bytes)?;
-                    ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
-                    tracing::info!("Saving proving key ({:?})", path);
+                    let lpk_file = ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
+                    tracing::info!("Saving proving key ({:?})", lpk_file);
 
                     // Write the verification key file to the output directory
                     let mut verification_key = vec![];
                     proving_key.vk.write(&mut verification_key)?;
-                    VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
-                    tracing::info!("Saving verification key ({:?})", path);
+                    let lvk_file = VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
+                    tracing::info!("Saving verification key ({:?})", lvk_file);
 
                     (proving_key, prepared_verifying_key)
                 } else {

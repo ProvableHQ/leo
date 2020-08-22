@@ -55,6 +55,10 @@ impl CLI for BuildCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Compiling" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Compiling");
+        let enter = span.enter();
+
         let path = current_dir()?;
 
         // Get the package name
@@ -70,10 +74,6 @@ impl CLI for BuildCommand {
         // Construct the path to the output directory
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
-
-        // Begin "Compiling" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Compiling");
-        let enter = span.enter();
 
         // Start the timer
         let start = Instant::now();
