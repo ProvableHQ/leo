@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::*;
+use leo_compiler::errors::OutputFileError;
 use leo_package::errors::*;
 
 #[derive(Debug, Error)]
@@ -66,6 +67,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     NewError(NewError),
+
+    #[error("{}", _0)]
+    OutputFileError(OutputFileError),
 
     #[error("{}", _0)]
     OutputsDirectoryError(OutputsDirectoryError),
@@ -134,6 +138,7 @@ impl_cli_error!(
     MainFileError,
     ManifestError,
     NewError,
+    OutputFileError,
     OutputsDirectoryError,
     ProofFileError,
     ProvingKeyFileError,

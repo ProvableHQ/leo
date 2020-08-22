@@ -21,12 +21,7 @@
 //    leo add -a author -p package_name
 //
 
-use crate::{
-    cli::CLI,
-    cli_types::*,
-    config::*,
-    errors::{AddError::*, CLIError::AddError},
-};
+use crate::{cli::CLI, cli_types::*, config::*, errors::AddError::*};
 use leo_package::{
     imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME},
     root::Manifest,
@@ -90,7 +85,7 @@ impl CLI for AddCommand {
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
         // Begin "Adding" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Adding");
-        let enter = span.enter();
+        let _enter = span.enter();
 
         let token = read_token()?;
 
@@ -115,13 +110,11 @@ impl CLI for AddCommand {
                     Ok(response) => (response, package_name),
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(AddError(ConnectionUnavailable(
-                            "Could not connect to the package manager".into(),
-                        )));
+                        return Err(ConnectionUnavailable("Could not connect to the package manager".into()).into());
                     }
                 }
             }
-            _ => return Err(AddError(MissingAuthorOrPackageName)),
+            _ => return Err(MissingAuthorOrPackageName.into()),
         };
 
         let mut path = current_dir()?;
@@ -135,13 +128,13 @@ impl CLI for AddCommand {
 
         let mut zip_arhive = match zip::ZipArchive::new(reader) {
             Ok(zip) => zip,
-            Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+            Err(error) => return Err(ZipError(error.to_string().into()).into()),
         };
 
         for i in 0..zip_arhive.len() {
             let file = match zip_arhive.by_index(i) {
                 Ok(file) => file,
-                Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+                Err(error) => return Err(ZipError(error.to_string().into()).into()),
             };
 
             let file_name = file.name();
@@ -160,7 +153,7 @@ impl CLI for AddCommand {
             }
         }
 
-        tracing::info!("Successfully added a package");
+        tracing::info!("Successfully added a package\n");
         Ok(())
     }
 }

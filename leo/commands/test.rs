@@ -105,26 +105,31 @@ impl CLI for TestCommand {
         let temporary_program = program.clone();
         let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
 
-        // Set the result of the test command to PASSED if no tests failed.
-        let result = if failed == 0 {
-            "PASSED".to_owned()
-        } else {
-            "FAILED".to_owned()
-        };
-
         // Drop "Test" context for console logging
         drop(enter);
 
-        // Begin "Finished" context for console logging
-        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-            tracing::info!(
-                "result: {} in {} milliseconds. {} passed; {} failed;\n",
-                result,
-                start.elapsed().as_millis(),
-                passed,
-                failed
-            );
-        });
+        // Set the result of the test command to passed if no tests failed.
+        if failed == 0 {
+            // Begin "Finished" context for console logging
+            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+                tracing::info!(
+                    "Tests passed in {} milliseconds. {} passed; {} failed;\n",
+                    start.elapsed().as_millis(),
+                    passed,
+                    failed
+                );
+            });
+        } else {
+            // Begin "Finished" context for console logging
+            tracing::span!(tracing::Level::ERROR, "Finished").in_scope(|| {
+                tracing::error!(
+                    "Tests failed in {} milliseconds. {} passed; {} failed;\n",
+                    start.elapsed().as_millis(),
+                    passed,
+                    failed
+                );
+            });
+        };
 
         Ok(())
     }

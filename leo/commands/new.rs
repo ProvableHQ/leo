@@ -116,6 +116,8 @@ impl CLI for NewCommand {
             MainFile::new(&package_name).write_to(&path)?;
         }
 
+        tracing::info!("Successfully initialized package \"{}\"\n", package_name);
+
         Ok(())
     }
 }

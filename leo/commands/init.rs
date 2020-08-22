@@ -117,6 +117,8 @@ impl CLI for InitCommand {
             }
         }
 
+        tracing::info!("Successfully initialized package \"{}\"\n", package_name);
+
         Ok(())
     }
 }

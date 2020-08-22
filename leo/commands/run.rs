@@ -49,7 +49,9 @@ impl CLI for RunCommand {
 
         // Begin "Verifying" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Verifying");
-        let _enter = span.enter();
+        let enter = span.enter();
+
+        tracing::info!("Starting...");
 
         let mut verifying = Duration::new(0, 0);
 
@@ -64,9 +66,15 @@ impl CLI for RunCommand {
 
         verifying += start.elapsed();
 
-        println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
-        println!("  Verifier output : {}", is_success);
-        println!(" ");
+        tracing::info!("Verifier completed in {:?} milliseconds", verifying.as_millis());
+
+        // Drop "Verifying" context for console logging
+        drop(enter);
+
+        // Begin "Finished" context for console logging
+        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            tracing::info!("Verifier output : \"{}\"\n", is_success);
+        });
 
         Ok(())
     }
