@@ -66,6 +66,13 @@ impl CLI for SetupCommand {
 
         match BuildCommand::output(options)? {
             Some((program, checksum_differs)) => {
+                // Begin "Setup" context for console logging
+                let span = tracing::span!(tracing::Level::INFO, "Setup");
+                let enter = span.enter();
+
+                // Start the timer
+                let start = Instant::now();
+
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
@@ -117,7 +124,13 @@ impl CLI for SetupCommand {
                     (proving_key, prepared_verifying_key)
                 };
 
-                tracing::info!("Program setup complete");
+                // Drop "Setup" context for console logging
+                drop(enter);
+
+                // Begin "Finished" context for console logging
+                tracing::span!(tracing::Level::INFO, " Finished").in_scope(|| {
+                    tracing::info!("setup in {} seconds", start.elapsed().as_secs());
+                });
 
                 Ok((program, proving_key, prepared_verifying_key))
             }

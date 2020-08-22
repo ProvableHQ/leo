@@ -120,22 +120,21 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             input, // pass program input into every test
         );
 
-        if result.is_ok() {
-            tracing::info!(
-                "test {} compiled successfully. Constraint system satisfied: {}",
-                full_test_name,
-                cs.is_satisfied()
-            );
+        match (result.is_ok(), cs.is_satisfied()) {
+            (true, true) => {
+                tracing::info!("{} ... ok", full_test_name);
 
-            // write result to file
-            let output = result?;
-            let output_file = OutputFile::new(&output_file_name);
+                // write result to file
+                let output = result?;
+                let output_file = OutputFile::new(&output_file_name);
 
-            tracing::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
-
-            output_file.write(output_directory, output.bytes()).unwrap();
-        } else {
-            // tracing::error!("test {} errored: {}", full_test_name, result.unwrap_err());
+                output_file.write(output_directory, output.bytes()).unwrap();
+            }
+            (true, false) => tracing::error!("{} constraint system not satisfied", full_test_name),
+            (false, _) => {
+                let error = result.unwrap_err();
+                tracing::error!("{} failed due to error\n{}", full_test_name, error);
+            }
         }
     }
 

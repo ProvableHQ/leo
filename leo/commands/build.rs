@@ -71,7 +71,7 @@ impl CLI for BuildCommand {
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
-        // Begin "Compiling" context for logging
+        // Begin "Compiling" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Compiling");
         let enter = span.enter();
 
@@ -178,10 +178,12 @@ impl CLI for BuildCommand {
                 tracing::debug!("Checksum saved ({:?})", path);
             }
 
+            // Drop "Compiling" context for console logging
             drop(enter);
 
+            // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
             tracing::span!(tracing::Level::INFO, " Finished").in_scope(|| {
-                tracing::info!("in {} milliseconds", start.elapsed().as_millis());
+                tracing::info!("compiled in {} milliseconds", start.elapsed().as_millis());
             });
 
             return Ok(Some((program, checksum_differs)));

@@ -20,9 +20,6 @@ use std::ffi::OsString;
 
 #[derive(Debug, Error)]
 pub enum TestError {
-    #[error("main file {:?} does not exist", _0)]
-    MainFileDoesNotExist(OsString),
-
-    #[error("{}", _0)]
-    ManifestError(#[from] ManifestError),
+    #[error("could not find main or library file in  {:?}", _0)]
+    ProgramFileDoesNotExist(OsString),
 }
