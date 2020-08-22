@@ -22,7 +22,6 @@ use crate::{
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
-        CLIError::PublishError,
         PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
     },
 };
@@ -82,16 +81,16 @@ impl CLI for PublishCommand {
         let package_version = package_manifest.get_package_version();
 
         if package_manifest.get_package_description().is_none() {
-            return Err(PublishError(MissingPackageDescription));
+            return Err(MissingPackageDescription.into());
         }
 
         if package_manifest.get_package_license().is_none() {
-            return Err(PublishError(MissingPackageLicense));
+            return Err(MissingPackageLicense.into());
         }
 
         let package_remote = match package_manifest.get_package_remote() {
             Some(remote) => remote,
-            None => return Err(PublishError(MissingPackageRemote)),
+            None => return Err(MissingPackageRemote.into()),
         };
 
         // Create the output directory
@@ -150,12 +149,12 @@ impl CLI for PublishCommand {
                 Ok(json) => json,
                 Err(error) => {
                     tracing::warn!("{:?}", error);
-                    return Err(PublishError(PackageNotPublished("Package not published".into())));
+                    return Err(PackageNotPublished("Package not published".into()).into());
                 }
             },
             Err(error) => {
                 tracing::warn!("{:?}", error);
-                return Err(PublishError(ConnectionUnavalaible("Connection error".into())));
+                return Err(ConnectionUnavalaible("Connection error".into()).into());
             }
         };
 
