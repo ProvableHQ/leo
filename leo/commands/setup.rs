@@ -70,9 +70,6 @@ impl CLI for SetupCommand {
                 let span = tracing::span!(tracing::Level::INFO, "Setup");
                 let enter = span.enter();
 
-                // Start the timer
-                let start = Instant::now();
-
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
@@ -80,10 +77,10 @@ impl CLI for SetupCommand {
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
                 let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
-                    tracing::info!("Setup starting...");
+                    tracing::info!("Starting...");
 
-                    // Start the timer
-                    let start = Instant::now();
+                    // Start the timer for setup
+                    let setup_start = Instant::now();
 
                     // Run the program setup operation
                     let rng = &mut thread_rng();
@@ -91,7 +88,7 @@ impl CLI for SetupCommand {
                         Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
 
                     // Output the setup time
-                    tracing::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+                    tracing::info!("Completed in {:?} milliseconds", setup_start.elapsed().as_millis());
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory
@@ -128,8 +125,8 @@ impl CLI for SetupCommand {
                 drop(enter);
 
                 // Begin "Finished" context for console logging
-                tracing::span!(tracing::Level::INFO, " Finished").in_scope(|| {
-                    tracing::info!("setup in {} seconds", start.elapsed().as_secs());
+                tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+                    tracing::info!("Program setup complete\n");
                 });
 
                 Ok((program, proving_key, prepared_verifying_key))

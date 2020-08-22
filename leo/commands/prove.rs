@@ -52,7 +52,11 @@ impl CLI for ProveCommand {
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
-        tracing::info!("Proving...");
+        // Begin "Proving" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Proving");
+        let enter = span.enter();
+
+        tracing::info!("Starting...");
 
         // Start the timer
         let start = Instant::now();
@@ -68,7 +72,13 @@ impl CLI for ProveCommand {
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
-        tracing::info!("Completed program proving");
+        // Drop "Proving" context for console logging
+        drop(enter);
+
+        // Begin "Finished" context for console logging
+        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            tracing::info!("Program proving complete\n");
+        });
 
         Ok((program_proof, prepared_verifying_key))
     }

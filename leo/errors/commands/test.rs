@@ -13,9 +13,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-use leo_package::errors::ManifestError;
-
 use std::ffi::OsString;
 
 #[derive(Debug, Error)]

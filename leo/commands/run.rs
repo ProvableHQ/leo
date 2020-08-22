@@ -60,7 +60,6 @@ impl CLI for RunCommand {
 
         verifying += start.elapsed();
 
-        println!(" ");
         println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
         println!("  Verifier output : {}", is_success);
         println!(" ");

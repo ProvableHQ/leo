@@ -86,7 +86,7 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Log compilation of library file to console
-            tracing::info!("library file ({:?})", lib_file_path);
+            tracing::info!("Library file ({:?})", lib_file_path);
 
             // Compile the library file but do not output
             let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
@@ -113,7 +113,7 @@ impl CLI for BuildCommand {
             let state_string = StateFile::new(&package_name).read_from(&path)?;
 
             // Log compilation of files to console
-            tracing::info!("program file ({:?})", main_file_path);
+            tracing::info!("Program file ({:?})", main_file_path);
 
             // Load the program at `main_file_path`
             let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
@@ -183,7 +183,7 @@ impl CLI for BuildCommand {
 
             // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
             tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-                tracing::info!("compiled in {} milliseconds", start.elapsed().as_millis());
+                tracing::info!("Program compiled in {} milliseconds\n", start.elapsed().as_millis());
             });
 
             return Ok(Some((program, checksum_differs)));

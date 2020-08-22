@@ -105,11 +105,11 @@ impl CLI for TestCommand {
         let temporary_program = program.clone();
         let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
 
-        // Set the result of the test command to "ok" if all tests pass
+        // Set the result of the test command to PASSED if no tests failed.
         let result = if failed == 0 {
-            "ok".to_owned()
+            "PASSED".to_owned()
         } else {
-            "failed".to_owned()
+            "FAILED".to_owned()
         };
 
         // Drop "Test" context for console logging
@@ -117,7 +117,13 @@ impl CLI for TestCommand {
 
         // Begin "Finished" context for console logging
         tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-            tracing::info!("result: {}. {} passed; {} failed;\n", result, passed, failed);
+            tracing::info!(
+                "result: {} in {} milliseconds. {} passed; {} failed;\n",
+                result,
+                start.elapsed().as_millis(),
+                passed,
+                failed
+            );
         });
 
         Ok(())

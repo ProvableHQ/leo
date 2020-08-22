@@ -235,13 +235,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
             SynthesisError::Unsatisfiable
         })?;
 
-        tracing::info!("Program circuit successfully synthesized!");
-
         // Write results to file
         let output_file = OutputFile::new(&package_name);
-
-        tracing::info!("Writing to output registers...");
-
         output_file.write(&output_directory, result.bytes()).unwrap();
 
         Ok(())
