@@ -180,11 +180,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit for test functions with program input.
-    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(), CompilerError> {
+    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         generate_test_constraints::<F, G>(
             self.program,
             input_pairs,
             &self.imported_programs,
+            &self.main_file_path,
             &self.output_directory,
         )
     }

@@ -103,7 +103,22 @@ impl CLI for TestCommand {
 
         // Run tests
         let temporary_program = program.clone();
-        let output = temporary_program.compile_test_constraints(pairs)?;
+        let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
+
+        // Set the result of the test command to "ok" if all tests pass
+        let result = if failed == 0 {
+            "ok".to_owned()
+        } else {
+            "failed".to_owned()
+        };
+
+        // Drop "Test" context for console logging
+        drop(enter);
+
+        // Begin "Finished" context for console logging
+        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            tracing::info!("result: {}. {} passed; {} failed;\n", result, passed, failed);
+        });
 
         Ok(())
     }

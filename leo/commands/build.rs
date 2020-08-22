@@ -182,7 +182,7 @@ impl CLI for BuildCommand {
             drop(enter);
 
             // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
-            tracing::span!(tracing::Level::INFO, " Finished").in_scope(|| {
+            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
                 tracing::info!("compiled in {} milliseconds", start.elapsed().as_millis());
             });
 

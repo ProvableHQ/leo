@@ -65,8 +65,9 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
     input: InputPairs,
     imported_programs: &ImportParser,
+    main_file_path: &PathBuf,
     output_directory: &PathBuf,
-) -> Result<(), CompilerError> {
+) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
 
@@ -79,6 +80,10 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     let default = input.pairs.get(&program_name);
 
     tracing::info!("Running {} tests", tests.len());
+
+    // Count passed and failed tests
+    let mut passed = 0;
+    let mut failed = 0;
 
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
@@ -129,14 +134,28 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
                 let output_file = OutputFile::new(&output_file_name);
 
                 output_file.write(output_directory, output.bytes()).unwrap();
+
+                // increment passed tests
+                passed += 1;
             }
-            (true, false) => tracing::error!("{} constraint system not satisfied", full_test_name),
+            (true, false) => {
+                tracing::error!("{} constraint system not satisfied\n", full_test_name);
+
+                // increment failed tests
+                failed += 1;
+            }
             (false, _) => {
-                let error = result.unwrap_err();
-                tracing::error!("{} failed due to error\n{}", full_test_name, error);
+                // Set file location of error
+                let mut error = result.unwrap_err();
+                error.set_path(main_file_path.clone());
+
+                tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
+
+                // increment failed tests
+                failed += 1;
             }
         }
     }
 
-    Ok(())
+    Ok((passed, failed))
 }

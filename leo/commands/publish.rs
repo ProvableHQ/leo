@@ -118,7 +118,7 @@ impl CLI for PublishCommand {
 
             // If not logged in, then try logging in using JWT.
             Err(_error) => {
-                tracing::warn!("You should be tracingged in before attempting to publish a package");
+                tracing::warn!("You should be logged in before attempting to publish a package");
                 tracing::info!("Trying to log in using JWT...");
                 let options = (None, None, None);
 
