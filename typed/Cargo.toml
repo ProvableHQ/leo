@@ -24,8 +24,8 @@ harness = false
 leo-ast = { path = "../ast", version = "1.0.0" }
 leo-input = { path = "../input", version = "1.0.0" }
 
-snarkos-errors = { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-errors", version = "1.0.0", default-features = false }
-snarkos-models =  { git = "ssh://git@github.com/AleoHQ/snarkOS.git", package = "snarkos-models", version = "1.0.0", default-features = false }
+snarkos-errors = { version = "1.0.0", default-features = false }
+snarkos-models =  { version = "1.0.0", default-features = false }
 
 pest = { version = "2.0" }
 serde = { version = "1.0" }
