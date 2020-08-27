@@ -51,35 +51,30 @@ impl CLI for RemoveCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let package_name = options.unwrap();
+        // Begin "Removing" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Removing");
+        let _enter = span.enter();
 
-        // Create path for the package
-        let mut path = current_dir()?;
-        ImportsDirectory::create(&path)?;
-        path.push(IMPORTS_DIRECTORY_NAME);
-        path.push(&package_name);
+        let path = current_dir()?;
 
-        // Remove all Leo source files
-        SourceDirectory::remove_files(&path)?;
+        match BuildCommand::output(options)? {
+            Some((_program, _checksum_differs)) => {
+                // Get the package name
+                let _package_name = Manifest::try_from(&path)?.get_package_name();
 
-        // Remove imports directory
-        ImportsDirectory::remove(&path)?;
+                tracing::info!("Unimplemented - `leo remove`");
 
-        // Remove outputs directory
-        OutputsDirectory::remove(&path)?;
+                Ok(())
+            }
+            None => {
+                let mut main_file_path = path.clone();
+                main_file_path.push(SOURCE_DIRECTORY_NAME);
+                main_file_path.push(MAIN_FILE_NAME);
 
-        // Remove manifest file
-        Manifest::remove(&path)?;
-
-        // Remove gitignore file
-        Gitignore::remove(&path)?;
-
-        // If the package directory is empty then remove it
-        if path.read_dir()?.next().is_none() {
-            std::fs::remove_dir(path)?;
-            log::info!("Package {} removed successfully", package_name);
-        } else {
-            log::warn!("Cannot remove package. Package directory contains some foreign files");
+                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
+                    main_file_path.into_os_string(),
+                )))
+            }
         }
 
         Ok(())
