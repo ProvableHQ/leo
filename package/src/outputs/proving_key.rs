@@ -39,6 +39,10 @@ impl ProvingKeyFile {
         }
     }
 
+    pub fn full_path(&self, path: &PathBuf) -> PathBuf {
+        self.setup_file_path(path)
+    }
+
     pub fn exists_at(&self, path: &PathBuf) -> bool {
         let path = self.setup_file_path(path);
         path.exists()

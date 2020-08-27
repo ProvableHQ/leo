@@ -56,7 +56,7 @@ impl CLI for BuildCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Compiling" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Compiling");
+        let span = tracing::span!(tracing::Level::INFO, "Compiler");
         let enter = span.enter();
 
         let path = current_dir()?;
@@ -75,6 +75,8 @@ impl CLI for BuildCommand {
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
+        tracing::info!("Starting...");
+
         // Start the timer
         let start = Instant::now();
 
@@ -86,7 +88,7 @@ impl CLI for BuildCommand {
             lib_file_path.push(LIB_FILE_NAME);
 
             // Log compilation of library file to console
-            tracing::info!("Library file ({:?})", lib_file_path);
+            tracing::info!("Compiling library... ({:?})", lib_file_path);
 
             // Compile the library file but do not output
             let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
@@ -94,6 +96,7 @@ impl CLI for BuildCommand {
                 lib_file_path.clone(),
                 output_directory.clone(),
             )?;
+            tracing::info!("Complete");
         };
 
         // Compile the main.leo file along with constraints
@@ -113,7 +116,7 @@ impl CLI for BuildCommand {
             let state_string = StateFile::new(&package_name).read_from(&path)?;
 
             // Log compilation of files to console
-            tracing::info!("Program file ({:?})", main_file_path);
+            tracing::info!("Compiling main program... ({:?})", main_file_path);
 
             // Load the program at `main_file_path`
             let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
@@ -178,12 +181,14 @@ impl CLI for BuildCommand {
                 tracing::debug!("Checksum saved ({:?})", path);
             }
 
+            tracing::info!("Complete");
+
             // Drop "Compiling" context for console logging
             drop(enter);
 
             // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
             tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-                tracing::info!("Program compiled in {} milliseconds\n", start.elapsed().as_millis());
+                tracing::info!("Completed in {} milliseconds\n", start.elapsed().as_millis());
             });
 
             return Ok(Some((program, checksum_differs)));

@@ -48,8 +48,8 @@ impl CLI for ProveCommand {
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
 
-        // Begin "Proving" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Proving");
+        // Begin "Prover" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Prover");
         let enter = span.enter();
 
         // Get the package name
@@ -64,20 +64,20 @@ impl CLI for ProveCommand {
         let rng = &mut thread_rng();
         let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, program, rng)?;
 
-        // Output the proving time
-        tracing::info!("Prover completed in {:?} milliseconds", start.elapsed().as_millis());
+        // Finish the timer
+        let end = start.elapsed().as_millis();
 
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
-        // Drop "Proving" context for console logging
+        // Drop "Prover" context for console logging
         drop(enter);
 
         // Begin "Finished" context for console logging
         tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-            tracing::info!("Program proving complete\n");
+            tracing::info!("Completed in {:?} milliseconds\n", end);
         });
 
         Ok((program_proof, prepared_verifying_key))

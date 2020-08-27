@@ -59,7 +59,7 @@ impl ProofFile {
         let mut file = File::create(&path)?;
         file.write_all(proof)?;
 
-        tracing::info!("Saving proof ({:?})", path);
+        tracing::info!("Saving proof... ({:?})", path);
 
         Ok(())
     }

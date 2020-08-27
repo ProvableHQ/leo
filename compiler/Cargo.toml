@@ -19,13 +19,13 @@ leo-package = { path = "../package", version = "1.0.0"}
 leo-typed = { path = "../typed", version = "1.0.0" }
 leo-state = { path = "../state", version = "1.0.0" }
 
-snarkos-curves = { version = "1.0.0", default-features = false }
-snarkos-dpc = {  version = "1.0.0", default-features = false }
-snarkos-errors = { version = "1.0.0", default-features = false }
-snarkos-gadgets = { version = "1.0.0", default-features = false }
-snarkos-models =  { version = "1.0.0", default-features = false }
-snarkos-objects = { version = "1.0.0", default-features = false }
-snarkos-utilities = { version = "1.0.0" }
+snarkos-curves = { version = "1.1.3", default-features = false }
+snarkos-dpc = {  version = "1.1.3", default-features = false }
+snarkos-errors = { version = "1.1.3", default-features = false }
+snarkos-gadgets = { version = "1.1.3", default-features = false }
+snarkos-models =  { version = "1.1.3", default-features = false }
+snarkos-objects = { version = "1.1.3", default-features = false }
+snarkos-utilities = { version = "1.1.3" }
 
 bincode = { version = "1.0" }
 hex = { version = "0.4.2" }

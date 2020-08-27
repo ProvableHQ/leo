@@ -51,7 +51,7 @@ impl CLI for DeployCommand {
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Deploy" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Deploying");
-        let enter = span.enter();
+        let _enter = span.enter();
 
         let path = current_dir()?;
 
