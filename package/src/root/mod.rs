@@ -23,5 +23,8 @@ pub use self::manifest::*;
 pub mod readme;
 pub use self::readme::*;
 
+pub mod package;
+pub use self::package::*;
+
 pub mod zip;
 pub use self::zip::*;
