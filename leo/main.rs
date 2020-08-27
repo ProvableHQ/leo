@@ -61,7 +61,7 @@ fn main() -> Result<(), CLIError> {
     if config.auto_update {
         if let Ok(status) = UpdateCommand::update_to_latest_release() {
             if status.updated() {
-                log::info!("Leo has successfully updated to version: {}", status.version());
+                tracing::info!("Leo has successfully updated to version: {}", status.version());
             }
         }
     }

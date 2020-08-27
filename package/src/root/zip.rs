@@ -94,14 +94,14 @@ impl ZipFile {
             // Add file/directory exclusion
 
             let included = is_included(name);
-            log::debug!("Checking if {:?} is included - {}", name, included);
+            tracing::debug!("Checking if {:?} is included - {}", name, included);
             if !included {
                 continue;
             }
 
             // Write file or directory
             if path.is_file() {
-                log::info!("Adding file {:?} as {:?}", path, name);
+                tracing::info!("Adding file {:?} as {:?}", path, name);
                 zip.start_file_from_path(name, options)?;
                 let mut f = File::open(path)?;
 
@@ -111,14 +111,14 @@ impl ZipFile {
             } else if name.as_os_str().len() != 0 {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
-                log::info!("Adding directory {:?} as {:?}", path, name);
+                tracing::info!("Adding directory {:?} as {:?}", path, name);
                 zip.add_directory_from_path(name, options)?;
             }
         }
 
         zip.finish()?;
 
-        log::info!("Package zip file created successfully {:?}", path);
+        tracing::info!("Package zip file created successfully {:?}", path);
 
         Ok(())
     }

@@ -25,10 +25,7 @@ use crate::{
     cli::CLI,
     cli_types::*,
     config::*,
-    errors::{
-        CLIError::LoginError,
-        LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
-    },
+    errors::LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
 };
 
 use std::collections::HashMap;
@@ -78,6 +75,10 @@ impl CLI for LoginCommand {
     }
 
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+        // Begin "Login" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Login");
+        let _enter = span.enter();
+
         let token = match options {
             // Login using existing token
             (Some(token), _, _) => Some(token),
@@ -95,22 +96,19 @@ impl CLI for LoginCommand {
                     Ok(result) => match result.json() {
                         Ok(json) => json,
                         Err(_error) => {
-                            log::error!("Wrong login or password");
-                            return Err(WrongLoginOrPassword("Wrong login or password".into()).into());
+                            return Err(WrongLoginOrPassword.into());
                         }
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(LoginError(NoConnectionFound(
-                            "Could not connect to the package manager".into(),
-                        )));
+                        return Err(NoConnectionFound.into());
                     }
                 };
 
                 match response.get("token") {
                     Some(token) => Some(token.clone()),
                     None => {
-                        return Err(CannotGetToken("No token was provided in the response".into()).into());
+                        return Err(CannotGetToken.into());
                     }
                 }
             }
@@ -124,12 +122,12 @@ impl CLI for LoginCommand {
             Some(token) => {
                 write_token(token.as_str())?;
 
-                log::info!("Login successful.");
+                tracing::info!("success");
 
                 Ok(token)
             }
             _ => {
-                log::error!("Failed to login. Please run `leo login -h` for help.");
+                tracing::error!("Failed to login. Please run `leo login -h` for help.");
 
                 Err(NoCredentialsProvided.into())
             }

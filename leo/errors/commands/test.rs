@@ -13,16 +13,10 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-use leo_package::errors::ManifestError;
-
 use std::ffi::OsString;
 
 #[derive(Debug, Error)]
 pub enum TestError {
-    #[error("main file {:?} does not exist", _0)]
-    MainFileDoesNotExist(OsString),
-
-    #[error("{}", _0)]
-    ManifestError(#[from] ManifestError),
+    #[error("could not find main or library file in  {:?}", _0)]
+    ProgramFileDoesNotExist(OsString),
 }

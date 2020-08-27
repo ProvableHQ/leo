@@ -49,6 +49,10 @@ impl CLI for InitCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Initializing" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Initializing");
+        let _enter = span.enter();
+
         let path = current_dir()?;
 
         // Derive the package name
@@ -112,6 +116,8 @@ impl CLI for InitCommand {
                 MainFile::new(&package_name).write_to(&path)?;
             }
         }
+
+        tracing::info!("Successfully initialized package \"{}\"\n", package_name);
 
         Ok(())
     }

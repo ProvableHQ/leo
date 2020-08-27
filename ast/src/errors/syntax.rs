@@ -59,7 +59,7 @@ impl From<Error<Rule>> for SyntaxError {
             rule => format!("{:?}", rule),
         });
 
-        log::error!("{}\n", error);
+        tracing::error!("{}\n", error);
 
         SyntaxError::Error
     }
