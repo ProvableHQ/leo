@@ -14,39 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, errors::CLIError};
-use clap::ArgMatches;
-use leo_package::{
-    imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME},
-    outputs::OutputsDirectory,
-    root::{Gitignore, Manifest},
-    source::SourceDirectory,
+use crate::{
+    cli::*,
+    cli_types::*,
+    commands::BuildCommand,
+    errors::{CLIError, RunError},
 };
-use std::env::current_dir;
+use leo_package::{
+    root::Manifest,
+    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+};
+
+use clap::ArgMatches;
+use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
 pub struct RemoveCommand;
 
 impl CLI for RemoveCommand {
-    type Options = Option<String>;
+    type Options = ();
     type Output = ();
 
     const ABOUT: AboutType = "Uninstall a package from the current package (*)";
-    const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
-        ("NAME", "Removes the package from the current directory", true, 1u64),
-    ];
+    const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "remove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(match arguments.value_of("NAME") {
-            Some(name) => Some(name.to_string()),
-            None => unreachable!(),
-        })
+    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(())
     }
 
     #[cfg_attr(tarpaulin, skip)]
@@ -76,7 +74,5 @@ impl CLI for RemoveCommand {
                 )))
             }
         }
-
-        Ok(())
     }
 }
