@@ -19,11 +19,7 @@ use crate::{
     cli_types::*,
     errors::{CLIError, NewError},
 };
-use leo_package::{
-    inputs::*,
-    root::{Gitignore, Manifest, README},
-    source::{LibFile, MainFile, SourceDirectory},
-};
+use leo_package::LeoPackage;
 
 use clap::ArgMatches;
 use std::{env::current_dir, fs};
@@ -89,35 +85,7 @@ impl CLI for NewCommand {
         fs::create_dir_all(&path)
             .map_err(|error| NewError::CreatingRootDirectory(path.as_os_str().to_owned(), error))?;
 
-        // Create the manifest file
-        Manifest::new(&package_name).write_to(&path)?;
-
-        // Create the .gitignore file
-        Gitignore::new().write_to(&path)?;
-
-        // Create the README.md file
-        README::new(&package_name).write_to(&path)?;
-
-        // Create the source directory
-        SourceDirectory::create(&path)?;
-
-        // Create a new library or binary file
-        if options.1 {
-            // Create the library file in the source directory
-            LibFile::new(&package_name).write_to(&path)?;
-        } else {
-            // Create the input directory
-            InputsDirectory::create(&path)?;
-
-            // Create the input file in the inputs directory
-            InputFile::new(&package_name).write_to(&path)?;
-
-            // Create the state file in the inputs directory
-            StateFile::new(&package_name).write_to(&path)?;
-
-            // Create the main file in the source directory
-            MainFile::new(&package_name).write_to(&path)?;
-        }
+        LeoPackage::create(&package_name, options.1, &path)?;
 
         tracing::info!("Successfully initialized package \"{}\"\n", package_name);
 
