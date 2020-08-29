@@ -26,13 +26,18 @@ use std::{
 
 pub const MANIFEST_FILE_NAME: &str = "Leo.toml";
 
+#[derive(Clone, Deserialize)]
+pub struct Remote {
+    pub author: String,
+}
+
 #[derive(Deserialize)]
 pub struct Package {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
     pub license: Option<String>,
-    pub remote: Option<String>,
+    pub remote: Option<Remote>,
 }
 
 #[derive(Deserialize)]
@@ -77,7 +82,7 @@ impl Manifest {
         self.package.license.clone()
     }
 
-    pub fn get_package_remote(&self) -> Option<String> {
+    pub fn get_package_remote(&self) -> Option<Remote> {
         self.package.remote.clone()
     }
 
@@ -98,8 +103,10 @@ impl Manifest {
 name = "{name}"
 version = "0.1.0"
 description = "The {name} package"
-remote = "[AUTHOR]/{name}"
 license = "MIT"
+
+[remote]
+author = "[AUTHOR]"
 "#,
             name = self.package.name
         )

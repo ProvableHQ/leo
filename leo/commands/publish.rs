@@ -107,8 +107,8 @@ impl CLI for PublishCommand {
         zip_file.write(&path)?;
 
         let form_data = Form::new()
-            .text("name", package_name)
-            .text("remote", package_remote)
+            .text("name", package_name.clone())
+            .text("remote", format!("{}/{}", package_remote.author, package_name))
             .text("version", package_version)
             .file("file", zip_file.get_file_path(&path))?;
 
