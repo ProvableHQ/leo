@@ -19,11 +19,7 @@ use crate::{
     cli_types::*,
     errors::{CLIError, InitError},
 };
-use leo_package::{
-    inputs::*,
-    root::{Gitignore, Manifest, README},
-    source::{LibFile, MainFile, SourceDirectory},
-};
+use leo_package::LeoPackage;
 
 use clap::ArgMatches;
 use std::env::current_dir;
@@ -68,54 +64,11 @@ impl CLI for InitCommand {
         }
 
         // Verify a manifest file does not already exist
-        if Manifest::exists_at(&path) {
+        if LeoPackage::exists_at(&path) {
             return Err(InitError::PackageAlreadyExists(path.as_os_str().to_owned()).into());
         }
 
-        // Create the manifest file
-        Manifest::new(&package_name).write_to(&path)?;
-
-        // Create the .gitignore file
-        Gitignore::new().write_to(&path)?;
-
-        // Create the README.md file
-        README::new(&package_name).write_to(&path)?;
-
-        // Create the source directory
-        SourceDirectory::create(&path)?;
-
-        // Create a new library or binary file
-
-        if options {
-            // Verify the library file does not exist
-            if !LibFile::exists_at(&path) {
-                // Create the library file in the source directory
-                LibFile::new(&package_name).write_to(&path)?;
-            }
-        } else {
-            // Create the input directory
-            InputsDirectory::create(&path)?;
-
-            // Verify the input file does not exist
-            let input_file = InputFile::new(&package_name);
-            if !input_file.exists_at(&path) {
-                // Create the input file in the inputs directory
-                input_file.write_to(&path)?;
-            }
-
-            // Verify the state file does not exist
-            let state_file = StateFile::new(&package_name);
-            if !state_file.exists_at(&path) {
-                // Create the state file in the inputs directory
-                state_file.write_to(&path)?;
-            }
-
-            // Verify the main file does not exist
-            if !MainFile::exists_at(&path) {
-                // Create the main file in the source directory
-                MainFile::new(&package_name).write_to(&path)?;
-            }
-        }
+        LeoPackage::create(&package_name, options, &path)?;
 
         tracing::info!("Successfully initialized package \"{}\"\n", package_name);
 
