@@ -1319,7 +1319,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-liner"
+name = "leo-linter"
 version = "1.0.1"
 
 [[package]]

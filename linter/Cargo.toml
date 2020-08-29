@@ -1,5 +1,5 @@
 [package]
-name = "leo-liner"
+name = "leo-linter"
 version = "1.0.1"
 authors = ["The Aleo Team <hello@aleo.org>"]
 description = "Linter of the Leo programming language"

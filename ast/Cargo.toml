@@ -31,7 +31,6 @@ serde_json = { version = "1.0" }
 thiserror = { version = "1.0" }
 tracing = { version = "0.1" }
 
-
 [dev-dependencies]
 criterion = { version = "0.3" }
 
