@@ -37,12 +37,12 @@ pub struct Package {
     pub version: String,
     pub description: Option<String>,
     pub license: Option<String>,
-    pub remote: Option<Remote>,
 }
 
 #[derive(Deserialize)]
 pub struct Manifest {
     pub package: Package,
+    pub remote: Option<Remote>,
 }
 
 impl Manifest {
@@ -53,8 +53,8 @@ impl Manifest {
                 version: "0.1.0".to_owned(),
                 description: None,
                 license: None,
-                remote: None,
             },
+            remote: None,
         }
     }
 
@@ -83,7 +83,7 @@ impl Manifest {
     }
 
     pub fn get_package_remote(&self) -> Option<Remote> {
-        self.package.remote.clone()
+        self.remote.clone()
     }
 
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
