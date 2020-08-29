@@ -16,19 +16,19 @@
 
 //! The `lib.leo` file.
 
-use crate::{errors::LibFileError, source::directory::SOURCE_DIRECTORY_NAME};
+use crate::{errors::LibraryFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{fs::File, io::Write, path::PathBuf};
 
-pub static LIB_FILE_NAME: &str = "lib.leo";
+pub static LIBRARY_FILE_NAME: &str = "lib.leo";
 
 #[derive(Deserialize)]
-pub struct LibFile {
+pub struct LibraryFile {
     pub package_name: String,
 }
 
-impl LibFile {
+impl LibraryFile {
     pub fn new(package_name: &str) -> Self {
         Self {
             package_name: package_name.to_string(),
@@ -36,7 +36,7 @@ impl LibFile {
     }
 
     pub fn filename() -> String {
-        LIB_FILE_NAME.to_string()
+        LIBRARY_FILE_NAME.to_string()
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
@@ -45,18 +45,18 @@ impl LibFile {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(LIB_FILE_NAME));
+            path.push(PathBuf::from(LIBRARY_FILE_NAME));
         }
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), LibFileError> {
+    pub fn write_to(self, path: &PathBuf) -> Result<(), LibraryFileError> {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(LIB_FILE_NAME));
+            path.push(PathBuf::from(LIBRARY_FILE_NAME));
         }
 
         let mut file = File::create(&path)?;

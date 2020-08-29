@@ -24,7 +24,7 @@ use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
-    source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+    source::{LibraryFile, MainFile, LIBRARY_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkos_curves::edwards_bls12::Fq;
@@ -71,8 +71,8 @@ impl CLI for TestCommand {
         // Verify a main or library file exists
         if MainFile::exists_at(&package_path) {
             file_path.push(MAIN_FILE_NAME);
-        } else if LibFile::exists_at(&package_path) {
-            file_path.push(LIB_FILE_NAME);
+        } else if LibraryFile::exists_at(&package_path) {
+            file_path.push(LIBRARY_FILE_NAME);
         } else {
             return Err(ProgramFileDoesNotExist(package_path.into()).into());
         }

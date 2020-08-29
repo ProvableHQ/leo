@@ -2,7 +2,7 @@ use crate::{
     errors::PackageError,
     inputs::{InputFile, InputsDirectory, StateFile},
     root::{Gitignore, Manifest, README},
-    source::{LibFile, MainFile, SourceDirectory},
+    source::{LibraryFile, MainFile, SourceDirectory},
 };
 
 use serde::Deserialize;
@@ -42,9 +42,9 @@ impl Package {
 
             if is_lib {
                 // Verify the library file does not exist.
-                if LibFile::exists_at(&path) {
+                if LibraryFile::exists_at(&path) {
                     return Err(
-                        PackageError::FileAlreadyExists(LibFile::filename(), path.as_os_str().to_owned()).into(),
+                        PackageError::FileAlreadyExists(LibraryFile::filename(), path.as_os_str().to_owned()).into(),
                     );
                 }
             } else {
@@ -95,7 +95,7 @@ impl Package {
             // Create a new library or binary file.
             if is_lib {
                 // Create the library file in the source directory.
-                LibFile::new(&package_name).write_to(&path)?;
+                LibraryFile::new(&package_name).write_to(&path)?;
             } else {
                 // Create the input directory.
                 InputsDirectory::create(&path)?;

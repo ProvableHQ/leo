@@ -69,8 +69,8 @@ impl From<crate::errors::StateFileError> for PackageError {
     }
 }
 
-impl From<crate::errors::LibFileError> for PackageError {
-    fn from(error: crate::errors::LibFileError) -> Self {
+impl From<crate::errors::LibraryFileError> for PackageError {
+    fn from(error: crate::errors::LibraryFileError) -> Self {
         PackageError::Crate("leo-package", format!("{}", error))
     }
 }
