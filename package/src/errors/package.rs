@@ -48,6 +48,12 @@ impl From<crate::errors::OutputsDirectoryError> for PackageError {
     }
 }
 
+impl From<crate::errors::READMEError> for PackageError {
+    fn from(error: crate::errors::READMEError) -> Self {
+        PackageError::Crate("leo_package", format!("{}", error))
+    }
+}
+
 impl From<crate::errors::SourceDirectoryError> for PackageError {
     fn from(error: crate::errors::SourceDirectoryError) -> Self {
         PackageError::Crate("leo_package", format!("{}", error))
