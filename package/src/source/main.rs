@@ -35,6 +35,10 @@ impl MainFile {
         }
     }
 
+    pub fn filename() -> String {
+        MAIN_FILE_NAME.to_string()
+    }
+
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {

@@ -29,9 +29,6 @@ pub enum InitError {
     #[error("{}", _0)]
     ManifestError(#[from] ManifestError),
 
-    #[error("package at path {:?} already exists", _0)]
-    PackageAlreadyExists(OsString),
-
     #[error("package name is missing - {:?}", _0)]
     ProjectNameInvalid(OsString),
 }

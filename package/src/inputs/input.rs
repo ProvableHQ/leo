@@ -39,6 +39,10 @@ impl InputFile {
         }
     }
 
+    pub fn filename(self) -> String {
+        format!("{}{}", self.package_name, INPUT_FILE_EXTENSION)
+    }
+
     pub fn exists_at(&self, path: &PathBuf) -> bool {
         let path = self.setup_file_path(path);
         path.exists()

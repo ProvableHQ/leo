@@ -58,17 +58,12 @@ impl CLI for InitCommand {
             .to_string_lossy()
             .to_string();
 
-        // Verify the directory exists
+        // Verify the directory does not exist
         if !path.exists() {
             return Err(InitError::DirectoryDoesNotExist(path.as_os_str().to_owned()).into());
         }
 
-        // Verify a manifest file does not already exist
-        if LeoPackage::exists_at(&path) {
-            return Err(InitError::PackageAlreadyExists(path.as_os_str().to_owned()).into());
-        }
-
-        LeoPackage::create(&package_name, options, &path)?;
+        LeoPackage::initialize(&package_name, options, &path)?;
 
         tracing::info!("Successfully initialized package \"{}\"\n", package_name);
 

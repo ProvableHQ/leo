@@ -85,7 +85,7 @@ impl CLI for NewCommand {
         fs::create_dir_all(&path)
             .map_err(|error| NewError::CreatingRootDirectory(path.as_os_str().to_owned(), error))?;
 
-        LeoPackage::create(&package_name, options.1, &path)?;
+        LeoPackage::initialize(&package_name, options.1, &path)?;
 
         tracing::info!("Successfully initialized package \"{}\"\n", package_name);
 

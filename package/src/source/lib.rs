@@ -35,6 +35,10 @@ impl LibFile {
         }
     }
 
+    pub fn filename() -> String {
+        LIB_FILE_NAME.to_string()
+    }
+
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
