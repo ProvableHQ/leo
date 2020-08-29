@@ -75,6 +75,9 @@ pub enum CLIError {
     OutputsDirectoryError(OutputsDirectoryError),
 
     #[error("{}", _0)]
+    PackageError(PackageError),
+
+    #[error("{}", _0)]
     ProofFileError(ProofFileError),
 
     #[error("{}", _0)]
@@ -140,6 +143,7 @@ impl_cli_error!(
     NewError,
     OutputFileError,
     OutputsDirectoryError,
+    PackageError,
     ProofFileError,
     ProvingKeyFileError,
     PublishError,
