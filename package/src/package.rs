@@ -28,59 +28,45 @@ impl Package {
 
     /// Returns `true` if a package is initialized at the given path
     pub fn is_initialized(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
-        let mut result = true;
+        let mut result = false;
+        let mut existing_files = vec![];
+
         // Check if the manifest file already exists.
-        if !Manifest::exists_at(&path) {
-            tracing::error!(
-                "{:?} at path {:?} already exists",
-                Manifest::filename(),
-                path.as_os_str()
-            );
-            result = false;
+        if Manifest::exists_at(&path) {
+            existing_files.push(Manifest::filename());
+            result = true;
         }
 
         if is_lib {
             // Check if the library file already exists.
-            if !LibraryFile::exists_at(&path) {
-                tracing::error!(
-                    "{:?} at path {:?} already exists",
-                    LibraryFile::filename(),
-                    path.as_os_str()
-                );
-                result = false;
+            if LibraryFile::exists_at(&path) {
+                existing_files.push(LibraryFile::filename());
+                result = true;
             }
         } else {
             // Check if the input file already exists.
             let input_file = InputFile::new(&package_name);
-            if !input_file.exists_at(&path) {
-                tracing::error!(
-                    "{:?} at path {:?} already exists",
-                    input_file.filename(),
-                    path.as_os_str()
-                );
-                result = false;
+            if input_file.exists_at(&path) {
+                existing_files.push(input_file.filename());
+                result = true;
             }
 
             // Check if the state file already exists.
             let state_file = StateFile::new(&package_name);
-            if !state_file.exists_at(&path) {
-                tracing::error!(
-                    "{:?} at path {:?} already exists",
-                    state_file.filename(),
-                    path.as_os_str()
-                );
-                result = false;
+            if state_file.exists_at(&path) {
+                existing_files.push(state_file.filename());
+                result = true;
             }
 
             // Check if the main file already exists.
-            if !MainFile::exists_at(&path) {
-                tracing::error!(
-                    "{:?} at path {:?} already exists",
-                    MainFile::filename(),
-                    path.as_os_str()
-                );
-                result = false;
+            if MainFile::exists_at(&path) {
+                existing_files.push(MainFile::filename());
+                result = true;
             }
+        }
+
+        if existing_files.len() > 0 {
+            tracing::error!("File(s) {:?} already exist", existing_files);
         }
 
         return result;
@@ -92,7 +78,7 @@ impl Package {
         {
             if Self::is_initialized(package_name, is_lib, path) {
                 return Err(
-                    PackageError::PackageAlreadyExists(package_name.to_owned(), path.as_os_str().to_owned()).into(),
+                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
                 );
             }
         }

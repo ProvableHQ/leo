@@ -36,7 +36,7 @@ impl MainFile {
     }
 
     pub fn filename() -> String {
-        MAIN_FILENAME.to_string()
+        format!("{}{}", SOURCE_DIRECTORY_NAME, MAIN_FILENAME)
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {

@@ -8,8 +8,8 @@ pub enum PackageError {
     #[error("`{}` creating: {}", _0, _1)]
     Creating(&'static str, io::Error),
 
-    #[error("{:?} at path {:?} already exists", _0, _1)]
-    PackageAlreadyExists(String, OsString),
+    #[error("Failed to initialize package {:?} ({:?})", _0, _1)]
+    FailedToInitialize(String, OsString),
 
     #[error("`{}` metadata: {}", _0, _1)]
     Removing(&'static str, io::Error),

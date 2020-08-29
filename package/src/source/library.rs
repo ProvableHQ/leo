@@ -36,7 +36,7 @@ impl LibraryFile {
     }
 
     pub fn filename() -> String {
-        LIBRARY_FILENAME.to_string()
+        format!("{}{}", SOURCE_DIRECTORY_NAME, LIBRARY_FILENAME)
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
