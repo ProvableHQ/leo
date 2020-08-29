@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::ManifestError;
+use crate::{errors::ManifestError, package::Package};
 
 use serde::Deserialize;
 use std::{
@@ -32,14 +32,6 @@ pub struct Remote {
 }
 
 #[derive(Deserialize)]
-pub struct Package {
-    pub name: String,
-    pub version: String,
-    pub description: Option<String>,
-    pub license: Option<String>,
-}
-
-#[derive(Deserialize)]
 pub struct Manifest {
     pub package: Package,
     pub remote: Option<Remote>,
@@ -48,12 +40,7 @@ pub struct Manifest {
 impl Manifest {
     pub fn new(package_name: &str) -> Self {
         Self {
-            package: Package {
-                name: package_name.to_owned(),
-                version: "0.1.0".to_owned(),
-                description: None,
-                license: None,
-            },
+            package: Package::new(package_name),
             remote: None,
         }
     }
