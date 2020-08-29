@@ -99,7 +99,7 @@ name = "{name}"
 version = "0.1.0"
 description = "The {name} package"
 remote = "[AUTHOR]/{name}"
-license = "LICENSE-MIT"
+license = "MIT"
 "#,
             name = self.package.name
         )
