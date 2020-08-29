@@ -1,4 +1,4 @@
-name: Leo Programs
+name: Leo Release Tests
 on:
   pull_request:
   push:
@@ -9,7 +9,7 @@ env:
 
 jobs:
   new:
-    name: Hello Leo (from 'leo new')
+    name: Hello Leo ('leo new hello-world')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,16 +39,16 @@ jobs:
           command: install
           args: --path .
 
-      - name: 'leo new'
+      - name: 'leo new hello-world'
         run: |
           cd ..
-          leo new hello_world
+          leo new hello-world
           ls -la
-          cd hello_world && ls -la
+          cd hello-world && ls -la
           leo run
 
   init:
-    name: Hello Leo (from 'leo init')
+    name: Hello Leo ('leo init')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -80,7 +80,7 @@ jobs:
 
       - name: 'leo init'
         run: |
-          cd .. && mkdir hello_world && cd hello_world
+          cd .. && mkdir hello-world && cd hello-world
           leo init
           ls -la
           leo run
