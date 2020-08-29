@@ -23,6 +23,9 @@ pub use inputs::*;
 pub mod outputs;
 pub use outputs::*;
 
+pub mod package;
+pub use self::package::*;
+
 pub mod root;
 pub use self::root::*;
 
