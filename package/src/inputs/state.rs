@@ -39,7 +39,7 @@ impl StateFile {
         }
     }
 
-    pub fn filename(self) -> String {
+    pub fn filename(&self) -> String {
         format!("{}{}", self.package_name, STATE_FILE_EXTENSION)
     }
 

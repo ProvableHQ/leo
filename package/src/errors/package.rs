@@ -9,7 +9,7 @@ pub enum PackageError {
     Creating(&'static str, io::Error),
 
     #[error("{:?} at path {:?} already exists", _0, _1)]
-    FileAlreadyExists(String, OsString),
+    PackageAlreadyExists(String, OsString),
 
     #[error("`{}` metadata: {}", _0, _1)]
     Removing(&'static str, io::Error),

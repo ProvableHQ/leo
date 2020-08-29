@@ -32,13 +32,8 @@ use std::path::PathBuf;
 pub struct LeoPackage;
 
 impl LeoPackage {
-    /// Initalizes a Leo package at the given path.
+    /// Initializes a Leo package at the given path.
     pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
         package::Package::initialize(package_name, is_lib, path)
-    }
-
-    /// Returns `true` if a Leo package exists at the given path.
-    pub fn exists_at(path: &PathBuf) -> bool {
-        package::Package::exists_at(path)
     }
 }

@@ -39,7 +39,7 @@ impl InputFile {
         }
     }
 
-    pub fn filename(self) -> String {
+    pub fn filename(&self) -> String {
         format!("{}{}", self.package_name, INPUT_FILE_EXTENSION)
     }
 
