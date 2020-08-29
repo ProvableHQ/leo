@@ -25,7 +25,7 @@ use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
-    source::{LibraryFile, MainFile, LIBRARY_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+    source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
@@ -85,7 +85,7 @@ impl CLI for BuildCommand {
             // Construct the path to the library file in the source directory
             let mut lib_file_path = package_path.clone();
             lib_file_path.push(SOURCE_DIRECTORY_NAME);
-            lib_file_path.push(LIBRARY_FILE_NAME);
+            lib_file_path.push(LIBRARY_FILENAME);
 
             // Log compilation of library file to console
             tracing::info!("Compiling library... ({:?})", lib_file_path);
@@ -107,7 +107,7 @@ impl CLI for BuildCommand {
             // Construct the path to the main file in the source directory
             let mut main_file_path = package_path.clone();
             main_file_path.push(SOURCE_DIRECTORY_NAME);
-            main_file_path.push(MAIN_FILE_NAME);
+            main_file_path.push(MAIN_FILENAME);
 
             // Load the input file at `package_name.in`
             let input_string = InputFile::new(&package_name).read_from(&path)?;

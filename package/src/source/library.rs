@@ -21,7 +21,7 @@ use crate::{errors::LibraryFileError, source::directory::SOURCE_DIRECTORY_NAME};
 use serde::Deserialize;
 use std::{fs::File, io::Write, path::PathBuf};
 
-pub static LIBRARY_FILE_NAME: &str = "lib.leo";
+pub static LIBRARY_FILENAME: &str = "lib.leo";
 
 #[derive(Deserialize)]
 pub struct LibraryFile {
@@ -36,7 +36,7 @@ impl LibraryFile {
     }
 
     pub fn filename() -> String {
-        LIBRARY_FILE_NAME.to_string()
+        LIBRARY_FILENAME.to_string()
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
@@ -45,7 +45,7 @@ impl LibraryFile {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(LIBRARY_FILE_NAME));
+            path.push(PathBuf::from(LIBRARY_FILENAME));
         }
         path.exists()
     }
@@ -56,7 +56,7 @@ impl LibraryFile {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
                 path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
             }
-            path.push(PathBuf::from(LIBRARY_FILE_NAME));
+            path.push(PathBuf::from(LIBRARY_FILENAME));
         }
 
         let mut file = File::create(&path)?;

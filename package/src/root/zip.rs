@@ -28,7 +28,7 @@ use crate::{
         PROVING_KEY_FILE_EXTENSION,
         VERIFICATION_KEY_FILE_EXTENSION,
     },
-    root::{MANIFEST_FILE_NAME, README_FILE_NAME},
+    root::{MANIFEST_FILENAME, README_FILENAME},
     source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
 };
 
@@ -172,8 +172,7 @@ fn is_included(path: &Path) -> bool {
     }
 
     // Allow the README.md and Leo.toml files in the root directory
-    if (path.ends_with(README_FILE_NAME) | path.ends_with(MANIFEST_FILE_NAME)) & (path.parent() == Some(Path::new("")))
-    {
+    if (path.ends_with(README_FILENAME) | path.ends_with(MANIFEST_FILENAME)) & (path.parent() == Some(Path::new(""))) {
         return true;
     }
 

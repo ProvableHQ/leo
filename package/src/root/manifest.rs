@@ -24,7 +24,7 @@ use std::{
     path::PathBuf,
 };
 
-pub const MANIFEST_FILE_NAME: &str = "Leo.toml";
+pub const MANIFEST_FILENAME: &str = "Leo.toml";
 
 #[derive(Clone, Deserialize)]
 pub struct Remote {
@@ -46,13 +46,13 @@ impl Manifest {
     }
 
     pub fn filename() -> String {
-        MANIFEST_FILE_NAME.to_string()
+        MANIFEST_FILENAME.to_string()
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILE_NAME));
+            path.push(PathBuf::from(MANIFEST_FILENAME));
         }
         path.exists()
     }
@@ -80,12 +80,12 @@ impl Manifest {
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILE_NAME));
+            path.push(PathBuf::from(MANIFEST_FILENAME));
         }
 
-        let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILE_NAME, error))?;
+        let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
         file.write_all(self.template().as_bytes())
-            .map_err(|error| ManifestError::Writing(MANIFEST_FILE_NAME, error))
+            .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))
     }
 
     fn template(&self) -> String {
@@ -110,18 +110,18 @@ impl TryFrom<&PathBuf> for Manifest {
     fn try_from(path: &PathBuf) -> Result<Self, Self::Error> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILE_NAME));
+            path.push(PathBuf::from(MANIFEST_FILENAME));
         }
 
-        let mut file = File::open(path.clone()).map_err(|error| ManifestError::Opening(MANIFEST_FILE_NAME, error))?;
+        let mut file = File::open(path.clone()).map_err(|error| ManifestError::Opening(MANIFEST_FILENAME, error))?;
         let size = file
             .metadata()
-            .map_err(|error| ManifestError::Metadata(MANIFEST_FILE_NAME, error))?
+            .map_err(|error| ManifestError::Metadata(MANIFEST_FILENAME, error))?
             .len() as usize;
 
         let mut buffer = String::with_capacity(size);
         file.read_to_string(&mut buffer)
-            .map_err(|error| ManifestError::Reading(MANIFEST_FILE_NAME, error))?;
+            .map_err(|error| ManifestError::Reading(MANIFEST_FILENAME, error))?;
 
         // Determine if the old remote format is being used, and update to new convention
 
@@ -176,12 +176,12 @@ author = "{author}"
 
         // Rewrite the toml file if it has been updated
         if buffer != new_toml {
-            let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILE_NAME, error))?;
+            let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
             file.write_all(new_toml.as_bytes())
-                .map_err(|error| ManifestError::Writing(MANIFEST_FILE_NAME, error))?;
+                .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
         }
 
         // Read the toml file
-        Ok(toml::from_str(&new_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILE_NAME, error))?)
+        Ok(toml::from_str(&new_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))?)
     }
 }
