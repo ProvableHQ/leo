@@ -1,46 +1,107 @@
 [package]
 name = "leo-compiler"
-version = "1.0.1"
-authors = ["The Aleo Team <hello@aleo.org>"]
+version = "1.0.2"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Compiler of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
-keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies]
-leo-ast = { path = "../ast", version = "1.0.1" }
-leo-gadgets = { path = "../gadgets", version = "1.0.1" }
-leo-input = { path = "../input", version = "1.0.1" }
-leo-package = { path = "../package", version = "1.0.1"}
-leo-typed = { path = "../typed", version = "1.0.1" }
-leo-state = { path = "../state", version = "1.0.1" }
+[dependencies.leo-ast]
+path = "../ast"
+version = "1.0.2"
 
-snarkos-curves = { version = "1.1.3", default-features = false }
-snarkos-dpc = {  version = "1.1.3", default-features = false }
-snarkos-errors = { version = "1.1.3", default-features = false }
-snarkos-gadgets = { version = "1.1.3", default-features = false }
-snarkos-models =  { version = "1.1.3", default-features = false }
-snarkos-objects = { version = "1.1.3", default-features = false }
-snarkos-utilities = { version = "1.1.3" }
+[dependencies.leo-gadgets]
+path = "../gadgets"
+version = "1.0.2"
 
-bincode = { version = "1.0" }
-hex = { version = "0.4.2" }
-pest = { version = "2.0" }
-rand = { version = "0.7" }
-rand_xorshift = { version = "0.2", default-features = false }
-serde = { version = "1.0" }
-sha2 = { version = "0.9" }
-thiserror = { version = "1.0" }
-tracing = { version = "0.1" }
-tracing-subscriber = { version = "0.2" }
+[dependencies.leo-input]
+path = "../input"
+version = "1.0.2"
 
-[dev-dependencies]
-num-bigint = { version = "0.3" }
+[dependencies.leo-package]
+path = "../package"
+version = "1.0.2"
+
+[dependencies.leo-typed]
+path = "../typed"
+version = "1.0.2"
+
+[dependencies.leo-state]
+path = "../state"
+version = "1.0.2"
+
+[dependencies.snarkos-curves]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-dpc]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-errors]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-gadgets]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-models]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-objects]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-utilities]
+version = "1.1.3"
+
+[dependencies.bincode]
+version = "1.0"
+
+[dependencies.hex]
+version = "0.4.2"
+
+[dependencies.pest]
+version = "2.0"
+
+[dependencies.rand]
+version = "0.7"
+
+[dependencies.rand_xorshift]
+version = "0.2"
+default-features = false
+
+[dependencies.serde]
+version = "1.0"
+
+[dependencies.sha2]
+version = "0.9"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dependencies.tracing-subscriber]
+version = "0.2"
+
+[dev-dependencies.num-bigint]
+version = "0.3"
 
 [features]
-default = []
-ci_skip = ["leo-ast/ci_skip", "leo-typed/ci_skip"]
+default = [ ]
+ci_skip = [ "leo-ast/ci_skip", "leo-typed/ci_skip" ]

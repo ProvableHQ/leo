@@ -1,13 +1,19 @@
 [package]
 name = "leo-ast"
-version = "1.0.1"
-authors = ["The Aleo Team <hello@aleo.org>"]
+version = "1.0.2"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "AST of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
-keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
@@ -20,20 +26,37 @@ name = "ast"
 path = "benches/ast.rs"
 harness = false
 
-[dependencies]
-from-pest = { version = "0.3.1" }
-lazy_static = { version = "1.3.0" }
-pest = { version = "2.0" }
-pest-ast = { version = "0.3.3" }
-pest_derive = { version = "2.0" }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
-thiserror = { version = "1.0" }
-tracing = { version = "0.1" }
+[dependencies.from-pest]
+version = "0.3.1"
 
-[dev-dependencies]
-criterion = { version = "0.3" }
+[dependencies.lazy_static]
+version = "1.3.0"
+
+[dependencies.pest]
+version = "2.0"
+
+[dependencies.pest-ast]
+version = "0.3.3"
+
+[dependencies.pest_derive]
+version = "2.0"
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dev-dependencies.criterion]
+version = "0.3"
 
 [features]
-default = []
-ci_skip = []
+default = [ ]
+ci_skip = [ ]

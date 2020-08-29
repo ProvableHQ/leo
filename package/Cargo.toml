@@ -1,21 +1,40 @@
 [package]
 name = "leo-package"
-version = "1.0.1"
-authors = ["The Aleo Team <hello@aleo.org>"]
+version = "1.0.2"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Package parser of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
-keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
-thiserror = { version = "1.0" }
-toml = { version = "0.5" }
-tracing = { version = "0.1" }
-walkdir = { version = "2" }
-zip = { version = "0.5" }
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.toml]
+version = "0.5"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dependencies.walkdir]
+version = "2"
+
+[dependencies.zip]
+version = "0.5"

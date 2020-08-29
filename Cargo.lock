@@ -1207,7 +1207,7 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "leo-ast"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "criterion",
  "from-pest",
@@ -1223,7 +1223,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "bincode",
  "hex",
@@ -1253,7 +1253,7 @@ dependencies = [
 
 [[package]]
 name = "leo-gadgets"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "rand",
  "rand_xorshift",
@@ -1265,7 +1265,7 @@ dependencies = [
 
 [[package]]
 name = "leo-input"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "from-pest",
  "pest",
@@ -1281,7 +1281,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "clap",
  "colored",
@@ -1320,11 +1320,11 @@ dependencies = [
 
 [[package]]
 name = "leo-linter"
-version = "1.0.1"
+version = "1.0.2"
 
 [[package]]
 name = "leo-package"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -1337,7 +1337,7 @@ dependencies = [
 
 [[package]]
 name = "leo-state"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "leo-input",
  "leo-typed",
@@ -1356,7 +1356,7 @@ dependencies = [
 
 [[package]]
 name = "leo-typed"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "criterion",
  "leo-ast",
