@@ -1326,6 +1326,7 @@ version = "1.0.2"
 name = "leo-package"
 version = "1.0.2"
 dependencies = [
+ "lazy_static",
  "serde",
  "serde_json",
  "thiserror",
