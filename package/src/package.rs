@@ -26,42 +26,42 @@ impl Package {
         }
     }
 
-    /// Returns `true` if a package is initialized at the given path
-    pub fn is_initialized(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
-        let mut result = false;
+    /// Returns `true` if a package is can be initialized at a given path.
+    pub fn can_initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
+        let mut result = true;
         let mut existing_files = vec![];
 
         // Check if the manifest file already exists.
         if Manifest::exists_at(&path) {
             existing_files.push(Manifest::filename());
-            result = true;
+            result = false;
         }
 
         if is_lib {
             // Check if the library file already exists.
             if LibraryFile::exists_at(&path) {
                 existing_files.push(LibraryFile::filename());
-                result = true;
+                result = false;
             }
         } else {
             // Check if the input file already exists.
             let input_file = InputFile::new(&package_name);
             if input_file.exists_at(&path) {
                 existing_files.push(input_file.filename());
-                result = true;
+                result = false;
             }
 
             // Check if the state file already exists.
             let state_file = StateFile::new(&package_name);
             if state_file.exists_at(&path) {
                 existing_files.push(state_file.filename());
-                result = true;
+                result = false;
             }
 
             // Check if the main file already exists.
             if MainFile::exists_at(&path) {
                 existing_files.push(MainFile::filename());
-                result = true;
+                result = false;
             }
         }
 
@@ -72,11 +72,45 @@ impl Package {
         return result;
     }
 
+    /// Returns `true` if a package is initialized at the given path
+    pub fn is_initialized(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
+        // Check if the manifest file exists.
+        if !Manifest::exists_at(&path) {
+            return false;
+        }
+
+        if is_lib {
+            // Check if the library file exists.
+            if !LibraryFile::exists_at(&path) {
+                return false;
+            }
+        } else {
+            // Check if the input file exists.
+            let input_file = InputFile::new(&package_name);
+            if !input_file.exists_at(&path) {
+                return false;
+            }
+
+            // Check if the state file exists.
+            let state_file = StateFile::new(&package_name);
+            if !state_file.exists_at(&path) {
+                return false;
+            }
+
+            // Check if the main file exists.
+            if !MainFile::exists_at(&path) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /// Creates a package at the given path
     pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
-            if Self::is_initialized(package_name, is_lib, path) {
+            if !Self::can_initialize(package_name, is_lib, path) {
                 return Err(
                     PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
                 );

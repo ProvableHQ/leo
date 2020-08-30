@@ -85,8 +85,8 @@ mod initialize_package {
     fn initialize_valid_package() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
         // Initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_ok());
@@ -105,8 +105,8 @@ mod initialize_package {
     fn initialize_fails_with_existing_manifest() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
         // Manually add a manifest file to the `test_directory`
         Manifest::new(TEST_PACKAGE_NAME).write_to(&test_directory).unwrap();
@@ -114,16 +114,16 @@ mod initialize_package {
         // Attempt to initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_err());
 
-        // Package is considered initialized at the `test_directory`
-        assert!(Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure package is not initialized at the `test_directory`
+        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
     }
 
     #[test]
     fn initialize_fails_with_existing_library_file() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, true, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, true, &test_directory));
 
         // Manually add a source directory and a library file to the `test_directory`
         SourceDirectory::create(&test_directory).unwrap();
@@ -132,16 +132,16 @@ mod initialize_package {
         // Attempt to initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, true, &test_directory).is_err());
 
-        // Package is considered initialized at the `test_directory`
-        assert!(Package::is_initialized(TEST_PACKAGE_NAME, true, &test_directory));
+        // Ensure package is not initialized at the `test_directory`
+        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, true, &test_directory));
     }
 
     #[test]
     fn initialize_fails_with_existing_input_file() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
         // Manually add an inputs directory and an input file to the `test_directory`
         InputsDirectory::create(&test_directory).unwrap();
@@ -150,16 +150,16 @@ mod initialize_package {
         // Attempt to initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_err());
 
-        // Package is considered initialized at the `test_directory`
-        assert!(Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure package is not initialized at the `test_directory`
+        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
     }
 
     #[test]
     fn initialize_fails_with_existing_state_file() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
         // Manually add an inputs directory and a state file to the `test_directory`
         InputsDirectory::create(&test_directory).unwrap();
@@ -168,16 +168,16 @@ mod initialize_package {
         // Attempt to initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_err());
 
-        // Package is considered initialized at the `test_directory`
-        assert!(Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure package is not initialized at the `test_directory`
+        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
     }
 
     #[test]
     fn initialize_fails_with_existing_main_file() {
         let test_directory = test_dir();
 
-        // Ensure a package is not initialized at the `test_directory`
-        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure a package can be initialized at the `test_directory`
+        assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
         // Manually add a source directory and a main file to the `test_directory`
         SourceDirectory::create(&test_directory).unwrap();
@@ -186,7 +186,7 @@ mod initialize_package {
         // Attempt to initialize a package at the `test_directory`
         assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_err());
 
-        // Package is considered initialized at the `test_directory`
-        assert!(Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
+        // Ensure package is not initialized at the `test_directory`
+        assert!(!Package::is_initialized(TEST_PACKAGE_NAME, false, &test_directory));
     }
 }
