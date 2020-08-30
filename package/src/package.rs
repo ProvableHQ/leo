@@ -154,6 +154,14 @@ impl Package {
                 MainFile::new(&package_name).write_to(&path)?;
             }
         }
+        // Next, verify that a valid Leo package has been initialized in this directory
+        {
+            if !Self::is_initialized(package_name, is_lib, path) {
+                return Err(
+                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
+                );
+            }
+        }
 
         Ok(())
     }
