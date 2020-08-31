@@ -133,7 +133,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;
 
-        log::debug!("Program parsing complete\n{:#?}", self.program);
+        tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         Ok(())
     }
@@ -180,11 +180,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit for test functions with program input.
-    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(), CompilerError> {
+    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         generate_test_constraints::<F, G>(
             self.program,
             input_pairs,
             &self.imported_programs,
+            &self.main_file_path,
             &self.output_directory,
         )
     }
@@ -230,17 +231,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
         let output_directory = self.output_directory.clone();
         let package_name = self.package_name.clone();
         let result = self.generate_constraints_helper(cs).map_err(|e| {
-            log::error!("{}", e);
+            tracing::error!("{}", e);
             SynthesisError::Unsatisfiable
         })?;
 
-        log::info!("Program circuit successfully synthesized!");
-
         // Write results to file
         let output_file = OutputFile::new(&package_name);
-
-        log::info!("Writing to output registers...");
-
         output_file.write(&output_directory, result.bytes()).unwrap();
 
         Ok(())

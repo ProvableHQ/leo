@@ -21,7 +21,7 @@ use clap::{App, AppSettings, Arg};
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
     let arguments = App::new("leo")
-        .version("v1.0.0")
+        .version(include_str!("./leo-version"))
         .about("Leo compiler and package manager")
         .author("The Aleo Team <hello@aleo.org>")
         .settings(&[
@@ -61,7 +61,7 @@ fn main() -> Result<(), CLIError> {
     if config.auto_update {
         if let Ok(status) = UpdateCommand::update_to_latest_release() {
             if status.updated() {
-                log::info!("Leo has successfully updated to version: {}", status.version());
+                tracing::info!("Leo has successfully updated to version: {}", status.version());
             }
         }
     }

@@ -43,11 +43,16 @@ impl CLI for WatchCommand {
     }
 
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Watching" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Watching");
+        let _enter = span.enter();
+
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
         watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
 
-        log::info!("Watching Leo source code");
+        tracing::info!("Watching Leo source code");
+
         loop {
             match rx.recv() {
                 // See changes on the write event
@@ -55,11 +60,11 @@ impl CLI for WatchCommand {
                     let options = ();
                     match BuildCommand::output(options) {
                         Ok(_output) => {
-                            log::info!("Built successfully");
+                            tracing::info!("Built successfully");
                         }
                         Err(e) => {
                             // Syntax error
-                            log::error!("Error {:?}", e);
+                            tracing::error!("Error {:?}", e);
                         }
                     };
                 }
@@ -68,7 +73,7 @@ impl CLI for WatchCommand {
 
                 // Watch error
                 Err(e) => {
-                    log::error!("watch error: {:?}", e)
+                    tracing::error!("watch error: {:?}", e)
                     // TODO (howardwu): Add graceful termination.
                 }
             }

@@ -65,8 +65,9 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
     input: InputPairs,
     imported_programs: &ImportParser,
+    main_file_path: &PathBuf,
     output_directory: &PathBuf,
-) -> Result<(), CompilerError> {
+) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
 
@@ -78,7 +79,11 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     // Get default input
     let default = input.pairs.get(&program_name);
 
-    log::info!("Running {} tests", tests.len());
+    tracing::info!("Running {} tests", tests.len());
+
+    // Count passed and failed tests
+    let mut passed = 0;
+    let mut failed = 0;
 
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
@@ -120,24 +125,37 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             input, // pass program input into every test
         );
 
-        if result.is_ok() {
-            log::info!(
-                "test {} compiled successfully. Constraint system satisfied: {}",
-                full_test_name,
-                cs.is_satisfied()
-            );
+        match (result.is_ok(), cs.is_satisfied()) {
+            (true, true) => {
+                tracing::info!("{} ... ok", full_test_name);
 
-            // write result to file
-            let output = result?;
-            let output_file = OutputFile::new(&output_file_name);
+                // write result to file
+                let output = result?;
+                let output_file = OutputFile::new(&output_file_name);
 
-            log::info!("\tWriting output to registers in `{}.out` ...", output_file_name);
+                output_file.write(output_directory, output.bytes()).unwrap();
 
-            output_file.write(output_directory, output.bytes()).unwrap();
-        } else {
-            log::error!("test {} errored: {}", full_test_name, result.unwrap_err());
+                // increment passed tests
+                passed += 1;
+            }
+            (true, false) => {
+                tracing::error!("{} constraint system not satisfied\n", full_test_name);
+
+                // increment failed tests
+                failed += 1;
+            }
+            (false, _) => {
+                // Set file location of error
+                let mut error = result.unwrap_err();
+                error.set_path(main_file_path.clone());
+
+                tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
+
+                // increment failed tests
+                failed += 1;
+            }
         }
     }
 
-    Ok(())
+    Ok((passed, failed))
 }

@@ -66,58 +66,82 @@ impl CLI for SetupCommand {
 
         match BuildCommand::output(options)? {
             Some((program, checksum_differs)) => {
+                // Begin "Setup" context for console logging
+                let span = tracing::span!(tracing::Level::INFO, "Setup");
+                let enter = span.enter();
+
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
 
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
-                let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
-                    log::info!("Setup starting...");
+                let (end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+                    tracing::info!("Starting...");
 
-                    // Start the timer
-                    let start = Instant::now();
+                    // Start the timer for setup
+                    let setup_start = Instant::now();
 
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
                         Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
 
-                    // Output the setup time
-                    log::info!("Setup completed in {:?} milliseconds", start.elapsed().as_millis());
+                    // End the timer
+                    let end = setup_start.elapsed().as_millis();
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory
+                    let proving_key_file = ProvingKeyFile::new(&package_name);
+                    tracing::info!("Saving proving key ({:?})", proving_key_file.full_path(&path));
                     let mut proving_key_bytes = vec![];
                     proving_key.write(&mut proving_key_bytes)?;
-                    ProvingKeyFile::new(&package_name).write_to(&path, &proving_key_bytes)?;
-                    log::info!("Saving proving key ({:?})", path);
+                    let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
+                    tracing::info!("Complete");
 
                     // Write the verification key file to the output directory
+                    let verification_key_file = VerificationKeyFile::new(&package_name);
+                    tracing::info!("Saving verification key ({:?})", verification_key_file.full_path(&path));
                     let mut verification_key = vec![];
                     proving_key.vk.write(&mut verification_key)?;
-                    VerificationKeyFile::new(&package_name).write_to(&path, &verification_key)?;
-                    log::info!("Saving verification key ({:?})", path);
+                    let _ = verification_key_file.write_to(&path, &verification_key)?;
+                    tracing::info!("Complete");
 
-                    (proving_key, prepared_verifying_key)
+                    (end, proving_key, prepared_verifying_key)
                 } else {
-                    log::info!("Loading saved setup...");
+                    tracing::info!("Detected saved setup");
+
+                    // Start the timer for setup
+                    let setup_start = Instant::now();
 
                     // Read the proving key file from the output directory
+                    tracing::info!("Loading proving key...");
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
                     let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
+                    tracing::info!("Complete");
 
                     // Read the verification key file from the output directory
+                    tracing::info!("Loading verification key...");
                     let verifying_key_bytes = VerificationKeyFile::new(&package_name).read_from(&path)?;
                     let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())?;
 
                     // Derive the prepared verifying key file from the verifying key
                     let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
+                    tracing::info!("Complete");
 
-                    (proving_key, prepared_verifying_key)
+                    // End the timer
+                    let end = setup_start.elapsed().as_millis();
+
+                    (end, proving_key, prepared_verifying_key)
                 };
 
-                log::info!("Program setup complete");
+                // Drop "Setup" context for console logging
+                drop(enter);
+
+                // Begin "Finished" context for console logging
+                tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+                    tracing::info!("Completed in {:?} milliseconds\n", end);
+                });
 
                 Ok((program, proving_key, prepared_verifying_key))
             }

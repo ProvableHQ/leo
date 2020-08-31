@@ -24,9 +24,11 @@ static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
 impl ImportParser {
+    // bring one or more import symbols into scope for the current constrained program
+    // we will recursively traverse sub packages here until we find the desired symbol
     pub fn parse_package_access(&mut self, entry: &DirEntry, access: &PackageAccess) -> Result<(), ImportError> {
-        // bring one or more import symbols into scope for the current constrained program
-        // we will recursively traverse sub packages here until we find the desired symbol
+        tracing::debug!("import {:?}", entry.path());
+
         match access {
             PackageAccess::Star(span) => self.parse_import_star(entry, span),
             PackageAccess::Symbol(symbol) => self.parse_import_symbol(entry, symbol),

@@ -32,7 +32,7 @@ use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkos_models::gadgets::r1cs::ConstraintSystem;
 
 use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir};
+use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
 pub struct BuildCommand;
@@ -55,6 +55,10 @@ impl CLI for BuildCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Compiling" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Compiler");
+        let enter = span.enter();
+
         let path = current_dir()?;
 
         // Get the package name
@@ -71,6 +75,11 @@ impl CLI for BuildCommand {
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
+        tracing::info!("Starting...");
+
+        // Start the timer
+        let start = Instant::now();
+
         // Compile the package starting with the lib.leo file
         if LibFile::exists_at(&package_path) {
             // Construct the path to the library file in the source directory
@@ -78,14 +87,16 @@ impl CLI for BuildCommand {
             lib_file_path.push(SOURCE_DIRECTORY_NAME);
             lib_file_path.push(LIB_FILE_NAME);
 
+            // Log compilation of library file to console
+            tracing::info!("Compiling library... ({:?})", lib_file_path);
+
             // Compile the library file but do not output
             let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
                 package_name.clone(),
                 lib_file_path.clone(),
                 output_directory.clone(),
             )?;
-
-            log::info!("Compiled library file {:?}", lib_file_path);
+            tracing::info!("Complete");
         };
 
         // Compile the main.leo file along with constraints
@@ -103,6 +114,9 @@ impl CLI for BuildCommand {
 
             // Load the state file at `package_name.in`
             let state_string = StateFile::new(&package_name).read_from(&path)?;
+
+            // Log compilation of files to console
+            tracing::info!("Compiling main program... ({:?})", main_file_path);
 
             // Load the program at `main_file_path`
             let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
@@ -127,8 +141,9 @@ impl CLI for BuildCommand {
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
-                log::debug!("Compiled constraints - {:#?}", output);
-                log::debug!("Number of constraints - {:#?}", cs.num_constraints());
+
+                tracing::debug!("Compiled constraints - {:#?}", output);
+                tracing::debug!("Number of constraints - {:#?}", cs.num_constraints());
 
                 // Serialize the circuit
                 let circuit_object = SerializedCircuit::from(cs);
@@ -163,13 +178,23 @@ impl CLI for BuildCommand {
                 // Write the new checksum to the output directory
                 checksum_file.write_to(&path, program_checksum)?;
 
-                log::debug!("Checksum saved ({:?})", path);
+                tracing::debug!("Checksum saved ({:?})", path);
             }
 
-            log::info!("Compiled program file {:?}", main_file_path);
+            tracing::info!("Complete");
+
+            // Drop "Compiling" context for console logging
+            drop(enter);
+
+            // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
+            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+                tracing::info!("Completed in {} milliseconds\n", start.elapsed().as_millis());
+            });
 
             return Ok(Some((program, checksum_differs)));
         }
+
+        drop(enter);
 
         // Return None when compiling a package for publishing
         // The published package does not need to have a main.leo

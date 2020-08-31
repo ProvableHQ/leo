@@ -17,20 +17,20 @@
 use crate::{
     cli::*,
     cli_types::*,
-    errors::{CLIError, TestError},
+    errors::{CLIError, TestError::ProgramFileDoesNotExist},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     root::Manifest,
-    source::{MainFile, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+    source::{LibFile, MainFile, LIB_FILE_NAME, MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkos_curves::edwards_bls12::Fq;
 
 use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir};
+use std::{convert::TryFrom, env::current_dir, time::Instant};
 
 #[derive(Debug)]
 pub struct TestCommand;
@@ -65,15 +65,17 @@ impl CLI for TestCommand {
             package_path.pop();
         }
 
-        // Verify the main file exists
-        if !MainFile::exists_at(&package_path) {
-            return Err(TestError::MainFileDoesNotExist(package_path.as_os_str().to_owned()).into());
-        }
+        let mut file_path = package_path.clone();
+        file_path.push(SOURCE_DIRECTORY_NAME);
 
-        // Construct the path to the main file in the source directory
-        let mut main_file_path = package_path.clone();
-        main_file_path.push(SOURCE_DIRECTORY_NAME);
-        main_file_path.push(MAIN_FILE_NAME);
+        // Verify a main or library file exists
+        if MainFile::exists_at(&package_path) {
+            file_path.push(MAIN_FILE_NAME);
+        } else if LibFile::exists_at(&package_path) {
+            file_path.push(LIB_FILE_NAME);
+        } else {
+            return Err(ProgramFileDoesNotExist(package_path.into()).into());
+        }
 
         // Construct the path to the output directory;
         let mut output_directory = package_path.clone();
@@ -82,10 +84,17 @@ impl CLI for TestCommand {
         // Create the output directory
         OutputsDirectory::create(&package_path)?;
 
+        // Begin "Test" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Test");
+        let enter = span.enter();
+
+        // Start the timer
+        let start = Instant::now();
+
         // Parse the current main program file
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
             package_name.clone(),
-            main_file_path.clone(),
+            file_path.clone(),
             output_directory,
         )?;
 
@@ -94,8 +103,33 @@ impl CLI for TestCommand {
 
         // Run tests
         let temporary_program = program.clone();
-        let output = temporary_program.compile_test_constraints(pairs)?;
-        log::debug!("Compiled constraints - {:#?}", output);
+        let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
+
+        // Drop "Test" context for console logging
+        drop(enter);
+
+        // Set the result of the test command to passed if no tests failed.
+        if failed == 0 {
+            // Begin "Finished" context for console logging
+            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+                tracing::info!(
+                    "Tests passed in {} milliseconds. {} passed; {} failed;\n",
+                    start.elapsed().as_millis(),
+                    passed,
+                    failed
+                );
+            });
+        } else {
+            // Begin "Finished" context for console logging
+            tracing::span!(tracing::Level::ERROR, "Finished").in_scope(|| {
+                tracing::error!(
+                    "Tests failed in {} milliseconds. {} passed; {} failed;\n",
+                    start.elapsed().as_millis(),
+                    passed,
+                    failed
+                );
+            });
+        };
 
         Ok(())
     }

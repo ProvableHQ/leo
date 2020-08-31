@@ -1,13 +1,19 @@
 [package]
 name = "leo-lang"
-version = "1.0.0"
-authors = ["The Aleo Team <hello@aleo.org>"]
+version = "1.0.2"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
-keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "leo", "README.md", "LICENSE.md"]
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
@@ -19,49 +25,133 @@ name = "leo"
 path = "leo/main.rs"
 
 [workspace]
-members = [ "ast", "compiler", "gadgets", "input", "linter", "package", "typed", "state"]
+members = [
+  "ast",
+  "compiler",
+  "gadgets",
+  "input",
+  "linter",
+  "package",
+  "typed",
+  "state"
+]
 
-[dependencies]
-leo-compiler = { path = "./compiler", version = "1.0.0" }
-leo-gadgets = { path = "./gadgets", version = "1.0.0" }
-leo-input = { path = "./input", version = "1.0.0" }
-leo-package = { path = "./package", version = "1.0.0" }
-leo-state = { path = "./state", version = "1.0.0" }
+[dependencies.leo-compiler]
+path = "./compiler"
+version = "1.0.2"
 
-snarkos-algorithms = { version = "1.0.0", default-features = false }
-snarkos-curves = { version = "1.0.0", default-features = false }
-snarkos-errors = { version = "1.0.0", default-features = false }
-snarkos-gadgets = { version = "1.0.0", default-features = false }
-snarkos-models =  { version = "1.0.0", default-features = false }
-snarkos-utilities = { version = "1.0.0" }
+[dependencies.leo-gadgets]
+path = "./gadgets"
+version = "1.0.2"
 
-clap = { version = "2.33.3" }
-colored = { version = "2.0" }
-dirs = { version = "3.0.1" }
-console = { version = "0.12.0" }
-dotenv = { version = "0.15.0" }
-env_logger = { version = "0.7" }
-from-pest = { version = "0.3.1" }
-lazy_static = { version = "1.4.0" }
-log = { version = "0.4" }
-notify= { version = "4.0.15" }
-num-bigint = { version = "0.3" }
-rand = { version = "0.7" }
-rand_core = { version = "0.5.1" }
-reqwest = { version = "0.10.7", features = ["blocking", "json"] }
-self_update = { version = "0.19.0", features = ["archive-zip"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
-toml = { version = "0.5" }
-thiserror = { version = "1.0" }
-zip = { version = "0.5" }
+[dependencies.leo-input]
+path = "./input"
+version = "1.0.2"
 
-[dev-dependencies]
-rusty-hook = { version = "0.11.2" }
+[dependencies.leo-package]
+path = "./package"
+version = "1.0.2"
+
+[dependencies.leo-state]
+path = "./state"
+version = "1.0.2"
+
+[dependencies.snarkos-algorithms]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-curves]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-errors]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-gadgets]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-models]
+version = "1.1.3"
+default-features = false
+
+[dependencies.snarkos-utilities]
+version = "1.1.3"
+
+[dependencies.clap]
+version = "2.33.3"
+
+[dependencies.colored]
+version = "2.0"
+
+[dependencies.dirs]
+version = "3.0.1"
+
+[dependencies.console]
+version = "0.12.0"
+
+[dependencies.dotenv]
+version = "0.15.0"
+
+[dependencies.env_logger]
+version = "0.7"
+
+[dependencies.from-pest]
+version = "0.3.1"
+
+[dependencies.lazy_static]
+version = "1.4.0"
+
+[dependencies.notify]
+version = "4.0.15"
+
+[dependencies.num-bigint]
+version = "0.3"
+
+[dependencies.rand]
+version = "0.7"
+
+[dependencies.rand_core]
+version = "0.5.1"
+
+[dependencies.reqwest]
+version = "0.10.7"
+features = [ "blocking", "json" ]
+
+[dependencies.self_update]
+version = "0.19.0"
+features = [ "archive-zip" ]
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.toml]
+version = "0.5"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dependencies.tracing-subscriber]
+version = "0.2"
+features = [ "fmt" ]
+
+[dependencies.zip]
+version = "0.5"
+
+[dev-dependencies.rusty-hook]
+version = "0.11.2"
 
 [features]
-default = []
-ci_skip = ["leo-compiler/ci_skip"]
+default = [ ]
+ci_skip = [ "leo-compiler/ci_skip" ]
 
 [profile.release]
 opt-level = 3
