@@ -24,7 +24,7 @@ use snarkos_curves::{
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkos_models::{
-    curves::{AffineCurve, One, TEModelParameters, Zero},
+    curves::{AffineCurve, Fp256, One, TEModelParameters, Zero},
     gadgets::{
         curves::{FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
@@ -41,7 +41,7 @@ use snarkos_models::{
 };
 use std::{
     borrow::Borrow,
-    ops::{Neg, Sub},
+    ops::{Mul, Neg, Sub},
     str::FromStr,
 };
 
@@ -142,12 +142,14 @@ impl EdwardsGroupType {
     }
 
     pub fn edwards_affine_from_single(number: String, span: Span) -> Result<EdwardsAffine, GroupError> {
-        if number.eq("1") {
-            return Ok(edwards_affine_one());
-        } else if number.eq("0") {
+        if number.eq("0") {
             return Ok(EdwardsAffine::zero());
         } else {
-            Self::edwards_affine_from_x_str(number, span.clone(), None, span)
+            let one = edwards_affine_one();
+            let number_value = Fp256::from_str(&number).map_err(|_| GroupError::n_group(number, span))?;
+            let result: EdwardsAffine = one.mul(&number_value);
+
+            return Ok(result);
         }
     }
 
