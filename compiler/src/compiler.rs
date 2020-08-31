@@ -110,6 +110,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Parses the Leo program file, constructs a syntax tree, and generates a program.
+    #[allow(deprecated)]
     pub(crate) fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Use the parser to construct the abstract syntax tree.
         let program_string = LeoAst::load_file(&self.main_file_path)?;
