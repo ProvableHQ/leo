@@ -48,7 +48,7 @@ use from_pest::FromPest;
 use std::{fs, path::PathBuf};
 
 pub struct LeoAst<'ast> {
-    ast: files::File<'ast>,
+    pub ast: files::File<'ast>,
 }
 
 impl<'ast> LeoAst<'ast> {
