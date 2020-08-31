@@ -111,9 +111,9 @@ impl Serialize for Identifier {
         }
 
         // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
-        let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.clone());
-        key.insert("span".to_string(), to_json_string(&self.span)?);
+        let mut key = BTreeMap::new();
+        key.insert("name", self.name.clone());
+        key.insert("span", to_json_string(&self.span)?);
 
         // Convert the serialized object into a string for use as a key.
         serializer.serialize_str(&to_json_string(&key)?)
