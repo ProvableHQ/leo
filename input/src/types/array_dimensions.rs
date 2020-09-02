@@ -42,6 +42,25 @@ pub struct Multiple<'ast> {
     pub span: Span<'ast>,
 }
 
+impl<'ast> ArrayDimensions<'ast> {
+    pub fn next_dimension(&self) -> Self {
+        match self {
+            ArrayDimensions::Single(single) => ArrayDimensions::Multiple(Multiple {
+                numbers: vec![],
+                span: single.span.clone(),
+            }),
+            ArrayDimensions::Multiple(multiple) => {
+                let old_dimension = multiple.numbers.clone();
+
+                ArrayDimensions::Multiple(Multiple {
+                    numbers: old_dimension[..old_dimension.len() - 2].to_vec(),
+                    span: multiple.span.clone(),
+                })
+            }
+        }
+    }
+}
+
 impl<'ast> std::fmt::Display for ArrayDimensions<'ast> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match *self {

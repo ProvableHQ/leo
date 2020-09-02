@@ -21,7 +21,7 @@ use crate::{
     sections::Header,
     tables::Table,
     types::{DataType, Type},
-    values::{NumberValue, PositiveNumber, Value},
+    values::{NumberValue, Value},
 };
 
 use pest::{

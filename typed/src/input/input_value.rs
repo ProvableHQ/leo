@@ -17,16 +17,11 @@
 use crate::{Expression as TypedExpression, GroupValue};
 use leo_input::{
     errors::InputParserError,
-    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
-    types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
+    types::{ArrayElement, ArrayType, DataType, IntegerType, TupleType, Type},
+    values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
 };
 
-use leo_input::{
-    expressions::TupleExpression,
-    types::TupleType,
-    values::{Address, AddressValue},
-};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
@@ -108,19 +103,30 @@ impl InputValue {
     }
 
     pub(crate) fn from_array_inline(
-        array_type: ArrayType,
+        mut array_type: ArrayType,
         inline: ArrayInlineExpression,
     ) -> Result<Self, InputParserError> {
         let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
 
         // Return an error if the outer array dimension does not equal the number of array elements
         if let Some(outer_dimension) = array_dimensions.pop() {
+            array_type.dimensions = array_type.dimensions.next_dimension();
+
             if outer_dimension != inline.expressions.len() {
                 return Err(InputParserError::array_inline_length(outer_dimension, inline));
             }
         };
 
-        let inner_array_type = Type::Array(array_type);
+        let inner_array_type = if array_dimensions.len() == 0 {
+            // this is a single array
+            match array_type.type_ {
+                ArrayElement::Basic(basic) => Type::Basic(basic),
+                ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
+            }
+        } else {
+            // this is a multi-dimensional array
+            Type::Array(array_type)
+        };
 
         let mut values = vec![];
         for expression in inline.expressions.into_iter() {
@@ -133,7 +139,7 @@ impl InputValue {
     }
 
     pub(crate) fn from_array_initializer(
-        array_type: ArrayType,
+        mut array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
         let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
@@ -141,12 +147,23 @@ impl InputValue {
 
         // Return an error if the outer array dimension does not equal the number of array elements
         if let Some(outer_dimension) = array_dimensions.pop() {
+            array_type.dimensions = array_type.dimensions.next_dimension();
+
             if outer_dimension != initializer_count {
                 return Err(InputParserError::array_init_length(outer_dimension, initializer));
             }
         }
 
-        let inner_array_type = Type::Array(array_type);
+        let inner_array_type = if array_dimensions.len() == 0 {
+            // this is a single array
+            match array_type.type_ {
+                ArrayElement::Basic(basic) => Type::Basic(basic),
+                ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
+            }
+        } else {
+            // this is a multi-dimensional array
+            Type::Array(array_type)
+        };
 
         let mut values = vec![];
         for _ in 0..initializer_count {
