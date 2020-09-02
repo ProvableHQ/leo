@@ -66,6 +66,21 @@ macro_rules! match_integer {
 }
 
 #[macro_export]
+macro_rules! match_unsigned_integer {
+    ($integer: ident => $expression: expr) => {
+        match $integer {
+            Integer::U8($integer) => $expression,
+            Integer::U16($integer) => $expression,
+            Integer::U32($integer) => $expression,
+            Integer::U64($integer) => $expression,
+            Integer::U128($integer) => $expression,
+
+            _ => None,
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! match_signed_integer {
     ($integer: ident, $span: ident => $expression: expr) => {
         match $integer {

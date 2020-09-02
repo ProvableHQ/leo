@@ -154,7 +154,10 @@ impl Integer {
     }
 
     pub fn to_usize(&self, span: Span) -> Result<usize, IntegerError> {
-        let value = self.get_value().ok_or(IntegerError::invalid_index(span.clone()))?;
+        let unsigned_integer = self;
+        let value_option: Option<String> = match_unsigned_integer!(unsigned_integer => unsigned_integer.get_value());
+
+        let value = value_option.ok_or(IntegerError::invalid_index(span.clone()))?;
         let value_usize = value
             .parse::<usize>()
             .map_err(|_| IntegerError::invalid_integer(value, span))?;
