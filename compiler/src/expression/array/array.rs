@@ -92,7 +92,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Check expected_dimensions if given
         if !expected_dimensions.is_empty() {
-            println!("checking dimensions");
             if expected_dimensions[expected_dimensions.len() - 1] != result.len() {
                 return Err(ExpressionError::invalid_length(
                     expected_dimensions[expected_dimensions.len() - 1],

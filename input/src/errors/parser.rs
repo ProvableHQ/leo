@@ -84,10 +84,10 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_inline_length(number: PositiveNumber, array: ArrayInlineExpression) -> Self {
+    pub fn array_inline_length(number: usize, array: ArrayInlineExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
-            number.to_string(),
+            number,
             array.expressions.len()
         );
         let span = array.span.to_owned();
@@ -95,11 +95,10 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_init_length(number: PositiveNumber, array: ArrayInitializerExpression) -> Self {
+    pub fn array_init_length(number: usize, array: ArrayInitializerExpression) -> Self {
         let message = format!(
             "expected an array with a fixed size of {} elements, found one with {} elements",
-            number.to_string(),
-            array.count
+            number, array.count
         );
         let span = array.span.to_owned();
 

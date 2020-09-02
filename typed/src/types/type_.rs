@@ -17,6 +17,7 @@
 use crate::{Expression, Identifier, IntegerType};
 use leo_ast::types::{ArrayElement, ArrayType, CircuitType, DataType, TupleType, Type as AstType};
 use leo_input::types::{
+    ArrayElement as InputArrayElement,
     ArrayType as InputArrayType,
     DataType as InputDataType,
     TupleType as InputTupleType,
@@ -161,14 +162,19 @@ impl From<InputDataType> for Type {
 
 impl<'ast> From<InputArrayType<'ast>> for Type {
     fn from(array_type: InputArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(array_type._type));
-        let dimensions = array_type
-            .dimensions
-            .into_iter()
-            .map(|row| Expression::get_count_from_input_ast(row))
-            .collect();
+        let element_type = Box::new(Type::from(array_type.type_));
+        let dimensions = Expression::get_input_array_dimensions(array_type.dimensions);
 
         Type::Array(element_type, dimensions)
+    }
+}
+
+impl<'ast> From<InputArrayElement<'ast>> for Type {
+    fn from(element: InputArrayElement<'ast>) -> Self {
+        match element {
+            InputArrayElement::Basic(type_) => Type::from(type_),
+            InputArrayElement::Tuple(type_) => Type::from(type_),
+        }
     }
 }
 
