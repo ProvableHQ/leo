@@ -33,6 +33,6 @@ pub struct ArrayType<'ast> {
 
 impl<'ast> std::fmt::Display for ArrayType<'ast> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "[{}; {}]", self.type_, self.dimensions)
+        write!(f, "[{}; ({})]", self.type_, self.dimensions)
     }
 }

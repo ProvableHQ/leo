@@ -179,7 +179,7 @@ value_address = {address | address_typed}
 /// Expressions
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ expression ~ ";" ~ number_positive ~ "]" }
+expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}

@@ -17,7 +17,7 @@
 use crate::{
     ast::Rule,
     errors::SyntaxError as InputSyntaxError,
-    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
+    expressions::{ArrayInlineExpression, Expression},
     sections::Header,
     tables::Table,
     types::{DataType, Type},
@@ -71,14 +71,22 @@ impl InputParserError {
     }
 
     pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
-        let message = format!("expected `{}`, found `{}`", data_type.to_string(), value.to_string());
+        let message = format!(
+            "expected data type `{}`, found `{}`",
+            data_type.to_string(),
+            value.to_string()
+        );
         let span = value.span().to_owned();
 
         Self::new_from_span(message, span)
     }
 
     pub fn expression_type_mismatch(type_: Type, expression: Expression) -> Self {
-        let message = format!("expected `{}`, found `{}`", type_.to_string(), expression.to_string());
+        let message = format!(
+            "expected expression type `{}`, found `{}`",
+            type_.to_string(),
+            expression.to_string()
+        );
         let span = expression.span().to_owned();
 
         Self::new_from_span(message, span)
@@ -95,12 +103,11 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_init_length(number: usize, array: ArrayInitializerExpression) -> Self {
+    pub fn array_init_length(expected: Vec<usize>, actual: Vec<usize>, span: Span) -> Self {
         let message = format!(
-            "expected an array with a fixed size of {} elements, found one with {} elements",
-            number, array.count
+            "expected an array with a fixed size of {:?} elements, found one with {:?} elements",
+            expected, actual
         );
-        let span = array.span.to_owned();
 
         Self::new_from_span(message, span)
     }
