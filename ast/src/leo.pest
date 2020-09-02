@@ -346,7 +346,7 @@ expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = { "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ expression ~ ";" ~ number_positive ~ "]" }
+expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}

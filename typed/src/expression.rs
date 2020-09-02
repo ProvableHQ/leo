@@ -485,10 +485,28 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let count = Expression::get_count_from_ast(array.count);
+        let dimensions = Expression::get_array_dimensions(array.dimensions);
         let expression = Box::new(SpreadOrExpression::from(*array.expression));
 
-        Expression::Array(vec![expression; count], Span::from(array.span))
+        let mut elements = vec![];
+
+        // Initializes an arrays elements using the rust `vec!` macro.
+        // If there are multiple array dimensions, then `elements` is used as the first expression in a `vec!` macro.
+        // This creates a multi-dimensional array by chaining `vec!` macros.
+        for (i, dimension) in dimensions.into_iter().enumerate() {
+            if i == 0 {
+                elements = vec![expression.clone(); dimension];
+            } else {
+                let element = Box::new(SpreadOrExpression::Expression(Expression::Array(
+                    elements,
+                    Span::from(array.span.clone()),
+                )));
+
+                elements = vec![element; dimension];
+            }
+        }
+
+        Expression::Array(elements, Span::from(array.span))
     }
 }
 
