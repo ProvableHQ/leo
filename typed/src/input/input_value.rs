@@ -142,7 +142,7 @@ impl InputValue {
         array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
-        let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
         let initializer_dimensions = TypedExpression::get_input_array_dimensions(initializer.dimensions.clone());
 
         // Return an error if the array type does not equal the array expression
