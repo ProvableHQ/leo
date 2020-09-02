@@ -14,25 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    types::{ArrayDimensions, ArrayElement},
-};
+use crate::{ast::Rule, values::PositiveNumber};
 
 use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
-#[pest_ast(rule(Rule::type_array))]
-pub struct ArrayType<'ast> {
-    pub type_: ArrayElement<'ast>,
-    pub dimensions: ArrayDimensions<'ast>,
+#[pest_ast(rule(Rule::array_dimensions))]
+pub enum ArrayDimensions<'ast> {
+    Single(Single<'ast>),
+    Multiple(Multiple<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
+#[pest_ast(rule(Rule::dimension_single))]
+pub struct Single<'ast> {
+    pub number: PositiveNumber<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
-impl<'ast> std::fmt::Display for ArrayType<'ast> {
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
+#[pest_ast(rule(Rule::dimension_multiple))]
+pub struct Multiple<'ast> {
+    pub numbers: Vec<PositiveNumber<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> std::fmt::Display for ArrayDimensions<'ast> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "[{}; {}]", self.type_, self.dimensions)
+        match *self {
+            ArrayDimensions::Single(ref single) => write!(f, "{}", single.number),
+            ArrayDimensions::Multiple(ref multiple) => write!(f, "{:?}", multiple.numbers),
+        }
     }
 }
