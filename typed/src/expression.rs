@@ -42,7 +42,7 @@ use leo_ast::{
 };
 use leo_input::values::PositiveNumber as InputAstPositiveNumber;
 
-use leo_ast::expressions::TupleExpression;
+use leo_ast::{expressions::TupleExpression, types::ArrayDimensions};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -149,6 +149,17 @@ impl<'ast> Expression {
             .value
             .parse::<usize>()
             .expect("Array size should be a positive number")
+    }
+
+    pub(crate) fn get_array_dimensions(dimensions: ArrayDimensions<'ast>) -> Vec<usize> {
+        match dimensions {
+            ArrayDimensions::Single(single) => vec![Self::get_count_from_ast(single.number)],
+            ArrayDimensions::Multiple(multiple) => multiple
+                .numbers
+                .into_iter()
+                .map(|number| Self::get_count_from_ast(number))
+                .collect(),
+        }
     }
 }
 

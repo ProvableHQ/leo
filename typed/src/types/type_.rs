@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, IntegerType};
-use leo_ast::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
+use leo_ast::types::{ArrayElement, ArrayType, CircuitType, DataType, TupleType, Type as AstType};
 use leo_input::types::{
     ArrayType as InputArrayType,
     DataType as InputDataType,
@@ -101,14 +101,21 @@ impl From<DataType> for Type {
 
 impl<'ast> From<ArrayType<'ast>> for Type {
     fn from(array_type: ArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(array_type._type));
-        let dimensions = array_type
-            .dimensions
-            .into_iter()
-            .map(|row| Expression::get_count_from_ast(row))
-            .collect();
+        let element_type = Box::new(Type::from(array_type.type_));
+        let dimensions = Expression::get_array_dimensions(array_type.dimensions);
 
         Type::Array(element_type, dimensions)
+    }
+}
+
+impl<'ast> From<ArrayElement<'ast>> for Type {
+    fn from(element: ArrayElement<'ast>) -> Self {
+        match element {
+            ArrayElement::Basic(type_) => Type::from(type_),
+            ArrayElement::Tuple(type_) => Type::from(type_),
+            ArrayElement::Circuit(type_) => Type::from(type_),
+            ArrayElement::SelfType(_type) => Type::SelfType,
+        }
     }
 }
 
