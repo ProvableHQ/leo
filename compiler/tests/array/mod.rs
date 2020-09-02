@@ -147,7 +147,7 @@ fn test_multi() {
 }
 
 #[test]
-fn test_multi_initializer_fail() {
+fn test_multi_fail() {
     let program_bytes = include_bytes!("multi_fail_initializer.leo");
     let program = parse_program(program_bytes).unwrap();
 
@@ -157,6 +157,22 @@ fn test_multi_initializer_fail() {
 #[test]
 fn test_multi_inline_fail() {
     let program_bytes = include_bytes!("multi_fail_inline.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multi_initializer() {
+    let program_bytes = include_bytes!("multi_initializer.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_multi_initializer_fail() {
+    let program_bytes = include_bytes!("multi_initializer_fail.leo");
     let program = parse_program(program_bytes).unwrap();
 
     expect_compiler_error(program);
