@@ -15,19 +15,19 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier};
-use leo_ast::circuits::CircuitField;
+use leo_ast::circuits::CircuitVariable;
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitFieldDefinition {
+pub struct CircuitVariableDefinition {
     pub identifier: Identifier,
     pub expression: Expression,
 }
 
-impl<'ast> From<CircuitField<'ast>> for CircuitFieldDefinition {
-    fn from(member: CircuitField<'ast>) -> Self {
-        CircuitFieldDefinition {
+impl<'ast> From<CircuitVariable<'ast>> for CircuitVariableDefinition {
+    fn from(member: CircuitVariable<'ast>) -> Self {
+        CircuitVariableDefinition {
             identifier: Identifier::from(member.identifier),
             expression: Expression::from(member.expression),
         }

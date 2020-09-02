@@ -53,8 +53,8 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
                 AstAssigneeAccess::Tuple(tuple) => {
                     Assignee::Tuple(Box::new(acc), Expression::get_count_from_ast(tuple.number))
                 }
-                AstAssigneeAccess::Member(circuit_field) => {
-                    Assignee::CircuitField(Box::new(acc), Identifier::from(circuit_field.identifier))
+                AstAssigneeAccess::Member(circuit_variable) => {
+                    Assignee::CircuitField(Box::new(acc), Identifier::from(circuit_variable.identifier))
                 }
             })
     }

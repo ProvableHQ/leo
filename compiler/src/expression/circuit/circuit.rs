@@ -22,7 +22,7 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_typed::{CircuitFieldDefinition, CircuitMember, Identifier, Span};
+use leo_typed::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         identifier: Identifier,
-        members: Vec<CircuitFieldDefinition>,
+        members: Vec<CircuitVariableDefinition>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for member in circuit.members.clone().into_iter() {
             match member {
-                CircuitMember::CircuitField(identifier, _type) => {
+                CircuitMember::CircuitVariable(identifier, _type) => {
                     let matched_field = members
                         .clone()
                         .into_iter()
