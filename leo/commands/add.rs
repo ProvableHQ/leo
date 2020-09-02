@@ -45,17 +45,17 @@ impl CLI for AddCommand {
     type Options = (Option<String>, Option<String>, Option<String>);
     type Output = ();
 
-    const ABOUT: AboutType = "Install a package from the package manager";
+    const ABOUT: AboutType = "Install a package from the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "add";
     const OPTIONS: &'static [OptionType] = &[
         // (argument, conflicts, possible_values, requires)
         ("[author] -a --author=<author> 'Specify a package author'", &[], &[], &[
-            "package_name",
+            "package",
         ]),
         (
-            "[package_name] -p --package_name=<package_name> 'Specify a package name'",
+            "[package] -p --package=<package> 'Specify a package name'",
             &[],
             &[],
             &["author"],
@@ -64,7 +64,7 @@ impl CLI for AddCommand {
             "[version] -v --version=[version] 'Specify a package version'",
             &[],
             &[],
-            &["author", "package_name"],
+            &["author", "package"],
         ),
     ];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
@@ -74,7 +74,7 @@ impl CLI for AddCommand {
         if arguments.is_present("author") && arguments.is_present("package_name") {
             return Ok((
                 arguments.value_of("author").map(|s| s.to_string()),
-                arguments.value_of("package_name").map(|s| s.to_string()),
+                arguments.value_of("package").map(|s| s.to_string()),
                 arguments.value_of("version").map(|s| s.to_string()),
             ));
         } else {
@@ -100,7 +100,7 @@ impl CLI for AddCommand {
 
                 let mut json = HashMap::new();
                 json.insert("author", author);
-                json.insert("package_name", package_name.clone());
+                json.insert("package", package_name.clone());
 
                 if let Some(version) = version {
                     json.insert("version", version);
@@ -110,7 +110,9 @@ impl CLI for AddCommand {
                     Ok(response) => (response, package_name),
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(ConnectionUnavailable("Could not connect to the package manager".into()).into());
+                        return Err(
+                            ConnectionUnavailable("Could not connect to the Aleo Package Manager".into()).into(),
+                        );
                     }
                 }
             }
