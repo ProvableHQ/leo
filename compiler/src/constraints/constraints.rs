@@ -127,7 +127,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
         match (result.is_ok(), cs.is_satisfied()) {
             (true, true) => {
-                tracing::info!("{} ... ok", full_test_name);
+                tracing::info!("{} ... ok\n", full_test_name);
 
                 // write result to file
                 let output = result?;
