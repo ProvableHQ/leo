@@ -359,7 +359,7 @@ statement = {
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
 // Declared in statements/conditional_statement.rs
-statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else " ~ conditional_nested_or_end_statement)?}
+statement_conditional = {"if " ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else " ~ conditional_nested_or_end_statement)?}
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs
