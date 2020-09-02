@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::SpreadOrExpression, values::PositiveNumber, SpanDef};
+use crate::{ast::Rule, expressions::Expression, values::PositiveNumber, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,7 +23,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::expression_array_initializer))]
 pub struct ArrayInitializerExpression<'ast> {
-    pub expression: Box<SpreadOrExpression<'ast>>,
+    pub expression: Box<Expression<'ast>>,
     pub count: PositiveNumber<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
