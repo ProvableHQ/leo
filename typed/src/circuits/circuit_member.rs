@@ -16,9 +16,9 @@
 
 use crate::{Function, Identifier, Type};
 use leo_ast::circuits::{
-    CircuitFieldDefinition as AstCircuitFieldDefinition,
     CircuitFunction as AstCircuitFunction,
     CircuitMember as AstCircuitMember,
+    CircuitVariableDefinition as AstCircuitVariableDefinition,
 };
 
 use serde::{Deserialize, Serialize};
@@ -26,13 +26,13 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
-    CircuitField(Identifier, Type),
+    CircuitVariable(Identifier, Type),
     CircuitFunction(bool, Function),
 }
 
-impl<'ast> From<AstCircuitFieldDefinition<'ast>> for CircuitMember {
-    fn from(circuit_value: AstCircuitFieldDefinition<'ast>) -> Self {
-        CircuitMember::CircuitField(
+impl<'ast> From<AstCircuitVariableDefinition<'ast>> for CircuitMember {
+    fn from(circuit_value: AstCircuitVariableDefinition<'ast>) -> Self {
+        CircuitMember::CircuitVariable(
             Identifier::from(circuit_value.identifier),
             Type::from(circuit_value._type),
         )
@@ -51,7 +51,7 @@ impl<'ast> From<AstCircuitFunction<'ast>> for CircuitMember {
 impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
     fn from(object: AstCircuitMember<'ast>) -> Self {
         match object {
-            AstCircuitMember::CircuitFieldDefinition(circuit_value) => CircuitMember::from(circuit_value),
+            AstCircuitMember::CircuitVariableDefinition(circuit_value) => CircuitMember::from(circuit_value),
             AstCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
         }
     }
@@ -60,7 +60,7 @@ impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitField(ref identifier, ref _type) => write!(f, "{}: {}", identifier, _type),
+            CircuitMember::CircuitVariable(ref identifier, ref _type) => write!(f, "{}: {}", identifier, _type),
             CircuitMember::CircuitFunction(ref _static, ref function) => {
                 if *_static {
                     write!(f, "static ")?;

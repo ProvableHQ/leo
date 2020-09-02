@@ -14,7 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitFieldDefinition, GroupValue, Identifier, IntegerType, RangeOrExpression, Span, SpreadOrExpression};
+use crate::{
+    CircuitVariableDefinition,
+    GroupValue,
+    Identifier,
+    IntegerType,
+    RangeOrExpression,
+    Span,
+    SpreadOrExpression,
+};
 use leo_ast::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
@@ -90,7 +98,7 @@ pub enum Expression {
     TupleAccess(Box<Expression>, usize, Span),
 
     // Circuits
-    Circuit(Identifier, Vec<CircuitFieldDefinition>, Span),
+    Circuit(Identifier, Vec<CircuitVariableDefinition>, Span),
     CircuitMemberAccess(Box<Expression>, Identifier, Span), // (declared circuit name, circuit member name)
     CircuitStaticFunctionAccess(Box<Expression>, Identifier, Span), // (defined circuit name, circuit static member name)
 
@@ -271,8 +279,8 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
         let members = expression
             .members
             .into_iter()
-            .map(|member| CircuitFieldDefinition::from(member))
-            .collect::<Vec<CircuitFieldDefinition>>();
+            .map(|member| CircuitVariableDefinition::from(member))
+            .collect::<Vec<CircuitVariableDefinition>>();
 
         Expression::Circuit(circuit_name, members, Span::from(expression.span))
     }

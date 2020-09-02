@@ -55,24 +55,24 @@ fn test_inline_undefined() {
 // Members
 
 #[test]
-fn test_member_field() {
-    let bytes = include_bytes!("member_field.leo");
+fn test_member_variable() {
+    let bytes = include_bytes!("member_variable.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
-fn test_member_field_fail() {
-    let bytes = include_bytes!("member_field_fail.leo");
+fn test_member_variable_fail() {
+    let bytes = include_bytes!("member_variable_fail.leo");
     let program = parse_program(bytes).unwrap();
 
     expect_fail(program);
 }
 
 #[test]
-fn test_member_field_and_function() {
-    let bytes = include_bytes!("member_field_and_function.leo");
+fn test_member_variable_and_function() {
+    let bytes = include_bytes!("member_variable_and_function.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);

@@ -14,18 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, expressions::Expression, SpanDef};
+use crate::{Expression, Identifier};
+use leo_ast::circuits::CircuitVariable;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_field))]
-pub struct CircuitField<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CircuitVariableDefinition {
+    pub identifier: Identifier,
+    pub expression: Expression,
+}
+
+impl<'ast> From<CircuitVariable<'ast>> for CircuitVariableDefinition {
+    fn from(member: CircuitVariable<'ast>) -> Self {
+        CircuitVariableDefinition {
+            identifier: Identifier::from(member.identifier),
+            expression: Expression::from(member.expression),
+        }
+    }
 }

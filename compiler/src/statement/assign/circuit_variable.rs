@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Enforces a circuit field assignment statement in a compiled Leo program.
+//! Enforces a circuit variable assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_typed::{Identifier, Span};
@@ -28,7 +28,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn mutute_circuit_field<CS: ConstraintSystem<F>>(
+    pub fn mutute_circuit_variable<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: Option<Boolean>,
@@ -41,10 +41,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         match self.get_mutable_assignee(circuit_name, span.clone())? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
-                // Modify the circuit field in place
-                let matched_field = members.into_iter().find(|object| object.0 == object_name);
+                // Modify the circuit variable in place
+                let matched_variable = members.into_iter().find(|object| object.0 == object_name);
 
-                match matched_field {
+                match matched_variable {
                     Some(object) => match &object.1 {
                         ConstrainedValue::Function(_circuit_identifier, function) => {
                             return Err(StatementError::immutable_circuit_function(
