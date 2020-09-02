@@ -22,7 +22,6 @@ use crate::{
     errors::{
         commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
         CLIError,
-        CLIError::PublishError,
         PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
     },
 };
@@ -70,6 +69,10 @@ impl CLI for PublishCommand {
         // Build all program files.
         let _output = BuildCommand::output(())?;
 
+        // Begin "Publishing" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Publishing");
+        let _enter = span.enter();
+
         // Get the package manifest
         let path = current_dir()?;
         let package_manifest = Manifest::try_from(&path)?;
@@ -78,16 +81,16 @@ impl CLI for PublishCommand {
         let package_version = package_manifest.get_package_version();
 
         if package_manifest.get_package_description().is_none() {
-            return Err(PublishError(MissingPackageDescription));
+            return Err(MissingPackageDescription.into());
         }
 
         if package_manifest.get_package_license().is_none() {
-            return Err(PublishError(MissingPackageLicense));
+            return Err(MissingPackageLicense.into());
         }
 
         let package_remote = match package_manifest.get_package_remote() {
             Some(remote) => remote,
-            None => return Err(PublishError(MissingPackageRemote)),
+            None => return Err(MissingPackageRemote.into()),
         };
 
         // Create the output directory
@@ -96,7 +99,7 @@ impl CLI for PublishCommand {
         // Create zip file
         let zip_file = ZipFile::new(&package_name);
         if zip_file.exists_at(&path) {
-            log::debug!("Existing package zip file found. Clearing it to regenerate.");
+            tracing::debug!("Existing package zip file found. Clearing it to regenerate.");
             // Remove the existing package zip file
             ZipFile::new(&package_name).remove(&path)?;
         }
@@ -104,8 +107,8 @@ impl CLI for PublishCommand {
         zip_file.write(&path)?;
 
         let form_data = Form::new()
-            .text("name", package_name)
-            .text("remote", package_remote)
+            .text("name", package_name.clone())
+            .text("remote", format!("{}/{}", package_remote.author, package_name))
             .text("version", package_version)
             .file("file", zip_file.get_file_path(&path))?;
 
@@ -118,8 +121,8 @@ impl CLI for PublishCommand {
 
             // If not logged in, then try logging in using JWT.
             Err(_error) => {
-                log::warn!("You should be logged in before attempting to publish a package");
-                log::info!("Trying to log in using JWT...");
+                tracing::warn!("You should be logged in before attempting to publish a package");
+                tracing::info!("Trying to log in using JWT...");
                 let options = (None, None, None);
 
                 LoginCommand::output(options)?
@@ -145,17 +148,17 @@ impl CLI for PublishCommand {
             Ok(json_result) => match json_result.json::<ResponseJson>() {
                 Ok(json) => json,
                 Err(error) => {
-                    log::warn!("{:?}", error);
-                    return Err(PublishError(PackageNotPublished("Package not published".into())));
+                    tracing::warn!("{:?}", error);
+                    return Err(PackageNotPublished("Package not published".into()).into());
                 }
             },
             Err(error) => {
-                log::warn!("{:?}", error);
-                return Err(PublishError(ConnectionUnavalaible("Connection error".into())));
+                tracing::warn!("{:?}", error);
+                return Err(ConnectionUnavalaible("Connection error".into()).into());
             }
         };
 
-        log::info!("Package published successfully with id: {}", result.package_id);
+        tracing::info!("Package published successfully with id: {}", result.package_id);
         Ok(Some(result.package_id))
     }
 }

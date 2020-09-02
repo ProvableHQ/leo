@@ -67,27 +67,27 @@ impl StateFile {
 
 [state]
 leaf_index: u32 = 0;
-root: u8[32] = [0u8; 32];
+root: [u8; 32] = [0u8; 32];
 
 [[private]]
 
 [record]
-serial_number: u8[64] = [0u8; 64];
-commitment: u8[32] = [0u8; 32];
+serial_number: [u8; 64] = [0u8; 64];
+commitment: [u8; 32] = [0u8; 32];
 owner: address = aleo1daxej63vwrmn2zhl4dymygagh89k5d2vaw6rjauueme7le6k2q8sjn0ng9;
 is_dummy: bool = false;
 value: u64 = 5;
-payload: u8[32] = [0u8; 32];
-birth_program_id: u8[48] = [0u8; 48];
-death_program_id: u8[48] = [0u8; 48];
-serial_number_nonce: u8[32] = [0u8; 32];
-commitment_randomness: u8[32] = [0u8; 32];
+payload: [u8; 32] = [0u8; 32];
+birth_program_id: [u8; 48] = [0u8; 48];
+death_program_id: [u8; 48] = [0u8; 48];
+serial_number_nonce: [u8; 32] = [0u8; 32];
+commitment_randomness: [u8; 32] = [0u8; 32];
 
 [state_leaf]
-path: u8[128] = [0u8; 128];
-memo: u8[32] = [0u8; 32];
+path: [u8; 128] = [0u8; 128];
+memo: [u8; 32] = [0u8; 32];
 network_id: u8 = 0;
-leaf_randomness: u8[32] = [0u8; 32];
+leaf_randomness: [u8; 32] = [0u8; 32];
 "#,
             self.package_name
         )

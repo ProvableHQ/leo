@@ -21,6 +21,8 @@ use leo_package::{
 };
 
 use clap::ArgMatches;
+use leo_compiler::OutputFile;
+use leo_package::outputs::CircuitFile;
 use std::{convert::TryFrom, env::current_dir};
 
 #[derive(Debug)]
@@ -44,12 +46,22 @@ impl CLI for CleanCommand {
 
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+        // Begin "Clean" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Cleaning");
+        let enter = span.enter();
+
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(&path)?.get_package_name();
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;
+
+        // Remove the serialized circuit from the output directory
+        CircuitFile::new(&package_name).remove(&path)?;
+
+        // Remove the program output file from the output directory
+        OutputFile::new(&package_name).remove(&path)?;
 
         // Remove the proving key from the output directory
         ProvingKeyFile::new(&package_name).remove(&path)?;
@@ -59,6 +71,14 @@ impl CLI for CleanCommand {
 
         // Remove the proof from the output directory
         ProofFile::new(&package_name).remove(&path)?;
+
+        // Drop "Compiling" context for console logging
+        drop(enter);
+
+        // Begin "Finished" context for console logging
+        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            tracing::info!("Program workspace cleaned\n");
+        });
 
         Ok(())
     }

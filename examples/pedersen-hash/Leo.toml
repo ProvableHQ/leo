@@ -2,5 +2,7 @@
 name = "pedersen-hash"
 version = "0.1.0"
 description = "A 256bit hash function"
-remote = "aleo/pedersen-hash"
 license = "LICENSE-MIT"
+
+[remote]
+author = "aleo"

@@ -27,6 +27,9 @@ pub enum OutputFileError {
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
+    #[error("Cannot remove the provided file - {:?}", _0)]
+    FileRemovalError(PathBuf),
+
     #[error("writing: {}", _0)]
     Writing(io::Error),
 }

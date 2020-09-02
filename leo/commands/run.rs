@@ -22,7 +22,7 @@ use snarkos_curves::bls12_377::{Bls12_377, Fr};
 use snarkos_models::algorithms::SNARK;
 
 use clap::ArgMatches;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct RunCommand;
@@ -47,10 +47,16 @@ impl CLI for RunCommand {
     fn output(options: Self::Options) -> Result<(), CLIError> {
         let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
 
-        let mut verifying = Duration::new(0, 0);
+        // Begin "Verifying" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Verifier");
+        let enter = span.enter();
 
+        tracing::info!("Starting...");
+
+        // Start the timer
         let start = Instant::now();
 
+        // Run the verifier
         let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
             &prepared_verifying_key,
             &vec![],
@@ -58,12 +64,22 @@ impl CLI for RunCommand {
         )
         .unwrap();
 
-        verifying += start.elapsed();
+        // End the timer
+        let end = start.elapsed().as_millis();
 
-        println!(" ");
-        println!("  Verifier time   : {:?} milliseconds", verifying.as_millis());
-        println!("  Verifier output : {}", is_success);
-        println!(" ");
+        // Log the verifier output
+        match is_success {
+            true => tracing::info!("Proof is valid"),
+            false => tracing::error!("Proof is invalid"),
+        };
+
+        // Drop "Verifying" context for console logging
+        drop(enter);
+
+        // Begin "Finished" context for console logging
+        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            tracing::info!("Completed in {:?} milliseconds\n", end);
+        });
 
         Ok(())
     }

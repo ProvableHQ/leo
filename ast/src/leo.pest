@@ -194,7 +194,29 @@ type_self = { "Self" }
 type_circuit = { identifier }
 
 // Declared in types/array_type.rs
-type_array = { type_data ~ ("[" ~ number_positive ~ "]")+ }
+type_array = { "[" ~ array_element ~ ";" ~ array_dimensions ~ "]" }
+
+// Declared in types/array_element.rs
+array_element = {
+    type_self
+    | type_tuple
+    | type_data
+    | type_circuit
+}
+
+// Declared in types/array_dimensions.rs
+array_dimensions = {
+    dimension_single
+    | dimension_multiple
+}
+
+// Declared in types/array_dimensions.rs
+dimension_single = {
+    number_positive
+}
+
+// Declared in types/array_dimensions.rs
+dimension_multiple = { "(" ~ number_positive ~ ("," ~ number_positive)* ~ ")"}
 
 type_tuple = { "(" ~ NEWLINE* ~ type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","? ~ NEWLINE* ~ ")" }
 
@@ -324,7 +346,7 @@ expression = { expression_term ~ (operation_binary ~ expression_term)* }
 expression_tuple = { "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
-expression_array_initializer = { "[" ~ spread_or_expression ~ ";" ~ number_positive ~ "]" }
+expression_array_initializer = { "[" ~ expression ~ ";" ~ number_positive ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
@@ -359,7 +381,7 @@ statement = {
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
 // Declared in statements/conditional_statement.rs
-statement_conditional = {"if " ~ (expression | "(" ~ expression ~ ")") ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else " ~ conditional_nested_or_end_statement)?}
+statement_conditional = {"if " ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else " ~ conditional_nested_or_end_statement)?}
 conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
 
 // Declared in statements/definition_statement.rs

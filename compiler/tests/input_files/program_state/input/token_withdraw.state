@@ -2,23 +2,23 @@
 
 [state]
 leaf_index: u32 = 0;
-root: u8[32] = [0u8; 32];
+root: [u8; 32] = [0u8; 32];
 
 [[private]]
 
 [record]
-serial_number: u8[32] = [0u8; 32];
-commitment: u8[32] = [0u8; 32];
+serial_number: [u8; 32] = [0u8; 32];
+commitment: [u8; 32] = [0u8; 32];
 owner: address = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
 value: u64 = 5;
-payload: u8[32] = [0u8; 32];
-birth_program_id: u8[32] = [0u8; 32];
-death_program_id: u8[32] = [0u8; 32];
-serial_number_nonce: u8[32] = [0u8; 32];
-commitment_randomness: u8[32] = [0u8; 32];
+payload: [u8; 32] = [0u8; 32];
+birth_program_id: [u8; 32] = [0u8; 32];
+death_program_id: [u8; 32] = [0u8; 32];
+serial_number_nonce: [u8; 32] = [0u8; 32];
+commitment_randomness: [u8; 32] = [0u8; 32];
 
 [state_leaf]
-path: u8[32][2] = [ [0u8; 32], [0u8; 32] ];
-memo: u8[32] = [0u8; 32];
+path: [u8; (32, 2)] = [ [0u8; 32], [0u8; 32] ];
+memo: [u8; 32] = [0u8; 32];
 network_id: u8 = 0;
-leaf_randomness: u8[32] = [0u8; 32];
+leaf_randomness: [u8; 32] = [0u8; 32];

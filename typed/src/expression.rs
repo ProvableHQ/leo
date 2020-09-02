@@ -40,9 +40,9 @@ use leo_ast::{
         Value,
     },
 };
-use leo_input::values::PositiveNumber as InputAstPositiveNumber;
+use leo_input::{types::ArrayDimensions as InputArrayDimensions, values::PositiveNumber as InputAstPositiveNumber};
 
-use leo_ast::expressions::TupleExpression;
+use leo_ast::{expressions::TupleExpression, types::ArrayDimensions};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -144,11 +144,33 @@ impl<'ast> Expression {
             .expect("Array size should be a positive number")
     }
 
+    pub(crate) fn get_input_array_dimensions(dimensions: InputArrayDimensions<'ast>) -> Vec<usize> {
+        match dimensions {
+            InputArrayDimensions::Single(single) => vec![Self::get_count_from_input_ast(single.number)],
+            InputArrayDimensions::Multiple(multiple) => multiple
+                .numbers
+                .into_iter()
+                .map(|number| Self::get_count_from_input_ast(number))
+                .collect(),
+        }
+    }
+
     pub(crate) fn get_count_from_ast(number: AstPositiveNumber<'ast>) -> usize {
         number
             .value
             .parse::<usize>()
             .expect("Array size should be a positive number")
+    }
+
+    pub(crate) fn get_array_dimensions(dimensions: ArrayDimensions<'ast>) -> Vec<usize> {
+        match dimensions {
+            ArrayDimensions::Single(single) => vec![Self::get_count_from_ast(single.number)],
+            ArrayDimensions::Multiple(multiple) => multiple
+                .numbers
+                .into_iter()
+                .map(|number| Self::get_count_from_ast(number))
+                .collect(),
+        }
     }
 }
 

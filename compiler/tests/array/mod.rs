@@ -126,3 +126,19 @@ fn test_multi() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_multi_initializer_fail() {
+    let program_bytes = include_bytes!("multi_fail_initializer.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multi_inline_fail() {
+    let program_bytes = include_bytes!("multi_fail_inline.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}

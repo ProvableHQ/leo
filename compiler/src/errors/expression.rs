@@ -182,8 +182,8 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn unexpected_array(expected: String, actual: String, span: Span) -> Self {
-        let message = format!("expected type `{}`, found array with elements `{}`", expected, actual);
+    pub fn unexpected_array(expected: String, span: Span) -> Self {
+        let message = format!("expected type `{}`, found array with elements", expected);
 
         Self::new_from_span(message, span)
     }

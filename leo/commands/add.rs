@@ -21,12 +21,7 @@
 //    leo add -a author -p package_name
 //
 
-use crate::{
-    cli::CLI,
-    cli_types::*,
-    config::*,
-    errors::{AddError::*, CLIError::AddError},
-};
+use crate::{cli::CLI, cli_types::*, config::*, errors::AddError::*};
 use leo_package::{
     imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME},
     root::Manifest,
@@ -50,17 +45,25 @@ impl CLI for AddCommand {
     type Options = (Option<String>, Option<String>, Option<String>);
     type Output = ();
 
-    const ABOUT: AboutType = "Install a package from the package manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
+    const ABOUT: AboutType = "Install a package from the Aleo Package Manager";
+    const ARGUMENTS: &'static [ArgumentType] = &[
+        // (name, description, required, index)
+        (
+            "REMOTE",
+            "Install a package from the Aleo Package Manager with the given remote",
+            false,
+            1u64,
+        ),
+    ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "add";
     const OPTIONS: &'static [OptionType] = &[
         // (argument, conflicts, possible_values, requires)
         ("[author] -a --author=<author> 'Specify a package author'", &[], &[], &[
-            "package_name",
+            "package",
         ]),
         (
-            "[package_name] -p --package_name=<package_name> 'Specify a package name'",
+            "[package] -p --package=<package> 'Specify a package name'",
             &[],
             &[],
             &["author"],
@@ -69,25 +72,43 @@ impl CLI for AddCommand {
             "[version] -v --version=[version] 'Specify a package version'",
             &[],
             &[],
-            &["author", "package_name"],
+            &["author", "package"],
         ),
     ];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
         // TODO update to new package manager API without an author field
-        if arguments.is_present("author") && arguments.is_present("package_name") {
+        if arguments.is_present("author") && arguments.is_present("package") {
             return Ok((
                 arguments.value_of("author").map(|s| s.to_string()),
-                arguments.value_of("package_name").map(|s| s.to_string()),
+                arguments.value_of("package").map(|s| s.to_string()),
                 arguments.value_of("version").map(|s| s.to_string()),
             ));
-        } else {
-            return Ok((None, None, None));
+        }
+
+        match arguments.value_of("REMOTE") {
+            Some(remote) => {
+                let values: Vec<&str> = remote.split('/').collect();
+
+                if values.len() != 2 {
+                    return Err(InvalidRemote.into());
+                }
+
+                let author = values[0].to_string();
+                let package = values[1].to_string();
+
+                Ok((Some(author), Some(package), None))
+            }
+            None => Ok((None, None, None)),
         }
     }
 
     fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+        // Begin "Adding" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Adding");
+        let _enter = span.enter();
+
         let token = read_token()?;
 
         let path = current_dir()?;
@@ -111,13 +132,13 @@ impl CLI for AddCommand {
                     Ok(response) => (response, package_name),
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(AddError(ConnectionUnavailable(
-                            "Could not connect to the package manager".into(),
-                        )));
+                        return Err(
+                            ConnectionUnavailable("Could not connect to the Aleo Package Manager".into()).into(),
+                        );
                     }
                 }
             }
-            _ => return Err(AddError(MissingAuthorOrPackageName)),
+            _ => return Err(MissingAuthorOrPackageName.into()),
         };
 
         let mut path = current_dir()?;
@@ -131,13 +152,13 @@ impl CLI for AddCommand {
 
         let mut zip_arhive = match zip::ZipArchive::new(reader) {
             Ok(zip) => zip,
-            Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+            Err(error) => return Err(ZipError(error.to_string().into()).into()),
         };
 
         for i in 0..zip_arhive.len() {
             let file = match zip_arhive.by_index(i) {
                 Ok(file) => file,
-                Err(error) => return Err(AddError(ZipError(error.to_string().into()))),
+                Err(error) => return Err(ZipError(error.to_string().into()).into()),
             };
 
             let file_name = file.name();
@@ -156,7 +177,7 @@ impl CLI for AddCommand {
             }
         }
 
-        log::info!("Successfully added a package");
+        tracing::info!("Successfully added a package\n");
         Ok(())
     }
 }

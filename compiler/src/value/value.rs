@@ -93,7 +93,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             )?)),
 
             // Data type wrappers
-            Type::Array(ref _type, _dimensions) => ConstrainedValue::from_type(value, _type, span),
+            Type::Array(ref type_, _dimensions) => ConstrainedValue::from_type(value, type_, span),
             _ => Ok(ConstrainedValue::Unresolved(value)),
         }
     }
