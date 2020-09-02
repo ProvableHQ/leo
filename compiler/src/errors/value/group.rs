@@ -98,4 +98,10 @@ impl GroupError {
 
         Self::new_from_span(message, span)
     }
+
+    pub fn n_group(number: String, span: Span) -> Self {
+        let message = format!("cannot multiply group generator by \"{}\"", number);
+
+        Self::new_from_span(message, span)
+    }
 }
