@@ -128,7 +128,7 @@ operation_pow_assign = { "**=" }
 /// Types
 
 // Declared in types/type_.rs
-type_ = { type_self | type_tuple |  type_array | type_data | type_circuit }
+type_ = { type_self | type_tuple | type_array | type_data | type_circuit }
 
 // Declared in types/integer_type.rs
 type_integer = {
@@ -425,7 +425,7 @@ import_symbol = { identifier ~ ("as " ~ identifier)? }
 
 /// Utilities
 
-COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
+COMMENT = _{ ("/*" ~ (!"*/" ~ ASCII)* ~ "*/") | ("//" ~ (!NEWLINE ~ ASCII)*) }
 WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* } // pest implicit whitespace keyword
 
 /// Console Functions
@@ -459,7 +459,7 @@ console_log = !{"log(" ~ formatted_string? ~ ")"}
 // Declared in console/formatted_string.rs
 formatted_string = {
     "\""
-    ~ (!"\"" ~ (formatted_container | ANY))*
+    ~ (!"\"" ~ (formatted_container | ASCII))*
     ~ "\""
     ~ ("," ~ formatted_parameter)*
 }
