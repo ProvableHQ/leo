@@ -24,6 +24,9 @@ pub enum AddError {
     #[error("missing author or package name")]
     MissingAuthorOrPackageName,
 
+    #[error("invalid remote")]
+    InvalidRemote,
+
     #[error("{:?}", _0)]
     ZipError(OsString),
 }

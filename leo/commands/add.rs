@@ -46,7 +46,15 @@ impl CLI for AddCommand {
     type Output = ();
 
     const ABOUT: AboutType = "Install a package from the Aleo Package Manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
+    const ARGUMENTS: &'static [ArgumentType] = &[
+        // (name, description, required, index)
+        (
+            "REMOTE",
+            "Install a package from the Aleo Package Manager with the given remote",
+            false,
+            1u64,
+        ),
+    ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "add";
     const OPTIONS: &'static [OptionType] = &[
@@ -71,14 +79,28 @@ impl CLI for AddCommand {
 
     fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
         // TODO update to new package manager API without an author field
-        if arguments.is_present("author") && arguments.is_present("package_name") {
+        if arguments.is_present("author") && arguments.is_present("package") {
             return Ok((
                 arguments.value_of("author").map(|s| s.to_string()),
                 arguments.value_of("package").map(|s| s.to_string()),
                 arguments.value_of("version").map(|s| s.to_string()),
             ));
-        } else {
-            return Ok((None, None, None));
+        }
+
+        match arguments.value_of("REMOTE") {
+            Some(remote) => {
+                let values: Vec<&str> = remote.split('/').collect();
+
+                if values.len() != 2 {
+                    return Err(InvalidRemote.into());
+                }
+
+                let author = values[0].to_string();
+                let package = values[1].to_string();
+
+                Ok((Some(author), Some(package), None))
+            }
+            None => Ok((None, None, None)),
         }
     }
 
@@ -100,7 +122,7 @@ impl CLI for AddCommand {
 
                 let mut json = HashMap::new();
                 json.insert("author", author);
-                json.insert("package", package_name.clone());
+                json.insert("package_name", package_name.clone());
 
                 if let Some(version) = version {
                     json.insert("version", version);
