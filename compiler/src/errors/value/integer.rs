@@ -83,8 +83,9 @@ impl IntegerError {
     }
 
     pub fn invalid_index(span: Span) -> Self {
-        let message =
-            format!("index must be a constant value integer. allocated indices produce a circuit of unknown size");
+        let message = format!(
+            "index must be a constant value unsigned integer. allocated indices produce a circuit of unknown size"
+        );
 
         Self::new_from_span(message, span)
     }
