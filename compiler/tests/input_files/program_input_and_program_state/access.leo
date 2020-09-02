@@ -1,4 +1,4 @@
-function main(input, data: u8[32]) {
+function main(input, data: [u8; 32]) {
     console.assert(input.registers.value_balance == 0u64);
 
     console.assert(input.state.leaf_index == 0u32);

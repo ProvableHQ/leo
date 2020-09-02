@@ -14,47 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod address_type;
-pub use address_type::*;
+use crate::{ast::Rule, types::*};
 
-pub mod array_dimensions;
-pub use array_dimensions::*;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod array_element;
-pub use array_element::*;
-
-pub mod array_type;
-pub use array_type::*;
-
-pub mod boolean_type;
-pub use boolean_type::*;
-
-pub mod circuit_type;
-pub use circuit_type::*;
-
-pub mod data_type;
-pub use data_type::*;
-
-pub mod field_type;
-pub use field_type::*;
-
-pub mod group_type;
-pub use group_type::*;
-
-pub mod integer_type;
-pub use integer_type::*;
-
-pub mod self_type;
-pub use self_type::*;
-
-pub mod signed_integer_type;
-pub use signed_integer_type::*;
-
-pub mod tuple_type;
-pub use tuple_type::*;
-
-pub mod type_;
-pub use type_::*;
-
-pub mod unsigned_integer_type;
-pub use unsigned_integer_type::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::array_element))]
+pub enum ArrayElement<'ast> {
+    Basic(DataType),
+    Tuple(TupleType<'ast>),
+    Circuit(CircuitType<'ast>),
+    SelfType(SelfType),
+}

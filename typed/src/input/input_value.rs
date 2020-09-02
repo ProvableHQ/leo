@@ -14,19 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::GroupValue;
+use crate::{Expression as TypedExpression, GroupValue};
 use leo_input::{
     errors::InputParserError,
-    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression},
-    types::{ArrayType, DataType, IntegerType, Type},
-    values::{BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
+    types::{ArrayElement, ArrayType, DataType, IntegerType, TupleType, Type},
+    values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
 };
 
-use leo_input::{
-    expressions::TupleExpression,
-    types::TupleType,
-    values::{Address, AddressValue},
-};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
@@ -111,18 +106,25 @@ impl InputValue {
         mut array_type: ArrayType,
         inline: ArrayInlineExpression,
     ) -> Result<Self, InputParserError> {
-        if let Some(number) = array_type.next_dimension() {
-            let outer_dimension = number.value.parse::<usize>()?;
+        let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+
+        // Return an error if the outer array dimension does not equal the number of array elements
+        if let Some(outer_dimension) = array_dimensions.pop() {
+            array_type.dimensions = array_type.dimensions.next_dimension();
 
             if outer_dimension != inline.expressions.len() {
-                return Err(InputParserError::array_inline_length(number, inline));
+                return Err(InputParserError::array_inline_length(outer_dimension, inline));
             }
         };
 
-        let inner_array_type = if array_type.dimensions.len() == 0 {
+        let inner_array_type = if array_dimensions.len() == 0 {
             // this is a single array
-            Type::Basic(array_type._type)
+            match array_type.type_ {
+                ArrayElement::Basic(basic) => Type::Basic(basic),
+                ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
+            }
         } else {
+            // this is a multi-dimensional array
             Type::Array(array_type)
         };
 
@@ -140,20 +142,26 @@ impl InputValue {
         mut array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
+        let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
         let initializer_count = initializer.count.to_string().parse::<usize>()?;
 
-        if let Some(number) = array_type.next_dimension() {
-            let outer_dimension = number.value.parse::<usize>()?;
+        // Return an error if the outer array dimension does not equal the number of array elements
+        if let Some(outer_dimension) = array_dimensions.pop() {
+            array_type.dimensions = array_type.dimensions.next_dimension();
 
             if outer_dimension != initializer_count {
-                return Err(InputParserError::array_init_length(number, initializer));
+                return Err(InputParserError::array_init_length(outer_dimension, initializer));
             }
         }
 
-        let inner_array_type = if array_type.dimensions.len() == 0 {
+        let inner_array_type = if array_dimensions.len() == 0 {
             // this is a single array
-            Type::Basic(array_type._type)
+            match array_type.type_ {
+                ArrayElement::Basic(basic) => Type::Basic(basic),
+                ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
+            }
         } else {
+            // this is a multi-dimensional array
             Type::Array(array_type)
         };
 

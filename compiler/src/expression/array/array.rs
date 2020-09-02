@@ -41,19 +41,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
-        let expected_dimensions = vec![];
+        let mut expected_dimensions = vec![];
 
-        if expected_type.is_some() {
-            match expected_type.unwrap() {
+        if let Some(type_) = expected_type {
+            match type_ {
                 Type::Array(ref type_, ref dimensions) => {
+                    let number = match dimensions.last() {
+                        Some(number) => number.clone(),
+                        None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
+                    };
+
+                    expected_dimensions.push(number);
                     expected_type = Some(type_.inner_dimension(dimensions).clone());
                 }
-                ref _type => {
-                    return Err(ExpressionError::unexpected_array(
-                        _type.to_string(),
-                        format!("{:?}", array),
-                        span,
-                    ));
+                ref type_ => {
+                    return Err(ExpressionError::unexpected_array(type_.to_string(), span));
                 }
             }
         }

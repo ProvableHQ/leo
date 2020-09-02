@@ -14,21 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    types::{ArrayDimensions, ArrayElement},
-    SpanDef,
-};
+use crate::{ast::Rule, values::PositiveNumber, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::type_array))]
-pub struct ArrayType<'ast> {
-    pub type_: ArrayElement<'ast>,
-    pub dimensions: ArrayDimensions<'ast>,
+#[pest_ast(rule(Rule::array_dimensions))]
+pub enum ArrayDimensions<'ast> {
+    Single(Single<'ast>),
+    Multiple(Multiple<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::dimension_single))]
+pub struct Single<'ast> {
+    pub number: PositiveNumber<'ast>,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::dimension_multiple))]
+pub struct Multiple<'ast> {
+    pub numbers: Vec<PositiveNumber<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

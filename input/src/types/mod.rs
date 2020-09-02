@@ -17,6 +17,12 @@
 pub mod address_type;
 pub use address_type::*;
 
+pub mod array_dimensions;
+pub use array_dimensions::*;
+
+pub mod array_element;
+pub use array_element::*;
+
 pub mod array_type;
 pub use array_type::*;
 
