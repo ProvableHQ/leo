@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_ast::common::SpreadOrExpression as AstSpreadOrExpression;
+use leo_ast::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as AstExpression};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -35,6 +35,12 @@ impl<'ast> From<AstSpreadOrExpression<'ast>> for SpreadOrExpression {
                 SpreadOrExpression::Expression(Expression::from(expression))
             }
         }
+    }
+}
+
+impl<'ast> From<AstExpression<'ast>> for SpreadOrExpression {
+    fn from(expression: AstExpression<'ast>) -> Self {
+        SpreadOrExpression::Expression(Expression::from(expression))
     }
 }
 
