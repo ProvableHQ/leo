@@ -16,9 +16,9 @@
 
 use crate::{Function, Identifier, Type};
 use leo_ast::circuits::{
-    CircuitFieldDefinition as AstCircuitFieldDefinition,
     CircuitFunction as AstCircuitFunction,
     CircuitMember as AstCircuitMember,
+    CircuitVariableDefinition as AstCircuitFieldDefinition,
 };
 
 use serde::{Deserialize, Serialize};
@@ -51,7 +51,7 @@ impl<'ast> From<AstCircuitFunction<'ast>> for CircuitMember {
 impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
     fn from(object: AstCircuitMember<'ast>) -> Self {
         match object {
-            AstCircuitMember::CircuitFieldDefinition(circuit_value) => CircuitMember::from(circuit_value),
+            AstCircuitMember::CircuitVariableDefinition(circuit_value) => CircuitMember::from(circuit_value),
             AstCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
         }
     }
