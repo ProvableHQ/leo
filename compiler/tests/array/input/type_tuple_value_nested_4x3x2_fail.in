@@ -1,2 +1,2 @@
 [main]
-a: [u8; (4, 3, 2)] = [[[0; 4]; 3]; 2]; // See `type_tuple_value_nested_4x3x2.in` for correct dimensions
+a: [u8; (4, 3, 2)] = [[[0; 4]; 3]; 2]; // initializer (incorrectly reversed ordering)
