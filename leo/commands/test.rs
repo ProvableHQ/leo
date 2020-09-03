@@ -110,8 +110,8 @@ impl CLI for TestCommand {
 
         // Set the result of the test command to passed if no tests failed.
         if failed == 0 {
-            // Begin "Finished" context for console logging
-            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+            // Begin "Done" context for console logging
+            tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
                 tracing::info!(
                     "Tests passed in {} milliseconds. {} passed; {} failed;\n",
                     start.elapsed().as_millis(),
@@ -120,8 +120,8 @@ impl CLI for TestCommand {
                 );
             });
         } else {
-            // Begin "Finished" context for console logging
-            tracing::span!(tracing::Level::ERROR, "Finished").in_scope(|| {
+            // Begin "Done" context for console logging
+            tracing::span!(tracing::Level::ERROR, "Done").in_scope(|| {
                 tracing::error!(
                     "Tests failed in {} milliseconds. {} passed; {} failed;\n",
                     start.elapsed().as_millis(),

@@ -75,9 +75,9 @@ impl CLI for ProveCommand {
         // Drop "Prover" context for console logging
         drop(enter);
 
-        // Begin "Finished" context for console logging
-        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-            tracing::info!("Completed in {:?} milliseconds\n", end);
+        // Begin "Done" context for console logging
+        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+            tracing::info!("Finished in {:?} milliseconds\n", end);
         });
 
         Ok((program_proof, prepared_verifying_key))

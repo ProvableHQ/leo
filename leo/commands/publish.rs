@@ -38,7 +38,7 @@ use reqwest::{
 use serde::Deserialize;
 use std::{convert::TryFrom, env::current_dir};
 
-const PUBLISH_URL: &str = "api/package/publish";
+pub const PUBLISH_URL: &str = "v1/package/publish";
 
 #[derive(Deserialize)]
 struct ResponseJson {

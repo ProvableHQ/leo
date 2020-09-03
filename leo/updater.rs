@@ -33,7 +33,7 @@ impl Updater {
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
             .current_version(&include_str!("./leo-version").replace('v', ""))
-            .show_download_progress(true)
+            .show_download_progress(show_output)
             .no_confirm(true)
             .show_output(show_output)
             .build()?
@@ -65,7 +65,7 @@ impl Updater {
     pub fn print_cli() {
         let config = Config::read_config().unwrap();
 
-        if config.auto_update {
+        if config.update.automatic {
             // If the auto update configuration is on, attempt to update the version.
             if let Ok(status) = Self::update_to_latest_release(false) {
                 if status.updated() {

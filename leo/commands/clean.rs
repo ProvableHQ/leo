@@ -75,8 +75,8 @@ impl CLI for CleanCommand {
         // Drop "Compiling" context for console logging
         drop(enter);
 
-        // Begin "Finished" context for console logging
-        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
+        // Begin "Done" context for console logging
+        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
             tracing::info!("Program workspace cleaned\n");
         });
 

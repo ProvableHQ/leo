@@ -30,7 +30,7 @@ use crate::{
 
 use std::collections::HashMap;
 
-pub const LOGIN_URL: &str = "api/account/authenticate";
+pub const LOGIN_URL: &str = "v1/account/authenticate";
 
 #[derive(Debug)]
 pub struct LoginCommand;
@@ -42,10 +42,11 @@ impl CLI for LoginCommand {
 
     const ABOUT: AboutType = "Login to the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "NAME",
             "Sets the authentication token for login to the package manager",
+            &[],
             false,
             1u64,
         ),

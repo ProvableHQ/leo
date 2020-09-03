@@ -48,7 +48,7 @@ impl CLI for RunCommand {
         let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
 
         // Begin "Verifying" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Verifier");
+        let span = tracing::span!(tracing::Level::INFO, "Verifying");
         let enter = span.enter();
 
         tracing::info!("Starting...");
@@ -76,9 +76,9 @@ impl CLI for RunCommand {
         // Drop "Verifying" context for console logging
         drop(enter);
 
-        // Begin "Finished" context for console logging
-        tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-            tracing::info!("Completed in {:?} milliseconds\n", end);
+        // Begin "Done" context for console logging
+        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+            tracing::info!("Finished in {:?} milliseconds\n", end);
         });
 
         Ok(())
