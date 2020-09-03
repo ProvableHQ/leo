@@ -67,6 +67,22 @@ fn test_type_fail() {
 }
 
 #[test]
+fn test_type_tuple() {
+    let program_bytes = include_bytes!("type_tuple.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_type_nested() {
+    let program_bytes = include_bytes!("type_nested.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_inline() {
     let program_bytes = include_bytes!("inline.leo");
     let input_bytes = include_bytes!("input/three_ones.in");

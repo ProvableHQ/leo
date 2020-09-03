@@ -197,15 +197,7 @@ type_self = { "Self" }
 type_circuit = { identifier }
 
 // Declared in types/array_type.rs
-type_array = { "[" ~ array_element ~ ";" ~ array_dimensions ~ "]" }
-
-// Declared in types/array_element.rs
-array_element = {
-    type_self
-    | type_tuple
-    | type_data
-    | type_circuit
-}
+type_array = { "[" ~ type_ ~ ";" ~ array_dimensions ~ "]" }
 
 // Declared in types/array_dimensions.rs
 array_dimensions = {
