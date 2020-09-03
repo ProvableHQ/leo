@@ -44,3 +44,12 @@ pub struct Multiple<'ast> {
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
+
+impl<'ast> std::fmt::Display for ArrayDimensions<'ast> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            ArrayDimensions::Single(ref single) => write!(f, "{}", single.number),
+            ArrayDimensions::Multiple(ref multiple) => write!(f, "{:?}", multiple.numbers),
+        }
+    }
+}

@@ -53,7 +53,7 @@ impl<'ast> ArrayDimensions<'ast> {
                 let old_dimension = multiple.numbers.clone();
 
                 ArrayDimensions::Multiple(Multiple {
-                    numbers: old_dimension[..old_dimension.len() - 2].to_vec(),
+                    numbers: old_dimension[..old_dimension.len() - 1].to_vec(),
                     span: multiple.span.clone(),
                 })
             }
@@ -65,7 +65,16 @@ impl<'ast> std::fmt::Display for ArrayDimensions<'ast> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match *self {
             ArrayDimensions::Single(ref single) => write!(f, "{}", single.number),
-            ArrayDimensions::Multiple(ref multiple) => write!(f, "{:?}", multiple.numbers),
+            ArrayDimensions::Multiple(ref multiple) => {
+                let string = multiple
+                    .numbers
+                    .iter()
+                    .map(|x| x.value.clone())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+
+                write!(f, "{}", string)
+            }
         }
     }
 }

@@ -101,7 +101,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 write!(f, "")
             }
             Expression::ArrayInitializer(ref expression) => {
-                write!(f, "[{} ; {}]", expression.expression, expression.count)
+                write!(f, "[{} ; ({})]", expression.expression, expression.dimensions)
             }
             Expression::CircuitInline(ref expression) => write!(f, "{}", expression.span.as_str()),
             Expression::Postfix(ref expression) => write!(f, "{}", expression.span.as_str()),

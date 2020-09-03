@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, expressions::Expression, values::PositiveNumber};
+use crate::{ast::Rule, expressions::Expression, types::ArrayDimensions};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,7 +23,7 @@ use pest_ast::FromPest;
 #[pest_ast(rule(Rule::expression_array_initializer))]
 pub struct ArrayInitializerExpression<'ast> {
     pub expression: Box<Expression<'ast>>,
-    pub count: PositiveNumber<'ast>,
+    pub dimensions: ArrayDimensions<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

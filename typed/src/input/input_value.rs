@@ -139,40 +139,40 @@ impl InputValue {
     }
 
     pub(crate) fn from_array_initializer(
-        mut array_type: ArrayType,
+        array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
-        let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
-        let initializer_count = initializer.count.to_string().parse::<usize>()?;
+        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+        let initializer_dimensions = TypedExpression::get_input_array_dimensions(initializer.dimensions.clone());
 
-        // Return an error if the outer array dimension does not equal the number of array elements
-        if let Some(outer_dimension) = array_dimensions.pop() {
-            array_type.dimensions = array_type.dimensions.next_dimension();
-
-            if outer_dimension != initializer_count {
-                return Err(InputParserError::array_init_length(outer_dimension, initializer));
-            }
+        // Return an error if the array type does not equal the array expression
+        if array_dimensions.ne(&initializer_dimensions) {
+            return Err(InputParserError::array_init_length(
+                array_dimensions,
+                initializer_dimensions,
+                initializer.span,
+            ));
         }
 
-        let inner_array_type = if array_dimensions.len() == 0 {
-            // this is a single array
-            match array_type.type_ {
-                ArrayElement::Basic(basic) => Type::Basic(basic),
-                ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
-            }
-        } else {
-            // this is a multi-dimensional array
-            Type::Array(array_type)
+        let type_ = match array_type.type_ {
+            ArrayElement::Basic(basic) => Type::Basic(basic),
+            ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
         };
 
-        let mut values = vec![];
-        for _ in 0..initializer_count {
-            let value = InputValue::from_expression(inner_array_type.clone(), *initializer.expression.clone())?;
+        let value = InputValue::from_expression(type_, *initializer.expression.clone())?;
+        let mut elements = vec![];
 
-            values.push(value)
+        for (i, dimension) in initializer_dimensions.into_iter().enumerate() {
+            if i == 0 {
+                elements = vec![value.clone(); dimension];
+            } else {
+                let element = InputValue::Array(elements.clone());
+
+                elements = vec![element; dimension];
+            }
         }
 
-        Ok(InputValue::Array(values))
+        Ok(InputValue::Array(elements))
     }
 
     pub(crate) fn from_tuple(tuple_type: TupleType, tuple: TupleExpression) -> Result<Self, InputParserError> {
