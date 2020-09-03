@@ -22,6 +22,12 @@ use leo_ast::{
 };
 use leo_input::common::Identifier as InputAstIdentifier;
 
+use leo_ast::{
+    common::SelfKeyword,
+    expressions::{CircuitName, KeywordOrIdentifier},
+    functions::InputKeyword,
+    types::SelfType,
+};
 use serde::{
     de::{self, Visitor},
     Deserialize,
@@ -80,6 +86,52 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
         Self {
             name: argument.value,
             span: Span::from(argument.span),
+        }
+    }
+}
+
+impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
+    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
+        match name {
+            KeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
+        }
+    }
+}
+
+impl<'ast> From<SelfKeyword<'ast>> for Identifier {
+    fn from(self_: SelfKeyword<'ast>) -> Self {
+        Self {
+            name: self_.keyword,
+            span: Span::from(self_.span),
+        }
+    }
+}
+
+impl<'ast> From<InputKeyword<'ast>> for Identifier {
+    fn from(input: InputKeyword<'ast>) -> Self {
+        Self {
+            name: input.keyword,
+            span: Span::from(input.span),
+        }
+    }
+}
+
+impl<'ast> From<CircuitName<'ast>> for Identifier {
+    fn from(name: CircuitName<'ast>) -> Self {
+        match name {
+            CircuitName::SelfType(self_type) => Identifier::from(self_type),
+            CircuitName::Identifier(identifier) => Identifier::from(identifier),
+        }
+    }
+}
+
+impl<'ast> From<SelfType<'ast>> for Identifier {
+    fn from(self_type: SelfType<'ast>) -> Self {
+        Self {
+            name: self_type.keyword,
+            span: Span::from(self_type.span),
         }
     }
 }

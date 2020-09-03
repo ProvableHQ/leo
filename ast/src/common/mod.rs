@@ -38,6 +38,9 @@ pub use range::*;
 pub mod range_or_expression;
 pub use range_or_expression::*;
 
+pub mod self_keyword;
+pub use self_keyword::*;
+
 pub mod spread;
 pub use spread::*;
 

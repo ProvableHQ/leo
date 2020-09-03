@@ -275,7 +275,7 @@ impl<'ast> fmt::Display for Expression {
 
 impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
     fn from(expression: CircuitInlineExpression<'ast>) -> Self {
-        let circuit_name = Identifier::from(expression.identifier);
+        let circuit_name = Identifier::from(expression.name);
         let members = expression
             .members
             .into_iter()
@@ -288,7 +288,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<PostfixExpression<'ast>> for Expression {
     fn from(expression: PostfixExpression<'ast>) -> Self {
-        let variable = Expression::Identifier(Identifier::from(expression.identifier));
+        let variable = Expression::Identifier(Identifier::from(expression.name));
 
         // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
         // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here

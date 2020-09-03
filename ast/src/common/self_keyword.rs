@@ -14,30 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, types::*};
+use crate::{
+    ast::{span_into_string, Rule},
+    SpanDef,
+};
 
+use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
-use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::type_))]
-pub enum Type<'ast> {
-    Basic(DataType),
-    Array(ArrayType<'ast>),
-    Tuple(TupleType<'ast>),
-    Circuit(CircuitType<'ast>),
-    SelfType(SelfType<'ast>),
-}
-
-impl<'ast> fmt::Display for Type<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Type::Basic(ref _type) => write!(f, "basic"),
-            Type::Array(ref _type) => write!(f, "array"),
-            Type::Tuple(ref _type) => write!(f, "tuple"),
-            Type::Circuit(ref _type) => write!(f, "struct"),
-            Type::SelfType(ref type_) => write!(f, "{}", type_.keyword),
-        }
-    }
+#[pest_ast(rule(Rule::self_keyword))]
+pub struct SelfKeyword<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub keyword: String,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
 }
