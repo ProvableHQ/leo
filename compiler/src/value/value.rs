@@ -112,7 +112,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 let array_type = types[0].to_type(span.clone())?;
                 let count = types.len();
 
-                // nested array type
+                // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
                     let mut dimensions = inner_dimensions.clone();
                     dimensions.push(count);

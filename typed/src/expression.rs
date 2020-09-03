@@ -501,7 +501,7 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
         // Initializes an arrays elements using the rust `vec!` macro.
         // If there are multiple array dimensions, then `elements` is used as the first expression in a `vec!` macro.
         // This creates a multi-dimensional array by chaining `vec!` macros.
-        for (i, dimension) in dimensions.into_iter().enumerate() {
+        for (i, dimension) in dimensions.into_iter().rev().enumerate() {
             if i == 0 {
                 elements = vec![expression.clone(); dimension];
             } else {
