@@ -18,7 +18,7 @@ serial_number_nonce: [u8; 32] = [0u8; 32];
 commitment_randomness: [u8; 32] = [0u8; 32];
 
 [state_leaf]
-path: [u8; (32, 2)] = [ [0u8; 32], [0u8; 32] ];
+path: [u8; 128] = [0u8; 128];
 memo: [u8; 32] = [0u8; 32];
 network_id: u8 = 0;
 leaf_randomness: [u8; 32] = [0u8; 32];

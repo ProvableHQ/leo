@@ -74,6 +74,15 @@ fn test_type_tuple() {
     assert_satisfied(program);
 }
 
+// #[test]
+// fn test_type_tuple_input() {
+//     let program_bytes = include_bytes!("type_tuple_input.leo");
+//     let input_bytes = include_bytes!("input/input_nested_3x2.in");
+//     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+//
+//     assert_satisfied(program);
+// }
+
 #[test]
 fn test_type_nested() {
     let program_bytes = include_bytes!("type_nested.leo");
@@ -136,8 +145,6 @@ fn test_initializer_input_fail() {
 }
 
 #[test]
-#[ignore]
-// TODO (howardwu): Add support for this syntax.
 fn test_input_nested_3x2() {
     let program_bytes = include_bytes!("input_nested_3x2.leo");
     let input_bytes = include_bytes!("input/input_nested_3x2.in");
