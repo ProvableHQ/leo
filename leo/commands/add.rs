@@ -35,7 +35,7 @@ use std::{
     io::{Read, Write},
 };
 
-pub const ADD_URL: &str = "api/package/fetch";
+pub const ADD_URL: &str = "v1/package/fetch";
 
 #[derive(Debug)]
 pub struct AddCommand;

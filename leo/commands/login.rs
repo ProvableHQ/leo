@@ -30,7 +30,7 @@ use crate::{
 
 use std::collections::HashMap;
 
-pub const LOGIN_URL: &str = "api/account/authenticate";
+pub const LOGIN_URL: &str = "v1/account/authenticate";
 
 #[derive(Debug)]
 pub struct LoginCommand;
