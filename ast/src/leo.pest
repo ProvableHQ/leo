@@ -131,7 +131,7 @@ operation_pow_assign = { "**=" }
 /// Types
 
 // Declared in types/type_.rs
-type_ = { type_self | type_tuple |  type_array | type_data | type_circuit }
+type_ = { type_self | type_tuple | type_array | type_data | type_circuit }
 
 // Declared in types/integer_type.rs
 type_integer = {

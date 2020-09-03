@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         if let Some(type_) = expected_type {
             match type_ {
                 Type::Array(ref type_, ref dimensions) => {
-                    let number = match dimensions.last() {
+                    let number = match dimensions.first() {
                         Some(number) => number.clone(),
                         None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
                     };

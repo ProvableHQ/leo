@@ -147,6 +147,14 @@ fn test_multi() {
 
 #[test]
 fn test_multi_fail() {
+    let program_bytes = include_bytes!("multi_fail.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multi_fail_initializer() {
     let program_bytes = include_bytes!("multi_fail_initializer.leo");
     let program = parse_program(program_bytes).unwrap();
 
