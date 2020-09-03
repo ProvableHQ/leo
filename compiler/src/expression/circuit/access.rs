@@ -77,9 +77,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         for stored_member in members {
                             let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
                             let self_keyword = new_scope(circuit_scope, SELF_KEYWORD.to_string());
-                            let field = new_scope(self_keyword, stored_member.0.to_string());
+                            let variable = new_scope(self_keyword, stored_member.0.to_string());
 
-                            self.store(field, stored_member.1.clone());
+                            self.store(variable, stored_member.1.clone());
                         }
                     }
                     ConstrainedValue::Static(value) => {

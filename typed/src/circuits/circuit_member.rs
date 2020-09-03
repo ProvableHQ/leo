@@ -26,15 +26,18 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
-    CircuitVariable(Identifier, Type),
+    // (is_mutable, variable_name, variable_type)
+    CircuitVariable(bool, Identifier, Type),
+    // (is_static, function)
     CircuitFunction(bool, Function),
 }
 
 impl<'ast> From<AstCircuitVariableDefinition<'ast>> for CircuitMember {
     fn from(circuit_value: AstCircuitVariableDefinition<'ast>) -> Self {
         CircuitMember::CircuitVariable(
+            circuit_value.mutable.is_some(),
             Identifier::from(circuit_value.identifier),
-            Type::from(circuit_value._type),
+            Type::from(circuit_value.type_),
         )
     }
 }
@@ -60,9 +63,14 @@ impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitVariable(ref identifier, ref _type) => write!(f, "{}: {}", identifier, _type),
-            CircuitMember::CircuitFunction(ref _static, ref function) => {
-                if *_static {
+            CircuitMember::CircuitVariable(ref mutable, ref identifier, ref type_) => {
+                if *mutable {
+                    write!(f, "mut ")?;
+                }
+                write!(f, "{}: {}", identifier, type_)
+            }
+            CircuitMember::CircuitFunction(ref static_, ref function) => {
+                if *static_ {
                     write!(f, "static ")?;
                 }
                 write!(f, "{}", function)

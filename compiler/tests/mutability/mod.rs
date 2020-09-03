@@ -78,7 +78,31 @@ fn test_circuit_mut() {
     let bytes = include_bytes!("circuit_mut.leo");
     let program = parse_program(bytes).unwrap();
 
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_circuit_variable_mut() {
+    let bytes = include_bytes!("circuit_variable_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
     assert_satisfied(program);
+}
+
+#[test]
+fn test_circuit_function_mut() {
+    let bytes = include_bytes!("circuit_function_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_circuit_static_function_mut() {
+    let bytes = include_bytes!("circuit_static_function_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
 }
 
 #[test]
