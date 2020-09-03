@@ -51,6 +51,7 @@ impl CLI for AddCommand {
         (
             "REMOTE",
             "Install a package from the Aleo Package Manager with the given remote",
+            &[],
             false,
             1u64,
         ),

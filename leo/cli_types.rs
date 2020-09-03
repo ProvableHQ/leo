@@ -24,9 +24,11 @@ pub type DescriptionType = &'static str;
 
 pub type RequiredType = bool;
 
+pub type PossibleValuesType = &'static [&'static str];
+
 pub type IndexType = u64;
 
-pub type ArgumentType = (NameType, DescriptionType, RequiredType, IndexType);
+pub type ArgumentType = (NameType, DescriptionType, PossibleValuesType, RequiredType, IndexType);
 
 // Format
 // "[flag] -f --flag 'Add flag description here'"

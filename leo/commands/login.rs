@@ -46,6 +46,7 @@ impl CLI for LoginCommand {
         (
             "NAME",
             "Sets the authentication token for login to the package manager",
+            &[],
             false,
             1u64,
         ),

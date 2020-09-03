@@ -33,7 +33,13 @@ pub trait CLI {
     fn new<'a, 'b>() -> App<'a, 'b> {
         let arguments = &Self::ARGUMENTS
             .iter()
-            .map(|a| Arg::with_name(a.0).help(a.1).required(a.2).index(a.3))
+            .map(|a| {
+                let mut args = Arg::with_name(a.0).help(a.1).required(a.3).index(a.4);
+                if a.2.len() > 0 {
+                    args = args.possible_values(a.2);
+                }
+                args
+            })
             .collect::<Vec<Arg<'static, 'static>>>();
         let flags = &Self::FLAGS
             .iter()
@@ -56,7 +62,13 @@ pub trait CLI {
                     .about(s.1)
                     .args(
                         &s.2.iter()
-                            .map(|a| Arg::with_name(a.0).help(a.1).required(a.2).index(a.3))
+                            .map(|a| {
+                                let mut args = Arg::with_name(a.0).help(a.1).required(a.3).index(a.4);
+                                if a.2.len() > 0 {
+                                    args = args.possible_values(a.2);
+                                }
+                                args
+                            })
                             .collect::<Vec<Arg<'static, 'static>>>(),
                     )
                     .args(

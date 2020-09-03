@@ -133,12 +133,13 @@ impl CLI for UpdateAutomatic {
         // (name, description, required, index)
         (
             "automatic",
-            "Enable or disable automatic updates [possible values: true, false]",
+            "Enable or disable automatic updates",
+            &["true", "false"],
             false,
             1u64,
         ),
     ];
-    const FLAGS: &'static [FlagType] = &[("--quiet")];
+    const FLAGS: &'static [FlagType] = &["[quiet] -q --quiet 'Suppress outputs to terminal'"];
     const NAME: NameType = "automatic";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
@@ -152,11 +153,7 @@ impl CLI for UpdateAutomatic {
                 let automatic = match automatic {
                     "true" => Some(true),
                     "false" => Some(false),
-                    _ => {
-                        // TODO (raychu86) fix this log output
-                        tracing::info!("Possible values for this flag are `true` or `false`.");
-                        None
-                    }
+                    _ => unreachable!(),
                 };
 
                 Ok((automatic, quiet))

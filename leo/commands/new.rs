@@ -37,6 +37,7 @@ impl CLI for NewCommand {
         (
             "NAME",
             "Sets the resulting package name, defaults to the directory name",
+            &[],
             true,
             1u64,
         ),
