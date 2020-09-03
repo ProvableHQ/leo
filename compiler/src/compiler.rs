@@ -147,7 +147,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     #[deprecated(note = "Please use the 'parse_program' method instead.")]
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
-        let ast = LeoAst::new(&self.main_file_path, &program_string)?;
+        let ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
+            e.set_path(self.main_file_path.clone());
+
+            e
+        })?;
 
         // Derive the package name.
         let package_name = self.package_name.clone();

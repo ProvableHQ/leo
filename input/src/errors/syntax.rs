@@ -39,8 +39,6 @@ impl From<Error<Rule>> for SyntaxError {
             rule => format!("{:?}", rule),
         });
 
-        // tracing::error!("{}\n", error);
-
         SyntaxError::Error(error)
     }
 }
