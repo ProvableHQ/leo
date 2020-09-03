@@ -65,6 +65,22 @@ fn test_input_name_fail() {
 }
 
 #[test]
+fn test_self_type_name_fail() {
+    let bytes = include_bytes!("self_type_fail.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
+fn test_self_keyword_name_fail() {
+    let bytes = include_bytes!("self_keyword_fail.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
 fn test_true_name_fail() {
     let bytes = include_bytes!("true_fail.leo");
     let syntax_error = parse_program(bytes).is_err();

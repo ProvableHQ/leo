@@ -14,44 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod assignee;
-pub use assignee::*;
+use crate::{
+    ast::{span_into_string, Rule},
+    SpanDef,
+};
 
-pub mod declare;
-pub use declare::*;
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod eoi;
-pub use eoi::*;
-
-pub mod identifier;
-pub use identifier::*;
-
-pub mod line_end;
-pub use line_end::*;
-
-pub mod mutable;
-pub use mutable::*;
-
-pub mod range;
-pub use range::*;
-
-pub mod range_or_expression;
-pub use range_or_expression::*;
-
-pub mod self_keyword;
-pub use self_keyword::*;
-
-pub mod spread;
-pub use spread::*;
-
-pub mod spread_or_expression;
-pub use spread_or_expression::*;
-
-pub mod static_;
-pub use static_::*;
-
-pub mod variables;
-pub use variables::*;
-
-pub mod variable_name;
-pub use variable_name::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::self_keyword))]
+pub struct SelfKeyword<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub keyword: String,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}

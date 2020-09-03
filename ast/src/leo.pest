@@ -35,6 +35,7 @@ protected_name = {
     | "let"
     | "mut"
     | "return"
+    | self_keyword
     | "static"
     | "string"
     | "test"
@@ -42,6 +43,9 @@ protected_name = {
     | type_self
     | value_boolean
 }
+
+// Declared in common/self_keyword.rs
+self_keyword = { "self" }
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
@@ -372,6 +376,7 @@ expression_postfix = ${ keyword_or_identifier ~ access+ }
 // Declared in expressions/postfix_expression.rs
 keyword_or_identifier = {
     input_keyword
+    | self_keyword
     | identifier
 }
 

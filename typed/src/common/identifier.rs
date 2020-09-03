@@ -23,6 +23,7 @@ use leo_ast::{
 use leo_input::common::Identifier as InputAstIdentifier;
 
 use leo_ast::{
+    common::SelfKeyword,
     expressions::{CircuitName, KeywordOrIdentifier},
     functions::InputKeyword,
     types::SelfType,
@@ -92,8 +93,18 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
 impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
     fn from(name: KeywordOrIdentifier<'ast>) -> Self {
         match name {
+            KeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
+        }
+    }
+}
+
+impl<'ast> From<SelfKeyword<'ast>> for Identifier {
+    fn from(self_: SelfKeyword<'ast>) -> Self {
+        Self {
+            name: self_.keyword,
+            span: Span::from(self_.span),
         }
     }
 }
