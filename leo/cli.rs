@@ -37,7 +37,7 @@ pub trait CLI {
             .collect::<Vec<Arg<'static, 'static>>>();
         let flags = &Self::FLAGS
             .iter()
-            .map(|a| Arg::from_usage(a).global(true))
+            .map(|a| Arg::from_usage(a))
             .collect::<Vec<Arg<'static, 'static>>>();
         let options = &Self::OPTIONS
             .iter()
@@ -56,6 +56,16 @@ pub trait CLI {
                     .about(s.1)
                     .args(
                         &s.2.iter()
+                            .map(|a| Arg::with_name(a.0).help(a.1).required(a.2).index(a.3))
+                            .collect::<Vec<Arg<'static, 'static>>>(),
+                    )
+                    .args(
+                        &s.3.iter()
+                            .map(|a| Arg::from_usage(a))
+                            .collect::<Vec<Arg<'static, 'static>>>(),
+                    )
+                    .args(
+                        &s.4.iter()
                             .map(|a| match a.2.len() > 0 {
                                 true => Arg::from_usage(a.0)
                                     .conflicts_with_all(a.1)
@@ -65,7 +75,7 @@ pub trait CLI {
                             })
                             .collect::<Vec<Arg<'static, 'static>>>(),
                     )
-                    .settings(s.3)
+                    .settings(s.5)
             })
             .collect::<Vec<App<'static, 'static>>>();
 
