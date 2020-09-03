@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     };
 
                     expected_dimensions.push(number);
-                    expected_type = Some(type_.inner_dimension(dimensions).clone());
+                    expected_type = Some(type_.outer_dimension(dimensions).clone());
                 }
                 ref type_ => {
                     return Err(ExpressionError::unexpected_array(type_.to_string(), span));
@@ -69,9 +69,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         match self.get(&array_name) {
                             Some(value) => match value {
                                 ConstrainedValue::Array(array) => result.extend(array.clone()),
-                                value => {
-                                    return Err(ExpressionError::invalid_spread(value.to_string(), span));
-                                }
+                                value => return Err(ExpressionError::invalid_spread(value.to_string(), span)),
                             },
                             None => return Err(ExpressionError::undefined_array(identifier.name, span)),
                         }

@@ -108,7 +108,7 @@ impl InputValue {
     ) -> Result<Self, InputParserError> {
         let mut array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
 
-        // Return an error if the outer array dimension does not equal the number of array elements
+        // Return an error if the outer array dimension does not equal the number of array elements.
         if let Some(outer_dimension) = array_dimensions.pop() {
             array_type.dimensions = array_type.dimensions.next_dimension();
 
@@ -118,13 +118,13 @@ impl InputValue {
         };
 
         let inner_array_type = if array_dimensions.len() == 0 {
-            // this is a single array
+            // This is a single array
             match array_type.type_ {
                 ArrayElement::Basic(basic) => Type::Basic(basic),
                 ArrayElement::Tuple(tuple) => Type::Tuple(tuple),
             }
         } else {
-            // this is a multi-dimensional array
+            // This is a multi-dimensional array
             Type::Array(array_type)
         };
 

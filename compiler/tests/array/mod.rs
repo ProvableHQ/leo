@@ -120,37 +120,41 @@ fn test_initializer_input_fail() {
 }
 
 #[test]
-fn test_spread() {
-    let program_bytes = include_bytes!("spread.leo");
-    let input_bytes = include_bytes!("input/three_ones.in");
+#[ignore]
+// TODO (howardwu): Add support for this syntax.
+fn test_input_nested_3x2() {
+    let program_bytes = include_bytes!("input_nested_3x2.leo");
+    let input_bytes = include_bytes!("input/input_nested_3x2.in");
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
-fn test_slice() {
-    let program_bytes = include_bytes!("slice.leo");
-    let input_bytes = include_bytes!("input/three_ones.in");
+fn test_input_nested_3x2_fail() {
+    let program_bytes = include_bytes!("input_nested_3x2_fail.leo");
+    let input_bytes = include_bytes!("input/input_nested_3x2_fail.in");
+    let syntax_error = parse_program_with_input(program_bytes, input_bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
+fn test_input_tuple_3x2() {
+    let program_bytes = include_bytes!("input_tuple_3x2.leo");
+    let input_bytes = include_bytes!("input/input_tuple_3x2.in");
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
-fn test_multi() {
-    let program_bytes = include_bytes!("multi.leo");
-    let program = parse_program(program_bytes).unwrap();
+fn test_input_tuple_3x2_fail() {
+    let program_bytes = include_bytes!("input_tuple_3x2_fail.leo");
+    let input_bytes = include_bytes!("input/input_tuple_3x2_fail.in");
+    let syntax_error = parse_program_with_input(program_bytes, input_bytes).is_err();
 
-    assert_satisfied(program);
-}
-
-#[test]
-fn test_multi_fail() {
-    let program_bytes = include_bytes!("multi_fail.leo");
-    let program = parse_program(program_bytes).unwrap();
-
-    expect_compiler_error(program);
+    assert!(syntax_error);
 }
 
 #[test]
@@ -183,4 +187,54 @@ fn test_multi_initializer_fail() {
     let program = parse_program(program_bytes).unwrap();
 
     expect_compiler_error(program);
+}
+
+#[test]
+fn test_nested_3x2_value() {
+    let program_bytes = include_bytes!("nested_3x2_value.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_nested_3x2_value_fail() {
+    let program_bytes = include_bytes!("nested_3x2_value_fail.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_tuple_3x2_value() {
+    let program_bytes = include_bytes!("tuple_3x2_value.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_tuple_3x2_value_fail() {
+    let program_bytes = include_bytes!("tuple_3x2_value_fail.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_spread() {
+    let program_bytes = include_bytes!("spread.leo");
+    let input_bytes = include_bytes!("input/three_ones.in");
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_slice() {
+    let program_bytes = include_bytes!("slice.leo");
+    let input_bytes = include_bytes!("input/three_ones.in");
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+
+    assert_satisfied(program);
 }
