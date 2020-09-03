@@ -56,7 +56,7 @@ impl CLI for BuildCommand {
     #[cfg_attr(tarpaulin, skip)]
     fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Compiling" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Compiler");
+        let span = tracing::span!(tracing::Level::INFO, "Compiling");
         let enter = span.enter();
 
         let path = current_dir()?;
