@@ -42,7 +42,7 @@ impl CLI for LoginCommand {
 
     const ABOUT: AboutType = "Login to the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "NAME",
             "Sets the authentication token for login to the package manager",

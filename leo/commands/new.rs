@@ -33,7 +33,7 @@ impl CLI for NewCommand {
 
     const ABOUT: AboutType = "Create a new Leo package in a new directory";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "NAME",
             "Sets the resulting package name, defaults to the directory name",

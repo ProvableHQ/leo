@@ -130,7 +130,7 @@ impl CLI for UpdateAutomatic {
 
     const ABOUT: AboutType = "Setting for automatic updates of Leo";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "automatic",
             "Enable or disable automatic updates",

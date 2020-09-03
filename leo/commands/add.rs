@@ -47,7 +47,7 @@ impl CLI for AddCommand {
 
     const ABOUT: AboutType = "Install a package from the Aleo Package Manager";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "REMOTE",
             "Install a package from the Aleo Package Manager with the given remote",

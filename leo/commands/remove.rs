@@ -29,7 +29,7 @@ impl CLI for RemoveCommand {
 
     const ABOUT: AboutType = "Uninstall a package from the current package";
     const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, required, index)
+        // (name, description, possible_values, required, index)
         (
             "NAME",
             "Removes the package from the current directory",
