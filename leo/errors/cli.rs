@@ -152,6 +152,13 @@ impl_cli_error!(
     ZipFileError
 );
 
+impl From<clap::Error> for CLIError {
+    fn from(error: clap::Error) -> Self {
+        tracing::error!("{}\n", error);
+        CLIError::Crate("clap", format!("{}", error))
+    }
+}
+
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
         tracing::error!("{}\n", error);

@@ -14,47 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::CLI, cli_types::*};
-
-use self_update::{backends::github, cargo_crate_version, Status};
-
-const LEO_BIN_NAME: &str = "leo";
-const LEO_REPO_OWNER: &str = "AleoHQ";
-const LEO_REPO_NAME: &str = "leo";
+use crate::{cli::CLI, cli_types::*, updater::Updater};
 
 #[derive(Debug)]
 pub struct UpdateCommand;
-
-impl UpdateCommand {
-    /// Show all available releases for `leo`
-    pub fn show_available_releases() -> Result<(), self_update::errors::Error> {
-        let releases = github::ReleaseList::configure()
-            .repo_owner(LEO_REPO_OWNER)
-            .repo_name(LEO_REPO_NAME)
-            .build()?
-            .fetch()?;
-
-        tracing::info!("List of available Leo's versions");
-        for release in releases {
-            tracing::info!("* {}", release.version);
-        }
-        Ok(())
-    }
-
-    /// Update `leo` to the latest release
-    pub fn update_to_latest_release() -> Result<Status, self_update::errors::Error> {
-        let status = github::Update::configure()
-            .repo_owner(LEO_REPO_OWNER)
-            .repo_name(LEO_REPO_NAME)
-            .bin_name(LEO_BIN_NAME)
-            .show_download_progress(true)
-            .current_version(cargo_crate_version!())
-            .build()?
-            .update()?;
-
-        Ok(status)
-    }
-}
 
 impl CLI for UpdateCommand {
     type Options = (bool,);
@@ -78,14 +41,14 @@ impl CLI for UpdateCommand {
         let _enter = span.enter();
 
         match options {
-            (true,) => match UpdateCommand::show_available_releases() {
+            (true,) => match Updater::show_available_releases() {
                 Ok(_) => return Ok(()),
                 Err(e) => {
                     tracing::error!("Could not fetch that latest version of Leo");
                     tracing::error!("{}", e);
                 }
             },
-            (false,) => match UpdateCommand::update_to_latest_release() {
+            (false,) => match Updater::update_to_latest_release(true) {
                 Ok(status) => {
                     if status.uptodate() {
                         tracing::info!("Leo is already on the latest version: {}", status.version());

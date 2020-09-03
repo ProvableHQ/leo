@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli_types::*, errors::CLIError, logger};
+use crate::{cli_types::*, errors::CLIError, logger, updater::Updater};
 
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
@@ -88,6 +88,10 @@ pub trait CLI {
         match arguments.is_present("debug") {
             true => logger::init_logger("leo", 2),
             false => logger::init_logger("leo", 1),
+        }
+
+        if arguments.subcommand().0 != "update" {
+            Updater::print_cli();
         }
 
         let options = Self::parse(arguments)?;
