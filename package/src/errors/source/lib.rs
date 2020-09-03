@@ -17,7 +17,7 @@
 use std::io;
 
 #[derive(Debug, Error)]
-pub enum LibFileError {
+pub enum LibraryFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
@@ -28,8 +28,8 @@ pub enum LibFileError {
     Writing(io::Error),
 }
 
-impl From<std::io::Error> for LibFileError {
+impl From<std::io::Error> for LibraryFileError {
     fn from(error: std::io::Error) -> Self {
-        LibFileError::Crate("std::io", format!("{}", error))
+        LibraryFileError::Crate("std::io", format!("{}", error))
     }
 }

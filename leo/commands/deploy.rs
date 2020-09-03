@@ -22,7 +22,7 @@ use crate::{
 };
 use leo_package::{
     root::Manifest,
-    source::{MAIN_FILE_NAME, SOURCE_DIRECTORY_NAME},
+    source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
 use clap::ArgMatches;
@@ -67,7 +67,7 @@ impl CLI for DeployCommand {
             None => {
                 let mut main_file_path = path.clone();
                 main_file_path.push(SOURCE_DIRECTORY_NAME);
-                main_file_path.push(MAIN_FILE_NAME);
+                main_file_path.push(MAIN_FILENAME);
 
                 Err(CLIError::RunError(RunError::MainFileDoesNotExist(
                     main_file_path.into_os_string(),

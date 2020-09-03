@@ -23,5 +23,17 @@ pub use errors::*;
 pub mod imports;
 pub mod inputs;
 pub mod outputs;
+pub mod package;
 pub mod root;
 pub mod source;
+
+use std::path::PathBuf;
+
+pub struct LeoPackage;
+
+impl LeoPackage {
+    /// Initializes a Leo package at the given path.
+    pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
+        package::Package::initialize(package_name, is_lib, path)
+    }
+}

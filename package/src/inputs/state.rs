@@ -39,6 +39,10 @@ impl StateFile {
         }
     }
 
+    pub fn filename(&self) -> String {
+        format!("{}{}{}", INPUTS_DIRECTORY_NAME, self.package_name, STATE_FILE_EXTENSION)
+    }
+
     pub fn exists_at(&self, path: &PathBuf) -> bool {
         let path = self.setup_file_path(path);
         path.exists()

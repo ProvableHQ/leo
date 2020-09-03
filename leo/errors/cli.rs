@@ -54,7 +54,7 @@ pub enum CLIError {
     InputFileError(InputFileError),
 
     #[error("{}", _0)]
-    LibFileError(LibFileError),
+    LibraryFileError(LibraryFileError),
 
     #[error("{}", _0)]
     LoginError(LoginError),
@@ -73,6 +73,9 @@ pub enum CLIError {
 
     #[error("{}", _0)]
     OutputsDirectoryError(OutputsDirectoryError),
+
+    #[error("{}", _0)]
+    PackageError(PackageError),
 
     #[error("{}", _0)]
     ProofFileError(ProofFileError),
@@ -133,13 +136,14 @@ impl_cli_error!(
     InitError,
     InputsDirectoryError,
     InputFileError,
-    LibFileError,
+    LibraryFileError,
     LoginError,
     MainFileError,
     ManifestError,
     NewError,
     OutputFileError,
     OutputsDirectoryError,
+    PackageError,
     ProofFileError,
     ProvingKeyFileError,
     PublishError,
@@ -162,14 +166,14 @@ impl From<clap::Error> for CLIError {
 impl From<leo_compiler::errors::CompilerError> for CLIError {
     fn from(error: leo_compiler::errors::CompilerError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("leo_compiler", "Program failed due to previous error".into())
+        CLIError::Crate("leo-compiler", "Program failed due to previous error".into())
     }
 }
 
 impl From<leo_input::errors::InputParserError> for CLIError {
     fn from(error: leo_input::errors::InputParserError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("leo_input", "Program failed due to previous error".into())
+        CLIError::Crate("leo-input", "Program failed due to previous error".into())
     }
 }
 
