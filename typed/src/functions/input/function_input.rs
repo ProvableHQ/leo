@@ -33,7 +33,7 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
         FunctionInput {
             identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
-            type_: Type::from(parameter._type),
+            type_: Type::from(parameter.type_),
             span: Span::from(parameter.span),
         }
     }

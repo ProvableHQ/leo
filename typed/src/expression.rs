@@ -275,7 +275,7 @@ impl<'ast> fmt::Display for Expression {
 
 impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
     fn from(expression: CircuitInlineExpression<'ast>) -> Self {
-        let circuit_name = Identifier::from(expression.identifier);
+        let circuit_name = Identifier::from(expression.name);
         let members = expression
             .members
             .into_iter()

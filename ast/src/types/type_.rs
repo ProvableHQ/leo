@@ -27,7 +27,7 @@ pub enum Type<'ast> {
     Array(ArrayType<'ast>),
     Tuple(TupleType<'ast>),
     Circuit(CircuitType<'ast>),
-    SelfType(SelfType),
+    SelfType(SelfType<'ast>),
 }
 
 impl<'ast> fmt::Display for Type<'ast> {
@@ -37,7 +37,7 @@ impl<'ast> fmt::Display for Type<'ast> {
             Type::Array(ref _type) => write!(f, "array"),
             Type::Tuple(ref _type) => write!(f, "tuple"),
             Type::Circuit(ref _type) => write!(f, "struct"),
-            Type::SelfType(ref _type) => write!(f, "Self"),
+            Type::SelfType(ref type_) => write!(f, "{}", type_.keyword),
         }
     }
 }

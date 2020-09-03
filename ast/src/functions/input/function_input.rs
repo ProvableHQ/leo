@@ -30,7 +30,7 @@ use serde::Serialize;
 pub struct FunctionInput<'ast> {
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
-    pub _type: Type<'ast>,
+    pub type_: Type<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

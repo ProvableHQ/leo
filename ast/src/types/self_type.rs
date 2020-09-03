@@ -14,11 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
+use crate::{
+    ast::{span_into_string, Rule},
+    SpanDef,
+};
 
+use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::type_self))]
-pub struct SelfType {}
+pub struct SelfType<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub keyword: String,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}

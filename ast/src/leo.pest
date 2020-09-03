@@ -39,6 +39,7 @@ protected_name = {
     | "string"
     | "test"
     | type_data
+    | type_self
     | value_boolean
 }
 
@@ -351,7 +352,15 @@ expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"
 inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
 
 // Declared in expressions/circuit_inline_expression.rs
-expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_variable_list ~ NEWLINE* ~ "}" }
+expression_circuit_inline = { circuit_name ~ "{" ~ NEWLINE* ~ circuit_variable_list ~ NEWLINE* ~ "}" }
+
+// Declared in expressions/circuit_inline_expression.rs
+circuit_name = {
+    type_self
+    | identifier
+}
+
+// Declared in expressions/circuit_inline_expression.rs
 circuit_variable_list = _{ (circuit_variable ~ ("," ~ NEWLINE* ~ circuit_variable)*)? ~ ","? }
 
 // Declared in expressions/unary_expression.rs
@@ -360,7 +369,7 @@ expression_unary = { operation_unary ~ expression_term }
 // Declared in expressions/postfix_expression.rs
 expression_postfix = ${ keyword_or_identifier ~ access+ }
 
-// Declared in expressions
+// Declared in expressions/postfix_expression.rs
 keyword_or_identifier = {
     input_keyword
     | identifier

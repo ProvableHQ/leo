@@ -25,5 +25,5 @@ pub enum ArrayElement<'ast> {
     Basic(DataType),
     Tuple(TupleType<'ast>),
     Circuit(CircuitType<'ast>),
-    SelfType(SelfType),
+    SelfType(SelfType<'ast>),
 }
