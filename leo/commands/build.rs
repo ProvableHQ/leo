@@ -110,7 +110,7 @@ impl CLI for BuildCommand {
             main_file_path.push(MAIN_FILENAME);
 
             // Load the input file at `package_name.in`
-            let input_string = InputFile::new(&package_name).read_from(&path)?;
+            let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
 
             // Load the state file at `package_name.in`
             let state_string = StateFile::new(&package_name).read_from(&path)?;
@@ -124,6 +124,7 @@ impl CLI for BuildCommand {
                 main_file_path.clone(),
                 output_directory,
                 &input_string,
+                input_path,
                 &state_string,
             )?;
 

@@ -1277,6 +1277,7 @@ dependencies = [
  "snarkos-gadgets",
  "snarkos-models",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]

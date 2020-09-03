@@ -49,11 +49,11 @@ impl InputFile {
     }
 
     /// Reads the program input variables from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, InputFileError> {
+    pub fn read_from(&self, path: &PathBuf) -> Result<(String, PathBuf), InputFileError> {
         let path = self.setup_file_path(path);
 
         let input = fs::read_to_string(&path).map_err(|_| InputFileError::FileReadError(path.clone()))?;
-        Ok(input)
+        Ok((input, path))
     }
 
     /// Writes the standard input format to a file.

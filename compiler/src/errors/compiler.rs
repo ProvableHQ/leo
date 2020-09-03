@@ -67,6 +67,7 @@ pub enum CompilerError {
 impl CompilerError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
+            CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),
             CompilerError::OutputStringError(error) => error.set_path(path),
             _ => {}

@@ -51,3 +51,6 @@ version = "2.0"
 
 [dependencies.thiserror]
 version = "1.0"
+
+[dependencies.tracing]
+version = "0.1"

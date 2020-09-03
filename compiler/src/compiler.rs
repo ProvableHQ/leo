@@ -68,11 +68,24 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     /// Parse the input and state files.
     /// Stores a typed ast of all input variables to the program.
-    pub fn parse_input(&mut self, input_string: &str, state_string: &str) -> Result<(), CompilerError> {
-        let input_syntax_tree = LeoInputParser::parse_file(&input_string)?;
+    pub fn parse_input(
+        &mut self,
+        input_string: &str,
+        input_path: PathBuf,
+        state_string: &str,
+    ) -> Result<(), CompilerError> {
+        let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
+            e.set_path(input_path.clone());
+
+            e
+        })?;
         let state_syntax_tree = LeoInputParser::parse_file(&state_string)?;
 
-        self.program_input.parse_input(input_syntax_tree)?;
+        self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
+            e.set_path(input_path);
+
+            e
+        })?;
         self.program_input.parse_state(state_syntax_tree)?;
 
         Ok(())
@@ -99,11 +112,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         input_string: &str,
+        input_path: PathBuf,
         state_string: &str,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
-        compiler.parse_input(input_string, state_string)?;
+        compiler.parse_input(input_string, input_path, state_string)?;
+
         compiler.parse_program()?;
 
         Ok(compiler)
