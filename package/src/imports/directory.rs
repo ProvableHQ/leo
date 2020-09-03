@@ -46,4 +46,22 @@ impl ImportsDirectory {
 
         Ok(())
     }
+
+    /// Removes an imported package in the imports directory at the provided path.
+    pub fn remove_import(path: &PathBuf, package_name: &str) -> Result<(), ImportsDirectoryError> {
+        let mut path = path.to_owned();
+        if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
+            path.push(PathBuf::from(IMPORTS_DIRECTORY_NAME));
+        }
+
+        path.push(PathBuf::from(package_name));
+
+        if !path.exists() || !path.is_dir() {
+            return Err(ImportsDirectoryError::ImportDoesNotExist(package_name.into()));
+        }
+
+        fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
+
+        Ok(())
+    }
 }

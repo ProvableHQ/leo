@@ -36,4 +36,9 @@ impl LeoPackage {
     pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
         package::Package::initialize(package_name, is_lib, path)
     }
+
+    /// Removes an imported Leo package
+    pub fn remove_imported_package(package_name: &str, path: &PathBuf) -> Result<(), PackageError> {
+        package::Package::remove_imported_package(package_name, path)
+    }
 }
