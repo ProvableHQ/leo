@@ -57,6 +57,14 @@ fn test_i8_name_fail() {
 }
 
 #[test]
+fn test_input_name_fail() {
+    let bytes = include_bytes!("input_fail.leo");
+    let syntax_error = parse_program(bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
 fn test_true_name_fail() {
     let bytes = include_bytes!("true_fail.leo");
     let syntax_error = parse_program(bytes).is_err();

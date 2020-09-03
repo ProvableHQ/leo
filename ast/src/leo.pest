@@ -30,6 +30,7 @@ protected_name = {
     | "function"
     | "if"
     | "import"
+    | input_keyword
     | "in"
     | "let"
     | "mut"
@@ -37,8 +38,8 @@ protected_name = {
     | "static"
     | "string"
     | "test"
-    | value_boolean
     | type_data
+    | value_boolean
 }
 
 // Declared in common/line_end.rs
@@ -357,7 +358,13 @@ circuit_variable_list = _{ (circuit_variable ~ ("," ~ NEWLINE* ~ circuit_variabl
 expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
-expression_postfix = ${ identifier ~ access+ }
+expression_postfix = ${ keyword_or_identifier ~ access+ }
+
+// Declared in expressions
+keyword_or_identifier = {
+    input_keyword
+    | identifier
+}
 
 /// Statements
 
@@ -409,8 +416,8 @@ input_keyword = { "input" }
 
 // Declared in functions/input/input.rs
 input = {
-    function_input
-    | input_keyword
+    input_keyword
+    | function_input
 }
 input_tuple = _{ "(" ~ NEWLINE* ~ (input ~ ("," ~ NEWLINE* ~ input)* ~ ","?)? ~ NEWLINE* ~ ")"}
 

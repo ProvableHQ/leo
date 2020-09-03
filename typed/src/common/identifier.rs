@@ -22,6 +22,7 @@ use leo_ast::{
 };
 use leo_input::common::Identifier as InputAstIdentifier;
 
+use leo_ast::{expressions::KeywordOrIdentifier, functions::InputKeyword};
 use serde::{
     de::{self, Visitor},
     Deserialize,
@@ -80,6 +81,24 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
         Self {
             name: argument.value,
             span: Span::from(argument.span),
+        }
+    }
+}
+
+impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
+    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
+        match name {
+            KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
+        }
+    }
+}
+
+impl<'ast> From<InputKeyword<'ast>> for Identifier {
+    fn from(input: InputKeyword<'ast>) -> Self {
+        Self {
+            name: input.keyword,
+            span: Span::from(input.span),
         }
     }
 }
