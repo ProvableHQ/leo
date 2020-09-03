@@ -14,37 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
-    errors::{CLIError, RunError},
-};
-use leo_package::{
-    root::Manifest,
-    source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
+use crate::{cli::*, cli_types::*, errors::CLIError};
+use leo_package::LeoPackage;
 
 use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir};
+use std::env::current_dir;
 
 #[derive(Debug)]
 pub struct RemoveCommand;
 
 impl CLI for RemoveCommand {
-    type Options = ();
+    type Options = Option<String>;
     type Output = ();
 
-    const ABOUT: AboutType = "Uninstall a package from the current package (*)";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
+    const ABOUT: AboutType = "Uninstall a package from the current package";
+    const ARGUMENTS: &'static [ArgumentType] = &[
+        // (name, description, required, index)
+        ("NAME", "Removes the package from the current directory", true, 1u64),
+    ];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "remove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(match arguments.value_of("NAME") {
+            Some(name) => Some(name.to_string()),
+            None => unreachable!(),
+        })
     }
 
     #[cfg_attr(tarpaulin, skip)]
@@ -55,24 +53,11 @@ impl CLI for RemoveCommand {
 
         let path = current_dir()?;
 
-        match BuildCommand::output(options)? {
-            Some((_program, _checksum_differs)) => {
-                // Get the package name
-                let _package_name = Manifest::try_from(&path)?.get_package_name();
-
-                tracing::info!("Unimplemented - `leo remove`");
-
-                Ok(())
-            }
-            None => {
-                let mut main_file_path = path.clone();
-                main_file_path.push(SOURCE_DIRECTORY_NAME);
-                main_file_path.push(MAIN_FILENAME);
-
-                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
-                    main_file_path.into_os_string(),
-                )))
-            }
+        if let Some(package_name) = options {
+            LeoPackage::remove_imported_package(&package_name, &path)?;
+            tracing::info!("Successfully removed package \"{}\"\n", package_name);
         }
+
+        Ok(())
     }
 }

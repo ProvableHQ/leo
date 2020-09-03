@@ -56,9 +56,11 @@ impl ImportsDirectory {
 
         path.push(PathBuf::from(package_name));
 
-        if path.is_dir() && path.exists() {
-            fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
+        if !path.exists() || !path.is_dir() {
+            return Err(ImportsDirectoryError::ImportDoesNotExist(package_name.into()));
         }
+
+        fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
 
         Ok(())
     }

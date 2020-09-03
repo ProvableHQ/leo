@@ -30,6 +30,9 @@ pub enum ImportsDirectoryError {
     #[error("file {:?} type getting: {}", _0, _1)]
     GettingFileType(OsString, io::Error),
 
+    #[error("package {:?} does not exist as an import", _0)]
+    ImportDoesNotExist(OsString),
+
     #[error("invalid file {:?} extension: {:?}", _0, _1)]
     InvalidFileExtension(OsString, OsString),
 
