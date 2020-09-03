@@ -1,0 +1,2 @@
+[main]
+a: [[u8; 2]; 3] = [[0; 3]; 2]; // See `type_nested_value_nested_3x2.in` for correct dimensions

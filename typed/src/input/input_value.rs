@@ -137,27 +137,38 @@ impl InputValue {
         array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
-        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
         let initializer_dimensions = TypedExpression::get_input_array_dimensions(initializer.dimensions.clone());
 
-        if array_dimensions.eq(&initializer_dimensions) {
+        if initializer_dimensions.len() > 1 {
             // The expression is an array initializer with tuple syntax
             Self::from_array_initializer_tuple(array_type, initializer, initializer_dimensions)
         } else {
             // The expression is an array initializer with nested syntax
-            Self::from_array_initializer_nested(array_type, initializer, array_dimensions, initializer_dimensions)
+            Self::from_array_initializer_nested(array_type, initializer, initializer_dimensions)
         }
     }
 
     pub(crate) fn from_array_initializer_tuple(
         array_type: ArrayType,
         initializer: ArrayInitializerExpression,
-        dimensions: Vec<usize>,
+        initializer_dimensions: Vec<usize>,
     ) -> Result<Self, InputParserError> {
-        let value = InputValue::from_expression(*array_type.type_, *initializer.expression.clone())?;
+        let (array_dimensions, array_element_type) = fetch_nested_array_type_dimensions(array_type.clone(), vec![]);
+
+        // Return an error if the dimensions of the array are incorrect.
+        if array_dimensions.ne(&initializer_dimensions) {
+            return Err(InputParserError::array_init_length(
+                array_dimensions,
+                initializer_dimensions,
+                initializer.span,
+            ));
+        }
+
+        let value = InputValue::from_expression(array_element_type, *initializer.expression.clone())?;
         let mut elements = vec![];
 
-        for (i, dimension) in dimensions.into_iter().enumerate() {
+        // Build the elements of the array using the `vec!` macro
+        for (i, dimension) in initializer_dimensions.into_iter().enumerate() {
             if i == 0 {
                 elements = vec![value.clone(); dimension];
             } else {
@@ -173,9 +184,10 @@ impl InputValue {
     pub(crate) fn from_array_initializer_nested(
         mut array_type: ArrayType,
         initializer: ArrayInitializerExpression,
-        array_dimensions: Vec<usize>,
         initializer_dimensions: Vec<usize>,
     ) -> Result<Self, InputParserError> {
+        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+
         let current_array_dimension = array_dimensions[0];
         let current_initializer_dimension = initializer_dimensions[0];
 
@@ -225,6 +237,17 @@ impl InputValue {
         }
 
         Ok(InputValue::Tuple(values))
+    }
+}
+
+// Recursively fetch all dimensions from the array type
+fn fetch_nested_array_type_dimensions(array_type: ArrayType, mut array_dimensions: Vec<usize>) -> (Vec<usize>, Type) {
+    let mut current_dimension = TypedExpression::get_input_array_dimensions(array_type.dimensions);
+    array_dimensions.append(&mut current_dimension);
+
+    match *array_type.type_ {
+        Type::Array(next_array_type) => fetch_nested_array_type_dimensions(next_array_type, array_dimensions),
+        type_ => (array_dimensions, type_),
     }
 }
 

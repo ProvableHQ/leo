@@ -1,0 +1,2 @@
+[main]
+a: [u8; (3, 2)] = [0; (2, 3)]; // See `type_tuple_value_tuple_3x2.in` for correct dimensions

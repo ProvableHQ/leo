@@ -59,6 +59,13 @@ impl<'ast> ArrayDimensions<'ast> {
             }
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            ArrayDimensions::Single(_) => false,
+            ArrayDimensions::Multiple(multiple) => multiple.numbers.is_empty(),
+        }
+    }
 }
 
 impl<'ast> std::fmt::Display for ArrayDimensions<'ast> {
