@@ -18,7 +18,6 @@ use crate::{
     assert_satisfied,
     expect_compiler_error,
     get_output,
-    integers::{expect_computation_error, expect_parsing_error},
     parse_program,
     parse_program_with_input,
     EdwardsTestCompiler,

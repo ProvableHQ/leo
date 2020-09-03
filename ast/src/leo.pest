@@ -21,17 +21,13 @@ definition_annotated = { annotation ~ NEWLINE* ~ definition}
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
 protected_name = {
-    "address"
-    | "as"
+    "as"
     | "circuit"
     | "const"
     | "console"
     | "else"
-    | "false"
-    | "field"
     | "for"
     | "function"
-    | "group"
     | "if"
     | "import"
     | "in"
@@ -41,7 +37,8 @@ protected_name = {
     | "static"
     | "string"
     | "test"
-    | "true"
+    | value_boolean
+    | type_data
 }
 
 // Declared in common/line_end.rs

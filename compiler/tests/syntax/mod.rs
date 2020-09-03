@@ -19,6 +19,8 @@ use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_input::InputParserError;
 
+pub mod identifiers;
+
 #[test]
 #[ignore]
 fn test_semicolon() {
