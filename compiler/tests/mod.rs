@@ -72,8 +72,9 @@ pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, Compile
 pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let input_string = String::from_utf8_lossy(bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, EMPTY_FILE)?;
+    compiler.parse_input(&input_string, path.clone(), EMPTY_FILE, path)?;
 
     Ok(compiler)
 }
@@ -81,8 +82,9 @@ pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerE
 pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let state_string = String::from_utf8_lossy(bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, &state_string)?;
+    compiler.parse_input(EMPTY_FILE, path.clone(), &state_string, path)?;
 
     Ok(compiler)
 }
@@ -94,8 +96,9 @@ pub(crate) fn parse_input_and_state(
     let mut compiler = new_compiler();
     let input_string = String::from_utf8_lossy(input_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &state_string)?;
+    compiler.parse_input(&input_string, path.clone(), &state_string, path)?;
 
     Ok(compiler)
 }
@@ -108,8 +111,9 @@ pub fn parse_program_with_input(
 
     let program_string = String::from_utf8_lossy(program_bytes);
     let input_string = String::from_utf8_lossy(input_bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, EMPTY_FILE)?;
+    compiler.parse_input(&input_string, path.clone(), EMPTY_FILE, path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -123,8 +127,9 @@ pub fn parse_program_with_state(
 
     let program_string = String::from_utf8_lossy(program_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, &state_string)?;
+    compiler.parse_input(EMPTY_FILE, path.clone(), &state_string, path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -140,8 +145,9 @@ pub fn parse_program_with_input_and_state(
     let program_string = String::from_utf8_lossy(program_bytes);
     let input_string = String::from_utf8_lossy(input_bytes);
     let state_string = String::from_utf8_lossy(state_bytes);
+    let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &state_string)?;
+    compiler.parse_input(&input_string, path.clone(), &state_string, path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)

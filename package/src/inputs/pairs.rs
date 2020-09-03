@@ -57,7 +57,7 @@ impl TryFrom<&PathBuf> for InputPairs {
                 .ok_or(InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?;
 
             if file_extension == INPUT_FILE_EXTENSION.trim_start_matches(".") {
-                let input_file = InputFile::new(file_name).read_from(&file)?;
+                let input_file = InputFile::new(file_name).read_from(&file)?.0;
 
                 if pairs.contains_key(file_name) {
                     let pair = pairs.get_mut(file_name).unwrap();
@@ -70,7 +70,7 @@ impl TryFrom<&PathBuf> for InputPairs {
                     pairs.insert(file_name.to_owned(), pair);
                 }
             } else if file_extension == STATE_FILE_EXTENSION.trim_start_matches(".") {
-                let state_file = StateFile::new(file_name).read_from(&file)?;
+                let state_file = StateFile::new(file_name).read_from(&file)?.0;
 
                 if pairs.contains_key(file_name) {
                     let pair = pairs.get_mut(file_name).unwrap();

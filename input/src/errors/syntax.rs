@@ -21,7 +21,7 @@ use pest::error::Error;
 #[derive(Debug, Error)]
 pub enum SyntaxError {
     #[error("aborting due to syntax error")]
-    Error,
+    Error(Error<Rule>),
 }
 
 impl From<Error<Rule>> for SyntaxError {
@@ -39,8 +39,6 @@ impl From<Error<Rule>> for SyntaxError {
             rule => format!("{:?}", rule),
         });
 
-        println!("{}\n", error);
-
-        SyntaxError::Error
+        SyntaxError::Error(error)
     }
 }

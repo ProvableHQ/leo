@@ -68,12 +68,34 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
     /// Parse the input and state files.
     /// Stores a typed ast of all input variables to the program.
-    pub fn parse_input(&mut self, input_string: &str, state_string: &str) -> Result<(), CompilerError> {
-        let input_syntax_tree = LeoInputParser::parse_file(&input_string)?;
-        let state_syntax_tree = LeoInputParser::parse_file(&state_string)?;
+    pub fn parse_input(
+        &mut self,
+        input_string: &str,
+        input_path: PathBuf,
+        state_string: &str,
+        state_path: PathBuf,
+    ) -> Result<(), CompilerError> {
+        let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
+            e.set_path(input_path.clone());
 
-        self.program_input.parse_input(input_syntax_tree)?;
-        self.program_input.parse_state(state_syntax_tree)?;
+            e
+        })?;
+        let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
+            e.set_path(state_path.clone());
+
+            e
+        })?;
+
+        self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
+            e.set_path(input_path);
+
+            e
+        })?;
+        self.program_input.parse_state(state_syntax_tree).map_err(|mut e| {
+            e.set_path(state_path);
+
+            e
+        })?;
 
         Ok(())
     }
@@ -99,11 +121,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         input_string: &str,
+        input_path: PathBuf,
         state_string: &str,
+        state_path: PathBuf,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
-        compiler.parse_input(input_string, state_string)?;
+        compiler.parse_input(input_string, input_path, state_string, state_path)?;
+
         compiler.parse_program()?;
 
         Ok(compiler)
@@ -122,7 +147,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     #[deprecated(note = "Please use the 'parse_program' method instead.")]
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
-        let ast = LeoAst::new(&self.main_file_path, &program_string)?;
+        let ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
+            e.set_path(self.main_file_path.clone());
+
+            e
+        })?;
 
         // Derive the package name.
         let package_name = self.package_name.clone();
