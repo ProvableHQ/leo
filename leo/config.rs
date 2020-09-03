@@ -120,8 +120,7 @@ impl Config {
 
             // Update the config file
             let config_path = LEO_CONFIG_PATH.clone();
-            let default_config_string = toml::to_string(&Config::default())?;
-            fs::write(&config_path, default_config_string)?;
+            fs::write(&config_path, toml::to_string(&config)?)?;
         }
 
         Ok(())

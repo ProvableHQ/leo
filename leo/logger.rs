@@ -186,7 +186,7 @@ where
                 }
             }
 
-            write!(writer, "{:>12} ", colored_string(meta.level(), &message)).expect("Error writing event");
+            write!(writer, "{:>10} ", colored_string(meta.level(), &message)).expect("Error writing event");
         }
 
         ctx.format_fields(writer, event)?;

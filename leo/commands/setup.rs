@@ -138,9 +138,9 @@ impl CLI for SetupCommand {
                 // Drop "Setup" context for console logging
                 drop(enter);
 
-                // Begin "Finished" context for console logging
-                tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-                    tracing::info!("Completed in {:?} milliseconds\n", end);
+                // Begin "Done" context for console logging
+                tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+                    tracing::info!("Finished in {:?} milliseconds\n", end);
                 });
 
                 Ok((program, proving_key, prepared_verifying_key))

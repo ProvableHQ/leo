@@ -186,9 +186,9 @@ impl CLI for BuildCommand {
             // Drop "Compiling" context for console logging
             drop(enter);
 
-            // Begin "Finished" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
-            tracing::span!(tracing::Level::INFO, "Finished").in_scope(|| {
-                tracing::info!("Completed in {} milliseconds\n", start.elapsed().as_millis());
+            // Begin "Done" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
+            tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+                tracing::info!("Finished in {} milliseconds\n", start.elapsed().as_millis());
             });
 
             return Ok(Some((program, checksum_differs)));

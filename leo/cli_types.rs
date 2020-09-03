@@ -28,6 +28,8 @@ pub type IndexType = u64;
 
 pub type ArgumentType = (NameType, DescriptionType, RequiredType, IndexType);
 
+// Format
+// "[flag] -f --flag 'Add flag description here'"
 pub type FlagType = &'static str;
 
 // Format
