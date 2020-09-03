@@ -307,17 +307,17 @@ access_static_member = ${ "::" ~ identifier }
 // Declared in circuits/circuit_definition.rs
 circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
 
-// Declared in circuits/circuit_field.rs
-circuit_field = { identifier ~ ":" ~ expression }
+// Declared in circuits/circuit_variable.rs
+circuit_variable = { identifier ~ ":" ~ expression }
 
-// Declared in circuits/circuit_field_definition.rs
-circuit_field_definition = { identifier ~ ":" ~ type_ ~ ","?}
+// Declared in circuits/circuit_variable_definition.rs
+circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_function.rs
 circuit_function = { static_? ~ function }
 
 // Declared in circuits/circuit_member.rs
-circuit_member = { circuit_function | circuit_field_definition ~ NEWLINE*}
+circuit_member = { circuit_function | circuit_variable_definition ~ NEWLINE*}
 
 /// Conditionals
 
@@ -353,8 +353,8 @@ expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"
 inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
 
 // Declared in expressions/circuit_inline_expression.rs
-expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_field_list ~ NEWLINE* ~ "}" }
-circuit_field_list = _{ (circuit_field ~ ("," ~ NEWLINE* ~ circuit_field)*)? ~ ","? }
+expression_circuit_inline = { identifier ~ "{" ~ NEWLINE* ~ circuit_variable_list ~ NEWLINE* ~ "}" }
+circuit_variable_list = _{ (circuit_variable ~ ("," ~ NEWLINE* ~ circuit_variable)*)? ~ ","? }
 
 // Declared in expressions/unary_expression.rs
 expression_unary = { operation_unary ~ expression_term }

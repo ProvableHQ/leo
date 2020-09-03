@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, types::Type, SpanDef};
+use crate::{ast::Rule, common::Identifier, expressions::Expression, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_field_definition))]
-pub struct CircuitFieldDefinition<'ast> {
+#[pest_ast(rule(Rule::circuit_variable))]
+pub struct CircuitVariable<'ast> {
     pub identifier: Identifier<'ast>,
-    pub _type: Type<'ast>,
+    pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

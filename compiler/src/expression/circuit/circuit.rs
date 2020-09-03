@@ -22,7 +22,7 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_typed::{CircuitFieldDefinition, CircuitMember, Identifier, Span};
+use leo_typed::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         identifier: Identifier,
-        members: Vec<CircuitFieldDefinition>,
+        members: Vec<CircuitVariableDefinition>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
@@ -55,23 +55,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for member in circuit.members.clone().into_iter() {
             match member {
-                CircuitMember::CircuitField(identifier, _type) => {
-                    let matched_field = members
+                CircuitMember::CircuitVariable(identifier, _type) => {
+                    let matched_variable = members
                         .clone()
                         .into_iter()
-                        .find(|field| field.identifier.eq(&identifier));
-                    match matched_field {
-                        Some(field) => {
+                        .find(|variable| variable.identifier.eq(&identifier));
+                    match matched_variable {
+                        Some(variable) => {
                             // Resolve and enforce circuit object
-                            let field_value = self.enforce_expression(
+                            let variable_value = self.enforce_expression(
                                 cs,
                                 file_scope.clone(),
                                 function_scope.clone(),
                                 Some(_type.clone()),
-                                field.expression,
+                                variable.expression,
                             )?;
 
-                            resolved_members.push(ConstrainedCircuitMember(identifier, field_value))
+                            resolved_members.push(ConstrainedCircuitMember(identifier, variable_value))
                         }
                         None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
                     }

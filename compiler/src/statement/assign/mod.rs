@@ -25,8 +25,8 @@ pub use self::assign::*;
 pub mod assignee;
 pub use self::assignee::*;
 
-pub mod circuit_field;
-pub use self::circuit_field::*;
+pub mod circuit_variable;
+pub use self::circuit_variable::*;
 
 pub mod tuple;
 pub use self::tuple::*;
