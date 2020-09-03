@@ -55,21 +55,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for member in circuit.members.clone().into_iter() {
             match member {
-                CircuitMember::CircuitVariable(identifier, _type) => {
+                CircuitMember::CircuitVariable(is_mutable, identifier, type_) => {
                     let matched_variable = members
                         .clone()
                         .into_iter()
                         .find(|variable| variable.identifier.eq(&identifier));
                     match matched_variable {
                         Some(variable) => {
-                            // Resolve and enforce circuit object
-                            let variable_value = self.enforce_expression(
+                            // Resolve and enforce circuit variable
+                            let mut variable_value = self.enforce_expression(
                                 cs,
                                 file_scope.clone(),
                                 function_scope.clone(),
-                                Some(_type.clone()),
+                                Some(type_.clone()),
                                 variable.expression,
                             )?;
+
+                            // Add mutability to circuit variable
+                            if is_mutable {
+                                variable_value = ConstrainedValue::Mutable(Box::new(variable_value))
+                            }
 
                             resolved_members.push(ConstrainedCircuitMember(identifier, variable_value))
                         }
