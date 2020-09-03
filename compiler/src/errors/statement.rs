@@ -96,6 +96,12 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn immutable_circuit_variable(name: String, span: Span) -> Self {
+        let message = format!("Circuit member variable `{}` is immutable", name);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn indicator_calculation(name: String, span: Span) -> Self {
         let message = format!(
             "Constraint system failed to evaluate branch selection indicator `{}`",
@@ -168,8 +174,8 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_circuit_object(name: String, span: Span) -> Self {
-        let message = format!("Attempted to assign to unknown circuit object `{}`", name);
+    pub fn undefined_circuit_variable(name: String, span: Span) -> Self {
+        let message = format!("Attempted to assign to unknown circuit member variable `{}`", name);
 
         Self::new_from_span(message, span)
     }

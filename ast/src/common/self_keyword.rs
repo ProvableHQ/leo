@@ -14,17 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod console_function;
-pub use console_function::*;
+use crate::{
+    ast::{span_into_string, Rule},
+    SpanDef,
+};
 
-pub mod console_function_call;
-pub use console_function_call::*;
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod formatted_container;
-pub use formatted_container::*;
-
-pub mod formatted_parameter;
-pub use formatted_parameter::*;
-
-pub mod formatted_string;
-pub use formatted_string::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::self_keyword))]
+pub struct SelfKeyword<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub keyword: String,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}

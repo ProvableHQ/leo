@@ -19,9 +19,9 @@ circuit PedersenHash {
 function main() {
     let parameters = [0u32; 512];
     let pedersen = PedersenHash::new(parameters);
-    let input: [bool; 512] = [true; 512];
+    let hash_input: [bool; 512] = [true; 512];
 
-    let res = pedersen.hash(input);
+    let res = pedersen.hash(hash_input);
 
     console.assert(res == 0u32);
 }

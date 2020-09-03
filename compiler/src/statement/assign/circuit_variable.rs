@@ -33,19 +33,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         indicator: Option<Boolean>,
         circuit_name: String,
-        object_name: Identifier,
+        variable_name: Identifier,
         mut new_value: ConstrainedValue<F, G>,
         span: Span,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
+        // Get the mutable circuit by name
         match self.get_mutable_assignee(circuit_name, span.clone())? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit variable in place
-                let matched_variable = members.into_iter().find(|object| object.0 == object_name);
+                let matched_variable = members.into_iter().find(|member| member.0 == variable_name);
 
                 match matched_variable {
-                    Some(object) => match &object.1 {
+                    Some(member) => match &member.1 {
                         ConstrainedValue::Function(_circuit_identifier, function) => {
                             return Err(StatementError::immutable_circuit_function(
                                 function.identifier.to_string(),
@@ -55,27 +56,35 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         ConstrainedValue::Static(_value) => {
                             return Err(StatementError::immutable_circuit_function("static".into(), span));
                         }
-                        _ => {
-                            new_value.resolve_type(Some(object.1.to_type(span.clone())?), span.clone())?;
+                        ConstrainedValue::Mutable(value) => {
+                            new_value.resolve_type(Some(value.to_type(span.clone())?), span.clone())?;
 
                             let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                             let selected_value = ConstrainedValue::conditionally_select(
                                 cs.ns(|| name_unique),
                                 &condition,
                                 &new_value,
-                                &object.1,
+                                &member.1,
                             )
                             .map_err(|_| {
-                                StatementError::select_fail(new_value.to_string(), object.1.to_string(), span)
+                                StatementError::select_fail(new_value.to_string(), member.1.to_string(), span)
                             })?;
 
-                            object.1 = selected_value.to_owned();
+                            member.1 = selected_value.to_owned();
+                        }
+                        _ => {
+                            return Err(StatementError::immutable_circuit_variable(variable_name.name, span));
                         }
                     },
-                    None => return Err(StatementError::undefined_circuit_object(object_name.to_string(), span)),
+                    None => {
+                        return Err(StatementError::undefined_circuit_variable(
+                            variable_name.to_string(),
+                            span,
+                        ));
+                    }
                 }
             }
-            _ => return Err(StatementError::undefined_circuit(object_name.to_string(), span)),
+            _ => return Err(StatementError::undefined_circuit(variable_name.to_string(), span)),
         }
 
         Ok(())

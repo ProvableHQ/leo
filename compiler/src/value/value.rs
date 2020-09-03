@@ -132,6 +132,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 Type::Tuple(types)
             }
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
+            ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
     }

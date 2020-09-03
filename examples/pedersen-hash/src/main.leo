@@ -21,6 +21,6 @@ circuit PedersenHash {
 function main() -> group {
     const parameters = [1group; 256];
     const pedersen = PedersenHash::new(parameters);
-    let input: [bool; 256] = [true; 256];
-    return pedersen.hash(input)
+    let hash_input: [bool; 256] = [true; 256];
+    return pedersen.hash(hash_input)
 }
