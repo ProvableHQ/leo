@@ -18,6 +18,7 @@ use crate::{
     assert_satisfied,
     expect_compiler_error,
     get_output,
+    integers::{expect_computation_error, expect_parsing_error},
     parse_program,
     parse_program_with_input,
     EdwardsTestCompiler,
@@ -102,6 +103,24 @@ fn test_initializer_fail() {
 }
 
 #[test]
+fn test_initializer_input() {
+    let program_bytes = include_bytes!("initializer_input.leo");
+    let input_bytes = include_bytes!("input/six_zeros.in");
+    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_initializer_input_fail() {
+    let program_bytes = include_bytes!("initializer_input.leo");
+    let input_bytes = include_bytes!("input/initializer_fail.in");
+    let syntax_error = parse_program_with_input(program_bytes, input_bytes).is_err();
+
+    assert!(syntax_error);
+}
+
+#[test]
 fn test_spread() {
     let program_bytes = include_bytes!("spread.leo");
     let input_bytes = include_bytes!("input/three_ones.in");
@@ -128,7 +147,7 @@ fn test_multi() {
 }
 
 #[test]
-fn test_multi_initializer_fail() {
+fn test_multi_fail() {
     let program_bytes = include_bytes!("multi_fail_initializer.leo");
     let program = parse_program(program_bytes).unwrap();
 
@@ -138,6 +157,22 @@ fn test_multi_initializer_fail() {
 #[test]
 fn test_multi_inline_fail() {
     let program_bytes = include_bytes!("multi_fail_inline.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multi_initializer() {
+    let program_bytes = include_bytes!("multi_initializer.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_multi_initializer_fail() {
+    let program_bytes = include_bytes!("multi_initializer_fail.leo");
     let program = parse_program(program_bytes).unwrap();
 
     expect_compiler_error(program);

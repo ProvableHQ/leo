@@ -44,7 +44,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Expression::ArrayInitializer(ref expression) => {
-                write!(f, "array [{} ; {}]", expression.expression, expression.count)
+                write!(f, "array [{} ; {}]", expression.expression, expression.dimensions)
             }
             Expression::ArrayInline(ref array) => {
                 let values = array
