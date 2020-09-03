@@ -110,6 +110,22 @@ impl Config {
 
         Ok(config)
     }
+
+    /// Update the `automatic` configuration in the `config.toml` file.
+    pub fn set_update_automatic(automatic: bool) -> Result<(), CLIError> {
+        let mut config = Self::read_config()?;
+
+        if config.update.automatic != automatic {
+            config.update.automatic = automatic;
+
+            // Update the config file
+            let config_path = LEO_CONFIG_PATH.clone();
+            let default_config_string = toml::to_string(&Config::default())?;
+            fs::write(&config_path, default_config_string)?;
+        }
+
+        Ok(())
+    }
 }
 
 pub fn write_token(token: &str) -> Result<(), io::Error> {
