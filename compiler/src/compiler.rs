@@ -73,20 +73,29 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         input_string: &str,
         input_path: PathBuf,
         state_string: &str,
+        state_path: PathBuf,
     ) -> Result<(), CompilerError> {
         let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
             e.set_path(input_path.clone());
 
             e
         })?;
-        let state_syntax_tree = LeoInputParser::parse_file(&state_string)?;
+        let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
+            e.set_path(state_path.clone());
+
+            e
+        })?;
 
         self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
             e.set_path(input_path);
 
             e
         })?;
-        self.program_input.parse_state(state_syntax_tree)?;
+        self.program_input.parse_state(state_syntax_tree).map_err(|mut e| {
+            e.set_path(state_path);
+
+            e
+        })?;
 
         Ok(())
     }
@@ -114,10 +123,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         input_string: &str,
         input_path: PathBuf,
         state_string: &str,
+        state_path: PathBuf,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
-        compiler.parse_input(input_string, input_path, state_string)?;
+        compiler.parse_input(input_string, input_path, state_string, state_path)?;
 
         compiler.parse_program()?;
 

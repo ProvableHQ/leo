@@ -49,11 +49,11 @@ impl StateFile {
     }
 
     /// Reads the state input variables from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, StateFileError> {
+    pub fn read_from(&self, path: &PathBuf) -> Result<(String, PathBuf), StateFileError> {
         let path = self.setup_file_path(path);
 
         let input = fs::read_to_string(&path).map_err(|_| StateFileError::FileReadError(path.clone()))?;
-        Ok(input)
+        Ok((input, path))
     }
 
     /// Writes the standard input format to a file.

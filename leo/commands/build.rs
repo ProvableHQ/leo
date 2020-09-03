@@ -113,7 +113,7 @@ impl CLI for BuildCommand {
             let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
 
             // Load the state file at `package_name.in`
-            let state_string = StateFile::new(&package_name).read_from(&path)?;
+            let (state_string, state_path) = StateFile::new(&package_name).read_from(&path)?;
 
             // Log compilation of files to console
             tracing::info!("Compiling main program... ({:?})", main_file_path);
@@ -126,6 +126,7 @@ impl CLI for BuildCommand {
                 &input_string,
                 input_path,
                 &state_string,
+                state_path,
             )?;
 
             // Compute the current program checksum
