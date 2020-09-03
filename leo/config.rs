@@ -56,7 +56,7 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self { auto_update: true }
+        Self { auto_update: false }
     }
 }
 

@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_lang::{cli::*, commands::*, config::Config, errors::CLIError};
+use leo_lang::{cli::*, commands::*, errors::CLIError, logger, updater::Updater};
 
 use clap::{App, AppSettings, Arg};
 
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
-    let arguments = App::new("leo")
+    let app = App::new("leo")
         .version(include_str!("./leo-version"))
         .about("Leo compiler and package manager")
         .author("The Aleo Team <hello@aleo.org>")
@@ -28,7 +28,6 @@ fn main() -> Result<(), CLIError> {
             AppSettings::ColoredHelp,
             AppSettings::DisableHelpSubcommand,
             AppSettings::DisableVersion,
-            AppSettings::SubcommandRequiredElseHelp,
         ])
         .args(&[Arg::with_name("debug")
             .short("d")
@@ -53,18 +52,10 @@ fn main() -> Result<(), CLIError> {
             LintCommand::new().display_order(14),
             UpdateCommand::new().display_order(15),
         ])
-        .set_term_width(0)
-        .get_matches();
+        .set_term_width(0);
 
-    let config = Config::read_config()?;
-
-    if config.auto_update && arguments.subcommand().0 != "update" {
-        if let Ok(status) = UpdateCommand::update_to_latest_release(false) {
-            if status.updated() {
-                tracing::info!("Leo has successfully updated to version: {}", status.version());
-            }
-        }
-    }
+    let mut help = app.clone();
+    let arguments = app.get_matches();
 
     match arguments.subcommand() {
         ("new", Some(arguments)) => NewCommand::process(arguments),
@@ -83,6 +74,17 @@ fn main() -> Result<(), CLIError> {
         ("clean", Some(arguments)) => CleanCommand::process(arguments),
         ("lint", Some(arguments)) => LintCommand::process(arguments),
         ("update", Some(arguments)) => UpdateCommand::process(arguments),
-        _ => unreachable!(),
+        _ => {
+            // Set logging environment
+            match arguments.is_present("debug") {
+                true => logger::init_logger("leo", 2),
+                false => logger::init_logger("leo", 1),
+            }
+
+            Updater::print_cli();
+
+            help.print_help()?;
+            Ok(())
+        }
     }
 }
