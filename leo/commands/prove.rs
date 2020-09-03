@@ -48,8 +48,8 @@ impl CLI for ProveCommand {
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
 
-        // Begin "Prover" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Prover");
+        // Begin "Proving" context for console logging
+        let span = tracing::span!(tracing::Level::INFO, "Proving");
         let enter = span.enter();
 
         // Get the package name
@@ -72,7 +72,7 @@ impl CLI for ProveCommand {
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
-        // Drop "Prover" context for console logging
+        // Drop "Proving" context for console logging
         drop(enter);
 
         // Begin "Done" context for console logging
