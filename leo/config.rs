@@ -26,7 +26,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub const PACKAGE_MANAGER_URL: &str = "https://apm-backend-prod.herokuapp.com/";
+pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 pub const LEO_CONFIG_FILE: &str = "config.toml";
@@ -50,13 +50,26 @@ lazy_static! {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Update {
+    pub automatic: bool,
+}
+
+impl Default for Update {
+    fn default() -> Self {
+        Self { automatic: true }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub auto_update: bool,
+    pub update: Update,
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self { auto_update: false }
+        Self {
+            update: Update::default(),
+        }
     }
 }
 
@@ -76,10 +89,19 @@ impl Config {
         }
 
         let toml_string = match fs::read_to_string(&config_path) {
-            Ok(toml) => toml,
+            Ok(mut toml) => {
+                // If the config is using an incorrect format, rewrite it.
+                if let Err(_) = toml::from_str::<Config>(&toml) {
+                    let default_config_string = toml::to_string(&Config::default())?;
+                    fs::write(&config_path, default_config_string.clone())?;
+                    toml = default_config_string;
+                }
+
+                toml
+            }
             Err(_) => {
                 create_dir_all(&config_dir)?;
-                String::new()
+                toml::to_string(&Config::default())?
             }
         };
 
