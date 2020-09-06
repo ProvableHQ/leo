@@ -26,6 +26,9 @@ pub use eoi::*;
 pub mod identifier;
 pub use identifier::*;
 
+pub mod keyword_or_identifier;
+pub use keyword_or_identifier::*;
+
 pub mod line_end;
 pub use line_end::*;
 
