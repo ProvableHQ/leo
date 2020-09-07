@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    types::{ArrayDimensions, ArrayElement},
+    types::{ArrayDimensions, Type},
 };
 
 use pest::Span;
@@ -25,7 +25,7 @@ use pest_ast::FromPest;
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::type_array))]
 pub struct ArrayType<'ast> {
-    pub type_: ArrayElement<'ast>,
+    pub type_: Box<Type<'ast>>,
     pub dimensions: ArrayDimensions<'ast>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,

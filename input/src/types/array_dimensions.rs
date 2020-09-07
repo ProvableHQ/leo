@@ -53,10 +53,17 @@ impl<'ast> ArrayDimensions<'ast> {
                 let old_dimension = multiple.numbers.clone();
 
                 ArrayDimensions::Multiple(Multiple {
-                    numbers: old_dimension[..old_dimension.len() - 1].to_vec(),
+                    numbers: old_dimension[1..].to_vec(),
                     span: multiple.span.clone(),
                 })
             }
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            ArrayDimensions::Single(_) => false,
+            ArrayDimensions::Multiple(multiple) => multiple.numbers.is_empty(),
         }
     }
 }

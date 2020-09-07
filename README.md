@@ -79,7 +79,7 @@ cd leo
 $ cargo build --release
 ```
 
-This will generate an executable under the `./target/release` directory. To run snarkOS, run the following command:
+This will generate an executable under the `./target/release` directory. To run Leo, run the following command:
 ```bash
 ./target/release/leo
 ```
