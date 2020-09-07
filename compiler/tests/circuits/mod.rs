@@ -134,6 +134,71 @@ fn test_member_static_function_undefined() {
     expect_fail(program)
 }
 
+// Mutability
+#[test]
+fn test_mutate_function_fail() {
+    let bytes = include_bytes!("mut_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_variable() {
+    let bytes = include_bytes!("mut_self_variable.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_mutate_self_variable_fail() {
+    let bytes = include_bytes!("mut_self_variable_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_function_fail() {
+    let bytes = include_bytes!("mut_self_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_static_function_fail() {
+    let bytes = include_bytes!("mut_self_static_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_static_function_fail() {
+    let bytes = include_bytes!("mut_static_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_variable() {
+    let bytes = include_bytes!("mut_variable.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_mutate_variable_fail() {
+    let bytes = include_bytes!("mut_variable_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
 // Self
 #[test]
 fn test_self_member_pass() {
