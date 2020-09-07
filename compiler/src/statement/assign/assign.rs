@@ -39,13 +39,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        declared_circuit_reference: String,
         indicator: Option<Boolean>,
         assignee: Assignee,
         expression: Expression,
         span: Span,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
-        let variable_name = resolve_assignee(function_scope.clone(), assignee.clone());
+        let mut variable_name = resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
         let mut new_value =
@@ -79,7 +80,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 span,
             ),
             Assignee::Tuple(_tuple, index) => self.assign_tuple(cs, indicator, variable_name, index, new_value, span),
-            Assignee::CircuitField(_assignee, circuit_variable) => {
+            Assignee::CircuitField(assignee, circuit_variable) => {
+                // Mutate a circuit variable using the self keyword.
+                if let Assignee::Identifier(circuit_name) = *assignee {
+                    if circuit_name.is_self() {
+                        variable_name = declared_circuit_reference;
+                    }
+                }
                 self.mutute_circuit_variable(cs, indicator, variable_name, circuit_variable, new_value, span)
             }
         }

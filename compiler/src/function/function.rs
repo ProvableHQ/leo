@@ -47,6 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         caller_scope: String,
         function: Function,
         input: Vec<Expression>,
+        declared_circuit_reference: String,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
 
@@ -103,6 +104,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 None,
                 statement.clone(),
                 function.returns.clone(),
+                declared_circuit_reference.clone(),
             )?;
 
             results.append(&mut result);

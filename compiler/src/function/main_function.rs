@@ -77,7 +77,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         let span = function.span.clone();
-        let result_value = self.enforce_function(cs, scope, function_name, function, input_variables)?;
+        let result_value = self.enforce_function(cs, scope, function_name, function, input_variables, "".to_owned())?;
         let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
 
         Ok(output_bytes)

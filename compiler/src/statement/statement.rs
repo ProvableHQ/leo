@@ -38,6 +38,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statement: Statement,
         return_type: Option<Type>,
+        declared_circuit_reference: String,
     ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
         let mut results = vec![];
 
@@ -62,7 +63,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 )?;
             }
             Statement::Assign(variable, expression, span) => {
-                self.enforce_assign_statement(cs, file_scope, function_scope, indicator, variable, expression, span)?;
+                self.enforce_assign_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    declared_circuit_reference,
+                    indicator,
+                    variable,
+                    expression,
+                    span,
+                )?;
             }
             Statement::Conditional(statement, span) => {
                 let mut result = self.enforce_conditional_statement(

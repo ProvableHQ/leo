@@ -44,6 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 indicator.clone(),
                 statement.clone(),
                 return_type.clone(),
+                "".to_owned(),
             )?;
 
             results.append(&mut value);
