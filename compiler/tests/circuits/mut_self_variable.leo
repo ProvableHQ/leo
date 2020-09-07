@@ -3,6 +3,7 @@ circuit Foo {
 
     function set_a(new: u8) {
         self.a = new;
+        console.assert(self.a == new);
     }
 }
 

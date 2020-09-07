@@ -19,6 +19,7 @@
 use crate::{
     assignee::resolve_assignee,
     errors::StatementError,
+    new_scope,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
@@ -46,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
-        let mut variable_name = resolve_assignee(function_scope.clone(), assignee.clone());
+        let variable_name = resolve_assignee(function_scope.clone(), assignee.clone());
 
         // Evaluate new value
         let mut new_value =
@@ -84,10 +85,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Mutate a circuit variable using the self keyword.
                 if let Assignee::Identifier(circuit_name) = *assignee {
                     if circuit_name.is_self() {
-                        variable_name = declared_circuit_reference;
+                        let self_circuit_variable_name = new_scope(circuit_name.name, circuit_variable.name.clone());
+                        let self_variable_name = new_scope(file_scope, self_circuit_variable_name);
+                        let value = self.mutate_circuit_variable(
+                            cs,
+                            indicator,
+                            declared_circuit_reference,
+                            circuit_variable,
+                            new_value,
+                            span,
+                        )?;
+
+                        self.store(self_variable_name, value);
+                    } else {
+                        let _value = self.mutate_circuit_variable(
+                            cs,
+                            indicator,
+                            variable_name,
+                            circuit_variable,
+                            new_value,
+                            span,
+                        )?;
                     }
                 }
-                self.mutute_circuit_variable(cs, indicator, variable_name, circuit_variable, new_value, span)
+                Ok(())
             }
         }
     }

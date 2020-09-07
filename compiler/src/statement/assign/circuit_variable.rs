@@ -28,7 +28,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn mutute_circuit_variable<CS: ConstraintSystem<F>>(
+    pub fn mutate_circuit_variable<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: Option<Boolean>,
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         variable_name: Identifier,
         mut new_value: ConstrainedValue<F, G>,
         span: Span,
-    ) -> Result<(), StatementError> {
+    ) -> Result<ConstrainedValue<F, G>, StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
         // Get the mutable circuit by name
@@ -49,14 +49,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     Some(member) => match &member.1 {
                         ConstrainedValue::Function(_circuit_identifier, function) => {
                             // Throw an error if we try to mutate a circuit function
-                            return Err(StatementError::immutable_circuit_function(
+                            Err(StatementError::immutable_circuit_function(
                                 function.identifier.to_string(),
                                 span,
-                            ));
+                            ))
                         }
                         ConstrainedValue::Static(_circuit_function) => {
                             // Throw an error if we try to mutate a static circuit function
-                            return Err(StatementError::immutable_circuit_function("static".into(), span));
+                            Err(StatementError::immutable_circuit_function("static".into(), span))
                         }
                         ConstrainedValue::Mutable(value) => {
                             // Mutate the circuit variable's value in place
@@ -80,25 +80,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             selected_value = ConstrainedValue::Mutable(Box::new(selected_value));
 
                             member.1 = selected_value.to_owned();
+
+                            Ok(selected_value.to_owned())
                         }
                         _ => {
                             // Throw an error if we try to mutate an immutable circuit variable
-                            return Err(StatementError::immutable_circuit_variable(variable_name.name, span));
+                            Err(StatementError::immutable_circuit_variable(variable_name.name, span))
                         }
                     },
                     None => {
                         // Throw an error if the circuit variable does not exist in the circuit
-                        return Err(StatementError::undefined_circuit_variable(
+                        Err(StatementError::undefined_circuit_variable(
                             variable_name.to_string(),
                             span,
-                        ));
+                        ))
                     }
                 }
             }
             // Throw an error if the circuit definition does not exist in the file
-            _ => return Err(StatementError::undefined_circuit(variable_name.to_string(), span)),
+            _ => Err(StatementError::undefined_circuit(variable_name.to_string(), span)),
         }
-
-        Ok(())
     }
 }
