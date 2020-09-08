@@ -143,6 +143,15 @@ fn test_member_static_function_undefined() {
 }
 
 // Self
+
+#[test]
+fn test_self_fail() {
+    let bytes = include_bytes!("self_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
 #[test]
 fn test_self_member_pass() {
     let bytes = include_bytes!("self_member.leo");
