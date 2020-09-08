@@ -154,7 +154,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         if num_variables == 1 && num_values == 1 {
             // Define a single variable with a single value
-
             let variable = variables.names[0].clone();
             let expression = self.enforce_expression(
                 cs,

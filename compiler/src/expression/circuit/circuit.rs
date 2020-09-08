@@ -39,7 +39,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         members: Vec<CircuitVariableDefinition>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut program_identifier = new_scope(file_scope.clone(), identifier.to_string());
+        // Circuit definitions are located at the minimum file scope
+        let scopes: Vec<&str> = file_scope.split("_").collect();
+        let mut program_identifier = new_scope(scopes[0].to_string(), identifier.to_string());
 
         if identifier.is_self() {
             program_identifier = file_scope.clone();
