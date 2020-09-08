@@ -22,6 +22,7 @@ use crate::{
     SpanDef,
 };
 
+use crate::types::SelfType;
 use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
@@ -40,6 +41,7 @@ pub struct PostfixExpression<'ast> {
 #[pest_ast(rule(Rule::keyword_or_identifier))]
 pub enum KeywordOrIdentifier<'ast> {
     SelfKeyword(SelfKeyword<'ast>),
+    SelfType(SelfType<'ast>),
     Input(InputKeyword<'ast>),
     Identifier(Identifier<'ast>),
 }

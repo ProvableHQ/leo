@@ -119,6 +119,14 @@ fn test_member_static_function() {
 }
 
 #[test]
+fn test_member_static_function_nested() {
+    let bytes = include_bytes!("member_static_function_nested.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
     let program = parse_program(bytes).unwrap();
