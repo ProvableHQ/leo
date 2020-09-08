@@ -60,7 +60,7 @@ impl fmt::Display for Integer {
         let integer = self;
         let option = match_integer!(integer => integer.get_value());
         match option {
-            Some(number) => write!(f, "{}{}", number, self.get_type()),
+            Some(number) => write!(f, "{}", number),
             None => write!(f, "[input]{}", self.get_type()),
         }
     }
