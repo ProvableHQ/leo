@@ -38,25 +38,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Get defined circuit
         let circuit = match *circuit_identifier.clone() {
             Expression::Identifier(identifier) => {
+                // Use the "Self" keyword to access a static circuit function
                 if identifier.is_self() {
-                    let circuit = self.get(&file_scope).unwrap();
+                    let circuit = self
+                        .get(&file_scope)
+                        .ok_or(ExpressionError::self_keyword(identifier.span.clone()))?;
 
-                    circuit.to_owned().extract_circuit(span.clone())?
+                    circuit.to_owned()
                 } else {
                     self.evaluate_identifier(file_scope.clone(), function_scope.clone(), expected_type, identifier)?
-                        .extract_circuit(span.clone())?
                 }
             }
-            expression => self
-                .enforce_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    expected_type,
-                    expression,
-                )?
-                .extract_circuit(span.clone())?,
-        };
+            expression => self.enforce_expression(
+                cs,
+                file_scope.clone(),
+                function_scope.clone(),
+                expected_type,
+                expression,
+            )?,
+        }
+        .extract_circuit(span.clone())?;
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
