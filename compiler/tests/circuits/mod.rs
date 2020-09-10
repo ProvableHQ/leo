@@ -135,6 +135,7 @@ fn test_member_static_function_undefined() {
 }
 
 // Mutability
+
 #[test]
 fn test_mutate_function_fail() {
     let bytes = include_bytes!("mut_function_fail.leo");
@@ -200,6 +201,7 @@ fn test_mutate_variable_fail() {
 }
 
 // Self
+
 #[test]
 fn test_self_member_pass() {
     let bytes = include_bytes!("self_member.leo");
@@ -229,6 +231,14 @@ fn test_self_member_undefined() {
 #[test]
 fn test_pedersen_mock() {
     let bytes = include_bytes!("pedersen_mock.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_define_circuit_inside_circuit_function() {
+    let bytes = include_bytes!("define_circuit_inside_circuit_function.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
