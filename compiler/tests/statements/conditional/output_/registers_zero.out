@@ -1,2 +1,0 @@
-[registers]
-a: u32 = 0u32;
