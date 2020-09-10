@@ -17,7 +17,7 @@
 use crate::{Expression, Identifier, RangeOrExpression};
 use leo_ast::{
     access::AssigneeAccess as AstAssigneeAccess,
-    common::{Assignee as AstAssignee, Identifier as AstIdentifier},
+    common::{Assignee as AstAssignee, Identifier as AstIdentifier, KeywordOrIdentifier},
 };
 
 use serde::{Deserialize, Serialize};
@@ -38,9 +38,15 @@ impl<'ast> From<AstIdentifier<'ast>> for Assignee {
     }
 }
 
+impl<'ast> From<KeywordOrIdentifier<'ast>> for Assignee {
+    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
+        Assignee::Identifier(Identifier::from(name))
+    }
+}
+
 impl<'ast> From<AstAssignee<'ast>> for Assignee {
     fn from(assignee: AstAssignee<'ast>) -> Self {
-        let variable = Assignee::from(assignee.identifier);
+        let variable = Assignee::from(assignee.name);
 
         // We start with the id, and we fold the array of accesses by wrapping the current value
         assignee

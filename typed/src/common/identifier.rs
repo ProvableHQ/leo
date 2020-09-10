@@ -23,8 +23,8 @@ use leo_ast::{
 use leo_input::common::Identifier as InputAstIdentifier;
 
 use leo_ast::{
-    common::SelfKeyword,
-    expressions::{CircuitName, KeywordOrIdentifier},
+    common::{KeywordOrIdentifier, SelfKeyword},
+    expressions::CircuitName,
     functions::InputKeyword,
     types::SelfType,
 };
