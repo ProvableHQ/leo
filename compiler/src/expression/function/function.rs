@@ -16,7 +16,7 @@
 
 //! Enforce a function call expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_typed::{Expression, Span, Type};
 
 use snarkos_models::{
@@ -35,13 +35,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let function_value = self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            *function.clone(),
-        )?;
+        let (declared_circuit_reference, function_value) = match *function.clone() {
+            Expression::CircuitMemberAccess(circuit_identifier, circuit_member, span) => {
+                // Call a circuit function that can mutate self.
+
+                // Save a reference to the circuit we are mutating.
+                let circuit_id_string = format!("{}", circuit_identifier);
+                let declared_circuit_reference = new_scope(function_scope.clone(), circuit_id_string);
+
+                (
+                    declared_circuit_reference,
+                    self.enforce_circuit_access(
+                        cs,
+                        file_scope.clone(),
+                        function_scope.clone(),
+                        expected_type,
+                        circuit_identifier,
+                        circuit_member,
+                        span,
+                    )?,
+                )
+            }
+            function => (
+                function_scope.clone(),
+                self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_type, function)?,
+            ),
+        };
 
         let (outer_scope, function_call) = function_value.extract_function(file_scope.clone(), span.clone())?;
 
@@ -58,6 +77,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             function_scope,
             function_call,
             arguments,
+            declared_circuit_reference,
         )
         .map_err(|error| ExpressionError::from(Box::new(error)))
     }

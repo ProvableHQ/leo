@@ -19,6 +19,7 @@
 use crate::{
     assignee::resolve_assignee,
     errors::StatementError,
+    new_scope,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
@@ -39,6 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
+        declared_circuit_reference: String,
         indicator: Option<Boolean>,
         assignee: Assignee,
         expression: Expression,
@@ -79,8 +81,34 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 span,
             ),
             Assignee::Tuple(_tuple, index) => self.assign_tuple(cs, indicator, variable_name, index, new_value, span),
-            Assignee::CircuitField(_assignee, object_name) => {
-                self.mutute_circuit_variable(cs, indicator, variable_name, object_name, new_value, span)
+            Assignee::CircuitField(assignee, circuit_variable) => {
+                // Mutate a circuit variable using the self keyword.
+                if let Assignee::Identifier(circuit_name) = *assignee {
+                    if circuit_name.is_self() {
+                        let self_circuit_variable_name = new_scope(circuit_name.name, circuit_variable.name.clone());
+                        let self_variable_name = new_scope(file_scope, self_circuit_variable_name);
+                        let value = self.mutate_circuit_variable(
+                            cs,
+                            indicator,
+                            declared_circuit_reference,
+                            circuit_variable,
+                            new_value,
+                            span,
+                        )?;
+
+                        self.store(self_variable_name, value);
+                    } else {
+                        let _value = self.mutate_circuit_variable(
+                            cs,
+                            indicator,
+                            variable_name,
+                            circuit_variable,
+                            new_value,
+                            span,
+                        )?;
+                    }
+                }
+                Ok(())
             }
         }
     }
