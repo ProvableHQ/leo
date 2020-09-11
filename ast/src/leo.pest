@@ -369,6 +369,7 @@ expression_postfix = ${ keyword_or_identifier ~ access+ }
 keyword_or_identifier = {
     input_keyword
     | self_keyword
+    | type_self
     | identifier
 }
 

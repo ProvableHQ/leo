@@ -94,6 +94,7 @@ impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
     fn from(name: KeywordOrIdentifier<'ast>) -> Self {
         match name {
             KeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
             KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
         }

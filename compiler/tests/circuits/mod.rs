@@ -119,6 +119,14 @@ fn test_member_static_function() {
 }
 
 #[test]
+fn test_member_static_function_nested() {
+    let bytes = include_bytes!("member_static_function_nested.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
     let program = parse_program(bytes).unwrap();
@@ -201,6 +209,14 @@ fn test_mutate_variable_fail() {
 }
 
 // Self
+
+#[test]
+fn test_self_fail() {
+    let bytes = include_bytes!("self_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
 
 #[test]
 fn test_self_member_pass() {

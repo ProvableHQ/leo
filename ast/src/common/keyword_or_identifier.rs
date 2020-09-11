@@ -20,6 +20,7 @@ use crate::{
     functions::InputKeyword,
 };
 
+use crate::types::SelfType;
 use pest_ast::FromPest;
 use serde::Serialize;
 use std::fmt;
@@ -28,6 +29,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::keyword_or_identifier))]
 pub enum KeywordOrIdentifier<'ast> {
     SelfKeyword(SelfKeyword<'ast>),
+    SelfType(SelfType<'ast>),
     Input(InputKeyword<'ast>),
     Identifier(Identifier<'ast>),
 }
@@ -36,6 +38,7 @@ impl<'ast> fmt::Display for KeywordOrIdentifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             KeywordOrIdentifier::SelfKeyword(self_keyword) => write!(f, "{}", self_keyword),
+            KeywordOrIdentifier::SelfType(self_type) => write!(f, "{}", self_type),
             KeywordOrIdentifier::Input(input_keyword) => write!(f, "{}", input_keyword),
             KeywordOrIdentifier::Identifier(identifier) => write!(f, "{}", identifier),
         }
