@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportError;
-use leo_typed::Program;
+use leo_typed::{Package, Program};
 
 use std::{collections::HashMap, env::current_dir};
 
@@ -24,12 +24,14 @@ use std::{collections::HashMap, env::current_dir};
 #[derive(Clone)]
 pub struct ImportParser {
     imports: HashMap<String, Program>,
+    core_packages: Vec<Package>,
 }
 
 impl ImportParser {
     pub fn new() -> Self {
         Self {
             imports: HashMap::new(),
+            core_packages: vec![],
         }
     }
 
@@ -38,8 +40,16 @@ impl ImportParser {
         let _res = self.imports.insert(file_name, program);
     }
 
+    pub(crate) fn insert_core_package(&mut self, package: &Package) {
+        let _res = self.core_packages.push(package.clone());
+    }
+
     pub fn get(&self, file_name: &String) -> Option<&Program> {
         self.imports.get(file_name)
+    }
+
+    pub fn get_core_packages(&self) -> &Vec<Package> {
+        &self.core_packages
     }
 
     pub fn parse(program: &Program) -> Result<Self, ImportError> {

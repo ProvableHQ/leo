@@ -15,6 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 /// The import store brings an imported symbol into the main program from an import program struct
+pub mod core_package;
+pub use self::core_package::*;
+
 pub mod import;
 pub use self::import::*;
 

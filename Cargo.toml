@@ -28,6 +28,7 @@ path = "leo/main.rs"
 members = [
   "ast",
   "compiler",
+  "core",
   "gadgets",
   "input",
   "linter",
@@ -39,6 +40,10 @@ members = [
 [dependencies.leo-compiler]
 path = "./compiler"
 version = "1.0.3"
+
+[dependencies.leo-core]
+path = "./core"
+version = "1.0.1"
 
 [dependencies.leo-gadgets]
 path = "./gadgets"

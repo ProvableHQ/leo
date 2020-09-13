@@ -26,19 +26,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         import: &Import,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
-        // fetch dependencies for the current import
+        // Fetch core dependencies
+        let core_dependency = imported_programs
+            .get_core_packages()
+            .iter()
+            .find(|package| import.package.eq(package));
+
+        if let Some(package) = core_dependency {
+            self.store_core_package(package.clone());
+            return Ok(());
+        }
+
+        // Fetch dependencies for the current import
         let imported_symbols = ImportedSymbols::from(import);
 
         for (package, symbol) in imported_symbols.symbols {
-            // find imported program
+            // Find imported program
             let program = imported_programs
                 .get(&package)
                 .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
 
-            // parse imported program
+            // Parse imported program
             self.store_definitions(program.clone(), imported_programs)?;
 
-            // store the imported symbol
+            // Store the imported symbol
             self.store_symbol(scope.clone(), package, &symbol, program)?;
         }
 

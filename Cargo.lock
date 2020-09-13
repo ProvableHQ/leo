@@ -1252,6 +1252,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-core"
+version = "1.0.1"
+dependencies = [
+ "rand",
+ "rand_xorshift",
+ "snarkos-errors",
+ "snarkos-gadgets",
+ "snarkos-models",
+ "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
 name = "leo-gadgets"
 version = "1.0.3"
 dependencies = [
@@ -1293,6 +1306,7 @@ dependencies = [
  "from-pest",
  "lazy_static",
  "leo-compiler",
+ "leo-core",
  "leo-gadgets",
  "leo-input",
  "leo-package",
