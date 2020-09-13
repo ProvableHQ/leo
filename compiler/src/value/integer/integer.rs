@@ -444,7 +444,9 @@ impl Integer {
         let b = other;
         let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
+        // let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
+        let result =
+            match_integers_span!((a, b), s => <arithmetic::div::Div<F>>::div::<CS>(&a, cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("÷"), span))
     }

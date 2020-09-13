@@ -47,13 +47,16 @@ impl IntegerError {
     }
 
     pub fn signed(error: SignedIntegerError, span: Span) -> Self {
-        let message = format!("integer operation failed due to the signed integer error `{:?}`", error,);
+        let message = format!("integer operation failed due to the signed integer error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }
 
     pub fn synthesis(error: SynthesisError, span: Span) -> Self {
-        let message = format!("integer operation failed due to the synthesis error `{}`", error,);
+        let message = format!(
+            "integer operation failed due to the synthesis error or overflow `{:?}`",
+            error
+        );
 
         Self::new_from_span(message, span)
     }

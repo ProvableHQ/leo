@@ -45,6 +45,11 @@ macro_rules! add_uint_impl {
                 cs: CS,
                 other: &Self
             ) -> Result<Self, Self::ErrorType> {
+                if let (Some(self_value), Some(other_value)) = (&self.value, &other.value) {
+                    if self_value.checked_add(*other_value).is_none() {
+                        return Err(SynthesisError::Unsatisfiable)
+                    }
+                }
                 <$gadget as UInt>::addmany(cs, &[self.clone(), other.clone()])
             }
         }
