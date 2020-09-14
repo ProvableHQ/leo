@@ -183,10 +183,14 @@ author = "{author}"
         }
 
         // Rewrite the toml file if it has been updated
-        if buffer != new_toml {
-            let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
-            file.write_all(new_toml.as_bytes())
-                .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
+        #[cfg(feature = "update_manifest")]
+        {
+            if buffer != new_toml {
+                let mut file =
+                    File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
+                file.write_all(new_toml.as_bytes())
+                    .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
+            }
         }
 
         // Read the toml file

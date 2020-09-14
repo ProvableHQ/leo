@@ -150,8 +150,9 @@ version = "0.5"
 version = "0.11.2"
 
 [features]
-default = [ ]
+default = [ "update_manifest" ]
 ci_skip = [ "leo-compiler/ci_skip" ]
+update_manifest = [ "leo-package/update_manifest" ]
 
 [profile.release]
 opt-level = 3
