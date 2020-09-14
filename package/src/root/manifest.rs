@@ -144,8 +144,7 @@ impl TryFrom<&PathBuf> for Manifest {
                 old_remote_format = Some(remote);
 
                 // Retain the old remote format if the `manifest_refactor_remote` is not enabled
-                #[cfg(not(feature = "manifest_refactor_remote"))]
-                {
+                if cfg!(not(feature = "manifest_refactor_remote")) {
                     refactored_toml += line;
                     refactored_toml += "\n";
                 }
@@ -163,13 +162,9 @@ impl TryFrom<&PathBuf> for Manifest {
                 final_toml += "[project]";
 
                 // Refactor the old project format if the `manifest_refactor_project` is enabled
-                #[cfg(feature = "manifest_refactor_project")]
-                {
-                    refactored_toml += "[project]";
-                }
-                #[cfg(not(feature = "manifest_refactor_project"))]
-                {
-                    refactored_toml += line;
+                match cfg!(feature = "manifest_refactor_project") {
+                    true => refactored_toml += "[project]",
+                    false => refactored_toml += line,
                 }
             } else {
                 final_toml += line;
@@ -204,8 +199,7 @@ author = "{author}"
                 final_toml += &new_remote;
 
                 // Add the new remote format if the `manifest_refactor_remote` is enabled
-                #[cfg(feature = "manifest_refactor_remote")]
-                {
+                if cfg!(feature = "manifest_refactor_remote") {
                     refactored_toml += &new_remote;
                 }
             }
