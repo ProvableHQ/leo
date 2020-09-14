@@ -44,6 +44,6 @@ version = "1.3.0"
 
 [features]
 default = [ "manifest_refactors" ]
-manifest_refactors = [ "manifest_refactor_remote", "manifest_refactor_project" ]
-manifest_refactor_remote = [ ]
+manifest_refactors = [ "manifest_refactor_project", "manifest_refactor_remote" ]
 manifest_refactor_project = [ ]
+manifest_refactor_remote = [ ]
