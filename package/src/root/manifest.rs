@@ -133,7 +133,7 @@ impl TryFrom<&PathBuf> for Manifest {
         // Read each individual line of the toml file
         for line in buffer.lines() {
             // Determine if the old remote format is being used
-            #[cfg(feature = "update_remote")]
+            #[cfg(feature = "manifest_refactor_remote")]
             {
                 if line.starts_with("remote") {
                     let remote = line
@@ -151,7 +151,7 @@ impl TryFrom<&PathBuf> for Manifest {
 
             // If the old project format is being being used, update the toml file
             // to use the new format instead.
-            #[cfg(feature = "update_project")]
+            #[cfg(feature = "manifest_refactor_project")]
             {
                 if line.starts_with("[package]") {
                     new_toml += "[project]";
@@ -159,7 +159,7 @@ impl TryFrom<&PathBuf> for Manifest {
                     new_toml += line;
                 }
             }
-            #[cfg(not(feature = "update_project"))]
+            #[cfg(not(feature = "manifest_refactor_project"))]
             {
                 new_toml += line;
             }
