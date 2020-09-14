@@ -44,4 +44,6 @@ version = "1.3.0"
 
 [features]
 default = [  ]
-update_manifest = [ ]
+update_manifest = [ "update_remote", "update_project" ]
+update_remote = [ ]
+update_project = [ ]

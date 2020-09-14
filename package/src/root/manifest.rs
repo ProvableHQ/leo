@@ -133,24 +133,34 @@ impl TryFrom<&PathBuf> for Manifest {
         // Read each individual line of the toml file
         for line in buffer.lines() {
             // Determine if the old remote format is being used
-            if line.starts_with("remote") {
-                let remote = line
-                    .split("=") // Split the line as 'remote' = '"{author}/{package_name}"'
-                    .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
-                old_remote_format = Some(remote);
-                continue;
-            }
+            #[cfg(feature = "update_remote")]
+            {
+                if line.starts_with("remote") {
+                    let remote = line
+                        .split("=") // Split the line as 'remote' = '"{author}/{package_name}"'
+                        .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
+                    old_remote_format = Some(remote);
+                    continue;
+                }
 
-            // Determine if the new remote format is being used
-            if line.starts_with("[remote]") {
-                new_remote_format_exists = true;
+                // Determine if the new remote format is being used
+                if line.starts_with("[remote]") {
+                    new_remote_format_exists = true;
+                }
             }
 
             // If the old project format is being being used, update the toml file
             // to use the new format instead.
-            if line.starts_with("[package]") {
-                new_toml += "[project]";
-            } else {
+            #[cfg(feature = "update_project")]
+            {
+                if line.starts_with("[package]") {
+                    new_toml += "[project]";
+                } else {
+                    new_toml += line;
+                }
+            }
+            #[cfg(not(feature = "update_project"))]
+            {
                 new_toml += line;
             }
 
@@ -183,14 +193,10 @@ author = "{author}"
         }
 
         // Rewrite the toml file if it has been updated
-        #[cfg(feature = "update_manifest")]
-        {
-            if buffer != new_toml {
-                let mut file =
-                    File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
-                file.write_all(new_toml.as_bytes())
-                    .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
-            }
+        if buffer != new_toml {
+            let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
+            file.write_all(new_toml.as_bytes())
+                .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
         }
 
         // Read the toml file
