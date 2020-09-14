@@ -33,14 +33,14 @@ pub struct Remote {
 
 #[derive(Deserialize)]
 pub struct Manifest {
-    pub package: Package,
+    pub project: Package,
     pub remote: Option<Remote>,
 }
 
 impl Manifest {
     pub fn new(package_name: &str) -> Self {
         Self {
-            package: Package::new(package_name),
+            project: Package::new(package_name),
             remote: None,
         }
     }
@@ -58,19 +58,19 @@ impl Manifest {
     }
 
     pub fn get_package_name(&self) -> String {
-        self.package.name.clone()
+        self.project.name.clone()
     }
 
     pub fn get_package_version(&self) -> String {
-        self.package.version.clone()
+        self.project.version.clone()
     }
 
     pub fn get_package_description(&self) -> Option<String> {
-        self.package.description.clone()
+        self.project.description.clone()
     }
 
     pub fn get_package_license(&self) -> Option<String> {
-        self.package.license.clone()
+        self.project.license.clone()
     }
 
     pub fn get_package_remote(&self) -> Option<Remote> {
@@ -90,7 +90,7 @@ impl Manifest {
 
     fn template(&self) -> String {
         format!(
-            r#"[package]
+            r#"[project]
 name = "{name}"
 version = "0.1.0"
 description = "The {name} package"
@@ -99,7 +99,7 @@ license = "MIT"
 [remote]
 author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or organization's name.
 "#,
-            name = self.package.name
+            name = self.project.name
         )
     }
 }
@@ -145,7 +145,15 @@ impl TryFrom<&PathBuf> for Manifest {
             if line.starts_with("[remote]") {
                 new_remote_format_exists = true;
             }
-            new_toml += line;
+
+            // If the old project format is being being used, update the toml file
+            // to use the new format instead.
+            if line.starts_with("[package]") {
+                new_toml += "[project]";
+            } else {
+                new_toml += line;
+            }
+
             new_toml += "\n";
         }
 
