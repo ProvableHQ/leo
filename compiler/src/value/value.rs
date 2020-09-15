@@ -110,16 +110,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // Data type wrappers
             ConstrainedValue::Array(types) => {
                 let array_type = types[0].to_type(span.clone())?;
-                let count = types.len();
+                let mut dimensions = vec![types.len()];
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
-                    let mut dimensions = inner_dimensions.clone();
-                    dimensions.push(count);
+                    dimensions.append(&mut inner_dimensions.clone());
                     return Ok(Type::Array(inner_type.clone(), dimensions));
                 }
 
-                Type::Array(Box::new(array_type), vec![count])
+                Type::Array(Box::new(array_type), dimensions)
             }
             ConstrainedValue::Tuple(tuple) => {
                 let mut types = vec![];
