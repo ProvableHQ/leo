@@ -27,7 +27,6 @@ use leo_typed::{
     IntegerType,
     Package,
     PackageAccess,
-    Span,
     Statement,
     Type,
 };
@@ -194,8 +193,6 @@ impl CorePackageList {
             PackageAccess::Symbol(_symbol) => unimplemented!("cannot import a symbol directly from Leo core"),
             PackageAccess::Multiple(_) => unimplemented!("multiple imports not yet implemented for Leo core"),
             PackageAccess::SubPackage(package) => {
-                println!("importing package access {}", *package);
-
                 let core_package = CorePackage::from(*package);
 
                 new.push(core_package);
@@ -236,11 +233,13 @@ pub fn call_core_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     arguments: Vec<CoreFunctionArgument>,
     //_span: Span // todo: return errors using `leo-typed` span
 ) -> Vec<UInt8> {
+    // Match core function name here
     if function_name.ne("core_blake2s_unstable") {
+        // todo: convert this to a real error
         println!("core dne error");
     }
     // Hardcode blake2s core function call
     let res = Blake2sFunction::hash(cs, arguments);
 
-    return vec![];
+    return res;
 }

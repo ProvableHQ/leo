@@ -13,14 +13,14 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
 
 use crate::errors::ExpressionError;
-use leo_core::{blake2s::unstable::hash::Blake2sFunction, call_core_function, CoreFunctionArgument};
-use leo_typed::{Expression, Span, Type};
+use leo_core::{call_core_function, CoreFunctionArgument};
+use leo_typed::{Expression, Type};
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::uint::UInt8},
+    gadgets::r1cs::ConstraintSystem,
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -29,13 +29,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
-        expected_type: Option<Type>,
+        _expected_type: Option<Type>,
         function: String,
         arguments: Vec<Expression>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        println!("function call {}", function);
-        println!("argument names {:?}", arguments);
-
         // Get the value of each core function argument
         let mut argument_values = vec![];
         for argument in arguments.into_iter() {
@@ -45,35 +42,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             argument_values.push(core_function_argument);
         }
-        // println!("argument values {:?}", argument_values);
 
         // Call the core function in `leo-core`
         let res = call_core_function(cs, function, argument_values);
 
-        // Temporarily return empty array
-        let empty = vec![ConstrainedValue::Integer(Integer::U8(UInt8::constant(0))); 32];
+        let array = res
+            .into_iter()
+            .map(|uint| ConstrainedValue::Integer(Integer::U8(uint)))
+            .collect();
 
-        return Ok(ConstrainedValue::Array(empty));
+        return Ok(ConstrainedValue::Array(array));
     }
 }
-
-// fn enforce_blake2s_function<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-//     cs: CS,
-//     file_scope: String,
-//     caller_scope: String,
-//     arguments: Vec<ConstrainedValue<F, G>>,
-//     span: Span,
-// ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-//
-//     // length of input to hash function must be 1
-//     // if arguments.len() != 1 {
-//     //     return Err(FunctionError::)
-//     // }
-//
-//     let argument_expression = arguments[0].clone();
-//
-//     let argument_value =
-//
-//
-//     return Ok(ConstrainedValue::Array(vec![]));
-// }

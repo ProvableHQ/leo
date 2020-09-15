@@ -46,8 +46,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             )?
             .extract_circuit(span.clone())?;
 
-        println!("static");
-
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
             CircuitMember::CircuitFunction(_static, function) => function.identifier == circuit_member,

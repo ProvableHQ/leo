@@ -15,30 +15,23 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_typed::{Identifier, ImportSymbol, Package, PackageAccess};
+use leo_typed::Package;
 
-use leo_core::{blake2s::unstable::hash::Blake2sFunction, CorePackageList};
+use leo_core::CorePackageList;
 use snarkos_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_core_package(&mut self, scope: String, package: Package) {
-        println!("storing core package: {}", package);
-        // create core package list
-        println!("creating core package list");
+        // Create list of imported core packages.
         let list = CorePackageList::from_package_access(package.access);
 
-        println!("{:?}", list);
-
-        // fetch packages from `leo-core`
-        println!("fetching packages from leo core");
+        // Fetch core packages from `leo-core`.
         let symbol_list = list.to_symbols();
 
         for (symbol, circuit) in symbol_list.symbols() {
             let symbol_name = new_scope(scope.clone(), symbol);
 
             // store packages
-            println!("storing dependencies from leo core into leo program");
-            println!("{}", symbol_name);
             self.store(symbol_name, ConstrainedValue::CircuitDefinition(circuit))
         }
     }

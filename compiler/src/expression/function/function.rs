@@ -35,8 +35,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        println!("function call");
-        println!("arguments {:?}", arguments);
         let function_value = self.enforce_expression(
             cs,
             file_scope.clone(),
@@ -44,17 +42,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             expected_type,
             *function.clone(),
         )?;
-
-        // if let ConstrainedValue::CoreFunction(core_function) = function_value {
-        //     let mut argument_values = vec![];
-        //     for argument in arguments.into_iter() {
-        //         let argument_value = self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, argument)?;
-        //         argument_values.push(argument_value);
-        //     }
-        //
-        //     return enforce_core_function(cs, file_scope, function_scope, core_function, argument_values, span)
-        //         .map_err(|error| ExpressionError::from(Box::new(error)));
-        // }
 
         let (outer_scope, function_call) = function_value.extract_function(file_scope.clone(), span.clone())?;
 
