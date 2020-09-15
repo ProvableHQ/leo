@@ -1228,6 +1228,7 @@ dependencies = [
  "bincode",
  "hex",
  "leo-ast",
+ "leo-core",
  "leo-gadgets",
  "leo-input",
  "leo-package",
@@ -1255,6 +1256,7 @@ dependencies = [
 name = "leo-core"
 version = "1.0.1"
 dependencies = [
+ "leo-typed",
  "rand",
  "rand_xorshift",
  "snarkos-errors",

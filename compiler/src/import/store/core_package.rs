@@ -14,16 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, ConstrainedProgram, GroupType};
+use crate::{new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_typed::{Identifier, ImportSymbol, Package, PackageAccess};
 
+use leo_core::{blake2s::unstable::hash::Blake2sFunction, CorePackageList};
 use snarkos_models::curves::{Field, PrimeField};
-use std::collections::HashMap;
-
-static UNSTABLE_CORE_PACKAGE_KEYWORD: &str = "unstable";
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub(crate) fn store_core_package(&mut self, package: Package) {
+    pub(crate) fn store_core_package(&mut self, scope: String, package: Package) {
         println!("storing core package: {}", package);
         // create core package list
         println!("creating core package list");
@@ -32,98 +30,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         println!("{:?}", list);
 
         // fetch packages from `leo-core`
-        // println!("fetching packages from leo core");
+        println!("fetching packages from leo core");
+        let symbol_list = list.to_symbols();
 
-        // store packages
-        // println!("storing dependencies from leo core into leo program");
-    }
-}
+        for (symbol, circuit) in symbol_list.symbols() {
+            let symbol_name = new_scope(scope.clone(), symbol);
 
-/// A list of core package dependencies
-#[derive(Debug)]
-pub struct CorePackageList {
-    packages: Vec<CorePackage>,
-}
-
-/// A core package dependency to be imported into a Leo program
-#[derive(Debug)]
-pub struct CorePackage {
-    name: Identifier,
-    unstable: bool,
-    symbols: Vec<ImportSymbol>,
-}
-
-impl CorePackageList {
-    pub(crate) fn new() -> Self {
-        Self { packages: vec![] }
-    }
-
-    pub(crate) fn push(&mut self, package: CorePackage) {
-        self.packages.push(package);
-    }
-
-    // Parse all dependencies after `core.`
-    pub(crate) fn from_package_access(access: PackageAccess) -> Self {
-        let mut new = Self::new();
-
-        match access {
-            PackageAccess::Symbol(_symbol) => unimplemented!("cannot import a symbol directly from Leo core"),
-            PackageAccess::Multiple(_) => unimplemented!("multiple imports not yet implemented for Leo core"),
-            PackageAccess::SubPackage(package) => {
-                println!("importing package access {}", *package);
-
-                let core_package = CorePackage::from(*package);
-
-                new.push(core_package);
-            }
-            PackageAccess::Star(_) => unimplemented!("cannot import star from Leo core"),
+            // store packages
+            println!("storing dependencies from leo core into leo program");
+            println!("{}", symbol_name);
+            self.store(symbol_name, ConstrainedValue::CircuitDefinition(circuit))
         }
-
-        new
-    }
-}
-
-impl CorePackage {
-    pub(crate) fn new(name: Identifier) -> Self {
-        Self {
-            name,
-            unstable: false,
-            symbols: vec![],
-        }
-    }
-
-    // Set the `unstable` flag to true if we are importing an unstable core package
-    pub(crate) fn set_unstable(&mut self, identifier: &Identifier) {
-        if identifier.name.eq(UNSTABLE_CORE_PACKAGE_KEYWORD) {
-            self.unstable = true;
-        }
-    }
-
-    // Recursively set all symbols we are importing from a core package
-    pub(crate) fn set_symbols(&mut self, access: PackageAccess) {
-        match access {
-            PackageAccess::SubPackage(package) => {
-                self.set_unstable(&package.name);
-                self.set_symbols(package.access);
-            }
-            PackageAccess::Star(_) => unimplemented!("cannot import star from core package"),
-            PackageAccess::Multiple(accesses) => {
-                for access in accesses {
-                    self.set_symbols(access);
-                }
-            }
-            PackageAccess::Symbol(symbol) => self.symbols.push(symbol),
-        }
-    }
-}
-
-impl From<Package> for CorePackage {
-    fn from(package: Package) -> Self {
-        // Name of core package
-        let mut core_package = Self::new(package.name);
-
-        core_package.set_symbols(package.access);
-
-        core_package
     }
 }

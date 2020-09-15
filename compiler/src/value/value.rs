@@ -33,7 +33,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
+        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget, uint::UInt8},
     },
 };
 use std::fmt;
@@ -135,6 +135,27 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
+    }
+
+    // Hardcode to value for blake2s
+    pub(crate) fn to_value(&self) -> Vec<UInt8> {
+        match self {
+            ConstrainedValue::Integer(integer) => match integer {
+                Integer::U8(u8) => vec![u8.clone()],
+                _ => vec![],
+            },
+            ConstrainedValue::Array(array) => {
+                let mut value = vec![];
+
+                for element in array {
+                    let values = &mut element.to_value();
+                    value.append(values);
+                }
+
+                value
+            }
+            _ => vec![],
+        }
     }
 
     pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: Span) -> Result<(), ValueError> {

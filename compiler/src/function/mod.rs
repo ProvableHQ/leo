@@ -16,6 +16,9 @@
 
 //! Methods to enforce constraints on functions in a compiled Leo program.
 
+pub mod core_function;
+pub use self::core_function::*;
+
 pub mod input;
 pub use self::input::*;
 
