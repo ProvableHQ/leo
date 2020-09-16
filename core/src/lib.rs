@@ -14,28 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::blake2s::unstable::hash::Blake2sFunction;
-use leo_typed::{
-    Circuit,
-    CircuitMember,
-    Expression,
-    Function,
-    FunctionInput,
-    Identifier,
-    ImportSymbol,
-    InputVariable,
-    IntegerType,
-    Package,
-    PackageAccess,
-    Statement,
-    Type,
-};
+pub mod core_circuit;
+pub use self::core_circuit::*;
 
-pub mod blake2s;
-pub use self::blake2s::*;
+pub mod errors;
+pub use self::errors::*;
+
+pub mod unstable;
+pub use self::unstable::*;
+
+use crate::unstable::blake2s::Blake2sFunction;
+use leo_gadgets::signed_integer::*;
+use leo_typed::{Circuit, Identifier, ImportSymbol, Package, PackageAccess, Span};
+
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::uint::UInt8},
+    gadgets::{
+        r1cs::ConstraintSystem,
+        utilities::{
+            boolean::Boolean,
+            uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+        },
+    },
 };
 
 static UNSTABLE_CORE_PACKAGE_KEYWORD: &str = "unstable";
@@ -58,17 +58,14 @@ impl CorePackage {
     }
 
     // Set the `unstable` flag to true if we are importing an unstable core package
-    pub(crate) fn set_unstable(&mut self, identifier: &Identifier) {
-        if identifier.name.eq(UNSTABLE_CORE_PACKAGE_KEYWORD) {
-            self.unstable = true;
-        }
+    pub(crate) fn set_unstable(&mut self) {
+        self.unstable = true;
     }
 
     // Recursively set all symbols we are importing from a core package
     pub(crate) fn set_symbols(&mut self, access: PackageAccess) {
         match access {
             PackageAccess::SubPackage(package) => {
-                self.set_unstable(&package.name);
                 self.set_symbols(package.access);
             }
             PackageAccess::Star(_) => unimplemented!("cannot import star from core package"),
@@ -84,64 +81,14 @@ impl CorePackage {
     // Resolve import symbols into core circuits and store them in the program context
     pub(crate) fn append_symbols(&self, symbols: &mut CoreSymbolList) {
         for symbol in &self.symbols {
-            //todo: resolve symbol alias if any
-            let name = symbol.symbol.name.clone();
+            // take the alias if it is present
+            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
+
+            let name = id.name.clone();
             let span = symbol.span.clone();
 
-            /* Hardcode blake2s circuit for now
-             * circuit Blake2s {
-             *     static function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
-             *         // call `check_eval_gadget` in snarkOS
-             *         return check_eval_gadget(seed, message)
-             *     }
-             */
-            let blake2s_circuit = Circuit {
-                circuit_name: symbol.symbol.clone(),
-                members: vec![CircuitMember::CircuitFunction(
-                    true, // static function
-                    Function {
-                        identifier: Identifier {
-                            name: "hash".to_owned(),
-                            span: span.clone(),
-                        },
-                        input: vec![
-                            InputVariable::FunctionInput(FunctionInput {
-                                identifier: Identifier {
-                                    name: "seed".to_owned(),
-                                    span: span.clone(),
-                                },
-                                mutable: false,
-                                type_: Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize]),
-                                span: span.clone(),
-                            }),
-                            InputVariable::FunctionInput(FunctionInput {
-                                identifier: Identifier {
-                                    name: "message".to_owned(),
-                                    span: span.clone(),
-                                },
-                                mutable: false,
-                                type_: Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize]),
-                                span: span.clone(),
-                            }),
-                        ],
-                        returns: Some(Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize])),
-                        statements: vec![Statement::Return(
-                            Expression::CoreFunctionCall("core_blake2s_unstable".to_owned(), vec![
-                                Expression::Identifier(Identifier {
-                                    name: "seed".to_owned(),
-                                    span: span.clone(),
-                                }),
-                                Expression::Identifier(Identifier {
-                                    name: "message".to_owned(),
-                                    span: span.clone(),
-                                }),
-                            ]),
-                            span.clone(),
-                        )],
-                        span: span.clone(),
-                    },
-                )],
-            };
+            // todo: remove hardcoded blake2s circuit
+            let blake2s_circuit = Blake2sFunction::ast(symbol.symbol.clone(), span);
 
             symbols.push(name, blake2s_circuit)
         }
@@ -189,23 +136,41 @@ impl CorePackageList {
     pub fn from_package_access(access: PackageAccess) -> Self {
         let mut new = Self::new();
 
-        match access {
-            PackageAccess::Symbol(_symbol) => unimplemented!("cannot import a symbol directly from Leo core"),
-            PackageAccess::Multiple(_) => unimplemented!("multiple imports not yet implemented for Leo core"),
-            PackageAccess::SubPackage(package) => {
-                let core_package = CorePackage::from(*package);
-
-                new.push(core_package);
-            }
-            PackageAccess::Star(_) => unimplemented!("cannot import star from Leo core"),
-        }
+        package_access_helper(&mut new, access, false);
 
         new
     }
 }
 
-/// List of imported core function symbols and methods
+fn package_access_helper(list: &mut CorePackageList, access: PackageAccess, is_unstable: bool) {
+    match access {
+        PackageAccess::Symbol(_symbol) => unimplemented!("cannot import a symbol directly from Leo core"),
+        PackageAccess::Multiple(core_functions) => {
+            for access in core_functions {
+                package_access_helper(list, access, is_unstable);
+            }
+        }
+        PackageAccess::SubPackage(package) => {
+            // Set the `unstable` flag to true if we are importing an unstable core package
+            if package.name.name.eq(UNSTABLE_CORE_PACKAGE_KEYWORD) {
+                package_access_helper(list, package.access, true);
+            } else {
+                let mut core_package = CorePackage::from(*package);
+
+                if is_unstable {
+                    core_package.set_unstable()
+                }
+
+                list.push(core_package);
+            }
+        }
+        PackageAccess::Star(_) => unimplemented!("cannot import star from Leo core"),
+    }
+}
+
+/// List of imported core function circuits
 pub struct CoreSymbolList {
+    /// [(circuit_name, circuit_struct)]
     symbols: Vec<(String, Circuit)>,
 }
 
@@ -223,23 +188,43 @@ impl CoreSymbolList {
     }
 }
 
-pub struct CoreFunctionArgument(pub Vec<UInt8>);
-
 /// Calls a core function by it's given name.
 /// This function should be called by the compiler when enforcing the result of calling a core circuit function.
 pub fn call_core_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: CS,
     function_name: String,
-    arguments: Vec<CoreFunctionArgument>,
-    //_span: Span // todo: return errors using `leo-typed` span
-) -> Vec<UInt8> {
+    arguments: Vec<Value>,
+    span: Span, // todo: return errors using `leo-typed` span
+) -> Vec<Value> {
     // Match core function name here
     if function_name.ne("core_blake2s_unstable") {
         // todo: convert this to a real error
         println!("core dne error");
     }
     // Hardcode blake2s core function call
-    let res = Blake2sFunction::hash(cs, arguments);
+    let res = Blake2sFunction::call(cs, arguments, span);
 
     return res;
+}
+
+/// An intermediate value format that can be converted into a `ConstrainedValue` for the compiler
+/// Todo: implement other constrained values
+#[derive(Clone)]
+pub enum Value {
+    Boolean(Boolean),
+
+    U8(UInt8),
+    U16(UInt16),
+    U32(UInt32),
+    U64(UInt64),
+    U128(UInt128),
+
+    I8(Int8),
+    I16(Int16),
+    I32(Int32),
+    I64(Int64),
+    I128(Int128),
+
+    Array(Vec<Value>),
+    Tuple(Vec<Value>),
 }

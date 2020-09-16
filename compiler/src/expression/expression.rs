@@ -292,13 +292,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 arguments,
                 span,
             ),
-            Expression::CoreFunctionCall(function, arguments) => self.enforce_core_function_call_expression(
+            Expression::CoreFunctionCall(function, arguments, span) => self.enforce_core_function_call_expression(
                 cs,
                 file_scope,
                 function_scope,
                 expected_type,
                 function,
                 arguments,
+                span,
             ),
         }
     }

@@ -28,7 +28,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<(), ImportError> {
         // Fetch core dependencies
         let core_dependency = imported_programs
-            .get_core_packages()
+            .core_packages()
             .iter()
             .find(|package| import.package.eq(package));
 
@@ -43,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for (package, symbol) in imported_symbols.symbols {
             // Find imported program
             let program = imported_programs
-                .get(&package)
+                .get_import(&package)
                 .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
 
             // Parse imported program

@@ -1262,6 +1262,7 @@ dependencies = [
 name = "leo-core"
 version = "1.0.1"
 dependencies = [
+ "leo-gadgets",
  "leo-typed",
  "rand",
  "rand_xorshift",

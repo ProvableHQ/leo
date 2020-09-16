@@ -114,7 +114,7 @@ pub enum Expression {
     // (declared_function_name, function_arguments, span)
     FunctionCall(Box<Expression>, Vec<Expression>, Span),
     // (core_function_name, function_arguments, span)
-    CoreFunctionCall(String, Vec<Expression>),
+    CoreFunctionCall(String, Vec<Expression>, Span),
 }
 
 impl Expression {
@@ -150,6 +150,7 @@ impl Expression {
             Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span.clone(),
 
             Expression::FunctionCall(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CoreFunctionCall(_, _, old_span) => *old_span = new_span.clone(),
             _ => {}
         }
     }
@@ -280,7 +281,7 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, ")")
             }
-            Expression::CoreFunctionCall(ref function, ref arguments) => {
+            Expression::CoreFunctionCall(ref function, ref arguments, ref _span) => {
                 write!(f, "{}(", function,)?;
                 for (i, param) in arguments.iter().enumerate() {
                     write!(f, "{}", param)?;

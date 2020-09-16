@@ -35,7 +35,7 @@ impl ImportParser {
         }
     }
 
-    pub(crate) fn insert(&mut self, file_name: String, program: Program) {
+    pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
         // todo: handle conflicting versions for duplicate imports here
         let _res = self.imports.insert(file_name, program);
     }
@@ -44,11 +44,11 @@ impl ImportParser {
         let _res = self.core_packages.push(package.clone());
     }
 
-    pub fn get(&self, file_name: &String) -> Option<&Program> {
+    pub fn get_import(&self, file_name: &String) -> Option<&Program> {
         self.imports.get(file_name)
     }
 
-    pub fn get_core_packages(&self) -> &Vec<Package> {
+    pub fn core_packages(&self) -> &Vec<Package> {
         &self.core_packages
     }
 

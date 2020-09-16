@@ -17,6 +17,10 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.leo-gadgets]
+path = "../gadgets"
+version = "1.0.3"
+
 [dependencies.leo-typed]
 path = "../typed"
 version = "1.0.3"
