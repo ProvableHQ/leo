@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#[macro_use]
+extern crate thiserror;
+
 pub mod circuits;
 pub use self::circuits::*;
 
@@ -30,17 +33,17 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-/// Calls a core function by it's given name.
-/// This function should be called by the compiler when enforcing the result of calling a core circuit function.
-pub fn call_core_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+/// Calls a core circuit by it's given name.
+/// This function should be called by the compiler when enforcing a core circuit function expression.
+pub fn call_core_circuit<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: CS,
-    function_name: String,
+    circuit_name: String,
     arguments: Vec<Value>,
-    span: Span, // TODO(collinc97): return errors using `leo-typed` span
-) -> Vec<Value> {
-    // Match core function name
-    match function_name.as_str() {
-        CORE_UNSTABLE_BLAKE2S_NAME => Blake2sFunction::call(cs, arguments, span),
-        _ => unimplemented!("core function {} unimplemented", function_name),
-    }
+    span: Span,
+) -> Result<Vec<Value>, LeoCoreError> {
+    // Match core circuit name
+    Ok(match circuit_name.as_str() {
+        CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::call(cs, arguments, span)?,
+        _ => return Err(LeoCoreError::undefined_core_circuit(circuit_name, span)),
+    })
 }

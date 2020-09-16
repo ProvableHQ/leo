@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_gadgets::signed_integer::*;
+
 use snarkos_models::gadgets::utilities::{boolean::Boolean, uint::*};
+use std::fmt;
 
 /// An intermediate value format that can be converted into a `ConstrainedValue` for the compiler
 /// TODO(collinc97): implement other constrained values
@@ -37,4 +39,40 @@ pub enum Value {
 
     Array(Vec<Value>),
     Tuple(Vec<Value>),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let string_option = match self {
+            Value::Boolean(value) => value.get_value().map(|v| v.to_string()),
+            Value::U8(value) => value.value.map(|v| v.to_string()),
+            Value::U16(value) => value.value.map(|v| v.to_string()),
+            Value::U32(value) => value.value.map(|v| v.to_string()),
+            Value::U64(value) => value.value.map(|v| v.to_string()),
+            Value::U128(value) => value.value.map(|v| v.to_string()),
+            Value::I8(value) => value.value.map(|v| v.to_string()),
+            Value::I16(value) => value.value.map(|v| v.to_string()),
+            Value::I32(value) => value.value.map(|v| v.to_string()),
+            Value::I64(value) => value.value.map(|v| v.to_string()),
+            Value::I128(value) => value.value.map(|v| v.to_string()),
+            Value::Array(values) => {
+                let string = values.iter().map(|v| format!("{}", v)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "[{}]", string)?;
+
+                Some("".to_owned())
+            }
+            Value::Tuple(values) => {
+                let string = values.iter().map(|v| format!("{}", v)).collect::<Vec<_>>().join(", ");
+
+                write!(f, "[{}]", string)?;
+
+                Some("".to_owned())
+            }
+        };
+
+        let string = string_option.unwrap_or("[input]".to_owned());
+
+        write!(f, "{}", string)
+    }
 }

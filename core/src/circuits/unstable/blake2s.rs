@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CoreCircuit, Value};
+use crate::{CoreCircuit, CoreCircuitError, Value};
 
 use leo_typed::{
     Circuit,
@@ -42,9 +42,9 @@ use snarkos_models::{
 pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "Blake2s";
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct Blake2sFunction {}
+pub struct Blake2sCircuit {}
 
-impl CoreCircuit for Blake2sFunction {
+impl CoreCircuit for Blake2sCircuit {
     fn name() -> String {
         CORE_UNSTABLE_BLAKE2S_NAME.to_owned()
     }
@@ -110,39 +110,52 @@ impl CoreCircuit for Blake2sFunction {
         }
     }
 
+    /// Calls the native `Blake2sGadget` on the given constraint system with the given arguments
     fn call<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         mut cs: CS,
         arguments: Vec<Value>,
-        _span: Span, // todo: return errors using `leo-typed` span
-    ) -> Vec<Value> {
-        // The check evaluation gadget should have two arguments: seed and input
-        if arguments.len() != 2 {
-            unimplemented!("incorrect number of arguments")
+        span: Span,
+    ) -> Result<Vec<Value>, CoreCircuitError> {
+        // The blake2s check evaluation gadget has two arguments: seed and input
+        let expected_length = 2usize;
+        let actual_length = arguments.len();
+
+        if expected_length != actual_length {
+            return Err(CoreCircuitError::arguments_length(expected_length, actual_length, span));
         }
 
         let seed_value = arguments[0].to_owned();
         let input_value = arguments[1].to_owned();
 
-        let seed = check_array_bytes(seed_value, 32);
-        let input = check_array_bytes(input_value, 32);
+        let seed = check_array_bytes(seed_value, 32, span.clone())?;
+        let input = check_array_bytes(input_value, 32, span.clone())?;
 
-        let res = Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..]).unwrap();
-        let bytes = res.to_bytes(cs).unwrap();
+        // Call blake2s gadget
+        let digest =
+            Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..]).map_err(|e| {
+                CoreCircuitError::cannot_enforce("Blake2s check evaluation gadget".to_owned(), e, span.clone())
+            })?;
+
+        // Convert digest to bytes
+        let bytes = digest
+            .to_bytes(cs)
+            .map_err(|e| CoreCircuitError::cannot_enforce("Vec<UInt8> ToBytes".to_owned(), e, span.clone()))?;
+
         let return_value = bytes.into_iter().map(|byte| Value::U8(byte)).collect();
 
         // Return one array digest value
-        vec![Value::Array(return_value)]
+        Ok(vec![Value::Array(return_value)])
     }
 }
 
-fn check_array_bytes(value: Value, size: usize) -> Vec<UInt8> {
+fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>, CoreCircuitError> {
     let array_value = match value {
         Value::Array(array) => array,
-        _ => unimplemented!("expected array value"),
+        value => return Err(CoreCircuitError::invalid_array(value, span)),
     };
 
-    if array_value.len() != size {
-        unimplemented!("expected array size of {}", size)
+    if size != array_value.len() {
+        return Err(CoreCircuitError::array_length(size, array_value.len(), span));
     }
 
     let mut array_bytes = vec![];
@@ -150,11 +163,11 @@ fn check_array_bytes(value: Value, size: usize) -> Vec<UInt8> {
     for value in array_value {
         let byte = match value {
             Value::U8(u8) => u8,
-            _ => unimplemented!("expected u8 byte"),
+            value => return Err(CoreCircuitError::invalid_array_bytes(value, span)),
         };
 
         array_bytes.push(byte)
     }
 
-    array_bytes
+    Ok(array_bytes)
 }

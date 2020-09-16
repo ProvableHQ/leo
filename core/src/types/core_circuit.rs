@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Value;
+use crate::{CoreCircuitError, Value};
 use leo_typed::{Circuit, Identifier, Span};
 
 use snarkos_models::{
@@ -30,7 +30,11 @@ pub trait CoreCircuit {
     /// Return the abstract syntax tree representation of the core circuit for compiler parsing.
     fn ast(circuit_name: Identifier, span: Span) -> Circuit;
 
-    /// Call the gadget associated with this core circuit.
-    /// Generate constraints on the given `ConstraintSystem` and pass in `CoreFunctionArgument`s
-    fn call<F: Field + PrimeField, CS: ConstraintSystem<F>>(cs: CS, arguments: Vec<Value>, span: Span) -> Vec<Value>;
+    /// Call the gadget associated with this core circuit with arguments.
+    /// Generate constraints on the given `ConstraintSystem`.
+    fn call<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+        cs: CS,
+        arguments: Vec<Value>,
+        span: Span,
+    ) -> Result<Vec<Value>, CoreCircuitError>;
 }

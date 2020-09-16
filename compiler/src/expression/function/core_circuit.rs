@@ -16,7 +16,7 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use crate::errors::{ExpressionError, FunctionError};
-use leo_core::call_core_function;
+use leo_core::call_core_circuit;
 use leo_typed::{Expression, Span, Type};
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -24,14 +24,14 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    /// Call a default core circuit function
-    pub fn enforce_core_function_call_expression<CS: ConstraintSystem<F>>(
+    /// Call a default core circuit function with arguments
+    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: String,
         function_scope: String,
         expected_type: Option<Type>,
-        function: String,
+        core_circuit: String,
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Call the core function in `leo-core`
-        let res = call_core_function(cs, function, argument_values, span.clone());
+        let res = call_core_circuit(cs, core_circuit, argument_values, span.clone())?;
 
         // Convert the core function returns into constrained values
         let returns = res

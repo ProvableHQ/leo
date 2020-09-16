@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    unstable::blake2s::{Blake2sFunction, CORE_UNSTABLE_BLAKE2S_NAME},
+    unstable::blake2s::{Blake2sCircuit, CORE_UNSTABLE_BLAKE2S_NAME},
     CoreCircuit,
     CoreSymbolList,
 };
@@ -72,7 +72,7 @@ impl CorePackage {
             let circuit = if self.unstable {
                 // match unstable core circuit
                 match symbol_name {
-                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sFunction::ast(symbol.symbol.clone(), span),
+                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::ast(symbol.symbol.clone(), span),
                     _ => unimplemented!("unstable core circuit `{}` not implemented", symbol_name),
                 }
             } else {
