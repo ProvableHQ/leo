@@ -119,6 +119,14 @@ fn test_member_static_function() {
 }
 
 #[test]
+fn test_member_static_function_nested() {
+    let bytes = include_bytes!("member_static_function_nested.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
     let program = parse_program(bytes).unwrap();
@@ -134,7 +142,82 @@ fn test_member_static_function_undefined() {
     expect_fail(program)
 }
 
+// Mutability
+
+#[test]
+fn test_mutate_function_fail() {
+    let bytes = include_bytes!("mut_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_variable() {
+    let bytes = include_bytes!("mut_self_variable.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_mutate_self_variable_fail() {
+    let bytes = include_bytes!("mut_self_variable_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_function_fail() {
+    let bytes = include_bytes!("mut_self_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_self_static_function_fail() {
+    let bytes = include_bytes!("mut_self_static_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_static_function_fail() {
+    let bytes = include_bytes!("mut_static_function_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_mutate_variable() {
+    let bytes = include_bytes!("mut_variable.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_mutate_variable_fail() {
+    let bytes = include_bytes!("mut_variable_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
 // Self
+
+#[test]
+fn test_self_fail() {
+    let bytes = include_bytes!("self_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
 #[test]
 fn test_self_member_pass() {
     let bytes = include_bytes!("self_member.leo");
@@ -164,6 +247,14 @@ fn test_self_member_undefined() {
 #[test]
 fn test_pedersen_mock() {
     let bytes = include_bytes!("pedersen_mock.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_define_circuit_inside_circuit_function() {
+    let bytes = include_bytes!("define_circuit_inside_circuit_function.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);

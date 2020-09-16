@@ -140,6 +140,12 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn self_keyword(span: Span) -> Self {
+        let message = format!("cannot call keyword `Self` outside of a circuit function");
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn undefined_array(actual: String, span: Span) -> Self {
         let message = format!("array `{}` must be declared before it is used in an expression", actual);
 

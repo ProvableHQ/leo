@@ -1,7 +1,7 @@
 /// Common
 
 // Declared in common/assignee.rs
-assignee = { identifier ~ access_assignee* }
+assignee = { keyword_or_identifier ~ access_assignee* }
 
 // Declared in files/file.rs
 file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
@@ -369,6 +369,7 @@ expression_postfix = ${ keyword_or_identifier ~ access+ }
 keyword_or_identifier = {
     input_keyword
     | self_keyword
+    | type_self
     | identifier
 }
 

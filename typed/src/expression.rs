@@ -383,7 +383,7 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
 // Assignee -> Expression for operator assign statements
 impl<'ast> From<Assignee<'ast>> for Expression {
     fn from(assignee: Assignee<'ast>) -> Self {
-        let variable = Expression::Identifier(Identifier::from(assignee.identifier));
+        let variable = Expression::Identifier(Identifier::from(assignee.name));
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
         assignee
