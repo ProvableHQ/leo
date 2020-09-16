@@ -22,24 +22,13 @@ use crate::{
     parse_program,
     parse_program_with_input,
 };
-use leo_core::Value;
 
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use leo_typed::InputValue;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use snarkos_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkos_curves::bls12_377::Fr;
-use snarkos_gadgets::algorithms::prf::Blake2sGadget;
-use snarkos_models::{
-    algorithms::PRF,
-    curves::Field,
-    gadgets::{
-        algorithms::PRFGadget,
-        r1cs::{ConstraintSystem, TestConstraintSystem},
-        utilities::{alloc::AllocGadget, uint::UInt8},
-    },
-};
+use snarkos_models::algorithms::PRF;
 
 #[test]
 fn test_arguments_length_fail() {

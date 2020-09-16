@@ -176,10 +176,9 @@ fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>
 mod tests {
     use super::*;
     use snarkos_curves::bls12_377::Fr;
-    use snarkos_errors::gadgets::SynthesisError;
     use snarkos_models::gadgets::{
         r1cs::TestConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean, uint::UInt8},
+        utilities::{boolean::Boolean, uint::UInt8},
     };
 
     #[test]
