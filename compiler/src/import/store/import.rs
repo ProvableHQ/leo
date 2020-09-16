@@ -33,7 +33,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .find(|package| import.package.eq(package));
 
         if let Some(package) = core_dependency {
-            self.store_core_package(scope.clone(), package.clone());
+            self.store_core_package(scope.clone(), package.clone())?;
+
             return Ok(());
         }
 

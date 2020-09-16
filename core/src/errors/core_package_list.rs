@@ -13,41 +13,42 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use leo_typed::{Error as FormattedError, Span};
 
+use leo_typed::{Error as FormattedError, ImportSymbol, Span};
+
+use crate::CorePackageError;
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
-pub enum CorePackageError {
+pub enum CorePackageListError {
+    #[error("{}", _0)]
+    CorePackageError(#[from] CorePackageError),
+
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 }
 
-impl CorePackageError {
+impl CorePackageListError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
-            CorePackageError::Error(error) => error.set_path(path),
+            CorePackageListError::CorePackageError(error) => error.set_path(path),
+            CorePackageListError::Error(error) => error.set_path(path),
         }
     }
 
     fn new_from_span(message: String, span: Span) -> Self {
-        CorePackageError::Error(FormattedError::new_from_span(message, span))
+        CorePackageListError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn invalid_core_package(symbol: ImportSymbol) -> Self {
+        let message = format!("No package `{}` in leo-core", symbol);
+        let span = symbol.span;
+
+        Self::new_from_span(message, span)
     }
 
     pub fn core_package_star(span: Span) -> Self {
         let message = format!("Cannot import star from leo-core");
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn undefined_core_circuit(name: String, span: Span) -> Self {
-        let message = format!("Core circuit `{}` not found in leo-core", name);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn undefined_unstable_core_circuit(name: String, span: Span) -> Self {
-        let message = format!("Unstable core circuit `{}` not found in leo-core", name);
 
         Self::new_from_span(message, span)
     }

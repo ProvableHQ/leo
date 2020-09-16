@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CorePackage, CoreSymbolList, UNSTABLE_CORE_PACKAGE_KEYWORD};
+use crate::{CorePackage, CorePackageListError, CoreSymbolList, UNSTABLE_CORE_PACKAGE_KEYWORD};
 use leo_typed::PackageAccess;
+use std::convert::TryFrom;
 
 /// A list of core package dependencies.
 /// This struct is created when the compiler parses a core import statement.
@@ -34,12 +35,12 @@ impl CorePackageList {
     }
 
     // Parse all dependencies after `core.`
-    pub fn from_package_access(access: PackageAccess) -> Self {
+    pub fn from_package_access(access: PackageAccess) -> Result<Self, CorePackageListError> {
         let mut new = Self::new();
 
-        package_access_helper(&mut new, access, false);
+        package_access_helper(&mut new, access, false)?;
 
-        new
+        Ok(new)
     }
 
     // Return a list of all symbols that need to be stored in the current function
@@ -54,20 +55,24 @@ impl CorePackageList {
     }
 }
 
-fn package_access_helper(list: &mut CorePackageList, access: PackageAccess, is_unstable: bool) {
+fn package_access_helper(
+    list: &mut CorePackageList,
+    access: PackageAccess,
+    is_unstable: bool,
+) -> Result<(), CorePackageListError> {
     match access {
-        PackageAccess::Symbol(_symbol) => unimplemented!("cannot import a symbol directly from Leo core"),
+        PackageAccess::Symbol(symbol) => return Err(CorePackageListError::invalid_core_package(symbol)),
         PackageAccess::Multiple(core_functions) => {
             for access in core_functions {
-                package_access_helper(list, access, is_unstable);
+                package_access_helper(list, access, is_unstable)?;
             }
         }
         PackageAccess::SubPackage(package) => {
             // Set the `unstable` flag to true if we are importing an unstable core package
             if package.name.name.eq(UNSTABLE_CORE_PACKAGE_KEYWORD) {
-                package_access_helper(list, package.access, true);
+                package_access_helper(list, package.access, true)?;
             } else {
-                let mut core_package = CorePackage::from(*package);
+                let mut core_package = CorePackage::try_from(*package)?;
 
                 if is_unstable {
                     core_package.set_unstable()
@@ -76,6 +81,8 @@ fn package_access_helper(list: &mut CorePackageList, access: PackageAccess, is_u
                 list.push(core_package);
             }
         }
-        PackageAccess::Star(_) => unimplemented!("cannot import star from Leo core"),
+        PackageAccess::Star(span) => return Err(CorePackageListError::core_package_star(span)),
     }
+
+    Ok(())
 }

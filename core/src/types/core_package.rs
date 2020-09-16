@@ -17,9 +17,11 @@
 use crate::{
     unstable::blake2s::{Blake2sCircuit, CORE_UNSTABLE_BLAKE2S_NAME},
     CoreCircuit,
+    CorePackageError,
     CoreSymbolList,
 };
 use leo_typed::{Identifier, ImportSymbol, Package, PackageAccess};
+use std::convert::TryFrom;
 
 /// A core package dependency to be imported into a Leo program
 #[derive(Debug, Clone)]
@@ -44,23 +46,22 @@ impl CorePackage {
     }
 
     // Recursively set all symbols we are importing from a core package
-    pub(crate) fn set_symbols(&mut self, access: PackageAccess) {
+    pub(crate) fn set_symbols(&mut self, access: PackageAccess) -> Result<(), CorePackageError> {
         match access {
-            PackageAccess::SubPackage(package) => {
-                self.set_symbols(package.access);
-            }
-            PackageAccess::Star(_) => unimplemented!("cannot import star from core package"),
+            PackageAccess::SubPackage(package) => return self.set_symbols(package.access),
+            PackageAccess::Star(span) => return Err(CorePackageError::core_package_star(span)),
             PackageAccess::Multiple(accesses) => {
                 for access in accesses {
-                    self.set_symbols(access);
+                    self.set_symbols(access)?;
                 }
             }
             PackageAccess::Symbol(symbol) => self.symbols.push(symbol),
         }
+        Ok(())
     }
 
     // Resolve import symbols into core circuits and store them in the program context
-    pub(crate) fn append_symbols(&self, symbols: &mut CoreSymbolList) {
+    pub(crate) fn append_symbols(&self, symbols: &mut CoreSymbolList) -> Result<(), CorePackageError> {
         for symbol in &self.symbols {
             let symbol_name = symbol.symbol.name.as_str();
             let span = symbol.span.clone();
@@ -73,28 +74,37 @@ impl CorePackage {
                 // match unstable core circuit
                 match symbol_name {
                     CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::ast(symbol.symbol.clone(), span),
-                    _ => unimplemented!("unstable core circuit `{}` not implemented", symbol_name),
+                    name => {
+                        return Err(CorePackageError::undefined_unstable_core_circuit(
+                            name.to_string(),
+                            span,
+                        ));
+                    }
                 }
             } else {
                 // match core circuit
                 match symbol_name {
-                    _ => unimplemented!("core circuit `{}` not implemented", symbol_name),
+                    name => return Err(CorePackageError::undefined_core_circuit(name.to_string(), span)),
                 }
             };
 
             symbols.push(name, circuit)
         }
+
+        Ok(())
     }
 }
 
-impl From<Package> for CorePackage {
-    fn from(package: Package) -> Self {
+impl TryFrom<Package> for CorePackage {
+    type Error = CorePackageError;
+
+    fn try_from(package: Package) -> Result<Self, Self::Error> {
         // Create new core package
         let mut core_package = Self::new(package.name);
 
         // Fetch all circuit symbols imported from core package
-        core_package.set_symbols(package.access);
+        core_package.set_symbols(package.access)?;
 
-        core_package
+        Ok(core_package)
     }
 }

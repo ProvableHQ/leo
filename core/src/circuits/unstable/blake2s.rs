@@ -49,7 +49,7 @@ impl CoreCircuit for Blake2sCircuit {
         CORE_UNSTABLE_BLAKE2S_NAME.to_owned()
     }
 
-    /* Hardcode blake2s circuit ast
+    /* Blake2s circuit ast
      * circuit Blake2s {
      *     static function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
      *         // call `check_eval_gadget` in snarkOS

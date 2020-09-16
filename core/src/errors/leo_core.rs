@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CoreCircuitError;
+use crate::{CoreCircuitError, CorePackageListError};
 use leo_typed::{Error as FormattedError, Span};
 
 use std::path::PathBuf;
@@ -22,7 +22,10 @@ use std::path::PathBuf;
 #[derive(Debug, Error)]
 pub enum LeoCoreError {
     #[error("{}", _0)]
-    CoreCircuit(#[from] CoreCircuitError),
+    CoreCircuitError(#[from] CoreCircuitError),
+
+    #[error("{}", _0)]
+    CorePackageListError(#[from] CorePackageListError),
 
     #[error("{}", _0)]
     Error(#[from] FormattedError),
@@ -31,7 +34,8 @@ pub enum LeoCoreError {
 impl LeoCoreError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
-            LeoCoreError::CoreCircuit(error) => error.set_path(path),
+            LeoCoreError::CoreCircuitError(error) => error.set_path(path),
+            LeoCoreError::CorePackageListError(error) => error.set_path(path),
             LeoCoreError::Error(error) => error.set_path(path),
         }
     }
