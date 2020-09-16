@@ -21,7 +21,7 @@ use snarkos_errors::gadgets::SynthesisError;
 
 use std::path::PathBuf;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Eq, PartialEq)]
 pub enum CoreCircuitError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),

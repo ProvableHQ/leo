@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CorePackage, CorePackageListError, CoreSymbolList, UNSTABLE_CORE_PACKAGE_KEYWORD};
+use crate::{CoreCircuitStructList, CorePackage, CorePackageListError, UNSTABLE_CORE_PACKAGE_KEYWORD};
 use leo_typed::PackageAccess;
 use std::convert::TryFrom;
 
@@ -34,7 +34,7 @@ impl CorePackageList {
         self.packages.push(package);
     }
 
-    // Parse all dependencies after `core.`
+    // Parse all dependencies after `import core.`
     pub fn from_package_access(access: PackageAccess) -> Result<Self, CorePackageListError> {
         let mut new = Self::new();
 
@@ -44,14 +44,14 @@ impl CorePackageList {
     }
 
     // Return a list of all symbols that need to be stored in the current function
-    pub fn to_symbols(&self) -> CoreSymbolList {
-        let mut symbols = CoreSymbolList::new();
+    pub fn to_symbols(&self) -> Result<CoreCircuitStructList, CorePackageListError> {
+        let mut symbols = CoreCircuitStructList::new();
 
         for package in &self.packages {
-            package.append_symbols(&mut symbols);
+            package.get_circuit_structs(&mut symbols)?;
         }
 
-        symbols
+        Ok(symbols)
     }
 }
 

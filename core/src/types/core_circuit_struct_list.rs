@@ -16,14 +16,14 @@
 
 use leo_typed::Circuit;
 
-/// List of imported core function circuits.
+/// List of imported core circuit structs.
 /// This struct is created from a `CorePackageList`
-pub struct CoreSymbolList {
+pub struct CoreCircuitStructList {
     /// [(circuit_name, circuit_struct)]
     symbols: Vec<(String, Circuit)>,
 }
 
-impl CoreSymbolList {
+impl CoreCircuitStructList {
     pub(crate) fn new() -> Self {
         Self { symbols: vec![] }
     }

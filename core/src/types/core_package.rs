@@ -17,18 +17,19 @@
 use crate::{
     unstable::blake2s::{Blake2sCircuit, CORE_UNSTABLE_BLAKE2S_NAME},
     CoreCircuit,
+    CoreCircuitStructList,
     CorePackageError,
-    CoreSymbolList,
 };
 use leo_typed::{Identifier, ImportSymbol, Package, PackageAccess};
 use std::convert::TryFrom;
 
-/// A core package dependency to be imported into a Leo program
+/// A core package dependency to be imported into a Leo program.
+/// Each `CorePackage` contains one or more `CoreCircuit`s that can be accessed by name.
 #[derive(Debug, Clone)]
 pub struct CorePackage {
     name: Identifier,
     unstable: bool,
-    symbols: Vec<ImportSymbol>,
+    circuits: Vec<ImportSymbol>,
 }
 
 impl CorePackage {
@@ -36,7 +37,7 @@ impl CorePackage {
         Self {
             name,
             unstable: false,
-            symbols: vec![],
+            circuits: vec![],
         }
     }
 
@@ -45,35 +46,38 @@ impl CorePackage {
         self.unstable = true;
     }
 
-    // Recursively set all symbols we are importing from a core package
-    pub(crate) fn set_symbols(&mut self, access: PackageAccess) -> Result<(), CorePackageError> {
+    // Stores all `CoreCircuit` names that are being accessed in the current `CorePackage`
+    fn get_circuit_names(&mut self, access: PackageAccess) -> Result<(), CorePackageError> {
         match access {
-            PackageAccess::SubPackage(package) => return self.set_symbols(package.access),
+            PackageAccess::SubPackage(package) => return self.get_circuit_names(package.access),
             PackageAccess::Star(span) => return Err(CorePackageError::core_package_star(span)),
             PackageAccess::Multiple(accesses) => {
                 for access in accesses {
-                    self.set_symbols(access)?;
+                    self.get_circuit_names(access)?;
                 }
             }
-            PackageAccess::Symbol(symbol) => self.symbols.push(symbol),
+            PackageAccess::Symbol(symbol) => self.circuits.push(symbol),
         }
         Ok(())
     }
 
-    // Resolve import symbols into core circuits and store them in the program context
-    pub(crate) fn append_symbols(&self, symbols: &mut CoreSymbolList) -> Result<(), CorePackageError> {
-        for symbol in &self.symbols {
-            let symbol_name = symbol.symbol.name.as_str();
-            let span = symbol.span.clone();
+    // Stores all `CoreCircuit` structs that are being accessed in the current `CorePackage`
+    pub(crate) fn get_circuit_structs(
+        &self,
+        circuit_structs: &mut CoreCircuitStructList,
+    ) -> Result<(), CorePackageError> {
+        for circuit in &self.circuits {
+            let circuit_name = circuit.symbol.name.as_str();
+            let span = circuit.span.clone();
 
             // take the alias if it is present
-            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
+            let id = circuit.alias.clone().unwrap_or(circuit.symbol.clone());
             let name = id.name.clone();
 
             let circuit = if self.unstable {
                 // match unstable core circuit
-                match symbol_name {
-                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::ast(symbol.symbol.clone(), span),
+                match circuit_name {
+                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::ast(circuit.symbol.clone(), span),
                     name => {
                         return Err(CorePackageError::undefined_unstable_core_circuit(
                             name.to_string(),
@@ -83,12 +87,12 @@ impl CorePackage {
                 }
             } else {
                 // match core circuit
-                match symbol_name {
+                match circuit_name {
                     name => return Err(CorePackageError::undefined_core_circuit(name.to_string(), span)),
                 }
             };
 
-            symbols.push(name, circuit)
+            circuit_structs.push(name, circuit)
         }
 
         Ok(())
@@ -103,7 +107,7 @@ impl TryFrom<Package> for CorePackage {
         let mut core_package = Self::new(package.name);
 
         // Fetch all circuit symbols imported from core package
-        core_package.set_symbols(package.access)?;
+        core_package.get_circuit_names(package.access)?;
 
         Ok(core_package)
     }

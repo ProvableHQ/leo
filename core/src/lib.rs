@@ -17,8 +17,8 @@
 #[macro_use]
 extern crate thiserror;
 
-pub mod circuits;
-pub use self::circuits::*;
+pub mod packages;
+pub use self::packages::*;
 
 pub mod errors;
 pub use self::errors::*;

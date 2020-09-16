@@ -22,7 +22,8 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-/// A core circuit type, accessible to all Leo programs by default
+/// A core circuit type, accessible to all Leo programs by default.
+/// To access a `CoreCircuit`, import its symbol from a `CorePackage`.
 pub trait CoreCircuit {
     /// The name of the core circuit function
     fn name() -> String;

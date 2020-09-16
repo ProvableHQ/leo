@@ -19,6 +19,7 @@ pub mod array;
 pub mod boolean;
 pub mod circuits;
 pub mod console;
+pub mod core;
 pub mod definition;
 // pub mod field;
 pub mod function;

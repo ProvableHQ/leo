@@ -171,3 +171,106 @@ fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>
 
     Ok(array_bytes)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use snarkos_curves::bls12_377::Fr;
+    use snarkos_errors::gadgets::SynthesisError;
+    use snarkos_models::gadgets::{
+        r1cs::TestConstraintSystem,
+        utilities::{alloc::AllocGadget, boolean::Boolean, uint::UInt8},
+    };
+
+    #[test]
+    fn test_call_arguments_length_fail() {
+        let cs = TestConstraintSystem::<Fr>::new();
+
+        let seed = Value::Array(vec![]);
+        let dummy_span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+
+        let err = Blake2sCircuit::call(cs, vec![seed], dummy_span.clone()).err();
+
+        assert!(err.is_some());
+
+        let expected = CoreCircuitError::arguments_length(2, 1, dummy_span);
+        let actual = err.unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_array_length_fail() {
+        let cs = TestConstraintSystem::<Fr>::new();
+
+        let seed = Value::Array(vec![]);
+        let input = Value::Array(vec![]);
+        let dummy_span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+
+        let err = Blake2sCircuit::call(cs, vec![seed, input], dummy_span.clone()).err();
+
+        assert!(err.is_some());
+
+        let expected = CoreCircuitError::array_length(32, 0, dummy_span);
+        let actual = err.unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_invalid_array() {
+        let cs = TestConstraintSystem::<Fr>::new();
+
+        let seed = Value::U8(UInt8::constant(0));
+        let input = Value::Array(vec![]);
+        let dummy_span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+
+        let err = Blake2sCircuit::call(cs, vec![seed.clone(), input], dummy_span.clone()).err();
+
+        assert!(err.is_some());
+
+        let expected = CoreCircuitError::invalid_array(seed, dummy_span);
+        let actual = err.unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_invalid_array_bytes() {
+        let cs = TestConstraintSystem::<Fr>::new();
+
+        let invalid_byte = Value::Boolean(Boolean::Constant(true));
+        let seed = Value::Array(vec![invalid_byte.clone(); 32]);
+        let input = Value::Array(vec![Value::U8(UInt8::constant(0)); 32]);
+        let dummy_span = Span {
+            text: "".to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        };
+
+        let err = Blake2sCircuit::call(cs, vec![seed, input], dummy_span.clone()).err();
+
+        assert!(err.is_some());
+
+        let expected = CoreCircuitError::invalid_array_bytes(invalid_byte, dummy_span);
+        let actual = err.unwrap();
+
+        assert_eq!(expected, actual);
+    }
+}

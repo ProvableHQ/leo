@@ -26,7 +26,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let list = CorePackageList::from_package_access(package.access)?;
 
         // Fetch core packages from `leo-core`.
-        let symbol_list = list.to_symbols();
+        let symbol_list = list.to_symbols()?;
 
         for (symbol, circuit) in symbol_list.symbols() {
             let symbol_name = new_scope(scope.clone(), symbol);
