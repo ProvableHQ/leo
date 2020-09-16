@@ -39,10 +39,16 @@ use snarkos_models::{
     },
 };
 
+pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "Blake2s";
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct Blake2sFunction {}
 
 impl CoreCircuit for Blake2sFunction {
+    fn name() -> String {
+        CORE_UNSTABLE_BLAKE2S_NAME.to_owned()
+    }
+
     /* Hardcode blake2s circuit ast
      * circuit Blake2s {
      *     static function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
@@ -83,7 +89,7 @@ impl CoreCircuit for Blake2sFunction {
                     returns: Some(Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize])),
                     statements: vec![Statement::Return(
                         Expression::CoreFunctionCall(
-                            "core_blake2s_unstable".to_owned(),
+                            Self::name(),
                             vec![
                                 Expression::Identifier(Identifier {
                                     name: "seed".to_owned(),

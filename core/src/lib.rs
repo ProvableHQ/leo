@@ -23,7 +23,7 @@ pub use self::errors::*;
 pub mod unstable;
 pub use self::unstable::*;
 
-use crate::unstable::blake2s::Blake2sFunction;
+use crate::{unstable::blake2s::Blake2sFunction, CoreCircuit};
 use leo_gadgets::signed_integer::*;
 use leo_typed::{Circuit, Identifier, ImportSymbol, Package, PackageAccess, Span};
 
@@ -81,25 +81,37 @@ impl CorePackage {
     // Resolve import symbols into core circuits and store them in the program context
     pub(crate) fn append_symbols(&self, symbols: &mut CoreSymbolList) {
         for symbol in &self.symbols {
-            // take the alias if it is present
-            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
-
-            let name = id.name.clone();
+            let symbol_name = symbol.symbol.name.as_str();
             let span = symbol.span.clone();
 
-            // todo: remove hardcoded blake2s circuit
-            let blake2s_circuit = Blake2sFunction::ast(symbol.symbol.clone(), span);
+            // take the alias if it is present
+            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
+            let name = id.name.clone();
 
-            symbols.push(name, blake2s_circuit)
+            let circuit = if self.unstable {
+                // match unstable core circuit
+                match symbol_name {
+                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sFunction::ast(symbol.symbol.clone(), span),
+                    _ => unimplemented!("unstable core circuit `{}` not implemented", symbol_name),
+                }
+            } else {
+                // match core circuit
+                match symbol_name {
+                    _ => unimplemented!("core circuit `{}` not implemented", symbol_name),
+                }
+            };
+
+            symbols.push(name, circuit)
         }
     }
 }
 
 impl From<Package> for CorePackage {
     fn from(package: Package) -> Self {
-        // Name of core package
+        // Create new core package
         let mut core_package = Self::new(package.name);
 
+        // Fetch all circuit symbols imported from core package
         core_package.set_symbols(package.access);
 
         core_package
@@ -196,15 +208,11 @@ pub fn call_core_function<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     arguments: Vec<Value>,
     span: Span, // todo: return errors using `leo-typed` span
 ) -> Vec<Value> {
-    // Match core function name here
-    if function_name.ne("core_blake2s_unstable") {
-        // todo: convert this to a real error
-        println!("core dne error");
+    // Match core function name
+    match function_name.as_str() {
+        CORE_UNSTABLE_BLAKE2S_NAME => Blake2sFunction::call(cs, arguments, span),
+        _ => unimplemented!("core function {} unimplemented", function_name),
     }
-    // Hardcode blake2s core function call
-    let res = Blake2sFunction::call(cs, arguments, span);
-
-    return res;
 }
 
 /// An intermediate value format that can be converted into a `ConstrainedValue` for the compiler

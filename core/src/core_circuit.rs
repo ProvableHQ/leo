@@ -24,6 +24,9 @@ use snarkos_models::{
 
 /// A core circuit type, accessible to all Leo programs by default
 pub trait CoreCircuit {
+    /// The name of the core circuit function
+    fn name() -> String;
+
     /// Return the abstract syntax tree representation of the core circuit for compiler parsing.
     fn ast(circuit_name: Identifier, span: Span) -> Circuit;
 
