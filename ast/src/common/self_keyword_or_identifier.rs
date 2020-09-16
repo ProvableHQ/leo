@@ -14,26 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::SelfKeywordOrIdentifier, functions::InputKeyword, types::SelfType};
+use crate::{
+    ast::Rule,
+    common::{Identifier, SelfKeyword},
+};
 
 use pest_ast::FromPest;
 use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::keyword_or_identifier))]
-pub enum KeywordOrIdentifier<'ast> {
-    SelfType(SelfType<'ast>),
-    Input(InputKeyword<'ast>),
-    SelfKeywordOrIdentifier(SelfKeywordOrIdentifier<'ast>),
+#[pest_ast(rule(Rule::self_keyword_or_identifier))]
+pub enum SelfKeywordOrIdentifier<'ast> {
+    SelfKeyword(SelfKeyword<'ast>),
+    Identifier(Identifier<'ast>),
 }
 
-impl<'ast> fmt::Display for KeywordOrIdentifier<'ast> {
+impl<'ast> fmt::Display for SelfKeywordOrIdentifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            KeywordOrIdentifier::SelfType(self_type) => write!(f, "{}", self_type),
-            KeywordOrIdentifier::Input(input_keyword) => write!(f, "{}", input_keyword),
-            KeywordOrIdentifier::SelfKeywordOrIdentifier(name) => write!(f, "{}", name),
+            SelfKeywordOrIdentifier::SelfKeyword(self_keyword) => write!(f, "{}", self_keyword),
+            SelfKeywordOrIdentifier::Identifier(identifier) => write!(f, "{}", identifier),
         }
     }
 }

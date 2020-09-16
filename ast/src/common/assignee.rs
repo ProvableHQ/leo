@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::AssigneeAccess, ast::Rule, common::KeywordOrIdentifier, SpanDef};
+use crate::{access::AssigneeAccess, ast::Rule, common::SelfKeywordOrIdentifier, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -24,7 +24,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::assignee))]
 pub struct Assignee<'ast> {
-    pub name: KeywordOrIdentifier<'ast>,
+    pub name: SelfKeywordOrIdentifier<'ast>,
     pub accesses: Vec<AssigneeAccess<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]

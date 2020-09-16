@@ -44,6 +44,9 @@ pub use range_or_expression::*;
 pub mod self_keyword;
 pub use self_keyword::*;
 
+pub mod self_keyword_or_identifier;
+pub use self_keyword_or_identifier::*;
+
 pub mod spread;
 pub use spread::*;
 
