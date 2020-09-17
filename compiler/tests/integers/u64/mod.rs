@@ -18,7 +18,7 @@ use crate::{
     assert_satisfied,
     expect_compiler_error,
     generate_main_input,
-    integers::{expect_parsing_error, IntegerTester},
+    integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
 use leo_input::types::{IntegerType, U64Type, UnsignedIntegerType};
@@ -49,6 +49,31 @@ fn test_u64_max() {
 #[test]
 fn test_u64_max_fail() {
     TestU64::test_max_fail();
+}
+
+#[test]
+fn test_u64_overflow_add() {
+    TestU64::test_overflow_add();
+}
+
+#[test]
+fn test_u64_overflow_sub() {
+    TestU64::test_overflow_sub();
+}
+
+#[test]
+fn test_u64_overflow_mul() {
+    TestU64::test_overflow_mul();
+}
+
+#[test]
+fn test_u64_overflow_pow() {
+    TestU64::test_overflow_pow();
+}
+
+#[test]
+fn test_u64_div_zero() {
+    TestU64::test_div_zero();
 }
 
 #[test]
@@ -114,4 +139,12 @@ fn test_u64_console_assert() {
 #[test]
 fn test_u64_ternary() {
     TestU64::test_ternary();
+}
+
+#[test]
+fn test_pow_invalid_rhs() {
+    let program_bytes = include_bytes!("pow_invalid_rhs.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
 }

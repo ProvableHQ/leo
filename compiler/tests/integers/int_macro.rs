@@ -85,6 +85,41 @@ macro_rules! test_int {
                 expect_parsing_error(program);
             }
 
+            fn test_overflow_add() {
+                let bytes = include_bytes!("overflow_add.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program);
+            }
+
+            fn test_overflow_sub() {
+                let bytes = include_bytes!("overflow_sub.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program);
+            }
+
+            fn test_overflow_mul() {
+                let bytes = include_bytes!("overflow_mul.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program)
+            }
+
+            fn test_overflow_pow() {
+                let bytes = include_bytes!("overflow_pow.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program)
+            }
+
+            fn test_div_zero() {
+                let bytes = include_bytes!("div_zero.leo");
+                let program = parse_program(bytes).unwrap();
+
+                expect_computation_error(program)
+            }
+
             fn test_add() {
                 for _ in 0..10 {
                     let a: $type_ = rand::random();

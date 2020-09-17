@@ -18,7 +18,7 @@ use crate::{
     assert_satisfied,
     expect_compiler_error,
     generate_main_input,
-    integers::{expect_parsing_error, IntegerTester},
+    integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
@@ -49,6 +49,31 @@ fn test_u8_max() {
 #[test]
 fn test_u8_max_fail() {
     TestU8::test_max_fail();
+}
+
+#[test]
+fn test_u8_overflow_add() {
+    TestU8::test_overflow_add();
+}
+
+#[test]
+fn test_u8_overflow_sub() {
+    TestU8::test_overflow_sub();
+}
+
+#[test]
+fn test_u8_overflow_mul() {
+    TestU8::test_overflow_mul();
+}
+
+#[test]
+fn test_u8_overflow_pow() {
+    TestU8::test_overflow_pow();
+}
+
+#[test]
+fn test_u8_div_zero() {
+    TestU8::test_div_zero();
 }
 
 #[test]

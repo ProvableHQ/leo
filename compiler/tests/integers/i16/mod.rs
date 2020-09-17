@@ -52,6 +52,31 @@ fn test_i16_max_fail() {
 }
 
 #[test]
+fn test_i16_overflow_add() {
+    TestI16::test_overflow_add();
+}
+
+#[test]
+fn test_i16_overflow_sub() {
+    TestI16::test_overflow_sub();
+}
+
+#[test]
+fn test_i16_overflow_mul() {
+    TestI16::test_overflow_mul();
+}
+
+#[test]
+fn test_i16_overflow_pow() {
+    TestI16::test_overflow_pow();
+}
+
+#[test]
+fn test_i16_div_zero() {
+    TestI16::test_div_zero();
+}
+
+#[test]
 fn test_i16_neg() {
     TestI16::test_negate();
 }
@@ -129,4 +154,12 @@ fn test_i16_console_assert() {
 #[test]
 fn test_i16_ternary() {
     TestI16::test_ternary();
+}
+
+#[test]
+fn test_pow_negative() {
+    let program_bytes = include_bytes!("pow_negative.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
 }

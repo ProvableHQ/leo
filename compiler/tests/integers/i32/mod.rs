@@ -52,6 +52,31 @@ fn test_i32_max_fail() {
 }
 
 #[test]
+fn test_i32_overflow_add() {
+    TestI32::test_overflow_add();
+}
+
+#[test]
+fn test_i32_overflow_sub() {
+    TestI32::test_overflow_sub();
+}
+
+#[test]
+fn test_i32_overflow_mul() {
+    TestI32::test_overflow_mul();
+}
+
+#[test]
+fn test_i32_overflow_pow() {
+    TestI32::test_overflow_pow();
+}
+
+#[test]
+fn test_i32_div_zero() {
+    TestI32::test_div_zero();
+}
+
+#[test]
 fn test_i32_neg() {
     TestI32::test_negate();
 }
@@ -129,4 +154,12 @@ fn test_i32_console_assert() {
 #[test]
 fn test_i32_ternary() {
     TestI32::test_ternary();
+}
+
+#[test]
+fn test_pow_negative() {
+    let program_bytes = include_bytes!("pow_negative.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
 }

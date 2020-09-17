@@ -21,14 +21,29 @@ pub trait IntegerTester {
     /// Tests defining the smalled value that can be represented by the integer type
     fn test_min();
 
-    /// Tests defining the smallest value - 1
+    /// Tests defining the largest value + 1
     fn test_min_fail();
 
     /// Tests defining the largest value that can be represented by the integer type
     fn test_max();
 
-    /// Tests defining the largest value + 1
+    /// Tests defining the smallest value - 1
     fn test_max_fail();
+
+    /// Tests that overflowing addition throws an error
+    fn test_overflow_add();
+
+    /// Tests that overflowing subtraction throws an error
+    fn test_overflow_sub();
+
+    /// Tests that overflowing multiplication throws an error
+    fn test_overflow_mul();
+
+    /// Tests that overflowing exponentiation throws an error
+    fn test_overflow_pow();
+
+    /// Tests that dividing by zero throws an error
+    fn test_div_zero();
 
     /// Tests a non-wrapping addition
     fn test_add();
@@ -63,7 +78,7 @@ pub trait IntegerTester {
     /// Tests < evaluation
     fn test_lt();
 
-    /// Test assert equals constraint keyword
+    /// Test console assert keyword
     fn test_console_assert();
 
     /// Test ternary if bool ? num_1 : num_2;

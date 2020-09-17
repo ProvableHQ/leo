@@ -18,7 +18,7 @@ use crate::{
     assert_satisfied,
     expect_compiler_error,
     generate_main_input,
-    integers::{expect_parsing_error, IntegerTester},
+    integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
 use leo_input::types::{IntegerType, U16Type, UnsignedIntegerType};
@@ -49,6 +49,31 @@ fn test_u16_max() {
 #[test]
 fn test_u16_max_fail() {
     TestU16::test_max_fail();
+}
+
+#[test]
+fn test_u16_overflow_add() {
+    TestU16::test_overflow_add();
+}
+
+#[test]
+fn test_u16_overflow_sub() {
+    TestU16::test_overflow_sub();
+}
+
+#[test]
+fn test_u16_overflow_mul() {
+    TestU16::test_overflow_mul();
+}
+
+#[test]
+fn test_u16_overflow_pow() {
+    TestU16::test_overflow_pow();
+}
+
+#[test]
+fn test_u16_div_zero() {
+    TestU16::test_div_zero();
 }
 
 #[test]

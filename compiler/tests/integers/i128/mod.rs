@@ -52,6 +52,31 @@ fn test_i128_max_fail() {
 }
 
 #[test]
+fn test_i128_overflow_add() {
+    TestI128::test_overflow_add();
+}
+
+#[test]
+fn test_i128_overflow_sub() {
+    TestI128::test_overflow_sub();
+}
+
+#[test]
+fn test_i128_overflow_mul() {
+    TestI128::test_overflow_mul();
+}
+
+#[test]
+fn test_i128_overflow_pow() {
+    TestI128::test_overflow_pow();
+}
+
+#[test]
+fn test_i128_div_zero() {
+    TestI128::test_div_zero();
+}
+
+#[test]
 fn test_i128_neg() {
     TestI128::test_negate();
 }
@@ -130,4 +155,20 @@ fn test_i128_assert_eq() {
 #[test]
 fn test_i128_ternary() {
     TestI128::test_ternary();
+}
+
+#[test]
+fn test_pow_invalid_rhs() {
+    let program_bytes = include_bytes!("pow_invalid_rhs.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_pow_negative() {
+    let program_bytes = include_bytes!("pow_negative.leo");
+    let program = parse_program(program_bytes).unwrap();
+
+    expect_compiler_error(program);
 }
