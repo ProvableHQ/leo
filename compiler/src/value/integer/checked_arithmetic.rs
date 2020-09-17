@@ -17,6 +17,8 @@
 use crate::{errors::IntegerError, Integer};
 use leo_typed::Span;
 
+use std::convert::TryFrom;
+
 macro_rules! match_checked_options {
     ($a: ident, $b: ident, $span: ident => $expression: expr) => {{
         match ($a, $b) {
@@ -88,6 +90,29 @@ macro_rules! match_integers_value {
     }}
 }
 
+macro_rules! is_negative {
+    ($v: ident, $e: ident) => {{
+        if let Some(value) = $v {
+            if value < 0 {
+                return Err($e);
+            }
+        }
+        Ok(())
+    }};
+}
+
+macro_rules! u32_try_from {
+    ($v: ident, $e: ident) => {{
+        if let Some(value) = $v {
+            let result = u32::try_from(value);
+            if result.is_err() {
+                return Err($e);
+            }
+        }
+        Ok(())
+    }};
+}
+
 impl Integer {
     /// Checks if integer addition will throw an error
     pub(crate) fn checked_add(&self, other: &Integer, span: Span) -> Result<(), IntegerError> {
@@ -98,7 +123,7 @@ impl Integer {
         let result = match_integers_value!(a, b, s => a.checked_add(b))?;
 
         if !result {
-            Err(IntegerError::integer_overflow(self, other, "+".to_owned(), span))
+            Err(IntegerError::overflow_integer(self, other, "+".to_owned(), span))
         } else {
             Ok(())
         }
@@ -113,7 +138,7 @@ impl Integer {
         let result = match_integers_value!(a, b, s => a.checked_sub(b))?;
 
         if !result {
-            Err(IntegerError::integer_overflow(self, other, "-".to_owned(), span))
+            Err(IntegerError::overflow_integer(self, other, "-".to_owned(), span))
         } else {
             Ok(())
         }
@@ -128,7 +153,7 @@ impl Integer {
         let result = match_integers_value!(a, b, s => a.checked_mul(b))?;
 
         if !result {
-            Err(IntegerError::integer_overflow(self, other, "*".to_owned(), span))
+            Err(IntegerError::overflow_integer(self, other, "*".to_owned(), span))
         } else {
             Ok(())
         }
@@ -148,19 +173,82 @@ impl Integer {
             Ok(())
         }
     }
-    //
-    // /// Checks if integer exponentiation will throw an error
-    // pub(crate) fn checked_pow(&self, other: &Integer, span: Span) -> Result<(), IntegerError> {
-    //     let a = self.clone();
-    //     let b = other.clone();
-    //     let s = span.clone();
-    //
-    //     let result = match_integers_value!(a, b, s => a.checked_pow(b as u32))?;
-    //
-    //     if !result {
-    //         Err(IntegerError::integer_overflow(self, other, "**".to_owned(), span))
-    //     } else {
-    //         Ok(())
-    //     }
-    // }
+
+    /// Checks if integer exponentiation will throw an error
+    pub(crate) fn checked_pow(&self, other: &Integer, span: Span) -> Result<(), IntegerError> {
+        let operation = "**".to_owned();
+        let rhs = other.clone();
+
+        // If the rhs is negative, throw an signed integer overflow error since
+        // raising a signed integer to a negative exponent results in a fraction
+        let signed_overflow_error = IntegerError::overflow_signed_integer(self, other, operation.clone(), span.clone());
+        let overflow_error = IntegerError::overflow_rust_pow(other, span.clone());
+        match rhs {
+            Integer::I8(int) => {
+                let v = int.value;
+                let res: Result<(), IntegerError> = is_negative!(v, signed_overflow_error);
+                res?;
+            }
+            Integer::I16(int) => {
+                let v = int.value;
+                let res: Result<(), IntegerError> = is_negative!(v, signed_overflow_error);
+                res?;
+            }
+            Integer::I32(int) => {
+                let v = int.value;
+                let res: Result<(), IntegerError> = is_negative!(v, signed_overflow_error);
+                res?;
+            }
+            Integer::I64(int) => {
+                let v1 = int.value;
+                let v2 = int.value;
+
+                let res: Result<(), IntegerError> = is_negative!(v1, signed_overflow_error);
+                res?;
+
+                // Check that the rhs can be type cast to a u32
+                let u32_res: Result<(), IntegerError> = u32_try_from!(v2, overflow_error);
+                u32_res?;
+            }
+            Integer::I128(int) => {
+                let v1 = int.value;
+                let v2 = int.value;
+
+                let res: Result<(), IntegerError> = is_negative!(v1, signed_overflow_error);
+                res?;
+
+                // Check that the rhs can be type cast to a u32
+                let u32_res: Result<(), IntegerError> = u32_try_from!(v2, overflow_error);
+                u32_res?;
+            }
+            Integer::U64(uint) => {
+                let v = uint.value;
+
+                // Check that the rhs can be type cast to a u32
+                let res: Result<(), IntegerError> = u32_try_from!(v, overflow_error);
+                res?;
+            }
+            Integer::U128(uint) => {
+                let v = uint.value;
+
+                // Check that the rhs can be type cast to a u32
+                let res: Result<(), IntegerError> = u32_try_from!(v, overflow_error);
+                res?;
+            }
+            _ => {}
+        }
+
+        // Call native rust `checked_pow` function to check for overflow
+        let a = self.clone();
+        let b = other.clone();
+        let s = span.clone();
+
+        let result = match_integers_value!(a, b, s => a.checked_pow(b as u32))?;
+
+        if !result {
+            Err(IntegerError::overflow_integer(self, other, operation.clone(), span))
+        } else {
+            Ok(())
+        }
+    }
 }

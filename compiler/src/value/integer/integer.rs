@@ -471,12 +471,16 @@ impl Integer {
         other: Self,
         span: Span,
     ) -> Result<Self, IntegerError> {
+        // Check for integer overflow and type mismatch
+        self.checked_pow(&other, span.clone())?;
+
         let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
         let s = span.clone();
 
+        // Comput result on constraint system
         let result = match_integers_span!((a, b), s => a.pow(cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("**"), span))

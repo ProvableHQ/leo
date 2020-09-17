@@ -81,19 +81,6 @@ impl IntegerError {
     //     Self::new_from_span(message, span)
     // }
 
-    pub fn integer_overflow(left: &Integer, right: &Integer, operation: String, span: Span) -> Self {
-        let given_type = left.get_type();
-        let message = format!(
-            "The integer operation `{left} {operation} {right}` overflowed the given type {given_type}",
-            left = left,
-            operation = operation,
-            right = right,
-            given_type = given_type
-        );
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_index(span: Span) -> Self {
         let message = format!(
             "index must be a constant value unsigned integer. allocated indices produce a circuit of unknown size"
@@ -132,6 +119,41 @@ impl IntegerError {
 
     pub fn negate_operation(span: Span) -> Self {
         let message = format!("integer negation can only be enforced on signed integers");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn overflow_rust_pow(right: &Integer, span: Span) -> Self {
+        let message = format!(
+            "The exponent `{}` does not fit into a u32 type. Consider using a smaller exponent to lower the risk of integer overflow",
+            right
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn overflow_integer(left: &Integer, right: &Integer, operation: String, span: Span) -> Self {
+        let given_type = left.get_type();
+        let message = format!(
+            "The integer operation `{left} {operation} {right}` overflowed the given type {given_type}",
+            left = left,
+            operation = operation,
+            right = right,
+            given_type = given_type
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn overflow_signed_integer(left: &Integer, right: &Integer, operation: String, span: Span) -> Self {
+        let given_type = left.get_type();
+        let message = format!(
+            "The signed integer operation `{left} {operation} {right}` contains a negative exponent. Fractions cannot be represented by the {given_type} type",
+            left = left,
+            operation = operation,
+            right = right,
+            given_type = given_type,
+        );
 
         Self::new_from_span(message, span)
     }
