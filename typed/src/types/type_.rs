@@ -58,6 +58,26 @@ impl Type {
         false
     }
 
+    pub fn match_array_types(&self, other: &Type) -> bool {
+        // Check that both `self` and `other` are of type array
+        let (type_1, dimensions_1) = match self {
+            Type::Array(type_, dimensions) => (type_, dimensions),
+            _ => return false,
+        };
+
+        let (type_2, dimensions_2) = match other {
+            Type::Array(type_, dimensions) => (type_, dimensions),
+            _ => return false,
+        };
+
+        // Expand multidimensional array syntax
+        let (type_1_expanded, dimensions_1_expanded) = expand_array_type(type_1, dimensions_1);
+        let (type_2_expanded, dimensions_2_expanded) = expand_array_type(type_2, dimensions_2);
+
+        // Return true if expanded array types and dimensions match
+        type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
+    }
+
     pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
         let type_ = self.clone();
 
@@ -82,6 +102,19 @@ impl Type {
         }
 
         type_
+    }
+}
+
+fn expand_array_type(type_: &Type, dimensions: &Vec<usize>) -> (Type, Vec<usize>) {
+    if let Type::Array(nested_type, nested_dimensions) = type_ {
+        // Expand nested array type
+        let mut expanded_dimensions = dimensions.clone();
+        expanded_dimensions.append(&mut nested_dimensions.clone());
+
+        return expand_array_type(nested_type, &expanded_dimensions);
+    } else {
+        // Array type is fully expanded
+        (type_.clone(), dimensions.clone())
     }
 }
 

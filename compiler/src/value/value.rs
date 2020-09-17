@@ -108,9 +108,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
 
             // Data type wrappers
-            ConstrainedValue::Array(types) => {
-                let array_type = types[0].to_type(span.clone())?;
-                let mut dimensions = vec![types.len()];
+            ConstrainedValue::Array(array) => {
+                let array_type = array[0].to_type(span.clone())?;
+                let mut dimensions = vec![array.len()];
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
