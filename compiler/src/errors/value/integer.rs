@@ -15,8 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_gadgets::errors::SignedIntegerError;
-use leo_typed::{error::Error as FormattedError, Span};
+use leo_typed::{error::Error as FormattedError, IntegerType, Span};
 
+use crate::Integer;
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::PathBuf;
 
@@ -37,49 +38,57 @@ impl IntegerError {
         IntegerError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn binary_operation(operation: String, span: Span) -> Self {
+        let message = format!(
+            "the integer binary operation `{}` can only be enforced on integers of the same type",
+            operation
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
         let message = format!(
-            "the integer operation `{}` failed due to the synthesis error `{:?}`",
+            "The integer operation `{}` failed due to the synthesis error `{:?}`",
             operation, error,
         );
 
         Self::new_from_span(message, span)
     }
 
-    pub fn signed(error: SignedIntegerError, span: Span) -> Self {
-        let message = format!("integer operation failed due to the signed integer error `{:?}`", error);
+    pub fn division_by_zero(span: Span) -> Self {
+        let message = format!("Attempted to divide by zero");
 
         Self::new_from_span(message, span)
     }
 
-    pub fn synthesis(error: SynthesisError, span: Span) -> Self {
+    pub fn signed(error: SignedIntegerError, span: Span) -> Self {
         let message = format!(
-            "integer operation failed due to the synthesis error or overflow `{:?}`",
+            "The integer operation failed due to the signed integer error `{:?}`",
             error
         );
 
         Self::new_from_span(message, span)
     }
 
-    pub fn signed_error(operation: String, error: SignedIntegerError, span: Span) -> Self {
+    //
+    // pub fn signed_error(operation: String, error: SignedIntegerError, span: Span) -> Self {
+    //     let message = format!(
+    //         "the integer operation `{}` failed due to the signed integer error `{:?}`",
+    //         operation, error
+    //     );
+    //
+    //     Self::new_from_span(message, span)
+    // }
+
+    pub fn integer_overflow(left: &Integer, right: &Integer, operation: String, span: Span) -> Self {
+        let given_type = left.get_type();
         let message = format!(
-            "the integer operation `{}` failed due to the signed integer error `{:?}`",
-            operation, error
-        );
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn negate_operation(span: Span) -> Self {
-        let message = format!("integer negation can only be enforced on signed integers");
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn binary_operation(operation: String, span: Span) -> Self {
-        let message = format!(
-            "the integer binary operation `{}` can only be enforced on integers of the same type",
-            operation
+            "The integer operation `{left} {operation} {right}` overflowed the given type {given_type}",
+            left = left,
+            operation = operation,
+            right = right,
+            given_type = given_type
         );
 
         Self::new_from_span(message, span)
@@ -101,6 +110,37 @@ impl IntegerError {
 
     pub fn missing_integer(expected: String, span: Span) -> Self {
         let message = format!("expected integer input `{}` not found", expected);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn mismatched_option(span: Span) -> Self {
+        let message =
+            format!("Integer arithmetic failed. Try using `let` statements to declare variables before computing");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn mismatched_types(left: IntegerType, right: IntegerType, span: Span) -> Self {
+        let message = format!(
+            "Left hand side integer is type {} but right hand side integer is type {}",
+            left, right
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn negate_operation(span: Span) -> Self {
+        let message = format!("integer negation can only be enforced on signed integers");
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn synthesis(error: SynthesisError, span: Span) -> Self {
+        let message = format!(
+            "integer operation failed due to the synthesis error or overflow `{:?}`",
+            error
+        );
 
         Self::new_from_span(message, span)
     }

@@ -18,5 +18,8 @@
 pub mod macros;
 pub use self::macros::*;
 
+pub mod checked_arithmetic;
+pub use self::checked_arithmetic::*;
+
 pub mod integer;
 pub use self::integer::*;

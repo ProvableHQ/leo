@@ -387,12 +387,16 @@ impl Integer {
         other: Self,
         span: Span,
     ) -> Result<Self, IntegerError> {
+        // Check for overflows and type mismatch
+        self.checked_add(&other, span.clone())?;
+
         let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
         let s = span.clone();
 
+        // Compute result on constraint system
         let result = match_integers_span!((a, b), s => a.add(cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("+"), span))
@@ -404,12 +408,16 @@ impl Integer {
         other: Self,
         span: Span,
     ) -> Result<Self, IntegerError> {
+        // Check fo overflows and type mismatch
+        self.checked_sub(&other, span.clone())?;
+
         let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
         let s = span.clone();
 
+        // Compute result on constraint system
         let result = match_integers_span!((a, b), s => a.sub(cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("-"), span))
@@ -421,12 +429,16 @@ impl Integer {
         other: Self,
         span: Span,
     ) -> Result<Self, IntegerError> {
+        // Check for overflows and type mismatch
+        self.checked_mul(&other, span.clone())?;
+
         let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
         let s = span.clone();
 
+        // Compute result on constraint system
         let result = match_integers_span!((a, b), s => a.mul(cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("*"), span))
@@ -438,15 +450,17 @@ impl Integer {
         other: Self,
         span: Span,
     ) -> Result<Self, IntegerError> {
+        // Check for division by zero and type mismatch
+        self.checked_div(&other, span.clone())?;
+
         let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
         let s = span.clone();
 
-        // let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
-        let result =
-            match_integers_span!((a, b), s => <arithmetic::div::Div<F>>::div::<CS>(&a, cs.ns(|| unique_namespace), &b));
+        // Compute result on constraint system
+        let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
 
         result.ok_or(IntegerError::binary_operation(format!("÷"), span))
     }
