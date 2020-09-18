@@ -16,6 +16,7 @@
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
+use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
 
@@ -26,6 +27,9 @@ use std::path::PathBuf;
 pub enum CompilerError {
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
+
+    #[error("{}", _0)]
+    ImportParserError(#[from] ImportParserError),
 
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),

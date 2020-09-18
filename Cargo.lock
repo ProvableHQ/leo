@@ -1236,6 +1236,7 @@ dependencies = [
  "leo-ast",
  "leo-core",
  "leo-gadgets",
+ "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",
@@ -1291,8 +1292,10 @@ dependencies = [
 name = "leo-imports"
 version = "1.0.3"
 dependencies = [
+ "leo-ast",
  "leo-typed",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]

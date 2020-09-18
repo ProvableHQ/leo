@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, ImportParser};
+use crate::{errors::ImportParserError, ImportParser};
 use leo_ast::LeoAst;
 use leo_typed::{ImportSymbol, Program, Span};
 
@@ -23,23 +23,23 @@ use std::{ffi::OsString, fs::DirEntry, path::PathBuf};
 static LIBRARY_FILE: &str = "src/lib.leo";
 static FILE_EXTENSION: &str = "leo";
 
-fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportError> {
+fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportParserError> {
     // make sure the given entry is file
     let file_type = entry
         .file_type()
-        .map_err(|error| ImportError::directory_error(error, span.clone(), entry.path()))?;
+        .map_err(|error| ImportParserError::directory_error(error, span.clone(), entry.path()))?;
     let file_name = entry
         .file_name()
         .to_os_string()
         .into_string()
-        .map_err(|_| ImportError::convert_os_string(span.clone()))?;
+        .map_err(|_| ImportParserError::convert_os_string(span.clone()))?;
 
     let mut file_path = entry.path().to_path_buf();
     if file_type.is_dir() {
         file_path.push(LIBRARY_FILE);
 
         if !file_path.exists() {
-            return Err(ImportError::expected_lib_file(
+            return Err(ImportParserError::expected_lib_file(
                 format!("{:?}", file_path.as_path()),
                 span.clone(),
             ));
@@ -55,7 +55,7 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
 }
 
 impl ImportParser {
-    pub fn parse_import_star(&mut self, entry: &DirEntry, span: &Span) -> Result<(), ImportError> {
+    pub fn parse_import_star(&mut self, entry: &DirEntry, span: &Span) -> Result<(), ImportParserError> {
         let path = entry.path();
         let is_dir = path.is_dir();
         let is_leo_file = path
@@ -77,7 +77,7 @@ impl ImportParser {
                 .imports
                 .iter()
                 .map(|import| self.parse_package(entry.path(), &import.package))
-                .collect::<Result<Vec<()>, ImportError>>()?;
+                .collect::<Result<Vec<()>, ImportParserError>>()?;
 
             // Store program in imports hashmap
             let file_name_path = PathBuf::from(entry.file_name());
@@ -93,11 +93,11 @@ impl ImportParser {
             Ok(())
         } else {
             // importing * from a directory or non-leo file in `package/src/` is illegal
-            Err(ImportError::star(entry.path().to_path_buf(), span.clone()))
+            Err(ImportParserError::star(entry.path().to_path_buf(), span.clone()))
         }
     }
 
-    pub fn parse_import_symbol(&mut self, entry: &DirEntry, symbol: &ImportSymbol) -> Result<(), ImportError> {
+    pub fn parse_import_symbol(&mut self, entry: &DirEntry, symbol: &ImportSymbol) -> Result<(), ImportParserError> {
         // Generate aleo program from file
         let program = parse_import_file(entry, &symbol.span)?;
 
@@ -106,7 +106,7 @@ impl ImportParser {
             .imports
             .iter()
             .map(|import| self.parse_package(entry.path(), &import.package))
-            .collect::<Result<Vec<()>, ImportError>>()?;
+            .collect::<Result<Vec<()>, ImportParserError>>()?;
 
         // Store program in imports hashmap
         let file_name_path = PathBuf::from(entry.file_name());

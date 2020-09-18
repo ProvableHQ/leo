@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType, ImportParser};
+use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType};
+use leo_imports::ImportParser;
 use leo_typed::Import;
 
 use snarkos_models::curves::{Field, PrimeField};

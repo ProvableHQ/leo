@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::ImportError;
+use crate::errors::ImportParserError;
 use leo_typed::{Package, Program};
 
 use std::{collections::HashMap, env::current_dir};
@@ -52,18 +52,18 @@ impl ImportParser {
         &self.core_packages
     }
 
-    pub fn parse(program: &Program) -> Result<Self, ImportError> {
+    pub fn parse(program: &Program) -> Result<Self, ImportParserError> {
         let mut imports = Self::new();
 
         // Find all imports relative to current directory
-        let path = current_dir().map_err(|error| ImportError::current_directory_error(error))?;
+        let path = current_dir().map_err(|error| ImportParserError::current_directory_error(error))?;
 
         // Parse each imported file
         program
             .imports
             .iter()
             .map(|import| imports.parse_package(path.clone(), &import.package))
-            .collect::<Result<Vec<()>, ImportError>>()?;
+            .collect::<Result<Vec<()>, ImportParserError>>()?;
 
         Ok(imports)
     }

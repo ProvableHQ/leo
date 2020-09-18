@@ -20,11 +20,11 @@ use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
     GroupType,
-    ImportParser,
     OutputBytes,
     OutputFile,
 };
 use leo_ast::LeoAst;
+use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;

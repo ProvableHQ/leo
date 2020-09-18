@@ -29,6 +29,10 @@ version = "1.0.3"
 path = "../gadgets"
 version = "1.0.3"
 
+[dependencies.leo-imports]
+path = "../imports"
+version = "1.0.3"
+
 [dependencies.leo-input]
 path = "../input"
 version = "1.0.3"
