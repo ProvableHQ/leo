@@ -109,18 +109,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
 
             // Data type wrappers
-            ConstrainedValue::Array(types) => {
-                let array_type = types[0].to_type(span.clone())?;
-                let count = types.len();
+            ConstrainedValue::Array(array) => {
+                let array_type = array[0].to_type(span.clone())?;
+                let mut dimensions = vec![array.len()];
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
-                    let mut dimensions = inner_dimensions.clone();
-                    dimensions.push(count);
+                    dimensions.append(&mut inner_dimensions.clone());
                     return Ok(Type::Array(inner_type.clone(), dimensions));
                 }
 
-                Type::Array(Box::new(array_type), vec![count])
+                Type::Array(Box::new(array_type), dimensions)
             }
             ConstrainedValue::Tuple(tuple) => {
                 let mut types = vec![];
@@ -366,9 +365,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 write!(f, "function {{ {}() }}", function.identifier)
             }
             ConstrainedValue::Import(_, ref value) => write!(f, "{}", value),
-            ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
-            ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
-            ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
+            ConstrainedValue::Mutable(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Static(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Unresolved(ref value) => write!(f, "{}", value),
         }
     }
 }

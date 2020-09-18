@@ -1,4 +1,4 @@
-[package]
+[project]
 name = "pedersen-hash"
 version = "0.1.0"
 description = "A 256bit hash function"

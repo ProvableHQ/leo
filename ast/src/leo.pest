@@ -1,7 +1,7 @@
 /// Common
 
 // Declared in common/assignee.rs
-assignee = { keyword_or_identifier ~ access_assignee* }
+assignee = { self_keyword_or_identifier ~ access_assignee* }
 
 // Declared in files/file.rs
 file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
@@ -46,6 +46,19 @@ protected_name = {
 
 // Declared in common/self_keyword.rs
 self_keyword = { "self" }
+
+// Declared in common/self_keyword_or_identifier.rs
+self_keyword_or_identifier = {
+    self_keyword
+    | identifier
+}
+
+// Declared in common/keyword_or_identifier.rs
+keyword_or_identifier = {
+    input_keyword
+    | type_self
+    | self_keyword_or_identifier
+}
 
 // Declared in common/line_end.rs
 LINE_END = { ";" ~ NEWLINE* }
@@ -364,14 +377,6 @@ expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
 expression_postfix = ${ keyword_or_identifier ~ access+ }
-
-// Declared in expressions/postfix_expression.rs
-keyword_or_identifier = {
-    input_keyword
-    | self_keyword
-    | type_self
-    | identifier
-}
 
 /// Statements
 

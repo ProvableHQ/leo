@@ -141,3 +141,37 @@ fn test_value_unchanged() {
 
     assert_satisfied(program);
 }
+
+// Test return multidimensional arrays
+
+#[test]
+fn test_return_array_nested_fail() {
+    let bytes = include_bytes!("return_array_nested_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_return_array_nested_pass() {
+    let bytes = include_bytes!("return_array_nested_pass.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_return_array_tuple_fail() {
+    let bytes = include_bytes!("return_array_tuple_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_return_array_tuple_pass() {
+    let bytes = include_bytes!("return_array_tuple_pass.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}

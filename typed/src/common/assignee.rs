@@ -17,7 +17,7 @@
 use crate::{Expression, Identifier, RangeOrExpression};
 use leo_ast::{
     access::AssigneeAccess as AstAssigneeAccess,
-    common::{Assignee as AstAssignee, Identifier as AstIdentifier, KeywordOrIdentifier},
+    common::{Assignee as AstAssignee, Identifier as AstIdentifier, SelfKeywordOrIdentifier},
 };
 
 use serde::{Deserialize, Serialize};
@@ -38,8 +38,8 @@ impl<'ast> From<AstIdentifier<'ast>> for Assignee {
     }
 }
 
-impl<'ast> From<KeywordOrIdentifier<'ast>> for Assignee {
-    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
+impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Assignee {
+    fn from(name: SelfKeywordOrIdentifier<'ast>) -> Self {
         Assignee::Identifier(Identifier::from(name))
     }
 }

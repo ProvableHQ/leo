@@ -33,14 +33,14 @@ pub struct Remote {
 
 #[derive(Deserialize)]
 pub struct Manifest {
-    pub package: Package,
+    pub project: Package,
     pub remote: Option<Remote>,
 }
 
 impl Manifest {
     pub fn new(package_name: &str) -> Self {
         Self {
-            package: Package::new(package_name),
+            project: Package::new(package_name),
             remote: None,
         }
     }
@@ -58,19 +58,19 @@ impl Manifest {
     }
 
     pub fn get_package_name(&self) -> String {
-        self.package.name.clone()
+        self.project.name.clone()
     }
 
     pub fn get_package_version(&self) -> String {
-        self.package.version.clone()
+        self.project.version.clone()
     }
 
     pub fn get_package_description(&self) -> Option<String> {
-        self.package.description.clone()
+        self.project.description.clone()
     }
 
     pub fn get_package_license(&self) -> Option<String> {
-        self.package.license.clone()
+        self.project.license.clone()
     }
 
     pub fn get_package_remote(&self) -> Option<Remote> {
@@ -90,7 +90,7 @@ impl Manifest {
 
     fn template(&self) -> String {
         format!(
-            r#"[package]
+            r#"[project]
 name = "{name}"
 version = "0.1.0"
 description = "The {name} package"
@@ -99,7 +99,7 @@ license = "MIT"
 [remote]
 author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or organization's name.
 "#,
-            name = self.package.name
+            name = self.project.name
         )
     }
 }
@@ -128,7 +128,11 @@ impl TryFrom<&PathBuf> for Manifest {
         let mut old_remote_format: Option<&str> = None;
         let mut new_remote_format_exists = false;
 
-        let mut new_toml = "".to_owned();
+        // Toml file adhering to the new format.
+        let mut final_toml = "".to_owned();
+
+        // New Toml file format that should be written based on feature flags.
+        let mut refactored_toml = "".to_owned();
 
         // Read each individual line of the toml file
         for line in buffer.lines() {
@@ -138,6 +142,12 @@ impl TryFrom<&PathBuf> for Manifest {
                     .split("=") // Split the line as 'remote' = '"{author}/{package_name}"'
                     .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
                 old_remote_format = Some(remote);
+
+                // Retain the old remote format if the `manifest_refactor_remote` is not enabled
+                if cfg!(not(feature = "manifest_refactor_remote")) {
+                    refactored_toml += line;
+                    refactored_toml += "\n";
+                }
                 continue;
             }
 
@@ -145,8 +155,24 @@ impl TryFrom<&PathBuf> for Manifest {
             if line.starts_with("[remote]") {
                 new_remote_format_exists = true;
             }
-            new_toml += line;
-            new_toml += "\n";
+
+            // If the old project format is being being used, update the toml file
+            // to use the new format instead.
+            if line.starts_with("[package]") {
+                final_toml += "[project]";
+
+                // Refactor the old project format if the `manifest_refactor_project` is enabled
+                match cfg!(feature = "manifest_refactor_project") {
+                    true => refactored_toml += "[project]",
+                    false => refactored_toml += line,
+                }
+            } else {
+                final_toml += line;
+                refactored_toml += line;
+            }
+
+            final_toml += "\n";
+            refactored_toml += "\n";
         }
 
         // Update the remote format
@@ -170,18 +196,23 @@ author = "{author}"
                 );
 
                 // Append the new remote to the bottom of the manifest file.
-                new_toml += &new_remote;
+                final_toml += &new_remote;
+
+                // Add the new remote format if the `manifest_refactor_remote` is enabled
+                if cfg!(feature = "manifest_refactor_remote") {
+                    refactored_toml += &new_remote;
+                }
             }
         }
 
         // Rewrite the toml file if it has been updated
-        if buffer != new_toml {
+        if buffer != refactored_toml {
             let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
-            file.write_all(new_toml.as_bytes())
+            file.write_all(refactored_toml.as_bytes())
                 .map_err(|error| ManifestError::Writing(MANIFEST_FILENAME, error))?;
         }
 
         // Read the toml file
-        Ok(toml::from_str(&new_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))?)
+        Ok(toml::from_str(&final_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))?)
     }
 }
