@@ -334,9 +334,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 write!(f, "function {{ {}() }}", function.identifier)
             }
             ConstrainedValue::Import(_, ref value) => write!(f, "{}", value),
-            ConstrainedValue::Mutable(ref value) => write!(f, "mut {}", value),
-            ConstrainedValue::Static(ref value) => write!(f, "static {}", value),
-            ConstrainedValue::Unresolved(ref value) => write!(f, "unresolved {}", value),
+            ConstrainedValue::Mutable(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Static(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Unresolved(ref value) => write!(f, "{}", value),
         }
     }
 }

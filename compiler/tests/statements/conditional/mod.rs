@@ -190,14 +190,14 @@ fn test_nested() {
 }
 
 fn output_one(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_one.out");
+    let expected = include_bytes!("output/registers_one.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
 
 fn output_zero(program: EdwardsTestCompiler) {
-    let expected = include_bytes!("output_/registers_zero.out");
+    let expected = include_bytes!("output/registers_zero.out");
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
