@@ -14,15 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// The import parser creates a hashmap of import program names -> import program structs
-pub mod core_package;
-pub use self::core_package::*;
+use leo_typed::Circuit;
 
-pub mod parse_symbol;
-pub use self::parse_symbol::*;
+/// List of imported core circuit structs.
+/// This struct is created from a `CorePackageList`
+pub struct CoreCircuitStructList {
+    /// [(circuit_name, circuit_struct)]
+    symbols: Vec<(String, Circuit)>,
+}
 
-pub mod import_parser;
-pub use self::import_parser::*;
+impl CoreCircuitStructList {
+    pub(crate) fn new() -> Self {
+        Self { symbols: vec![] }
+    }
 
-pub mod parse_package;
-pub use self::parse_package::*;
+    pub(crate) fn push(&mut self, name: String, circuit: Circuit) {
+        self.symbols.push((name, circuit))
+    }
+
+    pub fn symbols(&self) -> Vec<(String, Circuit)> {
+        self.symbols.clone()
+    }
+}

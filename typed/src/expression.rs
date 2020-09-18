@@ -87,23 +87,34 @@ pub enum Expression {
     Lt(Box<Expression>, Box<Expression>, Span),
 
     // Conditionals
-    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span), // (conditional, first_value, second_value)
+    // (conditional, first_value, second_value, span)
+    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span),
 
     // Arrays
+    // (array_elements, span)
     Array(Vec<Box<SpreadOrExpression>>, Span),
-    ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span), // (array name, range)
+    // (array_name, range, span)
+    ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span),
 
     // Tuples
+    // (tuple_elements, span)
     Tuple(Vec<Expression>, Span),
+    // (tuple_name, index, span)
     TupleAccess(Box<Expression>, usize, Span),
 
     // Circuits
+    // (defined_circuit_name, circuit_members, span)
     Circuit(Identifier, Vec<CircuitVariableDefinition>, Span),
-    CircuitMemberAccess(Box<Expression>, Identifier, Span), // (declared circuit name, circuit member name)
-    CircuitStaticFunctionAccess(Box<Expression>, Identifier, Span), // (defined circuit name, circuit static member name)
+    // (declared_circuit name, circuit_member_name, span)
+    CircuitMemberAccess(Box<Expression>, Identifier, Span),
+    // (defined_circuit name, circuit_static_function_name, span)
+    CircuitStaticFunctionAccess(Box<Expression>, Identifier, Span),
 
     // Functions
+    // (declared_function_name, function_arguments, span)
     FunctionCall(Box<Expression>, Vec<Expression>, Span),
+    // (core_function_name, function_arguments, span)
+    CoreFunctionCall(String, Vec<Expression>, Span),
 }
 
 impl Expression {
@@ -139,6 +150,7 @@ impl Expression {
             Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span.clone(),
 
             Expression::FunctionCall(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::CoreFunctionCall(_, _, old_span) => *old_span = new_span.clone(),
             _ => {}
         }
     }
@@ -260,6 +272,16 @@ impl<'ast> fmt::Display for Expression {
 
             // Function calls
             Expression::FunctionCall(ref function, ref arguments, ref _span) => {
+                write!(f, "{}(", function,)?;
+                for (i, param) in arguments.iter().enumerate() {
+                    write!(f, "{}", param)?;
+                    if i < arguments.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, ")")
+            }
+            Expression::CoreFunctionCall(ref function, ref arguments, ref _span) => {
                 write!(f, "{}(", function,)?;
                 for (i, param) in arguments.iter().enumerate() {
                     write!(f, "{}", param)?;

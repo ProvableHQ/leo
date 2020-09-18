@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// The import parser creates a hashmap of import program names -> import program structs
+pub mod core_circuit;
+pub use self::core_circuit::*;
+
 pub mod core_package;
 pub use self::core_package::*;
 
-pub mod parse_symbol;
-pub use self::parse_symbol::*;
+pub mod core_package_list;
+pub use self::core_package_list::*;
 
-pub mod import_parser;
-pub use self::import_parser::*;
-
-pub mod parse_package;
-pub use self::parse_package::*;
+pub mod leo_core;
+pub use self::leo_core::*;

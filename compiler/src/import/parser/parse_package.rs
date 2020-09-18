@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, ImportParser};
+use crate::{errors::ImportError, ImportParser, CORE_PACKAGE_NAME};
 use leo_typed::{Package, PackageAccess};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
@@ -47,20 +47,23 @@ impl ImportParser {
         let error_path = path.clone();
         let package_name = package.name.clone();
 
-        // trim path if importing from another file
+        // Fetch a core package
+        let core_package = package_name.name.eq(CORE_PACKAGE_NAME);
+
+        // Trim path if importing from another file
         if path.is_file() {
             path.pop();
         }
 
-        // search for package name in local directory
+        // Search for package name in local directory
         let mut source_directory = path.clone();
         source_directory.push(SOURCE_DIRECTORY_NAME);
 
-        // search for package name in `imports` directory
+        // Search for package name in `imports` directory
         let mut imports_directory = path.clone();
         imports_directory.push(IMPORTS_DIRECTORY_NAME);
 
-        // read from local `src` directory or the current path
+        // Read from local `src` directory or the current path
         if source_directory.exists() {
             path = source_directory
         }
@@ -81,7 +84,10 @@ impl ImportParser {
                 .eq(&package_name.name)
         });
 
-        if imports_directory.exists() {
+        if core_package {
+            // Enforce core library package access
+            self.parse_core_package(&package)
+        } else if imports_directory.exists() {
             let entries = fs::read_dir(imports_directory)
                 .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?
                 .into_iter()

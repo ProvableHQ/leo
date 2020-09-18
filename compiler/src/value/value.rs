@@ -26,6 +26,7 @@ use crate::{
     GroupType,
     Integer,
 };
+use leo_core::Value;
 use leo_typed::{Circuit, Function, GroupValue, Identifier, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -135,6 +136,37 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span)),
         })
+    }
+
+    /// Returns the `ConstrainedValue` in intermediate `Value` format (for core circuits)
+    pub(crate) fn to_value(&self) -> Value {
+        match self.clone() {
+            ConstrainedValue::Boolean(boolean) => Value::Boolean(boolean),
+            ConstrainedValue::Integer(integer) => match integer {
+                Integer::U8(u8) => Value::U8(u8),
+                Integer::U16(u16) => Value::U16(u16),
+                Integer::U32(u32) => Value::U32(u32),
+                Integer::U64(u64) => Value::U64(u64),
+                Integer::U128(u128) => Value::U128(u128),
+
+                Integer::I8(i8) => Value::I8(i8),
+                Integer::I16(i16) => Value::I16(i16),
+                Integer::I32(i32) => Value::I32(i32),
+                Integer::I64(i64) => Value::I64(i64),
+                Integer::I128(i128) => Value::I128(i128),
+            },
+            ConstrainedValue::Array(array) => {
+                let array_value = array.into_iter().map(|element| element.to_value()).collect();
+
+                Value::Array(array_value)
+            }
+            ConstrainedValue::Tuple(tuple) => {
+                let tuple_value = tuple.into_iter().map(|element| element.to_value()).collect();
+
+                Value::Tuple(tuple_value)
+            }
+            _ => unimplemented!(),
+        }
     }
 
     pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: Span) -> Result<(), ValueError> {
@@ -495,5 +527,37 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
     fn cost() -> usize {
         unimplemented!()
+    }
+}
+
+impl<F: Field + PrimeField, G: GroupType<F>> From<Value> for ConstrainedValue<F, G> {
+    fn from(v: Value) -> Self {
+        match v {
+            Value::Boolean(boolean) => ConstrainedValue::Boolean(boolean),
+            Value::U8(u8) => ConstrainedValue::Integer(Integer::U8(u8)),
+            Value::U16(u16) => ConstrainedValue::Integer(Integer::U16(u16)),
+            Value::U32(u32) => ConstrainedValue::Integer(Integer::U32(u32)),
+            Value::U64(u64) => ConstrainedValue::Integer(Integer::U64(u64)),
+            Value::U128(u128) => ConstrainedValue::Integer(Integer::U128(u128)),
+
+            Value::I8(i8) => ConstrainedValue::Integer(Integer::I8(i8)),
+            Value::I16(i16) => ConstrainedValue::Integer(Integer::I16(i16)),
+            Value::I32(i32) => ConstrainedValue::Integer(Integer::I32(i32)),
+            Value::I64(i64) => ConstrainedValue::Integer(Integer::I64(i64)),
+            Value::I128(i128) => ConstrainedValue::Integer(Integer::I128(i128)),
+
+            Value::Array(array) => ConstrainedValue::Array(
+                array
+                    .into_iter()
+                    .map(|element| ConstrainedValue::from(element))
+                    .collect(),
+            ),
+            Value::Tuple(tuple) => ConstrainedValue::Tuple(
+                tuple
+                    .into_iter()
+                    .map(|element| ConstrainedValue::from(element))
+                    .collect(),
+            ),
+        }
     }
 }

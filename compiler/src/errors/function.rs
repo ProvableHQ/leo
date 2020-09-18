@@ -106,6 +106,12 @@ impl FunctionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn return_argument_type(expected: String, actual: String, span: Span) -> Self {
+        let message = format!("Expected function return type `{}`, found `{}`", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn input_not_found(expected: String, span: Span) -> Self {
         let message = format!("main function input {} not found", expected);
 

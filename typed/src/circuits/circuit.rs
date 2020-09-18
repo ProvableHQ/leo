@@ -49,13 +49,6 @@ impl Circuit {
     }
 }
 
-// TODO (Collin): Uncomment when we no longer print out Program
-// impl fmt::Display for Circuit {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         self.format(f)
-//     }
-// }
-
 impl fmt::Debug for Circuit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)

@@ -16,5 +16,8 @@
 
 //! Methods to enforce function call expressions in a compiled Leo program.
 
+pub mod core_circuit;
+pub use self::core_circuit::*;
+
 pub mod function;
 pub use self::function::*;

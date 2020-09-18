@@ -88,7 +88,7 @@ impl ImportParser {
                 .into_string()
                 .unwrap(); // the file exists so these will not fail
 
-            self.insert(file_name, program);
+            self.insert_import(file_name, program);
 
             Ok(())
         } else {
@@ -117,7 +117,7 @@ impl ImportParser {
             .into_string()
             .unwrap(); // the file exists so these will not fail
 
-        self.insert(file_name, program);
+        self.insert_import(file_name, program);
 
         Ok(())
     }

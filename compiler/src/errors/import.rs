@@ -17,12 +17,16 @@
 use leo_ast::ParserError;
 use leo_typed::{Error as FormattedError, Identifier, ImportSymbol, Span};
 
+use leo_core::LeoCoreError;
 use std::{io, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum ImportError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
+
+    #[error("{}", _0)]
+    LeoCoreError(#[from] LeoCoreError),
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
