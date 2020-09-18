@@ -17,17 +17,14 @@
 use crate::Span;
 use leo_ast::{
     annotations::AnnotationArgument,
-    common::Identifier as AstIdentifier,
+    common::{Identifier as AstIdentifier, KeywordOrIdentifier, SelfKeyword, SelfKeywordOrIdentifier},
+    expressions::CircuitName,
+    functions::InputKeyword,
     imports::PackageName as AstPackageName,
+    types::SelfType,
 };
 use leo_input::common::Identifier as InputAstIdentifier;
 
-use leo_ast::{
-    common::{KeywordOrIdentifier, SelfKeyword},
-    expressions::CircuitName,
-    functions::InputKeyword,
-    types::SelfType,
-};
 use serde::{
     de::{self, Visitor},
     Deserialize,
@@ -93,10 +90,18 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
 impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
     fn from(name: KeywordOrIdentifier<'ast>) -> Self {
         match name {
-            KeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::SelfKeywordOrIdentifier(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
             KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
-            KeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
+        }
+    }
+}
+
+impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Identifier {
+    fn from(name: SelfKeywordOrIdentifier<'ast>) -> Self {
+        match name {
+            SelfKeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
+            SelfKeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
         }
     }
 }
