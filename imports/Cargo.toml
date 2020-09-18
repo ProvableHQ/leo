@@ -1,0 +1,25 @@
+[package]
+name = "leo-imports"
+version = "1.0.3"
+authors = [ "The Aleo Team <hello@aleo.org>"]
+description = "Import parser for Leo program package dependencies"
+homepage = "https://aleo.org"
+respository = "https://github.com/AleoHQ/leo"
+keywords = [
+    "aleo",
+    "cryptography",
+    "leo",
+    "programming-language",
+    "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = ["Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies.leo-typed]
+path = "../typed"
+version = "1.0.3"
+
+[dependencies.thiserror]
+version = "1.0"

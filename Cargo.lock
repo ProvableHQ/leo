@@ -1261,7 +1261,7 @@ dependencies = [
 
 [[package]]
 name = "leo-core"
-version = "1.0.1"
+version = "1.0.3"
 dependencies = [
  "leo-gadgets",
  "leo-typed",
@@ -1284,6 +1284,14 @@ dependencies = [
  "snarkos-errors",
  "snarkos-models",
  "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-imports"
+version = "1.0.3"
+dependencies = [
+ "leo-typed",
  "thiserror",
 ]
 
@@ -1319,6 +1327,7 @@ dependencies = [
  "leo-compiler",
  "leo-core",
  "leo-gadgets",
+ "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",

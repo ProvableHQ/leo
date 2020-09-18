@@ -1,6 +1,6 @@
 [package]
 name = "leo-core"
-version = "1.0.1"
+version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core package dependencies of the Leo programming language"
 homepage = "https://aleo.org"

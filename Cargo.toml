@@ -30,6 +30,7 @@ members = [
   "compiler",
   "core",
   "gadgets",
+  "imports",
   "input",
   "linter",
   "package",
@@ -47,6 +48,10 @@ version = "1.0.1"
 
 [dependencies.leo-gadgets]
 path = "./gadgets"
+version = "1.0.3"
+
+[dependencies.leo-imports]
+path = "./imports"
 version = "1.0.3"
 
 [dependencies.leo-input]
