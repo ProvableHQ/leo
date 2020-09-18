@@ -121,7 +121,7 @@ jobs:
 
       - name: Test
         run: |
-          cd leo/packages
+          cd leo/package
           cargo test-all-features
 
   codecov:
