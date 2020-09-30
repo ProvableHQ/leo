@@ -39,7 +39,7 @@ impl ImportParser {
         match access {
             PackageAccess::Star(span) => self.parse_import_star(package, span),
             PackageAccess::Symbol(symbol) => self.parse_import_symbol(package, symbol),
-            PackageAccess::SubPackage(package) => self.parse_package(package.path(), package),
+            PackageAccess::SubPackage(sub_package) => self.parse_package(package.path(), sub_package),
             PackageAccess::Multiple(accesses) => {
                 for access in accesses {
                     self.parse_package_access(package, access)?;
