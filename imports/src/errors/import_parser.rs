@@ -40,7 +40,7 @@ impl ImportParserError {
     /// An imported package has the same name as an imported core_package.
     ///
     pub fn conflicting_imports(identifier: Identifier) -> Self {
-        let message = format!("conflicting imports found for `{}`", identifier.name);
+        let message = format!("conflicting imports found for `{}`.", identifier.name);
 
         Self::new_from_span(message, identifier.span)
     }
@@ -49,7 +49,7 @@ impl ImportParserError {
     /// A package name has been imported twice.
     ///
     pub fn duplicate_import(name: String, span: Span) -> Self {
-        let message = format!("Duplicate imports found for `{}`", name);
+        let message = format!("Duplicate imports found for `{}`.", name);
 
         Self::new_from_span(message, span)
     }
@@ -58,17 +58,23 @@ impl ImportParserError {
     /// A core package name has been imported twice.
     ///
     pub fn duplicate_core_package(identifier: Identifier) -> Self {
-        let message = format!("Duplicate core_package import `{}`", identifier.name);
+        let message = format!("Duplicate core_package import `{}`.", identifier.name);
 
         Self::new_from_span(message, identifier.span)
     }
 
+    ///
+    /// Failed to convert a file path into an os string.
+    ///
     pub fn convert_os_string(span: Span) -> Self {
-        let message = format!("failed to convert file string name, maybe an illegal character?");
+        let message = format!("Failed to convert file string name, maybe an illegal character?");
 
         Self::new_from_span(message, span)
     }
 
+    ///
+    /// Failed to find the directory of the current file.
+    ///
     pub fn current_directory_error(error: io::Error) -> Self {
         let span = Span {
             text: "".to_string(),
@@ -76,35 +82,47 @@ impl ImportParserError {
             start: 0,
             end: 0,
         };
-        let message = format!("compilation failed trying to find current directory - {:?}", error);
+        let message = format!("Compilation failed trying to find current directory - {:?}.", error);
 
         Self::new_from_span(message, span)
     }
 
+    ///
+    /// Failed to open or get the name of a directory.
+    ///
     pub fn directory_error(error: io::Error, span: Span, path: PathBuf) -> Self {
-        let message = format!("compilation failed due to directory error - {:?}", error);
+        let message = format!("Compilation failed due to directory error - {:?}.", error);
 
         Self::new_from_span_with_path(message, span, path)
     }
 
+    ///
+    /// Failed to import all symbols at a package path.
+    ///
     pub fn star(path: PathBuf, span: Span) -> Self {
-        let message = format!("cannot import `*` from path `{:?}`", path);
+        let message = format!("Cannot import `*` from path `{:?}`.", path);
 
         Self::new_from_span(message, span)
     }
 
+    ///
+    /// Failed to find a library file for the current package.
+    ///
     pub fn expected_lib_file(entry: String, span: Span) -> Self {
         let message = format!(
-            "expected library file`{}` when looking for symbol `{}`",
+            "Expected library file`{}` when looking for symbol `{}`.",
             entry, span.text
         );
 
         Self::new_from_span(message, span)
     }
 
+    ///
+    /// Failed to import a package name.
+    ///
     pub fn unknown_package(identifier: Identifier) -> Self {
         let message = format!(
-            "cannot find imported package `{}` in source files or import directory",
+            "Cannot find imported package `{}` in source files or import directory.",
             identifier.name
         );
 
