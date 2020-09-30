@@ -24,18 +24,25 @@ static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
 impl ImportParser {
-    // bring one or more import symbols into scope for the current constrained program
-    // we will recursively traverse sub packages here until we find the desired symbol
-    pub fn parse_package_access(&mut self, entry: &DirEntry, access: &PackageAccess) -> Result<(), ImportParserError> {
-        tracing::debug!("import {:?}", entry.path());
+    ///
+    /// Import one or more symbols from a package.
+    ///
+    /// Will recursively traverse sub packages until the desired symbol is found.
+    ///
+    pub fn parse_package_access(
+        &mut self,
+        package: &DirEntry,
+        access: &PackageAccess,
+    ) -> Result<(), ImportParserError> {
+        tracing::debug!("import {:?}", package.path());
 
         match access {
-            PackageAccess::Star(span) => self.parse_import_star(entry, span),
-            PackageAccess::Symbol(symbol) => self.parse_import_symbol(entry, symbol),
-            PackageAccess::SubPackage(package) => self.parse_package(entry.path(), package),
+            PackageAccess::Star(span) => self.parse_import_star(package, span),
+            PackageAccess::Symbol(symbol) => self.parse_import_symbol(package, symbol),
+            PackageAccess::SubPackage(package) => self.parse_package(package.path(), package),
             PackageAccess::Multiple(accesses) => {
                 for access in accesses {
-                    self.parse_package_access(entry, access)?;
+                    self.parse_package_access(package, access)?;
                 }
 
                 Ok(())
@@ -43,6 +50,11 @@ impl ImportParser {
         }
     }
 
+    ///
+    /// Create the typed syntax tree for an imported package.
+    ///
+    /// Inserts the typed syntax tree into the `ImportParser`.
+    ///
     pub fn parse_package(&mut self, mut path: PathBuf, package: &Package) -> Result<(), ImportParserError> {
         let error_path = path.clone();
         let package_name = package.name.clone();
@@ -68,6 +80,7 @@ impl ImportParser {
             path = source_directory
         }
 
+        // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
             .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone()))?
             .into_iter()
@@ -76,6 +89,7 @@ impl ImportParser {
                 ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
             })?;
 
+        // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
             entry
                 .file_name()
@@ -87,9 +101,10 @@ impl ImportParser {
         });
 
         if core_package {
-            // Enforce core library package access
+            // Enforce core package access.
             self.parse_core_package(&package)
         } else if imports_directory.exists() {
+            // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
                 .map_err(|error| {
                     ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
@@ -100,10 +115,12 @@ impl ImportParser {
                     ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
                 })?;
 
+            // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
                 .into_iter()
                 .find(|entry| entry.file_name().into_string().unwrap().eq(&package_name.name));
 
+            // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
                 (Some(_), Some(_)) => Err(ImportParserError::conflicting_imports(package_name)),
                 (Some(source_entry), None) => self.parse_package_access(&source_entry, &package.access),

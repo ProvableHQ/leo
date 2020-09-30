@@ -20,9 +20,13 @@ use leo_typed::Package;
 pub static CORE_PACKAGE_NAME: &str = "core";
 
 impl ImportParser {
-    // import a core package into scope
+    ///
+    /// Import a core package and insert into the `ImportParser`.
+    ///
     pub fn parse_core_package(&mut self, package: &Package) -> Result<(), ImportParserError> {
-        self.insert_core_package(package);
+        // Insert a core package into the `ImportParser`.
+        self.insert_core_package(package)?;
+
         Ok(())
     }
 }

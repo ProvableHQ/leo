@@ -36,8 +36,29 @@ impl ImportParserError {
         ImportParserError::Error(FormattedError::new_from_span_with_path(message, span, path))
     }
 
+    ///
+    /// An imported package has the same name as an imported core_package.
+    ///
     pub fn conflicting_imports(identifier: Identifier) -> Self {
         let message = format!("conflicting imports found for `{}`", identifier.name);
+
+        Self::new_from_span(message, identifier.span)
+    }
+
+    ///
+    /// A package name has been imported twice.
+    ///
+    pub fn duplicate_import(name: String, span: Span) -> Self {
+        let message = format!("Duplicate imports found for `{}`", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// A core package name has been imported twice.
+    ///
+    pub fn duplicate_core_package(identifier: Identifier) -> Self {
+        let message = format!("Duplicate core_package import `{}`", identifier.name);
 
         Self::new_from_span(message, identifier.span)
     }

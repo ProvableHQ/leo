@@ -15,12 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportParserError;
-use leo_typed::{Package, Program};
+use leo_typed::{Package, Program, Span};
 
 use std::{collections::HashMap, env::current_dir};
 
-/// Parses all relevant import files for a program.
-/// Stores compiled program structs.
+/// Stores imported packages.
+///
+/// A program can import one or more packages. A package can be found locally in the source
+/// directory, foreign in the imports directory, or part of the core package list.
 #[derive(Clone)]
 pub struct ImportParser {
     imports: HashMap<String, Program>,
@@ -28,6 +30,9 @@ pub struct ImportParser {
 }
 
 impl ImportParser {
+    ///
+    /// Creates a new empty `ImportParser`.
+    ///
     pub fn new() -> Self {
         Self {
             imports: HashMap::new(),
@@ -35,30 +40,78 @@ impl ImportParser {
         }
     }
 
-    pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
-        // todo: handle conflicting versions for duplicate imports here
-        let _res = self.imports.insert(file_name, program);
+    ///
+    /// Inserts a (file name -> program) pair into the `ImportParser`.
+    ///
+    /// If the map did not have this file name present, `Ok()` is returned.
+    ///
+    /// If the map did have this file name present, a duplicate import error is thrown.
+    ///
+    pub(crate) fn insert_import(
+        &mut self,
+        file_name: String,
+        program: Program,
+        span: &Span,
+    ) -> Result<(), ImportParserError> {
+        // Insert the imported program.
+        let duplicate = self.imports.insert(file_name.clone(), program);
+
+        // Check for duplicate import name.
+        if duplicate.is_some() {
+            return Err(ImportParserError::duplicate_import(file_name, span.clone()));
+        }
+
+        Ok(())
     }
 
-    pub(crate) fn insert_core_package(&mut self, package: &Package) {
-        let _res = self.core_packages.push(package.clone());
+    ///
+    /// Inserts a core package into the `ImportParser`.
+    ///
+    /// If the vector did not have this file_name present, `Ok()` is returned.
+    ///
+    /// If the vector did have this file_name present, a duplicate import error is thrown.
+    ///
+    pub(crate) fn insert_core_package(&mut self, package: &Package) -> Result<(), ImportParserError> {
+        // Check for duplicate core package name.
+        if self.core_packages.contains(package) {
+            return Err(ImportParserError::duplicate_core_package(package.name.clone()));
+        }
+
+        // Append the core package.
+        self.core_packages.push(package.clone());
+
+        Ok(())
     }
 
+    ///
+    /// Returns a reference to the program corresponding to the file name.
+    ///
     pub fn get_import(&self, file_name: &String) -> Option<&Program> {
         self.imports.get(file_name)
     }
 
+    ///
+    /// Returns a reference to the vector of core packages.
+    ///
     pub fn core_packages(&self) -> &Vec<Package> {
         &self.core_packages
     }
 
+    ///
+    /// Returns a new `ImportParser` from a given `Program`.
+    ///
+    /// For every import statement in the program:
+    ///     1. Check if the imported package exists.
+    ///     2. Create the typed syntax tree for the imported package.
+    ///     3. Insert the typed syntax tree into the `ImportParser`
+    ///
     pub fn parse(program: &Program) -> Result<Self, ImportParserError> {
         let mut imports = Self::new();
 
-        // Find all imports relative to current directory
+        // Find all imports relative to current directory.
         let path = current_dir().map_err(|error| ImportParserError::current_directory_error(error))?;
 
-        // Parse each imported file
+        // Parse each import statement.
         program
             .imports
             .iter()
