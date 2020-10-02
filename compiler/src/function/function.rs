@@ -23,7 +23,7 @@ use crate::{
     GroupType,
 };
 
-use leo_typed::{Expression, Function, InputVariable, Span, Type};
+use leo_typed::{Expression, Function, FunctionInput, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.input.clone().iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
-                InputVariable::InputKeyword(identifier) => {
+                FunctionInput::InputKeyword(identifier) => {
                     let input_value = self.enforce_function_input(
                         cs,
                         scope.clone(),
@@ -69,7 +69,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                     (identifier.name.clone(), input_value)
                 }
-                InputVariable::FunctionInput(input_model) => {
+                FunctionInput::Variable(input_model) => {
                     // First evaluate input expression
                     let mut input_value = self.enforce_function_input(
                         cs,

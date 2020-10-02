@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInput, Identifier, Span};
+use crate::{FunctionInputVariable, Identifier, Span};
 use leo_ast::functions::input::Input as AstInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum InputVariable {
+pub enum FunctionInput {
     InputKeyword(Identifier),
-    FunctionInput(FunctionInput),
+    Variable(FunctionInputVariable),
 }
 
-impl<'ast> From<AstInput<'ast>> for InputVariable {
+impl<'ast> From<AstInput<'ast>> for FunctionInput {
     fn from(input: AstInput<'ast>) -> Self {
         match input {
             AstInput::InputKeyword(input_keyword) => {
@@ -35,31 +35,31 @@ impl<'ast> From<AstInput<'ast>> for InputVariable {
                     span: Span::from(input_keyword.span),
                 };
 
-                InputVariable::InputKeyword(id)
+                FunctionInput::InputKeyword(id)
             }
             AstInput::FunctionInput(function_input) => {
-                InputVariable::FunctionInput(FunctionInput::from(function_input))
+                FunctionInput::Variable(FunctionInputVariable::from(function_input))
             }
         }
     }
 }
 
-impl InputVariable {
+impl FunctionInput {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            InputVariable::InputKeyword(id) => write!(f, "{}", id),
-            InputVariable::FunctionInput(function_input) => write!(f, "{}", function_input),
+            FunctionInput::InputKeyword(id) => write!(f, "{}", id),
+            FunctionInput::Variable(function_input) => write!(f, "{}", function_input),
         }
     }
 }
 
-impl fmt::Display for InputVariable {
+impl fmt::Display for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for InputVariable {
+impl fmt::Debug for FunctionInput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

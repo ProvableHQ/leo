@@ -22,8 +22,8 @@ use leo_typed::{
     Expression,
     Function,
     FunctionInput,
+    FunctionInputVariable,
     Identifier,
-    InputVariable,
     IntegerType,
     Span,
     Statement,
@@ -67,7 +67,7 @@ impl CoreCircuit for Blake2sCircuit {
                         span: span.clone(),
                     },
                     input: vec![
-                        InputVariable::FunctionInput(FunctionInput {
+                        FunctionInput::Variable(FunctionInputVariable {
                             identifier: Identifier {
                                 name: "seed".to_owned(),
                                 span: span.clone(),
@@ -76,7 +76,7 @@ impl CoreCircuit for Blake2sCircuit {
                             type_: Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize]),
                             span: span.clone(),
                         }),
-                        InputVariable::FunctionInput(FunctionInput {
+                        FunctionInput::Variable(FunctionInputVariable {
                             identifier: Identifier {
                                 name: "message".to_owned(),
                                 span: span.clone(),

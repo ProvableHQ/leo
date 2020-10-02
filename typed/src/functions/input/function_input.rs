@@ -21,16 +21,16 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FunctionInput {
+pub struct FunctionInputVariable {
     pub identifier: Identifier,
     pub mutable: bool,
     pub type_: Type,
     pub span: Span,
 }
 
-impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
+impl<'ast> From<AstFunctionInput<'ast>> for FunctionInputVariable {
     fn from(parameter: AstFunctionInput<'ast>) -> Self {
-        FunctionInput {
+        FunctionInputVariable {
             identifier: Identifier::from(parameter.identifier),
             mutable: parameter.mutable.is_some(),
             type_: Type::from(parameter.type_),
@@ -39,7 +39,7 @@ impl<'ast> From<AstFunctionInput<'ast>> for FunctionInput {
     }
 }
 
-impl FunctionInput {
+impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: bool
         if self.mutable {
@@ -50,13 +50,13 @@ impl FunctionInput {
     }
 }
 
-impl fmt::Display for FunctionInput {
+impl fmt::Display for FunctionInputVariable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for FunctionInput {
+impl fmt::Debug for FunctionInputVariable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

@@ -1334,6 +1334,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
+ "leo-symbol-table",
  "notify",
  "num-bigint",
  "rand",
@@ -1390,6 +1391,17 @@ dependencies = [
  "snarkos-objects",
  "snarkos-storage",
  "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-symbol-table"
+version = "1.0.3"
+dependencies = [
+ "leo-ast",
+ "leo-imports",
+ "leo-typed",
+ "serde",
  "thiserror",
 ]
 

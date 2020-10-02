@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, InputVariable, Span, Statement, Type};
+use crate::{FunctionInput, Identifier, Span, Statement, Type};
 use leo_ast::functions::Function as AstFunction;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Function {
     pub identifier: Identifier,
-    pub input: Vec<InputVariable>,
+    pub input: Vec<FunctionInput>,
     pub returns: Option<Type>,
     pub statements: Vec<Statement>,
     pub span: Span,
@@ -35,7 +35,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
         let parameters = function
             .parameters
             .into_iter()
-            .map(|parameter| InputVariable::from(parameter))
+            .map(|parameter| FunctionInput::from(parameter))
             .collect();
         let returns = function.returns.map(|type_| Type::from(type_));
         let statements = function
