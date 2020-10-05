@@ -41,9 +41,9 @@ impl<'ast> From<AstCircuit<'ast>> for Circuit {
 
 impl Circuit {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "circuit {} {{ \n", self.circuit_name)?;
+        writeln!(f, "circuit {} {{ ", self.circuit_name)?;
         for field in self.members.iter() {
-            write!(f, "    {}\n", field)?;
+            writeln!(f, "    {}", field)?;
         }
         write!(f, "}}")
     }

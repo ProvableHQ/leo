@@ -47,9 +47,9 @@ impl fmt::Display for ConditionalNestedOrEndStatement {
         match *self {
             ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
             ConditionalNestedOrEndStatement::End(ref statements) => {
-                write!(f, "else {{\n")?;
+                writeln!(f, "else {{")?;
                 for statement in statements.iter() {
-                    write!(f, "\t\t{}\n", statement)?;
+                    writeln!(f, "\t\t{}", statement)?;
                 }
                 write!(f, "\t}}")
             }

@@ -46,9 +46,9 @@ impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
 
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {{\n", self.condition)?;
+        writeln!(f, "if ({}) {{", self.condition)?;
         for statement in self.statements.iter() {
-            write!(f, "\t\t{}\n", statement)?;
+            writeln!(f, "\t\t{}", statement)?;
         }
         match self.next.clone() {
             Some(n_or_e) => write!(f, "\t}} {}", n_or_e),

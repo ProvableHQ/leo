@@ -204,9 +204,9 @@ impl fmt::Display for Statement {
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
             Statement::Iteration(ref var, ref start, ref stop, ref list, ref _span) => {
-                write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
+                writeln!(f, "for {} in {}..{} {{", var, start, stop)?;
                 for l in list {
-                    write!(f, "\t\t{}\n", l)?;
+                    writeln!(f, "\t\t{}", l)?;
                 }
                 write!(f, "\t}}")
             }
