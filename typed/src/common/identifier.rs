@@ -32,14 +32,14 @@ use serde::{
     Serialize,
     Serializer,
 };
-use std::{collections::BTreeMap, fmt};
+use std::{collections::BTreeMap, fmt, hash::{Hash, Hasher}};
 
 /// An identifier in the constrained program.
 ///
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update it's Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone, Hash)]
+#[derive(Clone)]
 pub struct Identifier {
     pub name: String,
     pub span: Span,
@@ -160,6 +160,12 @@ impl PartialEq for Identifier {
 }
 
 impl Eq for Identifier {}
+
+impl Hash for Identifier {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
 
 impl Serialize for Identifier {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
