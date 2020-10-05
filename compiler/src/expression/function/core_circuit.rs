@@ -72,6 +72,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        return Ok(return_value);
+        Ok(return_value)
     }
 }

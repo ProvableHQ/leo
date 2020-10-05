@@ -213,7 +213,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 Ok((outer_scope, function.clone()))
             }
             ConstrainedValue::Import(import_scope, function) => function.extract_function(import_scope, span),
-            value => return Err(ExpressionError::undefined_function(value.to_string(), span)),
+            value => Err(ExpressionError::undefined_function(value.to_string(), span)),
         }
     }
 
@@ -221,7 +221,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         match self {
             ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit),
             ConstrainedValue::Import(_import_scope, circuit) => circuit.extract_circuit(span),
-            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
+            value => Err(ExpressionError::undefined_circuit(value.to_string(), span)),
         }
     }
 
@@ -413,7 +413,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
                 }
                 Ok(())
             }
-            (_, _) => return Err(SynthesisError::Unsatisfiable),
+            (_, _) => Err(SynthesisError::Unsatisfiable),
         }
     }
 

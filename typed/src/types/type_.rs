@@ -111,7 +111,7 @@ fn expand_array_type(type_: &Type, dimensions: &Vec<usize>) -> (Type, Vec<usize>
         let mut expanded_dimensions = dimensions.clone();
         expanded_dimensions.append(&mut nested_dimensions.clone());
 
-        return expand_array_type(nested_type, &expanded_dimensions);
+        expand_array_type(nested_type, &expanded_dimensions)
     } else {
         // Array type is fully expanded
         (type_.clone(), dimensions.clone())

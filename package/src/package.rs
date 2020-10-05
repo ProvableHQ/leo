@@ -86,7 +86,7 @@ impl Package {
             tracing::error!("File(s) {:?} already exist", existing_files);
         }
 
-        return result;
+        result
     }
 
     /// Returns `true` if a package is initialized at the given path
@@ -120,7 +120,7 @@ impl Package {
             }
         }
 
-        return true;
+        true
     }
 
     /// Creates a package at the given path

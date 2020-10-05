@@ -143,13 +143,13 @@ impl EdwardsGroupType {
 
     pub fn edwards_affine_from_single(number: String, span: Span) -> Result<EdwardsAffine, GroupError> {
         if number.eq("0") {
-            return Ok(EdwardsAffine::zero());
+            Ok(EdwardsAffine::zero())
         } else {
             let one = edwards_affine_one();
             let number_value = Fp256::from_str(&number).map_err(|_| GroupError::n_group(number, span))?;
             let result: EdwardsAffine = one.mul(&number_value);
 
-            return Ok(result);
+            Ok(result)
         }
     }
 
