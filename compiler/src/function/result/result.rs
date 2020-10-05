@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<(), StatementError> {
         // if there are no results, continue
-        if results.len() == 0 {
+        if results.is_empty() {
             return Ok(());
         }
 

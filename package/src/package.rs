@@ -82,7 +82,7 @@ impl Package {
             }
         }
 
-        if existing_files.len() > 0 {
+        if !existing_files.is_empty() {
             tracing::error!("File(s) {:?} already exist", existing_files);
         }
 
