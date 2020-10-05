@@ -50,9 +50,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        format!(
-            r#"outputs/
-"#,
-        )
+        "outputs/\n".to_string()
     }
 }

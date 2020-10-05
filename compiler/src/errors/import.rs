@@ -48,7 +48,7 @@ impl ImportError {
     }
 
     pub fn convert_os_string(span: Span) -> Self {
-        let message = format!("failed to convert file string name, maybe an illegal character?");
+        let message = "failed to convert file string name, maybe an illegal character?".to_string();
 
         Self::new_from_span(message, span)
     }

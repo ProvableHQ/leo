@@ -88,7 +88,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::binary_operation(format!("+"), e, span))?;
+                .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(result))
             }
@@ -98,7 +98,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(
                     allocated_value
                         .add_constant(cs, constant_value)
-                        .map_err(|e| GroupError::binary_operation(format!("+"), e, span))?,
+                        .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?,
                 ))
             }
         }
@@ -116,7 +116,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::binary_operation(format!("-"), e, span))?;
+                .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(result))
             }
@@ -126,7 +126,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(
                     allocated_value
                         .sub_constant(cs, constant_value)
-                        .map_err(|e| GroupError::binary_operation(format!("-"), e, span))?,
+                        .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?,
                 ))
             }
         }
@@ -294,10 +294,10 @@ impl EdwardsGroupType {
                 let x_value = allocated.x.get_value();
                 let y_value = allocated.y.get_value();
 
-                let x_allocated = FpGadget::alloc(cs.ns(|| format!("x")), || {
+                let x_allocated = FpGadget::alloc(cs.ns(|| "x"), || {
                     x_value.ok_or(SynthesisError::AssignmentMissing)
                 })?;
-                let y_allocated = FpGadget::alloc(cs.ns(|| format!("y")), || {
+                let y_allocated = FpGadget::alloc(cs.ns(|| "y"), || {
                     y_value.ok_or(SynthesisError::AssignmentMissing)
                 })?;
 

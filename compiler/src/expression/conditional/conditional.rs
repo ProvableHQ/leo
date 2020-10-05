@@ -74,6 +74,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         });
 
         ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))
+            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span))
     }
 }
