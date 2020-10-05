@@ -29,7 +29,7 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-static SELF_KEYWORD: &'static str = "self";
+static SELF_KEYWORD: &str = "self";
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(

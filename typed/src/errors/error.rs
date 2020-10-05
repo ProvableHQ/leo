@@ -18,7 +18,7 @@ use crate::Span;
 
 use std::{fmt, path::PathBuf};
 
-pub const INDENT: &'static str = "    ";
+pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
 ///     --> file.leo 2:8
