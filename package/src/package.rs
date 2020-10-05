@@ -129,7 +129,7 @@ impl Package {
         {
             if !Self::can_initialize(package_name, is_lib, path) {
                 return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
+                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()),
                 );
             }
         }
@@ -175,7 +175,7 @@ impl Package {
         {
             if !Self::is_initialized(package_name, is_lib, path) {
                 return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
+                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()),
                 );
             }
         }
