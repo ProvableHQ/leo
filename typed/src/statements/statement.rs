@@ -147,7 +147,7 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
             statement
                 .statements
                 .into_iter()
-                .map(|statement| Statement::from(statement))
+                .map(Statement::from)
                 .collect(),
             Span::from(statement.span),
         )

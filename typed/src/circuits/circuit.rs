@@ -32,7 +32,7 @@ impl<'ast> From<AstCircuit<'ast>> for Circuit {
         let members = circuit
             .members
             .into_iter()
-            .map(|member| CircuitMember::from(member))
+            .map(CircuitMember::from)
             .collect();
 
         Self { circuit_name, members }

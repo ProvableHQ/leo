@@ -53,7 +53,7 @@ impl ImportParser {
         let mut imports = Self::new();
 
         // Find all imports relative to current directory
-        let path = current_dir().map_err(|error| ImportError::current_directory_error(error))?;
+        let path = current_dir().map_err(ImportError::current_directory_error)?;
 
         // Parse each imported file
         program

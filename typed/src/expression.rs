@@ -170,7 +170,7 @@ impl<'ast> Expression {
             InputArrayDimensions::Multiple(multiple) => multiple
                 .numbers
                 .into_iter()
-                .map(|number| Self::get_count_from_input_ast(number))
+                .map(Self::get_count_from_input_ast)
                 .collect(),
         }
     }
@@ -188,7 +188,7 @@ impl<'ast> Expression {
             ArrayDimensions::Multiple(multiple) => multiple
                 .numbers
                 .into_iter()
-                .map(|number| Self::get_count_from_ast(number))
+                .map(Self::get_count_from_ast)
                 .collect(),
         }
     }
@@ -301,7 +301,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
         let members = expression
             .members
             .into_iter()
-            .map(|member| CircuitVariableDefinition::from(member))
+            .map(CircuitVariableDefinition::from)
             .collect::<Vec<CircuitVariableDefinition>>();
 
         Expression::Circuit(circuit_name, members, Span::from(expression.span))
@@ -343,7 +343,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                             .expressions
                             .expressions
                             .into_iter()
-                            .map(|expression| Expression::from(expression))
+                            .map(Expression::from)
                             .collect(),
                         span,
                     )
@@ -506,7 +506,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
             array
                 .expressions
                 .into_iter()
-                .map(|s_or_e| SpreadOrExpression::from(s_or_e))
+                .map(SpreadOrExpression::from)
                 .collect(),
             Span::from(array.span),
         )
@@ -543,7 +543,7 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
 impl<'ast> From<TupleExpression<'ast>> for Expression {
     fn from(tuple: TupleExpression<'ast>) -> Self {
         Expression::Tuple(
-            tuple.expressions.into_iter().map(|e| Expression::from(e)).collect(),
+            tuple.expressions.into_iter().map(Expression::from).collect(),
             Span::from(tuple.span),
         )
     }

@@ -143,7 +143,7 @@ impl<'ast> From<ArrayType<'ast>> for Type {
 
 impl<'ast> From<TupleType<'ast>> for Type {
     fn from(tuple_type: TupleType<'ast>) -> Self {
-        let types = tuple_type.types.into_iter().map(|type_| Type::from(type_)).collect();
+        let types = tuple_type.types.into_iter().map(Type::from).collect();
 
         Type::Tuple(types)
     }
@@ -192,7 +192,7 @@ impl<'ast> From<InputArrayType<'ast>> for Type {
 
 impl<'ast> From<InputTupleType<'ast>> for Type {
     fn from(tuple_type: InputTupleType<'ast>) -> Self {
-        let types = tuple_type.types_.into_iter().map(|type_| Type::from(type_)).collect();
+        let types = tuple_type.types_.into_iter().map(Type::from).collect();
 
         Type::Tuple(types)
     }

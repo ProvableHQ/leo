@@ -35,7 +35,7 @@ impl<'ast> From<AstConditionalNestedOrEndStatement<'ast>> for ConditionalNestedO
             AstConditionalNestedOrEndStatement::End(statements) => ConditionalNestedOrEndStatement::End(
                 statements
                     .into_iter()
-                    .map(|statement| Statement::from(statement))
+                    .map(Statement::from)
                     .collect(),
             ),
         }

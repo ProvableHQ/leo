@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Convert the core function returns into constrained values
         let returns = res
             .into_iter()
-            .map(|value| ConstrainedValue::from(value))
+            .map(ConstrainedValue::from)
             .collect::<Vec<_>>();
 
         let return_value = if returns.len() == 1 {

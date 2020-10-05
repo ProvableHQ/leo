@@ -141,7 +141,7 @@ impl CoreCircuit for Blake2sCircuit {
             .to_bytes(cs)
             .map_err(|e| CoreCircuitError::cannot_enforce("Vec<UInt8> ToBytes".to_owned(), e, span.clone()))?;
 
-        let return_value = bytes.into_iter().map(|byte| Value::U8(byte)).collect();
+        let return_value = bytes.into_iter().map(Value::U8).collect();
 
         // Return one array digest value
         Ok(vec![Value::Array(return_value)])

@@ -31,8 +31,8 @@ impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
             AstRangeOrExpression::Range(range) => RangeOrExpression::Range(
-                range.from.map(|expression| Expression::from(expression)),
-                range.to.map(|expression| Expression::from(expression)),
+                range.from.map(Expression::from),
+                range.to.map(Expression::from),
             ),
             AstRangeOrExpression::Expression(expression) => RangeOrExpression::Expression(Expression::from(expression)),
         }

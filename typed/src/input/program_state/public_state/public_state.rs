@@ -25,6 +25,7 @@ pub struct PublicState {
     state: State,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl PublicState {
     pub fn new() -> Self {
         Self::default()

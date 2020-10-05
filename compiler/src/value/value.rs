@@ -548,13 +548,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> From<Value> for ConstrainedValue<F,
             Value::Array(array) => ConstrainedValue::Array(
                 array
                     .into_iter()
-                    .map(|element| ConstrainedValue::from(element))
+                    .map(ConstrainedValue::from)
                     .collect(),
             ),
             Value::Tuple(tuple) => ConstrainedValue::Tuple(
                 tuple
                     .into_iter()
-                    .map(|element| ConstrainedValue::from(element))
+                    .map(ConstrainedValue::from)
                     .collect(),
             ),
         }

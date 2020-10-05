@@ -35,13 +35,13 @@ impl<'ast> From<AstFunction<'ast>> for Function {
         let parameters = function
             .parameters
             .into_iter()
-            .map(|parameter| InputVariable::from(parameter))
+            .map(InputVariable::from)
             .collect();
-        let returns = function.returns.map(|type_| Type::from(type_));
+        let returns = function.returns.map(Type::from);
         let statements = function
             .statements
             .into_iter()
-            .map(|statement| Statement::from(statement))
+            .map(Statement::from)
             .collect();
 
         Function {

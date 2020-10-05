@@ -32,10 +32,10 @@ impl<'ast> From<AstVariables<'ast>> for Variables {
         let names = variables
             .names
             .into_iter()
-            .map(|x| VariableName::from(x))
+            .map(VariableName::from)
             .collect::<Vec<_>>();
 
-        let type_ = variables.type_.map(|type_| Type::from(type_));
+        let type_ = variables.type_.map(Type::from);
 
         Self { names, type_ }
     }

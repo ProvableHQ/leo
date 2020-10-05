@@ -34,7 +34,7 @@ impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
             statements: statement
                 .statements
                 .into_iter()
-                .map(|statement| Statement::from(statement))
+                .map(Statement::from)
                 .collect(),
             next: statement
                 .next

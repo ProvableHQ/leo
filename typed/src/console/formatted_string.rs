@@ -35,12 +35,12 @@ impl<'ast> From<AstFormattedString<'ast>> for FormattedString {
         let containers = formatted
             .containers
             .into_iter()
-            .map(|container| FormattedContainer::from(container))
+            .map(FormattedContainer::from)
             .collect();
         let parameters = formatted
             .parameters
             .into_iter()
-            .map(|parameter| FormattedParameter::from(parameter))
+            .map(FormattedParameter::from)
             .collect();
 
         Self {

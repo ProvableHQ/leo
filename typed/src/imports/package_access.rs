@@ -35,7 +35,7 @@ impl<'ast> From<AstPackageAccess<'ast>> for PackageAccess {
             AstPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
             AstPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
             AstPackageAccess::Multiple(accesses) => {
-                PackageAccess::Multiple(accesses.into_iter().map(|access| PackageAccess::from(access)).collect())
+                PackageAccess::Multiple(accesses.into_iter().map(PackageAccess::from).collect())
             }
         }
     }

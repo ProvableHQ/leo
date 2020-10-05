@@ -43,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if identifier.is_self() {
                     let circuit = self
                         .get(&file_scope)
-                        .ok_or(ExpressionError::self_keyword(identifier.span))?;
+                        .ok_or_else(|| ExpressionError::self_keyword(identifier.span))?;
 
                     circuit.to_owned()
                 } else {
