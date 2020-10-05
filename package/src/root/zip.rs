@@ -150,23 +150,23 @@ impl ZipFile {
 /// Check if the file path should be included in the package zip file.
 fn is_included(path: &Path) -> bool {
     // excluded directories: `input`, `output`, `imports`
-    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
+    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches('/'))
+        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches('/'))
+        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches('/'))
     {
         return false;
     }
 
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     if let Some(true) = path.extension().map(|ext| {
-        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
+        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches('.'))
     }) {
         return false;
     }
@@ -177,12 +177,12 @@ fn is_included(path: &Path) -> bool {
     }
 
     // Only allow additional files in the `src/` directory
-    if !path.starts_with(SOURCE_DIRECTORY_NAME.trim_end_matches("/")) {
+    if !path.starts_with(SOURCE_DIRECTORY_NAME.trim_end_matches('/')) {
         return false;
     }
 
     // Allow the `.leo` files in the `src/` directory
     path.extension()
-        .map(|ext| ext.eq(SOURCE_FILE_EXTENSION.trim_start_matches(".")))
+        .map(|ext| ext.eq(SOURCE_FILE_EXTENSION.trim_start_matches('.')))
         .unwrap_or(false)
 }
