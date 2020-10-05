@@ -71,7 +71,7 @@ impl CorePackage {
             let span = circuit.span.clone();
 
             // take the alias if it is present
-            let id = circuit.alias.clone().unwrap_or(circuit.symbol.clone());
+            let id = circuit.alias.clone().unwrap_or_else(|| circuit.symbol.clone());
             let name = id.name.clone();
 
             let circuit = if self.unstable {

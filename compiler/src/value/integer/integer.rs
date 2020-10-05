@@ -378,7 +378,7 @@ impl Integer {
 
         let result = match_signed_integer!(a, s => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or(IntegerError::negate_operation(span))
+        result.ok_or_else(|| IntegerError::negate_operation(span))
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(

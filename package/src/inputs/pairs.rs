@@ -53,9 +53,9 @@ impl TryFrom<&PathBuf> for InputPairs {
 
             let file_name = file
                 .file_stem()
-                .ok_or(InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?
+                .ok_or_else(|| InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?
                 .to_str()
-                .ok_or(InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?;
+                .ok_or_else(|| InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?;
 
             if file_extension == INPUT_FILE_EXTENSION.trim_start_matches('.') {
                 let input_file = InputFile::new(file_name).read_from(&file)?.0;

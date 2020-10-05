@@ -80,7 +80,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             };
 
             // take the alias if it is present
-            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
+            let id = symbol.alias.clone().unwrap_or_else(|| symbol.symbol.clone());
             let name = new_scope(scope, id.to_string());
 
             // store imported circuit under imported name

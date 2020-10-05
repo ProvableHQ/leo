@@ -239,7 +239,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             }
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
-                let name = option.map(|b| b.to_string()).unwrap_or("[allocated]".to_string());
+                let name = option.map(|b| b.to_string()).unwrap_or_else(|| "[allocated]".to_string());
 
                 *boolean = allocate_bool(&mut cs, name, option, span)?;
             }
@@ -256,7 +256,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Integer(integer) => {
                 let integer_type = integer.get_type();
                 let option = integer.get_value();
-                let name = option.clone().unwrap_or("[allocated]".to_string());
+                let name = option.clone().unwrap_or_else(|| "[allocated]".to_string());
 
                 *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
             }
@@ -328,7 +328,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 value
                     .get_value()
                     .map(|v| v.to_string())
-                    .unwrap_or("[allocated]".to_string())
+                    .unwrap_or_else(|| "[allocated]".to_string())
             ),
             ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),

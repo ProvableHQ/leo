@@ -201,7 +201,7 @@ impl EdwardsGroupType {
         let x = Fq::from_str(&x_string).map_err(|_| GroupError::x_invalid(x_string, x_span))?;
         match greatest {
             // Sign provided
-            Some(greatest) => EdwardsAffine::from_x_coordinate(x, greatest).ok_or(GroupError::x_recover(element_span)),
+            Some(greatest) => EdwardsAffine::from_x_coordinate(x, greatest).ok_or_else(|| GroupError::x_recover(element_span)),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
@@ -230,7 +230,7 @@ impl EdwardsGroupType {
 
         match greatest {
             // Sign provided
-            Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest).ok_or(GroupError::y_recover(element_span)),
+            Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest).ok_or_else(|| GroupError::y_recover(element_span)),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.

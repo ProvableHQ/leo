@@ -28,7 +28,7 @@ fn indicator_to_string(indicator: &Boolean) -> String {
     indicator
         .get_value()
         .map(|b| b.to_string())
-        .unwrap_or("[input]".to_string())
+        .unwrap_or_else(|| "[input]".to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
