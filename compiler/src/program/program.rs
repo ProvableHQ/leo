@@ -27,6 +27,14 @@ pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
     pub identifiers: HashMap<String, ConstrainedValue<F, G>>,
 }
 
+impl<F: Field + PrimeField, G: GroupType<F>> Default for ConstrainedProgram<F, G> {
+    fn default() -> Self {
+        Self {
+            identifiers: HashMap::new(),
+        }
+    }
+}
+
 pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
@@ -37,9 +45,7 @@ pub fn is_in_scope(current_scope: &String, desired_scope: &String) -> bool {
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn new() -> Self {
-        Self {
-            identifiers: HashMap::new(),
-        }
+        Self::default()
     }
 
     pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<F, G>) {

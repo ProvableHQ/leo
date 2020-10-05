@@ -20,7 +20,7 @@ use leo_input::{
     InputParserError,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramInput {
     pub main: MainInput,
     registers: Registers,
@@ -28,10 +28,7 @@ pub struct ProgramInput {
 
 impl ProgramInput {
     pub fn new() -> Self {
-        Self {
-            main: MainInput::new(),
-            registers: Registers::new(),
-        }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.

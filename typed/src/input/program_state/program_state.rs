@@ -20,7 +20,7 @@ use leo_input::{
     InputParserError,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramState {
     public: PublicState,
     private: PrivateState,
@@ -28,10 +28,7 @@ pub struct ProgramState {
 
 impl ProgramState {
     pub fn new() -> Self {
-        Self {
-            public: PublicState::new(),
-            private: PrivateState::new(),
-        }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.

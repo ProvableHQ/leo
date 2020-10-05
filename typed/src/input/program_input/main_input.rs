@@ -18,14 +18,14 @@ use crate::InputValue;
 use leo_input::{definitions::Definition, InputParserError};
 use std::collections::HashMap;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct MainInput {
     input: HashMap<String, Option<InputValue>>,
 }
 
 impl MainInput {
     pub fn new() -> Self {
-        Self { input: HashMap::new() }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.

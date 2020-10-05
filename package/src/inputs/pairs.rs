@@ -21,6 +21,7 @@ use crate::{
 
 use std::{collections::HashMap, convert::TryFrom, path::PathBuf};
 
+#[derive(Default)]
 pub struct InputPairs {
     /// Maps file names to input file pairs
     pub pairs: HashMap<String, InputPair>,
@@ -33,7 +34,7 @@ pub struct InputPair {
 
 impl InputPairs {
     pub fn new() -> Self {
-        Self { pairs: HashMap::new() }
+        Self::default()
     }
 }
 

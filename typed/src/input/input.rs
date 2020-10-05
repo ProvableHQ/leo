@@ -27,13 +27,19 @@ pub struct Input {
     program_state: ProgramState,
 }
 
-impl Input {
-    pub fn new() -> Self {
+impl Default for Input {
+    fn default() -> Self {
         Self {
             name: "default".to_owned(),
             program_input: ProgramInput::new(),
             program_state: ProgramState::new(),
         }
+    }
+}
+
+impl Input {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.
