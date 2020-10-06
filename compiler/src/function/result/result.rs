@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // If all indicators are none, then there are no branch conditions in the function.
         // We simply return the last result.
 
-        if let None = results.iter().find(|(indicator, _res)| indicator.is_some()) {
+        if results.iter().all(|(indicator, _res)| indicator.is_none()) {
             let result = &results[results.len() - 1].1;
 
             *return_value = result.clone();
