@@ -95,6 +95,7 @@ impl Input {
     }
 
     /// Returns the main function input value with the given `name`
+    #[allow(clippy::ptr_arg)]
     pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.program_input.get(name)
     }
