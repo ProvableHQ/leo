@@ -144,11 +144,7 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
             Identifier::from(statement.index),
             Box::new(Expression::from(statement.start)),
             Box::new(Expression::from(statement.stop)),
-            statement
-                .statements
-                .into_iter()
-                .map(Statement::from)
-                .collect(),
+            statement.statements.into_iter().map(Statement::from).collect(),
             Span::from(statement.span),
         )
     }

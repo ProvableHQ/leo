@@ -32,16 +32,8 @@ impl<'ast> From<AstFormattedString<'ast>> for FormattedString {
     fn from(formatted: AstFormattedString<'ast>) -> Self {
         let string = formatted.string;
         let span = Span::from(formatted.span);
-        let containers = formatted
-            .containers
-            .into_iter()
-            .map(FormattedContainer::from)
-            .collect();
-        let parameters = formatted
-            .parameters
-            .into_iter()
-            .map(FormattedParameter::from)
-            .collect();
+        let containers = formatted.containers.into_iter().map(FormattedContainer::from).collect();
+        let parameters = formatted.parameters.into_iter().map(FormattedParameter::from).collect();
 
         Self {
             string,

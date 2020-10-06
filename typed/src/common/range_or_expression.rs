@@ -30,10 +30,9 @@ pub enum RangeOrExpression {
 impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
-            AstRangeOrExpression::Range(range) => RangeOrExpression::Range(
-                range.from.map(Expression::from),
-                range.to.map(Expression::from),
-            ),
+            AstRangeOrExpression::Range(range) => {
+                RangeOrExpression::Range(range.from.map(Expression::from), range.to.map(Expression::from))
+            }
             AstRangeOrExpression::Expression(expression) => RangeOrExpression::Expression(Expression::from(expression)),
         }
     }

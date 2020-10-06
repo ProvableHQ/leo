@@ -32,7 +32,11 @@ use serde::{
     Serialize,
     Serializer,
 };
-use std::{collections::BTreeMap, fmt, hash::{Hash, Hasher}};
+use std::{
+    collections::BTreeMap,
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// An identifier in the constrained program.
 ///

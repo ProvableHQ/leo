@@ -50,10 +50,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let res = call_core_circuit(cs, core_circuit, argument_values, span.clone())?;
 
         // Convert the core function returns into constrained values
-        let returns = res
-            .into_iter()
-            .map(ConstrainedValue::from)
-            .collect::<Vec<_>>();
+        let returns = res.into_iter().map(ConstrainedValue::from).collect::<Vec<_>>();
 
         let return_value = if returns.len() == 1 {
             // The function has a single return

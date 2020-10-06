@@ -50,13 +50,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     self.evaluate_identifier(file_scope, function_scope, expected_type, identifier)?
                 }
             }
-            expression => self.enforce_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                expression,
-            )?,
+            expression => self.enforce_expression(cs, file_scope, function_scope, expected_type, expression)?,
         }
         .extract_circuit(span.clone())?;
 

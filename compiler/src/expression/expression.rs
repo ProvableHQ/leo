@@ -165,67 +165,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(enforce_and(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Eq(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_eq(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Ge(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_ge(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Gt(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_gt(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Le(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_le(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Lt(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_lt(cs, resolved_left, resolved_right, span)?)
             }

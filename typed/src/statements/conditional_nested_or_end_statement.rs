@@ -32,12 +32,9 @@ impl<'ast> From<AstConditionalNestedOrEndStatement<'ast>> for ConditionalNestedO
             AstConditionalNestedOrEndStatement::Nested(nested) => {
                 ConditionalNestedOrEndStatement::Nested(Box::new(ConditionalStatement::from(*nested)))
             }
-            AstConditionalNestedOrEndStatement::End(statements) => ConditionalNestedOrEndStatement::End(
-                statements
-                    .into_iter()
-                    .map(Statement::from)
-                    .collect(),
-            ),
+            AstConditionalNestedOrEndStatement::End(statements) => {
+                ConditionalNestedOrEndStatement::End(statements.into_iter().map(Statement::from).collect())
+            }
         }
     }
 }

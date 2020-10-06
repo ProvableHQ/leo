@@ -239,7 +239,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             }
             ConstrainedValue::Boolean(boolean) => {
                 let option = boolean.get_value();
-                let name = option.map(|b| b.to_string()).unwrap_or_else(|| "[allocated]".to_string());
+                let name = option
+                    .map(|b| b.to_string())
+                    .unwrap_or_else(|| "[allocated]".to_string());
 
                 *boolean = allocate_bool(&mut cs, name, option, span)?;
             }
@@ -545,18 +547,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> From<Value> for ConstrainedValue<F,
             Value::I64(i64) => ConstrainedValue::Integer(Integer::I64(i64)),
             Value::I128(i128) => ConstrainedValue::Integer(Integer::I128(i128)),
 
-            Value::Array(array) => ConstrainedValue::Array(
-                array
-                    .into_iter()
-                    .map(ConstrainedValue::from)
-                    .collect(),
-            ),
-            Value::Tuple(tuple) => ConstrainedValue::Tuple(
-                tuple
-                    .into_iter()
-                    .map(ConstrainedValue::from)
-                    .collect(),
-            ),
+            Value::Array(array) => ConstrainedValue::Array(array.into_iter().map(ConstrainedValue::from).collect()),
+            Value::Tuple(tuple) => ConstrainedValue::Tuple(tuple.into_iter().map(ConstrainedValue::from).collect()),
         }
     }
 }

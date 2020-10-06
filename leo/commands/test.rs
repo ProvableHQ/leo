@@ -92,11 +92,8 @@ impl CLI for TestCommand {
         let start = Instant::now();
 
         // Parse the current main program file
-        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
-            package_name,
-            file_path,
-            output_directory,
-        )?;
+        let program =
+            Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(package_name, file_path, output_directory)?;
 
         // Parse all inputs as input pairs
         let pairs = InputPairs::try_from(&package_path)?;

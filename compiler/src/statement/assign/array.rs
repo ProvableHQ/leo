@@ -76,13 +76,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(self.enforce_index(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        integer,
-                        span.clone(),
-                    )?),
+                    Some(integer) => Some(self.enforce_index(cs, file_scope, function_scope, integer, span.clone())?),
                     None => None,
                 };
 

@@ -128,9 +128,10 @@ impl Package {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -174,9 +175,10 @@ impl Package {
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
 

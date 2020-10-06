@@ -31,11 +31,7 @@ impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
     fn from(statement: AstConditionalStatement<'ast>) -> Self {
         ConditionalStatement {
             condition: Expression::from(statement.condition),
-            statements: statement
-                .statements
-                .into_iter()
-                .map(Statement::from)
-                .collect(),
+            statements: statement.statements.into_iter().map(Statement::from).collect(),
             next: statement
                 .next
                 .map(|n_or_e| Some(ConditionalNestedOrEndStatement::from(n_or_e)))

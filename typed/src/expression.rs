@@ -185,11 +185,7 @@ impl<'ast> Expression {
     pub(crate) fn get_array_dimensions(dimensions: ArrayDimensions<'ast>) -> Vec<usize> {
         match dimensions {
             ArrayDimensions::Single(single) => vec![Self::get_count_from_ast(single.number)],
-            ArrayDimensions::Multiple(multiple) => multiple
-                .numbers
-                .into_iter()
-                .map(Self::get_count_from_ast)
-                .collect(),
+            ArrayDimensions::Multiple(multiple) => multiple.numbers.into_iter().map(Self::get_count_from_ast).collect(),
         }
     }
 }
@@ -503,11 +499,7 @@ impl<'ast> From<TernaryExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
     fn from(array: ArrayInlineExpression<'ast>) -> Self {
         Expression::Array(
-            array
-                .expressions
-                .into_iter()
-                .map(SpreadOrExpression::from)
-                .collect(),
+            array.expressions.into_iter().map(SpreadOrExpression::from).collect(),
             Span::from(array.span),
         )
     }
@@ -527,10 +519,8 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
             if i == 0 {
                 elements = vec![expression.clone(); dimension];
             } else {
-                let element = SpreadOrExpression::Expression(Expression::Array(
-                    elements,
-                    Span::from(array.span.clone()),
-                ));
+                let element =
+                    SpreadOrExpression::Expression(Expression::Array(elements, Span::from(array.span.clone())));
 
                 elements = vec![element; dimension];
             }

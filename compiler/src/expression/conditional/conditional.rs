@@ -58,14 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             span.clone(),
         )?;
 
-        let second_value = self.enforce_operand(
-            cs,
-            file_scope,
-            function_scope,
-            expected_type,
-            second,
-            span.clone(),
-        )?;
+        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span.clone())?;
 
         let unique_namespace = cs.ns(|| {
             format!(
