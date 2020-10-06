@@ -61,7 +61,7 @@ impl MainInput {
     }
 
     /// Returns an `Option` of the main function input at `name`
-    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
         self.input.get(name).map(|input| input.clone())
     }
 }

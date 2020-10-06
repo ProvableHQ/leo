@@ -41,7 +41,7 @@ impl ImportParser {
         let _res = self.core_packages.push(package.clone());
     }
 
-    pub fn get_import(&self, file_name: &String) -> Option<&Program> {
+    pub fn get_import(&self, file_name: &str) -> Option<&Program> {
         self.imports.get(file_name)
     }
 

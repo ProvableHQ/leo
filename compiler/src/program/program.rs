@@ -39,7 +39,7 @@ pub fn new_scope(outer: String, inner: String) -> String {
     format!("{}_{}", outer, inner)
 }
 
-pub fn is_in_scope(current_scope: &String, desired_scope: &String) -> bool {
+pub fn is_in_scope(current_scope: &str, desired_scope: &str) -> bool {
     current_scope.ends_with(desired_scope)
 }
 
@@ -52,11 +52,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &String) -> Option<&ConstrainedValue<F, G>> {
+    pub(crate) fn get(&self, name: &str) -> Option<&ConstrainedValue<F, G>> {
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &String) -> Option<&mut ConstrainedValue<F, G>> {
+    pub(crate) fn get_mut(&mut self, name: &str) -> Option<&mut ConstrainedValue<F, G>> {
         self.identifiers.get_mut(name)
     }
 }

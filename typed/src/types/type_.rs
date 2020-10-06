@@ -78,7 +78,7 @@ impl Type {
         type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
     }
 
-    pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn outer_dimension(&self, dimensions: &[usize]) -> Self {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
@@ -91,7 +91,7 @@ impl Type {
         type_
     }
 
-    pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn inner_dimension(&self, dimensions: &[usize]) -> Self {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
@@ -105,16 +105,16 @@ impl Type {
     }
 }
 
-fn expand_array_type(type_: &Type, dimensions: &Vec<usize>) -> (Type, Vec<usize>) {
+fn expand_array_type(type_: &Type, dimensions: &[usize]) -> (Type, Vec<usize>) {
     if let Type::Array(nested_type, nested_dimensions) = type_ {
         // Expand nested array type
-        let mut expanded_dimensions = dimensions.clone();
+        let mut expanded_dimensions = dimensions.to_vec();
         expanded_dimensions.append(&mut nested_dimensions.clone());
 
         expand_array_type(nested_type, &expanded_dimensions)
     } else {
         // Array type is fully expanded
-        (type_.clone(), dimensions.clone())
+        (type_.clone(), dimensions.to_vec())
     }
 }
 
