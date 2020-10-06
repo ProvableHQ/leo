@@ -402,13 +402,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Constrai
                 num_1.conditional_enforce_equal(cs, num_2, condition)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
-                for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
+                for (i, (left, right)) in arr_1.iter().zip(arr_2.iter()).enumerate() {
                     left.conditional_enforce_equal(cs.ns(|| format!("array[{}]", i)), right, condition)?;
                 }
                 Ok(())
             }
             (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
-                for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                for (i, (left, right)) in tuple_1.iter().zip(tuple_2.iter()).enumerate() {
                     left.conditional_enforce_equal(cs.ns(|| format!("tuple index {}", i)), right, condition)?;
                 }
                 Ok(())
@@ -448,7 +448,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
                 let mut array = vec![];
 
-                for (i, (first, second)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
+                for (i, (first, second)) in arr_1.iter().zip(arr_2.iter()).enumerate() {
                     array.push(Self::conditionally_select(
                         cs.ns(|| format!("array[{}]", i)),
                         cond,
@@ -462,7 +462,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
             (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
                 let mut array = vec![];
 
-                for (i, (first, second)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
+                for (i, (first, second)) in tuple_1.iter().zip(tuple_2.iter()).enumerate() {
                     array.push(Self::conditionally_select(
                         cs.ns(|| format!("tuple index {}", i)),
                         cond,
@@ -484,7 +484,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
             ) => {
                 let mut members = vec![];
 
-                for (i, (first, second)) in members_1.into_iter().zip(members_2.into_iter()).enumerate() {
+                for (i, (first, second)) in members_1.iter().zip(members_2.iter()).enumerate() {
                     members.push(ConstrainedCircuitMember::conditionally_select(
                         cs.ns(|| format!("circuit member[{}]", i)),
                         cond,

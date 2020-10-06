@@ -43,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match self.get_mutable_assignee(circuit_name, span.clone())? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit variable in place
-                let matched_variable = members.into_iter().find(|member| member.0 == variable_name);
+                let matched_variable = members.iter_mut().find(|member| member.0 == variable_name);
 
                 match matched_variable {
                     Some(member) => match &member.1 {
