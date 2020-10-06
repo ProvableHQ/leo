@@ -44,7 +44,7 @@ const NEW_PROJECT_FORMAT: &str = "[project]";
 
 /// Create a manifest file with outdated formatting.
 fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
-    let mut path = path.to_owned();
+    let mut path = path;
     if path.is_dir() {
         path.push(PathBuf::from(MANIFEST_FILENAME));
     }

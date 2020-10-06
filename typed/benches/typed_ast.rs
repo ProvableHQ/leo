@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{errors::ParserError, files::File, LeoAst};
+use leo_ast::LeoAst;
 use leo_typed::LeoTypedAst;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 fn leo_typed_ast<'ast>(ast: &LeoAst<'ast>) {
     let typed_ast = LeoTypedAst::new("leo_typed_tree", &ast);
