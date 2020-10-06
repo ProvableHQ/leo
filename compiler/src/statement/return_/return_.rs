@@ -28,9 +28,7 @@ fn check_return_type(expected: Option<Type>, actual: Type, span: Span) -> Result
     match expected {
         Some(expected) => {
             if expected.ne(&actual) {
-                if expected.is_self() && actual.is_circuit() {
-                    return Ok(());
-                } else if expected.match_array_types(&actual) {
+                if (expected.is_self() && actual.is_circuit()) || expected.match_array_types(&actual) {
                     return Ok(());
                 } else {
                     return Err(StatementError::arguments_type(&expected, &actual, span));
