@@ -26,6 +26,7 @@ pub struct ProgramState {
     private: PrivateState,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl ProgramState {
     pub fn new() -> Self {
         Self::default()

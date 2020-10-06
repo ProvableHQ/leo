@@ -26,6 +26,7 @@ pub struct ProgramInput {
     registers: Registers,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl ProgramInput {
     pub fn new() -> Self {
         Self::default()

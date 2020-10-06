@@ -37,6 +37,7 @@ impl Default for Input {
     }
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl Input {
     pub fn new() -> Self {
         Self::default()

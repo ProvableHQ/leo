@@ -26,6 +26,7 @@ pub struct PrivateState {
     state_leaf: StateLeaf,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl PrivateState {
     pub fn new() -> Self {
         Self::default()

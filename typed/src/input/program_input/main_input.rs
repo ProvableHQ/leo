@@ -23,6 +23,7 @@ pub struct MainInput {
     input: HashMap<String, Option<InputValue>>,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl MainInput {
     pub fn new() -> Self {
         Self::default()
