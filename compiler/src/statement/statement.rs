@@ -71,7 +71,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declared_circuit_reference,
                     indicator,
                     variable,
-                    expression,
+                    *expression,
                     span,
                 )?;
             }
@@ -95,8 +95,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     indicator,
                     index,
-                    start,
-                    stop,
+                    *start,
+                    *stop,
                     statements,
                     return_type,
                     span,

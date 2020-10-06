@@ -77,7 +77,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope,
                 indicator,
                 variable_name,
-                range_or_expression,
+                *range_or_expression,
                 new_value,
                 span,
             ),

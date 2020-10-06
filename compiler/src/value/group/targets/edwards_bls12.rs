@@ -48,7 +48,7 @@ use std::{
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
     Constant(EdwardsAffine),
-    Allocated(EdwardsBlsGadget),
+    Allocated(Box<EdwardsBlsGadget>),
 }
 
 impl GroupType<Fq> for EdwardsGroupType {
@@ -60,7 +60,7 @@ impl GroupType<Fq> for EdwardsGroupType {
 
     fn to_allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, span: Span) -> Result<Self, GroupError> {
         self.allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line, span.start)))
-            .map(|result| EdwardsGroupType::Allocated(result))
+            .map(|ebg| EdwardsGroupType::Allocated(Box::new(ebg)))
             .map_err(|error| GroupError::synthesis_error(error, span))
     }
 
@@ -71,7 +71,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 let result = <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::negate(group, cs)
                     .map_err(|e| GroupError::negate_operation(e, span))?;
 
-                Ok(EdwardsGroupType::Allocated(result))
+                Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
         }
     }
@@ -90,16 +90,16 @@ impl GroupType<Fq> for EdwardsGroupType {
                 )
                 .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?;
 
-                Ok(EdwardsGroupType::Allocated(result))
+                Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
 
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
             | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
-                Ok(EdwardsGroupType::Allocated(
+                Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .add_constant(cs, constant_value)
                         .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?,
-                ))
+                )))
             }
         }
     }
@@ -118,16 +118,16 @@ impl GroupType<Fq> for EdwardsGroupType {
                 )
                 .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?;
 
-                Ok(EdwardsGroupType::Allocated(result))
+                Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
 
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
             | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
-                Ok(EdwardsGroupType::Allocated(
+                Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .sub_constant(cs, constant_value)
                         .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?,
-                ))
+                )))
             }
         }
     }
@@ -316,7 +316,7 @@ impl AllocGadget<GroupValue, Fq> for EdwardsGroupType {
             Self::alloc_helper(value_gen)
         })?;
 
-        Ok(EdwardsGroupType::Allocated(value))
+        Ok(EdwardsGroupType::Allocated(Box::new(value)))
     }
 
     fn alloc_input<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<GroupValue>, CS: ConstraintSystem<Fq>>(
@@ -327,7 +327,7 @@ impl AllocGadget<GroupValue, Fq> for EdwardsGroupType {
             Self::alloc_helper(value_gen)
         })?;
 
-        Ok(EdwardsGroupType::Allocated(value))
+        Ok(EdwardsGroupType::Allocated(Box::new(value)))
     }
 }
 
@@ -454,7 +454,7 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
             let second_gadget = second.allocated(cs.ns(|| "second"))?;
             let result = EdwardsBlsGadget::conditionally_select(cs, cond, &first_gadget, &second_gadget)?;
 
-            Ok(EdwardsGroupType::Allocated(result))
+            Ok(EdwardsGroupType::Allocated(Box::new(result)))
         }
     }
 
