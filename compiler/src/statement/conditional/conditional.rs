@@ -16,7 +16,10 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{
+    errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
+    IndicatorAndConstrainedValue, StatementResult
+};
 use leo_typed::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
 
 use snarkos_models::{
@@ -46,7 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: ConditionalStatement,
         return_type: Option<Type>,
         span: Span,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let statement_string = statement.to_string();
 
         // Inherit the indicator from a previous conditional statement or assume that we are the outer parent
