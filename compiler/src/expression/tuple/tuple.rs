@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             None => {}
         }
 
-        let mut result = vec![];
+        let mut result = Vec::with_capacity(tuple.len());
         for (i, expression) in tuple.into_iter().enumerate() {
             let type_ = if expected_types.is_empty() {
                 None

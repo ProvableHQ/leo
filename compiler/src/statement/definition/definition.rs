@@ -61,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let implicit_types = types.is_empty();
-        let mut expected_types = vec![];
+        let mut expected_types = Vec::with_capacity(expressions.len());
 
         for ty in types.iter().take(expressions.len()) {
             let expected_type = if implicit_types { None } else { Some(ty.clone()) };
@@ -69,7 +69,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             expected_types.push(expected_type);
         }
 
-        let mut values = vec![];
+        let mut values = Vec::with_capacity(expressions.len());
 
         for (expression, expected_type) in expressions.into_iter().zip(expected_types.into_iter()) {
             let value = self.enforce_expression(

@@ -122,7 +122,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 Type::Array(Box::new(array_type), dimensions)
             }
             ConstrainedValue::Tuple(tuple) => {
-                let mut types = vec![];
+                let mut types = Vec::with_capacity(tuple.len());
 
                 for value in tuple {
                     let type_ = value.to_type(span.clone())?;
@@ -448,7 +448,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 ConstrainedValue::Integer(Integer::conditionally_select(cs, cond, num_1, num_2)?)
             }
             (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
-                let mut array = vec![];
+                let mut array = Vec::with_capacity(arr_1.len());
 
                 for (i, (first, second)) in arr_1.iter().zip(arr_2.iter()).enumerate() {
                     array.push(Self::conditionally_select(
@@ -462,7 +462,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 ConstrainedValue::Array(array)
             }
             (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
-                let mut array = vec![];
+                let mut array = Vec::with_capacity(tuple_1.len());
 
                 for (i, (first, second)) in tuple_1.iter().zip(tuple_2.iter()).enumerate() {
                     array.push(Self::conditionally_select(
@@ -484,7 +484,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 ConstrainedValue::CircuitExpression(identifier, members_1),
                 ConstrainedValue::CircuitExpression(_identifier, members_2),
             ) => {
-                let mut members = vec![];
+                let mut members = Vec::with_capacity(members_1.len());
 
                 for (i, (first, second)) in members_1.iter().zip(members_2.iter()).enumerate() {
                     members.push(ConstrainedCircuitMember::conditionally_select(

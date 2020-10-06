@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        let mut input_variables = vec![];
+        let mut input_variables = Vec::with_capacity(function.input.len());
         for input_model in function.input.clone().into_iter() {
             let (identifier, value) = match input_model {
                 InputVariable::InputKeyword(identifier) => {
