@@ -57,8 +57,7 @@ impl CLI for WatchCommand {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    let options = ();
-                    match BuildCommand::output(options) {
+                    match BuildCommand::output(()) {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }
