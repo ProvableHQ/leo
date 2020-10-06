@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Err(ConsoleError::length(
                 formatted.containers.len(),
                 formatted.parameters.len(),
-                formatted.span.clone(),
+                formatted.span,
             ));
         }
 

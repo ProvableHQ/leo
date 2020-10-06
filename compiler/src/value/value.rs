@@ -110,7 +110,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
             // Data type wrappers
             ConstrainedValue::Array(array) => {
-                let array_type = array[0].to_type(span.clone())?;
+                let array_type = array[0].to_type(span)?;
                 let mut dimensions = vec![array.len()];
 
                 // Nested array type
@@ -205,12 +205,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 // If this is a circuit function, evaluate inside the circuit scope
                 if let Some(identifier) = circuit_identifier {
                     // avoid creating recursive scope
-                    if !is_in_scope(&scope, &identifier.name.to_string()) {
-                        outer_scope = new_scope(scope, identifier.name.to_string());
+                    if !is_in_scope(&scope, &identifier.name) {
+                        outer_scope = new_scope(scope, identifier.name);
                     }
                 }
 
-                Ok((outer_scope, function.clone()))
+                Ok((outer_scope, function))
             }
             ConstrainedValue::Import(import_scope, function) => function.extract_function(import_scope, span),
             value => Err(ExpressionError::undefined_function(value.to_string(), span)),

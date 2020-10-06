@@ -131,7 +131,7 @@ pub fn write_token(token: &str) -> Result<(), io::Error> {
     let config_dir = LEO_CONFIG_DIRECTORY.clone();
 
     // Create Leo config directory if it not exists
-    if !Path::new(&config_dir.to_path_buf()).exists() {
+    if !Path::new(&config_dir).exists() {
         create_dir_all(&config_dir)?;
     }
 

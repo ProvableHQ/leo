@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match assignee {
             Assignee::Identifier(_identifier) => {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
-                let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
+                let old_value = self.get_mutable_assignee(variable_name, span.clone())?;
 
                 new_value.resolve_type(Some(old_value.to_type(span.clone())?), span.clone())?;
 

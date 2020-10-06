@@ -37,14 +37,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let tuple = match self.enforce_operand(
             cs,
-            file_scope.clone(),
-            function_scope.clone(),
+            file_scope,
+            function_scope,
             expected_type,
             *tuple,
             span.clone(),
         )? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.clone())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
         if index > tuple.len() - 1 {

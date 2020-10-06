@@ -45,11 +45,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // access a circuit member using the `self` keyword
         if let Expression::Identifier(ref identifier) = *circuit_identifier {
             if identifier.is_self() {
-                let self_file_scope = new_scope(file_scope.clone(), identifier.name.to_string());
+                let self_file_scope = new_scope(file_scope, identifier.name.to_string());
                 let self_function_scope = new_scope(self_file_scope.clone(), identifier.name.to_string());
 
                 let member_value =
-                    self.evaluate_identifier(self_file_scope, self_function_scope, None, circuit_member.clone())?;
+                    self.evaluate_identifier(self_file_scope, self_function_scope, None, circuit_member)?;
 
                 return Ok(member_value);
             }
@@ -58,9 +58,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let (circuit_name, members) = match self.enforce_operand(
             cs,
             file_scope.clone(),
-            function_scope.clone(),
+            function_scope,
             expected_type,
-            *circuit_identifier.clone(),
+            *circuit_identifier,
             span.clone(),
         )? {
             ConstrainedValue::CircuitExpression(name, members) => (name, members),

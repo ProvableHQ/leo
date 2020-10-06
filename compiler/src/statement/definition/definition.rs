@@ -56,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<Vec<ConstrainedValue<F, G>>, StatementError> {
         let types = match type_ {
             Some(Type::Tuple(types)) => types,
-            Some(type_) => return Err(StatementError::tuple_type(type_.to_string(), span.clone())),
+            Some(type_) => return Err(StatementError::tuple_type(type_.to_string(), span)),
             None => vec![],
         };
 
@@ -157,7 +157,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let variable = variables.names[0].clone();
             let expression = self.enforce_expression(
                 cs,
-                file_scope.clone(),
+                file_scope,
                 function_scope.clone(),
                 variables.type_,
                 expressions[0].clone(),
@@ -181,14 +181,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             let values = match self.enforce_expression(
                 cs,
-                file_scope.clone(),
+                file_scope,
                 function_scope.clone(),
                 variables.type_.clone(),
                 expressions[0].clone(),
             )? {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
+                value => return Err(StatementError::multiple_definition(value.to_string(), span)),
             };
 
             self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)

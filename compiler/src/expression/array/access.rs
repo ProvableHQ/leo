@@ -57,7 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 };
                 let to_resolved = match to {
                     Some(to_index) => {
-                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), to_index, span.clone())?
+                        self.enforce_index(cs, file_scope, function_scope, to_index, span)?
                     }
                     None => array.len(), // Array slice ends at array length
                 };

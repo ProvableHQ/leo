@@ -205,7 +205,7 @@ impl EdwardsGroupType {
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
-                if let Some(element) = EdwardsAffine::from_x_coordinate(x.clone(), false) {
+                if let Some(element) = EdwardsAffine::from_x_coordinate(x, false) {
                     return Ok(element);
                 }
 
@@ -234,7 +234,7 @@ impl EdwardsGroupType {
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
-                if let Some(element) = EdwardsAffine::from_y_coordinate(y.clone(), false) {
+                if let Some(element) = EdwardsAffine::from_y_coordinate(y, false) {
                     return Ok(element);
                 }
 

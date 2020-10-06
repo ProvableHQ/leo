@@ -45,8 +45,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )?;
         let mut resolved_right = self.enforce_operand(
             cs,
-            file_scope.clone(),
-            function_scope.clone(),
+            file_scope,
+            function_scope,
             expected_type.clone(),
             right,
             span.clone(),

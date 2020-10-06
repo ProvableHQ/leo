@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
-                indicator.clone(),
+                indicator,
                 statement.clone(),
                 return_type.clone(),
                 "".to_owned(),

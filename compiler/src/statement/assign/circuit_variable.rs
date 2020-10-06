@@ -81,7 +81,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                             member.1 = selected_value.to_owned();
 
-                            Ok(selected_value.to_owned())
+                            Ok(selected_value)
                         }
                         _ => {
                             // Throw an error if we try to mutate an immutable circuit variable

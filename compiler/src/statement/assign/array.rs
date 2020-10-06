@@ -44,7 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
-                let index = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), index, span.clone())?;
+                let index = self.enforce_index(cs, file_scope, function_scope, index, span.clone())?;
 
                 // Modify the single value of the array in place
                 match self.get_mutable_assignee(name, span.clone())? {
@@ -77,8 +77,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let to_index_option = match to {
                     Some(integer) => Some(self.enforce_index(
                         cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
+                        file_scope,
+                        function_scope,
                         integer,
                         span.clone(),
                     )?),

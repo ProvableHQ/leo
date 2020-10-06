@@ -47,12 +47,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             match type_ {
                 Type::Array(ref type_, ref dimensions) => {
                     let number = match dimensions.first() {
-                        Some(number) => number.clone(),
+                        Some(number) => *number,
                         None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
                     };
 
                     expected_dimensions.push(number);
-                    expected_type = Some(type_.outer_dimension(dimensions).clone());
+                    expected_type = Some(type_.outer_dimension(dimensions));
                 }
                 ref type_ => {
                     return Err(ExpressionError::unexpected_array(type_.to_string(), span));

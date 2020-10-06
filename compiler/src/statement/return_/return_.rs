@@ -56,8 +56,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let result = self.enforce_operand(
             cs,
-            file_scope.clone(),
-            function_scope.clone(),
+            file_scope,
+            function_scope,
             return_type.clone(),
             expression,
             span.clone(),

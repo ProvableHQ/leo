@@ -104,7 +104,7 @@ impl CoreCircuit for Blake2sCircuit {
                         ),
                         span.clone(),
                     )],
-                    span: span.clone(),
+                    span,
                 },
             )],
         }

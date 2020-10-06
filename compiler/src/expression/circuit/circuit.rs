@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let circuit_identifier = circuit.circuit_name.clone();
         let mut resolved_members = vec![];
 
-        for member in circuit.members.clone().into_iter() {
+        for member in circuit.members.into_iter() {
             match member {
                 CircuitMember::CircuitVariable(is_mutable, identifier, type_) => {
                     let matched_variable = members
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         Ok(ConstrainedValue::CircuitExpression(
-            circuit_identifier.clone(),
+            circuit_identifier,
             resolved_members,
         ))
     }
