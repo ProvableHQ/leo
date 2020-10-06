@@ -26,6 +26,7 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce ternary conditional expression
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

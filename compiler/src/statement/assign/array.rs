@@ -28,6 +28,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn assign_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

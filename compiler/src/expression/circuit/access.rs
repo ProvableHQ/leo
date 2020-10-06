@@ -32,6 +32,7 @@ use snarkos_models::{
 static SELF_KEYWORD: &str = "self";
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

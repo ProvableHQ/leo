@@ -36,6 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.
     /// The `indicator` bit will select that branch while keeping the constraint system satisfied.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

@@ -86,6 +86,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(values)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn enforce_tuple_definition<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -135,6 +136,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

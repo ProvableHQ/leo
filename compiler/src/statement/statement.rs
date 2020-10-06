@@ -30,6 +30,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Each evaluated statement may execute of one or more statements that may return early.
     /// To indicate which of these return values to take we conditionally select the value according
     /// to the `indicator` bit that evaluates to true.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
