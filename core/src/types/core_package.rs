@@ -87,9 +87,7 @@ impl CorePackage {
                 }
             } else {
                 // match core circuit
-                match circuit_name {
-                    name => return Err(CorePackageError::undefined_core_circuit(name.to_string(), span)),
-                }
+                return Err(CorePackageError::undefined_core_circuit(circuit_name.to_string(), span));
             };
 
             circuit_structs.push(name, circuit)
