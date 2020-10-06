@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         mut expected_type: Option<Type>,
-        array: Vec<Box<SpreadOrExpression>>,
+        array: Vec<SpreadOrExpression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
@@ -62,7 +62,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let mut result = vec![];
         for element in array.into_iter() {
-            match *element {
+            match element {
                 SpreadOrExpression::Spread(spread) => match spread {
                     Expression::Identifier(identifier) => {
                         let array_name = new_scope(function_scope.clone(), identifier.to_string());

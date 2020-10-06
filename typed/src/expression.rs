@@ -92,7 +92,7 @@ pub enum Expression {
 
     // Arrays
     // (array_elements, span)
-    Array(Vec<Box<SpreadOrExpression>>, Span),
+    Array(Vec<SpreadOrExpression>, Span),
     // (array_name, range, span)
     ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span),
 
@@ -506,7 +506,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
             array
                 .expressions
                 .into_iter()
-                .map(|s_or_e| Box::new(SpreadOrExpression::from(s_or_e)))
+                .map(|s_or_e| SpreadOrExpression::from(s_or_e))
                 .collect(),
             Span::from(array.span),
         )
@@ -516,7 +516,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
         let dimensions = Expression::get_array_dimensions(array.dimensions);
-        let expression = Box::new(SpreadOrExpression::from(*array.expression));
+        let expression = SpreadOrExpression::from(*array.expression);
 
         let mut elements = vec![];
 
@@ -527,10 +527,10 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
             if i == 0 {
                 elements = vec![expression.clone(); dimension];
             } else {
-                let element = Box::new(SpreadOrExpression::Expression(Expression::Array(
+                let element = SpreadOrExpression::Expression(Expression::Array(
                     elements,
                     Span::from(array.span.clone()),
-                )));
+                ));
 
                 elements = vec![element; dimension];
             }
