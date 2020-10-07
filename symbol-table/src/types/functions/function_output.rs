@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ResolvedNode, SymbolTable, Type, TypeError};
+use crate::{ExtendedType, ResolvedNode, SymbolTable, TypeError};
 
 use leo_typed::{Identifier, Span, Type as UnresolvedType};
 
@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FunctionOutputType {
     /// Type of function output.
-    pub type_: Type,
+    pub type_: ExtendedType,
 }
 
 impl ResolvedNode for FunctionOutputType {
@@ -41,8 +41,8 @@ impl ResolvedNode for FunctionOutputType {
         let span = unresolved.1;
 
         let type_ = match function_output {
-            None => Type::Tuple(vec![]), // functions with no return value return an empty tuple
-            Some(type_) => Type::resolve(table, (type_, span))?,
+            None => ExtendedType::Tuple(vec![]), // functions with no return value return an empty tuple
+            Some(type_) => ExtendedType::resolve(table, (type_, span))?,
         };
 
         Ok(FunctionOutputType { type_ })
@@ -65,8 +65,8 @@ impl FunctionOutputType {
         span: Span,
     ) -> Result<Self, TypeError> {
         let output_type = match unresolved {
-            None => Type::Tuple(vec![]),
-            Some(type_) => Type::from_circuit(table, type_, circuit_name, span)?,
+            None => ExtendedType::Tuple(vec![]),
+            Some(type_) => ExtendedType::from_circuit(table, type_, circuit_name, span)?,
         };
 
         Ok(FunctionOutputType { type_: output_type })

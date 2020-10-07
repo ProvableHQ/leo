@@ -1277,6 +1277,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-dynamic-check"
+version = "1.0.3"
+dependencies = [
+ "leo-ast",
+ "leo-imports",
+ "leo-symbol-table",
+ "leo-typed",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "leo-gadgets"
 version = "1.0.3"
 dependencies = [
@@ -1329,6 +1341,7 @@ dependencies = [
  "lazy_static",
  "leo-compiler",
  "leo-core",
+ "leo-dynamic-check",
  "leo-gadgets",
  "leo-imports",
  "leo-input",

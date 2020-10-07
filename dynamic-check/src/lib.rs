@@ -14,17 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Attribute, ExtendedType};
-use leo_typed::Identifier;
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct CircuitVariableType {
-    /// The name of the circuit variable
-    pub identifier: Identifier,
-    /// The type of the circuit variable
-    pub type_: ExtendedType,
-    /// The attributes of the circuit variable
-    pub attributes: Vec<Attribute>,
-}
+pub mod dynamic_check;
+pub use self::dynamic_check::*;

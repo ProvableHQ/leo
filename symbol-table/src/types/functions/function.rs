@@ -60,7 +60,7 @@ impl ResolvedNode for FunctionType {
         }
 
         // Type check function output
-        let output = FunctionOutputType::resolve(table, (unresolved.returns, unresolved.span))?;
+        let output = FunctionOutputType::resolve(table, (unresolved.output, unresolved.span))?;
 
         Ok(FunctionType {
             identifier: unresolved.identifier,
@@ -114,7 +114,7 @@ impl FunctionType {
         let output = FunctionOutputType::from_circuit(
             table,
             circuit_name.clone(),
-            unresolved_function.returns,
+            unresolved_function.output,
             unresolved_function.span,
         )?;
 

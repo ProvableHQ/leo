@@ -103,7 +103,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_name.clone(),
                 None,
                 statement.clone(),
-                function.returns.clone(),
+                function.output.clone(),
                 declared_circuit_reference.clone(),
             )?;
 
@@ -116,7 +116,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Self::conditionally_select_result(cs, &mut return_values, results, function.span.clone())?;
 
         if let ConstrainedValue::Tuple(ref returns) = return_values {
-            let return_types = match function.returns {
+            let return_types = match function.output {
                 Some(Type::Tuple(types)) => types.len(),
                 Some(_) => 1usize,
                 None => 0usize,

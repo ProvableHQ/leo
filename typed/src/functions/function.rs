@@ -24,7 +24,7 @@ use std::fmt;
 pub struct Function {
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
-    pub returns: Option<Type>,
+    pub output: Option<Type>,
     pub statements: Vec<Statement>,
     pub span: Span,
 }
@@ -47,7 +47,7 @@ impl<'ast> From<AstFunction<'ast>> for Function {
         Function {
             identifier: function_name,
             input: parameters,
-            returns,
+            output: returns,
             statements,
             span: Span::from(function.span),
         }
@@ -67,7 +67,7 @@ impl Function {
             .map(|x| format!("{}", x))
             .collect::<Vec<_>>()
             .join(",");
-        let returns = self.returns.as_ref().map(|type_| format!("{}", type_));
+        let returns = self.output.as_ref().map(|type_| format!("{}", type_));
         let statements = self
             .statements
             .iter()

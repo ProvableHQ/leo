@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariableType, ResolvedNode, SymbolTable, Type, TypeError, VariableType};
+use crate::{ExtendedType, FunctionInputVariableType, ResolvedNode, SymbolTable, TypeError, VariableType};
 use leo_typed::{FunctionInput, Identifier};
 
 use serde::{Deserialize, Serialize};
@@ -61,7 +61,7 @@ impl FunctionInputType {
     ///
     /// Return the `Type` of the current function input.
     ///
-    pub fn type_(&self) -> &Type {
+    pub fn type_(&self) -> &ExtendedType {
         match self {
             FunctionInputType::InputKeyword(_) => unimplemented!("ERROR: input type not implemented"),
             FunctionInputType::Variable(variable) => &variable.type_,

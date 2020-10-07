@@ -23,7 +23,7 @@ use std::fmt;
 ///
 /// This type cannot be an implicit or `Self` type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Type {
+pub enum ExtendedType {
     // Data types
     Address,
     Boolean,
@@ -32,15 +32,15 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type>, Vec<usize>),
-    Tuple(Vec<Type>),
+    Array(Box<ExtendedType>, Vec<usize>),
+    Tuple(Vec<ExtendedType>),
 
     // User defined types
     Circuit(Identifier),
     Function(Identifier),
 }
 
-impl ResolvedNode for Type {
+impl ResolvedNode for ExtendedType {
     type Error = TypeError;
     type UnresolvedNode = (UnresolvedType, Span);
 
@@ -54,24 +54,24 @@ impl ResolvedNode for Type {
         let span = unresolved.1;
 
         Ok(match type_ {
-            UnresolvedType::Address => Type::Address,
-            UnresolvedType::Boolean => Type::Boolean,
-            UnresolvedType::Field => Type::Field,
-            UnresolvedType::Group => Type::Group,
-            UnresolvedType::IntegerType(integer) => Type::IntegerType(integer),
+            UnresolvedType::Address => ExtendedType::Address,
+            UnresolvedType::Boolean => ExtendedType::Boolean,
+            UnresolvedType::Field => ExtendedType::Field,
+            UnresolvedType::Group => ExtendedType::Group,
+            UnresolvedType::IntegerType(integer) => ExtendedType::IntegerType(integer),
 
             UnresolvedType::Array(type_, dimensions) => {
-                let array_type = Type::resolve(table, (*type_, span))?;
+                let array_type = ExtendedType::resolve(table, (*type_, span))?;
 
-                Type::Array(Box::new(array_type), dimensions)
+                ExtendedType::Array(Box::new(array_type), dimensions)
             }
             UnresolvedType::Tuple(types) => {
                 let tuple_types = types
                     .into_iter()
-                    .map(|type_| Type::resolve(table, (type_, span.clone())))
+                    .map(|type_| ExtendedType::resolve(table, (type_, span.clone())))
                     .collect::<Result<Vec<_>, _>>()?;
 
-                Type::Tuple(tuple_types)
+                ExtendedType::Tuple(tuple_types)
             }
 
             UnresolvedType::Circuit(identifier) => {
@@ -80,7 +80,7 @@ impl ResolvedNode for Type {
                     .get_circuit(&identifier.name)
                     .ok_or(TypeError::undefined_circuit(identifier))?;
 
-                Type::Circuit(circuit_type.identifier.clone())
+                ExtendedType::Circuit(circuit_type.identifier.clone())
             }
 
             UnresolvedType::SelfType => {
@@ -91,7 +91,7 @@ impl ResolvedNode for Type {
     }
 }
 
-impl Type {
+impl ExtendedType {
     ///
     /// Resolve a type inside of a circuit definition.
     ///
@@ -105,27 +105,27 @@ impl Type {
     ) -> Result<Self, TypeError> {
         Ok(match type_ {
             UnresolvedType::Array(type_, dimensions) => {
-                let array_type = Type::from_circuit(table, *type_, circuit_name, span)?;
-                Type::Array(Box::new(array_type), dimensions)
+                let array_type = ExtendedType::from_circuit(table, *type_, circuit_name, span)?;
+                ExtendedType::Array(Box::new(array_type), dimensions)
             }
             UnresolvedType::Tuple(types) => {
                 let tuple_types = types
                     .into_iter()
-                    .map(|type_| Type::from_circuit(table, type_, circuit_name.clone(), span.clone()))
+                    .map(|type_| ExtendedType::from_circuit(table, type_, circuit_name.clone(), span.clone()))
                     .collect::<Result<Vec<_>, _>>()?;
 
-                Type::Tuple(tuple_types)
+                ExtendedType::Tuple(tuple_types)
             }
-            UnresolvedType::SelfType => Type::Circuit(circuit_name),
+            UnresolvedType::SelfType => ExtendedType::Circuit(circuit_name),
             // The unresolved type does not depend on the current circuit definition
-            unresolved => Type::resolve(table, (unresolved, span))?,
+            unresolved => ExtendedType::resolve(table, (unresolved, span))?,
         })
     }
 
     ///
     /// Returns `Ok` if the given expected type is `Some` and expected type == actual type.
     ///
-    pub fn check_type(expected_option: &Option<Self>, actual: &Type, span: Span) -> Result<(), TypeError> {
+    pub fn check_type(expected_option: &Option<Self>, actual: &ExtendedType, span: Span) -> Result<(), TypeError> {
         if let Some(expected) = expected_option {
             if expected.ne(actual) {
                 return Err(TypeError::mismatched_types(expected, actual, span));
@@ -139,7 +139,7 @@ impl Type {
     ///
     pub fn check_type_integer(&self, span: Span) -> Result<(), TypeError> {
         match self {
-            Type::IntegerType(_) => Ok(()),
+            ExtendedType::IntegerType(_) => Ok(()),
             // Throw mismatched type error
             type_ => Err(TypeError::invalid_integer(type_, span)),
         }
@@ -148,9 +148,9 @@ impl Type {
     ///
     /// Returns array element type and dimensions if self is an expected array type `Type::Array`.
     ///
-    pub fn get_type_array(&self, span: Span) -> Result<(&Type, &Vec<usize>), TypeError> {
+    pub fn get_type_array(&self, span: Span) -> Result<(&ExtendedType, &Vec<usize>), TypeError> {
         match self {
-            Type::Array(element_type, dimensions) => Ok((element_type, dimensions)),
+            ExtendedType::Array(element_type, dimensions) => Ok((element_type, dimensions)),
             // Throw mismatched type error
             type_ => Err(TypeError::invalid_array(type_, span)),
         }
@@ -159,9 +159,9 @@ impl Type {
     ///
     /// Returns tuple element types if self is an expected tuple type `Type::Tuple`.
     ///
-    pub fn get_type_tuple(&self, span: Span) -> Result<&Vec<Type>, TypeError> {
+    pub fn get_type_tuple(&self, span: Span) -> Result<&Vec<ExtendedType>, TypeError> {
         match self {
-            Type::Tuple(types) => Ok(types),
+            ExtendedType::Tuple(types) => Ok(types),
             // Throw mismatched type error
             type_ => Err(TypeError::invalid_tuple(type_, span)),
         }
@@ -172,7 +172,7 @@ impl Type {
     ///
     pub fn get_type_circuit(&self, span: Span) -> Result<&Identifier, TypeError> {
         match self {
-            Type::Circuit(identifier) => Ok(identifier),
+            ExtendedType::Circuit(identifier) => Ok(identifier),
             // Throw mismatched type error
             type_ => Err(TypeError::invalid_circuit(type_, span)),
         }
@@ -183,23 +183,23 @@ impl Type {
     ///
     pub fn get_type_function(&self, span: Span) -> Result<&Identifier, TypeError> {
         match self {
-            Type::Function(identifier) => Ok(identifier),
+            ExtendedType::Function(identifier) => Ok(identifier),
             // Throw mismatched type error
             type_ => Err(TypeError::invalid_function(type_, span)),
         }
     }
 }
 
-impl fmt::Display for Type {
+impl fmt::Display for ExtendedType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
-            Type::Address => write!(f, "address"),
-            Type::Boolean => write!(f, "bool"),
-            Type::Field => write!(f, "field"),
-            Type::Group => write!(f, "group"),
-            Type::IntegerType(integer_type) => write!(f, "{}", integer_type),
+            ExtendedType::Address => write!(f, "address"),
+            ExtendedType::Boolean => write!(f, "bool"),
+            ExtendedType::Field => write!(f, "field"),
+            ExtendedType::Group => write!(f, "group"),
+            ExtendedType::IntegerType(integer_type) => write!(f, "{}", integer_type),
 
-            Type::Array(type_, dimensions) => {
+            ExtendedType::Array(type_, dimensions) => {
                 let dimensions_string = dimensions
                     .iter()
                     .map(|dimension| format!("{}", dimension))
@@ -208,14 +208,14 @@ impl fmt::Display for Type {
 
                 write!(f, "[{}; ({})]", *type_, dimensions_string)
             }
-            Type::Tuple(tuple) => {
+            ExtendedType::Tuple(tuple) => {
                 let tuple_string = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", tuple_string)
             }
 
-            Type::Circuit(identifier) => write!(f, "circuit {}", identifier),
-            Type::Function(identifier) => write!(f, "function {}", identifier),
+            ExtendedType::Circuit(identifier) => write!(f, "circuit {}", identifier),
+            ExtendedType::Function(identifier) => write!(f, "function {}", identifier),
         }
     }
 }

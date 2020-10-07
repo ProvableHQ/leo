@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Attribute, Type};
+use crate::{Attribute, ExtendedType};
 use leo_typed::{Circuit, Function, Identifier};
 
 use crate::FunctionInputVariableType;
@@ -25,7 +25,7 @@ use std::fmt;
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableType {
     pub identifier: Identifier,
-    pub type_: Type,
+    pub type_: ExtendedType,
     pub attributes: Vec<Attribute>,
 }
 
@@ -44,7 +44,7 @@ impl From<Circuit> for VariableType {
 
         VariableType {
             identifier: identifier.clone(),
-            type_: Type::Circuit(identifier),
+            type_: ExtendedType::Circuit(identifier),
             attributes: vec![],
         }
     }
@@ -56,7 +56,7 @@ impl From<Function> for VariableType {
 
         VariableType {
             identifier: identifier.clone(),
-            type_: Type::Function(identifier.clone()),
+            type_: ExtendedType::Function(identifier.clone()),
             attributes: vec![],
         }
     }

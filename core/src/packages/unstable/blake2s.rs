@@ -86,7 +86,7 @@ impl CoreCircuit for Blake2sCircuit {
                             span: span.clone(),
                         }),
                     ],
-                    returns: Some(Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize])),
+                    output: Some(Type::Array(Box::new(Type::IntegerType(IntegerType::U8)), vec![32usize])),
                     statements: vec![Statement::Return(
                         Expression::CoreFunctionCall(
                             Self::name(),

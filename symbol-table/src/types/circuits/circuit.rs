@@ -17,10 +17,10 @@
 use crate::{
     types::circuits::{CircuitFunctionType, CircuitVariableType},
     Attribute,
+    ExtendedType,
     FunctionType,
     ResolvedNode,
     SymbolTable,
-    Type,
     TypeError,
 };
 use leo_typed::{Circuit, CircuitMember, Identifier};
@@ -63,7 +63,7 @@ impl ResolvedNode for CircuitType {
             match member {
                 CircuitMember::CircuitVariable(is_mutable, variable_identifier, type_) => {
                     // Resolve the type of the circuit member variable.
-                    let type_ = Type::from_circuit(
+                    let type_ = ExtendedType::from_circuit(
                         table,
                         type_,
                         circuit_identifier.clone(),
@@ -118,7 +118,7 @@ impl CircuitType {
     /// If the member is a circuit variable, then the type of the variable is returned.
     /// If the member is a circuit function, then the return type of the function is returned.
     ///
-    pub fn member_type(&self, identifier: &Identifier) -> Result<&Type, TypeError> {
+    pub fn member_type(&self, identifier: &Identifier) -> Result<&ExtendedType, TypeError> {
         // Check if the circuit member is a circuit variable.
         let matched_variable = self
             .variables

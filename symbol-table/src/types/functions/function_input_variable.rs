@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Attribute, ResolvedNode, SymbolTable, Type, TypeError, VariableType};
+use crate::{Attribute, ExtendedType, ResolvedNode, SymbolTable, TypeError, VariableType};
 use leo_typed::{FunctionInputVariable, Identifier, Span};
 
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub struct FunctionInputVariableType {
     pub identifier: Identifier,
 
     /// Type of function input.
-    pub type_: Type,
+    pub type_: ExtendedType,
 
     /// The attributes of the function input.
     pub attributes: Vec<Attribute>,
@@ -44,7 +44,7 @@ impl ResolvedNode for FunctionInputVariableType {
     /// Performs a lookup in the given symbol table if the type is user-defined.
     ///
     fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
-        let type_ = Type::resolve(table, (unresolved.type_, unresolved.span.clone()))?;
+        let type_ = ExtendedType::resolve(table, (unresolved.type_, unresolved.span.clone()))?;
         let attributes = if unresolved.mutable {
             vec![Attribute::Mutable]
         } else {
@@ -74,7 +74,7 @@ impl FunctionInputVariableType {
         unresolved_function_input: FunctionInputVariable,
         circuit_name: Identifier,
     ) -> Result<Self, TypeError> {
-        let type_ = Type::from_circuit(
+        let type_ = ExtendedType::from_circuit(
             table,
             unresolved_function_input.type_,
             circuit_name,
