@@ -21,7 +21,7 @@ use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, str::FromStr};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SerializedField(pub String);
 
 impl<F: Field> From<&F> for SerializedField {

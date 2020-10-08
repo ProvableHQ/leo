@@ -24,6 +24,9 @@ pub mod boolean;
 pub mod field;
 pub use self::field::*;
 
+pub mod get_constraint_system_indices;
+pub use self::get_constraint_system_indices::*;
+
 pub mod group;
 pub use self::group::*;
 

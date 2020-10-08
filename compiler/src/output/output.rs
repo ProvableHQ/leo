@@ -20,19 +20,27 @@ use leo_typed::{Parameter, Registers, Span};
 use snarkos_models::curves::{Field, PrimeField};
 
 use serde::{Deserialize, Serialize};
+use snarkos_models::gadgets::r1cs::Index;
 
 /// Serialized program return output.
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
-pub struct OutputBytes(Vec<u8>);
-
-impl OutputBytes {
+pub struct Output {
+    bytes: Vec<u8>,
+    indices: Vec<usize>,
+}
+impl Output {
     pub fn bytes(&self) -> &Vec<u8> {
-        &self.0
+        &self.bytes
     }
 
-    pub fn new_from_constrained_value<F: Field + PrimeField, G: GroupType<F>>(
+    pub fn indices(&self) -> Vec<usize> {
+        self.indices.clone()
+    }
+
+    pub fn new<F: Field + PrimeField, G: GroupType<F>>(
         registers: &Registers,
         value: ConstrainedValue<F, G>,
+        constraint_system_indices: Vec<Index>,
         span: Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
@@ -66,7 +74,7 @@ impl OutputBytes {
             let type_ = parameter.type_;
             let value = value.to_string();
 
-            let format = format!("{}: {} = {};\n", name, type_, value,);
+            let format = format!("{}: {} = {};\n", name, type_, value);
 
             string.push_str(&format);
         }
@@ -74,12 +82,15 @@ impl OutputBytes {
         let mut bytes: Vec<u8> = vec![];
         bytes.extend_from_slice(string.as_bytes());
 
-        Ok(Self(bytes))
-    }
-}
+        // Serialize constraint system indices.
+        let indices = constraint_system_indices
+            .iter()
+            .map(|index| match index {
+                Index::Input(index) => index.clone(),
+                Index::Aux(index) => index.clone(),
+            })
+            .collect::<Vec<_>>();
 
-impl From<Vec<u8>> for OutputBytes {
-    fn from(bytes: Vec<u8>) -> Self {
-        Self(bytes)
+        Ok(Self { bytes, indices })
     }
 }

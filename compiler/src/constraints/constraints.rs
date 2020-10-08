@@ -23,7 +23,7 @@ use crate::{
     ConstrainedValue,
     GroupType,
     ImportParser,
-    OutputBytes,
+    Output,
     OutputFile,
 };
 use leo_typed::{Input, Program};
@@ -41,7 +41,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     program: Program,
     input: Input,
     imported_programs: &ImportParser,
-) -> Result<OutputBytes, CompilerError> {
+) -> Result<Output, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(program_name.clone(), "main".into());

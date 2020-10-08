@@ -37,7 +37,7 @@ use leo_compiler::{
     errors::CompilerError,
     group::targets::edwards_bls12::EdwardsGroupType,
     ConstrainedValue,
-    OutputBytes,
+    Output,
 };
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 use leo_typed::{InputValue, MainInput};
@@ -154,7 +154,7 @@ pub fn parse_program_with_input_and_state(
     Ok(compiler)
 }
 
-pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
+pub(crate) fn get_output(program: EdwardsTestCompiler) -> Output {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
     let output = program.generate_constraints_helper(&mut cs).unwrap();

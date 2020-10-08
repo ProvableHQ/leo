@@ -20,7 +20,7 @@ use crate::{
     errors::FunctionError,
     program::{new_scope, ConstrainedProgram},
     GroupType,
-    OutputBytes,
+    Output,
 };
 
 use leo_typed::{Expression, Function, Input, InputVariable};
@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: String,
         function: Function,
         input: Input,
-    ) -> Result<OutputBytes, FunctionError> {
+    ) -> Result<Output, FunctionError> {
         let function_name = new_scope(scope.clone(), function.get_name());
         let registers = input.get_registers();
 
@@ -78,7 +78,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let span = function.span.clone();
         let result_value = self.enforce_function(cs, scope, function_name, function, input_variables, "".to_owned())?;
-        let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
+
+        // Lookup result value constraint variable indices.
+        let constraint_system_indices = result_value.get_constraint_system_indices(cs);
+
+        let output_bytes = Output::new(registers, result_value, constraint_system_indices, span)?;
 
         Ok(output_bytes)
     }

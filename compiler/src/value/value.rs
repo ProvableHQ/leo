@@ -19,6 +19,11 @@
 use crate::{
     boolean::input::{allocate_bool, new_bool_constant},
     errors::{ExpressionError, FieldError, ValueError},
+    get_constraint_system_indices_address,
+    get_constraint_system_indices_boolean,
+    get_constraint_system_indices_field,
+    get_constraint_system_indices_group,
+    get_constraint_system_indices_integer,
     is_in_scope,
     new_scope,
     Address,
@@ -33,7 +38,7 @@ use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::{
-        r1cs::ConstraintSystem,
+        r1cs::{ConstraintSystem, Index},
         utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
     },
 };
@@ -314,6 +319,45 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
 
         Ok(())
+    }
+
+    ///
+    /// Return the constraint system indices that this value is located at.
+    pub fn get_constraint_system_indices<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Vec<Index> {
+        match self {
+            ConstrainedValue::Boolean(boolean) => get_constraint_system_indices_boolean(boolean),
+            ConstrainedValue::Integer(integer) => get_constraint_system_indices_integer(integer),
+            ConstrainedValue::Field(field) => get_constraint_system_indices_field(cs, field),
+            ConstrainedValue::Group(group) => get_constraint_system_indices_group(cs, group),
+            ConstrainedValue::Address(address) => get_constraint_system_indices_address(cs, address),
+
+            // Value wrappers.
+            ConstrainedValue::Array(array) => {
+                let mut indices = vec![];
+
+                for (i, element) in array.iter().enumerate() {
+                    let mut element_indices =
+                        element.get_constraint_system_indices(&mut cs.ns(|| format!("array index `{}`", i)));
+
+                    indices.append(&mut element_indices);
+                }
+
+                indices
+            }
+            ConstrainedValue::Tuple(tuple) => {
+                let mut indices = vec![];
+
+                for (i, element) in tuple.iter().enumerate() {
+                    let mut element_indices =
+                        element.get_constraint_system_indices(&mut cs.ns(|| format!("tuple index `{}`", i)));
+
+                    indices.append(&mut element_indices);
+                }
+
+                indices
+            }
+            _ => vec![],
+        }
     }
 }
 

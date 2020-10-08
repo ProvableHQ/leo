@@ -148,7 +148,7 @@ impl CLI for BuildCommand {
                 tracing::debug!("Number of constraints - {:#?}", cs.num_constraints());
 
                 // Serialize the circuit
-                let circuit_object = SerializedCircuit::from(cs);
+                let circuit_object = SerializedCircuit::new(cs, output);
                 let json = circuit_object.to_json_string().unwrap();
                 // println!("json: {}", json);
 

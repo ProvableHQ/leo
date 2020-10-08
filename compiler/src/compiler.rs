@@ -21,7 +21,7 @@ use crate::{
     errors::CompilerError,
     GroupType,
     ImportParser,
-    OutputBytes,
+    Output,
     OutputFile,
 };
 use leo_ast::LeoAst;
@@ -196,7 +196,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Synthesizes the circuit without program input to verify correctness.
-    pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
+    pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<Output, CompilerError> {
         let path = self.main_file_path;
 
         generate_constraints::<F, G, CS>(cs, self.program, self.program_input, &self.imported_programs).map_err(
@@ -220,10 +220,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Calls the internal generate_constraints method with arguments
-    pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-    ) -> Result<OutputBytes, CompilerError> {
+    pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<Output, CompilerError> {
         let path = self.main_file_path;
         generate_constraints::<_, G, _>(cs, self.program, self.program_input, &self.imported_programs).map_err(
             |mut error| {
