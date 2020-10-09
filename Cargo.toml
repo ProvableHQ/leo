@@ -36,6 +36,7 @@ members = [
   "linter",
   "package",
   "typed",
+  "types",
   "state",
   "symbol-table",
 ]

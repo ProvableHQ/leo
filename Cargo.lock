@@ -1433,6 +1433,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-types"
+version = "1.0.3"
+dependencies = [
+ "leo-ast",
+ "leo-imports",
+ "leo-typed",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"

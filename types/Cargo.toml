@@ -1,0 +1,36 @@
+[package]
+name = "leo-types"
+version = "1.0.3"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Leo program type and type variables"
+homepage = "https://aleo.org"
+respository = "https://github.com/AleoHQ/leo"
+keywords = [
+    "aleo",
+    "cryptography",
+    "leo",
+    "programming-language",
+    "zero-knowledge"
+]
+categories = [ "cryptography::croptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies.leo-ast]
+path = "../ast"
+version = "1.0.3"
+
+[dependencies.leo-imports]
+path = "../imports"
+version = "1.0.3"
+
+[dependencies.leo-typed]
+path = "../typed"
+version = "1.0.3"
+
+[dependencies.serde]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
