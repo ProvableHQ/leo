@@ -63,7 +63,7 @@ impl ResolvedNode for CircuitType {
             match member {
                 CircuitMember::CircuitVariable(is_mutable, variable_identifier, type_) => {
                     // Resolve the type of the circuit member variable.
-                    let type_ = Type::from_circuit(
+                    let type_ = Type::new_from_circuit(
                         table,
                         type_,
                         circuit_identifier.clone(),

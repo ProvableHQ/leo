@@ -22,25 +22,3 @@ pub use self::errors::*;
 
 pub mod types;
 pub use self::types::*;
-
-/// A resolved node in an abstract syntax tree (AST).
-///
-/// Resolved nodes can be any function, statement, expression, type, etc. in an AST.
-/// Resolved nodes should not contain any illegal types.
-/// Resolved nodes should not contain any implicit types.
-pub trait ResolvedNode {
-    /// The expected error type if the type resolution fails.
-    type Error;
-
-    /// The unresolved AST node that is being resolved.
-    type UnresolvedNode;
-
-    ///
-    /// Returns a resolved AST representation given an unresolved AST representation.
-    ///
-    /// User-defined types are looked up using the given symbol table.
-    ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error>
-    where
-        Self: std::marker::Sized;
-}

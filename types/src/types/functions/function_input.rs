@@ -25,29 +25,24 @@ pub enum FunctionInputType {
     Variable(FunctionInputVariableType),
 }
 
-impl ResolvedNode for FunctionInputType {
-    type Error = TypeError;
-    type UnresolvedNode = FunctionInput;
-
+impl FunctionInputType {
     ///
     /// Return a new `FunctionInputType` from a given `FunctionInput`.
     ///
     /// Performs a lookup in the given symbol table if the function input contains
     /// user-defined types.
     ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
+    pub fn new(table: &mut SymbolTable, unresolved: FunctionInput) -> Result<Self, TypeError> {
         Ok(match unresolved {
             FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
             FunctionInput::Variable(variable) => {
-                let variable_resolved = FunctionInputVariableType::resolve(table, variable)?;
+                let variable_resolved = FunctionInputVariableType::new(table, variable)?;
 
                 FunctionInputType::Variable(variable_resolved)
             }
         })
     }
-}
 
-impl FunctionInputType {
     ///
     /// Return the `Identifier` containing name and span information about the current function input.
     ///
@@ -77,7 +72,7 @@ impl FunctionInputType {
     /// If the type of the function input is the `Self` keyword, then the given circuit identifier
     /// is used as the type.
     ///
-    pub fn from_circuit(
+    pub fn new_from_circuit(
         table: &mut SymbolTable,
         unresolved: FunctionInput,
         circuit_name: Identifier,
@@ -86,7 +81,7 @@ impl FunctionInputType {
             FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
             FunctionInput::Variable(unresolved_function_input) => {
                 let function_input =
-                    FunctionInputVariableType::from_circuit(table, unresolved_function_input, circuit_name)?;
+                    FunctionInputVariableType::new_from_circuit(table, unresolved_function_input, circuit_name)?;
 
                 FunctionInputType::Variable(function_input)
             }

@@ -85,7 +85,7 @@ impl Type {
     ///
     /// If this type is SelfType, return the circuit's type.
     ///
-    pub fn from_circuit(
+    pub fn new_from_circuit(
         table: &mut SymbolTable,
         type_: UnresolvedType,
         circuit_name: Identifier,
@@ -93,13 +93,13 @@ impl Type {
     ) -> Result<Self, TypeError> {
         Ok(match type_ {
             UnresolvedType::Array(type_, dimensions) => {
-                let array_type = Type::from_circuit(table, *type_, circuit_name, span)?;
+                let array_type = Type::new_from_circuit(table, *type_, circuit_name, span)?;
                 Type::Array(Box::new(array_type), dimensions)
             }
             UnresolvedType::Tuple(types) => {
                 let tuple_types = types
                     .into_iter()
-                    .map(|type_| Type::from_circuit(table, type_, circuit_name.clone(), span.clone()))
+                    .map(|type_| Type::new_from_circuit(table, type_, circuit_name.clone(), span.clone()))
                     .collect::<Result<Vec<_>, _>>()?;
 
                 Type::Tuple(tuple_types)

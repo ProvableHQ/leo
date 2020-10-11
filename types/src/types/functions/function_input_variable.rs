@@ -34,16 +34,13 @@ pub struct FunctionInputVariableType {
     pub span: Span,
 }
 
-impl ResolvedNode for FunctionInputVariableType {
-    type Error = TypeError;
-    type UnresolvedNode = FunctionInputVariable;
-
+impl FunctionInputVariableType {
     ///
     /// Return a new `FunctionInputVariableType` from a given `FunctionInputVariable`.
     ///
     /// Performs a lookup in the given symbol table if the type is user-defined.
     ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
+    pub fn new(table: &mut SymbolTable, unresolved: FunctionInputVariable) -> Result<Self, TypeError> {
         let type_ = Type::new(table, unresolved.type_, unresolved.span.clone())?;
         let attributes = if unresolved.mutable {
             vec![Attribute::Mutable]
@@ -58,9 +55,7 @@ impl ResolvedNode for FunctionInputVariableType {
             span: unresolved.span,
         })
     }
-}
 
-impl FunctionInputVariableType {
     ///
     /// Return a new `FunctionInputVariableType` from a given `FunctionInputVariable`.
     ///
@@ -69,12 +64,12 @@ impl FunctionInputVariableType {
     /// If the type of the function return type is the `Self` keyword, then the given circuit
     /// identifier is used as the type.
     ///
-    pub fn from_circuit(
+    pub fn new_from_circuit(
         table: &mut SymbolTable,
         unresolved_function_input: FunctionInputVariable,
         circuit_name: Identifier,
     ) -> Result<Self, TypeError> {
-        let type_ = Type::from_circuit(
+        let type_ = Type::new_from_circuit(
             table,
             unresolved_function_input.type_,
             circuit_name,

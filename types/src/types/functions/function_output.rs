@@ -26,20 +26,17 @@ pub struct FunctionOutputType {
     pub type_: Type,
 }
 
-impl ResolvedNode for FunctionOutputType {
-    type Error = TypeError;
-    /// (optional function output, span)
-    type UnresolvedNode = (Option<UnresolvedType>, Span);
-
+impl FunctionOutputType {
     ///
     /// Return a new `FunctionOutputType` from a given optional function return type and span.
     ///
     /// Performs a lookup in the given symbol table if the return type is user-defined.
     ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, TypeError> {
-        let function_output = unresolved.0;
-        let span = unresolved.1;
-
+    pub(crate) fn new(
+        table: &mut SymbolTable,
+        function_output: Option<UnresolvedType>,
+        span: Span,
+    ) -> Result<Self, TypeError> {
         let type_ = match function_output {
             None => Type::Tuple(vec![]), // functions with no return value return an empty tuple
             Some(type_) => Type::new(table, type_, span)?,
@@ -47,9 +44,7 @@ impl ResolvedNode for FunctionOutputType {
 
         Ok(FunctionOutputType { type_ })
     }
-}
 
-impl FunctionOutputType {
     ///
     /// Return a new `FunctionOutputType` from a given optional function return type and span.
     ///
@@ -58,7 +53,7 @@ impl FunctionOutputType {
     /// If the type of the function return type is the `Self` keyword, then the given circuit
     /// identifier is used as the type.
     ///
-    pub fn from_circuit(
+    pub fn new_from_circuit(
         table: &mut SymbolTable,
         circuit_name: Identifier,
         unresolved: Option<UnresolvedType>,
@@ -66,7 +61,7 @@ impl FunctionOutputType {
     ) -> Result<Self, TypeError> {
         let output_type = match unresolved {
             None => Type::Tuple(vec![]),
-            Some(type_) => Type::from_circuit(table, type_, circuit_name, span)?,
+            Some(type_) => Type::new_from_circuit(table, type_, circuit_name, span)?,
         };
 
         Ok(FunctionOutputType { type_: output_type })
