@@ -36,9 +36,8 @@ members = [
   "linter",
   "package",
   "typed",
-  "types",
   "state",
-  "symbol-table",
+  "static-check",
 ]
 
 [dependencies.leo-compiler]
@@ -73,8 +72,8 @@ version = "1.0.3"
 path = "./state"
 version = "1.0.3"
 
-[dependencies.leo-symbol-table]
-path = "./symbol-table"
+[dependencies.leo-static-check]
+path = "./static-check"
 version = "1.0.3"
 
 [dependencies.snarkos-algorithms]

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariableType, ParameterType, ResolvedNode, SymbolTable, Type, TypeError};
+use crate::{FunctionInputVariableType, ParameterType, SymbolTable, Type, TypeError};
 use leo_typed::{FunctionInput, Identifier};
 
 use serde::{Deserialize, Serialize};
@@ -26,23 +26,6 @@ pub enum FunctionInputType {
 }
 
 impl FunctionInputType {
-    ///
-    /// Return a new `FunctionInputType` from a given `FunctionInput`.
-    ///
-    /// Performs a lookup in the given symbol table if the function input contains
-    /// user-defined types.
-    ///
-    pub fn new(table: &mut SymbolTable, unresolved: FunctionInput) -> Result<Self, TypeError> {
-        Ok(match unresolved {
-            FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
-            FunctionInput::Variable(variable) => {
-                let variable_resolved = FunctionInputVariableType::new(table, variable)?;
-
-                FunctionInputType::Variable(variable_resolved)
-            }
-        })
-    }
-
     ///
     /// Return the `Identifier` containing name and span information about the current function input.
     ///
@@ -69,11 +52,28 @@ impl FunctionInputType {
     /// Performs a lookup in the given symbol table if the function input contains
     /// user-defined types.
     ///
+    pub fn new(table: &SymbolTable, unresolved: FunctionInput) -> Result<Self, TypeError> {
+        Ok(match unresolved {
+            FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
+            FunctionInput::Variable(variable) => {
+                let variable_resolved = FunctionInputVariableType::new(table, variable)?;
+
+                FunctionInputType::Variable(variable_resolved)
+            }
+        })
+    }
+
+    ///
+    /// Return a new `FunctionInputType` from a given `FunctionInput`.
+    ///
+    /// Performs a lookup in the given symbol table if the function input contains
+    /// user-defined types.
+    ///
     /// If the type of the function input is the `Self` keyword, then the given circuit identifier
     /// is used as the type.
     ///
     pub fn new_from_circuit(
-        table: &mut SymbolTable,
+        table: &SymbolTable,
         unresolved: FunctionInput,
         circuit_name: Identifier,
     ) -> Result<Self, TypeError> {

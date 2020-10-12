@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ResolvedNode, SymbolTable, Type, TypeError};
+use crate::{SymbolTable, Type, TypeError};
 
 use leo_typed::{Identifier, Span, Type as UnresolvedType};
 
@@ -33,7 +33,7 @@ impl FunctionOutputType {
     /// Performs a lookup in the given symbol table if the return type is user-defined.
     ///
     pub(crate) fn new(
-        table: &mut SymbolTable,
+        table: &SymbolTable,
         function_output: Option<UnresolvedType>,
         span: Span,
     ) -> Result<Self, TypeError> {
@@ -54,7 +54,7 @@ impl FunctionOutputType {
     /// identifier is used as the type.
     ///
     pub fn new_from_circuit(
-        table: &mut SymbolTable,
+        table: &SymbolTable,
         circuit_name: Identifier,
         unresolved: Option<UnresolvedType>,
         span: Span,

@@ -16,7 +16,6 @@
 
 use crate::{
     types::functions::{FunctionInputType, FunctionOutputType},
-    ResolvedNode,
     SymbolTable,
     TypeError,
 };
@@ -40,51 +39,30 @@ pub struct FunctionType {
     pub output: FunctionOutputType,
 }
 
-impl ResolvedNode for FunctionType {
-    type Error = TypeError;
-    type UnresolvedNode = Function;
-
+impl FunctionType {
     ///
     /// Return a new `FunctionType` from a given `Function` definition.
     ///
     /// Performs a lookup in the given symbol table if the function definition contains
     /// user-defined types.
     ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
+    pub fn new(table: &SymbolTable, unresolved: Function) -> Result<Self, TypeError> {
         let mut inputs_resolved = vec![];
 
         // Type check function inputs
         for input in unresolved.input {
-            let input = FunctionInputType::resolve(table, input)?;
+            let input = FunctionInputType::new(table, input)?;
             inputs_resolved.push(input);
         }
 
         // Type check function output
-        let output = FunctionOutputType::resolve(table, (unresolved.output, unresolved.span))?;
+        let output = FunctionOutputType::new(table, unresolved.output, unresolved.span)?;
 
         Ok(FunctionType {
             identifier: unresolved.identifier,
             inputs: inputs_resolved,
             output,
         })
-    }
-}
-
-impl FunctionType {
-    ///
-    /// Resolve a function definition and insert it into the given symbol table.
-    ///
-    pub fn insert_definition(table: &mut SymbolTable, unresolved_function: Function) -> Result<(), TypeError> {
-        // Get the identifier of the function.
-        let function_identifier = unresolved_function.identifier.clone();
-
-        // Resolve the function definition into a function type.
-        let function = Self::resolve(table, unresolved_function)?;
-
-        // Insert (function_identifier -> function_type) as a (key -> value) pair in the symbol table.
-        table.insert_function(function_identifier, function);
-
-        Ok(())
     }
 
     ///
@@ -97,7 +75,7 @@ impl FunctionType {
     /// is used as the type.
     ///
     pub fn from_circuit(
-        table: &mut SymbolTable,
+        table: &SymbolTable,
         circuit_name: Identifier,
         unresolved_function: Function,
     ) -> Result<Self, TypeError> {
@@ -106,12 +84,12 @@ impl FunctionType {
 
         // Type check function inputs.
         for unresolved_input in unresolved_function.input {
-            let input = FunctionInputType::from_circuit(table, unresolved_input, circuit_name.clone())?;
+            let input = FunctionInputType::new_from_circuit(table, unresolved_input, circuit_name.clone())?;
             inputs.push(input);
         }
 
         // Type check function output.
-        let output = FunctionOutputType::from_circuit(
+        let output = FunctionOutputType::new_from_circuit(
             table,
             circuit_name.clone(),
             unresolved_function.output,
@@ -123,5 +101,21 @@ impl FunctionType {
             inputs,
             output,
         })
+    }
+
+    ///
+    /// Resolve a function definition and insert it into the given symbol table.
+    ///
+    pub fn insert_definition(table: &mut SymbolTable, unresolved_function: Function) -> Result<(), TypeError> {
+        // Get the identifier of the function.
+        let function_identifier = unresolved_function.identifier.clone();
+
+        // Resolve the function definition into a function type.
+        let function = Self::new(table, unresolved_function)?;
+
+        // Insert (function_identifier -> function_type) as a (key -> value) pair in the symbol table.
+        table.insert_function(function_identifier, function);
+
+        Ok(())
     }
 }

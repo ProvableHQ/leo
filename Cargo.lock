@@ -1282,7 +1282,7 @@ version = "1.0.3"
 dependencies = [
  "leo-ast",
  "leo-imports",
- "leo-symbol-table",
+ "leo-static-check",
  "leo-typed",
  "serde",
  "thiserror",
@@ -1347,7 +1347,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-symbol-table",
+ "leo-static-check",
  "notify",
  "num-bigint",
  "rand",
@@ -1408,7 +1408,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-symbol-table"
+name = "leo-static-check"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
@@ -1430,17 +1430,6 @@ dependencies = [
  "serde_json",
  "snarkos-errors",
  "snarkos-models",
-]
-
-[[package]]
-name = "leo-types"
-version = "1.0.3"
-dependencies = [
- "leo-ast",
- "leo-imports",
- "leo-typed",
- "serde",
- "thiserror",
 ]
 
 [[package]]

@@ -17,7 +17,7 @@
 pub mod symbol_table;
 
 use leo_ast::LeoAst;
-use leo_symbol_table::{SymbolTable, SymbolTableError};
+use leo_symbol_table::{OldSymbolTable, SymbolTableError};
 use leo_typed::LeoTypedAst;
 
 use std::path::PathBuf;
@@ -59,7 +59,7 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let symbol_table = &mut SymbolTable::new(None);
+        let symbol_table = &mut OldSymbolTable::new(None);
 
         // Run the first pass to check for duplicate names.
         symbol_table.pass_one(&program).unwrap();
@@ -78,7 +78,7 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let symbol_table = &mut SymbolTable::new(None);
+        let symbol_table = &mut OldSymbolTable::new(None);
 
         // Run pass one and expect an error.
         let error = symbol_table.pass_one(&program).unwrap_err();
@@ -99,7 +99,7 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create a new symbol table.
-        let symbol_table = &mut SymbolTable::new(None);
+        let symbol_table = &mut OldSymbolTable::new(None);
 
         // Run the pass one and expect no errors.
         symbol_table.pass_one(&program).unwrap();

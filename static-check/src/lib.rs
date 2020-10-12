@@ -14,14 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuits;
-pub use self::circuits::*;
+#[macro_use]
+extern crate thiserror;
 
-pub mod functions;
-pub use self::functions::*;
+pub mod attributes;
+pub use self::attributes::*;
 
-pub mod type_;
-pub use self::type_::*;
+pub mod errors;
+pub use self::errors::*;
 
-pub mod variables;
-pub use self::variables::*;
+pub mod symbol_table;
+pub use self::symbol_table::*;
+
+pub mod types;
+pub use self::types::*;

@@ -17,10 +17,9 @@
 use crate::{
     types::circuits::{CircuitFunctionType, CircuitVariableType},
     Attribute,
-    ExtendedType,
     FunctionType,
-    ResolvedNode,
     SymbolTable,
+    Type,
     TypeError,
 };
 use leo_typed::{Circuit, CircuitMember, Identifier};
@@ -43,17 +42,14 @@ pub struct CircuitType {
     pub functions: Vec<CircuitFunctionType>,
 }
 
-impl ResolvedNode for CircuitType {
-    type Error = TypeError;
-    type UnresolvedNode = Circuit;
-
+impl CircuitType {
     ///
     /// Return a new `CircuitType` from a given `Circuit` definition.
     ///
     /// Performs a lookup in the given symbol table if the circuit definition contains
     /// user-defined types.
     ///
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
+    pub fn new(table: &SymbolTable, unresolved: Circuit) -> Result<Self, TypeError> {
         let circuit_identifier = unresolved.circuit_name;
         let mut variables = vec![];
         let mut functions = vec![];
@@ -63,7 +59,7 @@ impl ResolvedNode for CircuitType {
             match member {
                 CircuitMember::CircuitVariable(is_mutable, variable_identifier, type_) => {
                     // Resolve the type of the circuit member variable.
-                    let type_ = ExtendedType::from_circuit(
+                    let type_ = Type::new_from_circuit(
                         table,
                         type_,
                         circuit_identifier.clone(),
@@ -109,16 +105,14 @@ impl ResolvedNode for CircuitType {
             functions,
         })
     }
-}
 
-impl CircuitType {
     ///
     /// Returns the type of a circuit member.
     ///
     /// If the member is a circuit variable, then the type of the variable is returned.
     /// If the member is a circuit function, then the return type of the function is returned.
     ///
-    pub fn member_type(&self, identifier: &Identifier) -> Result<&ExtendedType, TypeError> {
+    pub fn member_type(&self, identifier: &Identifier) -> Result<&Type, TypeError> {
         // Check if the circuit member is a circuit variable.
         let matched_variable = self
             .variables

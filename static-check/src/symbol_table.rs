@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitType, FunctionType, ResolvedNode, SymbolTableError, VariableType};
+use crate::{CircuitType, FunctionType, ParameterType, SymbolTableError};
 use leo_typed::{Circuit, Function, Identifier, Program as UnresolvedProgram};
 
 use leo_imports::ImportParser;
 use std::collections::HashMap;
 
-/// A abstract data type that tracks the current bindings of identifier
-/// names to types in a Leo program.
+/// A abstract data type that builds symbol tables for functions and circuits
 ///
 /// A symbol table has access to all function and circuit names in its
 /// parent's symbol table.
@@ -29,13 +28,13 @@ use std::collections::HashMap;
 /// Children cannot access names in another sibling's symbol table.
 #[derive(Clone)]
 pub struct SymbolTable {
-    /// Maps variable name -> variable type.
-    variables: HashMap<String, VariableType>,
+    /// Maps name -> parameter type.
+    names: HashMap<String, ParameterType>,
 
     /// Maps circuit name -> circuit type.
     circuits: HashMap<String, CircuitType>,
 
-    ///Maps function name -> function type.
+    /// Maps function name -> function type.
     functions: HashMap<String, FunctionType>,
 
     /// The parent of this symbol table.
@@ -48,7 +47,7 @@ impl SymbolTable {
     ///
     pub fn new(parent: Option<Box<SymbolTable>>) -> Self {
         SymbolTable {
-            variables: HashMap::new(),
+            names: HashMap::new(),
             circuits: HashMap::new(),
             functions: HashMap::new(),
             parent,
@@ -56,14 +55,14 @@ impl SymbolTable {
     }
 
     ///
-    /// Insert a variable into the symbol table from a given name and variable type.
+    /// Insert a function or circuit name into the symbol table from a given name and variable type.
     ///
     /// If the symbol table did not have this name present, `None` is returned.
     /// If the symbol table did have this name present, the variable type is updated, and the old
     /// variable type is returned.
     ///
-    pub fn insert_variable(&mut self, name: String, variable_type: VariableType) -> Option<VariableType> {
-        self.variables.insert(name, variable_type)
+    pub fn insert_name(&mut self, name: String, variable_type: ParameterType) -> Option<ParameterType> {
+        self.names.insert(name, variable_type)
     }
 
     ///
@@ -90,18 +89,18 @@ impl SymbolTable {
         self.functions.insert(identifier.name, function_type)
     }
 
-    ///
-    /// Returns a reference to the variable type corresponding to the name.
-    ///
-    /// If the symbol table did not have this name present, then `None` is returned.
-    ///
-    pub fn get_variable(&self, name: &String) -> Option<&VariableType> {
-        // Lookup variable name in symbol table.
-        match self.variables.get(name) {
-            Some(variable) => Some(variable),
-            None => None,
-        }
-    }
+    // ///
+    // /// Returns a reference to the variable type corresponding to the name.
+    // ///
+    // /// If the symbol table did not have this name present, then `None` is returned.
+    // ///
+    // pub fn get_variable(&self, name: &String) -> Option<&ParameterType> {
+    //     // Lookup variable name in symbol table.
+    //     match self.names.get(name) {
+    //         Some(variable) => Some(variable),
+    //         None => None,
+    //     }
+    // }
 
     ///
     /// Returns a reference to the circuit type corresponding to the name.
@@ -163,7 +162,7 @@ impl SymbolTable {
         // Iterate over circuit names and definitions.
         for (identifier, circuit) in circuits.iter() {
             // Attempt to insert the circuit name into the symbol table.
-            let duplicate = self.insert_variable(identifier.to_string(), VariableType::from(circuit.clone()));
+            let duplicate = self.insert_name(identifier.to_string(), ParameterType::from(circuit.clone()));
 
             // Check that the circuit name is unique.
             if duplicate.is_some() {
@@ -190,7 +189,7 @@ impl SymbolTable {
         // Iterate over function names and definitions.
         for (identifier, function) in functions.iter() {
             // Attempt to insert the function name into the symbol table.
-            let duplicate = self.insert_variable(identifier.to_string(), VariableType::from(function.clone()));
+            let duplicate = self.insert_name(identifier.to_string(), ParameterType::from(function.clone()));
 
             // Check that the function name is unique.
             if duplicate.is_some() {
@@ -221,7 +220,7 @@ impl SymbolTable {
             let identifier = circuit.circuit_name.clone();
 
             // Resolve unknown types in the unresolved circuit definition.
-            let circuit_type = CircuitType::resolve(self, circuit.clone())?;
+            let circuit_type = CircuitType::new(self, circuit.clone())?;
 
             // Attempt to insert the circuit definition into the symbol table.
             self.insert_circuit(identifier, circuit_type);
@@ -247,7 +246,7 @@ impl SymbolTable {
             let identifier = function.identifier.clone();
 
             // Resolve unknown types in the unresolved function definition.
-            let function_type = FunctionType::resolve(self, function.clone())?;
+            let function_type = FunctionType::new(&self, function.clone())?;
 
             // Attempt to insert the function definition into the symbol table.
             self.insert_function(identifier, function_type);

@@ -16,7 +16,7 @@
 
 use leo_typed::{Expression, Function, Identifier, Program, Span, Statement};
 
-use leo_symbol_table::{ExtendedType, FunctionType, SymbolTable};
+use leo_static_check::{FunctionType, SymbolTable, Type};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -235,7 +235,7 @@ impl TypeAssertion {
 /// A `Type` or a `TypeVariable` in a `TypeAssertion`.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TypeElement {
-    Type(ExtendedType),
+    Type(Type),
     Variable(TypeVariable),
 }
 
@@ -256,7 +256,7 @@ impl TypeElement {
     /// Return a boolean `TypeElement`.
     ///
     pub fn boolean() -> Self {
-        TypeElement::Type(ExtendedType::Boolean)
+        TypeElement::Type(Type::Boolean)
     }
 
     ///

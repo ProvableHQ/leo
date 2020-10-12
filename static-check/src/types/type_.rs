@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{ResolvedNode, SymbolTable, TypeError, TypeVariable};
+use crate::{SymbolTable, TypeError, TypeVariable};
 use leo_typed::{Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ impl Type {
     ///
     /// Return a new type from the given unresolved type.
     ///
-    pub fn new(table: &mut SymbolTable, type_: UnresolvedType, span: Span) -> Result<Self, TypeError> {
+    pub fn new(table: &SymbolTable, type_: UnresolvedType, span: Span) -> Result<Self, TypeError> {
         Ok(match type_ {
             UnresolvedType::Address => Type::Address,
             UnresolvedType::Boolean => Type::Boolean,
@@ -89,7 +89,7 @@ impl Type {
     /// If this type is SelfType, return the circuit's type.
     ///
     pub fn new_from_circuit(
-        table: &mut SymbolTable,
+        table: &SymbolTable,
         type_: UnresolvedType,
         circuit_name: Identifier,
         span: Span,
