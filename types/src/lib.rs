@@ -17,6 +17,9 @@
 #[macro_use]
 extern crate thiserror;
 
+pub mod attributes;
+pub use self::attributes::*;
+
 pub mod errors;
 pub use self::errors::*;
 

@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{ResolvedNode, SymbolTable, TypeError};
+use crate::{ResolvedNode, SymbolTable, TypeError, TypeVariable};
 use leo_typed::{Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
@@ -36,6 +36,9 @@ pub enum Type {
     // User defined types
     Circuit(Identifier),
     Function(Identifier),
+
+    // Unknown type variables
+    TypeVariable(TypeVariable),
 }
 
 impl Type {
@@ -204,6 +207,7 @@ impl fmt::Display for Type {
 
             Type::Circuit(identifier) => write!(f, "circuit {}", identifier),
             Type::Function(identifier) => write!(f, "function {}", identifier),
+            Type::TypeVariable(type_variable) => write!(f, "{}", type_variable),
         }
     }
 }

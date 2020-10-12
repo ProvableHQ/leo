@@ -14,17 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuits;
-pub use self::circuits::*;
-
-pub mod functions;
-pub use self::functions::*;
-
-pub mod type_;
-pub use self::type_::*;
-
-pub mod type_variable;
-pub use self::type_variable::*;
-
-pub mod parameters;
-pub use self::parameters::*;
+pub mod parameter;
+pub use self::parameter::*;

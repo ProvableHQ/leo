@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuits;
-pub use self::circuits::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod functions;
-pub use self::functions::*;
+/// An unknown type in a Leo program.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TypeVariable {
+    name: String,
+}
 
-pub mod type_;
-pub use self::type_::*;
-
-pub mod type_variable;
-pub use self::type_variable::*;
-
-pub mod parameters;
-pub use self::parameters::*;
+impl fmt::Display for TypeVariable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}

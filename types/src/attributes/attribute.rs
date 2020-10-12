@@ -14,5 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod variable;
-pub use self::variable::*;
+use serde::{Deserialize, Serialize};
+
+/// Indicates that a program variable has additional functionality.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Attribute {
+    Mutable,
+    Static,
+}

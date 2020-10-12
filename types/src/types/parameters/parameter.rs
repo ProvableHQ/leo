@@ -23,13 +23,13 @@ use std::fmt;
 ///
 /// This type should be added to the variable symbol table for a resolved syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct VariableType {
+pub struct ParameterType {
     pub identifier: Identifier,
     pub type_: Type,
     pub attributes: Vec<Attribute>,
 }
 
-impl VariableType {
+impl ParameterType {
     ///
     /// Returns `true` if this variable's value can be modified.
     ///
@@ -38,11 +38,11 @@ impl VariableType {
     }
 }
 
-impl From<Circuit> for VariableType {
+impl From<Circuit> for ParameterType {
     fn from(value: Circuit) -> Self {
         let identifier = value.circuit_name;
 
-        VariableType {
+        ParameterType {
             identifier: identifier.clone(),
             type_: Type::Circuit(identifier),
             attributes: vec![],
@@ -50,11 +50,11 @@ impl From<Circuit> for VariableType {
     }
 }
 
-impl From<Function> for VariableType {
+impl From<Function> for ParameterType {
     fn from(value: Function) -> Self {
         let identifier = value.identifier;
 
-        VariableType {
+        ParameterType {
             identifier: identifier.clone(),
             type_: Type::Function(identifier.clone()),
             attributes: vec![],
@@ -62,9 +62,9 @@ impl From<Function> for VariableType {
     }
 }
 
-impl From<FunctionInputVariableType> for VariableType {
+impl From<FunctionInputVariableType> for ParameterType {
     fn from(value: FunctionInputVariableType) -> Self {
-        VariableType {
+        ParameterType {
             identifier: value.identifier,
             type_: value.type_,
             attributes: value.attributes,
@@ -72,7 +72,7 @@ impl From<FunctionInputVariableType> for VariableType {
     }
 }
 
-impl fmt::Display for VariableType {
+impl fmt::Display for ParameterType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.identifier)
     }
