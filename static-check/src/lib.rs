@@ -23,6 +23,9 @@ pub use self::attributes::*;
 pub mod errors;
 pub use self::errors::*;
 
+pub mod static_check;
+pub use self::static_check::*;
+
 pub mod symbol_table;
 pub use self::symbol_table::*;
 

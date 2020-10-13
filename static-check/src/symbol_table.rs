@@ -254,37 +254,4 @@ impl SymbolTable {
 
         Ok(())
     }
-
-    ///
-    /// Checks for duplicate circuit and function names given an unresolved program.
-    ///
-    /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
-    /// Variables defined later in the unresolved program cannot have the same name.
-    ///
-    pub fn pass_one(&mut self, program: &UnresolvedProgram) -> Result<(), SymbolTableError> {
-        // Check unresolved program circuit names.
-        self.check_duplicate_circuits(&program.circuits)?;
-
-        // Check unresolved program function names.
-        self.check_duplicate_functions(&program.functions)?;
-
-        Ok(())
-    }
-
-    ///
-    /// Checks for unknown types in circuit and function definitions given an unresolved program.
-    ///
-    /// If a circuit or function definition only contains known types, then it is inserted into the
-    /// symbol table. Variables defined later in the unresolved program can lookup the definition and
-    /// refer to its expected types.
-    ///
-    pub fn pass_two(&mut self, program: &UnresolvedProgram) -> Result<(), SymbolTableError> {
-        // Check unresolved program circuit definitions.
-        self.check_unknown_types_circuits(&program.circuits)?;
-
-        // Check unresolved program function definitions.
-        self.check_unknown_types_functions(&program.functions)?;
-
-        Ok(())
-    }
 }

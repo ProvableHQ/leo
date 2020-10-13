@@ -45,6 +45,8 @@ impl Type {
     ///
     /// Return a new type from the given unresolved type.
     ///
+    /// Performs a lookup in the given symbol table if the type is user-defined.
+    ///
     pub fn new(table: &SymbolTable, type_: UnresolvedType, span: Span) -> Result<Self, TypeError> {
         Ok(match type_ {
             UnresolvedType::Address => Type::Address,

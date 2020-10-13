@@ -103,14 +103,21 @@ impl FunctionBody {
     ///
     pub fn new(function: Function, symbol_table: SymbolTable) -> Self {
         let name = &function.identifier.name;
+
+        // Get function type from symbol table.
         let function_type = symbol_table.get_function(name).unwrap().clone();
 
+        // Create new function body struct.
         let mut function_body = Self {
             function_type,
             symbol_table,
             type_assertions: vec![],
             type_variables: HashSet::new(),
         };
+
+        // Build symbol table for variables.
+        // Initialize function inputs as variables.
+        // Update inputs when encountering let/const variable definitions.
 
         // Create type assertions for function statements
         function_body.parse_statements(&function.statements);

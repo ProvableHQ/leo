@@ -17,7 +17,7 @@
 use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
-use leo_symbol_table::OldSymbolTable;
+use leo_static_check::StaticCheck;
 use leo_typed::LeoTypedAst;
 use std::path::PathBuf;
 
@@ -44,16 +44,11 @@ impl TestDynamicCheck {
         let typed = LeoTypedAst::new(TEST_PROGRAM_NAME, &ast);
         let program = typed.into_repr();
 
-        // Create symbol table.
-        let mut symbol_table = OldSymbolTable::new(None);
-
-        // Load symbols into symbol table.
-        symbol_table.pass_one(&program).unwrap();
-
-        symbol_table.pass_two(&program).unwrap();
+        // Create static check.
+        let mut static_check = StaticCheck::new(&program).unwrap();
 
         // Create dynamic check
-        let dynamic_check = DynamicCheck::new(&program, symbol_table);
+        let dynamic_check = DynamicCheck::new(&program, static_check);
 
         Self { dynamic_check }
     }
