@@ -32,7 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         mutable: bool,
         identifier: Identifier,
         mut value: ConstrainedValue<F, G>,
-    ) -> () {
+    ) {
         // Store with given mutability
         if mutable {
             value = ConstrainedValue::Mutable(Box::new(value));

@@ -23,6 +23,5 @@ where
 {
     type ErrorType;
 
-    #[must_use]
     fn pow<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, Self::ErrorType>;
 }

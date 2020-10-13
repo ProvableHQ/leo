@@ -50,7 +50,8 @@ impl ConsoleError {
     }
 
     pub fn assertion_depends_on_input(span: Span) -> Self {
-        let message = format!("console.assert() failed to evaluate. This error is caused by empty input file values");
+        let message =
+            "console.assert() failed to evaluate. This error is caused by empty input file values".to_string();
 
         Self::new_from_span(message, span)
     }

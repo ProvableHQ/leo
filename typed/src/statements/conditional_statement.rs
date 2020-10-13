@@ -31,11 +31,7 @@ impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
     fn from(statement: AstConditionalStatement<'ast>) -> Self {
         ConditionalStatement {
             condition: Expression::from(statement.condition),
-            statements: statement
-                .statements
-                .into_iter()
-                .map(|statement| Statement::from(statement))
-                .collect(),
+            statements: statement.statements.into_iter().map(Statement::from).collect(),
             next: statement
                 .next
                 .map(|n_or_e| Some(ConditionalNestedOrEndStatement::from(n_or_e)))
@@ -46,9 +42,9 @@ impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
 
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {{\n", self.condition)?;
+        writeln!(f, "if ({}) {{", self.condition)?;
         for statement in self.statements.iter() {
-            write!(f, "\t\t{}\n", statement)?;
+            writeln!(f, "\t\t{}", statement)?;
         }
         match self.next.clone() {
             Some(n_or_e) => write!(f, "\t}} {}", n_or_e),

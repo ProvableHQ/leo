@@ -82,11 +82,11 @@ impl Package {
             }
         }
 
-        if existing_files.len() > 0 {
+        if !existing_files.is_empty() {
             tracing::error!("File(s) {:?} already exist", existing_files);
         }
 
-        return result;
+        result
     }
 
     /// Returns `true` if a package is initialized at the given path
@@ -120,7 +120,7 @@ impl Package {
             }
         }
 
-        return true;
+        true
     }
 
     /// Creates a package at the given path
@@ -128,9 +128,10 @@ impl Package {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -174,9 +175,10 @@ impl Package {
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
 

@@ -44,12 +44,12 @@ impl<'a, F: Field> FullAdder<'a, F> for Boolean {
         b: &'a Self,
         carry: &'a Self,
     ) -> Result<(Self, Self), SynthesisError> {
-        let a_x_b = Boolean::xor(cs.ns(|| format!("a XOR b")), a, b)?;
-        let sum = Boolean::xor(cs.ns(|| format!("adder sum")), &a_x_b, carry)?;
+        let a_x_b = Boolean::xor(cs.ns(|| "a XOR b"), a, b)?;
+        let sum = Boolean::xor(cs.ns(|| "adder sum"), &a_x_b, carry)?;
 
-        let c1 = Boolean::and(cs.ns(|| format!("a AND b")), a, b)?;
-        let c2 = Boolean::and(cs.ns(|| format!("carry AND (a XOR b)")), carry, &a_x_b)?;
-        let carry = Boolean::or(cs.ns(|| format!("c1 OR c2")), &c1, &c2)?;
+        let c1 = Boolean::and(cs.ns(|| "a AND b"), a, b)?;
+        let c2 = Boolean::and(cs.ns(|| "carry AND (a XOR b)"), carry, &a_x_b)?;
+        let carry = Boolean::or(cs.ns(|| "c1 OR c2"), &c1, &c2)?;
 
         Ok((sum, carry))
     }

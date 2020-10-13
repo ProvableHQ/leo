@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         unresolved_identifier: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
-        let variable_name = new_scope(function_scope.clone(), unresolved_identifier.to_string());
+        let variable_name = new_scope(function_scope, unresolved_identifier.to_string());
         let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
 
         let mut result_value = if let Some(value) = self.get(&variable_name) {
@@ -58,7 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
 
-        result_value.resolve_type(expected_type, unresolved_identifier.span.clone())?;
+        result_value.resolve_type(expected_type, unresolved_identifier.span)?;
 
         Ok(result_value)
     }

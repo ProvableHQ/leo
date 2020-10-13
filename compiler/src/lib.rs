@@ -16,6 +16,8 @@
 
 //! Module containing structs and types that make up a Leo program.
 
+#![allow(clippy::module_inception)]
+
 #[macro_use]
 extern crate thiserror;
 

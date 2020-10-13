@@ -25,6 +25,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_static_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -36,26 +37,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get defined circuit
-        let circuit = match *circuit_identifier.clone() {
+        let circuit = match *circuit_identifier {
             Expression::Identifier(identifier) => {
                 // Use the "Self" keyword to access a static circuit function
                 if identifier.is_self() {
                     let circuit = self
                         .get(&file_scope)
-                        .ok_or(ExpressionError::self_keyword(identifier.span.clone()))?;
+                        .ok_or_else(|| ExpressionError::self_keyword(identifier.span))?;
 
                     circuit.to_owned()
                 } else {
-                    self.evaluate_identifier(file_scope.clone(), function_scope.clone(), expected_type, identifier)?
+                    self.evaluate_identifier(file_scope, function_scope, expected_type, identifier)?
                 }
             }
-            expression => self.enforce_expression(
-                cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                expected_type,
-                expression,
-            )?,
+            expression => self.enforce_expression(cs, file_scope, function_scope, expected_type, expression)?,
         }
         .extract_circuit(span.clone())?;
 

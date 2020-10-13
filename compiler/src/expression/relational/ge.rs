@@ -52,7 +52,7 @@ pub fn evaluate_ge<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         }
     };
 
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate(format!(">="), span))?;
+    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate(">=".to_string(), span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

@@ -16,7 +16,7 @@
 
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
 use leo_typed::{Statement, Type};
 
 use snarkos_models::{
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_type: Option<Type>,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
         // Evaluate statements. Only allow a single return argument to be returned.
         for statement in statements.iter() {
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
-                indicator.clone(),
+                indicator,
                 statement.clone(),
                 return_type.clone(),
                 "".to_owned(),

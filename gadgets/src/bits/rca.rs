@@ -27,7 +27,6 @@ pub trait RippleCarryAdder<F: Field, Rhs = Self>
 where
     Self: std::marker::Sized,
 {
-    #[must_use]
     fn add_bits<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError>;
 }
 

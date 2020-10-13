@@ -21,7 +21,7 @@ use std::{collections::HashMap, env::current_dir};
 
 /// Parses all relevant import files for a program.
 /// Stores compiled program structs.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ImportParser {
     imports: HashMap<String, Program>,
     core_packages: Vec<Package>,
@@ -29,10 +29,7 @@ pub struct ImportParser {
 
 impl ImportParser {
     pub fn new() -> Self {
-        Self {
-            imports: HashMap::new(),
-            core_packages: vec![],
-        }
+        Self::default()
     }
 
     pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
@@ -44,7 +41,7 @@ impl ImportParser {
         let _res = self.core_packages.push(package.clone());
     }
 
-    pub fn get_import(&self, file_name: &String) -> Option<&Program> {
+    pub fn get_import(&self, file_name: &str) -> Option<&Program> {
         self.imports.get(file_name)
     }
 
@@ -56,7 +53,7 @@ impl ImportParser {
         let mut imports = Self::new();
 
         // Find all imports relative to current directory
-        let path = current_dir().map_err(|error| ImportError::current_directory_error(error))?;
+        let path = current_dir().map_err(ImportError::current_directory_error)?;
 
         // Parse each imported file
         program

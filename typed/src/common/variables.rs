@@ -29,13 +29,9 @@ pub struct Variables {
 
 impl<'ast> From<AstVariables<'ast>> for Variables {
     fn from(variables: AstVariables<'ast>) -> Self {
-        let names = variables
-            .names
-            .into_iter()
-            .map(|x| VariableName::from(x))
-            .collect::<Vec<_>>();
+        let names = variables.names.into_iter().map(VariableName::from).collect::<Vec<_>>();
 
-        let type_ = variables.type_.map(|type_| Type::from(type_));
+        let type_ = variables.type_.map(Type::from);
 
         Self { names, type_ }
     }

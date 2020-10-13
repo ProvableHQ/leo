@@ -34,15 +34,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<usize, ExpressionError> {
         let expected_type = Some(Type::IntegerType(IntegerType::U32));
-        match self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            index,
-            span.clone(),
-        )? {
-            ConstrainedValue::Integer(number) => Ok(number.to_usize(span.clone())?),
+        match self.enforce_operand(cs, file_scope, function_scope, expected_type, index, span.clone())? {
+            ConstrainedValue::Integer(number) => Ok(number.to_usize(span)?),
             value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }
     }
