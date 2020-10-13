@@ -35,7 +35,7 @@ pub struct SerializedCircuit {
 
     pub input_assignment: Vec<SerializedField>,
     pub aux_assignment: Vec<SerializedField>,
-    pub output_assignment: Vec<SerializedField>,
+    pub output_indices: Vec<usize>,
 
     pub at: Vec<Vec<(SerializedField, SerializedIndex)>>,
     pub bt: Vec<Vec<(SerializedField, SerializedIndex)>>,
@@ -56,7 +56,7 @@ impl SerializedCircuit {
         let num_aux = synthesizer.aux_assignment.len();
         let num_constraints = synthesizer.num_constraints();
 
-        // Serialize input and aux assignments.
+        // Serialize a vector of assignments.
         fn get_serialized_assignments<E: PairingEngine>(assignments: &Vec<E::Fr>) -> Vec<SerializedField> {
             let mut serialized = vec![];
 
@@ -69,18 +69,14 @@ impl SerializedCircuit {
             serialized
         }
 
+        // Serialize input assignments.
         let input_assignment = get_serialized_assignments::<E>(&synthesizer.input_assignment);
+
+        // Serialize aux assignments.
         let aux_assignment = get_serialized_assignments::<E>(&synthesizer.aux_assignment);
 
-        // Serialize output assignments.
+        // Serialize output indices.
         let output_indices = output.indices();
-        let mut output_assignment: Vec<SerializedField> = vec![];
-
-        for index in output_indices {
-            let output_serialized = aux_assignment[index].clone();
-
-            output_assignment.push(output_serialized)
-        }
 
         // Serialize constraints.
         fn get_serialized_constraints<E: PairingEngine>(
@@ -123,85 +119,13 @@ impl SerializedCircuit {
             num_constraints,
             input_assignment,
             aux_assignment,
-            output_assignment,
+            output_indices,
             at,
             bt,
             ct,
         }
     }
 }
-//
-// impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
-//     fn from(synthesizer: CircuitSynthesizer<E>) -> Self {
-//         let num_inputs = synthesizer.input_assignment.len();
-//         let num_aux = synthesizer.aux_assignment.len();
-//         let num_constraints = synthesizer.num_constraints();
-//
-//         // Serialize assignments
-//         fn get_serialized_assignments<E: PairingEngine>(assignments: &Vec<E::Fr>) -> Vec<SerializedField> {
-//             let mut serialized = vec![];
-//
-//             for assignment in assignments {
-//                 let field = SerializedField::from(assignment);
-//
-//                 serialized.push(field);
-//             }
-//
-//             serialized
-//         }
-//
-//         let input_assignment = get_serialized_assignments::<E>(&synthesizer.input_assignment);
-//         let aux_assignment = get_serialized_assignments::<E>(&synthesizer.aux_assignment);
-//
-//         // Serialize constraints
-//         fn get_serialized_constraints<E: PairingEngine>(
-//             constraints: &Vec<(E::Fr, Index)>,
-//         ) -> Vec<(SerializedField, SerializedIndex)> {
-//             let mut serialized = vec![];
-//
-//             for &(ref coeff, index) in constraints {
-//                 let field = SerializedField::from(coeff);
-//                 let index = SerializedIndex::from(index);
-//
-//                 serialized.push((field, index))
-//             }
-//
-//             serialized
-//         }
-//
-//         let mut at = vec![];
-//         let mut bt = vec![];
-//         let mut ct = vec![];
-//
-//         for i in 0..num_constraints {
-//             // Serialize at[i]
-//
-//             let a_constraints = get_serialized_constraints::<E>(&synthesizer.at[i]);
-//             at.push(a_constraints);
-//
-//             // Serialize bt[i]
-//
-//             let b_constraints = get_serialized_constraints::<E>(&synthesizer.bt[i]);
-//             bt.push(b_constraints);
-//
-//             // Serialize ct[i]
-//
-//             let c_constraints = get_serialized_constraints::<E>(&synthesizer.ct[i]);
-//             ct.push(c_constraints);
-//         }
-//
-//         Self {
-//             num_inputs,
-//             num_aux,
-//             num_constraints,
-//             input_assignment,
-//             aux_assignment,
-//             at,
-//             bt,
-//             ct,
-//         }
-//     }
-// }
 
 impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
     type Error = FieldError;
