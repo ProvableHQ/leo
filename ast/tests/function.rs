@@ -65,6 +65,32 @@ fn empty_def() {
 }
 
 #[test]
+fn returning_unit_type() {
+    parses_to! {
+        parser: LanguageParser,
+        input:  "function x() -> () {}",
+        rule:   Rule::function,
+        tokens: [
+            function(0, 21, [identifier(9, 10, []), type_(16, 18, [type_tuple(16, 18, [])])])
+        ]
+    }
+}
+
+#[test]
+fn returning_unit_value() {
+    parses_to! {
+        parser: LanguageParser,
+        input:  "function x() { return () }",
+        rule:   Rule::function,
+        tokens: [
+            function(0, 26, [identifier(9, 10, []), statement(15, 25, [
+                statement_return(15, 25, [expression(22, 25, [expression_term(22, 24, [expression_tuple(22, 24, [])])])])
+            ])])
+        ]
+    }
+}
+
+#[test]
 fn id_def() {
     parses_to! {
         parser: LanguageParser,
