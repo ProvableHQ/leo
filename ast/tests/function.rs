@@ -11,7 +11,7 @@ fn call_wo_args() {
         tokens: [
             expression_postfix(0, 3, [
                 keyword_or_identifier(0, 1, [self_keyword_or_identifier(0, 1, [identifier(0, 1, [])])]),
-                access(1, 3, [access_call(1, 3, [expression_tuple(1, 3, [])])])
+                access(1, 3, [access_call(1, 3, [])])
             ])
         ]
     }
@@ -26,9 +26,9 @@ fn call_with_arg() {
         tokens: [
             expression_postfix(0, 7, [
                 keyword_or_identifier(0, 1, [self_keyword_or_identifier(0, 1, [identifier(0, 1, [])])]),
-                access(1, 7, [access_call(1, 7, [expression_tuple(1, 7, [
-                        expression(2, 6, [expression_term(2, 6, [value(2, 6, [value_boolean(2, 6, [])])])])
-                ])])])
+                access(1, 7, [access_call(1, 7, [
+                    expression(2, 6, [expression_term(2, 6, [value(2, 6, [value_boolean(2, 6, [])])])])
+                ])])
             ])
         ]
     }
@@ -43,10 +43,10 @@ fn call_with_2_args() {
         tokens: [
             expression_postfix(0, 14, [
                 keyword_or_identifier(0, 1, [self_keyword_or_identifier(0, 1, [identifier(0, 1, [])])]),
-                access(1, 14, [access_call(1, 14, [expression_tuple(1, 14, [
+                access(1, 14, [access_call(1, 14, [
                     expression(2, 6, [expression_term(2, 6, [value(2, 6, [value_boolean(2, 6, [])])])]),
                     expression(8, 13, [expression_term(8, 13, [value(8, 13, [value_boolean(8, 13, [])])])])
-                ])])])
+                ])])
             ])
         ]
     }

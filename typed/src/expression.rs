@@ -341,7 +341,6 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                         Box::new(acc),
                         function
                             .expressions
-                            .expressions
                             .into_iter()
                             .map(|expression| Expression::from(expression))
                             .collect(),

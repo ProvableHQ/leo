@@ -302,7 +302,7 @@ access_tuple = ${ "." ~ number_positive }
 access_assignee = { access_array | access_tuple | access_member }
 
 // Declared in access/call_access.rs
-access_call = !{ expression_tuple }
+access_call = !{ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in access/member_access.rs
 access_member = ${ "." ~ identifier }

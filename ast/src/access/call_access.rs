@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, expressions::TupleExpression, SpanDef};
+use crate::{ast::Rule, expressions::Expression, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,7 +23,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::access_call))]
 pub struct CallAccess<'ast> {
-    pub expressions: TupleExpression<'ast>,
+    pub expressions: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
