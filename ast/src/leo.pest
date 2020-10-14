@@ -226,7 +226,7 @@ dimension_single = {
 // Declared in types/array_dimensions.rs
 dimension_multiple = { "(" ~ number_positive ~ ("," ~ number_positive)* ~ ")"}
 
-type_tuple = { "(" ~ NEWLINE* ~ type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","? ~ NEWLINE* ~ ")" }
+type_tuple = { "(" ~ NEWLINE* ~ (type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","?)? ~ NEWLINE* ~ ")" }
 
 /// Values
 

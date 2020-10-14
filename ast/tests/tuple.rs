@@ -59,13 +59,33 @@ fn access() {
 }
 
 #[test]
-fn unit() {
+fn implicit_unit() {
     parses_to! {
         parser: LanguageParser,
         input:  "()",
         rule:   Rule::expression_tuple,
         tokens: [
             expression_tuple(0, 2, [])
+        ]
+    }
+}
+
+#[test]
+fn explicit_unit() {
+    parses_to! {
+        parser: LanguageParser,
+        input:  "let x: () = ();",
+        rule:   Rule::statement_definition,
+        tokens: [
+            statement_definition(0, 15, [
+                declare(0, 4, [let_(0, 4, [])]),
+                variables(4, 9, [
+                    variable_name(4, 5, [identifier(4, 5, [])]),
+                    type_(7, 9, [type_tuple(7, 9, [])])
+                ]),
+                expression(12, 14, [expression_term(12, 14, [expression_tuple(12, 14, [])])]),
+                LINE_END(14, 15, [])
+            ])
         ]
     }
 }
