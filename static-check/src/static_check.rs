@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{SymbolTable, SymbolTableError};
-use leo_typed::Program as UnresolvedProgram;
+use leo_typed::Program;
 
 /// Performs a static type check over a program.
 pub struct StaticCheck {
@@ -26,7 +26,7 @@ impl StaticCheck {
     ///
     /// Return a new `StaticCheck` from a given program.
     ///
-    pub fn new(program: &UnresolvedProgram) -> Result<SymbolTable, SymbolTableError> {
+    pub fn new(program: &Program) -> Result<SymbolTable, SymbolTableError> {
         let mut check = Self {
             table: SymbolTable::new(None),
         };
@@ -46,7 +46,7 @@ impl StaticCheck {
     /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
     /// Variables defined later in the unresolved program cannot have the same name.
     ///
-    pub fn pass_one(&mut self, program: &UnresolvedProgram) -> Result<(), SymbolTableError> {
+    pub fn pass_one(&mut self, program: &Program) -> Result<(), SymbolTableError> {
         // Check unresolved program circuit names.
         self.table.check_duplicate_circuits(&program.circuits)?;
 
@@ -63,7 +63,7 @@ impl StaticCheck {
     /// symbol table. Variables defined later in the unresolved program can lookup the definition and
     /// refer to its expected types.
     ///
-    pub fn pass_two(&mut self, program: &UnresolvedProgram) -> Result<(), SymbolTableError> {
+    pub fn pass_two(&mut self, program: &Program) -> Result<(), SymbolTableError> {
         // Check unresolved program circuit definitions.
         self.table.check_unknown_types_circuits(&program.circuits)?;
 
