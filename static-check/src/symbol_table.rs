@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitType, FunctionType, ParameterType, SymbolTableError};
-use leo_typed::{Circuit, Function, Identifier, Program as UnresolvedProgram};
+use leo_typed::{Circuit, Function, Identifier};
 
 use leo_imports::ImportParser;
 use std::collections::HashMap;

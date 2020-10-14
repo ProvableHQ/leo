@@ -19,7 +19,7 @@ use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;
 
-/// Errors encountered when tracking variable, function, and circuit names in a program
+/// Errors encountered when tracking variable, function, and circuit names in a program.
 #[derive(Debug, Error)]
 pub enum SymbolTableError {
     #[error("{}", _0)]
@@ -31,7 +31,7 @@ pub enum SymbolTableError {
 
 impl SymbolTableError {
     ///
-    /// Set the filepath for the error stacktrace
+    /// Sets the filepath for the error stacktrace.
     ///
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
@@ -41,14 +41,14 @@ impl SymbolTableError {
     }
 
     ///
-    /// Return a new formatted error with a given message and span information
+    /// Returns a new formatted error with a given message and span information.
     ///
     fn new_from_span(message: String, span: Span) -> Self {
         SymbolTableError::Error(FormattedError::new_from_span(message, span))
     }
 
     ///
-    /// Two circuits have been defined with the same name
+    /// Two circuits have been defined with the same name.
     ///
     pub fn duplicate_circuit(identifier: Identifier, span: Span) -> Self {
         let message = format!("Duplicate circuit definition found for `{}`", identifier);
@@ -57,7 +57,7 @@ impl SymbolTableError {
     }
 
     ///
-    /// Two functions have been defined with the same name
+    /// Two functions have been defined with the same name.
     ///
     pub fn duplicate_function(identifier: Identifier, span: Span) -> Self {
         let message = format!("Duplicate function definition found for `{}`", identifier);

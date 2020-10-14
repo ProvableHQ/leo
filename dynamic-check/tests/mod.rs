@@ -45,7 +45,7 @@ impl TestDynamicCheck {
         let program = typed.into_repr();
 
         // Create static check.
-        let mut static_check = StaticCheck::new(&program).unwrap();
+        let mut static_check = StaticCheck::run(&program).unwrap();
 
         // Create dynamic check
         let dynamic_check = DynamicCheck::new(&program, static_check);

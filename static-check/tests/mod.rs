@@ -17,7 +17,7 @@
 pub mod symbol_table;
 
 use leo_ast::LeoAst;
-use leo_symbol_table::{OldSymbolTable, SymbolTableError};
+use leo_static_check::{StaticCheck, StaticCheckError, SymbolTableError};
 use leo_typed::LeoTypedAst;
 
 use std::path::PathBuf;
@@ -25,11 +25,11 @@ use std::path::PathBuf;
 const TEST_PROGRAM_PATH: &str = "";
 
 /// A helper struct to test a `SymbolTable`.
-pub struct TestSymbolTable {
+pub struct TestStaticCheck {
     typed: LeoTypedAst,
 }
 
-impl TestSymbolTable {
+impl TestStaticCheck {
     ///
     /// Returns a typed syntax tree given a Leo program.
     ///
@@ -59,13 +59,7 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let symbol_table = &mut OldSymbolTable::new(None);
-
-        // Run the first pass to check for duplicate names.
-        symbol_table.pass_one(&program).unwrap();
-
-        // Run the second pass to check for invalid definitions.
-        symbol_table.pass_two(&program).unwrap();
+        let _symbol_table = StaticCheck::run(&program).unwrap();
     }
 
     ///
@@ -78,13 +72,13 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let symbol_table = &mut OldSymbolTable::new(None);
+        let static_check = &mut StaticCheck::new();
 
         // Run pass one and expect an error.
-        let error = symbol_table.pass_one(&program).unwrap_err();
+        let error = static_check.pass_one(&program).unwrap_err();
 
         match error {
-            SymbolTableError::Error(_) => {} // Ok
+            StaticCheckError::SymbolTableError(SymbolTableError::Error(_)) => {} // Ok
             error => panic!("Expected a symbol table error found `{}`", error),
         }
     }
@@ -99,16 +93,16 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create a new symbol table.
-        let symbol_table = &mut OldSymbolTable::new(None);
+        let static_check = &mut StaticCheck::new();
 
         // Run the pass one and expect no errors.
-        symbol_table.pass_one(&program).unwrap();
+        static_check.pass_one(&program).unwrap();
 
         // Run the pass two and expect and error.
-        let error = symbol_table.pass_two(&program).unwrap_err();
+        let error = static_check.pass_two(&program).unwrap_err();
 
         match error {
-            SymbolTableError::TypeError(_) => {} //Ok
+            StaticCheckError::SymbolTableError(SymbolTableError::TypeError(_)) => {} //Ok
             error => panic!("Expected a type error found `{}`", error),
         }
     }

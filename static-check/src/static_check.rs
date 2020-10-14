@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{SymbolTable, SymbolTableError};
+use crate::{StaticCheckError, SymbolTable};
 use leo_typed::Program;
 
 /// Performs a static type check over a program.
@@ -24,12 +24,19 @@ pub struct StaticCheck {
 
 impl StaticCheck {
     ///
-    /// Return a new `StaticCheck` from a given program.
+    /// Returns a new `StaticCheck` with an empty symbol table.
     ///
-    pub fn new(program: &Program) -> Result<SymbolTable, SymbolTableError> {
-        let mut check = Self {
+    pub fn new() -> Self {
+        Self {
             table: SymbolTable::new(None),
-        };
+        }
+    }
+
+    ///
+    /// Returns a new `SymbolTable` from a given program.
+    ///
+    pub fn run(program: &Program) -> Result<SymbolTable, StaticCheckError> {
+        let mut check = Self::new();
 
         // Run pass one checks
         check.pass_one(program)?;
@@ -46,7 +53,7 @@ impl StaticCheck {
     /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
     /// Variables defined later in the unresolved program cannot have the same name.
     ///
-    pub fn pass_one(&mut self, program: &Program) -> Result<(), SymbolTableError> {
+    pub fn pass_one(&mut self, program: &Program) -> Result<(), StaticCheckError> {
         // Check unresolved program circuit names.
         self.table.check_duplicate_circuits(&program.circuits)?;
 
@@ -63,7 +70,7 @@ impl StaticCheck {
     /// symbol table. Variables defined later in the unresolved program can lookup the definition and
     /// refer to its expected types.
     ///
-    pub fn pass_two(&mut self, program: &Program) -> Result<(), SymbolTableError> {
+    pub fn pass_two(&mut self, program: &Program) -> Result<(), StaticCheckError> {
         // Check unresolved program circuit definitions.
         self.table.check_unknown_types_circuits(&program.circuits)?;
 

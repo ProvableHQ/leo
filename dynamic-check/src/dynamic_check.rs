@@ -28,7 +28,7 @@ pub struct DynamicCheck {
 
 impl DynamicCheck {
     ///
-    /// Return a new `DynamicCheck` from a given program and symbol table.
+    /// Returns a new `DynamicCheck` from a given program and symbol table.
     ///
     pub fn new(program: &Program, symbol_table: SymbolTable) -> Self {
         let mut dynamic_check = Self {
@@ -73,7 +73,7 @@ impl DynamicCheck {
     }
 
     ///
-    /// Return the result of evaluating all `TypeAssertion` predicates.
+    /// Returns the result of evaluating all `TypeAssertion` predicates.
     ///
     /// Will attempt to substitute a `Type` for all `TypeVariable`s.
     /// Returns `true` if all `TypeAssertion` predicates are true.
@@ -207,7 +207,7 @@ pub struct VariableTable(pub HashMap<String, Type>);
 
 impl VariableTable {
     ///
-    /// Return a new variable table
+    /// Returns a new variable table
     ///
     pub fn new() -> Self {
         Self(HashMap::new())
@@ -248,14 +248,14 @@ pub struct TypeAssertion {
 
 impl TypeAssertion {
     ///
-    /// Return a `TypeAssertion` predicate from given left and right `TypeElement`s
+    /// Returns a `TypeAssertion` predicate from given left and right `TypeElement`s
     ///
     pub fn new(left: TypeElement, right: TypeElement) -> Self {
         Self { left, right }
     }
 
     ///
-    /// Substitute the given `TypeVariable` for each `TypeElement` in the `TypeAssertion`.
+    /// Substitutes the given `TypeVariable` for each `TypeElement` in the `TypeAssertion`.
     ///
     pub fn substitute(&mut self, variable: &TypeVariable, type_: &TypeElement) {
         self.left.substitute(variable, type_);
@@ -289,7 +289,7 @@ pub enum TypeElement {
 
 impl TypeElement {
     ///
-    /// Return a new `TypeElement` from the given expression and symbol table.
+    /// Returns a new `TypeElement` from the given expression and symbol table.
     ///
     pub fn new(expression: &Expression, _symbol_table: SymbolTable) -> Self {
         match expression {
@@ -301,14 +301,14 @@ impl TypeElement {
     }
 
     ///
-    /// Return a boolean `TypeElement`.
+    /// Returns a boolean `TypeElement`.
     ///
     pub fn boolean() -> Self {
         TypeElement::Type(Type::Boolean)
     }
 
     ///
-    /// Substitute the given `TypeElement` if self is equal to the given `TypeVariable`.
+    /// Substitutes the given `TypeElement` if self is equal to the given `TypeVariable`.
     ///
     pub fn substitute(&mut self, variable: &TypeVariable, type_: &TypeElement) {
         match self {
