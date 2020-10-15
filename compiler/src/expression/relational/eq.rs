@@ -31,7 +31,7 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,
-    span: Span,
+    span: &Span,
 ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
     let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line, span.start);
     let constraint_result = match (left, right) {
@@ -58,14 +58,9 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
             let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
             for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
-                let next = evaluate_eq(&mut cs.ns(|| format!("array[{}]", i)), left, right, span.clone())?;
+                let next = evaluate_eq(&mut cs.ns(|| format!("array[{}]", i)), left, right, span)?;
 
-                current = enforce_and(
-                    &mut cs.ns(|| format!("array result {}", i)),
-                    current,
-                    next,
-                    span.clone(),
-                )?;
+                current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
             }
             return Ok(current);
         }
@@ -73,36 +68,31 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
             let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
 
             for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
-                let next = evaluate_eq(&mut cs.ns(|| format!("tuple_index {}", i)), left, right, span.clone())?;
+                let next = evaluate_eq(&mut cs.ns(|| format!("tuple_index {}", i)), left, right, span)?;
 
-                current = enforce_and(
-                    &mut cs.ns(|| format!("array result {}", i)),
-                    current,
-                    next,
-                    span.clone(),
-                )?;
+                current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
             }
             return Ok(current);
         }
         (ConstrainedValue::Unresolved(string), val_2) => {
             let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
+            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
             return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, ConstrainedValue::Unresolved(string)) => {
             let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
+            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
             return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(
                 format!("{} == {}", val_1, val_2,),
-                span,
+                span.to_owned(),
             ));
         }
     };
 
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), span))?;
+    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), span.to_owned()))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

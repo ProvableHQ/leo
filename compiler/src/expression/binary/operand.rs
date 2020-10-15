@@ -31,11 +31,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_operand<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         expression: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_type.clone(), expression)?;
 

@@ -21,7 +21,7 @@ use leo_core::{CorePackageList, LeoCoreError};
 use snarkos_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub(crate) fn store_core_package(&mut self, scope: String, package: Package) -> Result<(), LeoCoreError> {
+    pub(crate) fn store_core_package(&mut self, scope: &str, package: Package) -> Result<(), LeoCoreError> {
         // Create list of imported core packages.
         let list = CorePackageList::from_package_access(package.access)?;
 
@@ -29,10 +29,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let symbol_list = list.to_symbols()?;
 
         for (symbol, circuit) in symbol_list.symbols() {
-            let symbol_name = new_scope(scope.clone(), symbol);
+            let symbol_name = new_scope(scope, symbol);
 
             // store packages
-            self.store(symbol_name, ConstrainedValue::CircuitDefinition(circuit))
+            self.store(symbol_name, ConstrainedValue::CircuitDefinition(circuit.to_owned()))
         }
 
         Ok(())

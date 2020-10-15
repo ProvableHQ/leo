@@ -29,8 +29,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_tuple<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         tuple: Vec<Expression>,
         span: Span,
@@ -60,7 +60,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Some(expected_types[i].clone())
             };
 
-            result.push(self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), type_, expression)?);
+            result.push(self.enforce_expression(cs, file_scope, function_scope, type_, expression)?);
         }
 
         Ok(ConstrainedValue::Tuple(result))

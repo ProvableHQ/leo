@@ -34,8 +34,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         mut expected_type: Option<Type>,
         array: Vec<SpreadOrExpression>,
         span: Span,
@@ -65,7 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             match element {
                 SpreadOrExpression::Spread(spread) => match spread {
                     Expression::Identifier(identifier) => {
-                        let array_name = new_scope(function_scope.clone(), identifier.to_string());
+                        let array_name = new_scope(&function_scope, &identifier.name);
                         match self.get(&array_name) {
                             Some(value) => match value {
                                 ConstrainedValue::Array(array) => result.extend(array.clone()),
@@ -79,8 +79,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 SpreadOrExpression::Expression(expression) => {
                     result.push(self.enforce_expression(
                         cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
+                        file_scope,
+                        function_scope,
                         expected_type.clone(),
                         expression,
                     )?);

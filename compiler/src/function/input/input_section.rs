@@ -39,9 +39,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let member_value = self.allocate_main_function_input(
                 cs,
                 parameter.type_,
-                parameter.variable.name,
+                &parameter.variable.name,
                 option,
-                parameter.span,
+                &parameter.span,
             )?;
             let member = ConstrainedCircuitMember(member_name, member_value);
 
