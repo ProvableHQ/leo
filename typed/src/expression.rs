@@ -74,10 +74,10 @@ pub enum Expression {
     Mul(Box<Expression>, Box<Expression>, Span),
     Div(Box<Expression>, Box<Expression>, Span),
     Pow(Box<Expression>, Box<Expression>, Span),
+    Negate(Box<Expression>, Span),
 
     // Boolean operations
     Not(Box<Expression>, Span),
-    Negate(Box<Expression>, Span),
     Or(Box<Expression>, Box<Expression>, Span),
     And(Box<Expression>, Box<Expression>, Span),
     Eq(Box<Expression>, Box<Expression>, Span),

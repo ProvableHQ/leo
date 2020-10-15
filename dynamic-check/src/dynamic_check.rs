@@ -175,11 +175,91 @@ impl FunctionBody {
     ///
     fn parse_expression(&mut self, expression: &Expression) -> Type {
         match expression {
+            // Type variables
             Expression::Identifier(identifier) => Self::parse_identifier(&identifier),
             Expression::Implicit(name, _) => Self::parse_implicit(name),
+
+            // Explicit types
             Expression::Boolean(_, _) => Type::Boolean,
+            Expression::Address(_, _) => Type::Address,
+            Expression::Field(_, _) => Type::Field,
+            Expression::Group(_) => Type::Group,
+            Expression::Integer(integer_type, _, _) => Type::IntegerType(integer_type.clone()),
+
+            // Number operations
+            Expression::Add(left, right, span) => self.parse_binary_expression(left, right, span),
+            Expression::Sub(left, right, span) => self.parse_binary_expression(left, right, span),
+            Expression::Mul(left, right, span) => self.parse_binary_expression(left, right, span),
+            Expression::Div(left, right, span) => self.parse_binary_expression(left, right, span),
+            Expression::Pow(left, right, span) => self.parse_binary_expression(left, right, span),
+            Expression::Negate(expression, _span) => self.parse_expression(expression),
+
+            // Boolean operations
+            Expression::Not(expression, _span) => self.parse_boolean_expression(expression),
+            Expression::Or(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::And(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Eq(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Ge(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Le(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Lt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+
             expression => unimplemented!("expression {} not implemented", expression),
         }
+    }
+
+    ///
+    /// Returns the `Boolean` type if the expression is a `Boolean` type.
+    ///
+    fn parse_boolean_expression(&mut self, expression: &Expression) -> Type {
+        // Return the `Boolean` type
+        let boolean_type = Type::Boolean;
+
+        // Get the type of the expression
+        let expression_type = self.parse_expression(expression);
+
+        // TODO (collinc97) throw an error if the expression is not a `Boolean` type.
+        if expression_type.ne(&boolean_type) {
+            unimplemented!("Mismatched types parse_boolean_expression")
+        }
+
+        boolean_type
+    }
+
+    ///
+    /// Returns the type of a binary expression.
+    /// Collects a vector of `TypeAssertion` predicates from the expression.
+    ///
+    fn parse_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+        // Get the left expression type.
+        let left_type = self.parse_expression(left);
+
+        // Get the right expression type.
+        let right_type = self.parse_expression(right);
+
+        // TODO (collinc97) throw an error if left type does not match right type
+        if left_type.ne(&right_type) {
+            unimplemented!("Mismatched types parse_binary_expression")
+        }
+
+        left_type
+    }
+
+    ///
+    /// Returns the `Boolean` type if the binary expression is a `Boolean` type.
+    ///
+    fn parse_boolean_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+        // Return the `Boolean` type.
+        let boolean_type = Type::Boolean;
+
+        // Get the type of the binary expression.
+        let binary_expression_type = self.parse_binary_expression(left, right, _span);
+
+        // TODO (collinc97) throw an error if the binary expression is not a `Boolean` type.
+        if binary_expression_type.ne(&boolean_type) {
+            unimplemented!("Mismatched types parse_boolean_binary_expression")
+        }
+
+        boolean_type
     }
 
     ///
