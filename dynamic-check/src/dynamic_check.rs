@@ -171,7 +171,6 @@ impl FunctionBody {
 
     ///
     /// Returns the type of an expression.
-    /// Collects a vector of `TypeAssertion` predicates from the expression.
     ///
     fn parse_expression(&mut self, expression: &Expression) -> Type {
         match expression {
@@ -203,8 +202,45 @@ impl FunctionBody {
             Expression::Le(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Lt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
 
+            // Conditionals
+            Expression::IfElse(condition, first, second, span) => {
+                self.parse_conditional_expression(condition, first, second, span)
+            }
+
             expression => unimplemented!("expression {} not implemented", expression),
         }
+    }
+
+    ///
+    /// Returns a new type variable from a given identifier
+    ///
+    fn parse_identifier(identifier: &Identifier) -> Type {
+        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+    }
+
+    ///
+    /// Returns a new type variable from a given identifier
+    ///
+    fn parse_implicit(name: &String) -> Type {
+        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+    }
+
+    ///
+    /// Returns the type of a binary expression.
+    ///
+    fn parse_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+        // Get the left expression type.
+        let left_type = self.parse_expression(left);
+
+        // Get the right expression type.
+        let right_type = self.parse_expression(right);
+
+        // TODO (collinc97) throw an error if left type does not match right type
+        if left_type.ne(&right_type) {
+            unimplemented!("Mismatched types parse_binary_expression")
+        }
+
+        left_type
     }
 
     ///
@@ -226,25 +262,6 @@ impl FunctionBody {
     }
 
     ///
-    /// Returns the type of a binary expression.
-    /// Collects a vector of `TypeAssertion` predicates from the expression.
-    ///
-    fn parse_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
-        // Get the left expression type.
-        let left_type = self.parse_expression(left);
-
-        // Get the right expression type.
-        let right_type = self.parse_expression(right);
-
-        // TODO (collinc97) throw an error if left type does not match right type
-        if left_type.ne(&right_type) {
-            unimplemented!("Mismatched types parse_binary_expression")
-        }
-
-        left_type
-    }
-
-    ///
     /// Returns the `Boolean` type if the binary expression is a `Boolean` type.
     ///
     fn parse_boolean_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
@@ -263,17 +280,20 @@ impl FunctionBody {
     }
 
     ///
-    /// Returns a new type variable from a given identifier
+    /// Returns the type of the conditional expression.
     ///
-    fn parse_identifier(identifier: &Identifier) -> Type {
-        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
-    }
+    fn parse_conditional_expression(
+        &mut self,
+        condition: &Expression,
+        first: &Expression,
+        second: &Expression,
+        _span: &Span,
+    ) -> Type {
+        // Check that the type of the condition expression is a boolean.
+        let _condition_type = self.parse_boolean_expression(condition);
 
-    ///
-    /// Returns a new type variable from a given identifier
-    ///
-    fn parse_implicit(name: &String) -> Type {
-        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+        // Check that the types of the first and second expression are equal.
+        self.parse_binary_expression(first, second, span)
     }
 
     ///
