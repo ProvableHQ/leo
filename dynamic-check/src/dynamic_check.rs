@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type};
+use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{Expression, Function, Identifier, Program, Span, Statement};
 
 use serde::{Deserialize, Serialize};
@@ -157,16 +157,43 @@ impl FunctionBody {
         let output_type = &self.function_type.output.type_;
 
         // Create the left hand side of a type assertion.
-        let left = TypeElement::Type(output_type.clone());
+        let left = output_type.clone();
 
         // Create the right hand side from the statement return expression.
-        let right = TypeElement::new(expression, self.user_defined_types.clone());
+        let right = self.parse_expression(expression);
 
         // Create a new type assertion for the statement return.
         let type_assertion = TypeAssertion::new(left, right);
 
         // Push the new type assertion to this function's list of type assertions.
         self.type_assertions.push(type_assertion)
+    }
+
+    ///
+    /// Returns the type of an expression.
+    /// Collects a vector of `TypeAssertion` predicates from the expression.
+    ///
+    fn parse_expression(&mut self, expression: &Expression) -> Type {
+        match expression {
+            Expression::Identifier(identifier) => Self::parse_identifier(&identifier),
+            Expression::Implicit(name, _) => Self::parse_implicit(name),
+            Expression::Boolean(_, _) => Type::Boolean,
+            expression => unimplemented!("expression {} not implemented", expression),
+        }
+    }
+
+    ///
+    /// Returns a new type variable from a given identifier
+    ///
+    fn parse_identifier(identifier: &Identifier) -> Type {
+        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+    }
+
+    ///
+    /// Returns a new type variable from a given identifier
+    ///
+    fn parse_implicit(name: &String) -> Type {
+        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
     }
 
     ///
@@ -182,7 +209,7 @@ impl FunctionBody {
             println!("assertion: {:?}", type_assertion);
 
             // Get type variable and type
-            if let Some((type_variable, type_)) = type_assertion.get_substitute() {
+            if let Some((type_variable, type_)) = type_assertion.get_pair() {
                 // Substitute type variable for type in unsolved
                 for original in &mut unsolved {
                     original.substitute(&type_variable, &type_)
@@ -239,115 +266,44 @@ impl VariableTable {
     }
 }
 
-/// A predicate that evaluates equality between two `TypeElement`s.
+/// A predicate that evaluates equality between two `Types`s.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TypeAssertion {
-    left: TypeElement,
-    right: TypeElement,
+    left: Type,
+    right: Type,
 }
 
 impl TypeAssertion {
     ///
-    /// Returns a `TypeAssertion` predicate from given left and right `TypeElement`s
+    /// Returns a `TypeAssertion` predicate from given left and right `Types`s
     ///
-    pub fn new(left: TypeElement, right: TypeElement) -> Self {
+    pub fn new(left: Type, right: Type) -> Self {
         Self { left, right }
     }
 
     ///
-    /// Substitutes the given `TypeVariable` for each `TypeElement` in the `TypeAssertion`.
+    /// Substitutes the given `TypeVariable` for each `Types` in the `TypeAssertion`.
     ///
-    pub fn substitute(&mut self, variable: &TypeVariable, type_: &TypeElement) {
+    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
         self.left.substitute(variable, type_);
         self.right.substitute(variable, type_);
     }
 
     ///
-    /// Returns true if the left `TypeElement` is equal to the right `TypeElement`.
+    /// Returns true if the left `Types` is equal to the right `Types`.
     ///
     pub fn evaluate(&self) -> bool {
         self.left.eq(&self.right)
     }
 
-    pub fn get_substitute(&self) -> Option<(TypeVariable, TypeElement)> {
+    ///
+    /// Returns the (type variable, type) pair from this assertion.
+    ///
+    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
         match (&self.left, &self.right) {
-            (TypeElement::Variable(variable), element) => Some((variable.clone(), element.clone())),
-            (TypeElement::Type(type_), TypeElement::Variable(variable)) => {
-                Some((variable.clone(), TypeElement::Type(type_.clone())))
-            }
-            (TypeElement::Type(_), TypeElement::Type(_)) => None,
+            (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
+            (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
+            (_type, _type) => None, // No (type variable, type) pair can be returned from two types
         }
-    }
-}
-
-/// A `Type` or a `TypeVariable` in a `TypeAssertion`.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum TypeElement {
-    Type(Type),
-    Variable(TypeVariable),
-}
-
-impl TypeElement {
-    ///
-    /// Returns a new `TypeElement` from the given expression and symbol table.
-    ///
-    pub fn new(expression: &Expression, _symbol_table: SymbolTable) -> Self {
-        match expression {
-            Expression::Identifier(identifier) => Self::from(identifier.clone()),
-            Expression::Implicit(name, _) => Self::from(name.clone()),
-            Expression::Boolean(_, _) => Self::boolean(),
-            expression => unimplemented!("expression {} not implemented", expression),
-        }
-    }
-
-    ///
-    /// Returns a boolean `TypeElement`.
-    ///
-    pub fn boolean() -> Self {
-        TypeElement::Type(Type::Boolean)
-    }
-
-    ///
-    /// Substitutes the given `TypeElement` if self is equal to the given `TypeVariable`.
-    ///
-    pub fn substitute(&mut self, variable: &TypeVariable, type_: &TypeElement) {
-        match self {
-            TypeElement::Type(_) => {}
-            TypeElement::Variable(original) => {
-                if original.eq(&variable) {
-                    *self = type_.clone()
-                }
-            }
-        }
-    }
-}
-
-impl From<String> for TypeElement {
-    fn from(name: String) -> Self {
-        Self::Variable(TypeVariable::from(name))
-    }
-}
-
-impl From<Identifier> for TypeElement {
-    fn from(identifier: Identifier) -> Self {
-        Self::Variable(TypeVariable::from(identifier))
-    }
-}
-
-/// An unknown type in a `TypeAssertion`.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct TypeVariable {
-    name: String,
-}
-
-impl From<String> for TypeVariable {
-    fn from(name: String) -> Self {
-        Self { name }
-    }
-}
-
-impl From<Identifier> for TypeVariable {
-    fn from(identifier: Identifier) -> Self {
-        Self::from(identifier.name)
     }
 }

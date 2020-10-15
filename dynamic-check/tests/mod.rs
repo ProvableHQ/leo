@@ -45,10 +45,10 @@ impl TestDynamicCheck {
         let program = typed.into_repr();
 
         // Create static check.
-        let mut static_check = StaticCheck::run(&program).unwrap();
+        let symbol_table = StaticCheck::run(&program).unwrap();
 
         // Create dynamic check
-        let dynamic_check = DynamicCheck::new(&program, static_check);
+        let dynamic_check = DynamicCheck::new(&program, symbol_table);
 
         Self { dynamic_check }
     }

@@ -13,6 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+use leo_typed::Identifier;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,5 +27,17 @@ pub struct TypeVariable {
 impl fmt::Display for TypeVariable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
+    }
+}
+
+impl From<String> for TypeVariable {
+    fn from(name: String) -> Self {
+        Self { name }
+    }
+}
+
+impl From<Identifier> for TypeVariable {
+    fn from(identifier: Identifier) -> Self {
+        Self::from(identifier.name)
     }
 }
