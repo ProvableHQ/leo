@@ -34,7 +34,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
-use std::path::PathBuf;
+use std::path::Path;
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -65,8 +65,8 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
     input: InputPairs,
     imported_programs: &ImportParser,
-    main_file_path: &PathBuf,
-    output_directory: &PathBuf,
+    main_file_path: &Path,
+    output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
@@ -147,7 +147,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             (false, _) => {
                 // Set file location of error
                 let mut error = result.unwrap_err();
-                error.set_path(main_file_path.clone());
+                error.set_path(main_file_path.to_owned());
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

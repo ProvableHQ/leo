@@ -56,7 +56,7 @@ impl CLI for TestCommand {
         let path = current_dir()?;
 
         // Get the package name
-        let manifest = Manifest::try_from(&path)?;
+        let manifest = Manifest::try_from(path.as_path())?;
         let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory
@@ -96,7 +96,7 @@ impl CLI for TestCommand {
             Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(package_name, file_path, output_directory)?;
 
         // Parse all inputs as input pairs
-        let pairs = InputPairs::try_from(&package_path)?;
+        let pairs = InputPairs::try_from(package_path.as_path())?;
 
         // Run tests
         let temporary_program = program;

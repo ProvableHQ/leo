@@ -19,7 +19,7 @@
 use crate::{errors::MainFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{fs::File, io::Write, path::Path};
 
 pub static MAIN_FILENAME: &str = "main.leo";
 
@@ -39,7 +39,7 @@ impl MainFile {
         format!("{}{}", SOURCE_DIRECTORY_NAME, MAIN_FILENAME)
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
+    pub fn exists_at(path: &Path) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
@@ -50,7 +50,7 @@ impl MainFile {
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), MainFileError> {
+    pub fn write_to(self, path: &Path) -> Result<(), MainFileError> {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {

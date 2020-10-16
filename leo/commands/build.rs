@@ -62,7 +62,7 @@ impl CLI for BuildCommand {
         let path = current_dir()?;
 
         // Get the package name
-        let manifest = Manifest::try_from(&path)?;
+        let manifest = Manifest::try_from(path.as_path())?;
         let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory

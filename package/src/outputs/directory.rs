@@ -16,7 +16,7 @@
 
 use crate::errors::OutputsDirectoryError;
 
-use std::{fs, path::PathBuf};
+use std::{fs, path::Path};
 
 pub static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
 
@@ -24,7 +24,7 @@ pub struct OutputsDirectory;
 
 impl OutputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &PathBuf) -> Result<(), OutputsDirectoryError> {
+    pub fn create(path: &Path) -> Result<(), OutputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.push(OUTPUTS_DIRECTORY_NAME);
@@ -34,7 +34,7 @@ impl OutputsDirectory {
     }
 
     /// Removes the directory at the provided path.
-    pub fn remove(path: &PathBuf) -> Result<(), OutputsDirectoryError> {
+    pub fn remove(path: &Path) -> Result<(), OutputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.push(OUTPUTS_DIRECTORY_NAME);

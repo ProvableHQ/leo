@@ -19,7 +19,7 @@
 use crate::errors::GitignoreError;
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{fs::File, io::Write, path::Path};
 
 pub static GITIGNORE_FILENAME: &str = ".gitignore";
 
@@ -31,7 +31,7 @@ impl Gitignore {
         Self::default()
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
+    pub fn exists_at(path: &Path) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
             path.push(GITIGNORE_FILENAME);
@@ -39,7 +39,7 @@ impl Gitignore {
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), GitignoreError> {
+    pub fn write_to(self, path: &Path) -> Result<(), GitignoreError> {
         let mut path = path.to_owned();
         if path.is_dir() {
             path.push(GITIGNORE_FILENAME);

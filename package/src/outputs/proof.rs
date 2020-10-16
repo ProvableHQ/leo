@@ -22,7 +22,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static PROOF_FILE_EXTENSION: &str = ".proof";
@@ -39,13 +39,13 @@ impl ProofFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, ProofFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, ProofFileError> {
         let path = self.setup_file_path(path);
 
         let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
@@ -53,7 +53,7 @@ impl ProofFile {
     }
 
     /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &PathBuf, proof: &[u8]) -> Result<(), ProofFileError> {
+    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<(), ProofFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -66,7 +66,7 @@ impl ProofFile {
 
     /// Removes the proof at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProofFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ProofFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -76,7 +76,7 @@ impl ProofFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

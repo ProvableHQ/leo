@@ -55,24 +55,24 @@ impl ZipFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
-    pub fn get_file_path(&self, current_dir: &PathBuf) -> PathBuf {
+    pub fn get_file_path(&self, current_dir: &Path) -> PathBuf {
         self.setup_file_path(current_dir)
     }
 
     // /// Reads the program bytes from the given file path if it exists.
-    // pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, ZipFileError> {
+    // pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ZipFileError> {
     //     let path = self.setup_file_path(path);
     //
     //     Ok(fs::read(&path).map_err(|_| ZipFileError::FileReadError(path.clone()))?)
     // }
 
     /// Writes the current package contents to a zip file.
-    pub fn write(&self, src_dir: &PathBuf) -> Result<(), ZipFileError> {
+    pub fn write(&self, src_dir: &Path) -> Result<(), ZipFileError> {
         // Build walkdir iterator from current package
         let walkdir = WalkDir::new(src_dir.clone());
 
@@ -89,7 +89,7 @@ impl ZipFile {
         let mut buffer = Vec::new();
         for entry in walkdir.into_iter().filter_map(|e| e.ok()) {
             let path = entry.path();
-            let name = path.strip_prefix(src_dir.as_path()).unwrap();
+            let name = path.strip_prefix(src_dir).unwrap();
 
             // Add file/directory exclusion
 
@@ -125,7 +125,7 @@ impl ZipFile {
 
     /// Removes the zip file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ZipFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ZipFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -135,7 +135,7 @@ impl ZipFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

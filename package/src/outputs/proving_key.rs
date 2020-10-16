@@ -22,7 +22,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static PROVING_KEY_FILE_EXTENSION: &str = ".lpk";
@@ -39,24 +39,24 @@ impl ProvingKeyFile {
         }
     }
 
-    pub fn full_path(&self, path: &PathBuf) -> PathBuf {
+    pub fn full_path(&self, path: &Path) -> PathBuf {
         self.setup_file_path(path)
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the proving key from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, ProvingKeyFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
         Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.clone()))?)
     }
 
     /// Writes the given proving key to a file.
-    pub fn write_to(&self, path: &PathBuf, proving_key: &[u8]) -> Result<PathBuf, ProvingKeyFileError> {
+    pub fn write_to(&self, path: &Path, proving_key: &[u8]) -> Result<PathBuf, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -67,7 +67,7 @@ impl ProvingKeyFile {
 
     /// Removes the proving key at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProvingKeyFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -77,7 +77,7 @@ impl ProvingKeyFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

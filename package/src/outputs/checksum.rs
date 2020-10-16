@@ -22,7 +22,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static CHECKSUM_FILE_EXTENSION: &str = ".sum";
@@ -39,20 +39,20 @@ impl ChecksumFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the checksum from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, ChecksumFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
         Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.clone()))?)
     }
 
     /// Writes the given checksum to a file.
-    pub fn write_to(&self, path: &PathBuf, checksum: String) -> Result<(), ChecksumFileError> {
+    pub fn write_to(&self, path: &Path, checksum: String) -> Result<(), ChecksumFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -63,7 +63,7 @@ impl ChecksumFile {
 
     /// Removes the checksum at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ChecksumFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ChecksumFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -73,7 +73,7 @@ impl ChecksumFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

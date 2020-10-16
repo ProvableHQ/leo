@@ -22,7 +22,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".lvk";
@@ -39,24 +39,24 @@ impl VerificationKeyFile {
         }
     }
 
-    pub fn full_path(&self, path: &PathBuf) -> PathBuf {
+    pub fn full_path(&self, path: &Path) -> PathBuf {
         self.setup_file_path(path)
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the verification key from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, VerificationKeyFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, VerificationKeyFileError> {
         let path = self.setup_file_path(path);
 
         Ok(fs::read(&path).map_err(|_| VerificationKeyFileError::FileReadError(path.clone()))?)
     }
 
     /// Writes the given verification key to a file.
-    pub fn write_to(&self, path: &PathBuf, verification_key: &[u8]) -> Result<PathBuf, VerificationKeyFileError> {
+    pub fn write_to(&self, path: &Path, verification_key: &[u8]) -> Result<PathBuf, VerificationKeyFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -67,7 +67,7 @@ impl VerificationKeyFile {
 
     /// Removes the verification key at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, VerificationKeyFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, VerificationKeyFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -77,7 +77,7 @@ impl VerificationKeyFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

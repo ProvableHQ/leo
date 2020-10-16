@@ -22,7 +22,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static INPUT_FILE_EXTENSION: &str = ".in";
@@ -43,13 +43,13 @@ impl InputFile {
         format!("{}{}{}", INPUTS_DIRECTORY_NAME, self.package_name, INPUT_FILE_EXTENSION)
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the program input variables from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<(String, PathBuf), InputFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<(String, PathBuf), InputFileError> {
         let path = self.setup_file_path(path);
 
         let input = fs::read_to_string(&path).map_err(|_| InputFileError::FileReadError(path.clone()))?;
@@ -57,7 +57,7 @@ impl InputFile {
     }
 
     /// Writes the standard input format to a file.
-    pub fn write_to(self, path: &PathBuf) -> Result<(), InputFileError> {
+    pub fn write_to(self, path: &Path) -> Result<(), InputFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -78,7 +78,7 @@ r0: u32 = 0;
         )
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(INPUTS_DIRECTORY_NAME) {

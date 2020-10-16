@@ -23,7 +23,7 @@ use std::{
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
-    path::PathBuf,
+    path::Path,
 };
 
 const OLD_MANIFEST_FORMAT: &str = r#"[package]
@@ -56,7 +56,7 @@ fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
 }
 
 /// Read the manifest file into a string.
-fn read_manifest_file(path: &PathBuf) -> String {
+fn read_manifest_file(path: &Path) -> String {
     let mut file = File::open(path.clone()).unwrap();
     let size = file.metadata().unwrap().len() as usize;
 
@@ -67,7 +67,7 @@ fn read_manifest_file(path: &PathBuf) -> String {
 }
 
 /// Read the manifest file and check that the remote format is updated.
-fn remote_is_updated(path: &PathBuf) -> bool {
+fn remote_is_updated(path: &Path) -> bool {
     let manifest_string = read_manifest_file(&path);
     for line in manifest_string.lines() {
         if line.starts_with("remote") {
@@ -79,7 +79,7 @@ fn remote_is_updated(path: &PathBuf) -> bool {
 }
 
 /// Read the manifest file and check that the project format is updated.
-fn project_is_updated(path: &PathBuf) -> bool {
+fn project_is_updated(path: &Path) -> bool {
     let manifest_string = read_manifest_file(&path);
 
     !manifest_string.contains(OLD_PROJECT_FORMAT) && manifest_string.contains(NEW_PROJECT_FORMAT)

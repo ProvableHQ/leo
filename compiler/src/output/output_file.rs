@@ -21,7 +21,7 @@ use crate::errors::OutputFileError;
 use std::{
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
@@ -38,13 +38,13 @@ impl OutputFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the output register variables from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, OutputFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, OutputFileError> {
         let path = self.setup_file_path(path);
 
         let output = fs::read_to_string(&path).map_err(|_| OutputFileError::FileReadError(path.clone()))?;
@@ -52,7 +52,7 @@ impl OutputFile {
     }
 
     /// Writes output to a file.
-    pub fn write(&self, path: &PathBuf, bytes: &[u8]) -> Result<(), OutputFileError> {
+    pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), OutputFileError> {
         // create output file
         let path = self.setup_file_path(path);
         let mut file = File::create(&path)?;
@@ -62,7 +62,7 @@ impl OutputFile {
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, OutputFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, OutputFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
@@ -72,7 +72,7 @@ impl OutputFile {
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
+    fn setup_file_path(&self, path: &Path) -> PathBuf {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {

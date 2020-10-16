@@ -16,7 +16,11 @@
 
 use crate::errors::InputsDirectoryError;
 
-use std::{fs, fs::ReadDir, path::PathBuf};
+use std::{
+    fs,
+    fs::ReadDir,
+    path::{Path, PathBuf},
+};
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 
@@ -24,7 +28,7 @@ pub struct InputsDirectory;
 
 impl InputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &PathBuf) -> Result<(), InputsDirectoryError> {
+    pub fn create(path: &Path) -> Result<(), InputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(INPUTS_DIRECTORY_NAME) {
             path.push(INPUTS_DIRECTORY_NAME);
@@ -34,7 +38,7 @@ impl InputsDirectory {
     }
 
     /// Returns a list of files in the input directory.
-    pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, InputsDirectoryError> {
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>, InputsDirectoryError> {
         let mut path = path.to_owned();
         path.push(INPUTS_DIRECTORY_NAME);
         let directory = fs::read_dir(&path).map_err(InputsDirectoryError::Reading)?;

@@ -17,9 +17,9 @@
 use leo_ast::LeoAst;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-fn leo_ast<'ast>(filepath: &'ast PathBuf, program_string: &'ast str) {
+fn leo_ast<'ast>(filepath: &'ast Path, program_string: &'ast str) {
     let result = LeoAst::<'ast>::new(filepath, program_string).unwrap();
     black_box(result);
 }
