@@ -46,7 +46,7 @@ const NEW_PROJECT_FORMAT: &str = "[project]";
 fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
     let mut path = path;
     if path.is_dir() {
-        path.push(PathBuf::from(MANIFEST_FILENAME));
+        path.push(MANIFEST_FILENAME);
     }
 
     let mut file = File::create(&path).unwrap();

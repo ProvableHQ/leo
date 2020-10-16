@@ -42,7 +42,7 @@ impl README {
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(README_FILENAME));
+            path.push(README_FILENAME);
         }
         path.exists()
     }
@@ -50,7 +50,7 @@ impl README {
     pub fn write_to(self, path: &PathBuf) -> Result<(), READMEError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(README_FILENAME));
+            path.push(README_FILENAME);
         }
 
         let mut file = File::create(&path)?;

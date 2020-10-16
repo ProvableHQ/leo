@@ -81,12 +81,9 @@ impl VerificationKeyFile {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+                path.push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(format!(
-                "{}{}",
-                self.package_name, VERIFICATION_KEY_FILE_EXTENSION
-            )));
+            path.push(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION));
         }
         path
     }

@@ -34,7 +34,7 @@ impl Gitignore {
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(GITIGNORE_FILENAME));
+            path.push(GITIGNORE_FILENAME);
         }
         path.exists()
     }
@@ -42,7 +42,7 @@ impl Gitignore {
     pub fn write_to(self, path: &PathBuf) -> Result<(), GitignoreError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(GITIGNORE_FILENAME));
+            path.push(GITIGNORE_FILENAME);
         }
 
         let mut file = File::create(&path)?;

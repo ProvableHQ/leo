@@ -27,7 +27,7 @@ impl ImportsDirectory {
     pub fn create(path: &PathBuf) -> Result<(), ImportsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(IMPORTS_DIRECTORY_NAME));
+            path.push(IMPORTS_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(ImportsDirectoryError::Creating)
@@ -37,7 +37,7 @@ impl ImportsDirectory {
     pub fn remove(path: &PathBuf) -> Result<(), ImportsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(IMPORTS_DIRECTORY_NAME));
+            path.push(IMPORTS_DIRECTORY_NAME);
         }
 
         if path.exists() {
@@ -51,10 +51,10 @@ impl ImportsDirectory {
     pub fn remove_import(path: &PathBuf, package_name: &str) -> Result<(), ImportsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(IMPORTS_DIRECTORY_NAME));
+            path.push(IMPORTS_DIRECTORY_NAME);
         }
 
-        path.push(PathBuf::from(package_name));
+        path.push(package_name);
 
         if !path.exists() || !path.is_dir() {
             return Err(ImportsDirectoryError::ImportDoesNotExist(package_name.into()));

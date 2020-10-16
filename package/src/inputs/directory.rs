@@ -27,7 +27,7 @@ impl InputsDirectory {
     pub fn create(path: &PathBuf) -> Result<(), InputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(INPUTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+            path.push(INPUTS_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(InputsDirectoryError::Creating)
@@ -36,7 +36,7 @@ impl InputsDirectory {
     /// Returns a list of files in the input directory.
     pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, InputsDirectoryError> {
         let mut path = path.to_owned();
-        path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+        path.push(INPUTS_DIRECTORY_NAME);
         let directory = fs::read_dir(&path).map_err(InputsDirectoryError::Reading)?;
 
         let mut file_paths = Vec::new();

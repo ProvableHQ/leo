@@ -52,7 +52,7 @@ impl Manifest {
     pub fn exists_at(path: &PathBuf) -> bool {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.push(MANIFEST_FILENAME);
         }
         path.exists()
     }
@@ -80,7 +80,7 @@ impl Manifest {
     pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.push(MANIFEST_FILENAME);
         }
 
         let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
@@ -110,7 +110,7 @@ impl TryFrom<&PathBuf> for Manifest {
     fn try_from(path: &PathBuf) -> Result<Self, Self::Error> {
         let mut path = path.to_owned();
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.push(MANIFEST_FILENAME);
         }
 
         let mut file = File::open(path.clone()).map_err(|error| ManifestError::Opening(MANIFEST_FILENAME, error))?;

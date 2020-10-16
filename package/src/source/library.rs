@@ -43,9 +43,9 @@ impl LibraryFile {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+                path.push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(LIBRARY_FILENAME));
+            path.push(LIBRARY_FILENAME);
         }
         path.exists()
     }
@@ -54,9 +54,9 @@ impl LibraryFile {
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+                path.push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(LIBRARY_FILENAME));
+            path.push(LIBRARY_FILENAME);
         }
 
         let mut file = File::create(&path)?;

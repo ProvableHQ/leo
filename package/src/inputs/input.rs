@@ -82,9 +82,9 @@ r0: u32 = 0;
         let mut path = path.to_owned();
         if path.is_dir() {
             if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(INPUTS_DIRECTORY_NAME));
+                path.push(INPUTS_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION)));
+            path.push(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION));
         }
         path
     }

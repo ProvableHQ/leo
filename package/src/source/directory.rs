@@ -29,7 +29,7 @@ impl SourceDirectory {
     pub fn create(path: &PathBuf) -> Result<(), SourceDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
-            path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+            path.push(SOURCE_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(SourceDirectoryError::Creating)
@@ -38,7 +38,7 @@ impl SourceDirectory {
     /// Returns a list of files in the source directory.
     pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, SourceDirectoryError> {
         let mut path = path.to_owned();
-        path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+        path.push(SOURCE_DIRECTORY_NAME);
         let directory = fs::read_dir(&path).map_err(SourceDirectoryError::Reading)?;
 
         let mut file_paths = Vec::new();

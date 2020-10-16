@@ -27,7 +27,7 @@ impl OutputsDirectory {
     pub fn create(path: &PathBuf) -> Result<(), OutputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+            path.push(OUTPUTS_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(OutputsDirectoryError::Creating)
@@ -37,7 +37,7 @@ impl OutputsDirectory {
     pub fn remove(path: &PathBuf) -> Result<(), OutputsDirectoryError> {
         let mut path = path.to_owned();
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-            path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+            path.push(OUTPUTS_DIRECTORY_NAME);
         }
 
         if path.exists() {
