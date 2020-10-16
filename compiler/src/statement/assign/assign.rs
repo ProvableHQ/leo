@@ -24,7 +24,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_typed::{Assignee, Expression, Span};
+use leo_typed::{Assignee, AssigneeAccess, Expression, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -54,61 +54,56 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, expression)?;
 
         // Mutate the old value into the new value
-        match assignee {
-            Assignee::Identifier(_identifier) => {
-                let condition = indicator.unwrap_or(Boolean::Constant(true));
-                let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
+        if assignee.accesses.is_empty() {
+            let condition = indicator.unwrap_or(Boolean::Constant(true));
+            let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
 
-                new_value.resolve_type(Some(old_value.to_type(span.clone())?), span.clone())?;
+            new_value.resolve_type(Some(old_value.to_type(span.clone())?), span.clone())?;
 
-                let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
-                let selected_value =
-                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
-                        .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
+            let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
+            let selected_value =
+                ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
+                    .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span))?;
 
-                *old_value = selected_value;
+            *old_value = selected_value;
 
-                Ok(())
-            }
-            Assignee::Array(_assignee, range_or_expression) => self.assign_array(
-                cs,
-                file_scope,
-                function_scope,
-                indicator,
-                variable_name,
-                range_or_expression,
-                new_value,
-                span,
-            ),
-            Assignee::Tuple(_tuple, index) => self.assign_tuple(cs, indicator, variable_name, index, new_value, span),
-            Assignee::CircuitField(assignee, circuit_variable) => {
-                // Mutate a circuit variable using the self keyword.
-                if let Assignee::Identifier(circuit_name) = *assignee {
-                    if circuit_name.is_self() {
-                        let self_circuit_variable_name = new_scope(circuit_name.name, circuit_variable.name.clone());
+            return Ok(());
+        } else {
+            match assignee.accesses[0].clone() {
+                AssigneeAccess::Array(range_or_expression) => self.assign_array(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    variable_name,
+                    range_or_expression,
+                    new_value,
+                    span,
+                ),
+                AssigneeAccess::Tuple(index) => self.assign_tuple(cs, indicator, variable_name, index, new_value, span),
+                AssigneeAccess::Member(identifier) => {
+                    // Mutate a circuit variable using the self keyword.
+                    if assignee.identifier.is_self() {
+                        let self_circuit_variable_name =
+                            new_scope(assignee.identifier.name.clone(), identifier.name.clone());
                         let self_variable_name = new_scope(file_scope, self_circuit_variable_name);
                         let value = self.mutate_circuit_variable(
                             cs,
                             indicator,
                             declared_circuit_reference,
-                            circuit_variable,
+                            identifier,
                             new_value,
                             span,
                         )?;
 
                         self.store(self_variable_name, value);
                     } else {
-                        let _value = self.mutate_circuit_variable(
-                            cs,
-                            indicator,
-                            variable_name,
-                            circuit_variable,
-                            new_value,
-                            span,
-                        )?;
+                        let _value =
+                            self.mutate_circuit_variable(cs, indicator, variable_name, identifier, new_value, span)?;
                     }
+
+                    Ok(())
                 }
-                Ok(())
             }
         }
     }

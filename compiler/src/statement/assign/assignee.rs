@@ -22,12 +22,7 @@ use leo_typed::{Assignee, Span};
 use snarkos_models::curves::{Field, PrimeField};
 
 pub fn resolve_assignee(scope: String, assignee: Assignee) -> String {
-    match assignee {
-        Assignee::Identifier(name) => new_scope(scope, name.to_string()),
-        Assignee::Array(array, _index) => resolve_assignee(scope, *array),
-        Assignee::Tuple(tuple, _index) => resolve_assignee(scope, *tuple),
-        Assignee::CircuitField(circuit_name, _member) => resolve_assignee(scope, *circuit_name),
-    }
+    new_scope(scope, assignee.identifier().to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
