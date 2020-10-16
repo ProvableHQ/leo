@@ -20,20 +20,20 @@ use leo_typed::Identifier;
 
 impl Expression {
     ///
-    /// Returns a new variable expression from a given `UnresolvedExpression`.
+    /// Returns a new variable expression from a given variable.
     ///
     /// Performs a lookup in the given function body's variable table to find the variable's type.
     ///
-    pub(crate) fn variable(function_body: &FunctionBody, identifier: Identifier) -> Result<Self, ExpressionError> {
+    pub(crate) fn variable(function_body: &FunctionBody, variable: Identifier) -> Result<Self, ExpressionError> {
         // Lookup the type of the given variable.
         let type_ = function_body
             .variable_table
-            .get(&identifier.name)
-            .ok_or(ExpressionError::undefined_identifier(identifier.clone()))?;
+            .get(&variable.name)
+            .ok_or(ExpressionError::undefined_identifier(variable.clone()))?;
 
         Ok(Expression {
             type_: type_.clone(),
-            value: ExpressionValue::Variable(identifier),
+            value: ExpressionValue::Variable(variable),
         })
     }
 }

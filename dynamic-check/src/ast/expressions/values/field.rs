@@ -14,25 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue};
+use crate::{Expression, ExpressionValue};
 use leo_static_check::Type;
 use leo_typed::Span;
 
 impl Expression {
-    /// Resolve a field expression
-    pub(crate) fn field(
-        expected_type: Option<Type>,
-        field_string: String,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        let type_ = Type::Field;
-
-        // Check the expected type if given
-        Type::check_type(&expected_type, &type_, span.clone())?;
-
-        Ok(Expression {
-            type_,
+    ///
+    /// Returns a new field expression from a given type and field string.
+    ///
+    pub(crate) fn field(type_: &Type, field_string: String, span: Span) -> Self {
+        Expression {
+            type_: type_.clone(),
             value: ExpressionValue::Field(field_string, span),
-        })
+        }
     }
 }

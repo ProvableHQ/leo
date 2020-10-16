@@ -19,15 +19,10 @@ use leo_static_check::Type;
 use leo_typed::{GroupValue, Span};
 
 impl Expression {
-    /// Resolve an implicit expression
-    pub(crate) fn implicit(
-        expected_type: Option<Type>,
-        implicit_string: String,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        // TODO: impl type lookahead - need to save this implicit value if there is no expected type
-        let type_ = expected_type.unwrap();
-
+    ///
+    /// Returns a new `Expression` from a given type and implicit number string.
+    ///
+    pub(crate) fn implicit(type_: &Type, implicit_string: String, span: Span) -> Result<Self, ExpressionError> {
         let value = match &type_ {
             Type::Address => ExpressionValue::Address(implicit_string, span),
             Type::Boolean => ExpressionValue::Boolean(implicit_string, span),
@@ -41,6 +36,9 @@ impl Expression {
             Type::TypeVariable(_name) => unimplemented!("ERROR: Type variables not implemented"),
         };
 
-        Ok(Expression { type_, value })
+        Ok(Expression {
+            type_: type_.clone(),
+            value,
+        })
     }
 }

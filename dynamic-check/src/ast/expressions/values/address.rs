@@ -19,20 +19,13 @@ use leo_static_check::Type;
 use leo_typed::Span;
 
 impl Expression {
-    /// Resolve an address expression
-    pub(crate) fn address(
-        expected_type: Option<Type>,
-        address_string: String,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        let type_ = Type::Address;
-
-        // Check the expected type if given
-        Type::check_type(&expected_type, &type_, span.clone())?;
-
-        Ok(Expression {
-            type_,
+    ///
+    /// Returns a new address `Expression` from a given type and address string.
+    ///
+    pub(crate) fn address(type_: &Type, address_string: String, span: Span) -> Self {
+        Expression {
+            type_: type_.clone(),
             value: ExpressionValue::Address(address_string, span),
-        })
+        }
     }
 }

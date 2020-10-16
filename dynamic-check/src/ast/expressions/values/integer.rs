@@ -19,21 +19,13 @@ use leo_static_check::Type;
 use leo_typed::{IntegerType, Span};
 
 impl Expression {
-    /// Resolve an integer expression
-    pub(crate) fn integer(
-        expected_type: Option<Type>,
-        integer_type: IntegerType,
-        integer_string: String,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        let type_ = Type::IntegerType(integer_type);
-
-        // Check the expected type if given
-        Type::check_type(&expected_type, &type_, span.clone())?;
-
-        Ok(Expression {
-            type_,
-            value: ExpressionValue::Address(integer_string, span),
-        })
+    ///
+    /// Returns a new integer `Expression` from a given type, integer type, and integer string.
+    ///
+    pub(crate) fn integer(type_: &Type, integer_type: IntegerType, integer_string: String, span: Span) -> Self {
+        Expression {
+            type_: type_.clone(),
+            value: ExpressionValue::Integer(integer_type, integer_string, span),
+        }
     }
 }

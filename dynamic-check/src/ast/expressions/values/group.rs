@@ -19,17 +19,13 @@ use leo_static_check::Type;
 use leo_typed::GroupValue;
 
 impl Expression {
-    /// Resolve an group expression
-    pub(crate) fn group(expected_type: Option<Type>, group_value: GroupValue) -> Result<Self, ExpressionError> {
-        let type_ = Type::Group;
-        let span = group_value.span().clone();
-
-        // Check the expected type if given
-        Type::check_type(&expected_type, &type_, span)?;
-
-        Ok(Expression {
-            type_,
+    ///
+    /// Returns a new group `Expression` from the given type and group value.
+    ///
+    pub(crate) fn group(type_: &Type, group_value: GroupValue) -> Self {
+        Expression {
+            type_: type_.clone(),
             value: ExpressionValue::Group(group_value),
-        })
+        }
     }
 }

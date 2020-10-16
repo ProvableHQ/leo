@@ -55,6 +55,7 @@ impl Expression {
     ///
     pub fn new(
         function_body: &FunctionBody,
+        type_: &Type,
         unresolved_expression: UnresolvedExpression,
     ) -> Result<Self, ExpressionError> {
         match unresolved_expression {
@@ -62,12 +63,14 @@ impl Expression {
             UnresolvedExpression::Identifier(identifier) => Self::variable(function_body, identifier),
 
             // Values
-            UnresolvedExpression::Address(string, span) => Self::address(string, span),
-            UnresolvedExpression::Boolean(string, span) => Self::boolean(string, span),
-            UnresolvedExpression::Field(string, span) => Self::field(string, span),
-            UnresolvedExpression::Group(group_value) => Self::group(group_value),
-            UnresolvedExpression::Implicit(string, span) => Self::implicit(string, span),
-            UnresolvedExpression::Integer(integer_type, string, span) => Self::integer(integer_type, string, span),
+            UnresolvedExpression::Address(string, span) => Ok(Self::address(type_, string, span)),
+            UnresolvedExpression::Boolean(string, span) => Ok(Self::boolean(type_, string, span)),
+            UnresolvedExpression::Field(string, span) => Ok(Self::field(type_, string, span)),
+            UnresolvedExpression::Group(group_value) => Ok(Self::group(type_, group_value)),
+            UnresolvedExpression::Integer(integer_type, string, span) => {
+                Ok(Self::integer(type_, integer_type, string, span))
+            }
+            UnresolvedExpression::Implicit(string, span) => Self::implicit(type_, string, span),
 
             // Arithmetic Operations
             UnresolvedExpression::Add(lhs, rhs, span) => Self::add(variable_table, *lhs, *rhs, span),

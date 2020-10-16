@@ -55,7 +55,7 @@ impl Statement {
         match unresolved_statement {
             UnresolvedStatement::Return(expression, span) => Self::resolve_return(function_body, expression, span),
             UnresolvedStatement::Definition(declare, variables, expressions, span) => {
-                Self::definition(variable_table, declare, variables, expressions, span)
+                Self::definition(function_body, declare, variables, expressions, span)
             }
             UnresolvedStatement::Assign(assignee, expression, span) => {
                 Self::assign(variable_table, assignee, expression, span)

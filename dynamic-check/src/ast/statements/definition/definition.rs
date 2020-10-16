@@ -14,7 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{check_tuple_type, Expression, ExpressionValue, ResolvedNode, Statement, StatementError, VariableTable};
+use crate::{
+    check_tuple_type,
+    Expression,
+    ExpressionValue,
+    FunctionBody,
+    ResolvedNode,
+    Statement,
+    StatementError,
+    VariableTable,
+};
 use leo_static_check::{Attribute, ParameterType, SymbolTable, Type};
 use leo_typed::{Declare, Expression as UnresolvedExpression, Span, VariableName, Variables};
 
@@ -189,7 +198,7 @@ impl Statement {
     /// Performs a lookup in the given variable table if the statement contains user-defined variables.
     ///
     pub(crate) fn definition(
-        table: &VariableTable,
+        function_body: &FunctionBody,
         declare: Declare,
         variables: Variables,
         unresolved_expressions: Vec<UnresolvedExpression>,
@@ -208,7 +217,7 @@ impl Statement {
             // Define a single variable with a single value
 
             DefinitionVariables::single(
-                table,
+                function_body,
                 variables.names[0].clone(),
                 unresolved_expressions[0].clone(),
                 span.clone(),
@@ -216,12 +225,17 @@ impl Statement {
         } else if num_variables == 1 && num_values > 1 {
             // Define a tuple (single variable with multiple values)
 
-            DefinitionVariables::tuple(table, variables.names[0].clone(), unresolved_expressions, span.clone())
+            DefinitionVariables::tuple(
+                function_body,
+                variables.names[0].clone(),
+                unresolved_expressions,
+                span.clone(),
+            )
         } else if num_variables > 1 && num_values == 1 {
             // Define multiple variables for an expression that returns a tuple
 
             DefinitionVariables::multiple_variable_tuple(
-                table,
+                function_body,
                 variables,
                 unresolved_expressions[0].clone(),
                 span.clone(),
@@ -230,7 +244,7 @@ impl Statement {
             // Define multiple variables for multiple expressions
 
             DefinitionVariables::multiple_variable(
-                table,
+                function_body,
                 variables,
                 expected_type,
                 unresolved_expressions,
