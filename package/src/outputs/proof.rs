@@ -20,9 +20,10 @@ use crate::{errors::ProofFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 pub static PROOF_FILE_EXTENSION: &str = ".proof";
@@ -48,7 +49,7 @@ impl ProofFile {
     pub fn read_from(&self, path: &Path) -> Result<String, ProofFileError> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
+        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.into_owned()))?;
         Ok(proof)
     }
 
@@ -72,17 +73,18 @@ impl ProofFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &Path) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(OUTPUTS_DIRECTORY_NAME);
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION));
         }
         path
     }

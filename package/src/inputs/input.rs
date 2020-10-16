@@ -20,9 +20,10 @@ use crate::{errors::InputFileError, inputs::INPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 pub static INPUT_FILE_EXTENSION: &str = ".in";
@@ -49,11 +50,13 @@ impl InputFile {
     }
 
     /// Reads the program input variables from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<(String, PathBuf), InputFileError> {
+    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>), InputFileError> {
         let path = self.setup_file_path(path);
 
-        let input = fs::read_to_string(&path).map_err(|_| InputFileError::FileReadError(path.clone()))?;
-        Ok((input, path))
+        match fs::read_to_string(&path) {
+            Ok(input) => Ok((input, path)),
+            Err(_) => Err(InputFileError::FileReadError(path.into_owned())),
+        }
     }
 
     /// Writes the standard input format to a file.
@@ -78,13 +81,14 @@ r0: u32 = 0;
         )
     }
 
-    fn setup_file_path(&self, path: &Path) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.push(INPUTS_DIRECTORY_NAME);
+                path.to_mut().push(INPUTS_DIRECTORY_NAME);
             }
-            path.push(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION));
         }
         path
     }

@@ -34,9 +34,10 @@ use crate::{
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::{Read, Write},
-    path::{Path, PathBuf},
+    path::Path,
 };
 use walkdir::WalkDir;
 use zip::write::{FileOptions, ZipWriter};
@@ -60,7 +61,7 @@ impl ZipFile {
         path.exists()
     }
 
-    pub fn get_file_path(&self, current_dir: &Path) -> PathBuf {
+    pub fn get_file_path<'a>(&self, current_dir: &'a Path) -> Cow<'a, Path> {
         self.setup_file_path(current_dir)
     }
 
@@ -74,7 +75,7 @@ impl ZipFile {
     /// Writes the current package contents to a zip file.
     pub fn write(&self, src_dir: &Path) -> Result<(), ZipFileError> {
         // Build walkdir iterator from current package
-        let walkdir = WalkDir::new(src_dir.clone());
+        let walkdir = WalkDir::new(src_dir);
 
         // Create zip file
         let path = self.setup_file_path(src_dir);
@@ -131,17 +132,18 @@ impl ZipFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &Path) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(OUTPUTS_DIRECTORY_NAME);
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION));
         }
         path
     }

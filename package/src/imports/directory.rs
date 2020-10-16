@@ -16,7 +16,7 @@
 
 use crate::errors::ImportsDirectoryError;
 
-use std::{fs, path::Path};
+use std::{borrow::Cow, fs, path::Path};
 
 pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
@@ -25,9 +25,9 @@ pub struct ImportsDirectory;
 impl ImportsDirectory {
     /// Creates a directory at the provided path with the default directory name.
     pub fn create(path: &Path) -> Result<(), ImportsDirectoryError> {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(IMPORTS_DIRECTORY_NAME);
+            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(ImportsDirectoryError::Creating)
@@ -35,9 +35,9 @@ impl ImportsDirectory {
 
     /// Removes the directory at the provided path.
     pub fn remove(path: &Path) -> Result<(), ImportsDirectoryError> {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(IMPORTS_DIRECTORY_NAME);
+            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
         if path.exists() {
@@ -49,12 +49,12 @@ impl ImportsDirectory {
 
     /// Removes an imported package in the imports directory at the provided path.
     pub fn remove_import(path: &Path, package_name: &str) -> Result<(), ImportsDirectoryError> {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.push(IMPORTS_DIRECTORY_NAME);
+            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
-        path.push(package_name);
+        path.to_mut().push(package_name);
 
         if !path.exists() || !path.is_dir() {
             return Err(ImportsDirectoryError::ImportDoesNotExist(package_name.into()));

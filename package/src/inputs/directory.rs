@@ -17,6 +17,7 @@
 use crate::errors::InputsDirectoryError;
 
 use std::{
+    borrow::Cow,
     fs,
     fs::ReadDir,
     path::{Path, PathBuf},
@@ -29,9 +30,9 @@ pub struct InputsDirectory;
 impl InputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
     pub fn create(path: &Path) -> Result<(), InputsDirectoryError> {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(INPUTS_DIRECTORY_NAME) {
-            path.push(INPUTS_DIRECTORY_NAME);
+            path.to_mut().push(INPUTS_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(InputsDirectoryError::Creating)

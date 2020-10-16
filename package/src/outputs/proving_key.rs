@@ -20,9 +20,10 @@ use crate::{errors::ProvingKeyFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 pub static PROVING_KEY_FILE_EXTENSION: &str = ".lpk";
@@ -39,7 +40,7 @@ impl ProvingKeyFile {
         }
     }
 
-    pub fn full_path(&self, path: &Path) -> PathBuf {
+    pub fn full_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
         self.setup_file_path(path)
     }
 
@@ -52,11 +53,11 @@ impl ProvingKeyFile {
     pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.clone()))?)
+        Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))?)
     }
 
     /// Writes the given proving key to a file.
-    pub fn write_to(&self, path: &Path, proving_key: &[u8]) -> Result<PathBuf, ProvingKeyFileError> {
+    pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -73,17 +74,18 @@ impl ProvingKeyFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProvingKeyFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ProvingKeyFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &Path) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(OUTPUTS_DIRECTORY_NAME);
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(format!("{}{}", self.package_name, PROVING_KEY_FILE_EXTENSION));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, PROVING_KEY_FILE_EXTENSION));
         }
         path
     }

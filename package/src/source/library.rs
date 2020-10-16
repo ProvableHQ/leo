@@ -19,7 +19,7 @@
 use crate::{errors::LibraryFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::Path};
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static LIBRARY_FILENAME: &str = "lib.leo";
 
@@ -40,23 +40,23 @@ impl LibraryFile {
     }
 
     pub fn exists_at(path: &Path) -> bool {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(SOURCE_DIRECTORY_NAME);
+                path.to_mut().push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(LIBRARY_FILENAME);
+            path.to_mut().push(LIBRARY_FILENAME);
         }
         path.exists()
     }
 
     pub fn write_to(self, path: &Path) -> Result<(), LibraryFileError> {
-        let mut path = path.to_owned();
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(SOURCE_DIRECTORY_NAME);
+                path.to_mut().push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(LIBRARY_FILENAME);
+            path.to_mut().push(LIBRARY_FILENAME);
         }
 
         let mut file = File::create(&path)?;
