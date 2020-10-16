@@ -100,13 +100,13 @@ impl StatementError {
     ///
     /// Provided a different number of expression values than variables being defined in a tuple
     ///
-    pub fn multiple_variable_expressions(expected: usize, actual: usize, span: Span) -> Self {
+    pub fn multiple_variable_expressions(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "Expected {} values when defining variables, found {} values",
             expected, actual
         );
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, span.clone())
     }
 
     ///

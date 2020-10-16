@@ -23,6 +23,7 @@ use crate::{
     Statement,
     StatementError,
     VariableTable,
+    VariableTableError,
 };
 use leo_static_check::{Attribute, ParameterType, SymbolTable, Type};
 use leo_typed::{Declare, Expression as UnresolvedExpression, Span, VariableName, Variables};
@@ -90,45 +91,34 @@ impl DefinitionVariables {
 
     /// Resolves multiple variables for multiple expressions
     fn multiple_variable(
-        table: &mut SymbolTable,
+        function_body: &FunctionBody,
         variables: Variables,
-        expected_type: Option<Type>,
-        expressions: Vec<UnresolvedExpression>,
-        span: Span,
+        unresolved_expressions: Vec<UnresolvedExpression>,
+        span: &Span,
     ) -> Result<Self, StatementError> {
-        // If the expected type is given, then it must be a tuple of types
-        let explicit_types = check_tuple_type(expected_type, expressions.len(), span.clone())?;
-
-        // Check number of variables == types
-        if variables.names.len() != explicit_types.len() {
-            return Err(StatementError::multiple_variable_types(
-                variables.names.len(),
-                explicit_types.len(),
-                span,
-            ));
-        }
-
         // Check number of variables == expressions
-        if variables.names.len() != expressions.len() {
+        if variables.names.len() != unresolved_expressions.len() {
             return Err(StatementError::multiple_variable_expressions(
                 variables.names.len(),
-                expressions.len(),
+                unresolved_expressions.len(),
                 span,
             ));
         }
 
-        // Resolve expressions
+        // Get the type of each variable.
+        let variable_types = variables
+            .names
+            .iter()
+            .map(|variable_name| function_body.variable_table.get(variable_name.name_string(), span))
+            .collect::<Result<Vec<Type>, VariableTableError>>()?;
+
+        // Create a new vector of `Expression`s from the given vector of `UnresolvedExpression`s.
         let mut expressions_resolved = vec![];
 
-        for (expression, type_) in expressions.into_iter().zip(explicit_types) {
-            let expression_resolved = Expression::resolve(table, (type_, expression))?;
+        for (unresolved_expression, variable_type) in unresolved_expressions.into_iter().zip(variable_types) {
+            let expression_resolved = Expression::new(function_body, &variable_type, unresolved_expression)?;
 
             expressions_resolved.push(expression_resolved);
-        }
-
-        // Insert variables into symbol table
-        for (variable, expression) in variables.names.clone().iter().zip(expressions_resolved.iter()) {
-            insert_defined_variable(table, variable, expression.type_(), span.clone())?;
         }
 
         Ok(DefinitionVariables::MultipleVariable(
@@ -139,29 +129,26 @@ impl DefinitionVariables {
 
     /// Resolves multiple variables for an expression that returns a tuple
     fn multiple_variable_tuple(
-        table: &mut SymbolTable,
+        function_body: &FunctionBody,
         variables: Variables,
-        expected_type: Option<Type>,
-        expression: UnresolvedExpression,
-        span: Span,
+        unresolved_expression: UnresolvedExpression,
+        span: &Span,
     ) -> Result<Self, StatementError> {
-        // Resolve tuple expression
-        let expression_resolved = Expression::resolve(table, (expected_type, expression.clone()))?;
+        // Get the type of each variable.
+        let variable_types = variables
+            .names
+            .iter()
+            .map(|variable_name| function_body.variable_table.get(variable_name.name_string(), span))
+            .collect::<Result<Vec<Type>, VariableTableError>>()?;
 
-        let expressions_resolved = match &expression_resolved.value {
-            ExpressionValue::Tuple(expressions_resolved, _span) => expressions_resolved.clone(),
-            _ => return Err(StatementError::invalid_tuple(variables.names.len(), expression, span)),
-        };
+        // Create a new tuple type from the vector of variable types.
+        let tuple_type = Type::Tuple(variable_types);
 
-        // Insert variables into symbol table
-        for (variable, expression) in variables.names.clone().iter().zip(expressions_resolved.iter()) {
-            insert_defined_variable(table, variable, expression.type_(), span.clone())?;
-        }
+        // Create a new `Expression` from the given `UnresolvedExpression`.
+        // This expression should return a tuple.
+        let expression = Expression::new(function_body, &tuple_type, unresolved_expression)?;
 
-        Ok(DefinitionVariables::MultipleVariableTuple(
-            variables.names,
-            expression_resolved,
-        ))
+        Ok(DefinitionVariables::MultipleVariableTuple(variables.names, expression))
     }
 }
 
@@ -215,12 +202,6 @@ impl Statement {
         let num_variables = variables.names.len();
         let num_values = unresolved_expressions.len();
 
-        // // If an explicit type is given check that it is valid
-        // let expected_type = match &variables.type_ {
-        //     Some(type_) => Some(Type::new(table, type_.clone(), span.clone())?),
-        //     None => None,
-        // };
-
         let variables = if num_variables == 1 && num_values == 1 {
             // Define a single variable with a single value
 
@@ -241,18 +222,12 @@ impl Statement {
                 function_body,
                 variables,
                 unresolved_expressions[0].clone(),
-                span.clone(),
+                &span,
             )
         } else {
             // Define multiple variables for multiple expressions
 
-            DefinitionVariables::multiple_variable(
-                function_body,
-                variables,
-                expected_type,
-                unresolved_expressions,
-                span.clone(),
-            )
+            DefinitionVariables::multiple_variable(function_body, variables, unresolved_expressions, &span)
         }?;
 
         Ok(Statement::Definition(Definition {
