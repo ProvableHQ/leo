@@ -17,7 +17,7 @@
 use leo_ast::LeoAst;
 use leo_typed::LeoTypedAst;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 fn to_typed_ast(program_filepath: &Path) -> LeoTypedAst {
     // Loads the Leo code as a string from the given file path.

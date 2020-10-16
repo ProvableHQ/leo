@@ -23,7 +23,7 @@ use std::{
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 const OLD_MANIFEST_FORMAT: &str = r#"[package]
@@ -57,7 +57,7 @@ fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
 
 /// Read the manifest file into a string.
 fn read_manifest_file(path: &Path) -> String {
-    let mut file = File::open(path.clone()).unwrap();
+    let mut file = File::open(path).unwrap();
     let size = file.metadata().unwrap().len() as usize;
 
     let mut buffer = String::with_capacity(size);
@@ -96,7 +96,7 @@ fn test_manifest_no_refactors() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has NOT been updated.
     assert!(!project_is_updated(&manifest_path));
@@ -116,7 +116,7 @@ fn test_manifest_refactor_remote() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has NOT been updated.
     assert!(!project_is_updated(&manifest_path));
@@ -136,7 +136,7 @@ fn test_manifest_refactor_project() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has been updated.
     assert!(project_is_updated(&manifest_path));
@@ -159,7 +159,7 @@ fn test_manifest_refactors() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has been updated.
     assert!(project_is_updated(&manifest_path));
