@@ -124,7 +124,7 @@ impl ResolvedNode for Expression {
             UnresolvedExpression::FunctionCall(function, inputs, span) => {
                 Self::function_call(table, expected_type, function, inputs, span)
             }
-            UnresolvedExpression::CoreFunctionCall(_name, _inputs, _output, _span) => {
+            UnresolvedExpression::CoreFunctionCall(_name, _inputs, _span) => {
                 unimplemented!("core function calls not type checked")
                 // Self::core_function_call(table, expected_type, function, inputs, span)
             }

@@ -25,6 +25,9 @@ version = "1.0.3"
 path = "../imports"
 version = "1.0.3"
 
+[dependencies.serde_json]
+version = "1.0"
+
 [dependencies.leo-static-check]
 path = "../static-check"
 version = "1.0.3"

@@ -20,7 +20,7 @@ use leo_ast::common::VariableName as AstVariableName;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VariableName {
     pub mutable: bool,
     pub identifier: Identifier,

@@ -222,7 +222,7 @@ impl FunctionBody {
     /// Returns a new type variable from a given identifier
     ///
     fn parse_implicit(name: &String) -> Type {
-        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+        Type::TypeVariable(TypeVariable::from(name.clone()))
     }
 
     ///
@@ -293,7 +293,7 @@ impl FunctionBody {
         let _condition_type = self.parse_boolean_expression(condition);
 
         // Check that the types of the first and second expression are equal.
-        self.parse_binary_expression(first, second, span)
+        self.parse_binary_expression(first, second, _span)
     }
 
     ///
@@ -403,7 +403,7 @@ impl TypeAssertion {
         match (&self.left, &self.right) {
             (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
             (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
-            (_type, _type) => None, // No (type variable, type) pair can be returned from two types
+            (_type1, _type2) => None, // No (type variable, type) pair can be returned from two types
         }
     }
 }

@@ -41,33 +41,33 @@ impl LeoResolvedAst {
         let _imported_programs = ImportParser::parse(&program)?;
 
         // TODO (collinc97): Get input and state file typed syntax tree representations.
-
-        // Create a new symbol table to track of program variables, circuits, and functions by name.
-        let mut symbol_table = SymbolTable::new(None);
-
-        // Pass 1: Check for circuit and function name collisions.
-        symbol_table.pass_one(&program).map_err(|mut e| {
-            // Set the filepath for the error stacktrace.
-            e.set_path(path.clone());
-
-            e
-        })?;
-
-        // Pass 2: Check circuit and function definitions for unknown types.
-        symbol_table.pass_two(&program).map_err(|mut e| {
-            // Set the filepath for the error stacktrace.
-            e.set_path(path.clone());
-
-            e
-        })?;
-
-        // Pass 3: Check statements for type errors.
-        let resolved_ast = Program::resolve(&mut symbol_table, program).map_err(|mut e| {
-            // Set the filepath for the error stacktrace.
-            e.set_path(path);
-
-            e
-        })?;
+        //
+        // // Create a new symbol table to track of program variables, circuits, and functions by name.
+        // let mut symbol_table = SymbolTable::new(None);
+        //
+        // // Pass 1: Check for circuit and function name collisions.
+        // symbol_table.pass_one(&program).map_err(|mut e| {
+        //     // Set the filepath for the error stacktrace.
+        //     e.set_path(path.clone());
+        //
+        //     e
+        // })?;
+        //
+        // // Pass 2: Check circuit and function definitions for unknown types.
+        // symbol_table.pass_two(&program).map_err(|mut e| {
+        //     // Set the filepath for the error stacktrace.
+        //     e.set_path(path.clone());
+        //
+        //     e
+        // })?;
+        //
+        // // Pass 3: Check statements for type errors.
+        // let resolved_ast = Program::resolve(&mut symbol_table, program).map_err(|mut e| {
+        //     // Set the filepath for the error stacktrace.
+        //     e.set_path(path);
+        //
+        //     e
+        // })?;
 
         Ok(Self { resolved_ast })
     }

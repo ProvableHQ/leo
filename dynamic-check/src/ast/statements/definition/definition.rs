@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{check_tuple_type, Expression, ExpressionValue, ResolvedNode, Statement, StatementError};
-use leo_static_check::{Attribute, SymbolTable, Type, VariableType};
+use leo_static_check::{Attribute, ParameterType, SymbolTable, Type};
 use leo_typed::{Declare, Expression as UnresolvedExpression, Span, VariableName, Variables};
 
 use serde::{Deserialize, Serialize};
@@ -167,7 +167,7 @@ fn insert_defined_variable(
 
     // Insert variable into symbol table
     let key = variable.identifier.name.clone();
-    let value = VariableType {
+    let value = ParameterType {
         identifier: variable.identifier.clone(),
         type_: type_.clone(),
         attributes,
@@ -200,7 +200,7 @@ impl Statement {
 
         // If an explicit type is given check that it is valid
         let expected_type = match &variables.type_ {
-            Some(type_) => Some(Type::resolve(table, (type_.clone(), span.clone()))?),
+            Some(type_) => Some(Type::new(table, type_.clone(), span.clone())?),
             None => None,
         };
 

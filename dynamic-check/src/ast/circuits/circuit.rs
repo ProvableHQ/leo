@@ -54,7 +54,7 @@ impl ResolvedNode for Circuit {
             type_: Type::Circuit(identifier.clone()),
             attributes: vec![Attribute::Mutable],
         };
-        child_table.insert_variable(self_key, self_variable);
+        child_table.insert_name(self_key, self_variable);
 
         // Insert circuit functions into symbol table
         for function in type_.functions.iter() {

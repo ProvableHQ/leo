@@ -89,18 +89,18 @@ impl SymbolTable {
         self.functions.insert(identifier.name, function_type)
     }
 
-    // ///
-    // /// Returns a reference to the variable type corresponding to the name.
-    // ///
-    // /// If the symbol table did not have this name present, then `None` is returned.
-    // ///
-    // pub fn get_variable(&self, name: &String) -> Option<&ParameterType> {
-    //     // Lookup variable name in symbol table.
-    //     match self.names.get(name) {
-    //         Some(variable) => Some(variable),
-    //         None => None,
-    //     }
-    // }
+    ///
+    /// Returns a reference to the variable type corresponding to the name.
+    ///
+    /// If the symbol table did not have this name present, then `None` is returned.
+    ///
+    pub fn get_variable(&self, name: &String) -> Option<&ParameterType> {
+        // Lookup variable name in symbol table.
+        match self.names.get(name) {
+            Some(variable) => Some(variable),
+            None => None,
+        }
+    }
 
     ///
     /// Returns a reference to the circuit type corresponding to the name.
