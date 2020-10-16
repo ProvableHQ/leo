@@ -46,8 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         string = string.trim_start_matches('\"');
 
         // Trim everything after the ending double quote `"`
-        let parts: Vec<&str> = string.split('\"').collect();
-        string = parts[0];
+        let string = string.split('\"').next().unwrap();
 
         // Insert the parameter for each container `{}`
         let mut result = string.to_string();

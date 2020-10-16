@@ -87,7 +87,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
-        let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+        let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
         // get input file name from annotation or use test_name
