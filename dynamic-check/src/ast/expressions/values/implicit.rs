@@ -38,6 +38,7 @@ impl Expression {
             Type::Tuple(_types) => unimplemented!("ERROR: Tuples cannot be implicit"),
             Type::Function(_name) => unimplemented!("ERROR: Functions cannot be implicit"),
             Type::Circuit(_name) => unimplemented!("ERROR: Circuits cannot be implicit"),
+            Type::TypeVariable(_name) => unimplemented!("ERROR: Type variables not implemented"),
         };
 
         Ok(Expression { type_, value })

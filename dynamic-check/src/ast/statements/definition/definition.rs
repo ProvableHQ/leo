@@ -174,7 +174,7 @@ fn insert_defined_variable(
     };
 
     // Check that variable name was not defined twice
-    let duplicate = table.insert_variable(key, value);
+    let duplicate = table.insert_name(key, value);
 
     if duplicate.is_some() {
         return Err(StatementError::duplicate_variable(

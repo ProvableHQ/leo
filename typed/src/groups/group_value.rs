@@ -42,6 +42,13 @@ impl GroupValue {
             GroupValue::Tuple(tuple) => tuple.span = new_span.clone(),
         }
     }
+
+    pub fn span(&self) -> &Span {
+        match self {
+            GroupValue::Single(_, span) => span,
+            GroupValue::Tuple(tuple) => &tuple.span,
+        }
+    }
 }
 
 impl<'ast> From<AstGroupValue<'ast>> for GroupValue {

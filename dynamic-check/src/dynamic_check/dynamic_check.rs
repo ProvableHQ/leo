@@ -384,9 +384,9 @@ impl TypeAssertion {
     ///
     /// Substitutes the given `TypeVariable` for each `Types` in the `TypeAssertion`.
     ///
-    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
-        self.left.substitute(variable, type_);
-        self.right.substitute(variable, type_);
+    pub fn substitute(&mut self, _variable: &TypeVariable, _type_: &Type) {
+        // self.left.substitute(variable, type_);
+        // self.right.substitute(variable, type_);
     }
 
     ///

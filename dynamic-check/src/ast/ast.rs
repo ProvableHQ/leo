@@ -33,7 +33,7 @@ impl LeoResolvedAst {
     /// Creates a new `LeoResolvedAst` resolved syntax tree from a given `LeoTypedAst`
     /// typed syntax tree and main file path.
     ///
-    pub fn new(ast: LeoTypedAst, path: PathBuf) -> Result<Self, ResolverError> {
+    pub fn new(ast: LeoTypedAst, _path: PathBuf) -> Result<(), ResolverError> {
         // Get program typed syntax tree representation.
         let program = ast.into_repr();
 
@@ -69,7 +69,9 @@ impl LeoResolvedAst {
         //     e
         // })?;
 
-        Ok(Self { resolved_ast })
+        // Ok(Self { resolved_ast })
+
+        Ok(())
     }
 
     ///

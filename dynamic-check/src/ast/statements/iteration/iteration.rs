@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{Expression, ResolvedNode, Statement, StatementError};
-use leo_static_check::{FunctionOutputType, SymbolTable, Type, VariableType};
+use leo_static_check::{FunctionOutputType, ParameterType, SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Identifier, IntegerType, Span, Statement as UnresolvedStatement};
 
 use serde::{Deserialize, Serialize};
@@ -50,13 +50,13 @@ impl Statement {
 
         // Add index to symbol table
         let key = index.name.clone();
-        let value = VariableType {
+        let value = ParameterType {
             identifier: index.clone(),
             type_: type_number,
             attributes: vec![],
         };
 
-        table.insert_variable(key, value);
+        table.insert_name(key, value);
 
         // Resolve statements
         let statements_resolved = statements

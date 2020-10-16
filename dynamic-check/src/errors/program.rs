@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitError, FunctionError};
-use leo_typed::{Error as FormattedError, Span};
+use leo_typed::Error as FormattedError;
 
 use std::path::PathBuf;
 
@@ -42,8 +42,8 @@ impl ProgramError {
         }
     }
 
-    /// Return a new formatted error with a given message and span information
-    fn new_from_span(message: String, span: Span) -> Self {
-        ProgramError::Error(FormattedError::new_from_span(message, span))
-    }
+    // /// Return a new formatted error with a given message and span information
+    // fn new_from_span(message: String, span: Span) -> Self {
+    //     ProgramError::Error(FormattedError::new_from_span(message, span))
+    // }
 }
