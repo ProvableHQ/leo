@@ -39,6 +39,6 @@ pub enum VerificationKeyFileError {
 
 impl From<std::io::Error> for VerificationKeyFileError {
     fn from(error: std::io::Error) -> Self {
-        VerificationKeyFileError::Crate("std::io", format!("{}", error))
+        VerificationKeyFileError::Crate("std::io", error.to_string())
     }
 }

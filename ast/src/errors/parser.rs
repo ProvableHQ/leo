@@ -62,6 +62,6 @@ impl From<Error<Rule>> for ParserError {
 
 impl From<std::io::Error> for ParserError {
     fn from(error: std::io::Error) -> Self {
-        ParserError::Crate("std::io", format!("{}", error))
+        ParserError::Crate("std::io", error.to_string())
     }
 }

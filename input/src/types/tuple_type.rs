@@ -29,12 +29,7 @@ pub struct TupleType<'ast> {
 
 impl<'ast> std::fmt::Display for TupleType<'ast> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let tuple = self
-            .types_
-            .iter()
-            .map(|x| format!("{}", x))
-            .collect::<Vec<_>>()
-            .join(", ");
+        let tuple = self.types_.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
         write!(f, "({})", tuple)
     }

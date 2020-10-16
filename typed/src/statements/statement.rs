@@ -189,11 +189,7 @@ impl fmt::Display for Statement {
         match *self {
             Statement::Return(ref expression, ref _span) => write!(f, "return {}", expression),
             Statement::Definition(ref declare, ref variable, ref expressions, ref _span) => {
-                let formatted_expressions = expressions
-                    .iter()
-                    .map(|x| format!("{}", x))
-                    .collect::<Vec<_>>()
-                    .join(",");
+                let formatted_expressions = expressions.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
 
                 write!(f, "{} {} = {};", declare, variable, formatted_expressions)
             }

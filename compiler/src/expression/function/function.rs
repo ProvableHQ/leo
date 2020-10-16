@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Call a circuit function that can mutate self.
 
                 // Save a reference to the circuit we are mutating.
-                let circuit_id_string = format!("{}", circuit_identifier);
+                let circuit_id_string = circuit_identifier.to_string();
                 let declared_circuit_reference = new_scope(function_scope.clone(), circuit_id_string);
 
                 (

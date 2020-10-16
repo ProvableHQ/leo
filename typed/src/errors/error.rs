@@ -136,7 +136,7 @@ fn test_error() {
     };
 
     assert_eq!(
-        format!("{}", err),
+        err.to_string(),
         vec![
             "    --> file.leo: 2:8",
             "     |",

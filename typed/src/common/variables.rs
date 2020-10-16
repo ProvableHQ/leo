@@ -44,12 +44,7 @@ impl fmt::Display for Variables {
             write!(f, "{}", self.names[0])?;
         } else {
             // (a, mut b)
-            let names = self
-                .names
-                .iter()
-                .map(|x| format!("{}", x))
-                .collect::<Vec<_>>()
-                .join(",");
+            let names = self.names.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
 
             write!(f, "({})", names)?;
         }

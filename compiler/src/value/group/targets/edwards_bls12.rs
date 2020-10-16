@@ -268,7 +268,7 @@ impl EdwardsGroupType {
         if element.is_on_curve() {
             Ok(element)
         } else {
-            Err(GroupError::not_on_curve(format!("{}", element), element_span))
+            Err(GroupError::not_on_curve(element.to_string(), element_span))
         }
     }
 

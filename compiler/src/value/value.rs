@@ -348,7 +348,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 write!(f, "]")
             }
             ConstrainedValue::Tuple(ref tuple) => {
-                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let values = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", values)
             }

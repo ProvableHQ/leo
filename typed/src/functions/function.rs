@@ -53,13 +53,8 @@ impl Function {
 
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
-        let parameters = self
-            .input
-            .iter()
-            .map(|x| format!("{}", x))
-            .collect::<Vec<_>>()
-            .join(",");
-        let returns = self.returns.as_ref().map(|type_| format!("{}", type_));
+        let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
+        let returns = self.returns.as_ref().map(|type_| type_.to_string());
         let statements = self
             .statements
             .iter()
