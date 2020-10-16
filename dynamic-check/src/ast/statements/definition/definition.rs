@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{check_tuple_type, Expression, ExpressionValue, ResolvedNode, Statement, StatementError};
+use crate::{check_tuple_type, Expression, ExpressionValue, ResolvedNode, Statement, StatementError, VariableTable};
 use leo_static_check::{Attribute, ParameterType, SymbolTable, Type};
 use leo_typed::{Declare, Expression as UnresolvedExpression, Span, VariableName, Variables};
 
@@ -39,40 +39,36 @@ pub enum DefinitionVariables {
 }
 
 impl DefinitionVariables {
-    /// Resolves a single variable with a single value
+    ///
+    /// Returns a new statement that defines a single variable with a single value.
+    ///
+    /// Performs a lookup in the given variable table if the `UnresolvedExpression` contains user-defined variables.
+    ///
     fn single(
-        table: &mut SymbolTable,
+        table: &VariableTable,
         variable: VariableName,
-        expected_type: Option<Type>,
-        expression: UnresolvedExpression,
-        span: Span,
+        unresolved_expression: UnresolvedExpression,
     ) -> Result<Self, StatementError> {
-        // Resolve expression with given expected type
-        let expression_resolved = Expression::resolve(table, (expected_type, expression))?;
-        let type_ = expression_resolved.type_();
+        // Create a new `Expression` from the given `UnresolvedExpression`.
+        let expression = Expression::new(table, unresolved_expression)?;
 
-        // Insert variable into symbol table
-        insert_defined_variable(table, &variable, type_, span.clone())?;
-
-        Ok(DefinitionVariables::Single(variable, expression_resolved))
+        Ok(DefinitionVariables::Single(variable, expression))
     }
 
-    /// Resolves a tuple (single variable with multiple values)
+    ///
+    /// Returns a new statement that defines a tuple (single variable with multiple values).
+    ///
+    /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined variables.
+    ///
     fn tuple(
-        table: &mut SymbolTable,
+        table: &VariableTable,
         variable: VariableName,
-        expected_type: Option<Type>,
-        expressions: Vec<UnresolvedExpression>,
-        span: Span,
+        unresolved_expressions: Vec<UnresolvedExpression>,
     ) -> Result<Self, StatementError> {
-        // Resolve tuple of expressions
-        let tuple_resolved = Expression::tuple(table, expected_type, expressions, span.clone())?;
-        let type_ = tuple_resolved.type_();
+        // Create a new tuple of `Expression`s  from the given vector of `UnresolvedExpression's.
+        let tuple = Expression::tuple(table, unresolved_expressions, span.clone())?;
 
-        // Insert variable into symbol table
-        insert_defined_variable(table, &variable, type_, span.clone())?;
-
-        Ok(DefinitionVariables::Tuple(variable, tuple_resolved))
+        Ok(DefinitionVariables::Tuple(variable, tuple))
     }
 
     /// Resolves multiple variables for multiple expressions
@@ -187,22 +183,26 @@ fn insert_defined_variable(
 }
 
 impl Statement {
-    /// Resolves a definition statement
+    ///
+    /// Returns a new `let` or `const` definition statement from a given `UnresolvedExpression`.
+    ///
+    /// Performs a lookup in the given variable table if the statement contains user-defined variables.
+    ///
     pub(crate) fn definition(
-        table: &mut SymbolTable,
+        table: &VariableTable,
         declare: Declare,
         variables: Variables,
-        expressions: Vec<UnresolvedExpression>,
+        unresolved_expressions: Vec<UnresolvedExpression>,
         span: Span,
     ) -> Result<Self, StatementError> {
         let num_variables = variables.names.len();
-        let num_values = expressions.len();
+        let num_values = unresolved_expressions.len();
 
-        // If an explicit type is given check that it is valid
-        let expected_type = match &variables.type_ {
-            Some(type_) => Some(Type::new(table, type_.clone(), span.clone())?),
-            None => None,
-        };
+        // // If an explicit type is given check that it is valid
+        // let expected_type = match &variables.type_ {
+        //     Some(type_) => Some(Type::new(table, type_.clone(), span.clone())?),
+        //     None => None,
+        // };
 
         let variables = if num_variables == 1 && num_values == 1 {
             // Define a single variable with a single value
@@ -210,34 +210,32 @@ impl Statement {
             DefinitionVariables::single(
                 table,
                 variables.names[0].clone(),
-                expected_type,
-                expressions[0].clone(),
+                unresolved_expressions[0].clone(),
                 span.clone(),
             )
         } else if num_variables == 1 && num_values > 1 {
             // Define a tuple (single variable with multiple values)
 
-            DefinitionVariables::tuple(
-                table,
-                variables.names[0].clone(),
-                expected_type,
-                expressions,
-                span.clone(),
-            )
+            DefinitionVariables::tuple(table, variables.names[0].clone(), unresolved_expressions, span.clone())
         } else if num_variables > 1 && num_values == 1 {
             // Define multiple variables for an expression that returns a tuple
 
             DefinitionVariables::multiple_variable_tuple(
                 table,
                 variables,
-                expected_type,
-                expressions[0].clone(),
+                unresolved_expressions[0].clone(),
                 span.clone(),
             )
         } else {
             // Define multiple variables for multiple expressions
 
-            DefinitionVariables::multiple_variable(table, variables, expected_type, expressions, span.clone())
+            DefinitionVariables::multiple_variable(
+                table,
+                variables,
+                expected_type,
+                unresolved_expressions,
+                span.clone(),
+            )
         }?;
 
         Ok(Statement::Definition(Definition {

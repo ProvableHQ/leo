@@ -99,11 +99,11 @@ impl DynamicCheck {
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]
 pub struct FunctionBody {
-    function_type: FunctionType,
-    statements: Vec<UnresolvedStatement>,
-    user_defined_types: SymbolTable,
-    type_assertions: Vec<TypeAssertion>,
-    variable_table: VariableTable,
+    pub function_type: FunctionType,
+    pub statements: Vec<UnresolvedStatement>,
+    pub user_defined_types: SymbolTable,
+    pub type_assertions: Vec<TypeAssertion>,
+    pub variable_table: VariableTable,
 }
 
 impl FunctionBody {
@@ -337,7 +337,7 @@ impl FunctionBody {
         // }
 
         // Return a new resolved function struct.
-        Function::new(self.variable_table, self.function_type, self.statements)
+        Function::new(self)
     }
 }
 

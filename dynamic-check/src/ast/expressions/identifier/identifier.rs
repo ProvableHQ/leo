@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, VariableTable};
+use crate::{Expression, ExpressionError, ExpressionValue, FunctionBody, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::Identifier;
 
@@ -22,11 +22,12 @@ impl Expression {
     ///
     /// Returns a new variable expression from a given `UnresolvedExpression`.
     ///
-    /// Performs a lookup in the given variable table to find the variable's type.
+    /// Performs a lookup in the given function body's variable table to find the variable's type.
     ///
-    pub(crate) fn variable(variable_table: &VariableTable, identifier: Identifier) -> Result<Self, ExpressionError> {
+    pub(crate) fn variable(function_body: &FunctionBody, identifier: Identifier) -> Result<Self, ExpressionError> {
         // Lookup the type of the given variable.
-        let type_ = variable_table
+        let type_ = function_body
+            .variable_table
             .get(&identifier.name)
             .ok_or(ExpressionError::undefined_identifier(identifier.clone()))?;
 

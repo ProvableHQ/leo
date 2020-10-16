@@ -13,8 +13,18 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Assign, Conditional, Definition, Expression, Iteration, ResolvedNode, StatementError, VariableTable};
-use leo_static_check::{FunctionOutputType, SymbolTable};
+use crate::{
+    Assign,
+    Conditional,
+    Definition,
+    Expression,
+    FunctionBody,
+    Iteration,
+    ResolvedNode,
+    StatementError,
+    VariableTable,
+};
+use leo_static_check::{FunctionOutputType, FunctionType, SymbolTable};
 use leo_typed::{ConsoleFunctionCall, Span, Statement as UnresolvedStatement};
 
 use serde::{Deserialize, Serialize};
@@ -35,14 +45,15 @@ impl Statement {
     ///
     /// Returns a new `Statement` from a given `UnresolvedStatement`.
     ///
-    /// Performs a lookup in the given variable table if the statement contains user-defined types.
+    /// Performs a lookup in the given function body's variable table if the statement contains
+    /// user-defined types.
     ///
     pub fn new(
-        variable_table: &VariableTable,
+        function_body: &FunctionBody,
         unresolved_statement: UnresolvedStatement,
     ) -> Result<Self, StatementError> {
         match unresolved_statement {
-            UnresolvedStatement::Return(expression, span) => Self::resolve_return(variable_table, expression, span),
+            UnresolvedStatement::Return(expression, span) => Self::resolve_return(function_body, expression, span),
             UnresolvedStatement::Definition(declare, variables, expressions, span) => {
                 Self::definition(variable_table, declare, variables, expressions, span)
             }

@@ -14,35 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode};
+use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
-    /// Resolves a tuple of expressions to the given tuple type
+    ///
+    /// Returns a new expression that defines a tuple (single variable with multiple values).
+    ///
+    /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined types.
+    ///
     pub(crate) fn tuple(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
-        expressions: Vec<UnresolvedExpression>,
+        variable_table: &VariableTable,
+        unresolved_expressions: Vec<UnresolvedExpression>,
         span: Span,
     ) -> Result<Self, ExpressionError> {
-        // If the expected type is given, then it must be a tuple of types
-        let expected_element_types = check_tuple_type(expected_type, expressions.len(), span.clone())?;
+        // // If the expected type is given, then it must be a tuple of types
+        // let expected_element_types = check_tuple_type(expected_type, expressions.len(), span.clone())?;
 
         // Check length of tuple against expected types
-        if expected_element_types.len() != expressions.len() {
-            return Err(ExpressionError::invalid_length_tuple(
-                expected_element_types.len(),
-                expressions.len(),
-                span.clone(),
-            ));
-        }
+        // if expected_element_types.len() != unresolved_expressions.len() {
+        //     return Err(ExpressionError::invalid_length_tuple(
+        //         expected_element_types.len(),
+        //         unresolved_expressions.len(),
+        //         span.clone(),
+        //     ));
+        // }
 
         // Resolve all tuple elements
         let mut tuple = vec![];
 
-        for (expression, element_type) in expressions.into_iter().zip(expected_element_types) {
-            let expression_resolved = Expression::resolve(table, (element_type, expression))?;
+        for (expression, _) in unresolved_expressions.into_iter().zip(expected_element_types) {
+            let expression_resolved = Expression::new(variable_table, expression)?;
 
             tuple.push(expression_resolved);
         }
