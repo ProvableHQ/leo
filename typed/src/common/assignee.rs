@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, RangeOrExpression};
+use crate::{Expression, Identifier, RangeOrExpression, Span};
 use leo_ast::{
     access::AssigneeAccess as AstAssigneeAccess,
     common::{Assignee as AstAssignee, Identifier as AstIdentifier, SelfKeywordOrIdentifier},
@@ -23,56 +23,64 @@ use leo_ast::{
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Definition assignee: v, arr[0..2], Point p.x
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Assignee {
-    Identifier(Identifier),
-    Array(Box<Assignee>, RangeOrExpression),
-    Tuple(Box<Assignee>, usize),
-    CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
+pub enum AssigneeAccess {
+    Array(RangeOrExpression),
+    Tuple(usize),
+    Member(Identifier),
 }
 
-impl<'ast> From<AstIdentifier<'ast>> for Assignee {
-    fn from(variable: AstIdentifier<'ast>) -> Self {
-        Assignee::Identifier(Identifier::from(variable))
+impl<'ast> From<AstAssigneeAccess<'ast>> for AssigneeAccess {
+    fn from(access: AstAssigneeAccess<'ast>) -> Self {
+        match access {
+            AstAssigneeAccess::Array(array) => AssigneeAccess::Array(RangeOrExpression::from(array.expression)),
+            AstAssigneeAccess::Tuple(tuple) => AssigneeAccess::Tuple(Expression::get_count_from_ast(tuple.number)),
+            AstAssigneeAccess::Member(member) => AssigneeAccess::Member(Identifier::from(member.identifier)),
+        }
     }
 }
 
-impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Assignee {
-    fn from(name: SelfKeywordOrIdentifier<'ast>) -> Self {
-        Assignee::Identifier(Identifier::from(name))
+/// Definition assignee: v, arr[0..2], Point p.x
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Assignee {
+    pub identifier: Identifier,
+    pub accesses: Vec<AssigneeAccess>,
+    pub span: Span,
+}
+
+impl Assignee {
+    /// Returns the name of the variable being assigned to
+    pub fn identifier(&self) -> &Identifier {
+        &self.identifier
     }
 }
 
 impl<'ast> From<AstAssignee<'ast>> for Assignee {
     fn from(assignee: AstAssignee<'ast>) -> Self {
-        let variable = Assignee::from(assignee.name);
-
-        // We start with the id, and we fold the array of accesses by wrapping the current value
-        assignee
-            .accesses
-            .into_iter()
-            .fold(variable, |acc, access| match access {
-                AstAssigneeAccess::Array(array) => {
-                    Assignee::Array(Box::new(acc), RangeOrExpression::from(array.expression))
-                }
-                AstAssigneeAccess::Tuple(tuple) => {
-                    Assignee::Tuple(Box::new(acc), Expression::get_count_from_ast(tuple.number))
-                }
-                AstAssigneeAccess::Member(circuit_variable) => {
-                    Assignee::CircuitField(Box::new(acc), Identifier::from(circuit_variable.identifier))
-                }
-            })
+        Assignee {
+            identifier: Identifier::from(assignee.name),
+            accesses: assignee
+                .accesses
+                .into_iter()
+                .map(|access| AssigneeAccess::from(access))
+                .collect::<Vec<_>>(),
+            span: Span::from(assignee.span),
+        }
     }
 }
 
 impl fmt::Display for Assignee {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Assignee::Identifier(ref variable) => write!(f, "{}", variable),
-            Assignee::Array(ref array, ref index) => write!(f, "{}[{}]", array, index),
-            Assignee::Tuple(ref tuple, ref index) => write!(f, "{}.{}", tuple, index),
-            Assignee::CircuitField(ref circuit_variable, ref member) => write!(f, "{}.{}", circuit_variable, member),
+        write!(f, "{}", self.identifier)?;
+
+        for access in &self.accesses {
+            match access {
+                AssigneeAccess::Array(expression) => write!(f, "[{}]", expression)?,
+                AssigneeAccess::Tuple(index) => write!(f, ".{}", index)?,
+                AssigneeAccess::Member(member) => write!(f, ".{}", member)?,
+            }
         }
+
+        write!(f, "")
     }
 }
