@@ -19,7 +19,7 @@ use leo_core::LeoCoreError;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -52,7 +52,7 @@ pub enum ExpressionError {
 }
 
 impl ExpressionError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ExpressionError::AddressError(error) => error.set_path(path),
             ExpressionError::BooleanError(error) => error.set_path(path),

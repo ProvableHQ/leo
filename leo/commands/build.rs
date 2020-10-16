@@ -124,9 +124,9 @@ impl CLI for BuildCommand {
                 main_file_path,
                 output_directory,
                 &input_string,
-                input_path.into_owned(),
+                &input_path,
                 &state_string,
-                state_path.into_owned(),
+                &state_path,
             )?;
 
             // Compute the current program checksum

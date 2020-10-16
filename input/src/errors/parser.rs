@@ -28,7 +28,11 @@ use pest::{
     error::{Error, ErrorVariant},
     Span,
 };
-use std::{num::ParseIntError, path::PathBuf, str::ParseBoolError};
+use std::{
+    num::ParseIntError,
+    path::{Path, PathBuf},
+    str::ParseBoolError,
+};
 
 #[derive(Debug, Error)]
 pub enum InputParserError {
@@ -52,7 +56,7 @@ pub enum InputParserError {
 }
 
 impl InputParserError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         if let InputParserError::SyntaxError(error) = self {
             let new_error: Error<Rule> = match error {
                 InputSyntaxError::Error(error) => {

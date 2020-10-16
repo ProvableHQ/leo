@@ -147,7 +147,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             (false, _) => {
                 // Set file location of error
                 let mut error = result.unwrap_err();
-                error.set_path(main_file_path.to_owned());
+                error.set_path(main_file_path);
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

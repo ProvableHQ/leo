@@ -16,7 +16,7 @@
 
 use crate::Span;
 
-use std::{fmt, path::PathBuf};
+use std::{fmt, path::Path};
 
 pub const INDENT: &str = "    ";
 
@@ -55,7 +55,7 @@ impl Error {
         }
     }
 
-    pub fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+    pub fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
         Self {
             path: Some(format!("{:?}", path)),
             line: span.line,
@@ -66,7 +66,7 @@ impl Error {
         }
     }
 
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         self.path = Some(format!("{:?}", path));
     }
 

@@ -34,8 +34,16 @@ impl<'ast> fmt::Display for RangeOrExpression<'ast> {
             RangeOrExpression::Range(ref range) => write!(
                 f,
                 "{}..{}",
-                range.from.as_ref().map(|v| v.to_string()).unwrap_or("".to_string()),
-                range.to.as_ref().map(|v| v.to_string()).unwrap_or("".to_string()),
+                range
+                    .from
+                    .as_ref()
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|| "".to_string()),
+                range
+                    .to
+                    .as_ref()
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|| "".to_string()),
             ),
         }
     }

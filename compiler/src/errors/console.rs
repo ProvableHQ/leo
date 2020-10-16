@@ -17,7 +17,7 @@
 use crate::errors::ExpressionError;
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ConsoleError {
@@ -29,7 +29,7 @@ pub enum ConsoleError {
 }
 
 impl ConsoleError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ConsoleError::Expression(error) => error.set_path(path),
             ConsoleError::Error(error) => error.set_path(path),
