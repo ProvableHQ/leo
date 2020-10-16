@@ -13,8 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Assign, Conditional, Definition, Expression, Iteration, StatementError};
-use leo_symbol_table::{FunctionOutputType, ResolvedNode, SymbolTable};
+use crate::{Assign, Conditional, Definition, Expression, Iteration, ResolvedNode, StatementError};
+use leo_static_check::{FunctionOutputType, SymbolTable};
 use leo_typed::{ConsoleFunctionCall, Span, Statement as UnresolvedStatement};
 
 use serde::{Deserialize, Serialize};

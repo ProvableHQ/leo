@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Function, FunctionError};
-use leo_symbol_table::{ResolvedNode, SymbolTable};
+use crate::{Function, FunctionError, ResolvedNode};
+use leo_static_check::SymbolTable;
 use leo_typed::{Identifier, TestFunction as UnresolvedTestFunction};
 
 use serde::{Deserialize, Serialize};

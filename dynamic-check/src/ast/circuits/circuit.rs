@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitError, Function};
-use leo_symbol_table::{Attribute, CircuitType, ResolvedNode, SymbolTable, Type, VariableType};
+use crate::{CircuitError, Function, ResolvedNode};
+use leo_static_check::{Attribute, CircuitType, ParameterType, SymbolTable, Type};
 use leo_typed::{circuit::Circuit as UnresolvedCircuit, identifier::Identifier, CircuitMember};
 
 use serde::{Deserialize, Serialize};
@@ -49,7 +49,7 @@ impl ResolvedNode for Circuit {
 
         // Create self variable
         let self_key = "self".to_owned();
-        let self_variable = VariableType {
+        let self_variable = ParameterType {
             identifier: identifier.clone(),
             type_: Type::Circuit(identifier.clone()),
             attributes: vec![Attribute::Mutable],

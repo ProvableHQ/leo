@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_symbol_table::TypeError;
+use leo_static_check::TypeError;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;

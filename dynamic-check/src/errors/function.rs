@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StatementError;
-use leo_symbol_table::TypeError;
+use leo_static_check::TypeError;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;

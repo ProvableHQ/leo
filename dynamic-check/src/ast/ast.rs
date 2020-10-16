@@ -16,13 +16,13 @@
 
 use crate::{Program, ResolverError};
 use leo_imports::ImportParser;
-use leo_symbol_table::{ResolvedNode, SymbolTable};
+use leo_static_check::SymbolTable;
 use leo_typed::LeoTypedAst;
 
 use serde_json;
 use std::path::PathBuf;
 
-/// A resolved abstract syntax tree without implicit types.
+/// A program abstract syntax tree without implicit types.
 #[derive(Debug, Eq, PartialEq)]
 pub struct LeoResolvedAst {
     pub resolved_ast: Program,
@@ -94,21 +94,21 @@ impl LeoResolvedAst {
         Ok(Self { resolved_ast })
     }
 }
-//
-// /// A node in the `LeoResolvedAST`.
-// ///
-// /// This node and all of its children should not contain any implicit types.
-// pub trait ResolvedNode {
-//     /// The expected error type if the type resolution fails.
-//     type Error;
-//
-//     /// The `leo-typed` AST node that is being type checked.
-//     type UnresolvedNode;
-//
-//     ///
-//     /// Returns a resolved AST representation given an unresolved AST representation and symbol table.
-//     ///
-//     fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error>
-//     where
-//         Self: std::marker::Sized;
-// }
+
+/// A node in the `LeoResolvedAST`.
+///
+/// This node and all of its children should not contain any implicit types.
+pub trait ResolvedNode {
+    /// The expected error type if the type resolution fails.
+    type Error;
+
+    /// The `leo-typed` AST node that is being type checked.
+    type UnresolvedNode;
+
+    ///
+    /// Returns a resolved AST representation given an unresolved AST representation and symbol table.
+    ///
+    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error>
+    where
+        Self: std::marker::Sized;
+}

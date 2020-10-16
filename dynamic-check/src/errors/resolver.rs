@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::ProgramError;
 use leo_imports::ImportParserError;
-use leo_symbol_table::SymbolTableError;
+use leo_static_check::SymbolTableError;
 use leo_typed::Error as FormattedError;
 
 #[derive(Debug, Error)]

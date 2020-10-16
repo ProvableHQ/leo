@@ -14,5 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#[macro_use]
+extern crate thiserror;
+
+pub mod ast;
+pub use self::ast::*;
+
 pub mod dynamic_check;
 pub use self::dynamic_check::*;
+
+pub mod errors;
+pub use self::errors::*;

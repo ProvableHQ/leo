@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Circuit, Function, ProgramError, TestFunction};
-use leo_symbol_table::{ResolvedNode, SymbolTable};
-use leo_typed::{programs::Program as UnresolvedProgram, Identifier};
+use crate::{Circuit, Function, ProgramError, ResolvedNode, TestFunction};
+use leo_static_check::SymbolTable;
+use leo_typed::{Identifier, Program as UnresolvedProgram};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

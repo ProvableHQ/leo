@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, ExpressionError, ExpressionValue};
-use leo_symbol_table::{SymbolTable, Type};
+use leo_static_check::{SymbolTable, Type};
 use leo_typed::Identifier;
 
 impl Expression {

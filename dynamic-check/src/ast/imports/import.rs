@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_symbol_table::{ResolvedNode, SymbolTable};
+use crate::ResolvedNode;
+use leo_static_check::SymbolTable;
 use leo_typed::Import as UnresolvedImport;
 
 use serde::{Deserialize, Serialize};

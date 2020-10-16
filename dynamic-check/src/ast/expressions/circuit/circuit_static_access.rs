@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue};
-use leo_symbol_table::{Attribute, ResolvedNode, SymbolTable, Type};
+use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode};
+use leo_static_check::{Attribute, SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Identifier, Span};
 
 impl Expression {

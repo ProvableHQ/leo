@@ -13,8 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{CircuitVariableDefinition, Expression, ExpressionError, ExpressionValue};
-use leo_symbol_table::{ResolvedNode, SymbolTable, Type};
+use crate::{CircuitVariableDefinition, Expression, ExpressionError, ExpressionValue, ResolvedNode};
+use leo_static_check::{SymbolTable, Type};
 use leo_typed::{CircuitVariableDefinition as UnresolvedCircuitVariableDefinition, Identifier, Span};
 
 impl Expression {

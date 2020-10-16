@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ExpressionError;
-use leo_symbol_table::{Type, TypeError};
+use leo_static_check::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Expression as UnresolvedExpression, Identifier, Span};
 
 use std::path::PathBuf;

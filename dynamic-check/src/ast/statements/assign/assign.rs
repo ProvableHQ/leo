@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Statement, StatementError};
-use leo_symbol_table::{ResolvedNode, SymbolTable, Type};
+use crate::{Expression, ResolvedNode, Statement, StatementError};
+use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Assignee, AssigneeAccess, Expression as UnresolvedExpression, Span};
 
 use serde::{Deserialize, Serialize};
