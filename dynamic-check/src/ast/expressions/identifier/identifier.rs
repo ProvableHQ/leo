@@ -14,32 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue};
+use crate::{Expression, ExpressionError, ExpressionValue, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::Identifier;
 
 impl Expression {
-    /// Resolve the type of an identifier expression
-    pub(crate) fn identifier(
-        table: &SymbolTable,
-        expected_type: Option<Type>,
-        identifier: Identifier,
-    ) -> Result<Self, ExpressionError> {
-        // Lookup identifier in symbol table
-        let variable = table
-            .get_variable(&identifier.name)
+    ///
+    /// Returns a new variable expression from a given `UnresolvedExpression`.
+    ///
+    /// Performs a lookup in the given variable table to find the variable's type.
+    ///
+    pub(crate) fn variable(variable_table: &VariableTable, identifier: Identifier) -> Result<Self, ExpressionError> {
+        // Lookup the type of the given variable.
+        let type_ = variable_table
+            .get(&identifier.name)
             .ok_or(ExpressionError::undefined_identifier(identifier.clone()))?;
 
-        // Get type of symbol table entry
-        let variable_type = variable.type_.clone();
-        let span = identifier.span.clone();
-
-        // Check the expected type if given
-        Type::check_type(&expected_type, &variable_type, span)?;
-
         Ok(Expression {
-            type_: variable_type,
-            value: ExpressionValue::Identifier(identifier),
+            type_: type_.clone(),
+            value: ExpressionValue::Variable(identifier),
         })
     }
 }

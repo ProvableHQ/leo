@@ -25,8 +25,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExpressionValue {
-    // Identifier
-    Identifier(Identifier),
+    // Variable
+    Variable(Identifier),
 
     // Values
     Address(String, Span),
@@ -90,7 +90,7 @@ impl ExpressionValue {
     /// Return the span
     pub fn span(&self) -> &Span {
         match self {
-            ExpressionValue::Identifier(identifier) => &identifier.span,
+            ExpressionValue::Variable(identifier) => &identifier.span,
             ExpressionValue::Address(_, span) => span,
             ExpressionValue::Boolean(_, span) => span,
             ExpressionValue::Field(_, span) => span,

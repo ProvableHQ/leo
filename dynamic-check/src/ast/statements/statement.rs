@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Assign, Conditional, Definition, Expression, Iteration, ResolvedNode, StatementError};
+use crate::{Assign, Conditional, Definition, Expression, Iteration, ResolvedNode, StatementError, VariableTable};
 use leo_static_check::{FunctionOutputType, SymbolTable};
 use leo_typed::{ConsoleFunctionCall, Span, Statement as UnresolvedStatement};
 
@@ -29,6 +29,39 @@ pub enum Statement {
     Iteration(Iteration),
     Console(ConsoleFunctionCall),
     Expression(Expression, Span),
+}
+
+impl Statement {
+    ///
+    /// Returns a new `Statement` from a given `UnresolvedStatement`.
+    ///
+    /// Performs a lookup in the given variable table if the statement contains user-defined types.
+    ///
+    pub fn new(
+        variable_table: &VariableTable,
+        unresolved_statement: UnresolvedStatement,
+    ) -> Result<Self, StatementError> {
+        match unresolved_statement {
+            UnresolvedStatement::Return(expression, span) => Self::resolve_return(variable_table, expression, span),
+            UnresolvedStatement::Definition(declare, variables, expressions, span) => {
+                Self::definition(variable_table, declare, variables, expressions, span)
+            }
+            UnresolvedStatement::Assign(assignee, expression, span) => {
+                Self::assign(variable_table, assignee, expression, span)
+            }
+            UnresolvedStatement::Conditional(conditional, span) => {
+                Self::conditional(variable_table, return_type, conditional, span)
+            }
+            UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
+                Self::iteration(variable_table, return_type, index, start, stop, statements, span)
+            }
+            UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
+            UnresolvedStatement::Expression(expression, span) => Ok(Statement::Expression(
+                Expression::resolve(variable_table, expression)?,
+                span,
+            )),
+        }
+    }
 }
 
 impl ResolvedNode for Statement {

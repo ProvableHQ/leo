@@ -14,8 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{DynamicCheckError, Function, FunctionError, LeoResolvedAst};
 use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
-use leo_typed::{Expression, Function, Identifier, Program, Span, Statement};
+use leo_typed::{
+    Expression,
+    Function as UnresolvedFunction,
+    Identifier,
+    Program,
+    Span,
+    Statement as UnresolvedStatement,
+};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -57,7 +65,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of functions.
     ///
-    fn parse_functions(&mut self, functions: Vec<&Function>) {
+    fn parse_functions(&mut self, functions: Vec<&UnresolvedFunction>) {
         for function in functions {
             self.parse_function(function)
         }
@@ -66,7 +74,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    fn parse_function(&mut self, function: &Function) {
+    fn parse_function(&mut self, function: &UnresolvedFunction) {
         let function_body = FunctionBody::new(function.clone(), self.table.clone());
 
         self.functions.push(function_body);
@@ -76,15 +84,15 @@ impl DynamicCheck {
     /// Returns the result of evaluating all `TypeAssertion` predicates.
     ///
     /// Will attempt to substitute a `Type` for all `TypeVariable`s.
-    /// Returns `true` if all `TypeAssertion` predicates are true.
+    /// Returns a `LeoResolvedAst` if all `TypeAssertion` predicates are true.
     /// Returns ERROR if a `TypeAssertion` predicate is false or a solution does not exist.
     ///
-    pub fn solve(self) -> bool {
+    pub fn solve(self) -> Result<LeoResolvedAst, DynamicCheckError> {
         for function_body in self.functions {
             function_body.solve();
         }
 
-        true
+        Ok(LeoResolvedAst::new())
     }
 }
 
@@ -92,6 +100,7 @@ impl DynamicCheck {
 #[derive(Clone)]
 pub struct FunctionBody {
     function_type: FunctionType,
+    statements: Vec<UnresolvedStatement>,
     user_defined_types: SymbolTable,
     type_assertions: Vec<TypeAssertion>,
     variable_table: VariableTable,
@@ -101,13 +110,13 @@ impl FunctionBody {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    pub fn new(function: Function, symbol_table: SymbolTable) -> Self {
+    pub fn new(function: UnresolvedFunction, symbol_table: SymbolTable) -> Self {
         let name = &function.identifier.name;
 
         // Get function type from symbol table.
         let function_type = symbol_table.get_function(name).unwrap().clone();
 
-        // Build symbol table for variables.
+        // Create a new mapping of variables to types.
         let mut variable_table = VariableTable::new();
 
         // Initialize function inputs as variables.
@@ -116,6 +125,7 @@ impl FunctionBody {
         // Create new function body struct.
         // Update variables when encountering let/const variable definitions.
         let mut function_body = Self {
+            statements: function.statements,
             function_type,
             user_defined_types: symbol_table,
             type_assertions: vec![],
@@ -123,7 +133,7 @@ impl FunctionBody {
         };
 
         // Create type assertions for function statements
-        function_body.parse_statements(&function.statements);
+        function_body.parse_statements();
 
         function_body
     }
@@ -131,8 +141,8 @@ impl FunctionBody {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
-    fn parse_statements(&mut self, statements: &Vec<Statement>) {
-        for statement in statements {
+    fn parse_statements(&mut self) {
+        for statement in &self.statements {
             self.parse_statement(statement);
         }
     }
@@ -140,9 +150,9 @@ impl FunctionBody {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a statement.
     ///
-    fn parse_statement(&mut self, statement: &Statement) {
+    fn parse_statement(&mut self, statement: &UnresolvedStatement) {
         match statement {
-            Statement::Return(expression, span) => {
+            UnresolvedStatement::Return(expression, span) => {
                 self.parse_statement_return(expression, span);
             }
             statement => unimplemented!("statement {} not implemented", statement),
@@ -297,9 +307,9 @@ impl FunctionBody {
     }
 
     ///
-    /// Iteratively solves all `TypeAssertions`.
+    /// Returns a new `Function` if all `TypeAssertions` can be solved successfully.
     ///
-    fn solve(self) {
+    fn solve(self) -> Result<Function, FunctionError> {
         let mut unsolved = self.type_assertions.clone();
 
         while !unsolved.is_empty() {
@@ -325,6 +335,9 @@ impl FunctionBody {
         //         }
         //     }
         // }
+
+        // Return a new resolved function struct.
+        Function::new(self.variable_table, self.function_type, self.statements)
     }
 }
 
@@ -350,6 +363,15 @@ impl VariableTable {
     ///
     pub fn insert(&mut self, name: String, type_: Type) -> Option<Type> {
         self.0.insert(name, type_)
+    }
+
+    ///
+    /// Returns a reference to the type corresponding to the name.
+    ///
+    /// If the variable table did not have this name present, [`None`] is returned.
+    ///
+    pub fn get(&self, name: &String) -> Option<&Type> {
+        self.0.get(name)
     }
 
     ///

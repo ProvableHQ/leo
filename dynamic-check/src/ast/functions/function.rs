@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionError, ResolvedNode, Statement};
+use crate::{FunctionError, ResolvedNode, Statement, StatementError, VariableTable};
 use leo_static_check::{FunctionType, SymbolTable, TypeError};
-use leo_typed::Function as UnresolvedFunction;
+use leo_typed::{Function as UnresolvedFunction, Statement as UnresolvedStatement};
 
 use serde::{Deserialize, Serialize};
 
@@ -24,10 +24,34 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Function {
     /// The user-defined type of this function.
-    pub type_: FunctionType,
+    pub function_type: FunctionType,
 
     /// The function statements.
     pub statements: Vec<Statement>,
+}
+
+impl Function {
+    ///
+    /// Returns a new `Function` from a given `UnresolvedFunction`.
+    ///
+    /// Performs a lookup in the given variable table if the function contains user-defined types.
+    ///
+    pub fn new(
+        variable_table: VariableTable,
+        function_type: FunctionType,
+        unresolved_statements: Vec<UnresolvedStatement>,
+    ) -> Result<Self, FunctionError> {
+        // Create a new `Statement` from every given `UnresolvedStatement`.
+        let statements = unresolved_statements
+            .iter()
+            .for_each(|unresolved_statement| Statement::new(&variable_table, unresolved_statement))
+            .collect::<Result<Vec<Statement>, StatementError>>()?;
+
+        Ok(Function {
+            function_type,
+            statements,
+        })
+    }
 }
 
 impl ResolvedNode for Function {
@@ -73,6 +97,9 @@ impl ResolvedNode for Function {
             statements.push(statement);
         }
 
-        Ok(Function { type_, statements })
+        Ok(Function {
+            function_type: type_,
+            statements,
+        })
     }
 }

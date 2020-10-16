@@ -17,6 +17,9 @@
 pub mod circuit;
 pub use self::circuit::*;
 
+pub mod dynamic_check;
+pub use self::dynamic_check::*;
+
 pub mod expression;
 pub use self::expression::*;
 

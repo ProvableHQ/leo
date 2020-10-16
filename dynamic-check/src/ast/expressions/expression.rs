@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ExpressionError, ExpressionValue, ResolvedNode};
+use crate::{ExpressionError, ExpressionValue, ResolvedNode, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
@@ -45,6 +45,86 @@ impl Expression {
         self.type_.check_type_integer(self.value.span().clone())?;
 
         Ok(())
+    }
+
+    ///
+    /// Returns a new `Expression` from a given `UnresolvedExpression`.
+    ///
+    /// Performs a lookup in the given variable table if the expression contains user-defined types.
+    ///
+    pub fn new(
+        variable_table: &VariableTable,
+        unresolved_expression: UnresolvedExpression,
+    ) -> Result<Self, ExpressionError> {
+        match unresolved_expression {
+            // Identifier
+            UnresolvedExpression::Identifier(identifier) => Self::variable(variable_table, identifier),
+
+            // Values
+            UnresolvedExpression::Address(string, span) => Self::address(string, span),
+            UnresolvedExpression::Boolean(string, span) => Self::boolean(string, span),
+            UnresolvedExpression::Field(string, span) => Self::field(string, span),
+            UnresolvedExpression::Group(group_value) => Self::group(group_value),
+            UnresolvedExpression::Implicit(string, span) => Self::implicit(string, span),
+            UnresolvedExpression::Integer(integer_type, string, span) => Self::integer(integer_type, string, span),
+
+            // Arithmetic Operations
+            UnresolvedExpression::Add(lhs, rhs, span) => Self::add(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Sub(lhs, rhs, span) => Self::sub(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Mul(lhs, rhs, span) => Self::mul(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Div(lhs, rhs, span) => Self::div(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Pow(lhs, rhs, span) => Self::pow(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Negate(expression, span) => Self::negate(variable_table, *expression, span),
+
+            // Logical Operations
+            UnresolvedExpression::And(lhs, rhs, span) => Self::and(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Or(lhs, rhs, span) => Self::or(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Not(expression, span) => Self::not(variable_table, *expression, span),
+
+            // Relational Operations
+            UnresolvedExpression::Eq(lhs, rhs, span) => Self::eq(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Ge(lhs, rhs, span) => Self::ge(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Gt(lhs, rhs, span) => Self::gt(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Le(lhs, rhs, span) => Self::le(variable_table, *lhs, *rhs, span),
+            UnresolvedExpression::Lt(lhs, rhs, span) => Self::lt(variable_table, *lhs, *rhs, span),
+
+            // Conditionals
+            UnresolvedExpression::IfElse(cond, first, second, span) => {
+                Self::conditional(variable_table, *cond, *first, *second, span)
+            }
+
+            // Arrays
+            UnresolvedExpression::Array(elements, span) => Self::array(variable_table, elements, span),
+            UnresolvedExpression::ArrayAccess(array, access, span) => {
+                Self::array_access(variable_table, array, access, span)
+            }
+
+            // Tuples
+            UnresolvedExpression::Tuple(elements, span) => Self::tuple(variable_table, elements, span),
+            UnresolvedExpression::TupleAccess(tuple, index, span) => {
+                Self::tuple_access(variable_table, tuple, index, span)
+            }
+
+            // Circuits
+            UnresolvedExpression::Circuit(identifier, variables, span) => {
+                Self::circuit(variable_table, identifier, variables, span)
+            }
+            UnresolvedExpression::CircuitMemberAccess(circuit, member, span) => {
+                Self::circuit_access(variable_table, circuit, member, span)
+            }
+            UnresolvedExpression::CircuitStaticFunctionAccess(circuit, member, span) => {
+                Self::circuit_static_access(variable_table, circuit, member, span)
+            }
+
+            // Functions
+            UnresolvedExpression::FunctionCall(function, inputs, span) => {
+                Self::function_call(variable_table, function, inputs, span)
+            }
+            UnresolvedExpression::CoreFunctionCall(_name, _inputs, _span) => {
+                unimplemented!("core function calls not type checked")
+                // Self::core_function_call(variable_table, expected_type, function, inputs, span)
+            }
+        }
     }
 }
 
