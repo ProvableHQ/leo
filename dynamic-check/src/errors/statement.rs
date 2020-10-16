@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ExpressionError;
+use crate::{ExpressionError, VariableTableError};
 use leo_static_check::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Expression as UnresolvedExpression, Identifier, Span};
 
@@ -33,6 +33,9 @@ pub enum StatementError {
 
     #[error("{}", _0)]
     TypeError(#[from] TypeError),
+
+    #[error("{}", _0)]
+    VariableTableError(#[from] VariableTableError),
 }
 
 impl StatementError {
@@ -44,6 +47,7 @@ impl StatementError {
             StatementError::Error(error) => error.set_path(path),
             StatementError::ExpressionError(error) => error.set_path(path),
             StatementError::TypeError(error) => error.set_path(path),
+            StatementError::VariableTableError(error) => error.set_path(path),
         }
     }
 

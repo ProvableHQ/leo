@@ -49,33 +49,41 @@ pub enum DefinitionVariables {
 
 impl DefinitionVariables {
     ///
-    /// Returns a new statement that defines a single variable with a single value.
+    /// Returns a new statement that defines a single variable with a single expression.
     ///
     /// Performs a lookup in the given variable table if the `UnresolvedExpression` contains user-defined variables.
     ///
     fn single(
-        table: &VariableTable,
-        variable: VariableName,
+        function_body: &FunctionBody,
+        variable_name: VariableName,
         unresolved_expression: UnresolvedExpression,
+        span: &Span,
     ) -> Result<Self, StatementError> {
-        // Create a new `Expression` from the given `UnresolvedExpression`.
-        let expression = Expression::new(table, unresolved_expression)?;
+        // Get the type of the variable.
+        let type_ = function_body.variable_table.get(variable_name.name_string(), span)?;
 
-        Ok(DefinitionVariables::Single(variable, expression))
+        // Create a new `Expression` from the given `UnresolvedExpression`.
+        let expression = Expression::new(function_body, type_, unresolved_expression)?;
+
+        Ok(DefinitionVariables::Single(variable_name, expression))
     }
 
     ///
-    /// Returns a new statement that defines a tuple (single variable with multiple values).
+    /// Returns a new statement that defines a tuple (single variable with multiple expressions).
     ///
     /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined variables.
     ///
     fn tuple(
-        table: &VariableTable,
+        function_body: &FunctionBody,
         variable: VariableName,
         unresolved_expressions: Vec<UnresolvedExpression>,
+        span: &Span,
     ) -> Result<Self, StatementError> {
+        // Get the type of the variable.
+        let type_ = function_body.variable_table.get(variable.name_string(), span)?;
+
         // Create a new tuple of `Expression`s  from the given vector of `UnresolvedExpression's.
-        let tuple = Expression::tuple(table, unresolved_expressions, span.clone())?;
+        let tuple = Expression::tuple(function_body, type_, unresolved_expressions, span.clone())?;
 
         Ok(DefinitionVariables::Tuple(variable, tuple))
     }
@@ -220,17 +228,12 @@ impl Statement {
                 function_body,
                 variables.names[0].clone(),
                 unresolved_expressions[0].clone(),
-                span.clone(),
+                &span,
             )
         } else if num_variables == 1 && num_values > 1 {
             // Define a tuple (single variable with multiple values)
 
-            DefinitionVariables::tuple(
-                function_body,
-                variables.names[0].clone(),
-                unresolved_expressions,
-                span.clone(),
-            )
+            DefinitionVariables::tuple(function_body, variables.names[0].clone(), unresolved_expressions, &span)
         } else if num_variables > 1 && num_values == 1 {
             // Define multiple variables for an expression that returns a tuple
 

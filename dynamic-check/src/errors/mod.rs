@@ -35,6 +35,9 @@ pub use self::resolver::*;
 pub mod statement;
 pub use self::statement::*;
 
+pub mod variable_table;
+pub use self::variable_table::*;
+
 // pub mod symbol_table;
 // pub use self::symbol_table::*;
 

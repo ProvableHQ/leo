@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode, VariableTable};
+use crate::{Expression, ExpressionError, ExpressionValue, FunctionBody, ResolvedNode, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
@@ -25,41 +25,29 @@ impl Expression {
     /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined types.
     ///
     pub(crate) fn tuple(
-        variable_table: &VariableTable,
+        function_body: &FunctionBody,
+        type_: &Type,
         unresolved_expressions: Vec<UnresolvedExpression>,
         span: Span,
     ) -> Result<Self, ExpressionError> {
-        // // If the expected type is given, then it must be a tuple of types
-        // let expected_element_types = check_tuple_type(expected_type, expressions.len(), span.clone())?;
+        // Get the type of each element in the tuple.
+        // If the type is not a tuple type, throw an error.
+        let element_types = match type_ {
+            Type::Tuple(types) => types,
+            type_ => return Err(ExpressionError::invalid_type_tuple(type_, &span)),
+        };
 
-        // Check length of tuple against expected types
-        // if expected_element_types.len() != unresolved_expressions.len() {
-        //     return Err(ExpressionError::invalid_length_tuple(
-        //         expected_element_types.len(),
-        //         unresolved_expressions.len(),
-        //         span.clone(),
-        //     ));
-        // }
-
-        // Resolve all tuple elements
+        // Create a new vector of `Expression`s from the given vector of `UnresolvedExpression`s.
         let mut tuple = vec![];
 
-        for (expression, _) in unresolved_expressions.into_iter().zip(expected_element_types) {
-            let expression_resolved = Expression::new(variable_table, expression)?;
+        for (unresolved_expression, element_type) in unresolved_expressions.into_iter().zip(element_types) {
+            let expression = Expression::new(function_body, element_type, unresolved_expression)?;
 
-            tuple.push(expression_resolved);
+            tuple.push(expression);
         }
 
-        // Define tuple type for expression
-        let actual_element_types = tuple
-            .iter()
-            .map(|expression| expression.type_().clone())
-            .collect::<Vec<_>>();
-
-        let type_ = Type::Tuple(actual_element_types);
-
         Ok(Expression {
-            type_,
+            type_: type_.clone(),
             value: ExpressionValue::Tuple(tuple, span),
         })
     }

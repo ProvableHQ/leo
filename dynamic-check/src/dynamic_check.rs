@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DynamicCheckError, Function, FunctionError, LeoResolvedAst};
+use crate::{DynamicCheckError, Function, FunctionError, LeoResolvedAst, VariableTableError};
 use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
     Expression,
@@ -368,10 +368,13 @@ impl VariableTable {
     ///
     /// Returns a reference to the type corresponding to the name.
     ///
-    /// If the variable table did not have this name present, [`None`] is returned.
+    /// If the variable table did not have this key present, throw an undefined variable error
+    /// using the given span.
     ///
-    pub fn get(&self, name: &String) -> Option<&Type> {
-        self.0.get(name)
+    pub fn get(&self, name: &String, span: &Span) -> Result<&Type, VariableTableError> {
+        self.0
+            .get(name)
+            .ok_or(VariableTableError::undefined_variable_name(name, span))
     }
 
     ///

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_static_check::TypeError;
+use crate::VariableTableError;
+use leo_static_check::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;
@@ -27,6 +28,9 @@ pub enum ExpressionError {
 
     #[error("{}", _0)]
     TypeError(#[from] TypeError),
+
+    #[error("{}", _0)]
+    VariableTableError(#[from] VariableTableError),
 }
 
 impl ExpressionError {
@@ -120,6 +124,15 @@ impl ExpressionError {
         );
 
         Self::new_from_span(message, span)
+    }
+
+    ///
+    /// Attempted to assign a tuple expression to a variable with a different explicit type.
+    ///
+    pub fn invalid_type_tuple(actual: &Type, span: &Span) -> Self {
+        let message = format!("Expected tuple type, found type {}", actual);
+
+        Self::new_from_span(message, span.clone())
     }
 
     ///

@@ -26,10 +26,7 @@ impl Expression {
     ///
     pub(crate) fn variable(function_body: &FunctionBody, variable: Identifier) -> Result<Self, ExpressionError> {
         // Lookup the type of the given variable.
-        let type_ = function_body
-            .variable_table
-            .get(&variable.name)
-            .ok_or(ExpressionError::undefined_identifier(variable.clone()))?;
+        let type_ = function_body.variable_table.get(&variable.name, &variable.span)?;
 
         Ok(Expression {
             type_: type_.clone(),
