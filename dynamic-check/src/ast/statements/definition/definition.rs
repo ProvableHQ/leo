@@ -18,7 +18,7 @@ use crate::{
     check_tuple_type,
     Expression,
     ExpressionValue,
-    FunctionBody,
+    Frame,
     ResolvedNode,
     Statement,
     StatementError,
@@ -55,7 +55,7 @@ impl DefinitionVariables {
     /// Performs a lookup in the given variable table if the `UnresolvedExpression` contains user-defined variables.
     ///
     fn single(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         variable_name: VariableName,
         unresolved_expression: UnresolvedExpression,
         span: &Span,
@@ -75,7 +75,7 @@ impl DefinitionVariables {
     /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined variables.
     ///
     fn tuple(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         variable: VariableName,
         unresolved_expressions: Vec<UnresolvedExpression>,
         span: &Span,
@@ -91,7 +91,7 @@ impl DefinitionVariables {
 
     /// Resolves multiple variables for multiple expressions
     fn multiple_variable(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         variables: Variables,
         unresolved_expressions: Vec<UnresolvedExpression>,
         span: &Span,
@@ -129,7 +129,7 @@ impl DefinitionVariables {
 
     /// Resolves multiple variables for an expression that returns a tuple
     fn multiple_variable_tuple(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         variables: Variables,
         unresolved_expression: UnresolvedExpression,
         span: &Span,
@@ -193,7 +193,7 @@ impl Statement {
     /// Performs a lookup in the given variable table if the statement contains user-defined variables.
     ///
     pub(crate) fn definition(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         declare: Declare,
         variables: Variables,
         unresolved_expressions: Vec<UnresolvedExpression>,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ExpressionError, ExpressionValue, FunctionBody, ResolvedNode, VariableTable};
+use crate::{ExpressionError, ExpressionValue, Frame, ResolvedNode, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
@@ -54,13 +54,13 @@ impl Expression {
     /// user-defined variables.
     ///
     pub fn new(
-        function_body: &FunctionBody,
+        frame: &Frame,
         type_: &Type,
         unresolved_expression: UnresolvedExpression,
     ) -> Result<Self, ExpressionError> {
         match unresolved_expression {
             // Identifier
-            UnresolvedExpression::Identifier(identifier) => Self::variable(function_body, identifier),
+            UnresolvedExpression::Identifier(identifier) => Self::variable(frame, identifier),
 
             // Values
             UnresolvedExpression::Address(string, span) => Ok(Self::address(type_, string, span)),
@@ -72,14 +72,14 @@ impl Expression {
             }
             UnresolvedExpression::Implicit(string, span) => Self::implicit(type_, string, span),
 
-            // // Arithmetic Operations
-            // UnresolvedExpression::Add(lhs, rhs, span) => Self::add(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Sub(lhs, rhs, span) => Self::sub(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Mul(lhs, rhs, span) => Self::mul(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Div(lhs, rhs, span) => Self::div(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Pow(lhs, rhs, span) => Self::pow(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Negate(expression, span) => Self::negate(variable_table, *expression, span),
-            //
+            // Arithmetic Operations
+            UnresolvedExpression::Add(lhs, rhs, span) => Self::add(variable_table, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Sub(lhs, rhs, span) => Self::sub(variable_table, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Mul(lhs, rhs, span) => Self::mul(variable_table, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Div(lhs, rhs, span) => Self::div(variable_table, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Pow(lhs, rhs, span) => Self::pow(variable_table, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Negate(expression, span) => Self::negate(variable_table, type_, *expression, span),
+
             // // Logical Operations
             // UnresolvedExpression::And(lhs, rhs, span) => Self::and(variable_table, *lhs, *rhs, span),
             // UnresolvedExpression::Or(lhs, rhs, span) => Self::or(variable_table, *lhs, *rhs, span),

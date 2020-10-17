@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionBody, FunctionError, ResolvedNode, Statement, StatementError, VariableTable};
+use crate::{Frame, FunctionError, ResolvedNode, Statement, StatementError, VariableTable};
 use leo_static_check::{FunctionType, SymbolTable, TypeError};
 use leo_typed::{Function as UnresolvedFunction, Statement as UnresolvedStatement};
 
@@ -37,7 +37,7 @@ impl Function {
     /// Performs a lookup in the given function body's variable table if the statement contains
     /// user-defined types..
     ///
-    pub fn new(function_body: FunctionBody) -> Result<Self, FunctionError> {
+    pub fn new(function_body: Frame) -> Result<Self, FunctionError> {
         // Create a new `Statement` from every given `UnresolvedStatement`.
         let statements = function_body
             .statements

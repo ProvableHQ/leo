@@ -14,24 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue};
-use leo_static_check::{SymbolTable, Type};
+use crate::{Expression, ExpressionError, ExpressionValue, Frame};
+use leo_static_check::Type;
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
-    /// Resolve the type of subtracting `lhs - rhs`
+    ///
+    /// Returns a new `Expression` subtracting `lhs - rhs`.
+    ///
     pub(crate) fn sub(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
+        frame: &Frame,
+        type_: &Type,
         lhs: UnresolvedExpression,
         rhs: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, ExpressionError> {
         // Resolve lhs and rhs expressions
-        let (lhs_resolved, rhs_resolved) = Self::binary(table, expected_type, lhs, rhs, span.clone())?;
+        let (lhs_resolved, rhs_resolved) = Self::binary(frame, type_, lhs, rhs, &span)?;
 
         Ok(Expression {
-            type_: lhs_resolved.type_.clone(),
+            type_: type_.clone(),
             value: ExpressionValue::Sub(Box::new(lhs_resolved), Box::new(rhs_resolved), span),
         })
     }

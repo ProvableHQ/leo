@@ -14,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
+use crate::{Expression, ExpressionError, ExpressionValue, Frame};
+use leo_static_check::Type;
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
     /// Resolve the type of negating `-expression`
     pub(crate) fn negate(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
-        expression: UnresolvedExpression,
+        frame: &Frame,
+        type_: &Type,
+        unresolved_expression: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, ExpressionError> {
-        let expression_resolved = Self::resolve(table, (expected_type, expression))?;
+        let expression_resolved = Self::new(frame, type_, unresolved_expression)?;
 
         Ok(Expression {
-            type_: expression_resolved.type_.clone(),
+            type_: type_.clone(),
             value: ExpressionValue::Negate(Box::new(expression_resolved), span),
         })
     }

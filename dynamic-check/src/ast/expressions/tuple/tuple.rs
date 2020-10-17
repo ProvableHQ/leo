@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, FunctionBody, ResolvedNode, VariableTable};
+use crate::{Expression, ExpressionError, ExpressionValue, Frame, ResolvedNode, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
@@ -25,7 +25,7 @@ impl Expression {
     /// Performs a lookup in the given variable table if an `UnresolvedExpression` contains user-defined types.
     ///
     pub(crate) fn tuple(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         type_: &Type,
         unresolved_expressions: Vec<UnresolvedExpression>,
         span: Span,

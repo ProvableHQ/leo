@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ExpressionValue, FunctionBody, VariableTable};
+use crate::{Expression, ExpressionError, ExpressionValue, Frame, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::Identifier;
 
@@ -24,7 +24,7 @@ impl Expression {
     ///
     /// Performs a lookup in the given function body's variable table to find the variable's type.
     ///
-    pub(crate) fn variable(function_body: &FunctionBody, variable: Identifier) -> Result<Self, ExpressionError> {
+    pub(crate) fn variable(function_body: &Frame, variable: Identifier) -> Result<Self, ExpressionError> {
         // Lookup the type of the given variable.
         let type_ = function_body.variable_table.get(&variable.name, &variable.span)?;
 

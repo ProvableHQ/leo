@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ResolvedNode, Statement, StatementError};
+use crate::{Expression, Frame, ResolvedNode, Statement, StatementError, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Assignee, AssigneeAccess, Expression as UnresolvedExpression, Span};
 
@@ -34,16 +34,14 @@ impl Statement {
     /// Resolves an assign statement
     ///
     pub(crate) fn assign(
-        table: &mut SymbolTable,
+        function_body: &Frame,
         assignee: Assignee,
         expression: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, StatementError> {
         // Lookup variable in symbol table
         let key = &assignee.identifier.name;
-        let variable = table
-            .get_variable(key)
-            .ok_or(StatementError::undefined_variable(key.clone(), span.clone()))?;
+        let variable = function_body.variable_table.get(key, &span)?;
 
         // Throw an error if this variable is not mutable
         if !variable.is_mutable() {
@@ -51,10 +49,15 @@ impl Statement {
         }
 
         // Get inner assignee type
-        let type_ = get_inner_assignee_type(table, variable.type_.clone(), assignee.accesses.clone(), span.clone())?;
+        let type_ = get_inner_assignee_type(
+            variable_table,
+            variable.type_.clone(),
+            assignee.accesses.clone(),
+            span.clone(),
+        )?;
 
         // Resolve the expression based on the assignee type
-        let expression_resolved = Expression::resolve(table, (Some(type_), expression))?;
+        let expression_resolved = Expression::new(variable_table, (Some(type_), expression))?;
 
         Ok(Statement::Assign(Assign {
             assignee,

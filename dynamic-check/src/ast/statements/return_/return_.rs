@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FunctionBody, ResolvedNode, Statement, StatementError, VariableTable};
+use crate::{Expression, Frame, ResolvedNode, Statement, StatementError, VariableTable};
 use leo_static_check::{SymbolTable, Type};
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
@@ -25,7 +25,7 @@ impl Statement {
     /// Performs a lookup in the given variable table if the statement contains user-defined types.
     ///
     pub(crate) fn resolve_return(
-        function_body: &FunctionBody,
+        function_body: &Frame,
         unresolved_expression: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, StatementError> {

@@ -118,12 +118,12 @@ fn resolve_statements(
 impl Statement {
     /// Resolves a conditional statement.
     pub(crate) fn conditional(
-        table: &mut SymbolTable,
+        function_body: &function_body,
         return_type: FunctionOutputType,
         conditional: UnresolvedConditional,
         span: Span,
     ) -> Result<Self, StatementError> {
-        let conditional = Conditional::from_unresolved(table, return_type, conditional, span)?;
+        let conditional = Conditional::from_unresolved(function_body, return_type, conditional, span)?;
 
         Ok(Statement::Conditional(conditional))
     }

@@ -13,28 +13,25 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Expression, ExpressionError, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
+use crate::{Expression, ExpressionError, Frame};
+use leo_static_check::Type;
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
     /// Resolve a binary expression from left to right.
     /// If no expected type is given, then the expression resolves to the lhs type.
     pub(crate) fn binary(
-        table: &mut SymbolTable,
-        mut expected_type: Option<Type>,
+        frame: &Frame,
+        type_: &Type,
         lhs: UnresolvedExpression,
         rhs: UnresolvedExpression,
-        _span: Span,
+        _span: &Span,
     ) -> Result<(Self, Self), ExpressionError> {
         // Resolve lhs with expected type
-        let lhs_resolved = Expression::resolve(table, (expected_type, lhs))?;
-
-        // Set the expected type to the lhs type
-        expected_type = Some(lhs_resolved.type_.clone());
+        let lhs_resolved = Expression::new(frame, type_, lhs)?;
 
         // Resolve the rhs with expected type
-        let rhs_resolved = Expression::resolve(table, (expected_type, rhs))?;
+        let rhs_resolved = Expression::new(frame, type_, rhs)?;
 
         Ok((lhs_resolved, rhs_resolved))
     }

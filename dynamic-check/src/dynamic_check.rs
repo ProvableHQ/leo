@@ -31,7 +31,7 @@ use std::collections::HashMap;
 /// Performs a dynamic type inference check over a program.
 pub struct DynamicCheck {
     table: SymbolTable,
-    functions: Vec<FunctionBody>,
+    functions: Vec<Frame>,
 }
 
 impl DynamicCheck {
@@ -75,7 +75,7 @@ impl DynamicCheck {
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
     fn parse_function(&mut self, function: &UnresolvedFunction) {
-        let function_body = FunctionBody::new(function.clone(), self.table.clone());
+        let function_body = Frame::new(function.clone(), self.table.clone());
 
         self.functions.push(function_body);
     }
@@ -98,7 +98,7 @@ impl DynamicCheck {
 
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]
-pub struct FunctionBody {
+pub struct Frame {
     pub function_type: FunctionType,
     pub statements: Vec<UnresolvedStatement>,
     pub user_defined_types: SymbolTable,
@@ -106,7 +106,7 @@ pub struct FunctionBody {
     pub variable_table: VariableTable,
 }
 
-impl FunctionBody {
+impl Frame {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///

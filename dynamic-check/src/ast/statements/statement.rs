@@ -18,7 +18,7 @@ use crate::{
     Conditional,
     Definition,
     Expression,
-    FunctionBody,
+    Frame,
     Iteration,
     ResolvedNode,
     StatementError,
@@ -48,29 +48,23 @@ impl Statement {
     /// Performs a lookup in the given function body's variable table if the statement contains
     /// user-defined types.
     ///
-    pub fn new(
-        function_body: &FunctionBody,
-        unresolved_statement: UnresolvedStatement,
-    ) -> Result<Self, StatementError> {
+    pub fn new(frame: &Frame, unresolved_statement: UnresolvedStatement) -> Result<Self, StatementError> {
         match unresolved_statement {
-            UnresolvedStatement::Return(expression, span) => Self::resolve_return(function_body, expression, span),
+            UnresolvedStatement::Return(expression, span) => Self::resolve_return(frame, expression, span),
             UnresolvedStatement::Definition(declare, variables, expressions, span) => {
-                Self::definition(function_body, declare, variables, expressions, span)
+                Self::definition(frame, declare, variables, expressions, span)
             }
-            UnresolvedStatement::Assign(assignee, expression, span) => {
-                Self::assign(variable_table, assignee, expression, span)
-            }
+            UnresolvedStatement::Assign(assignee, expression, span) => Self::assign(frame, assignee, expression, span),
             UnresolvedStatement::Conditional(conditional, span) => {
-                Self::conditional(variable_table, return_type, conditional, span)
+                Self::conditional(frame, return_type, conditional, span)
             }
             UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
-                Self::iteration(variable_table, return_type, index, start, stop, statements, span)
+                Self::iteration(frame, return_type, index, start, stop, statements, span)
             }
             UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
-            UnresolvedStatement::Expression(expression, span) => Ok(Statement::Expression(
-                Expression::resolve(variable_table, expression)?,
-                span,
-            )),
+            UnresolvedStatement::Expression(expression, span) => {
+                Ok(Statement::Expression(Expression::new(frame, expression)?, span))
+            }
         }
     }
 }
