@@ -13,27 +13,26 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Expression, ExpressionError, ExpressionValue};
-use leo_static_check::{SymbolTable, Type};
+
+use crate::{Expression, ExpressionError, ExpressionValue, Frame};
+use leo_static_check::Type;
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
-    /// Resolve the type of `lhs == rhs`
+    ///
+    /// Returns a new `Expression` evaluating `lhs == rhs`.
+    ///
     pub(crate) fn eq(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
+        frame: &Frame,
         lhs: UnresolvedExpression,
         rhs: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, ExpressionError> {
-        // This expression results in a boolean type
+        // This expression returns a boolean type.
         let type_ = Type::Boolean;
 
-        // Check the expected type if given
-        Type::check_type(&expected_type, &type_, span.clone())?;
-
         // Resolve lhs and rhs expressions
-        let (lhs_resolved, rhs_resolved) = Self::binary(table, None, lhs, rhs, span.clone())?;
+        let (lhs_resolved, rhs_resolved) = Self::binary(frame, &type_, lhs, rhs, &span)?;
 
         Ok(Expression {
             type_,

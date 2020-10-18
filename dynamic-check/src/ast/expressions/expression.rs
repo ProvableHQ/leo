@@ -73,25 +73,25 @@ impl Expression {
             UnresolvedExpression::Implicit(string, span) => Self::implicit(type_, string, span),
 
             // Arithmetic Operations
-            UnresolvedExpression::Add(lhs, rhs, span) => Self::add(variable_table, type_, *lhs, *rhs, span),
-            UnresolvedExpression::Sub(lhs, rhs, span) => Self::sub(variable_table, type_, *lhs, *rhs, span),
-            UnresolvedExpression::Mul(lhs, rhs, span) => Self::mul(variable_table, type_, *lhs, *rhs, span),
-            UnresolvedExpression::Div(lhs, rhs, span) => Self::div(variable_table, type_, *lhs, *rhs, span),
-            UnresolvedExpression::Pow(lhs, rhs, span) => Self::pow(variable_table, type_, *lhs, *rhs, span),
-            UnresolvedExpression::Negate(expression, span) => Self::negate(variable_table, type_, *expression, span),
+            UnresolvedExpression::Add(lhs, rhs, span) => Self::add(frame, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Sub(lhs, rhs, span) => Self::sub(frame, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Mul(lhs, rhs, span) => Self::mul(frame, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Div(lhs, rhs, span) => Self::div(frame, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Pow(lhs, rhs, span) => Self::pow(frame, type_, *lhs, *rhs, span),
+            UnresolvedExpression::Negate(expression, span) => Self::negate(frame, type_, *expression, span),
 
-            // // Logical Operations
-            // UnresolvedExpression::And(lhs, rhs, span) => Self::and(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Or(lhs, rhs, span) => Self::or(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Not(expression, span) => Self::not(variable_table, *expression, span),
-            //
-            // // Relational Operations
-            // UnresolvedExpression::Eq(lhs, rhs, span) => Self::eq(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Ge(lhs, rhs, span) => Self::ge(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Gt(lhs, rhs, span) => Self::gt(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Le(lhs, rhs, span) => Self::le(variable_table, *lhs, *rhs, span),
-            // UnresolvedExpression::Lt(lhs, rhs, span) => Self::lt(variable_table, *lhs, *rhs, span),
-            //
+            // Logical Operations
+            UnresolvedExpression::And(lhs, rhs, span) => Self::and(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Or(lhs, rhs, span) => Self::or(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Not(expression, span) => Self::not(frame, *expression, span),
+
+            // Relational Operations
+            UnresolvedExpression::Eq(lhs, rhs, span) => Self::eq(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Ge(lhs, rhs, span) => Self::ge(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Gt(lhs, rhs, span) => Self::gt(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Le(lhs, rhs, span) => Self::le(frame, *lhs, *rhs, span),
+            UnresolvedExpression::Lt(lhs, rhs, span) => Self::lt(frame, *lhs, *rhs, span),
+
             // // Conditionals
             // UnresolvedExpression::IfElse(cond, first, second, span) => {
             //     Self::conditional(variable_table, *cond, *first, *second, span)

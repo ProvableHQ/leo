@@ -19,7 +19,9 @@ use leo_static_check::Type;
 use leo_typed::{Expression as UnresolvedExpression, Span};
 
 impl Expression {
-    /// Resolve the type of negating `-expression`
+    ///
+    /// Returns a new `Expression` negating the `UnresolvedExpression`.
+    ///
     pub(crate) fn negate(
         frame: &Frame,
         type_: &Type,
