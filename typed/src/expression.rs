@@ -366,10 +366,10 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
             AstExpression::Value(value) => Expression::from(value),
             AstExpression::Identifier(variable) => Expression::from(variable),
             AstExpression::Unary(expression) => Expression::from(expression),
-            AstExpression::Binary(expression) => Expression::from(expression),
-            AstExpression::Ternary(expression) => Expression::from(expression),
+            AstExpression::Binary(expression) => Expression::from(*expression),
+            AstExpression::Ternary(expression) => Expression::from(*expression),
             AstExpression::ArrayInline(expression) => Expression::from(expression),
-            AstExpression::ArrayInitializer(expression) => Expression::from(expression),
+            AstExpression::ArrayInitializer(expression) => Expression::from(*expression),
             AstExpression::Tuple(expression) => Expression::from(expression),
             AstExpression::CircuitInline(expression) => Expression::from(expression),
             AstExpression::Postfix(expression) => Expression::from(expression),
@@ -411,74 +411,74 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
         match expression.operation {
             // Boolean operations
             BinaryOperation::Or => Expression::Or(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::And => Expression::And(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Eq => Expression::Eq(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Ne => {
                 let span = Span::from(expression.span);
                 let negated = Expression::Eq(
-                    Box::new(Expression::from(*expression.left)),
-                    Box::new(Expression::from(*expression.right)),
+                    Box::new(Expression::from(expression.left)),
+                    Box::new(Expression::from(expression.right)),
                     span.clone(),
                 );
 
                 Expression::Not(Box::new(negated), span)
             }
             BinaryOperation::Ge => Expression::Ge(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Gt => Expression::Gt(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Le => Expression::Le(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Lt => Expression::Lt(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             // Number operations
             BinaryOperation::Add => Expression::Add(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Sub => Expression::Sub(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Mul => Expression::Mul(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Div => Expression::Div(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
             BinaryOperation::Pow => Expression::Pow(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new(Expression::from(expression.left)),
+                Box::new(Expression::from(expression.right)),
                 Span::from(expression.span),
             ),
         }
@@ -488,9 +488,9 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
 impl<'ast> From<TernaryExpression<'ast>> for Expression {
     fn from(expression: TernaryExpression<'ast>) -> Self {
         Expression::IfElse(
-            Box::new(Expression::from(*expression.first)),
-            Box::new(Expression::from(*expression.second)),
-            Box::new(Expression::from(*expression.third)),
+            Box::new(Expression::from(expression.first)),
+            Box::new(Expression::from(expression.second)),
+            Box::new(Expression::from(expression.third)),
             Span::from(expression.span),
         )
     }
@@ -508,7 +508,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
         let dimensions = Expression::get_array_dimensions(array.dimensions);
-        let expression = SpreadOrExpression::from(*array.expression);
+        let expression = SpreadOrExpression::from(array.expression);
 
         let mut elements = vec![];
 
