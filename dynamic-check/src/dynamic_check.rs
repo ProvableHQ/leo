@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DynamicCheckError, FrameError, VariableTableError};
-use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
+use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
     Expression,
     Function as UnresolvedFunction,
@@ -75,9 +75,9 @@ impl DynamicCheck {
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
     fn parse_function(&mut self, function: &UnresolvedFunction) {
-        let function_body = Frame::new(function.clone(), self.table.clone());
+        let frame = Frame::new(function.clone(), self.table.clone());
 
-        self.functions.push(function_body);
+        self.functions.push(frame);
     }
 
     ///
@@ -88,8 +88,8 @@ impl DynamicCheck {
     /// Returns ERROR if a `TypeAssertion` predicate is false or a solution does not exist.
     ///
     pub fn solve(self) -> Result<(), DynamicCheckError> {
-        for function_body in self.functions {
-            function_body.solve()?;
+        for frame in self.functions {
+            frame.solve()?;
         }
 
         Ok(())
@@ -100,10 +100,11 @@ impl DynamicCheck {
 #[derive(Clone)]
 pub struct Frame {
     pub function_type: FunctionType,
+    // pub self_type: Option<CircuitType>,
     pub statements: Vec<UnresolvedStatement>,
     pub user_defined_types: SymbolTable,
     pub type_assertions: Vec<TypeAssertion>,
-    pub variable_table: VariableTable,
+    pub scopes: Vec<Scope>,
 }
 
 impl Frame {
@@ -116,26 +117,43 @@ impl Frame {
         // Get function type from symbol table.
         let function_type = symbol_table.get_function(name).unwrap().clone();
 
-        // Create a new mapping of variables to types.
-        let mut variable_table = VariableTable::new();
+        // Create a new scope for the function variables.
+        let mut scope = Scope::new(None);
 
         // Initialize function inputs as variables.
-        variable_table.parse_function_inputs(&function_type.inputs);
+        scope.parse_function_inputs(&function_type.inputs);
 
-        // Create new function body struct.
+        // Create new list of scopes for frame.
+        let scopes = vec![scope];
+
+        // Create new frame struct.
         // Update variables when encountering let/const variable definitions.
-        let mut function_body = Self {
+        let mut frame = Self {
             statements: function.statements,
             function_type,
             user_defined_types: symbol_table,
             type_assertions: vec![],
-            variable_table,
+            scopes,
         };
 
         // Create type assertions for function statements
-        function_body.parse_statements();
+        frame.parse_statements();
 
-        function_body
+        frame
+    }
+
+    ///
+    /// Pushes a new variable `Scope` to the list of scopes in the current `Frame`.
+    ///
+    fn push_scope(&mut self, scope: Scope) {
+        self.scopes.push(scope)
+    }
+
+    ///
+    /// Removes and returns the most recent `Scope` from the list of scopes in the current `Frame`.
+    ///
+    fn pop_scope(&mut self) -> Option<Scope> {
+        self.scopes.pop()
     }
 
     ///
@@ -343,7 +361,59 @@ impl Frame {
     }
 }
 
-/// A structure for tracking the types of user defined variables in a program.
+/// A structure for tracking the types of defined variables in a block of code.
+#[derive(Clone)]
+pub struct Scope {
+    pub loop_variables: VariableTable,
+    pub variables: VariableTable,
+}
+
+impl Scope {
+    ///
+    /// Returns a new `Scope` from an optional given `Scope`.
+    ///
+    /// The new scope will contain the variables of the optional given `Scope`.
+    ///
+    pub fn new(parent: Option<Scope>) -> Self {
+        match parent {
+            Some(scope) => scope.clone(),
+            None => Self::empty(),
+        }
+    }
+
+    ///
+    /// Returns a new `Scope` with no variables.
+    ///
+    fn empty() -> Self {
+        Self {
+            loop_variables: VariableTable::new(),
+            variables: VariableTable::new(),
+        }
+    }
+
+    ///
+    /// Inserts a variable name -> type mapping into the loop variable table.
+    ///
+    pub fn insert_loop_variable(&mut self, name: String, type_: Type) -> Option<Type> {
+        self.loop_variables.insert(name, type_)
+    }
+
+    ///
+    /// Inserts a variable name -> type mapping into the variable table.
+    ///
+    pub fn insert_variable(&mut self, name: String, type_: Type) -> Option<Type> {
+        self.variables.insert(name, type_)
+    }
+
+    ///
+    /// Inserts a vector of function input types into the `Scope` variable table.
+    ///
+    pub fn parse_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) {
+        self.variables.parse_function_inputs(function_inputs)
+    }
+}
+
+/// Mapping of variable names to types
 #[derive(Clone)]
 pub struct VariableTable(pub HashMap<String, Type>);
 
