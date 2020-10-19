@@ -32,7 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: String,
         function_scope: String,
         expected_type: Option<Type>,
-        array: Box<Expression>,
+        array: Expression,
         index: RangeOrExpression,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             file_scope.clone(),
             function_scope.clone(),
             expected_type,
-            *array,
+            array,
             span.clone(),
         )? {
             ConstrainedValue::Array(array) => array,
