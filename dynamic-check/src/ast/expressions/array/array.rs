@@ -14,35 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::expressions::array::SpreadOrExpression, Expression, ExpressionError, ExpressionValue, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
+use crate::{
+    ast::expressions::array::SpreadOrExpression, Expression, ExpressionError, ExpressionValue, Frame, ResolvedNode,
+};
+use leo_static_check::Type;
 use leo_typed::{Span, SpreadOrExpression as UnresolvedSpreadOrExpression};
 
 impl Expression {
-    /// Resolves an array expression
+    ///
+    /// Returns a new array `Expression` from a given vector of `UnresolvedSpreadOrExpression`s.
+    ///
+    /// Performs a lookup in the given function body's variable table if the expression contains
+    /// user-defined variables.
+    ///
     pub(crate) fn array(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
+        frame: &Frame,
+        type_: &Type,
         expressions: Vec<Box<UnresolvedSpreadOrExpression>>,
         span: Span,
     ) -> Result<Self, ExpressionError> {
-        // Expressions should evaluate to array type or array element type
-        let expected_element_type = if let Some(type_) = expected_type {
-            let (element_type, dimensions) = type_.get_type_array(span.clone())?;
-
-            if dimensions[0] != expressions.len() {
-                //throw array dimension mismatch error
-                return Err(ExpressionError::invalid_length_array(
-                    dimensions[0],
-                    expressions.len(),
-                    span.clone(),
-                ));
-            }
-
-            Some(element_type.clone())
-        } else {
-            None
-        };
+        // // Expressions should evaluate to array type or array element type
+        // let expected_element_type = if let Some(type_) = type_ {
+        //     let (element_type, dimensions) = type_.get_type_array(span.clone())?;
+        //
+        //     if dimensions[0] != expressions.len() {
+        //         //throw array dimension mismatch error
+        //         return Err(ExpressionError::invalid_length_array(
+        //             dimensions[0],
+        //             expressions.len(),
+        //             span.clone(),
+        //         ));
+        //     }
+        //
+        //     Some(element_type.clone())
+        // } else {
+        //     None
+        // };
 
         // Store actual array element type
         let mut actual_element_type = None;
@@ -50,7 +57,7 @@ impl Expression {
 
         // Resolve all array elements
         for expression in expressions {
-            let expression_resolved = SpreadOrExpression::resolve(table, (expected_element_type.clone(), *expression))?;
+            let expression_resolved = SpreadOrExpression::new(frame, type_, *expression)?;
             let expression_type = expression_resolved.type_().clone();
 
             array.push(Box::new(expression_resolved));

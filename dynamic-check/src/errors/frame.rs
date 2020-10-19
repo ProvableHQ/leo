@@ -14,29 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// pub mod circuit;
-// pub use self::circuit::*;
+use leo_typed::{Error as FormattedError, Span};
 
-pub mod dynamic_check;
-pub use self::dynamic_check::*;
+use std::path::PathBuf;
 
-pub mod frame;
-pub use self::frame::*;
+/// Errors encountered when tracking variable names in a program.
+#[derive(Debug, Error)]
+pub enum FrameError {
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
+}
 
-// pub mod expression;
-// pub use self::expression::*;
-//
-// pub mod function;
-// pub use self::function::*;
-//
-// pub mod program;
-// pub use self::program::*;
-//
-// pub mod resolver;
-// pub use self::resolver::*;
-//
-// pub mod statement;
-// pub use self::statement::*;
+impl FrameError {
+    ///
+    /// Set the filepath for the error stacktrace
+    ///
+    pub fn set_path(&mut self, path: PathBuf) {
+        match self {
+            FrameError::Error(error) => error.set_path(path),
+        }
+    }
 
-pub mod variable_table;
-pub use self::variable_table::*;
+    ///
+    /// Return a new formatted error with a given message and span information
+    ///
+    fn new_from_span(message: String, span: Span) -> Self {
+        FrameError::Error(FormattedError::new_from_span(message, span))
+    }
+}

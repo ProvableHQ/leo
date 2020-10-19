@@ -41,6 +41,7 @@ impl ExpressionError {
         match self {
             ExpressionError::Error(error) => error.set_path(path),
             ExpressionError::TypeError(error) => error.set_path(path),
+            ExpressionError::VariableTableError(error) => error.set_path(path),
         }
     }
 

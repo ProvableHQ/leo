@@ -13,38 +13,38 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-use crate::{Expression, ExpressionError, ExpressionValue, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
-use leo_typed::{Expression as UnresolvedExpression, Span};
-
-impl Expression {
-    /// Resolves an `if {cond} ? {first} : {second}` expression
-    /// `{cond}` should resolve to a boolean type
-    /// `{first}` and `{second}` should have equal types
-    pub(crate) fn conditional(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
-        cond: UnresolvedExpression,
-        first: UnresolvedExpression,
-        second: UnresolvedExpression,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        // Resolve the condition to a boolean type
-        let cond_type = Some(Type::Boolean);
-        let cond_resolved = Expression::resolve(table, (cond_type, cond))?;
-
-        // Resolve the first and second expressions to the expected type
-        let (first_resolved, second_resolved) = Expression::binary(table, expected_type, first, second, span.clone())?;
-
-        Ok(Expression {
-            type_: first_resolved.type_.clone(),
-            value: ExpressionValue::IfElse(
-                Box::new(cond_resolved),
-                Box::new(first_resolved),
-                Box::new(second_resolved),
-                span,
-            ),
-        })
-    }
-}
+//
+// use crate::{Expression, ExpressionError, ExpressionValue, Frame, ResolvedNode};
+// use leo_static_check::{SymbolTable, Type};
+// use leo_typed::{Expression as UnresolvedExpression, Span};
+//
+// impl Expression {
+//     /// Resolves an `if {cond} ? {first} : {second}` expression
+//     /// `{cond}` should resolve to a boolean type
+//     /// `{first}` and `{second}` should have equal types
+//     pub(crate) fn conditional(
+//         frame: &Frame,
+//         type_: &Type,
+//         cond: UnresolvedExpression,
+//         first: UnresolvedExpression,
+//         second: UnresolvedExpression,
+//         span: Span,
+//     ) -> Result<Self, ExpressionError> {
+//         // Resolve the condition to a boolean type
+//         let boolean_type = Type::Boolean;
+//         let cond_resolved = Expression::new(frame, &boolean_type, cond)?;
+//
+//         // Resolve the first and second expressions to the expected type
+//         let (first_resolved, second_resolved) = Expression::binary(frame, type_, first, second, &span)?;
+//
+//         Ok(Expression {
+//             type_: type_.clone(),
+//             value: ExpressionValue::IfElse(
+//                 Box::new(cond_resolved),
+//                 Box::new(first_resolved),
+//                 Box::new(second_resolved),
+//                 span,
+//             ),
+//         })
+//     }
+// }

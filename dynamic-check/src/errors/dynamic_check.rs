@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ExpressionError, FunctionError, ProgramError, StatementError};
+// use crate::{ExpressionError, FunctionError, ProgramError, StatementError};
+use crate::FrameError;
 use leo_typed::Error as FormattedError;
 
 use std::path::PathBuf;
@@ -26,16 +27,19 @@ pub enum DynamicCheckError {
     Error(#[from] FormattedError),
 
     #[error("{}", _0)]
-    ExpressionError(#[from] ExpressionError),
-
-    #[error("{}", _0)]
-    FunctionError(#[from] FunctionError),
-
-    #[error("{}", _0)]
-    StatementError(#[from] StatementError),
-
-    #[error("{}", _0)]
-    ProgramError(#[from] ProgramError),
+    FrameError(#[from] FrameError),
+    //
+    // #[error("{}", _0)]
+    // ExpressionError(#[from] ExpressionError),
+    //
+    // #[error("{}", _0)]
+    // FunctionError(#[from] FunctionError),
+    //
+    // #[error("{}", _0)]
+    // StatementError(#[from] StatementError),
+    //
+    // #[error("{}", _0)]
+    // ProgramError(#[from] ProgramError),
 }
 
 impl DynamicCheckError {
@@ -43,10 +47,11 @@ impl DynamicCheckError {
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
             DynamicCheckError::Error(error) => error.set_path(path),
-            DynamicCheckError::ExpressionError(error) => error.set_path(path),
-            DynamicCheckError::FunctionError(error) => error.set_path(path),
-            DynamicCheckError::StatementError(error) => error.set_path(path),
-            DynamicCheckError::ProgramError(error) => error.set_path(path),
+            DynamicCheckError::FrameError(error) => error.set_path(path),
+            // DynamicCheckError::ExpressionError(error) => error.set_path(path),
+            // DynamicCheckError::FunctionError(error) => error.set_path(path),
+            // DynamicCheckError::StatementError(error) => error.set_path(path),
+            // DynamicCheckError::ProgramError(error) => error.set_path(path),
         }
     }
 }

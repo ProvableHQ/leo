@@ -29,8 +29,11 @@ impl Statement {
         unresolved_expression: UnresolvedExpression,
         span: Span,
     ) -> Result<Self, StatementError> {
+        // Get function return type from frame.
+        let return_type = &function_body.function_type.output.type_;
+
         // Create a new `Expression` from the unresolved return expression
-        let expression = Expression::new(function_body, unresolved_expression)?;
+        let expression = Expression::new(function_body, return_type, unresolved_expression)?;
 
         Ok(Statement::Return(expression, span))
     }

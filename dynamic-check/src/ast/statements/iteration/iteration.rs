@@ -29,47 +29,47 @@ pub struct Iteration {
     pub span: Span,
 }
 
-impl Statement {
-    /// Resolve an iteration statement
-    pub(crate) fn iteration(
-        table: &mut SymbolTable,
-        return_type: FunctionOutputType,
-        index: Identifier,
-        start: UnresolvedExpression,
-        stop: UnresolvedExpression,
-        statements: Vec<UnresolvedStatement>,
-        span: Span,
-    ) -> Result<Self, StatementError> {
-        // TODO: Create child symbol table and add variables from parent
-
-        // Resolve index numbers to a u32 type
-        let type_number = Type::IntegerType(IntegerType::U32);
-
-        let start_resolved = Expression::resolve(table, (Some(type_number.clone()), start))?;
-        let stop_resolved = Expression::resolve(table, (Some(type_number.clone()), stop))?;
-
-        // Add index to symbol table
-        let key = index.name.clone();
-        let value = ParameterType {
-            identifier: index.clone(),
-            type_: type_number,
-            attributes: vec![],
-        };
-
-        table.insert_name(key, value);
-
-        // Resolve statements
-        let statements_resolved = statements
-            .into_iter()
-            .map(|statement| Statement::resolve(table, (return_type.clone(), statement)))
-            .collect::<Result<Vec<Statement>, _>>()?;
-
-        Ok(Statement::Iteration(Iteration {
-            index,
-            start: start_resolved,
-            stop: stop_resolved,
-            statements: statements_resolved,
-            span,
-        }))
-    }
-}
+// impl Statement {
+//     /// Resolve an iteration statement
+//     pub(crate) fn iteration(
+//         table: &mut SymbolTable,
+//         return_type: FunctionOutputType,
+//         index: Identifier,
+//         start: UnresolvedExpression,
+//         stop: UnresolvedExpression,
+//         statements: Vec<UnresolvedStatement>,
+//         span: Span,
+//     ) -> Result<Self, StatementError> {
+//         // TODO: Create child symbol table and add variables from parent
+//
+//         // Resolve index numbers to a u32 type
+//         let type_number = Type::IntegerType(IntegerType::U32);
+//
+//         let start_resolved = Expression::resolve(table, (Some(type_number.clone()), start))?;
+//         let stop_resolved = Expression::resolve(table, (Some(type_number.clone()), stop))?;
+//
+//         // Add index to symbol table
+//         let key = index.name.clone();
+//         let value = ParameterType {
+//             identifier: index.clone(),
+//             type_: type_number,
+//             attributes: vec![],
+//         };
+//
+//         table.insert_name(key, value);
+//
+//         // Resolve statements
+//         let statements_resolved = statements
+//             .into_iter()
+//             .map(|statement| Statement::resolve(table, (return_type.clone(), statement)))
+//             .collect::<Result<Vec<Statement>, _>>()?;
+//
+//         Ok(Statement::Iteration(Iteration {
+//             index,
+//             start: start_resolved,
+//             stop: stop_resolved,
+//             statements: statements_resolved,
+//             span,
+//         }))
+//     }
+// }

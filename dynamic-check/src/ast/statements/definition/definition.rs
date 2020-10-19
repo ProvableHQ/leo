@@ -15,14 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    check_tuple_type,
-    Expression,
-    ExpressionValue,
-    Frame,
-    ResolvedNode,
-    Statement,
-    StatementError,
-    VariableTable,
+    check_tuple_type, Expression, ExpressionValue, Frame, ResolvedNode, Statement, StatementError, VariableTable,
     VariableTableError,
 };
 use leo_static_check::{Attribute, ParameterType, SymbolTable, Type};
@@ -106,11 +99,14 @@ impl DefinitionVariables {
         }
 
         // Get the type of each variable.
-        let variable_types = variables
+        let variable_types: Vec<Type> = variables
             .names
             .iter()
             .map(|variable_name| function_body.variable_table.get(variable_name.name_string(), span))
-            .collect::<Result<Vec<Type>, VariableTableError>>()?;
+            .collect::<Result<Vec<&Type>, VariableTableError>>()?
+            .into_iter()
+            .map(|type_ref| type_ref.clone())
+            .collect();
 
         // Create a new vector of `Expression`s from the given vector of `UnresolvedExpression`s.
         let mut expressions_resolved = vec![];
@@ -135,11 +131,14 @@ impl DefinitionVariables {
         span: &Span,
     ) -> Result<Self, StatementError> {
         // Get the type of each variable.
-        let variable_types = variables
+        let variable_types: Vec<Type> = variables
             .names
             .iter()
             .map(|variable_name| function_body.variable_table.get(variable_name.name_string(), span))
-            .collect::<Result<Vec<Type>, VariableTableError>>()?;
+            .collect::<Result<Vec<&Type>, VariableTableError>>()?
+            .into_iter()
+            .map(|type_ref| type_ref.clone())
+            .collect();
 
         // Create a new tuple type from the vector of variable types.
         let tuple_type = Type::Tuple(variable_types);
@@ -152,39 +151,39 @@ impl DefinitionVariables {
     }
 }
 
-/// Inserts a variable definition into the given symbol table
-fn insert_defined_variable(
-    table: &mut SymbolTable,
-    variable: &VariableName,
-    type_: &Type,
-    span: Span,
-) -> Result<(), StatementError> {
-    let attributes = if variable.mutable {
-        vec![Attribute::Mutable]
-    } else {
-        vec![]
-    };
-
-    // Insert variable into symbol table
-    let key = variable.identifier.name.clone();
-    let value = ParameterType {
-        identifier: variable.identifier.clone(),
-        type_: type_.clone(),
-        attributes,
-    };
-
-    // Check that variable name was not defined twice
-    let duplicate = table.insert_name(key, value);
-
-    if duplicate.is_some() {
-        return Err(StatementError::duplicate_variable(
-            variable.identifier.name.clone(),
-            span,
-        ));
-    }
-
-    Ok(())
-}
+// /// Inserts a variable definition into the given symbol table
+// fn insert_defined_variable(
+//     table: &mut SymbolTable,
+//     variable: &VariableName,
+//     type_: &Type,
+//     span: Span,
+// ) -> Result<(), StatementError> {
+//     let attributes = if variable.mutable {
+//         vec![Attribute::Mutable]
+//     } else {
+//         vec![]
+//     };
+//
+//     // Insert variable into symbol table
+//     let key = variable.identifier.name.clone();
+//     let value = ParameterType {
+//         identifier: variable.identifier.clone(),
+//         type_: type_.clone(),
+//         attributes,
+//     };
+//
+//     // Check that variable name was not defined twice
+//     let duplicate = table.insert_name(key, value);
+//
+//     if duplicate.is_some() {
+//         return Err(StatementError::duplicate_variable(
+//             variable.identifier.name.clone(),
+//             span,
+//         ));
+//     }
+//
+//     Ok(())
+// }
 
 impl Statement {
     ///

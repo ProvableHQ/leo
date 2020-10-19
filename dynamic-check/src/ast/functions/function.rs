@@ -41,6 +41,7 @@ impl Function {
         // Create a new `Statement` from every given `UnresolvedStatement`.
         let statements = function_body
             .statements
+            .clone()
             .into_iter()
             .map(|unresolved_statement| Statement::new(&function_body, unresolved_statement))
             .collect::<Result<Vec<Statement>, StatementError>>()?;

@@ -29,74 +29,69 @@ pub struct Assign {
     pub span: Span,
 }
 
-impl Statement {
-    ///
-    /// Resolves an assign statement
-    ///
-    pub(crate) fn assign(
-        function_body: &Frame,
-        assignee: Assignee,
-        expression: UnresolvedExpression,
-        span: Span,
-    ) -> Result<Self, StatementError> {
-        // Lookup variable in symbol table
-        let key = &assignee.identifier.name;
-        let variable = function_body.variable_table.get(key, &span)?;
-
-        // Throw an error if this variable is not mutable
-        if !variable.is_mutable() {
-            return Err(StatementError::immutable_assign(variable.identifier.name.clone(), span));
-        }
-
-        // Get inner assignee type
-        let type_ = get_inner_assignee_type(
-            variable_table,
-            variable.type_.clone(),
-            assignee.accesses.clone(),
-            span.clone(),
-        )?;
-
-        // Resolve the expression based on the assignee type
-        let expression_resolved = Expression::new(variable_table, (Some(type_), expression))?;
-
-        Ok(Statement::Assign(Assign {
-            assignee,
-            expression: expression_resolved,
-            span,
-        }))
-    }
-}
-
-///
-/// Accesses the inner type of an assignee such as an array, tuple, or circuit member.
-/// Returns an error for invalid accesses.
-///
-fn get_inner_assignee_type(
-    table: &SymbolTable,
-    type_: Type,
-    accesses: Vec<AssigneeAccess>,
-    span: Span,
-) -> Result<Type, StatementError> {
-    match accesses.first() {
-        None => Ok(type_),
-        Some(access) => {
-            // Check that we are correctly accessing the type
-            let next_type = match (&type_, access) {
-                (Type::Array(next_type, _), AssigneeAccess::Array(_)) => *next_type.clone(),
-                (Type::Tuple(types), AssigneeAccess::Tuple(index)) => types[*index].clone(),
-                (Type::Circuit(identifier), AssigneeAccess::Member(member)) => {
-                    let circuit_type_option = table.get_circuit(&identifier.name);
-
-                    let circuit_type = match circuit_type_option {
-                        Some(circuit_type) => circuit_type,
-                        None => return Err(StatementError::undefined_circuit(identifier.clone())),
-                    };
-                    circuit_type.member_type(member)?.clone()
-                }
-                (type_, _) => return Err(StatementError::invalid_assign(type_, span)),
-            };
-
-            return get_inner_assignee_type(table, next_type, accesses[1..].to_vec(), span);
-        }
-    }
-}
+// impl Statement {
+//     ///
+//     /// Resolves an assign statement
+//     ///
+//     pub(crate) fn assign(
+//         frame: &Frame,
+//         assignee: Assignee,
+//         expression: UnresolvedExpression,
+//         span: Span,
+//     ) -> Result<Self, StatementError> {
+//         // Lookup variable in symbol table
+//         let key = &assignee.identifier.name;
+//         let variable = frame.variable_table.get(key, &span)?;
+//
+//         // Throw an error if this variable is not mutable
+//         if !variable.is_mutable() {
+//             return Err(StatementError::immutable_assign(variable.identifier.name.clone(), span));
+//         }
+//
+//         // Get inner assignee type
+//         let type_ = get_inner_assignee_type(frame, variable.type_.clone(), assignee.accesses.clone(), span.clone())?;
+//
+//         // Resolve the expression based on the assignee type
+//         let expression_resolved = Expression::new(variable_table, (Some(type_), expression))?;
+//
+//         Ok(Statement::Assign(Assign {
+//             assignee,
+//             expression: expression_resolved,
+//             span,
+//         }))
+//     }
+// }
+//
+// ///
+// /// Accesses the inner type of an assignee such as an array, tuple, or circuit member.
+// /// Returns an error for invalid accesses.
+// ///
+// fn get_inner_assignee_type(
+//     frame: &Frame,
+//     type_: Type,
+//     accesses: Vec<AssigneeAccess>,
+//     span: Span,
+// ) -> Result<Type, StatementError> {
+//     match accesses.first() {
+//         None => Ok(type_),
+//         Some(access) => {
+//             // Check that we are correctly accessing the type
+//             let next_type = match (&type_, access) {
+//                 (Type::Array(next_type, _), AssigneeAccess::Array(_)) => *next_type.clone(),
+//                 (Type::Tuple(types), AssigneeAccess::Tuple(index)) => types[*index].clone(),
+//                 (Type::Circuit(identifier), AssigneeAccess::Member(member)) => {
+//                     let circuit_type_option = frame.get_circuit(&identifier.name);
+//
+//                     let circuit_type = match circuit_type_option {
+//                         Some(circuit_type) => circuit_type,
+//                         None => return Err(StatementError::undefined_circuit(identifier.clone())),
+//                     };
+//                     circuit_type.member_type(member)?.clone()
+//                 }
+//                 (type_, _) => return Err(StatementError::invalid_assign(type_, span)),
+//             };
+//
+//             return get_inner_assignee_type(frame, next_type, accesses[1..].to_vec(), span);
+//         }
+//     }
+// }

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
+use crate::{Expression, ExpressionError, Frame, ResolvedNode};
+use leo_static_check::Type;
 use leo_typed::RangeOrExpression as UnresolvedRangeOrExpression;
 
 use serde::{Deserialize, Serialize};
@@ -27,33 +27,35 @@ pub enum RangeOrExpression {
 }
 
 impl RangeOrExpression {
-    /// If this is a range, return an array type.
-    /// If this is an expression, return a data type.
-    pub(crate) fn type_(&self) -> &Type {
-        match self {
-            RangeOrExpression::Range(expresion, _expression) => expresion.type_(),
-            RangeOrExpression::Expression(expression) => expression.type_(),
-        }
-    }
-}
+    // /// If this is a range, return an array type.
+    // /// If this is an expression, return a data type.
+    // pub(crate) fn type_(&self) -> &Type {
+    //     match self {
+    //         RangeOrExpression::Range(expresion, _expression) => expresion.type_(),
+    //         RangeOrExpression::Expression(expression) => expression.type_(),
+    //     }
+    // }
 
-impl ResolvedNode for RangeOrExpression {
-    type Error = ExpressionError;
-    type UnresolvedNode = (Option<Type>, UnresolvedRangeOrExpression);
-
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
-        let expected_type = unresolved.0;
-        let r_or_e = unresolved.1;
-
-        Ok(match r_or_e {
+    ///
+    /// Returns a new `RangeOrExpression` from a given `UnresolvedRangeOrExpression`.
+    ///
+    /// Performs a lookup in the given function body's variable table if the expression contains
+    /// user-defined variables.
+    ///
+    pub fn new(
+        frame: &Frame,
+        type_: &Type,
+        unresolved_expression: UnresolvedRangeOrExpression,
+    ) -> Result<Self, ExpressionError> {
+        Ok(match unresolved_expression {
             UnresolvedRangeOrExpression::Range(from, to) => {
-                let resolved_from = Expression::resolve(table, (expected_type.clone(), from.unwrap())).unwrap();
-                let resolved_to = Expression::resolve(table, (expected_type, to.unwrap())).unwrap();
+                let resolved_from = Expression::new(frame, type_, from.unwrap())?;
+                let resolved_to = Expression::new(frame, type_, to.unwrap())?;
                 // TODO: add check for range type and array type
                 RangeOrExpression::Range(resolved_from, resolved_to)
             }
             UnresolvedRangeOrExpression::Expression(expression) => {
-                let expression_resolved = Expression::resolve(table, (expected_type, expression)).unwrap();
+                let expression_resolved = Expression::new(frame, type_, expression)?;
                 // TODO: add check for array type
                 RangeOrExpression::Expression(expression_resolved)
             }

@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{
-    Assign,
-    Conditional,
-    Definition,
-    Expression,
-    Frame,
-    Iteration,
-    ResolvedNode,
-    StatementError,
-    VariableTable,
+    Assign, Conditional, Definition, Expression, Frame, Iteration, ResolvedNode, StatementError, VariableTable,
 };
 use leo_static_check::{FunctionOutputType, FunctionType, SymbolTable};
 use leo_typed::{ConsoleFunctionCall, Span, Statement as UnresolvedStatement};
@@ -54,17 +46,18 @@ impl Statement {
             UnresolvedStatement::Definition(declare, variables, expressions, span) => {
                 Self::definition(frame, declare, variables, expressions, span)
             }
-            UnresolvedStatement::Assign(assignee, expression, span) => Self::assign(frame, assignee, expression, span),
-            UnresolvedStatement::Conditional(conditional, span) => {
-                Self::conditional(frame, return_type, conditional, span)
-            }
-            UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
-                Self::iteration(frame, return_type, index, start, stop, statements, span)
-            }
-            UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
-            UnresolvedStatement::Expression(expression, span) => {
-                Ok(Statement::Expression(Expression::new(frame, expression)?, span))
-            }
+            // UnresolvedStatement::Assign(assignee, expression, span) => Self::assign(frame, assignee, expression, span),
+            // UnresolvedStatement::Conditional(conditional, span) => {
+            //     Self::conditional(frame, return_type, conditional, span)
+            // }
+            // UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
+            //     Self::iteration(frame, return_type, index, start, stop, statements, span)
+            // }
+            // UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
+            // UnresolvedStatement::Expression(expression, span) => {
+            //     Ok(Statement::Expression(Expression::new(frame, expression)?, span))
+            // }
+            _ => unimplemented!("statement not implemented"),
         }
     }
 }
@@ -74,29 +67,30 @@ impl ResolvedNode for Statement {
     type UnresolvedNode = (FunctionOutputType, UnresolvedStatement);
 
     /// Type check a statement inside a program AST
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
-        let return_type = unresolved.0;
-        let statement = unresolved.1;
-
-        match statement {
-            UnresolvedStatement::Return(expression, span) => {
-                Self::resolve_return(table, return_type.type_, expression, span)
-            }
-            UnresolvedStatement::Definition(declare, variables, expressions, span) => {
-                Self::definition(table, declare, variables, expressions, span)
-            }
-            UnresolvedStatement::Assign(assignee, expression, span) => Self::assign(table, assignee, expression, span),
-            UnresolvedStatement::Conditional(conditional, span) => {
-                Self::conditional(table, return_type, conditional, span)
-            }
-            UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
-                Self::iteration(table, return_type, index, start, stop, statements, span)
-            }
-            UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
-            UnresolvedStatement::Expression(expression, span) => Ok(Statement::Expression(
-                Expression::resolve(table, (None, expression))?,
-                span,
-            )),
-        }
+    fn resolve(_table: &mut SymbolTable, _unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
+        // let return_type = unresolved.0;
+        // let statement = unresolved.1;
+        //
+        // match statement {
+        //     // UnresolvedStatement::Return(expression, span) => {
+        //     //     Self::resolve_return(table, return_type.type_, expression, span)
+        //     // }
+        //     // UnresolvedStatement::Definition(declare, variables, expressions, span) => {
+        //     //     Self::definition(table, declare, variables, expressions, span)
+        //     // }
+        //     // UnresolvedStatement::Assign(assignee, expression, span) => Self::assign(table, assignee, expression, span),
+        //     // UnresolvedStatement::Conditional(conditional, span) => {
+        //     //     Self::conditional(table, return_type, conditional, span)
+        //     // }
+        //     // UnresolvedStatement::Iteration(index, start, stop, statements, span) => {
+        //     //     Self::iteration(table, return_type, index, start, stop, statements, span)
+        //     // }
+        //     // UnresolvedStatement::Console(console_function_call) => Ok(Statement::Console(console_function_call)),
+        //     // UnresolvedStatement::Expression(expression, span) => Ok(Statement::Expression(
+        //     //     Expression::resolve(table, (None, expression))?,
+        //     //     span,
+        //     // )),
+        // }
+        unimplemented!("statement resolve deprecated");
     }
 }

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, ExpressionError, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
+use crate::{Expression, ExpressionError, Frame};
+use leo_static_check::Type;
 use leo_typed::SpreadOrExpression as UnresolvedSpreadOrExpression;
 
 use serde::{Deserialize, Serialize};
@@ -33,24 +33,26 @@ impl SpreadOrExpression {
             SpreadOrExpression::Expression(expression) => expression.type_(),
         }
     }
-}
 
-impl ResolvedNode for SpreadOrExpression {
-    type Error = ExpressionError;
-    type UnresolvedNode = (Option<Type>, UnresolvedSpreadOrExpression);
-
-    fn resolve(table: &mut SymbolTable, unresolved: Self::UnresolvedNode) -> Result<Self, Self::Error> {
-        let expected_type = unresolved.0;
-        let s_or_e = unresolved.1;
-
-        Ok(match s_or_e {
+    ///
+    /// Returns a new `SpreadOrExpression` from a given `UnresolvedSpreadOrExpression`.
+    ///
+    /// Performs a lookup in the given function body's variable table if the expression contains
+    /// user-defined variables.
+    ///
+    pub fn new(
+        frame: &Frame,
+        type_: &Type,
+        unresolved_expression: UnresolvedSpreadOrExpression,
+    ) -> Result<Self, ExpressionError> {
+        Ok(match unresolved_expression {
             UnresolvedSpreadOrExpression::Spread(spread) => {
-                let spread_resolved = Expression::resolve(table, (expected_type, spread)).unwrap();
+                let spread_resolved = Expression::new(frame, type_, spread)?;
                 // TODO: add check for array type or array element type
                 SpreadOrExpression::Spread(spread_resolved)
             }
             UnresolvedSpreadOrExpression::Expression(expression) => {
-                let expression_resolved = Expression::resolve(table, (expected_type, expression)).unwrap();
+                let expression_resolved = Expression::new(frame, type_, expression)?;
                 // TODO: add check for array type or array element type
                 SpreadOrExpression::Expression(expression_resolved)
             }

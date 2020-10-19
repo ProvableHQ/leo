@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DynamicCheckError, Function, FunctionError, LeoResolvedAst, VariableTableError};
+use crate::{DynamicCheckError, FrameError, VariableTableError};
 use leo_static_check::{FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
     Expression,
@@ -26,7 +26,7 @@ use leo_typed::{
 };
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 /// Performs a dynamic type inference check over a program.
 pub struct DynamicCheck {
@@ -87,12 +87,12 @@ impl DynamicCheck {
     /// Returns a `LeoResolvedAst` if all `TypeAssertion` predicates are true.
     /// Returns ERROR if a `TypeAssertion` predicate is false or a solution does not exist.
     ///
-    pub fn solve(self) -> Result<LeoResolvedAst, DynamicCheckError> {
+    pub fn solve(self) -> Result<(), DynamicCheckError> {
         for function_body in self.functions {
-            function_body.solve();
+            function_body.solve()?;
         }
 
-        Ok(LeoResolvedAst::new())
+        Ok(())
     }
 }
 
@@ -142,8 +142,8 @@ impl Frame {
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) {
-        for statement in &self.statements {
-            self.parse_statement(statement);
+        for statement in self.statements.clone() {
+            self.parse_statement(&statement);
         }
     }
 
@@ -309,7 +309,7 @@ impl Frame {
     ///
     /// Returns a new `Function` if all `TypeAssertions` can be solved successfully.
     ///
-    fn solve(self) -> Result<Function, FunctionError> {
+    fn solve(self) -> Result<(), FrameError> {
         let mut unsolved = self.type_assertions.clone();
 
         while !unsolved.is_empty() {
@@ -337,7 +337,9 @@ impl Frame {
         // }
 
         // Return a new resolved function struct.
-        Function::new(self)
+        // Function::new(self)
+
+        Ok(())
     }
 }
 

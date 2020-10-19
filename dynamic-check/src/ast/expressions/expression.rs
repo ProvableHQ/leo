@@ -92,17 +92,17 @@ impl Expression {
             UnresolvedExpression::Le(lhs, rhs, span) => Self::le(frame, *lhs, *rhs, span),
             UnresolvedExpression::Lt(lhs, rhs, span) => Self::lt(frame, *lhs, *rhs, span),
 
-            // // Conditionals
+            // Conditionals
             // UnresolvedExpression::IfElse(cond, first, second, span) => {
-            //     Self::conditional(variable_table, *cond, *first, *second, span)
+            //     Self::conditional(variable_table, type_, *cond, *first, *second, span)
             // }
-            //
-            // // Arrays
-            // UnresolvedExpression::Array(elements, span) => Self::array(variable_table, elements, span),
+
+            // Arrays
+            UnresolvedExpression::Array(elements, span) => Self::array(frame, type_, elements, span),
             // UnresolvedExpression::ArrayAccess(array, access, span) => {
-            //     Self::array_access(variable_table, array, access, span)
+            //     Self::array_access(frame, type_, array, access, span)
             // }
-            //
+
             // // Tuples
             // UnresolvedExpression::Tuple(elements, span) => Self::tuple(variable_table, elements, span),
             // UnresolvedExpression::TupleAccess(tuple, index, span) => {

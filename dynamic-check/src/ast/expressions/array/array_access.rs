@@ -13,30 +13,36 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-use crate::{ast::expressions::array::RangeOrExpression, Expression, ExpressionError, ExpressionValue, ResolvedNode};
-use leo_static_check::{SymbolTable, Type};
-use leo_typed::{Expression as UnresolvedExpression, RangeOrExpression as UnresolvedRangeOrExpression, Span};
-
-impl Expression {
-    /// Resolves an array access expression
-    pub(crate) fn array_access(
-        table: &mut SymbolTable,
-        expected_type: Option<Type>,
-        array: Box<UnresolvedExpression>,
-        range: Box<UnresolvedRangeOrExpression>,
-        span: Span,
-    ) -> Result<Self, ExpressionError> {
-        // Lookup the array in the symbol table.
-        // We do not know the length from this context so `expected_type = None`.
-        let array_resolved = Expression::resolve(table, (None, *array))?;
-
-        // Resolve the range or expression
-        let range_resolved = RangeOrExpression::resolve(table, (expected_type, *range))?;
-
-        Ok(Expression {
-            type_: range_resolved.type_().clone(),
-            value: ExpressionValue::ArrayAccess(Box::new(array_resolved), Box::new(range_resolved), span),
-        })
-    }
-}
+//
+// use crate::{
+//     ast::expressions::array::RangeOrExpression, Expression, ExpressionError, ExpressionValue, Frame, ResolvedNode,
+// };
+// use leo_static_check::Type;
+// use leo_typed::{Expression as UnresolvedExpression, RangeOrExpression as UnresolvedRangeOrExpression, Span};
+//
+// impl Expression {
+//     ///
+//     /// Returns a new array `Expression` from a given array access.
+//     ///
+//     /// Performs a lookup in the given function body's variable table if the expression contains
+//     /// user-defined variables.
+//     ///
+//     pub(crate) fn array_access(
+//         frame: &Frame,
+//         type_: &Type,
+//         array: Box<UnresolvedExpression>,
+//         range: Box<UnresolvedRangeOrExpression>,
+//         span: Span,
+//     ) -> Result<Self, ExpressionError> {
+//         // Lookup the array in the variable table.
+//         let array_resolved = Expression::new(frame, type_, *array)?;
+//
+//         // Resolve the range or expression
+//         let range_resolved = RangeOrExpression::new(frame, type_, *range)?;
+//
+//         Ok(Expression {
+//             type_: range_resolved.type_().clone(),
+//             value: ExpressionValue::ArrayAccess(Box::new(array_resolved), Box::new(range_resolved), span),
+//         })
+//     }
+// }
