@@ -21,11 +21,13 @@ use leo_typed::{
     Function as UnresolvedFunction,
     Identifier,
     Program,
+    RangeOrExpression,
     Span,
     SpreadOrExpression,
     Statement as UnresolvedStatement,
 };
 
+use leo_typed::integer_type::IntegerType;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
 
@@ -259,8 +261,8 @@ impl Frame {
             }
 
             // Arrays
-            // Expression::Array(expressions, span) => self.parse_array(expressions, span),
-            // Expression::ArrayAccess(array, access, span) => self.parse_array_access(array, access, span),
+            Expression::Array(expressions, span) => self.parse_array(expressions, span),
+            Expression::ArrayAccess(array, access, span) => self.parse_array_access(array, access, span),
 
             // Tuples
             Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
@@ -390,70 +392,121 @@ impl Frame {
         element_type
     }
 
-    // ///
-    // /// Returns the type of the array expression.
-    // ///
-    // fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
-    //     // Store actual array element type.
-    //     let mut actual_element_type = None;
-    //     let mut count = 0usize;
-    //
-    //     // Parse all array elements.
-    //     for expression in expressions {
-    //         // Get the type and count of elements in each spread or expression.
-    //         let (type_, element_count) = self.parse_spread_or_expression(expression);
-    //
-    //         actual_element_type = Some(type_);
-    //         count += element_count;
-    //     }
-    //
-    //     // Return an error for empty arrays.
-    //     let type_ = match actual_element_type {
-    //         Some(type_) => type_,
-    //         None => unimplemented!("return empty array error"),
-    //     };
-    //
-    //     Type::Array(Box::new(type_), vec![count])
-    // }
-    //
-    // ///
-    // /// Returns the type and count of elements in a spread or expression.
-    // ///
-    // fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
-    //     match s_or_e {
-    //         SpreadOrExpression::Spread(expression) => {
-    //             // Parse the type of the spread array expression.
-    //             let array_type = self.parse_expression(expression);
-    //
-    //             // Check that the type is an array.
-    //             let (element_type, mut dimensions) = match array_type {
-    //                 Type::Array(element_type, dimensions) => (element_type, dimensions),
-    //                 _ => unimplemented!("Spread type must be an array"),
-    //             };
-    //
-    //             // A spread copies the elements of an array.
-    //             // If the array has elements of type array, we must return a new array type with proper dimensions.
-    //             // If the array has elements of any other type, we can return the type and count directly.
-    //             let count = dimensions.pop().unwrap();
-    //
-    //             let type_ = if dimensions.is_empty() {
-    //                 *element_type
-    //             } else {
-    //                 Type::Array(element_type, dimensions)
-    //             };
-    //
-    //             (type_, count)
-    //         }
-    //         SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
-    //     }
-    // }
-    //
-    // ///
-    // /// Returns the type of the accessed array element.
-    // ///
-    // fn parse_array_access(&mut self, array: &Expression, r_or_e: &RangeOrExpression, span: &Span) -> Type {
-    //     //
-    // }
+    ///
+    /// Returns the type of the array expression.
+    ///
+    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
+        // Store actual array element type.
+        let mut actual_element_type = None;
+        let mut count = 0usize;
+
+        // Parse all array elements.
+        for expression in expressions {
+            // Get the type and count of elements in each spread or expression.
+            let (type_, element_count) = self.parse_spread_or_expression(expression);
+
+            actual_element_type = Some(type_);
+            count += element_count;
+        }
+
+        // Return an error for empty arrays.
+        let type_ = match actual_element_type {
+            Some(type_) => type_,
+            None => unimplemented!("return empty array error"),
+        };
+
+        Type::Array(Box::new(type_), vec![count])
+    }
+
+    ///
+    /// Returns the type and count of elements in a spread or expression.
+    ///
+    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
+        match s_or_e {
+            SpreadOrExpression::Spread(expression) => {
+                // Parse the type of the spread array expression.
+                let array_type = self.parse_expression(expression);
+
+                // Check that the type is an array.
+                let (element_type, mut dimensions) = match array_type {
+                    Type::Array(element_type, dimensions) => (element_type, dimensions),
+                    _ => unimplemented!("Spread type must be an array"),
+                };
+
+                // A spread copies the elements of an array.
+                // If the array has elements of type array, we must return a new array type with proper dimensions.
+                // If the array has elements of any other type, we can return the type and count directly.
+                let count = dimensions.pop().unwrap();
+
+                let type_ = if dimensions.is_empty() {
+                    *element_type
+                } else {
+                    Type::Array(element_type, dimensions)
+                };
+
+                (type_, count)
+            }
+            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
+        }
+    }
+
+    ///
+    /// Returns the type of the accessed array element.
+    ///
+    fn parse_array_access(&mut self, expression: &Expression, r_or_e: &RangeOrExpression, span: &Span) -> Type {
+        // Parse the array expression which could be a variable with type array.
+        let type_ = self.parse_expression(expression);
+
+        // Check the type is an array.
+        let (element_type, dimensions) = match type_ {
+            Type::Array(type_, dimensions) => (type_, dimensions),
+            _ => unimplemented!("expected an array type"),
+        };
+
+        // Get the length of the array.
+        let length = *dimensions.last().unwrap();
+
+        // Evaluate the range as an array type or the expression as the element type.
+        match r_or_e {
+            RangeOrExpression::Range(from, to) => {
+                if let Some(expression) = from {
+                    self.parse_index(expression);
+                }
+
+                if let Some(expression) = to {
+                    self.parse_index(expression);
+                }
+            }
+            RangeOrExpression::Expression(expression) => {
+                self.parse_index(expression);
+            }
+        }
+
+        *element_type
+    }
+
+    ///
+    /// Returns the constant integer value of the index.
+    ///
+    /// Returns an error if the index is not a constant u8, u16, u32.
+    ///
+    fn parse_index(&mut self, expression: &Expression) {
+        let type_ = self.parse_expression(expression);
+
+        let integer_type = match type_ {
+            Type::IntegerType(integer_type) => integer_type,
+            _ => unimplemented!("index must be an integer type"),
+        };
+
+        match integer_type {
+            IntegerType::U8 => {}
+            IntegerType::U16 => {}
+            IntegerType::U32 => {}
+            _ => unimplemented!("index must be u8, u16, u32"),
+        }
+
+        //TODO (collinc97) perform deeper check in solving
+    }
 
     ///
     /// Returns a new `Function` if all `TypeAssertions` can be solved successfully.
