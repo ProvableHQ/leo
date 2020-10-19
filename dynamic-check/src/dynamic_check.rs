@@ -22,6 +22,7 @@ use leo_typed::{
     Identifier,
     Program,
     Span,
+    SpreadOrExpression,
     Statement as UnresolvedStatement,
 };
 
@@ -235,6 +236,9 @@ impl Frame {
                 self.parse_conditional_expression(condition, first, second, span)
             }
 
+            // Arrays
+            Expression::Array(expressions, span) => self.parse_array(expressions, span),
+
             expression => unimplemented!("expression {} not implemented", expression),
         }
     }
@@ -322,6 +326,64 @@ impl Frame {
 
         // Check that the types of the first and second expression are equal.
         self.parse_binary_expression(first, second, _span)
+    }
+
+    ///
+    /// Returns the type of the array expression.
+    ///
+    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
+        // Store actual array element type.
+        let mut actual_element_type = None;
+        let mut count = 0usize;
+
+        // Parse all array elements.
+        for expression in expressions {
+            // Get the type and count of elements in each spread or expression.
+            let (type_, element_count) = self.parse_spread_or_expression(expression);
+
+            actual_element_type = Some(type_);
+            count += element_count;
+        }
+
+        // Return an error for empty arrays.
+        let type_ = match actual_element_type {
+            Some(type_) => type_,
+            None => unimplemented!("return empty array error"),
+        };
+
+        Type::Array(Box::new(type_), vec![count])
+    }
+
+    ///
+    /// Returns the type and count of elements in a spread or expression.
+    ///
+    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
+        match s_or_e {
+            SpreadOrExpression::Spread(expression) => {
+                // Parse the type of the spread array expression.
+                let array_type = self.parse_expression(expression);
+
+                // Check that the type is an array.
+                let (element_type, mut dimensions) = match array_type {
+                    Type::Array(element_type, dimensions) => (element_type, dimensions),
+                    _ => unimplemented!("Spread type must be an array"),
+                };
+
+                // A spread copies the elements of an array.
+                // If the array has elements of type array, we must return a new array type with proper dimensions.
+                // If the array has elements of any other type, we can return the type and count directly.
+                let count = dimensions.pop().unwrap();
+
+                let type_ = if dimensions.is_empty() {
+                    *element_type
+                } else {
+                    Type::Array(element_type, dimensions)
+                };
+
+                (type_, count)
+            }
+            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
+        }
     }
 
     ///
