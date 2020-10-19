@@ -158,6 +158,28 @@ impl Frame {
     }
 
     ///
+    /// Insert a variable into the symbol table in the current scope.
+    ///
+    fn insert_variable(&mut self, name: String, type_: Type) -> Option<Type> {
+        // Modify the current scope.
+        let scope = self.scopes.last_mut().unwrap();
+
+        // Insert the variable name -> type.
+        scope.variables.insert(name, type_)
+    }
+
+    ///
+    /// Get a variable's type from the symbol table in the current scope.
+    ///
+    fn get_variable(&self, name: &String) -> &Type {
+        // Lookup in the current scope.
+        let scope = self.scopes.last().unwrap();
+
+        // Get the variable by name.
+        scope.get_variable(name).unwrap()
+    }
+
+    ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) {
@@ -204,7 +226,7 @@ impl Frame {
     fn parse_expression(&mut self, expression: &Expression) -> Type {
         match expression {
             // Type variables
-            Expression::Identifier(identifier) => Self::parse_identifier(&identifier),
+            Expression::Identifier(identifier) => self.parse_identifier(identifier),
             Expression::Implicit(name, _) => Self::parse_implicit(name),
 
             // Explicit types
@@ -237,17 +259,23 @@ impl Frame {
             }
 
             // Arrays
-            Expression::Array(expressions, span) => self.parse_array(expressions, span),
+            // Expression::Array(expressions, span) => self.parse_array(expressions, span),
+            // Expression::ArrayAccess(array, access, span) => self.parse_array_access(array, access, span),
+
+            // Tuples
+            Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
+            Expression::TupleAccess(tuple, index, span) => self.parse_tuple_access(tuple, *index, span),
 
             expression => unimplemented!("expression {} not implemented", expression),
         }
     }
 
     ///
-    /// Returns a new type variable from a given identifier
+    /// Returns the type of the identifier in the symbol table.
     ///
-    fn parse_identifier(identifier: &Identifier) -> Type {
-        Type::TypeVariable(TypeVariable::from(identifier.name.clone()))
+    fn parse_identifier(&self, identifier: &Identifier) -> Type {
+        // TODO (collinc97) throw an error if identifier is not present.
+        self.get_variable(&identifier.name).clone()
     }
 
     ///
@@ -329,62 +357,103 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the array expression.
+    /// Returns the type of the tuple expression.
     ///
-    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
-        // Store actual array element type.
-        let mut actual_element_type = None;
-        let mut count = 0usize;
+    fn parse_tuple(&mut self, expressions: &Vec<Expression>, _span: &Span) -> Type {
+        let mut types = vec![];
 
-        // Parse all array elements.
+        // Parse all tuple expressions.
         for expression in expressions {
-            // Get the type and count of elements in each spread or expression.
-            let (type_, element_count) = self.parse_spread_or_expression(expression);
+            let type_ = self.parse_expression(expression);
 
-            actual_element_type = Some(type_);
-            count += element_count;
+            types.push(type_)
         }
 
-        // Return an error for empty arrays.
-        let type_ = match actual_element_type {
-            Some(type_) => type_,
-            None => unimplemented!("return empty array error"),
+        Type::Tuple(types)
+    }
+
+    ///
+    /// Returns the type of the accessed tuple element.
+    ///
+    fn parse_tuple_access(&mut self, expression: &Expression, index: usize, _span: &Span) -> Type {
+        // Parse the tuple expression which could be a variable with type tuple.
+        let type_ = self.parse_expression(expression);
+
+        // Check the type is a tuple.
+        let elements = match type_ {
+            Type::Tuple(elements) => elements,
+            _ => unimplemented!("expected a tuple type"),
         };
 
-        Type::Array(Box::new(type_), vec![count])
+        let element_type = elements[index].clone();
+
+        element_type
     }
 
-    ///
-    /// Returns the type and count of elements in a spread or expression.
-    ///
-    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
-        match s_or_e {
-            SpreadOrExpression::Spread(expression) => {
-                // Parse the type of the spread array expression.
-                let array_type = self.parse_expression(expression);
-
-                // Check that the type is an array.
-                let (element_type, mut dimensions) = match array_type {
-                    Type::Array(element_type, dimensions) => (element_type, dimensions),
-                    _ => unimplemented!("Spread type must be an array"),
-                };
-
-                // A spread copies the elements of an array.
-                // If the array has elements of type array, we must return a new array type with proper dimensions.
-                // If the array has elements of any other type, we can return the type and count directly.
-                let count = dimensions.pop().unwrap();
-
-                let type_ = if dimensions.is_empty() {
-                    *element_type
-                } else {
-                    Type::Array(element_type, dimensions)
-                };
-
-                (type_, count)
-            }
-            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
-        }
-    }
+    // ///
+    // /// Returns the type of the array expression.
+    // ///
+    // fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
+    //     // Store actual array element type.
+    //     let mut actual_element_type = None;
+    //     let mut count = 0usize;
+    //
+    //     // Parse all array elements.
+    //     for expression in expressions {
+    //         // Get the type and count of elements in each spread or expression.
+    //         let (type_, element_count) = self.parse_spread_or_expression(expression);
+    //
+    //         actual_element_type = Some(type_);
+    //         count += element_count;
+    //     }
+    //
+    //     // Return an error for empty arrays.
+    //     let type_ = match actual_element_type {
+    //         Some(type_) => type_,
+    //         None => unimplemented!("return empty array error"),
+    //     };
+    //
+    //     Type::Array(Box::new(type_), vec![count])
+    // }
+    //
+    // ///
+    // /// Returns the type and count of elements in a spread or expression.
+    // ///
+    // fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
+    //     match s_or_e {
+    //         SpreadOrExpression::Spread(expression) => {
+    //             // Parse the type of the spread array expression.
+    //             let array_type = self.parse_expression(expression);
+    //
+    //             // Check that the type is an array.
+    //             let (element_type, mut dimensions) = match array_type {
+    //                 Type::Array(element_type, dimensions) => (element_type, dimensions),
+    //                 _ => unimplemented!("Spread type must be an array"),
+    //             };
+    //
+    //             // A spread copies the elements of an array.
+    //             // If the array has elements of type array, we must return a new array type with proper dimensions.
+    //             // If the array has elements of any other type, we can return the type and count directly.
+    //             let count = dimensions.pop().unwrap();
+    //
+    //             let type_ = if dimensions.is_empty() {
+    //                 *element_type
+    //             } else {
+    //                 Type::Array(element_type, dimensions)
+    //             };
+    //
+    //             (type_, count)
+    //         }
+    //         SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
+    //     }
+    // }
+    //
+    // ///
+    // /// Returns the type of the accessed array element.
+    // ///
+    // fn parse_array_access(&mut self, array: &Expression, r_or_e: &RangeOrExpression, span: &Span) -> Type {
+    //     //
+    // }
 
     ///
     /// Returns a new `Function` if all `TypeAssertions` can be solved successfully.
@@ -468,6 +537,25 @@ impl Scope {
     }
 
     ///
+    /// Returns a reference to the type corresponding to the loop variable name.
+    ///
+    pub fn get_loop_variable(&self, name: &String) -> Option<&Type> {
+        self.loop_variables.get(name)
+    }
+
+    ///
+    /// Returns a reference to the type corresponding to the variable name.
+    ///
+    /// Checks loop variables first, then non-loop variables.
+    ///
+    pub fn get_variable(&self, name: &String) -> Option<&Type> {
+        match self.get_loop_variable(name) {
+            Some(loop_variable_type) => Some(loop_variable_type),
+            None => self.variables.get(name),
+        }
+    }
+
+    ///
     /// Inserts a vector of function input types into the `Scope` variable table.
     ///
     pub fn parse_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) {
@@ -505,10 +593,8 @@ impl VariableTable {
     /// If the variable table did not have this key present, throw an undefined variable error
     /// using the given span.
     ///
-    pub fn get(&self, name: &String, span: &Span) -> Result<&Type, VariableTableError> {
-        self.0
-            .get(name)
-            .ok_or(VariableTableError::undefined_variable_name(name, span))
+    pub fn get(&self, name: &String) -> Option<&Type> {
+        self.0.get(name)
     }
 
     ///
