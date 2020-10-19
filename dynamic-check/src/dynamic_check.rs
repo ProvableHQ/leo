@@ -17,6 +17,7 @@
 use crate::{DynamicCheckError, FrameError, VariableTableError};
 use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
+    CircuitVariableDefinition,
     Expression,
     Function as UnresolvedFunction,
     Identifier,
@@ -103,11 +104,11 @@ impl DynamicCheck {
 #[derive(Clone)]
 pub struct Frame {
     pub function_type: FunctionType,
-    // pub self_type: Option<CircuitType>,
-    pub statements: Vec<UnresolvedStatement>,
-    pub user_defined_types: SymbolTable,
-    pub type_assertions: Vec<TypeAssertion>,
+    pub self_type: Option<CircuitType>,
     pub scopes: Vec<Scope>,
+    pub statements: Vec<UnresolvedStatement>,
+    pub type_assertions: Vec<TypeAssertion>,
+    pub user_defined_types: SymbolTable,
 }
 
 impl Frame {
@@ -132,11 +133,12 @@ impl Frame {
         // Create new frame struct.
         // Update variables when encountering let/const variable definitions.
         let mut frame = Self {
-            statements: function.statements,
             function_type,
-            user_defined_types: symbol_table,
-            type_assertions: vec![],
+            self_type: None,
             scopes,
+            statements: function.statements,
+            type_assertions: vec![],
+            user_defined_types: symbol_table,
         };
 
         // Create type assertions for function statements
@@ -267,6 +269,15 @@ impl Frame {
             // Tuples
             Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
             Expression::TupleAccess(tuple, index, span) => self.parse_tuple_access(tuple, *index, span),
+
+            // Circuits
+            Expression::Circuit(identifier, members, span) => self.parse_circuit(identifier, members, span),
+            Expression::CircuitMemberAccess(expression, identifier, span) => {
+                self.parse_circuit_member_access(expression, identifier, span)
+            }
+            Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
+                self.parse_circuit_static_function_access(expression, identifier, span)
+            }
 
             expression => unimplemented!("expression {} not implemented", expression),
         }
@@ -505,7 +516,64 @@ impl Frame {
             _ => unimplemented!("index must be u8, u16, u32"),
         }
 
-        //TODO (collinc97) perform deeper check in solving
+        //TODO (collinc97) perform deeper check during solving
+    }
+
+    ///
+    /// Returns the type of inline circuit expression.
+    ///
+    fn parse_circuit(
+        &mut self,
+        identifier: &Identifier,
+        _members: &Vec<CircuitVariableDefinition>,
+        _span: &Span,
+    ) -> Type {
+        Type::Circuit(identifier.clone())
+    }
+
+    ///
+    /// Returns the type of the accessed circuit member.
+    ///
+    fn parse_circuit_member_access(&mut self, expression: &Expression, identifier: &Identifier, _span: &Span) -> Type {
+        // Parse circuit name.
+        let type_ = self.parse_expression(expression);
+
+        // Check that type is a circuit type.
+        let circuit_type = match type_ {
+            Type::Circuit(identifier) => {
+                // Lookup circuit.
+                self.user_defined_types.get_circuit(&identifier.name).unwrap()
+            }
+            _ => unimplemented!("expected circuit type to access member"),
+        };
+
+        // Look for member with matching name.
+        circuit_type.member_type(&identifier).unwrap().clone()
+    }
+
+    ///
+    /// Returns the type returned by calling the static circuit function.
+    ///
+    fn parse_circuit_static_function_access(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        _span: &Span,
+    ) -> Type {
+        // Parse the circuit name.
+        let type_ = self.parse_expression(expression);
+
+        // Check that type is a circuit type.
+        let circuit_type = match type_ {
+            Type::Circuit(identifier) => {
+                // Lookup circuit.
+                self.user_defined_types.get_circuit(&identifier.name).unwrap()
+            }
+            _ => unimplemented!("expected circuit type to access static member"),
+        };
+
+        // Look for member with matching name.
+        circuit_type.member_type(&identifier).unwrap().clone()
     }
 
     ///
