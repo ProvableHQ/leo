@@ -35,7 +35,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Statement {
     Return(Expression, Span),
-    Definition(Declare, Variables, Vec<Expression>, Span),
+    Definition(Declare, Variables, Expression, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
     Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
@@ -53,21 +53,10 @@ impl<'ast> From<DefinitionStatement<'ast>> for Statement {
     fn from(statement: DefinitionStatement<'ast>) -> Self {
         let span = Span::from(statement.span);
 
-        let expressions = statement
-            .expressions
-            .into_iter()
-            .map(|e| {
-                let mut expression = Expression::from(e);
-                expression.set_span(&span);
-
-                expression
-            })
-            .collect::<Vec<_>>();
-
         Statement::Definition(
             Declare::from(statement.declare),
             Variables::from(statement.variables),
-            expressions,
+            Expression::from(statement.expression),
             span,
         )
     }
@@ -192,14 +181,8 @@ impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Statement::Return(ref expression, ref _span) => write!(f, "return {}", expression),
-            Statement::Definition(ref declare, ref variable, ref expressions, ref _span) => {
-                let formatted_expressions = expressions
-                    .iter()
-                    .map(|x| format!("{}", x))
-                    .collect::<Vec<_>>()
-                    .join(",");
-
-                write!(f, "{} {} = {};", declare, variable, formatted_expressions)
+            Statement::Definition(ref declare, ref variable, ref expression, ref _span) => {
+                write!(f, "{} {} = {};", declare, variable, expression)
             }
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),

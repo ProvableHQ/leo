@@ -142,66 +142,34 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: String,
         declare: Declare,
         variables: Variables,
-        expressions: Vec<Expression>,
+        expression: Expression,
         span: Span,
     ) -> Result<(), StatementError> {
         let num_variables = variables.names.len();
-        let num_values = expressions.len();
         let is_constant = match declare {
             Declare::Let => false,
             Declare::Const => true,
         };
+        let expression = self.enforce_expression(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            variables.type_.clone(),
+            expression,
+        )?;
 
-        if num_variables == 1 && num_values == 1 {
+        if num_variables == 1 {
             // Define a single variable with a single value
             let variable = variables.names[0].clone();
-            let expression = self.enforce_expression(
-                cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                variables.type_,
-                expressions[0].clone(),
-            )?;
 
             self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, span)
-        } else if num_variables == 1 && num_values > 1 {
-            // Define a tuple (single variable with multiple values)
-
-            self.enforce_tuple_definition(
-                cs,
-                file_scope,
-                function_scope,
-                is_constant,
-                variables,
-                expressions,
-                span,
-            )
-        } else if num_variables > 1 && num_values == 1 {
+        } else {
             // Define multiple variables for an expression that returns multiple results (multiple definition)
-
-            let values = match self.enforce_expression(
-                cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                variables.type_.clone(),
-                expressions[0].clone(),
-            )? {
+            let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
             };
-
-            self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)
-        } else {
-            // Define multiple variables for multiple expressions
-            let values = self.enforce_expressions(
-                cs,
-                file_scope,
-                function_scope.clone(),
-                variables.type_.clone(),
-                expressions,
-                span.clone(),
-            )?;
 
             self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)
         }

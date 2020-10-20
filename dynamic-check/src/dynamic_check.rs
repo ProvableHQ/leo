@@ -18,6 +18,7 @@ use crate::{DynamicCheckError, FrameError, VariableTableError};
 use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
     CircuitVariableDefinition,
+    Declare,
     Expression,
     Function as UnresolvedFunction,
     Identifier,
@@ -26,6 +27,7 @@ use leo_typed::{
     Span,
     SpreadOrExpression,
     Statement as UnresolvedStatement,
+    Variables,
 };
 
 use leo_typed::integer_type::IntegerType;
@@ -186,7 +188,7 @@ impl Frame {
     ///
     /// Creates a new equality type assertion between the given types.
     ///
-    fn create_equality_type_assertion(&mut self, left: Type, right: Type) {
+    fn assert_equal(&mut self, left: Type, right: Type) {
         let type_assertion = TypeAssertion::new_equality(left, right);
 
         self.type_assertions.push(type_assertion);
@@ -195,7 +197,7 @@ impl Frame {
     ///
     /// Creates a new membership type assertion between a given and set of types.
     ///
-    fn create_membership_type_assertion(&mut self, given: Type, set: Vec<Type>) {
+    fn assert_membership(&mut self, given: Type, set: Vec<Type>) {
         let type_assertion = TypeAssertion::new_membership(given, set);
 
         self.type_assertions.push(type_assertion);
@@ -204,28 +206,28 @@ impl Frame {
     ///
     /// Creates a new membership type assertion between a given and the set of negative integer types.
     ///
-    fn create_negative_membership_type_assertion(&mut self, given: &Type) {
+    fn assert_negative_integer(&mut self, given: &Type) {
         let negative_integer_types = Type::negative_integer_types();
 
-        self.create_membership_type_assertion(given.clone(), negative_integer_types)
+        self.assert_membership(given.clone(), negative_integer_types)
     }
 
     ///
     /// Creates a new membership type assertion between a given and the set of all integer types.
     ///
-    fn create_integer_membership_type_assertion(&mut self, given: &Type) {
+    fn assert_integer(&mut self, given: &Type) {
         let integer_types = Type::integer_types();
 
-        self.create_membership_type_assertion(given.clone(), integer_types)
+        self.assert_membership(given.clone(), integer_types)
     }
 
     ///
     /// Creates a new membership type assertion between a given and the set of index types.
     ///
-    fn create_index_membership_type_assertion(&mut self, given: &Type) {
+    fn assert_index(&mut self, given: &Type) {
         let index_types = Type::index_types();
 
-        self.create_membership_type_assertion(given.clone(), index_types)
+        self.assert_membership(given.clone(), index_types)
     }
 
     ///
@@ -243,16 +245,19 @@ impl Frame {
     fn parse_statement(&mut self, statement: &UnresolvedStatement) {
         match statement {
             UnresolvedStatement::Return(expression, span) => {
-                self.parse_statement_return(expression, span);
+                self.parse_return(expression, span);
+            }
+            UnresolvedStatement::Definition(declare, variables, expression, span) => {
+                self.parse_definition(declare, variables, expression, span)
             }
             statement => unimplemented!("statement {} not implemented", statement),
         }
     }
 
     ///
-    /// Collects a `TypeAssertion` predicate from a statement return.
+    /// Collects `TypeAssertion` predicates from a return statement.
     ///
-    fn parse_statement_return(&mut self, expression: &Expression, _span: &Span) {
+    fn parse_return(&mut self, expression: &Expression, _span: &Span) {
         // Get the function output type.
         let output_type = &self.function_type.output.type_;
 
@@ -263,10 +268,56 @@ impl Frame {
         let right = self.parse_expression(expression);
 
         // Create a new type assertion for the statement return.
-        let type_assertion = TypeAssertion::new_equality(left, right);
+        self.assert_equal(left, right);
+    }
 
-        // Push the new type assertion to this function's list of type assertions.
-        self.type_assertions.push(type_assertion)
+    ///
+    /// Collects `Type Assertion` predicates from a definition statement.
+    ///
+    fn parse_definition(&mut self, _declare: &Declare, variables: &Variables, expression: &Expression, span: &Span) {
+        // Parse the definition expression.
+        let actual_type = self.parse_expression(expression);
+
+        // Check if an explicit type is given.
+        if let Some(type_) = variables.type_.clone() {
+            // Convert the expected type into a dynamic check type.
+            let expected_type = match self.self_type.clone() {
+                Some(circuit_type) => {
+                    Type::new_from_circuit(&self.user_defined_types, type_, circuit_type.identifier, span.clone())
+                        .unwrap()
+                }
+                None => Type::new(&self.user_defined_types, type_, span.clone()).unwrap(),
+            };
+
+            // Assert that the expected type is equal to the actual type.
+            self.assert_equal(expected_type.clone(), actual_type.clone())
+        }
+
+        // Check for multiple defined variables.
+        if variables.names.len() == 1 {
+            // Insert variable into symbol table
+            let variable = variables.names[0].clone();
+
+            // TODO (collinc97) throw error for duplicate variable definitions.
+            self.insert_variable(variable.identifier.name, actual_type).unwrap();
+        } else {
+            // Expect a tuple type.
+            let types = match actual_type {
+                Type::Tuple(types) => types,
+                _ => unimplemented!("expected a tuple type for multiple defined variables"),
+            };
+
+            // Check number of variables == number of types.
+            if types.len() != variables.names.len() {
+                unimplemented!("Incorrect number of defined variables")
+            }
+
+            // Insert variables into symbol table
+            for (variable, type_) in variables.names.iter().zip(types) {
+                // TODO (collinc97) throw error for duplicate variable definitions.
+                self.insert_variable(variable.identifier.name.clone(), type_).unwrap();
+            }
+        }
     }
 
     ///
@@ -357,7 +408,7 @@ impl Frame {
         let right_type = self.parse_expression(right);
 
         // Create a type assertion left_type == right_type.
-        self.create_equality_type_assertion(left_type.clone(), right_type);
+        self.assert_equal(left_type.clone(), right_type);
 
         left_type
     }
@@ -371,7 +422,7 @@ impl Frame {
         let type_ = self.parse_binary_expression(left, right, _span);
 
         // Assert that the type is an integer.
-        self.create_integer_membership_type_assertion(&type_);
+        self.assert_integer(&type_);
 
         type_
     }
@@ -387,7 +438,7 @@ impl Frame {
         let expression_type = self.parse_expression(expression);
 
         // Assert that the type is a boolean.
-        self.create_equality_type_assertion(boolean_type.clone(), expression_type);
+        self.assert_equal(boolean_type.clone(), expression_type);
 
         boolean_type
     }
@@ -400,7 +451,7 @@ impl Frame {
         let type_ = self.parse_expression(expression);
 
         // Assert that this integer can be negated.
-        self.create_negative_membership_type_assertion(&type_);
+        self.assert_negative_integer(&type_);
 
         type_
     }
@@ -416,7 +467,7 @@ impl Frame {
         let binary_expression_type = self.parse_binary_expression(left, right, _span);
 
         // Create a type assertion boolean_type == expression_type.
-        self.create_equality_type_assertion(boolean_type.clone(), binary_expression_type);
+        self.assert_equal(boolean_type.clone(), binary_expression_type);
 
         boolean_type
     }
@@ -476,8 +527,8 @@ impl Frame {
     /// Returns the type of the array expression.
     ///
     fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
-        // Store actual array element type.
-        let mut actual_element_type = None;
+        // Store array element type.
+        let mut element_type = None;
         let mut count = 0usize;
 
         // Parse all array elements.
@@ -485,12 +536,20 @@ impl Frame {
             // Get the type and count of elements in each spread or expression.
             let (type_, element_count) = self.parse_spread_or_expression(expression);
 
-            actual_element_type = Some(type_);
+            // Assert that array element types are the same.
+            if let Some(prev_type) = element_type {
+                self.assert_equal(prev_type, type_.clone())
+            }
+
+            // Update array element type.
+            element_type = Some(type_);
+
+            // Update number of array elements.
             count += element_count;
         }
 
         // Return an error for empty arrays.
-        let type_ = match actual_element_type {
+        let type_ = match element_type {
             Some(type_) => type_,
             None => unimplemented!("return empty array error"),
         };
@@ -544,48 +603,35 @@ impl Frame {
         };
 
         // Get the length of the array.
-        let length = *dimensions.last().unwrap();
+        // let length = *dimensions.last().unwrap();
 
         // Evaluate the range as an array type or the expression as the element type.
         match r_or_e {
             RangeOrExpression::Range(from, to) => {
                 if let Some(expression) = from {
-                    self.parse_index(expression);
+                    // Parse the expression type.
+                    let type_ = self.parse_expression(expression);
+
+                    self.assert_index(&type_);
                 }
 
                 if let Some(expression) = to {
-                    self.parse_index(expression);
+                    // Parse the expression type.
+                    let type_ = self.parse_expression(expression);
+
+                    self.assert_index(&type_);
                 }
             }
             RangeOrExpression::Expression(expression) => {
-                self.parse_index(expression);
+                // Parse the expression type.
+                let type_ = self.parse_expression(expression);
+
+                // Assert the type is an index.
+                self.assert_index(&type_);
             }
         }
 
         *element_type
-    }
-
-    ///
-    /// Returns the constant integer value of the index.
-    ///
-    /// Returns an error if the index is not a constant u8, u16, u32.
-    ///
-    fn parse_index(&mut self, expression: &Expression) {
-        let type_ = self.parse_expression(expression);
-
-        let integer_type = match type_ {
-            Type::IntegerType(integer_type) => integer_type,
-            _ => unimplemented!("index must be an integer type"),
-        };
-
-        match integer_type {
-            IntegerType::U8 => {}
-            IntegerType::U16 => {}
-            IntegerType::U32 => {}
-            _ => unimplemented!("index must be u8, u16, u32"),
-        }
-
-        //TODO (collinc97) perform deeper check during solving
     }
 
     ///
@@ -594,9 +640,34 @@ impl Frame {
     fn parse_circuit(
         &mut self,
         identifier: &Identifier,
-        _members: &Vec<CircuitVariableDefinition>,
+        members: &Vec<CircuitVariableDefinition>,
         _span: &Span,
     ) -> Type {
+        // Check if identifier is Self circuit type.
+        let circuit_type = if identifier.is_self() {
+            self.self_type.clone()
+        } else {
+            // Get circuit type.
+            self.user_defined_types
+                .get_circuit(&identifier.name)
+                .map(|circuit_type| circuit_type.clone())
+        }
+        .unwrap();
+
+        // Check the length of the circuit members.
+        if circuit_type.variables.len() != members.len() {
+            unimplemented!("Number of circuit arguments invalid")
+        }
+
+        // Assert members are circuit type member types.
+        for (expected_variable, actual_variable) in circuit_type.variables.iter().zip(members) {
+            // Parse actual variable expression.
+            let actual_type = self.parse_expression(&actual_variable.expression);
+
+            // Assert expected variable type == actual variable type.
+            self.assert_equal(expected_variable.type_.clone(), actual_type)
+        }
+
         Type::Circuit(identifier.clone())
     }
 
@@ -648,7 +719,7 @@ impl Frame {
     ///
     /// Returns the type returned by calling the function.
     ///
-    fn parse_function_call(&mut self, expression: &Expression, _arguments: &Vec<Expression>, _span: &Span) -> Type {
+    fn parse_function_call(&mut self, expression: &Expression, inputs: &Vec<Expression>, _span: &Span) -> Type {
         // Parse the function name.
         let type_ = self.parse_expression(expression);
 
@@ -656,10 +727,24 @@ impl Frame {
         let function_type = match type_ {
             Type::Function(identifier) => {
                 // Lookup function.
-                self.user_defined_types.get_function(&identifier.name).unwrap()
+                self.user_defined_types.get_function(&identifier.name).unwrap().clone()
             }
             _ => unimplemented!("expected function type for function call"),
         };
+
+        // Check the length of arguments
+        if function_type.inputs.len() != inputs.len() {
+            unimplemented!("Number of function arguments invalid")
+        }
+
+        // Assert function inputs are correct types.
+        for (expected_input, actual_input) in function_type.inputs.iter().zip(inputs) {
+            // Parse actual input expression.
+            let actual_type = self.parse_expression(actual_input);
+
+            // Assert expected input type == actual input type.
+            self.assert_equal(expected_input.type_().clone(), actual_type);
+        }
 
         // Return the function output type.
         function_type.output.type_.clone()
