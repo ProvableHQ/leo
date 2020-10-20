@@ -181,6 +181,55 @@ impl Type {
             type_ => Err(TypeError::invalid_function(type_, span)),
         }
     }
+
+    /// Returns a list of signed integer types.
+    pub fn signed_integer_types() -> Vec<Type> {
+        vec![
+            Type::IntegerType(IntegerType::I8),
+            Type::IntegerType(IntegerType::I16),
+            Type::IntegerType(IntegerType::I32),
+            Type::IntegerType(IntegerType::I64),
+            Type::IntegerType(IntegerType::I128),
+        ]
+    }
+
+    /// Returns a list of unsigned integer types.
+    pub fn unsigned_integer_types() -> Vec<Type> {
+        vec![
+            Type::IntegerType(IntegerType::U8),
+            Type::IntegerType(IntegerType::U16),
+            Type::IntegerType(IntegerType::U32),
+            Type::IntegerType(IntegerType::U64),
+            Type::IntegerType(IntegerType::U128),
+        ]
+    }
+
+    /// Returns a list of positive integer types.
+    pub fn negative_integer_types() -> Vec<Type> {
+        let mut types = vec![Type::Field, Type::Group];
+
+        types.append(&mut Self::signed_integer_types());
+
+        types
+    }
+
+    /// Returns a list of integer types.
+    pub fn integer_types() -> Vec<Type> {
+        let mut types = Self::negative_integer_types();
+
+        types.append(&mut Self::unsigned_integer_types());
+
+        types
+    }
+
+    /// Returns a list of possible index types (u8, u16, u32).
+    pub fn index_types() -> Vec<Type> {
+        vec![
+            Type::IntegerType(IntegerType::U8),
+            Type::IntegerType(IntegerType::U16),
+            Type::IntegerType(IntegerType::U32),
+        ]
+    }
 }
 
 impl fmt::Display for Type {

@@ -184,6 +184,51 @@ impl Frame {
     }
 
     ///
+    /// Creates a new equality type assertion between the given types.
+    ///
+    fn create_equality_type_assertion(&mut self, left: Type, right: Type) {
+        let type_assertion = TypeAssertion::new_equality(left, right);
+
+        self.type_assertions.push(type_assertion);
+    }
+
+    ///
+    /// Creates a new membership type assertion between a given and set of types.
+    ///
+    fn create_membership_type_assertion(&mut self, given: Type, set: Vec<Type>) {
+        let type_assertion = TypeAssertion::new_membership(given, set);
+
+        self.type_assertions.push(type_assertion);
+    }
+
+    ///
+    /// Creates a new membership type assertion between a given and the set of negative integer types.
+    ///
+    fn create_negative_membership_type_assertion(&mut self, given: &Type) {
+        let negative_integer_types = Type::negative_integer_types();
+
+        self.create_membership_type_assertion(given.clone(), negative_integer_types)
+    }
+
+    ///
+    /// Creates a new membership type assertion between a given and the set of all integer types.
+    ///
+    fn create_integer_membership_type_assertion(&mut self, given: &Type) {
+        let integer_types = Type::integer_types();
+
+        self.create_membership_type_assertion(given.clone(), integer_types)
+    }
+
+    ///
+    /// Creates a new membership type assertion between a given and the set of index types.
+    ///
+    fn create_index_membership_type_assertion(&mut self, given: &Type) {
+        let index_types = Type::index_types();
+
+        self.create_membership_type_assertion(given.clone(), index_types)
+    }
+
+    ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) {
@@ -218,7 +263,7 @@ impl Frame {
         let right = self.parse_expression(expression);
 
         // Create a new type assertion for the statement return.
-        let type_assertion = TypeAssertion::new(left, right);
+        let type_assertion = TypeAssertion::new_equality(left, right);
 
         // Push the new type assertion to this function's list of type assertions.
         self.type_assertions.push(type_assertion)
@@ -231,22 +276,22 @@ impl Frame {
         match expression {
             // Type variables
             Expression::Identifier(identifier) => self.parse_identifier(identifier),
-            Expression::Implicit(name, _) => Self::parse_implicit(name),
 
             // Explicit types
             Expression::Boolean(_, _) => Type::Boolean,
             Expression::Address(_, _) => Type::Address,
             Expression::Field(_, _) => Type::Field,
             Expression::Group(_) => Type::Group,
+            Expression::Implicit(name, _) => Self::parse_implicit(name),
             Expression::Integer(integer_type, _, _) => Type::IntegerType(integer_type.clone()),
 
             // Number operations
-            Expression::Add(left, right, span) => self.parse_binary_expression(left, right, span),
-            Expression::Sub(left, right, span) => self.parse_binary_expression(left, right, span),
-            Expression::Mul(left, right, span) => self.parse_binary_expression(left, right, span),
-            Expression::Div(left, right, span) => self.parse_binary_expression(left, right, span),
-            Expression::Pow(left, right, span) => self.parse_binary_expression(left, right, span),
-            Expression::Negate(expression, _span) => self.parse_expression(expression),
+            Expression::Add(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Sub(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Mul(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Div(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Pow(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Negate(expression, _span) => self.parse_negate_expression(expression),
 
             // Boolean operations
             Expression::Not(expression, _span) => self.parse_boolean_expression(expression),
@@ -254,6 +299,7 @@ impl Frame {
             Expression::And(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Eq(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Ge(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Gt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Le(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Lt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
 
@@ -279,7 +325,9 @@ impl Frame {
                 self.parse_circuit_static_function_access(expression, identifier, span)
             }
 
-            expression => unimplemented!("expression {} not implemented", expression),
+            // Functions
+            Expression::FunctionCall(name, arguments, span) => self.parse_function_call(name, arguments, span),
+            Expression::CoreFunctionCall(name, arguments, span) => self.parse_core_function_call(name, arguments, span),
         }
     }
 
@@ -308,12 +356,24 @@ impl Frame {
         // Get the right expression type.
         let right_type = self.parse_expression(right);
 
-        // TODO (collinc97) throw an error if left type does not match right type
-        if left_type.ne(&right_type) {
-            unimplemented!("Mismatched types parse_binary_expression")
-        }
+        // Create a type assertion left_type == right_type.
+        self.create_equality_type_assertion(left_type.clone(), right_type);
 
         left_type
+    }
+
+    ///
+    /// Returns the `Type` of the expression after the binary operation.
+    ///
+    /// Asserts that the `Type` is an integer.
+    ///
+    fn parse_integer_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+        let type_ = self.parse_binary_expression(left, right, _span);
+
+        // Assert that the type is an integer.
+        self.create_integer_membership_type_assertion(&type_);
+
+        type_
     }
 
     ///
@@ -326,12 +386,23 @@ impl Frame {
         // Get the type of the expression
         let expression_type = self.parse_expression(expression);
 
-        // TODO (collinc97) throw an error if the expression is not a `Boolean` type.
-        if expression_type.ne(&boolean_type) {
-            unimplemented!("Mismatched types parse_boolean_expression")
-        }
+        // Assert that the type is a boolean.
+        self.create_equality_type_assertion(boolean_type.clone(), expression_type);
 
         boolean_type
+    }
+
+    ///
+    /// Returns the `Type` of the expression being negated. Must be a negative integer type.
+    ///
+    fn parse_negate_expression(&mut self, expression: &Expression) -> Type {
+        // Parse the expression type.
+        let type_ = self.parse_expression(expression);
+
+        // Assert that this integer can be negated.
+        self.create_negative_membership_type_assertion(&type_);
+
+        type_
     }
 
     ///
@@ -344,10 +415,8 @@ impl Frame {
         // Get the type of the binary expression.
         let binary_expression_type = self.parse_binary_expression(left, right, _span);
 
-        // TODO (collinc97) throw an error if the binary expression is not a `Boolean` type.
-        if binary_expression_type.ne(&boolean_type) {
-            unimplemented!("Mismatched types parse_boolean_binary_expression")
-        }
+        // Create a type assertion boolean_type == expression_type.
+        self.create_equality_type_assertion(boolean_type.clone(), binary_expression_type);
 
         boolean_type
     }
@@ -577,6 +646,33 @@ impl Frame {
     }
 
     ///
+    /// Returns the type returned by calling the function.
+    ///
+    fn parse_function_call(&mut self, expression: &Expression, _arguments: &Vec<Expression>, _span: &Span) -> Type {
+        // Parse the function name.
+        let type_ = self.parse_expression(expression);
+
+        // Check that type is a function type.
+        let function_type = match type_ {
+            Type::Function(identifier) => {
+                // Lookup function.
+                self.user_defined_types.get_function(&identifier.name).unwrap()
+            }
+            _ => unimplemented!("expected function type for function call"),
+        };
+
+        // Return the function output type.
+        function_type.output.type_.clone()
+    }
+
+    ///
+    /// Returns the type returned by calling the core function.
+    ///
+    fn parse_core_function_call(&mut self, _name: &String, _arguments: &Vec<Expression>, _span: &Span) -> Type {
+        unimplemented!("type checks for core function calls not implemented")
+    }
+
+    ///
     /// Returns a new `Function` if all `TypeAssertions` can be solved successfully.
     ///
     fn solve(self) -> Result<(), FrameError> {
@@ -734,21 +830,105 @@ impl VariableTable {
 
 /// A predicate that evaluates equality between two `Types`s.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct TypeAssertion {
-    left: Type,
-    right: Type,
+pub enum TypeAssertion {
+    Equality(TypeEquality),
+    Membership(TypeMembership),
 }
 
 impl TypeAssertion {
     ///
-    /// Returns a `TypeAssertion` predicate from given left and right `Types`s
+    /// Returns a `TypeAssertion::Equality` predicate from given left and right `Types`s.
+    ///
+    pub fn new_equality(left: Type, right: Type) -> Self {
+        Self::Equality(TypeEquality::new(left, right))
+    }
+
+    ///
+    /// Returns a `TypeAssertion::Membership` predicate from given and set `Type`s.
+    ///
+    pub fn new_membership(given: Type, set: Vec<Type>) -> Self {
+        Self::Membership(TypeMembership::new(given, set))
+    }
+
+    pub fn substitute(&mut self, _variable: &TypeVariable, _type: &Type) {
+        unimplemented!("substitution not impl")
+    }
+
+    ///
+    /// Returns true if the given type assertion outputs true.
+    ///
+    pub fn evaluate(&self) -> bool {
+        match self {
+            TypeAssertion::Equality(equality) => equality.evaluate(),
+            TypeAssertion::Membership(membership) => membership.evaluate(),
+        }
+    }
+
+    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
+        unimplemented!("pair resolution not impl")
+    }
+}
+
+/// A predicate that evaluates to true if the given type is equal to a member in the set vector of types.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct TypeMembership {
+    given: Type,
+    set: Vec<Type>,
+}
+
+impl TypeMembership {
+    ///
+    /// Returns a `TypeMembership` predicate from given and set `Type`s.
+    ///
+    pub fn new(given: Type, set: Vec<Type>) -> Self {
+        Self { given, set }
+    }
+
+    ///
+    /// Substitutes the given `TypeVariable` for each `Type` in the `TypeMembership`.
+    ///
+    pub fn substitute(&mut self, _variable: &TypeVariable, _type_: &Type) {
+        // self.left.substitute(variable, type_);
+        // self.right.substitute(variable, type_);
+    }
+
+    ///
+    /// Returns true if the given type is equal to a member of the set.
+    ///
+    pub fn evaluate(&self) -> bool {
+        self.set.contains(&self.given)
+    }
+
+    ///
+    /// Returns the (type variable, type) pair from this assertion.
+    ///
+    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
+        // match (&self.left, &self.right) {
+        //     (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
+        //     (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
+        //     (_type1, _type2) => None, // No (type variable, type) pair can be returned from two types
+        // }
+        unimplemented!("pair resolution not impl")
+    }
+}
+
+/// A predicate that evaluates equality between two `Type`s.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct TypeEquality {
+    left: Type,
+    right: Type,
+}
+
+impl TypeEquality {
+    ///
+    /// Returns a `TypeEquality` predicate from given left and right `Types`s
     ///
     pub fn new(left: Type, right: Type) -> Self {
         Self { left, right }
     }
 
     ///
-    /// Substitutes the given `TypeVariable` for each `Types` in the `TypeAssertion`.
+    /// Substitutes the given `TypeVariable` for each `Types` in the `TypeEquality`.
     ///
     pub fn substitute(&mut self, _variable: &TypeVariable, _type_: &Type) {
         // self.left.substitute(variable, type_);
