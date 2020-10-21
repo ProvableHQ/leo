@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::LeoAst;
-use leo_typed::{LeoTypedAst, Program};
+use leo_typed::LeoTypedAst;
+#[cfg(not(feature = "ci_skip"))]
+use leo_typed::Program;
 
 use std::path::{Path, PathBuf};
 
