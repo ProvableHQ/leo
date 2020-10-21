@@ -29,8 +29,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_circuit_static_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         circuit_identifier: Box<Expression>,
         circuit_member: Identifier,
@@ -47,12 +47,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                     circuit.to_owned()
                 } else {
-                    self.evaluate_identifier(file_scope, function_scope, expected_type, identifier)?
+                    self.evaluate_identifier(&file_scope, &function_scope, expected_type, identifier)?
                 }
             }
             expression => self.enforce_expression(cs, file_scope, function_scope, expected_type, expression)?,
         }
-        .extract_circuit(span.clone())?;
+        .extract_circuit(&span)?;
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {

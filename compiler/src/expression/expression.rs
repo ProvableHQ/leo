@@ -39,8 +39,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
@@ -51,21 +51,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Values
-            Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::constant(address, span)?)),
-            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
-            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
+            Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::constant(address, &span)?)),
+            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, &span)?)),
+            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?)),
             Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(*group_element)?)),
-            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, span)?),
-            Expression::Integer(type_, integer, span) => {
-                Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
-            }
+            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, &span)?),
+            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new_constant(
+                &type_, integer, &span,
+            )?)),
 
             // Binary operations
             Expression::Negate(expression, span) => {
                 let resolved_value =
                     self.enforce_expression(cs, file_scope, function_scope, expected_type, *expression)?;
 
-                enforce_negate(cs, resolved_value, span)
+                enforce_negate(cs, resolved_value, &span)
             }
             Expression::Add(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -78,7 +78,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_add(cs, resolved_left, resolved_right, span)
+                enforce_add(cs, resolved_left, resolved_right, &span)
             }
             Expression::Sub(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -91,7 +91,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_sub(cs, resolved_left, resolved_right, span)
+                enforce_sub(cs, resolved_left, resolved_right, &span)
             }
             Expression::Mul(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -104,7 +104,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_mul(cs, resolved_left, resolved_right, span)
+                enforce_mul(cs, resolved_left, resolved_right, &span)
             }
             Expression::Div(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -117,7 +117,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                enforce_div(cs, resolved_left, resolved_right, span)
+                enforce_div(cs, resolved_left, resolved_right, &span)
             }
             Expression::Pow(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -128,9 +128,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     left_right.0,
                     left_right.1,
                     span.clone(),
+
                 )?;
 
-                enforce_pow(cs, resolved_left, resolved_right, span)
+                enforce_pow(cs, resolved_left, resolved_right, &span)
             }
 
             // Boolean operations
@@ -149,7 +150,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(enforce_or(cs, resolved_left, resolved_right, span)?)
+                Ok(enforce_or(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::And(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -162,7 +163,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(enforce_and(cs, resolved_left, resolved_right, span)?)
+                Ok(enforce_and(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::Eq(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -175,7 +176,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_eq(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_eq(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::Ge(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -188,7 +189,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_ge(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_ge(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::Gt(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -201,7 +202,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_gt(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_gt(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::Le(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -214,7 +215,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_le(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_le(cs, resolved_left, resolved_right, &span)?)
             }
             Expression::Lt(left_right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
@@ -227,7 +228,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     span.clone(),
                 )?;
 
-                Ok(evaluate_lt(cs, resolved_left, resolved_right, span)?)
+                Ok(evaluate_lt(cs, resolved_left, resolved_right, &span)?)
             }
 
             // Conditionals
@@ -261,7 +262,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
             }
             Expression::TupleAccess(tuple, index, span) => {
-                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, tuple, index, span)
+                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, tuple, index, &span)
             }
 
             // Circuits

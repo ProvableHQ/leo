@@ -55,8 +55,8 @@ impl<'ast> From<AstFunction<'ast>> for Function {
 }
 
 impl Function {
-    pub fn get_name(&self) -> String {
-        self.identifier.name.clone()
+    pub fn get_name(&self) -> &str {
+        &self.identifier.name
     }
 
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {

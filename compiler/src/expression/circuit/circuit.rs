@@ -33,22 +33,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_circuit<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         identifier: Identifier,
         members: Vec<CircuitVariableDefinition>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Circuit definitions are located at the minimum file scope
         let scopes: Vec<&str> = file_scope.split('_').collect();
-        let mut program_identifier = new_scope(scopes[0].to_string(), identifier.to_string());
+        let mut program_identifier = new_scope(scopes[0], &identifier.name);
 
         if identifier.is_self() {
-            program_identifier = file_scope.clone();
+            program_identifier = file_scope.to_string();
         }
 
         let circuit = match self.get(&program_identifier) {
-            Some(value) => value.clone().extract_circuit(span.clone())?,
+            Some(value) => value.clone().extract_circuit(&span)?,
             None => return Err(ExpressionError::undefined_circuit(identifier.to_string(), span)),
         };
 
@@ -67,8 +67,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             // Resolve and enforce circuit variable
                             let mut variable_value = self.enforce_expression(
                                 cs,
-                                file_scope.clone(),
-                                function_scope.clone(),
+                                file_scope,
+                                function_scope,
                                 Some(type_.clone()),
                                 variable.expression,
                             )?;

@@ -30,35 +30,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         conditional: Expression,
         first: Expression,
         second: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let conditional_value = match self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            Some(Type::Boolean),
-            conditional,
-        )? {
-            ConstrainedValue::Boolean(resolved) => resolved,
-            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
-        };
+        let conditional_value =
+            match self.enforce_expression(cs, file_scope, function_scope, Some(Type::Boolean), conditional)? {
+                ConstrainedValue::Boolean(resolved) => resolved,
+                value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
+            };
 
-        let first_value = self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type.clone(),
-            first,
-            span.clone(),
-        )?;
+        let first_value = self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), first, span)?;
 
-        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span.clone())?;
+        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span)?;
 
         let unique_namespace = cs.ns(|| {
             format!(
@@ -68,6 +56,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         });
 
         ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span))
+            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span.to_owned()))
     }
 }

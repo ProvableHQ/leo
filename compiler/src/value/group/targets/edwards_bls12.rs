@@ -58,25 +58,25 @@ impl GroupType<Fq> for EdwardsGroupType {
         Ok(EdwardsGroupType::Constant(value))
     }
 
-    fn to_allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, span: Span) -> Result<Self, GroupError> {
+    fn to_allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, span: &Span) -> Result<Self, GroupError> {
         self.allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line, span.start)))
             .map(|ebg| EdwardsGroupType::Allocated(Box::new(ebg)))
-            .map_err(|error| GroupError::synthesis_error(error, span))
+            .map_err(|error| GroupError::synthesis_error(error, span.to_owned()))
     }
 
-    fn negate<CS: ConstraintSystem<Fq>>(&self, cs: CS, span: Span) -> Result<Self, GroupError> {
+    fn negate<CS: ConstraintSystem<Fq>>(&self, cs: CS, span: &Span) -> Result<Self, GroupError> {
         match self {
             EdwardsGroupType::Constant(group) => Ok(EdwardsGroupType::Constant(group.neg())),
             EdwardsGroupType::Allocated(group) => {
                 let result = <EdwardsBlsGadget as GroupGadget<GroupAffine<EdwardsParameters>, Fq>>::negate(group, cs)
-                    .map_err(|e| GroupError::negate_operation(e, span))?;
+                    .map_err(|e| GroupError::negate_operation(e, span.to_owned()))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
         }
     }
 
-    fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
+    fn add<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, GroupError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(EdwardsGroupType::Constant(self_value.add(other_value)))
@@ -88,7 +88,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?;
+                .map_err(|e| GroupError::binary_operation("+".to_string(), e, span.to_owned()))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -98,13 +98,13 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .add_constant(cs, constant_value)
-                        .map_err(|e| GroupError::binary_operation("+".to_string(), e, span))?,
+                        .map_err(|e| GroupError::binary_operation("+".to_string(), e, span.to_owned()))?,
                 )))
             }
         }
     }
 
-    fn sub<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, GroupError> {
+    fn sub<CS: ConstraintSystem<Fq>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, GroupError> {
         match (self, other) {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(EdwardsGroupType::Constant(self_value.sub(other_value)))
@@ -116,7 +116,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?;
+                .map_err(|e| GroupError::binary_operation("-".to_string(), e, span.to_owned()))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -126,7 +126,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .sub_constant(cs, constant_value)
-                        .map_err(|e| GroupError::binary_operation("-".to_string(), e, span))?,
+                        .map_err(|e| GroupError::binary_operation("-".to_string(), e, span.to_owned()))?,
                 )))
             }
         }

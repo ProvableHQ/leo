@@ -34,11 +34,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        name: String,
+        name: &str,
         array_type: Type,
         array_dimensions: Vec<usize>,
         input_value: Option<InputValue>,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let expected_length = array_dimensions[0];
         let mut array_value = vec![];
@@ -47,34 +47,33 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Some(InputValue::Array(arr)) => {
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
-                    let value_name = new_scope(name.clone(), i.to_string());
+                    let value_name = new_scope(&name, &i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
                         value_type,
-                        value_name,
+                        &value_name,
                         Some(value),
-                        span.clone(),
+                        span,
                     )?)
                 }
             }
             None => {
                 // Allocate all row values as none
                 for i in 0..expected_length {
-                    let value_name = new_scope(name.clone(), i.to_string());
+                    let value_name = new_scope(&name, &i.to_string());
                     let value_type = array_type.outer_dimension(&array_dimensions);
 
-                    array_value.push(self.allocate_main_function_input(
-                        cs,
-                        value_type,
-                        value_name,
-                        None,
-                        span.clone(),
-                    )?);
+                    array_value.push(self.allocate_main_function_input(cs, value_type, &value_name, None, span)?);
                 }
             }
-            _ => return Err(FunctionError::invalid_array(input_value.unwrap().to_string(), span)),
+            _ => {
+                return Err(FunctionError::invalid_array(
+                    input_value.unwrap().to_string(),
+                    span.to_owned(),
+                ));
+            }
         }
 
         Ok(ConstrainedValue::Array(array_value))

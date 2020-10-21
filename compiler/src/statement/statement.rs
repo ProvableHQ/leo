@@ -37,12 +37,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         statement: Statement,
         return_type: Option<Type>,
-        declared_circuit_reference: String,
+        declared_circuit_reference: &str,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
@@ -50,7 +50,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Statement::Return(expression, span) => {
                 let return_value = (
                     indicator,
-                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, span)?,
+                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, &span)?,
                 );
 
                 results.push(return_value);
@@ -63,7 +63,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declare,
                     variables,
                     expressions,
-                    span,
+                    &span,
                 )?;
             }
             Statement::Assign(variable, expression, span) => {
@@ -75,7 +75,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     variable,
                     *expression,
-                    span,
+                    &span,
                 )?;
             }
             Statement::Conditional(statement, span) => {
@@ -86,7 +86,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     statement,
                     return_type,
-                    span,
+                    &span,
                 )?;
 
                 results.append(&mut result);
@@ -102,7 +102,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     start_stop.1,
                     statements,
                     return_type,
-                    span,
+                    &span,
                 )?;
 
                 results.append(&mut result);

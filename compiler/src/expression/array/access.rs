@@ -29,12 +29,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         array: Expression,
         index: RangeOrExpression,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let array = match self.enforce_operand(
             cs,
@@ -45,15 +45,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             span.clone(),
         )? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
         match index {
             RangeOrExpression::Range(from, to) => {
                 let from_resolved = match from {
-                    Some(from_index) => {
-                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), from_index, span.clone())?
-                    }
+                    Some(from_index) => self.enforce_index(cs, file_scope, function_scope, from_index, span)?,
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {

@@ -36,8 +36,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         circuit_identifier: Box<Expression>,
         circuit_member: Identifier,
@@ -46,11 +46,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // access a circuit member using the `self` keyword
         if let Expression::Identifier(ref identifier) = *circuit_identifier {
             if identifier.is_self() {
-                let self_file_scope = new_scope(file_scope, identifier.name.to_string());
-                let self_function_scope = new_scope(self_file_scope.clone(), identifier.name.to_string());
+                let self_file_scope = new_scope(&file_scope, &identifier.name);
+                let self_function_scope = new_scope(&self_file_scope, &identifier.name);
 
                 let member_value =
-                    self.evaluate_identifier(self_file_scope, self_function_scope, None, circuit_member)?;
+                    self.evaluate_identifier(&self_file_scope, &self_function_scope, None, circuit_member)?;
 
                 return Ok(member_value);
             }
@@ -58,11 +58,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let (circuit_name, members) = match self.enforce_operand(
             cs,
-            file_scope.clone(),
+            file_scope,
             function_scope,
             expected_type,
             *circuit_identifier,
-            span.clone(),
+            &span,
         )? {
             ConstrainedValue::CircuitExpression(name, members) => (name, members),
             value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
@@ -76,9 +76,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     ConstrainedValue::Function(ref _circuit_identifier, ref _function) => {
                         // Pass circuit members into function call by value
                         for stored_member in members {
-                            let circuit_scope = new_scope(file_scope.clone(), circuit_name.to_string());
-                            let self_keyword = new_scope(circuit_scope, SELF_KEYWORD.to_string());
-                            let variable = new_scope(self_keyword, stored_member.0.to_string());
+                            let circuit_scope = new_scope(&file_scope, &circuit_name.name);
+                            let self_keyword = new_scope(&circuit_scope, SELF_KEYWORD);
+                            let variable = new_scope(&self_keyword, &stored_member.0.name);
 
                             self.store(variable, stored_member.1.clone());
                         }
