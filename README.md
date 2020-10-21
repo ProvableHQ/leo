@@ -99,7 +99,7 @@ leo run
 
 The `leo new` command creates a new Leo project with a given name.
 
-The `leo run` command will compile the main program, generate keys for a trusted setup, fetch inputs, generate a proof and verify it.
+The `leo run` command will compile the main program, generate keys for a trusted setup, fetch inputs, generate a proof, and verify it.
 
 Congratulations! You've just run your first Leo program.
 
