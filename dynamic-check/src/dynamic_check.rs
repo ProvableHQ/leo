@@ -17,6 +17,7 @@
 use crate::{DynamicCheckError, FrameError, VariableTableError};
 use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
+    Assignee,
     CircuitVariableDefinition,
     Declare,
     Expression,
@@ -250,6 +251,7 @@ impl Frame {
             UnresolvedStatement::Definition(declare, variables, expression, span) => {
                 self.parse_definition(declare, variables, expression, span)
             }
+            UnresolvedStatement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
             statement => unimplemented!("statement {} not implemented", statement),
         }
     }
@@ -318,6 +320,13 @@ impl Frame {
                 self.insert_variable(variable.identifier.name.clone(), type_).unwrap();
             }
         }
+    }
+
+    ///
+    /// Collects `TypeAssertion` predicates from an assignment statement.
+    ///
+    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) {
+        //
     }
 
     ///
