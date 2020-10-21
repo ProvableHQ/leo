@@ -78,12 +78,11 @@ impl Type {
         type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
     }
 
-    pub fn outer_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn outer_dimension(&self, dimensions: &[usize]) -> Self {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[1..]);
+            let next = dimensions[1..].to_vec();
 
             return Type::Array(Box::new(type_), next);
         }
@@ -91,12 +90,11 @@ impl Type {
         type_
     }
 
-    pub fn inner_dimension(&self, dimensions: &Vec<usize>) -> Self {
+    pub fn inner_dimension(&self, dimensions: &[usize]) -> Self {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
+            let next = dimensions[..dimensions.len() - 1].to_vec();
 
             return Type::Array(Box::new(type_), next);
         }
@@ -105,16 +103,16 @@ impl Type {
     }
 }
 
-fn expand_array_type(type_: &Type, dimensions: &Vec<usize>) -> (Type, Vec<usize>) {
+fn expand_array_type(type_: &Type, dimensions: &[usize]) -> (Type, Vec<usize>) {
     if let Type::Array(nested_type, nested_dimensions) = type_ {
         // Expand nested array type
-        let mut expanded_dimensions = dimensions.clone();
+        let mut expanded_dimensions = dimensions.to_vec();
         expanded_dimensions.append(&mut nested_dimensions.clone());
 
-        return expand_array_type(nested_type, &expanded_dimensions);
+        expand_array_type(nested_type, &expanded_dimensions)
     } else {
         // Array type is fully expanded
-        (type_.clone(), dimensions.clone())
+        (type_.clone(), dimensions.to_vec())
     }
 }
 
@@ -143,7 +141,7 @@ impl<'ast> From<ArrayType<'ast>> for Type {
 
 impl<'ast> From<TupleType<'ast>> for Type {
     fn from(tuple_type: TupleType<'ast>) -> Self {
-        let types = tuple_type.types.into_iter().map(|type_| Type::from(type_)).collect();
+        let types = tuple_type.types.into_iter().map(Type::from).collect();
 
         Type::Tuple(types)
     }
@@ -192,7 +190,7 @@ impl<'ast> From<InputArrayType<'ast>> for Type {
 
 impl<'ast> From<InputTupleType<'ast>> for Type {
     fn from(tuple_type: InputTupleType<'ast>) -> Self {
-        let types = tuple_type.types_.into_iter().map(|type_| Type::from(type_)).collect();
+        let types = tuple_type.types_.into_iter().map(Type::from).collect();
 
         Type::Tuple(types)
     }

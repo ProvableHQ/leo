@@ -53,9 +53,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Unwrap assertion value and handle errors
         let result_option = match assert_expression {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
-            _ => return Err(ConsoleError::assertion_must_be_boolean(expression_string, span.clone())),
+            _ => return Err(ConsoleError::assertion_must_be_boolean(expression_string, span)),
         };
-        let result_bool = result_option.ok_or(ConsoleError::assertion_depends_on_input(span.clone()))?;
+        let result_bool = result_option.ok_or_else(|| ConsoleError::assertion_depends_on_input(span.clone()))?;
 
         if !result_bool {
             return Err(ConsoleError::assertion_failed(expression_string, span));

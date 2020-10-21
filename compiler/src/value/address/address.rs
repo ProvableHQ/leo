@@ -153,7 +153,7 @@ impl<F: Field + PrimeField> AllocGadget<String, F> for Address {
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         if self.is_constant() && other.is_constant() {
-            return Ok(Boolean::Constant(self.eq(other)));
+            Ok(Boolean::Constant(self.eq(other)))
         } else {
             let mut result = Boolean::constant(true);
 

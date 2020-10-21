@@ -111,8 +111,8 @@ fn test_generate_values_from_dpc() {
     .unwrap();
 
     // Set the input records for our transaction to be the initial dummy records.
-    let old_records = vec![old_record.clone(); NUM_INPUT_RECORDS];
-    let old_account_private_keys = vec![dummy_account.private_key.clone(); NUM_INPUT_RECORDS];
+    let old_records = vec![old_record; NUM_INPUT_RECORDS];
+    let old_account_private_keys = vec![dummy_account.private_key; NUM_INPUT_RECORDS];
 
     // Construct new records.
 
@@ -128,12 +128,12 @@ fn test_generate_values_from_dpc() {
 
     // Set the new record's program to be the "always-accept" program.
 
-    let new_record_owners = vec![new_account.address.clone(); NUM_OUTPUT_RECORDS];
+    let new_record_owners = vec![new_account.address; NUM_OUTPUT_RECORDS];
     let new_is_dummy_flags = vec![false; NUM_OUTPUT_RECORDS];
     let new_values = vec![10; NUM_OUTPUT_RECORDS];
     let new_payloads = vec![RecordPayload::default(); NUM_OUTPUT_RECORDS];
     let new_birth_program_ids = vec![noop_program_id.clone(); NUM_OUTPUT_RECORDS];
-    let new_death_program_ids = vec![noop_program_id.clone(); NUM_OUTPUT_RECORDS];
+    let new_death_program_ids = vec![noop_program_id; NUM_OUTPUT_RECORDS];
     let memo = [0u8; 32];
 
     let context = <InstantiatedDPC as DPCScheme<L>>::execute_offline(
@@ -158,13 +158,13 @@ fn test_generate_values_from_dpc() {
 
     let root = local_data.local_data_merkle_tree.root();
 
-    let serial_number = local_data.old_serial_numbers[0].clone();
+    let serial_number = local_data.old_serial_numbers[0];
     let serial_number_bytes = to_bytes![serial_number].unwrap();
 
     let memorandum = local_data.memorandum;
     let network_id = local_data.network_id;
     let input_bytes = to_bytes![serial_number, record.commitment(), memorandum, network_id].unwrap();
-    let leaf_randomness = local_data.local_data_commitment_randomizers[0].clone();
+    let leaf_randomness = local_data.local_data_commitment_randomizers[0];
 
     let old_record_leaf = <LocalDataCommitment as CommitmentScheme>::commit(
         &system_parameters.local_data_commitment,

@@ -18,7 +18,7 @@ use crate::Span;
 
 use std::{fmt, path::PathBuf};
 
-pub const INDENT: &'static str = "    ";
+pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
 ///     --> file.leo 2:8
@@ -95,9 +95,7 @@ impl Error {
 
 fn underline(mut start: usize, mut end: usize) -> String {
     if start > end {
-        let tmp = start;
-        start = end;
-        end = tmp;
+        std::mem::swap(&mut start, &mut end)
     }
 
     let mut underline = String::new();

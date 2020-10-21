@@ -36,8 +36,8 @@ impl From<Index> for SerializedIndex {
 impl From<&SerializedIndex> for Index {
     fn from(serialized_index: &SerializedIndex) -> Self {
         match serialized_index {
-            SerializedIndex::Input(idx) => Index::Input(idx.clone()),
-            SerializedIndex::Aux(idx) => Index::Aux(idx.clone()),
+            SerializedIndex::Input(idx) => Index::Input(*idx),
+            SerializedIndex::Aux(idx) => Index::Aux(*idx),
         }
     }
 }

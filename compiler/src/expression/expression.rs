@@ -54,7 +54,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::constant(address, span)?)),
             Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, span)?)),
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, span)?)),
-            Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(group_element)?)),
+            Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(*group_element)?)),
             Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, span)?),
             Expression::Integer(type_, integer, span) => {
                 Ok(ConstrainedValue::Integer(Integer::new_constant(&type_, integer, span)?))
@@ -70,8 +70,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Add(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -83,8 +83,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Sub(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -96,8 +96,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Mul(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -109,8 +109,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Div(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -122,8 +122,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Pow(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -141,8 +141,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Or(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -154,8 +154,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::And(left, right, span) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
+                    file_scope,
+                    function_scope,
                     expected_type,
                     *left,
                     *right,
@@ -165,67 +165,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(enforce_and(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Eq(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_eq(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Ge(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_ge(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Gt(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_gt(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Le(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_le(cs, resolved_left, resolved_right, span)?)
             }
             Expression::Lt(left, right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope.clone(),
-                    function_scope.clone(),
-                    None,
-                    *left,
-                    *right,
-                    span.clone(),
-                )?;
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, None, *left, *right, span.clone())?;
 
                 Ok(evaluate_lt(cs, resolved_left, resolved_right, span)?)
             }

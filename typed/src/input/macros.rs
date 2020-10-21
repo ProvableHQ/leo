@@ -19,7 +19,7 @@ macro_rules! input_section_impl {
     ($($name: ident), *) => ($(
 
         /// An input section declared in an input file with `[$name]`
-        #[derive(Clone, PartialEq, Eq)]
+        #[derive(Clone, PartialEq, Eq, Default)]
         pub struct $name {
             is_present: bool,
             values: HashMap<Parameter, Option<InputValue>>,
@@ -27,10 +27,7 @@ macro_rules! input_section_impl {
 
         impl $name {
             pub fn new() -> Self {
-                Self {
-                    is_present: false,
-                    values: HashMap::new(),
-                }
+                Self::default()
             }
 
             /// Returns an empty version of this struct with `None` values.

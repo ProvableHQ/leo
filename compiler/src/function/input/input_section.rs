@@ -30,7 +30,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         identifier: Identifier,
         section: HashMap<Parameter, Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let mut members = vec![];
+        let mut members = Vec::with_capacity(section.len());
 
         // Allocate each section definition as a circuit member value
 

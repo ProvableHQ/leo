@@ -20,14 +20,15 @@ use leo_input::{
     InputParserError,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct PublicState {
     state: State,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl PublicState {
     pub fn new() -> Self {
-        Self { state: State::new() }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.

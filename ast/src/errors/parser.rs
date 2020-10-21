@@ -39,20 +39,17 @@ pub enum ParserError {
 
 impl ParserError {
     pub fn set_path(&mut self, path: PathBuf) {
-        match self {
-            ParserError::SyntaxError(error) => {
-                let new_error: Error<Rule> = match error {
-                    SyntaxError::Error(error) => {
-                        let new_error = error.clone();
-                        new_error.with_path(path.to_str().unwrap())
-                    }
-                };
+        if let ParserError::SyntaxError(error) = self {
+            let new_error: Error<Rule> = match error {
+                SyntaxError::Error(error) => {
+                    let new_error = error.clone();
+                    new_error.with_path(path.to_str().unwrap())
+                }
+            };
 
-                tracing::error!("{}", new_error);
+            tracing::error!("{}", new_error);
 
-                *error = SyntaxError::Error(new_error);
-            }
-            _ => {}
+            *error = SyntaxError::Error(new_error);
         }
     }
 }

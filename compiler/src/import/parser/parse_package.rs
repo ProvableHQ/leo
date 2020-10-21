@@ -70,14 +70,12 @@ impl ImportParser {
 
         let entries = fs::read_dir(path)
             .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?
-            .into_iter()
             .collect::<Result<Vec<_>, std::io::Error>>()
             .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?;
 
         let matched_source_entry = entries.into_iter().find(|entry| {
             entry
                 .file_name()
-                .to_os_string()
                 .into_string()
                 .unwrap()
                 .trim_end_matches(SOURCE_FILE_EXTENSION)
@@ -90,7 +88,6 @@ impl ImportParser {
         } else if imports_directory.exists() {
             let entries = fs::read_dir(imports_directory)
                 .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?
-                .into_iter()
                 .collect::<Result<Vec<_>, std::io::Error>>()
                 .map_err(|error| ImportError::directory_error(error, package_name.span.clone(), error_path.clone()))?;
 

@@ -20,7 +20,7 @@ use leo_ast::functions::Function as AstFunction;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
     pub identifier: Identifier,
     pub input: Vec<InputVariable>,
@@ -29,20 +29,20 @@ pub struct Function {
     pub span: Span,
 }
 
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Function {}
+
 impl<'ast> From<AstFunction<'ast>> for Function {
     fn from(function: AstFunction<'ast>) -> Self {
         let function_name = Identifier::from(function.identifier);
-        let parameters = function
-            .parameters
-            .into_iter()
-            .map(|parameter| InputVariable::from(parameter))
-            .collect();
-        let returns = function.returns.map(|type_| Type::from(type_));
-        let statements = function
-            .statements
-            .into_iter()
-            .map(|statement| Statement::from(statement))
-            .collect();
+        let parameters = function.parameters.into_iter().map(InputVariable::from).collect();
+        let returns = function.returns.map(Type::from);
+        let statements = function.statements.into_iter().map(Statement::from).collect();
 
         Function {
             identifier: function_name,

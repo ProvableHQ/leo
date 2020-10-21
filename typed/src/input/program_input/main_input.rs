@@ -18,14 +18,15 @@ use crate::InputValue;
 use leo_input::{definitions::Definition, InputParserError};
 use std::collections::HashMap;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct MainInput {
     input: HashMap<String, Option<InputValue>>,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl MainInput {
     pub fn new() -> Self {
-        Self { input: HashMap::new() }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.
@@ -61,7 +62,7 @@ impl MainInput {
     }
 
     /// Returns an `Option` of the main function input at `name`
-    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
-        self.input.get(name).map(|input| input.clone())
+    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
+        self.input.get(name).cloned()
     }
 }

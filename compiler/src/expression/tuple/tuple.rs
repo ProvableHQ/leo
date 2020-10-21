@@ -38,22 +38,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Check explicit tuple type dimension if given
         let mut expected_types = vec![];
 
-        if expected_type.is_some() {
-            match expected_type.unwrap() {
-                Type::Tuple(ref types) => {
-                    expected_types = types.clone();
-                }
-                ref type_ => {
-                    return Err(ExpressionError::unexpected_tuple(
-                        type_.to_string(),
-                        format!("{:?}", tuple),
-                        span,
-                    ));
-                }
+        match expected_type {
+            Some(Type::Tuple(ref types)) => {
+                expected_types = types.clone();
             }
+            Some(ref type_) => {
+                return Err(ExpressionError::unexpected_tuple(
+                    type_.to_string(),
+                    format!("{:?}", tuple),
+                    span,
+                ));
+            }
+            None => {}
         }
 
-        let mut result = vec![];
+        let mut result = Vec::with_capacity(tuple.len());
         for (i, expression) in tuple.into_iter().enumerate() {
             let type_ = if expected_types.is_empty() {
                 None

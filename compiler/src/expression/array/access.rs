@@ -25,6 +25,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_array_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -56,9 +57,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None => 0usize, // Array slice starts at index 0
                 };
                 let to_resolved = match to {
-                    Some(to_index) => {
-                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), to_index, span.clone())?
-                    }
+                    Some(to_index) => self.enforce_index(cs, file_scope, function_scope, to_index, span)?,
                     None => array.len(), // Array slice ends at array length
                 };
                 Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))

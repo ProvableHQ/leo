@@ -167,7 +167,7 @@ impl CLI for AddCommand {
             let mut file_path = path.clone();
             file_path.push(file_name);
 
-            if file_name.ends_with("/") {
+            if file_name.ends_with('/') {
                 create_dir_all(file_path)?;
             } else {
                 if let Some(parent_directory) = path.parent() {

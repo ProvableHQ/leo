@@ -61,7 +61,7 @@ impl SourceDirectory {
             let file_extension = file_path
                 .extension()
                 .ok_or_else(|| SourceDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
-            if file_extension != SOURCE_FILE_EXTENSION.trim_start_matches(".") {
+            if file_extension != SOURCE_FILE_EXTENSION.trim_start_matches('.') {
                 return Err(SourceDirectoryError::InvalidFileExtension(
                     file_path.as_os_str().to_owned(),
                     file_extension.to_owned(),

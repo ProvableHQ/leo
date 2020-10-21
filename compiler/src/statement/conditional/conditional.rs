@@ -16,7 +16,14 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{
+    errors::StatementError,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    IndicatorAndConstrainedValue,
+    StatementResult,
+};
 use leo_typed::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
 
 use snarkos_models::{
@@ -28,7 +35,7 @@ fn indicator_to_string(indicator: &Boolean) -> String {
     indicator
         .get_value()
         .map(|b| b.to_string())
-        .unwrap_or(format!("[input]"))
+        .unwrap_or_else(|| "[input]".to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -36,6 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.
     /// The `indicator` bit will select that branch while keeping the constraint system satisfied.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -45,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: ConditionalStatement,
         return_type: Option<Type>,
         span: Span,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let statement_string = statement.to_string();
 
         // Inherit the indicator from a previous conditional statement or assume that we are the outer parent

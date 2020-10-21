@@ -35,7 +35,7 @@ impl CorePackageError {
     }
 
     pub fn core_package_star(span: Span) -> Self {
-        let message = format!("Cannot import star from leo-core");
+        let message = "Cannot import star from leo-core".to_string();
 
         Self::new_from_span(message, span)
     }
