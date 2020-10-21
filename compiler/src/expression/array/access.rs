@@ -32,11 +32,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         expected_type: Option<Type>,
-        array: Box<Expression>,
+        array: Expression,
         index: RangeOrExpression,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_operand(cs, file_scope, function_scope, expected_type, *array, &span)? {
+        let array = match self.enforce_operand(
+            cs,
+            file_scope.clone(),
+            function_scope.clone(),
+            expected_type,
+            array,
+            span,
+        )? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };

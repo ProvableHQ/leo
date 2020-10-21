@@ -91,15 +91,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 results.append(&mut result);
             }
-            Statement::Iteration(index, start, stop, statements, span) => {
+            Statement::Iteration(index, start_stop, statements, span) => {
                 let mut result = self.enforce_iteration_statement(
                     cs,
                     file_scope,
                     function_scope,
                     indicator,
                     index,
-                    *start,
-                    *stop,
+                    start_stop.0,
+                    start_stop.1,
                     statements,
                     return_type,
                     &span,

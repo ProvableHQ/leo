@@ -74,8 +74,8 @@ fn precedence_climber() -> PrecClimber<Rule> {
     ])
 }
 
-fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
-    Box::new(match pair.as_rule() {
+fn parse_term(pair: Pair<Rule>) -> Expression {
+    match pair.as_rule() {
         Rule::expression_term => {
             let clone = pair.clone();
             let next = clone.into_inner().next().unwrap();
@@ -87,14 +87,14 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                 Rule::expression_array_inline => {
                     Expression::ArrayInline(ArrayInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
-                Rule::expression_array_initializer => {
-                    Expression::ArrayInitializer(ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap())
-                }
+                Rule::expression_array_initializer => Expression::ArrayInitializer(Box::new(
+                    ArrayInitializerExpression::from_pest(&mut pair.into_inner()).unwrap(),
+                )),
                 Rule::expression_circuit_inline => {
                     Expression::CircuitInline(CircuitInlineExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
                 Rule::expression_conditional => {
-                    Expression::Ternary(TernaryExpression::from_pest(&mut pair.into_inner()).unwrap())
+                    Expression::Ternary(Box::new(TernaryExpression::from_pest(&mut pair.into_inner()).unwrap()))
                 }
                 Rule::expression_unary => {
                     // The following is necessary to match with the unary operator and its unary expression
@@ -107,11 +107,11 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
                         rule => unreachable!("`expression_unary` should yield `operation_unary`, found {:#?}", rule),
                     };
                     let expression = parse_term(inner.next().unwrap());
-                    Expression::Unary(UnaryExpression {
+                    Expression::Unary(Box::new(UnaryExpression {
                         operation,
                         expression,
                         span,
-                    })
+                    }))
                 }
                 Rule::expression_postfix => {
                     Expression::Postfix(PostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
@@ -128,19 +128,15 @@ fn parse_term(pair: Pair<Rule>) -> Box<Expression> {
             "`parse_expression_term` should be invoked on `Rule::expression_term`, found {:#?}",
             rule
         ),
-    })
+    }
 }
 
-fn binary_expression<'ast>(
-    lhs: Box<Expression<'ast>>,
-    pair: Pair<'ast, Rule>,
-    rhs: Box<Expression<'ast>>,
-) -> Box<Expression<'ast>> {
+fn binary_expression<'ast>(lhs: Expression<'ast>, pair: Pair<'ast, Rule>, rhs: Expression<'ast>) -> Expression<'ast> {
     let (start, _) = lhs.span().clone().split();
     let (_, end) = rhs.span().clone().split();
     let span = start.span(&end);
 
-    Box::new(match pair.as_rule() {
+    match pair.as_rule() {
         Rule::operation_or => Expression::binary(BinaryOperation::Or, lhs, rhs, span),
         Rule::operation_and => Expression::binary(BinaryOperation::And, lhs, rhs, span),
         Rule::operation_eq => Expression::binary(BinaryOperation::Eq, lhs, rhs, span),
@@ -155,7 +151,7 @@ fn binary_expression<'ast>(
         Rule::operation_div => Expression::binary(BinaryOperation::Div, lhs, rhs, span),
         Rule::operation_pow => Expression::binary(BinaryOperation::Pow, lhs, rhs, span),
         _ => unreachable!(),
-    })
+    }
 }
 
 impl<'ast> FromPest<'ast> for Expression<'ast> {
@@ -163,12 +159,13 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
     type Rule = Rule;
 
     fn from_pest(pest: &mut Pairs<'ast, Rule>) -> Result<Self, ConversionError<Void>> {
-        let pair = pest.peek().ok_or(::from_pest::ConversionError::NoMatch)?;
+        let mut clone = pest.clone();
+        let pair = clone.next().ok_or(::from_pest::ConversionError::NoMatch)?;
         match pair.as_rule() {
             Rule::expression => {
-                // advance the iterator
-                pest.next();
-                Ok(*PRECEDENCE_CLIMBER.climb(pair.into_inner(), parse_term, binary_expression))
+                // Transfer iterated state to pest.
+                *pest = clone;
+                Ok(PRECEDENCE_CLIMBER.climb(pair.into_inner(), parse_term, binary_expression))
             }
             _ => Err(ConversionError::NoMatch),
         }

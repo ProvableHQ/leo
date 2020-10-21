@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::LeoAst;
-use leo_typed::LeoTypedAst;
+use leo_typed::{LeoTypedAst, Program};
 
 use std::path::{Path, PathBuf};
 
@@ -42,10 +42,11 @@ fn test_serialize() {
     };
 
     // Serializes the typed syntax tree into JSON format.
-    let serialized_typed_ast = typed_ast.to_json_string().unwrap();
+    let serialized_typed_ast: Program =
+        serde_json::from_value(serde_json::to_value(typed_ast.into_repr()).unwrap()).unwrap();
 
     // Load the expected typed syntax tree.
-    let expected = include_str!("expected_typed_ast.json");
+    let expected: Program = serde_json::from_str(include_str!("expected_typed_ast.json")).unwrap();
 
     assert_eq!(expected, serialized_typed_ast);
 }

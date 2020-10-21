@@ -72,13 +72,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 Ok(())
             }
-            Assignee::Array(_assignee, range_or_expression) => self.assign_array(
+            Assignee::Array(assignee_w_range_or_expression) => self.assign_array(
                 cs,
                 file_scope,
                 function_scope,
                 indicator,
                 &variable_name,
-                *range_or_expression,
+                assignee_w_range_or_expression.1,
                 new_value,
                 span,
             ),

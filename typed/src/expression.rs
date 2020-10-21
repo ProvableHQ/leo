@@ -69,32 +69,32 @@ pub enum Expression {
     Integer(IntegerType, String, Span),
 
     // Number operations
-    Add(Box<Expression>, Box<Expression>, Span),
-    Sub(Box<Expression>, Box<Expression>, Span),
-    Mul(Box<Expression>, Box<Expression>, Span),
-    Div(Box<Expression>, Box<Expression>, Span),
-    Pow(Box<Expression>, Box<Expression>, Span),
+    Add(Box<(Expression, Expression)>, Span),
+    Sub(Box<(Expression, Expression)>, Span),
+    Mul(Box<(Expression, Expression)>, Span),
+    Div(Box<(Expression, Expression)>, Span),
+    Pow(Box<(Expression, Expression)>, Span),
 
     // Boolean operations
     Not(Box<Expression>, Span),
     Negate(Box<Expression>, Span),
-    Or(Box<Expression>, Box<Expression>, Span),
-    And(Box<Expression>, Box<Expression>, Span),
-    Eq(Box<Expression>, Box<Expression>, Span),
-    Ge(Box<Expression>, Box<Expression>, Span),
-    Gt(Box<Expression>, Box<Expression>, Span),
-    Le(Box<Expression>, Box<Expression>, Span),
-    Lt(Box<Expression>, Box<Expression>, Span),
+    Or(Box<(Expression, Expression)>, Span),
+    And(Box<(Expression, Expression)>, Span),
+    Eq(Box<(Expression, Expression)>, Span),
+    Ge(Box<(Expression, Expression)>, Span),
+    Gt(Box<(Expression, Expression)>, Span),
+    Le(Box<(Expression, Expression)>, Span),
+    Lt(Box<(Expression, Expression)>, Span),
 
     // Conditionals
     // (conditional, first_value, second_value, span)
-    IfElse(Box<Expression>, Box<Expression>, Box<Expression>, Span),
+    IfElse(Box<(Expression, Expression, Expression)>, Span),
 
     // Arrays
     // (array_elements, span)
     Array(Vec<SpreadOrExpression>, Span),
     // (array_name, range, span)
-    ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span),
+    ArrayAccess(Box<(Expression, RangeOrExpression)>, Span),
 
     // Tuples
     // (tuple_elements, span)
@@ -123,24 +123,24 @@ impl Expression {
             Expression::Field(_, old_span) => *old_span = new_span.clone(),
             Expression::Group(value) => value.set_span(new_span),
 
-            Expression::Add(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Sub(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Mul(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Div(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Pow(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Add(_, old_span) => *old_span = new_span.clone(),
+            Expression::Sub(_, old_span) => *old_span = new_span.clone(),
+            Expression::Mul(_, old_span) => *old_span = new_span.clone(),
+            Expression::Div(_, old_span) => *old_span = new_span.clone(),
+            Expression::Pow(_, old_span) => *old_span = new_span.clone(),
 
             Expression::Not(_, old_span) => *old_span = new_span.clone(),
-            Expression::Or(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::And(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Eq(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Ge(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Gt(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Le(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::Lt(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Or(_, old_span) => *old_span = new_span.clone(),
+            Expression::And(_, old_span) => *old_span = new_span.clone(),
+            Expression::Eq(_, old_span) => *old_span = new_span.clone(),
+            Expression::Ge(_, old_span) => *old_span = new_span.clone(),
+            Expression::Gt(_, old_span) => *old_span = new_span.clone(),
+            Expression::Le(_, old_span) => *old_span = new_span.clone(),
+            Expression::Lt(_, old_span) => *old_span = new_span.clone(),
 
-            Expression::IfElse(_, _, _, old_span) => *old_span = new_span.clone(),
+            Expression::IfElse(_, old_span) => *old_span = new_span.clone(),
             Expression::Array(_, old_span) => *old_span = new_span.clone(),
-            Expression::ArrayAccess(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::ArrayAccess(_, old_span) => *old_span = new_span.clone(),
 
             Expression::Tuple(_, old_span) => *old_span = new_span.clone(),
             Expression::TupleAccess(_, _, old_span) => *old_span = new_span.clone(),
@@ -206,25 +206,25 @@ impl<'ast> fmt::Display for Expression {
 
             // Number operations
             Expression::Negate(ref expression, ref _span) => write!(f, "-{}", expression),
-            Expression::Add(ref left, ref right, ref _span) => write!(f, "{} + {}", left, right),
-            Expression::Sub(ref left, ref right, ref _span) => write!(f, "{} - {}", left, right),
-            Expression::Mul(ref left, ref right, ref _span) => write!(f, "{} * {}", left, right),
-            Expression::Div(ref left, ref right, ref _span) => write!(f, "{} / {}", left, right),
-            Expression::Pow(ref left, ref right, ref _span) => write!(f, "{} ** {}", left, right),
+            Expression::Add(ref left_right, ref _span) => write!(f, "{} + {}", left_right.0, left_right.1),
+            Expression::Sub(ref left_right, ref _span) => write!(f, "{} - {}", left_right.0, left_right.1),
+            Expression::Mul(ref left_right, ref _span) => write!(f, "{} * {}", left_right.0, left_right.1),
+            Expression::Div(ref left_right, ref _span) => write!(f, "{} / {}", left_right.0, left_right.1),
+            Expression::Pow(ref left_right, ref _span) => write!(f, "{} ** {}", left_right.0, left_right.1),
 
             // Boolean operations
             Expression::Not(ref expression, ref _span) => write!(f, "!{}", expression),
-            Expression::Or(ref lhs, ref rhs, ref _span) => write!(f, "{} || {}", lhs, rhs),
-            Expression::And(ref lhs, ref rhs, ref _span) => write!(f, "{} && {}", lhs, rhs),
-            Expression::Eq(ref lhs, ref rhs, ref _span) => write!(f, "{} == {}", lhs, rhs),
-            Expression::Ge(ref lhs, ref rhs, ref _span) => write!(f, "{} >= {}", lhs, rhs),
-            Expression::Gt(ref lhs, ref rhs, ref _span) => write!(f, "{} > {}", lhs, rhs),
-            Expression::Le(ref lhs, ref rhs, ref _span) => write!(f, "{} <= {}", lhs, rhs),
-            Expression::Lt(ref lhs, ref rhs, ref _span) => write!(f, "{} < {}", lhs, rhs),
+            Expression::Or(ref lhs_rhs, ref _span) => write!(f, "{} || {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::And(ref lhs_rhs, ref _span) => write!(f, "{} && {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::Eq(ref lhs_rhs, ref _span) => write!(f, "{} == {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::Ge(ref lhs_rhs, ref _span) => write!(f, "{} >= {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::Gt(ref lhs_rhs, ref _span) => write!(f, "{} > {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::Le(ref lhs_rhs, ref _span) => write!(f, "{} <= {}", lhs_rhs.0, lhs_rhs.1),
+            Expression::Lt(ref lhs_rhs, ref _span) => write!(f, "{} < {}", lhs_rhs.0, lhs_rhs.1),
 
             // Conditionals
-            Expression::IfElse(ref first, ref second, ref third, ref _span) => {
-                write!(f, "if {} then {} else {} fi", first, second, third)
+            Expression::IfElse(ref triplet, ref _span) => {
+                write!(f, "if {} then {} else {} fi", triplet.0, triplet.1, triplet.2)
             }
 
             // Arrays
@@ -238,7 +238,9 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "]")
             }
-            Expression::ArrayAccess(ref array, ref index, ref _span) => write!(f, "{}[{}]", array, index),
+            Expression::ArrayAccess(ref array_w_index, ref _span) => {
+                write!(f, "{}[{}]", array_w_index.0, array_w_index.1)
+            }
 
             // Tuples
             Expression::Tuple(ref tuple, ref _span) => {
@@ -318,8 +320,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
             .fold(variable, |acc, access| match access {
                 // Handle array accesses
                 Access::Array(array) => Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(RangeOrExpression::from(array.expression)),
+                    Box::new((acc, RangeOrExpression::from(array.expression))),
                     Span::from(array.span),
                 ),
 
@@ -360,11 +361,11 @@ impl<'ast> From<AstExpression<'ast>> for Expression {
         match expression {
             AstExpression::Value(value) => Expression::from(value),
             AstExpression::Identifier(variable) => Expression::from(variable),
-            AstExpression::Unary(expression) => Expression::from(expression),
-            AstExpression::Binary(expression) => Expression::from(expression),
-            AstExpression::Ternary(expression) => Expression::from(expression),
+            AstExpression::Unary(expression) => Expression::from(*expression),
+            AstExpression::Binary(expression) => Expression::from(*expression),
+            AstExpression::Ternary(expression) => Expression::from(*expression),
             AstExpression::ArrayInline(expression) => Expression::from(expression),
-            AstExpression::ArrayInitializer(expression) => Expression::from(expression),
+            AstExpression::ArrayInitializer(expression) => Expression::from(*expression),
             AstExpression::Tuple(expression) => Expression::from(expression),
             AstExpression::CircuitInline(expression) => Expression::from(expression),
             AstExpression::Postfix(expression) => Expression::from(expression),
@@ -388,8 +389,7 @@ impl<'ast> From<Assignee<'ast>> for Expression {
                     Span::from(circuit_member.span),
                 ),
                 AssigneeAccess::Array(array) => Expression::ArrayAccess(
-                    Box::new(acc),
-                    Box::new(RangeOrExpression::from(array.expression)),
+                    Box::new((acc, RangeOrExpression::from(array.expression))),
                     Span::from(array.span),
                 ),
                 AssigneeAccess::Tuple(tuple) => Expression::TupleAccess(
@@ -406,74 +406,61 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
         match expression.operation {
             // Boolean operations
             BinaryOperation::Or => Expression::Or(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::And => Expression::And(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Eq => Expression::Eq(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Ne => {
                 let span = Span::from(expression.span);
                 let negated = Expression::Eq(
-                    Box::new(Expression::from(*expression.left)),
-                    Box::new(Expression::from(*expression.right)),
+                    Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                     span.clone(),
                 );
 
                 Expression::Not(Box::new(negated), span)
             }
             BinaryOperation::Ge => Expression::Ge(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Gt => Expression::Gt(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Le => Expression::Le(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Lt => Expression::Lt(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             // Number operations
             BinaryOperation::Add => Expression::Add(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Sub => Expression::Sub(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Mul => Expression::Mul(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Div => Expression::Div(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
             BinaryOperation::Pow => Expression::Pow(
-                Box::new(Expression::from(*expression.left)),
-                Box::new(Expression::from(*expression.right)),
+                Box::new((Expression::from(expression.left), Expression::from(expression.right))),
                 Span::from(expression.span),
             ),
         }
@@ -483,9 +470,11 @@ impl<'ast> From<BinaryExpression<'ast>> for Expression {
 impl<'ast> From<TernaryExpression<'ast>> for Expression {
     fn from(expression: TernaryExpression<'ast>) -> Self {
         Expression::IfElse(
-            Box::new(Expression::from(*expression.first)),
-            Box::new(Expression::from(*expression.second)),
-            Box::new(Expression::from(*expression.third)),
+            Box::new((
+                Expression::from(expression.first),
+                Expression::from(expression.second),
+                Expression::from(expression.third),
+            )),
             Span::from(expression.span),
         )
     }
@@ -503,7 +492,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
         let dimensions = Expression::get_array_dimensions(array.dimensions);
-        let expression = SpreadOrExpression::from(*array.expression);
+        let expression = SpreadOrExpression::from(array.expression);
 
         let mut elements = vec![];
 
@@ -551,11 +540,11 @@ impl<'ast> From<UnaryExpression<'ast>> for Expression {
     fn from(expression: UnaryExpression<'ast>) -> Self {
         match expression.operation {
             UnaryOperation::Not(_) => Expression::Not(
-                Box::new(Expression::from(*expression.expression)),
+                Box::new(Expression::from(expression.expression)),
                 Span::from(expression.span),
             ),
             UnaryOperation::Negate(_) => Expression::Negate(
-                Box::new(Expression::from(*expression.expression)),
+                Box::new(Expression::from(expression.expression)),
                 Span::from(expression.span),
             ),
         }
