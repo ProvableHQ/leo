@@ -32,12 +32,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         expected_type: Option<Type>,
-        circuit_identifier: Box<Expression>,
+        circuit_identifier: Expression,
         circuit_member: Identifier,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get defined circuit
-        let circuit = match *circuit_identifier {
+        let circuit = match circuit_identifier {
             Expression::Identifier(identifier) => {
                 // Use the "Self" keyword to access a static circuit function
                 if identifier.is_self() {

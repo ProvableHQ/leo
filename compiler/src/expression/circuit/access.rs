@@ -39,12 +39,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         expected_type: Option<Type>,
-        circuit_identifier: Box<Expression>,
+        circuit_identifier: Expression,
         circuit_member: Identifier,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // access a circuit member using the `self` keyword
-        if let Expression::Identifier(ref identifier) = *circuit_identifier {
+        if let Expression::Identifier(ref identifier) = circuit_identifier {
             if identifier.is_self() {
                 let self_file_scope = new_scope(&file_scope, &identifier.name);
                 let self_function_scope = new_scope(&self_file_scope, &identifier.name);
@@ -56,17 +56,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        let (circuit_name, members) = match self.enforce_operand(
-            cs,
-            file_scope,
-            function_scope,
-            expected_type,
-            *circuit_identifier,
-            &span,
-        )? {
-            ConstrainedValue::CircuitExpression(name, members) => (name, members),
-            value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
-        };
+        let (circuit_name, members) =
+            match self.enforce_operand(cs, file_scope, function_scope, expected_type, circuit_identifier, &span)? {
+                ConstrainedValue::CircuitExpression(name, members) => (name, members),
+                value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
+            };
 
         let matched_member = members.clone().into_iter().find(|member| member.0 == circuit_member);
 
