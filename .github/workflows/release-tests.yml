@@ -15,14 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Load snarkOS
-        run: |
-          mkdir ~/.ssh
-          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval $(ssh-agent -s)
-          ssh-add -k ~/.ssh/id_rsa
-
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -53,14 +45,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-
-      - name: Load snarkOS
-        run: |
-          mkdir ~/.ssh
-          echo "${{ secrets.SNARKOS_DEPLOY_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval $(ssh-agent -s)
-          ssh-add -k ~/.ssh/id_rsa
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
