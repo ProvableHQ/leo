@@ -179,7 +179,7 @@ macro_rules! div_int_impl {
                     // Set the least-significant bit of remainder to bit i of the numerator
                     let r_new = r.add(
                         &mut cs.ns(|| format!("set_remainder_bit_{}", i)),
-                        &one.clone(),
+                        &one,
                     )?;
 
                     r = Self::conditionally_select(
