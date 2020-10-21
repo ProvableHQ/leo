@@ -49,7 +49,7 @@ macro_rules! select_int_impl {
                         }
                     });
 
-                    let result = Self::alloc(cs.ns(|| "cond_select_result"), || result_val.get().map(|v| v))?;
+                    let result = Self::alloc(cs.ns(|| "cond_select_result"), || result_val.get())?;
 
                     let expected_bits = first
                         .bits
