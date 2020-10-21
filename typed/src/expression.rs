@@ -64,7 +64,7 @@ pub enum Expression {
     Address(String, Span),
     Boolean(String, Span),
     Field(String, Span),
-    Group(GroupValue),
+    Group(Box<GroupValue>),
     Implicit(String, Span),
     Integer(IntegerType, String, Span),
 
@@ -336,12 +336,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                     let span = Span::from(function.span);
                     Expression::FunctionCall(
                         Box::new(acc),
-                        function
-                            .expressions
-                            .expressions
-                            .into_iter()
-                            .map(Expression::from)
-                            .collect(),
+                        function.expressions.into_iter().map(Expression::from).collect(),
                         span,
                     )
                 }
@@ -576,7 +571,7 @@ impl<'ast> From<FieldValue<'ast>> for Expression {
 
 impl<'ast> From<AstGroupValue<'ast>> for Expression {
     fn from(ast_group: AstGroupValue<'ast>) -> Self {
-        Expression::Group(GroupValue::from(ast_group))
+        Expression::Group(Box::new(GroupValue::from(ast_group)))
     }
 }
 

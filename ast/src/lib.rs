@@ -21,7 +21,7 @@ extern crate pest_derive;
 #[macro_use]
 extern crate thiserror;
 
-mod ast;
+pub mod ast;
 
 pub mod access;
 pub mod annotations;

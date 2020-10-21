@@ -159,8 +159,7 @@ impl<'ast> FromPest<'ast> for Expression<'ast> {
     type Rule = Rule;
 
     fn from_pest(pest: &mut Pairs<'ast, Rule>) -> Result<Self, ConversionError<Void>> {
-        let mut clone = pest.clone();
-        let pair = clone.next().ok_or(::from_pest::ConversionError::NoMatch)?;
+        let pair = pest.peek().ok_or(::from_pest::ConversionError::NoMatch)?;
         match pair.as_rule() {
             Rule::expression => {
                 // Transfer iterated state to pest.
