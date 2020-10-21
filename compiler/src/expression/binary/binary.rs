@@ -31,29 +31,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         left: Expression,
         right: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
-        let mut resolved_left = self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type.clone(),
-            left,
-            span.clone(),
-        )?;
-        let mut resolved_right = self.enforce_operand(
-            cs,
-            file_scope,
-            function_scope,
-            expected_type.clone(),
-            right,
-            span.clone(),
-        )?;
+        let mut resolved_left =
+            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), left, span)?;
+        let mut resolved_right =
+            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), right, span)?;
 
         resolved_left.resolve_types(&mut resolved_right, expected_type, span)?;
 

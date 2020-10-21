@@ -22,7 +22,7 @@ use snarkos_models::curves::{Field, PrimeField};
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_import(
         &mut self,
-        scope: String,
+        scope: &str,
         import: &Import,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             self.store_definitions(program.clone(), imported_programs)?;
 
             // Store the imported symbol
-            self.store_symbol(scope.clone(), package, &symbol, program)?;
+            self.store_symbol(scope, &package, &symbol, program)?;
         }
 
         Ok(())

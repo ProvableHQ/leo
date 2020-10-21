@@ -44,7 +44,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 ) -> Result<OutputBytes, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
-    let main_function_name = new_scope(program_name.clone(), "main".into());
+    let main_function_name = new_scope(&program_name, "main");
 
     resolved_program.store_definitions(program, imported_programs)?;
 
@@ -54,7 +54,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, program_name, function, input)?;
+            let result = resolved_program.enforce_main_function(cs, &program_name, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -118,9 +118,9 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
         input.parse_state(state_ast)?;
 
         // run test function on new program with input
-        let result = resolved_program.clone().enforce_main_function(
+        let result = resolved_program.enforce_main_function(
             cs,
-            program_name.clone(),
+            &program_name,
             test.function,
             input, // pass program input into every test
         );

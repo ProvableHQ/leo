@@ -29,8 +29,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         core_circuit: String,
         arguments: Vec<Expression>,
@@ -39,8 +39,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Get the value of each core function argument
         let mut argument_values = Vec::with_capacity(arguments.len());
         for argument in arguments.into_iter() {
-            let argument_value =
-                self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, argument)?;
+            let argument_value = self.enforce_expression(cs, file_scope, function_scope, None, argument)?;
             let core_function_argument = argument_value.to_value();
 
             argument_values.push(core_function_argument);
@@ -62,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Check that function returns expected type
         if let Some(expected) = expected_type {
-            let actual = return_value.to_type(span.clone())?;
+            let actual = return_value.to_type(&span)?;
             if expected.ne(&actual) {
                 return Err(ExpressionError::FunctionError(Box::new(
                     FunctionError::return_argument_type(expected.to_string(), actual.to_string(), span),

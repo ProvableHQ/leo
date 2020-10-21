@@ -28,8 +28,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_type: Option<Type>,
@@ -39,12 +39,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for statement in statements.into_iter() {
             let mut value = self.enforce_statement(
                 cs,
-                file_scope.clone(),
-                function_scope.clone(),
+                file_scope,
+                function_scope,
                 indicator,
                 statement,
                 return_type.clone(),
-                "".to_owned(),
+                "",
             )?;
 
             results.append(&mut value);
