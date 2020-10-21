@@ -339,11 +339,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                     let span = Span::from(function.span);
                     Expression::FunctionCall(
                         Box::new(acc),
-                        function
-                            .expressions
-                            .into_iter()
-                            .map(|expression| Expression::from(expression))
-                            .collect(),
+                        function.expressions.into_iter().map(Expression::from).collect(),
                         span,
                     )
                 }
