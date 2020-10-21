@@ -26,12 +26,9 @@ fn leo_ast<'ast>(filepath: &'ast Path, program_string: &'ast str) {
 
 fn criterion_benchmark(c: &mut Criterion) {
     let filepath = Path::new("./main.leo").to_path_buf();
-    // let program_string = &LeoAst::load_file(&filepath).unwrap();
     let program_string = include_str!("./main.leo");
 
-    c.bench_function("LeoAst::new", |b| {
-        b.iter(|| leo_ast(black_box(&filepath), black_box(program_string)))
-    });
+    c.bench_function("LeoAst::new", |b| b.iter(|| leo_ast(&filepath, program_string)));
 }
 
 criterion_group!(benches, criterion_benchmark);
