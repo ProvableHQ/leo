@@ -41,7 +41,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Circuit definitions are located at the minimum file scope
         let minimum_scope = file_scope.split('_').next().unwrap();
-        let mut program_identifier = new_scope(minimum_scope.to_string(), identifier.to_string());
+        let identifier_string = identifier.to_string();
+        let mut program_identifier = new_scope(minimum_scope, &identifier_string);
 
         if identifier.is_self() {
             program_identifier = file_scope.to_string();
