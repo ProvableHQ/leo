@@ -29,7 +29,6 @@ where
 {
     type ErrorType;
 
-    #[must_use]
     fn neg<CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, Self::ErrorType>;
 }
 
@@ -44,7 +43,7 @@ impl<F: Field> Neg<F> for Vec<Boolean> {
         let mut one = vec![Boolean::constant(true)];
         one.append(&mut vec![Boolean::Constant(false); self.len() - 1]);
 
-        let mut bits = flipped.add_bits(cs.ns(|| format!("add one")), &one)?;
+        let mut bits = flipped.add_bits(cs.ns(|| "add one"), &one)?;
         let _carry = bits.pop(); // we already accounted for overflow above
 
         Ok(bits)

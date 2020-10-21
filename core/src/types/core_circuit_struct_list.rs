@@ -32,7 +32,7 @@ impl CoreCircuitStructList {
         self.symbols.push((name, circuit))
     }
 
-    pub fn symbols(&self) -> Vec<(String, Circuit)> {
-        self.symbols.clone()
+    pub fn symbols(&self) -> impl Iterator<Item = &(String, Circuit)> {
+        self.symbols.iter()
     }
 }

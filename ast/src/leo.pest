@@ -226,7 +226,7 @@ dimension_single = {
 // Declared in types/array_dimensions.rs
 dimension_multiple = { "(" ~ number_positive ~ ("," ~ number_positive)* ~ ")"}
 
-type_tuple = { "(" ~ NEWLINE* ~ type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","? ~ NEWLINE* ~ ")" }
+type_tuple = { "(" ~ NEWLINE* ~ (type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","?)? ~ NEWLINE* ~ ")" }
 
 /// Values
 
@@ -302,7 +302,7 @@ access_tuple = ${ "." ~ number_positive }
 access_assignee = { access_array | access_tuple | access_member }
 
 // Declared in access/call_access.rs
-access_call = !{ expression_tuple }
+access_call = !{ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
 
 // Declared in access/member_access.rs
 access_member = ${ "." ~ identifier }
@@ -351,7 +351,7 @@ expression_term = {
 expression = { expression_term ~ (operation_binary ~ expression_term)* }
 
 // Declared in expressions/expression_tuple.rs
-expression_tuple = { "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
+expression_tuple = { "(" ~ (expression ~ ("," ~ expression)+)? ~ ")" }
 
 // Declared in expressions/array_initializer_expression.rs
 expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]" }

@@ -24,11 +24,11 @@ use std::fmt;
 pub enum Expression<'ast> {
     Value(Value<'ast>),
     Identifier(Identifier<'ast>),
-    Unary(UnaryExpression<'ast>),
-    Binary(BinaryExpression<'ast>),
-    Ternary(TernaryExpression<'ast>),
+    Unary(Box<UnaryExpression<'ast>>),
+    Binary(Box<BinaryExpression<'ast>>),
+    Ternary(Box<TernaryExpression<'ast>>),
     ArrayInline(ArrayInlineExpression<'ast>),
-    ArrayInitializer(ArrayInitializerExpression<'ast>),
+    ArrayInitializer(Box<ArrayInitializerExpression<'ast>>),
     CircuitInline(CircuitInlineExpression<'ast>),
     Postfix(PostfixExpression<'ast>),
     Tuple(TupleExpression<'ast>),
@@ -37,30 +37,30 @@ pub enum Expression<'ast> {
 impl<'ast> Expression<'ast> {
     pub fn binary(
         operation: BinaryOperation,
-        left: Box<Expression<'ast>>,
-        right: Box<Expression<'ast>>,
+        left: Expression<'ast>,
+        right: Expression<'ast>,
         span: Span<'ast>,
     ) -> Self {
-        Expression::Binary(BinaryExpression {
+        Expression::Binary(Box::new(BinaryExpression {
             operation,
             left,
             right,
             span,
-        })
+        }))
     }
 
     pub fn ternary(
-        first: Box<Expression<'ast>>,
-        second: Box<Expression<'ast>>,
-        third: Box<Expression<'ast>>,
+        first: Expression<'ast>,
+        second: Expression<'ast>,
+        third: Expression<'ast>,
         span: Span<'ast>,
     ) -> Self {
-        Expression::Ternary(TernaryExpression {
+        Expression::Ternary(Box::new(TernaryExpression {
             first,
             second,
             third,
             span,
-        })
+        }))
     }
 
     pub fn span(&self) -> &Span<'ast> {

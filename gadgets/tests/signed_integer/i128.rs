@@ -34,10 +34,10 @@ fn check_all_constant_bits(expected: i128, actual: Int128) {
         let mask = 1 << i as i128;
         let result = expected & mask;
 
-        match b {
-            &Boolean::Is(_) => panic!(),
-            &Boolean::Not(_) => panic!(),
-            &Boolean::Constant(b) => {
+        match *b {
+            Boolean::Is(_) => panic!(),
+            Boolean::Not(_) => panic!(),
+            Boolean::Constant(b) => {
                 let bit = result == mask;
                 assert_eq!(b, bit);
             }
@@ -51,16 +51,16 @@ fn check_all_allocated_bits(expected: i128, actual: Int128) {
         let mask = 1 << i as i128;
         let result = expected & mask;
 
-        match b {
-            &Boolean::Is(ref b) => {
+        match *b {
+            Boolean::Is(ref b) => {
                 let bit = result == mask;
                 assert_eq!(b.get_value().unwrap(), bit);
             }
-            &Boolean::Not(ref b) => {
+            Boolean::Not(ref b) => {
                 let bit = result == mask;
                 assert_eq!(!b.get_value().unwrap(), bit);
             }
-            &Boolean::Constant(_) => unreachable!(),
+            Boolean::Constant(_) => unreachable!(),
         }
     }
 }

@@ -28,11 +28,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         expression: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<(), ConsoleError> {
         let expected_type = Some(Type::Boolean);
         let expression_string = expression.to_string();
@@ -53,12 +53,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Unwrap assertion value and handle errors
         let result_option = match assert_expression {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
-            _ => return Err(ConsoleError::assertion_must_be_boolean(expression_string, span.clone())),
+            _ => {
+                return Err(ConsoleError::assertion_must_be_boolean(
+                    expression_string,
+                    span.to_owned(),
+                ));
+            }
         };
-        let result_bool = result_option.ok_or(ConsoleError::assertion_depends_on_input(span.clone()))?;
+        let result_bool = result_option.ok_or_else(|| ConsoleError::assertion_depends_on_input(span.to_owned()))?;
 
         if !result_bool {
-            return Err(ConsoleError::assertion_failed(expression_string, span));
+            return Err(ConsoleError::assertion_failed(expression_string, span.to_owned()));
         }
 
         Ok(())

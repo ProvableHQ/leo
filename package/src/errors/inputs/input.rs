@@ -33,6 +33,6 @@ pub enum InputFileError {
 
 impl From<std::io::Error> for InputFileError {
     fn from(error: std::io::Error) -> Self {
-        InputFileError::Crate("std::io", format!("{}", error))
+        InputFileError::Crate("std::io", error.to_string())
     }
 }

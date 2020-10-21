@@ -17,7 +17,7 @@
 use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ValueError {
@@ -41,7 +41,7 @@ pub enum ValueError {
 }
 
 impl ValueError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ValueError::AddressError(error) => error.set_path(path),
             ValueError::BooleanError(error) => error.set_path(path),
@@ -63,7 +63,7 @@ impl ValueError {
     }
 
     pub fn implicit_group(span: Span) -> Self {
-        let message = format!("group coordinates should be in (x, y)group format");
+        let message = "group coordinates should be in (x, y)group format".to_string();
 
         Self::new_from_span(message, span)
     }

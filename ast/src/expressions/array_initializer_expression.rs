@@ -23,7 +23,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::expression_array_initializer))]
 pub struct ArrayInitializerExpression<'ast> {
-    pub expression: Box<Expression<'ast>>,
+    pub expression: Expression<'ast>,
     pub dimensions: ArrayDimensions<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]

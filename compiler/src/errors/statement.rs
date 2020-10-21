@@ -17,7 +17,7 @@
 use crate::errors::{AddressError, BooleanError, ConsoleError, ExpressionError, IntegerError, ValueError};
 use leo_typed::{Error as FormattedError, Span, Type};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum StatementError {
@@ -44,7 +44,7 @@ pub enum StatementError {
 }
 
 impl StatementError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             StatementError::AddressError(error) => error.set_path(path),
             StatementError::BooleanError(error) => error.set_path(path),
@@ -67,13 +67,13 @@ impl StatementError {
     }
 
     pub fn array_assign_index(span: Span) -> Self {
-        let message = format!("Cannot assign single index to array of values");
+        let message = "Cannot assign single index to array of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
     pub fn array_assign_range(span: Span) -> Self {
-        let message = format!("Cannot assign range of array values to single value");
+        let message = "Cannot assign range of array values to single value".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -145,7 +145,7 @@ impl StatementError {
     }
 
     pub fn tuple_assign_index(span: Span) -> Self {
-        let message = format!("Cannot assign single index to tuple of values");
+        let message = "Cannot assign single index to tuple of values".to_string();
 
         Self::new_from_span(message, span)
     }

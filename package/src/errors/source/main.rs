@@ -30,6 +30,6 @@ pub enum MainFileError {
 
 impl From<std::io::Error> for MainFileError {
     fn from(error: std::io::Error) -> Self {
-        MainFileError::Crate("std::io", format!("{}", error))
+        MainFileError::Crate("std::io", error.to_string())
     }
 }

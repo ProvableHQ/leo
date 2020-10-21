@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![allow(clippy::module_inception)]
+
 pub mod initialize;
 pub mod manifest;
 
@@ -59,7 +61,7 @@ pub(crate) fn test_dir() -> PathBuf {
     let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
     TEST_ID.with(|n| *n.borrow_mut() = Some(id));
 
-    let path: PathBuf = TEST_DIR.join(&format!("t{}", id)).into();
+    let path: PathBuf = TEST_DIR.join(&format!("t{}", id));
 
     if path.exists() {
         if let Err(e) = fs::remove_dir_all(&path) {

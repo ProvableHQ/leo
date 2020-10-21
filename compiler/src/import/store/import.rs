@@ -22,7 +22,7 @@ use snarkos_models::curves::{Field, PrimeField};
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_import(
         &mut self,
-        scope: String,
+        scope: &str,
         import: &Import,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .find(|package| import.package.eq(package));
 
         if let Some(package) = core_dependency {
-            self.store_core_package(scope.clone(), package.clone())?;
+            self.store_core_package(scope, package.clone())?;
 
             return Ok(());
         }
@@ -45,13 +45,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Find imported program
             let program = imported_programs
                 .get_import(&package)
-                .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
+                .ok_or_else(|| ImportError::unknown_package(import.package.name.clone()))?;
 
             // Parse imported program
             self.store_definitions(program.clone(), imported_programs)?;
 
             // Store the imported symbol
-            self.store_symbol(scope.clone(), package, &symbol, program)?;
+            self.store_symbol(scope, &package, &symbol, program)?;
         }
 
         Ok(())

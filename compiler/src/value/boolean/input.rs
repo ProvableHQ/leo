@@ -28,19 +28,19 @@ use snarkos_models::{
     },
 };
 
-pub(crate) fn new_bool_constant(string: String, span: Span) -> Result<Boolean, BooleanError> {
+pub(crate) fn new_bool_constant(string: String, span: &Span) -> Result<Boolean, BooleanError> {
     let boolean = string
         .parse::<bool>()
-        .map_err(|_| BooleanError::invalid_boolean(string, span))?;
+        .map_err(|_| BooleanError::invalid_boolean(string, span.to_owned()))?;
 
     Ok(Boolean::constant(boolean))
 }
 
 pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     option: Option<bool>,
-    span: Span,
+    span: &Span,
 ) -> Result<Boolean, BooleanError> {
     let boolean_name = format!("{}: bool", name);
     let boolean_name_unique = format!("`{}` {}:{}", boolean_name, span.line, span.start);
@@ -48,14 +48,14 @@ pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     Boolean::alloc(cs.ns(|| boolean_name_unique), || {
         option.ok_or(SynthesisError::AssignmentMissing)
     })
-    .map_err(|_| BooleanError::missing_boolean(boolean_name, span))
+    .map_err(|_| BooleanError::missing_boolean(boolean_name.to_owned(), span.to_owned()))
 }
 
 pub(crate) fn bool_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     input_value: Option<InputValue>,
-    span: Span,
+    span: &Span,
 ) -> Result<ConstrainedValue<F, G>, BooleanError> {
     // Check that the input value is the correct type
     let option = match input_value {
@@ -63,7 +63,7 @@ pub(crate) fn bool_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Constr
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(BooleanError::invalid_boolean(name, span));
+                return Err(BooleanError::invalid_boolean(name.to_owned(), span.to_owned()));
             }
         }
         None => None,

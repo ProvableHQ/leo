@@ -22,8 +22,8 @@ use serde::Serialize;
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct BinaryExpression<'ast> {
     pub operation: BinaryOperation,
-    pub left: Box<Expression<'ast>>,
-    pub right: Box<Expression<'ast>>,
+    pub left: Expression<'ast>,
+    pub right: Expression<'ast>,
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }

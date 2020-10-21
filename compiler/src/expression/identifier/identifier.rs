@@ -31,14 +31,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
     pub fn evaluate_identifier(
         &mut self,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         unresolved_identifier: Identifier,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
-        let variable_name = new_scope(function_scope.clone(), unresolved_identifier.to_string());
-        let identifier_name = new_scope(file_scope, unresolved_identifier.to_string());
+        let variable_name = new_scope(function_scope, &unresolved_identifier.name);
+        let identifier_name = new_scope(file_scope, &unresolved_identifier.name);
 
         let mut result_value = if let Some(value) = self.get(&variable_name) {
             // Reassigning variable to another variable
@@ -51,14 +51,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value.clone()
         } else if expected_type.is_some() && expected_type.unwrap() == Type::Address {
             // If we expect an address type, try to return an address
-            let address = Address::constant(unresolved_identifier.name, unresolved_identifier.span)?;
+            let address = Address::constant(unresolved_identifier.name, &unresolved_identifier.span)?;
 
             return Ok(ConstrainedValue::Address(address));
         } else {
             return Err(ExpressionError::undefined_identifier(unresolved_identifier));
         };
 
-        result_value.resolve_type(expected_type, unresolved_identifier.span.clone())?;
+        result_value.resolve_type(expected_type, &unresolved_identifier.span)?;
 
         Ok(result_value)
     }

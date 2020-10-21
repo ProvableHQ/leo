@@ -25,30 +25,24 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_tuple_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         tuple: Box<Expression>,
         index: usize,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let tuple = match self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            *tuple,
-            span.clone(),
-        )? {
+        let tuple = match self.enforce_operand(cs, file_scope, function_scope, expected_type, *tuple, &span)? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.clone())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
         if index > tuple.len() - 1 {
-            return Err(ExpressionError::index_out_of_bounds(index, span));
+            return Err(ExpressionError::index_out_of_bounds(index, span.to_owned()));
         }
 
         Ok(tuple[index].to_owned())

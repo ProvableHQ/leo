@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// allow the use of EdwardsTestCompiler::parse_program_from_string for tests
+#![allow(deprecated)]
+
 pub mod address;
 pub mod array;
 pub mod boolean;
@@ -75,7 +78,7 @@ pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerE
     let input_string = String::from_utf8_lossy(bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, path.clone(), EMPTY_FILE, path)?;
+    compiler.parse_input(&input_string, &path, EMPTY_FILE, &path)?;
 
     Ok(compiler)
 }
@@ -85,7 +88,7 @@ pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerE
     let state_string = String::from_utf8_lossy(bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, path.clone(), &state_string, path)?;
+    compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
 
     Ok(compiler)
 }
@@ -99,7 +102,7 @@ pub(crate) fn parse_input_and_state(
     let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, path.clone(), &state_string, path)?;
+    compiler.parse_input(&input_string, &path, &state_string, &path)?;
 
     Ok(compiler)
 }
@@ -114,7 +117,7 @@ pub fn parse_program_with_input(
     let input_string = String::from_utf8_lossy(input_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, path.clone(), EMPTY_FILE, path)?;
+    compiler.parse_input(&input_string, &path, EMPTY_FILE, &path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -130,7 +133,7 @@ pub fn parse_program_with_state(
     let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, path.clone(), &state_string, path)?;
+    compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)
@@ -148,7 +151,7 @@ pub fn parse_program_with_input_and_state(
     let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, path.clone(), &state_string, path)?;
+    compiler.parse_input(&input_string, &path, &state_string, &path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)

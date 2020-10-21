@@ -45,7 +45,7 @@ fn test_undefined() {
             ExpressionError::Error(error),
         ))) => {
             assert_eq!(
-                format!("{}", error),
+                error.to_string(),
                 vec![
                     "    --> \"/test/src/main.leo\": 2:12",
                     "     |",

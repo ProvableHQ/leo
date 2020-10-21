@@ -19,7 +19,7 @@ use leo_core::LeoCoreError;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -52,7 +52,7 @@ pub enum ExpressionError {
 }
 
 impl ExpressionError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ExpressionError::AddressError(error) => error.set_path(path),
             ExpressionError::BooleanError(error) => error.set_path(path),
@@ -146,7 +146,7 @@ impl ExpressionError {
     }
 
     pub fn self_keyword(span: Span) -> Self {
-        let message = format!("cannot call keyword `Self` outside of a circuit function");
+        let message = "cannot call keyword `Self` outside of a circuit function".to_string();
 
         Self::new_from_span(message, span)
     }

@@ -19,7 +19,7 @@ use leo_typed::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error, Eq, PartialEq)]
 pub enum CoreCircuitError {
@@ -28,7 +28,7 @@ pub enum CoreCircuitError {
 }
 
 impl CoreCircuitError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             CoreCircuitError::Error(error) => error.set_path(path),
         }

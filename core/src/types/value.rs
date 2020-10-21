@@ -56,14 +56,14 @@ impl fmt::Display for Value {
             Value::I64(value) => value.value.map(|v| v.to_string()),
             Value::I128(value) => value.value.map(|v| v.to_string()),
             Value::Array(values) => {
-                let string = values.iter().map(|v| format!("{}", v)).collect::<Vec<_>>().join(", ");
+                let string = values.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "[{}]", string)?;
 
                 Some("".to_owned())
             }
             Value::Tuple(values) => {
-                let string = values.iter().map(|v| format!("{}", v)).collect::<Vec<_>>().join(", ");
+                let string = values.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "[{}]", string)?;
 
@@ -71,7 +71,7 @@ impl fmt::Display for Value {
             }
         };
 
-        let string = string_option.unwrap_or("[input]".to_owned());
+        let string = string_option.unwrap_or_else(|| "[input]".to_owned());
 
         write!(f, "{}", string)
     }

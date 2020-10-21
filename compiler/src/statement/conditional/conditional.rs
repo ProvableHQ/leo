@@ -16,7 +16,14 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{
+    errors::StatementError,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    IndicatorAndConstrainedValue,
+    StatementResult,
+};
 use leo_typed::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
 
 use snarkos_models::{
@@ -28,7 +35,7 @@ fn indicator_to_string(indicator: &Boolean) -> String {
     indicator
         .get_value()
         .map(|b| b.to_string())
-        .unwrap_or(format!("[input]"))
+        .unwrap_or_else(|| "[input]".to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -36,16 +43,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.
     /// The `indicator` bit will select that branch while keeping the constraint system satisfied.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         statement: ConditionalStatement,
         return_type: Option<Type>,
-        span: Span,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+        span: &Span,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let statement_string = statement.to_string();
 
         // Inherit the indicator from a previous conditional statement or assume that we are the outer parent
@@ -54,13 +62,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Evaluate the conditional boolean as the inner indicator
         let inner_indicator = match self.enforce_expression(
             cs,
-            file_scope.clone(),
-            function_scope.clone(),
+            file_scope,
+            function_scope,
             Some(Type::Boolean),
             statement.condition.clone(),
         )? {
             ConstrainedValue::Boolean(resolved) => resolved,
-            value => return Err(StatementError::conditional_boolean(value.to_string(), span)),
+            value => return Err(StatementError::conditional_boolean(value.to_string(), span.to_owned())),
         };
 
         // If outer_indicator && inner_indicator, then select branch 1
@@ -75,15 +83,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             &outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
+        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.to_owned()))?;
 
         let mut results = vec![];
 
         // Evaluate branch 1
         let mut branch_1_result = self.evaluate_branch(
             cs,
-            file_scope.clone(),
-            function_scope.clone(),
+            file_scope,
+            function_scope,
             Some(branch_1_indicator),
             statement.statements,
             return_type.clone(),
@@ -103,7 +111,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             &outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
+        .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.to_owned()))?;
 
         // Evaluate branch 2
         let mut branch_2_result = match statement.next {

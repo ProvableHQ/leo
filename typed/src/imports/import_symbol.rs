@@ -31,7 +31,7 @@ impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
     fn from(symbol: AstImportSymbol<'ast>) -> Self {
         ImportSymbol {
             symbol: Identifier::from(symbol.value),
-            alias: symbol.alias.map(|alias| Identifier::from(alias)),
+            alias: symbol.alias.map(Identifier::from),
             span: Span::from(symbol.span),
         }
     }

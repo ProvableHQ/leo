@@ -25,30 +25,31 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         function: Box<Expression>,
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (declared_circuit_reference, function_value) = match *function.clone() {
+        let (declared_circuit_reference, function_value) = match *function {
             Expression::CircuitMemberAccess(circuit_identifier, circuit_member, span) => {
                 // Call a circuit function that can mutate self.
 
                 // Save a reference to the circuit we are mutating.
-                let circuit_id_string = format!("{}", circuit_identifier);
-                let declared_circuit_reference = new_scope(function_scope.clone(), circuit_id_string);
+                let circuit_id_string = circuit_identifier.to_string();
+                let declared_circuit_reference = new_scope(function_scope.clone(), &circuit_id_string);
 
                 (
                     declared_circuit_reference,
                     self.enforce_circuit_access(
                         cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
+                        file_scope,
+                        function_scope,
                         expected_type,
                         circuit_identifier,
                         circuit_member,
@@ -57,12 +58,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 )
             }
             function => (
-                function_scope.clone(),
-                self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), expected_type, function)?,
+                function_scope.to_string(),
+                self.enforce_expression(cs, file_scope, function_scope, expected_type, function)?,
             ),
         };
 
-        let (outer_scope, function_call) = function_value.extract_function(file_scope.clone(), span.clone())?;
+        let (outer_scope, function_call) = function_value.extract_function(file_scope, &span)?;
 
         let name_unique = format!(
             "function call {} {}:{}",
@@ -73,11 +74,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         self.enforce_function(
             &mut cs.ns(|| name_unique),
-            outer_scope,
+            &outer_scope,
             function_scope,
             function_call,
             arguments,
-            declared_circuit_reference,
+            &declared_circuit_reference,
         )
         .map_err(|error| ExpressionError::from(Box::new(error)))
     }

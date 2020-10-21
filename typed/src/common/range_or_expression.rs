@@ -30,10 +30,9 @@ pub enum RangeOrExpression {
 impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
     fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
-            AstRangeOrExpression::Range(range) => RangeOrExpression::Range(
-                range.from.map(|expression| Expression::from(expression)),
-                range.to.map(|expression| Expression::from(expression)),
-            ),
+            AstRangeOrExpression::Range(range) => {
+                RangeOrExpression::Range(range.from.map(Expression::from), range.to.map(Expression::from))
+            }
             AstRangeOrExpression::Expression(expression) => RangeOrExpression::Expression(Expression::from(expression)),
         }
     }
@@ -45,8 +44,8 @@ impl fmt::Display for RangeOrExpression {
             RangeOrExpression::Range(ref from, ref to) => write!(
                 f,
                 "{}..{}",
-                from.as_ref().map(|e| format!("{}", e)).unwrap_or("".to_string()),
-                to.as_ref().map(|e| format!("{}", e)).unwrap_or("".to_string())
+                from.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+                to.as_ref().map(|e| e.to_string()).unwrap_or_default()
             ),
             RangeOrExpression::Expression(ref e) => write!(f, "{}", e),
         }

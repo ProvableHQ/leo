@@ -42,9 +42,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         type_: Type,
-        name: String,
+        name: &str,
         input_option: Option<InputValue>,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         match type_ {
             Type::Address => Ok(Address::from_input(cs, name, input_option, span)?),
@@ -59,7 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 span,
             )?)),
             Type::Array(type_, dimensions) => self.allocate_array(cs, name, *type_, dimensions, input_option, span),
-            Type::Tuple(types) => self.allocate_tuple(cs, name, types, input_option, span),
+            Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
             _ => unimplemented!("main function input not implemented for type"),
         }
     }

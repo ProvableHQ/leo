@@ -20,9 +20,10 @@ use crate::{errors::CircuitFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::Path,
 };
 
 pub static CIRCUIT_FILE_EXTENSION: &str = ".json";
@@ -39,20 +40,20 @@ impl CircuitFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the serialized circuit from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, CircuitFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, CircuitFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.clone()))?)
+        Ok(fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.into_owned()))?)
     }
 
     /// Writes the given serialized circuit to a file.
-    pub fn write_to(&self, path: &PathBuf, circuit: String) -> Result<(), CircuitFileError> {
+    pub fn write_to(&self, path: &Path, circuit: String) -> Result<(), CircuitFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -63,26 +64,24 @@ impl CircuitFile {
 
     /// Removes the serialized circuit at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, CircuitFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, CircuitFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| CircuitFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| CircuitFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(format!(
-                "{}{}",
-                self.package_name, CIRCUIT_FILE_EXTENSION
-            )));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, CIRCUIT_FILE_EXTENSION));
         }
         path
     }
