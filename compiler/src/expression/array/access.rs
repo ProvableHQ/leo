@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             function_scope.clone(),
             expected_type,
             array,
-            span.clone(),
+            span,
         )? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),

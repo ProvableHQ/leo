@@ -75,7 +75,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 enforce_add(cs, resolved_left, resolved_right, &span)
@@ -88,7 +88,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 enforce_sub(cs, resolved_left, resolved_right, &span)
@@ -101,7 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 enforce_mul(cs, resolved_left, resolved_right, &span)
@@ -114,7 +114,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 enforce_div(cs, resolved_left, resolved_right, &span)
@@ -127,7 +127,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 enforce_pow(cs, resolved_left, resolved_right, &span)
@@ -146,7 +146,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(enforce_or(cs, resolved_left, resolved_right, &span)?)
@@ -159,7 +159,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     expected_type,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(enforce_and(cs, resolved_left, resolved_right, &span)?)
@@ -172,7 +172,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(evaluate_eq(cs, resolved_left, resolved_right, &span)?)
@@ -185,7 +185,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(evaluate_ge(cs, resolved_left, resolved_right, &span)?)
@@ -198,7 +198,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(evaluate_gt(cs, resolved_left, resolved_right, &span)?)
@@ -211,7 +211,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(evaluate_le(cs, resolved_left, resolved_right, &span)?)
@@ -224,7 +224,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     None,
                     left_right.0,
                     left_right.1,
-                    span.clone(),
+                    &span,
                 )?;
 
                 Ok(evaluate_lt(cs, resolved_left, resolved_right, &span)?)
@@ -239,7 +239,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 triplet.0,
                 triplet.1,
                 triplet.2,
-                span,
+                &span,
             ),
 
             // Arrays
@@ -253,7 +253,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 expected_type,
                 array_w_index.0,
                 array_w_index.1,
-                span,
+                &span,
             ),
 
             // Tuples
