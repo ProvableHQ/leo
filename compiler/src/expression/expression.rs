@@ -128,7 +128,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     left_right.0,
                     left_right.1,
                     span.clone(),
-
                 )?;
 
                 enforce_pow(cs, resolved_left, resolved_right, &span)
