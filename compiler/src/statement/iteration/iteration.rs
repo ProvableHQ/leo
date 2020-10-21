@@ -40,26 +40,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         index: Identifier,
         start: Expression,
         stop: Expression,
         statements: Vec<Statement>,
         return_type: Option<Type>,
-        span: Span,
+        span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
-        let from = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), start, span.clone())?;
-        let to = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), stop, span.clone())?;
+        let from = self.enforce_index(cs, file_scope, function_scope, start, span)?;
+        let to = self.enforce_index(cs, file_scope, function_scope, stop, span)?;
 
         for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
 
-            let index_name = new_scope(function_scope.clone(), index.to_string());
+            let index_name = new_scope(function_scope, &index.name);
 
             self.store(
                 index_name,
@@ -70,8 +70,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
             let mut result = self.evaluate_branch(
                 &mut cs.ns(|| name_unique),
-                file_scope.clone(),
-                function_scope.clone(),
+                file_scope,
+                function_scope,
                 indicator,
                 statements.clone(),
                 return_type.clone(),

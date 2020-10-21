@@ -34,7 +34,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         return_value: &mut ConstrainedValue<F, G>,
         results: Vec<(Option<Boolean>, ConstrainedValue<F, G>)>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         // if there are no results, continue
         if results.is_empty() {
@@ -65,7 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let selected_value =
                 ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &result, return_value)
                     .map_err(|_| {
-                        StatementError::select_fail(result.to_string(), return_value.to_string(), span.clone())
+                        StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned())
                     })?;
 
             *return_value = selected_value;

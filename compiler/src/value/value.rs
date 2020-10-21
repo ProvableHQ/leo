@@ -74,19 +74,22 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
-    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>, span: Span) -> Result<Self, ValueError> {
-        let other_type = other.to_type(span.clone())?;
+    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>, span: &Span) -> Result<Self, ValueError> {
+        let other_type = other.to_type(span)?;
 
         ConstrainedValue::from_type(value, &other_type, span)
     }
 
-    pub(crate) fn from_type(value: String, type_: &Type, span: Span) -> Result<Self, ValueError> {
+    pub(crate) fn from_type(value: String, type_: &Type, span: &Span) -> Result<Self, ValueError> {
         match type_ {
             // Data types
             Type::Address => Ok(ConstrainedValue::Address(Address::constant(value, span)?)),
             Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-            Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(value, span))?)),
+            Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(
+                value,
+                span.to_owned(),
+            ))?)),
             Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
                 integer_type,
                 value,
@@ -99,7 +102,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn to_type(&self, span: Span) -> Result<Type, ValueError> {
+    pub(crate) fn to_type(&self, span: &Span) -> Result<Type, ValueError> {
         Ok(match self {
             // Data types
             ConstrainedValue::Address(_address) => Type::Address,
@@ -125,7 +128,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 let mut types = Vec::with_capacity(tuple.len());
 
                 for value in tuple {
-                    let type_ = value.to_type(span.clone())?;
+                    let type_ = value.to_type(span)?;
                     types.push(type_)
                 }
 
@@ -133,7 +136,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             }
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
             ConstrainedValue::Mutable(value) => return value.to_type(span),
-            value => return Err(ValueError::implicit(value.to_string(), span)),
+            value => return Err(ValueError::implicit(value.to_string(), span.to_owned())),
         })
     }
 
@@ -168,7 +171,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: Span) -> Result<(), ValueError> {
+    pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: &Span) -> Result<(), ValueError> {
         if let ConstrainedValue::Unresolved(ref string) = self {
             if type_.is_some() {
                 *self = ConstrainedValue::from_type(string.clone(), &type_.unwrap(), span)?
@@ -183,45 +186,45 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         &mut self,
         other: &mut Self,
         type_: Option<Type>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), ValueError> {
         if type_.is_some() {
-            self.resolve_type(type_.clone(), span.clone())?;
+            self.resolve_type(type_.clone(), span)?;
             return other.resolve_type(type_, span);
         }
 
         match (&self, &other) {
             (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(Some(other.to_type(span.clone())?), span),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(Some(self.to_type(span.clone())?), span),
+            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(Some(other.to_type(span)?), span),
+            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(Some(self.to_type(span)?), span),
             _ => Ok(()),
         }
     }
 
-    pub(crate) fn extract_function(self, scope: String, span: Span) -> Result<(String, Function), ExpressionError> {
+    pub(crate) fn extract_function(self, scope: &str, span: &Span) -> Result<(String, Function), ExpressionError> {
         match self {
             ConstrainedValue::Function(circuit_identifier, function) => {
-                let mut outer_scope = scope.clone();
+                let mut outer_scope = scope.to_string();
                 // If this is a circuit function, evaluate inside the circuit scope
                 if let Some(identifier) = circuit_identifier {
                     // avoid creating recursive scope
                     if !is_in_scope(&scope, &identifier.name) {
-                        outer_scope = new_scope(scope, identifier.name);
+                        outer_scope = new_scope(scope, &identifier.name);
                     }
                 }
 
                 Ok((outer_scope, function))
             }
-            ConstrainedValue::Import(import_scope, function) => function.extract_function(import_scope, span),
-            value => Err(ExpressionError::undefined_function(value.to_string(), span)),
+            ConstrainedValue::Import(import_scope, function) => function.extract_function(&import_scope, span),
+            value => Err(ExpressionError::undefined_function(value.to_string(), span.to_owned())),
         }
     }
 
-    pub(crate) fn extract_circuit(self, span: Span) -> Result<Circuit, ExpressionError> {
+    pub(crate) fn extract_circuit(self, span: &Span) -> Result<Circuit, ExpressionError> {
         match self {
             ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit),
             ConstrainedValue::Import(_import_scope, circuit) => circuit.extract_circuit(span),
-            value => Err(ExpressionError::undefined_circuit(value.to_string(), span)),
+            value => Err(ExpressionError::undefined_circuit(value.to_string(), span.to_owned())),
         }
     }
 
@@ -231,7 +234,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(&mut self, mut cs: CS, span: Span) -> Result<(), ValueError> {
+    pub(crate) fn allocate_value<CS: ConstraintSystem<F>>(
+        &mut self,
+        mut cs: CS,
+        span: &Span,
+    ) -> Result<(), ValueError> {
         match self {
             // Data types
             ConstrainedValue::Address(_address) => {
@@ -243,12 +250,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .map(|b| b.to_string())
                     .unwrap_or_else(|| "[allocated]".to_string());
 
-                *boolean = allocate_bool(&mut cs, name, option, span)?;
+                *boolean = allocate_bool(&mut cs, &name, option, span)?;
             }
             ConstrainedValue::Field(field) => {
                 let gadget = field
                     .allocated(cs.ns(|| format!("allocate field {}:{}", span.line, span.start)))
-                    .map_err(|error| ValueError::FieldError(FieldError::synthesis_error(error, span)))?;
+                    .map_err(|error| ValueError::FieldError(FieldError::synthesis_error(error, span.to_owned())))?;
 
                 *field = FieldType::Allocated(gadget)
             }
@@ -260,7 +267,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 let option = integer.get_value();
                 let name = option.clone().unwrap_or_else(|| "[allocated]".to_string());
 
-                *integer = Integer::allocate_type(&mut cs, integer_type, name, option, span)?;
+                *integer = Integer::allocate_type(&mut cs, integer_type, &name, option, span)?;
             }
 
             // Data type wrappers
@@ -271,7 +278,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .map(|(i, value)| {
                         let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span.clone())
+                        value.allocate_value(cs.ns(|| unique_name), span)
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -282,7 +289,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .map(|(i, value)| {
                         let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span.clone())
+                        value.allocate_value(cs.ns(|| unique_name), span)
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -293,7 +300,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     .map(|(i, member)| {
                         let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
-                        member.1.allocate_value(cs.ns(|| unique_name), span.clone())
+                        member.1.allocate_value(cs.ns(|| unique_name), span)
                     })
                     .collect::<Result<(), ValueError>>()?;
             }
@@ -311,7 +318,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
             // Cannot allocate an unresolved value
             ConstrainedValue::Unresolved(value) => {
-                return Err(ValueError::implicit(value.to_string(), span));
+                return Err(ValueError::implicit(value.to_string(), span.to_owned()));
             }
         }
 

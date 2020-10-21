@@ -53,24 +53,26 @@ impl<F: Field + PrimeField> FieldType<F> {
         }
     }
 
-    pub fn constant(string: String, span: Span) -> Result<Self, FieldError> {
-        let value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span))?;
+    pub fn constant(string: String, span: &Span) -> Result<Self, FieldError> {
+        let value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
 
         Ok(FieldType::Constant(value))
     }
 
-    pub fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: Span) -> Result<Self, FieldError> {
+    pub fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, FieldError> {
         match self {
             FieldType::Constant(field) => Ok(FieldType::Constant(field.neg())),
             FieldType::Allocated(field) => {
-                let result = field.negate(cs).map_err(|e| FieldError::negate_operation(e, span))?;
+                let result = field
+                    .negate(cs)
+                    .map_err(|e| FieldError::negate_operation(e, span.to_owned()))?;
 
                 Ok(FieldType::Allocated(result))
             }
         }
     }
 
-    pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+    pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
                 Ok(FieldType::Constant(self_value.add(other_value)))
@@ -79,7 +81,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .add(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -88,12 +90,12 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .add_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?,
             )),
         }
     }
 
-    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
                 Ok(FieldType::Constant(self_value.sub(other_value)))
@@ -102,7 +104,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .sub(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span.to_owned()))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -111,12 +113,12 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .sub_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?,
             )),
         }
     }
 
-    pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+    pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
                 Ok(FieldType::Constant(self_value.mul(other_value)))
@@ -125,7 +127,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .mul(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span.to_owned()))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -134,24 +136,24 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .mul_by_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span.to_owned()))?,
             )),
         }
     }
 
-    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self, span: Span) -> Result<Self, FieldError> {
+    pub fn div<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
         let inverse = match other {
             FieldType::Constant(constant) => {
                 let constant_inverse = constant
                     .inverse()
-                    .ok_or_else(|| FieldError::no_inverse(constant.to_string(), span.clone()))?;
+                    .ok_or_else(|| FieldError::no_inverse(constant.to_string(), span.to_owned()))?;
 
                 FieldType::Constant(constant_inverse)
             }
             FieldType::Allocated(allocated) => {
                 let allocated_inverse = allocated
                     .inverse(&mut cs)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.clone()))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?;
 
                 FieldType::Allocated(allocated_inverse)
             }

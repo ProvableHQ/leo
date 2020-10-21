@@ -29,9 +29,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        scope: String,
-        caller_scope: String,
-        function_name: String,
+        scope: &str,
+        caller_scope: &str,
+        function_name: &str,
         expected_type: Option<Type>,
         input: Expression,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {

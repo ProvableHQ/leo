@@ -32,25 +32,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn assign_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
-        name: String,
+        name: &str,
         range_or_expression: RangeOrExpression,
         mut new_value: ConstrainedValue<F, G>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
-                let index = self.enforce_index(cs, file_scope, function_scope, index, span.clone())?;
+                let index = self.enforce_index(cs, file_scope, function_scope, index, span)?;
 
                 // Modify the single value of the array in place
-                match self.get_mutable_assignee(name, span.clone())? {
+                match self.get_mutable_assignee(name, &span)? {
                     ConstrainedValue::Array(old) => {
-                        new_value.resolve_type(Some(old[index].to_type(span.clone())?), span.clone())?;
+                        new_value.resolve_type(Some(old[index].to_type(&span)?), &span)?;
 
                         let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                         let selected_value = ConstrainedValue::conditionally_select(
@@ -60,28 +60,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             &old[index],
                         )
                         .map_err(|_| {
-                            StatementError::select_fail(new_value.to_string(), old[index].to_string(), span)
+                            StatementError::select_fail(new_value.to_string(), old[index].to_string(), span.to_owned())
                         })?;
 
                         old[index] = selected_value;
                     }
-                    _ => return Err(StatementError::array_assign_index(span)),
+                    _ => return Err(StatementError::array_assign_index(span.to_owned())),
                 }
             }
             RangeOrExpression::Range(from, to) => {
                 let from_index = match from {
-                    Some(integer) => {
-                        self.enforce_index(cs, file_scope.clone(), function_scope.clone(), integer, span.clone())?
-                    }
+                    Some(integer) => self.enforce_index(cs, file_scope, function_scope, integer, span)?,
                     None => 0usize,
                 };
                 let to_index_option = match to {
-                    Some(integer) => Some(self.enforce_index(cs, file_scope, function_scope, integer, span.clone())?),
+                    Some(integer) => Some(self.enforce_index(cs, file_scope, function_scope, integer, span)?),
                     None => None,
                 };
 
                 // Modify the range of values of the array
-                let old_array = self.get_mutable_assignee(name, span.clone())?;
+                let old_array = self.get_mutable_assignee(name, &span)?;
                 let new_array = match (old_array.clone(), new_value) {
                     (ConstrainedValue::Array(mut mutable), ConstrainedValue::Array(new)) => {
                         let to_index = to_index_option.unwrap_or(mutable.len());
@@ -89,12 +87,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         mutable.splice(from_index..to_index, new.iter().cloned());
                         ConstrainedValue::Array(mutable)
                     }
-                    _ => return Err(StatementError::array_assign_range(span)),
+                    _ => return Err(StatementError::array_assign_range(span.to_owned())),
                 };
                 let name_unique = format!("select {} {}:{}", new_array, span.line, span.start);
                 let selected_array =
                     ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_array, old_array)
-                        .map_err(|_| StatementError::select_fail(new_array.to_string(), old_array.to_string(), span))?;
+                        .map_err(|_| {
+                            StatementError::select_fail(new_array.to_string(), old_array.to_string(), span.to_owned())
+                        })?;
 
                 *old_array = selected_array;
             }

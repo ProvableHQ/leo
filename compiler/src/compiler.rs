@@ -155,10 +155,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         // Derive the package name.
-        let package_name = self.package_name.clone();
+        let package_name = &self.package_name;
 
         // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoTypedAst::new(&package_name, &ast);
+        let typed_tree = LeoTypedAst::new(package_name, &ast);
 
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;

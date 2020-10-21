@@ -27,9 +27,9 @@ use snarkos_models::{
 
 pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     option: Option<GroupValue>,
-    span: Span,
+    span: &Span,
 ) -> Result<G, GroupError> {
     let group_name = format!("{}: group", name);
     let group_name_unique = format!("`{}` {}:{}", group_name, span.line, span.start);
@@ -37,14 +37,14 @@ pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: Constra
     G::alloc(cs.ns(|| group_name_unique), || {
         option.ok_or(SynthesisError::AssignmentMissing)
     })
-    .map_err(|_| GroupError::missing_group(group_name, span))
+    .map_err(|_| GroupError::missing_group(group_name, span.to_owned()))
 }
 
 pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     input_value: Option<InputValue>,
-    span: Span,
+    span: &Span,
 ) -> Result<ConstrainedValue<F, G>, GroupError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
@@ -52,7 +52,7 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
             if let InputValue::Group(string) = input {
                 Some(string)
             } else {
-                return Err(GroupError::invalid_group(input.to_string(), span));
+                return Err(GroupError::invalid_group(input.to_string(), span.to_owned()));
             }
         }
         None => None,

@@ -24,14 +24,14 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-fn check_return_type(expected: Option<Type>, actual: Type, span: Span) -> Result<(), StatementError> {
+fn check_return_type(expected: Option<Type>, actual: Type, span: &Span) -> Result<(), StatementError> {
     match expected {
         Some(expected) => {
             if expected.ne(&actual) {
                 if (expected.is_self() && actual.is_circuit()) || expected.match_array_types(&actual) {
                     return Ok(());
                 } else {
-                    return Err(StatementError::arguments_type(&expected, &actual, span));
+                    return Err(StatementError::arguments_type(&expected, &actual, span.to_owned()));
                 }
             }
             Ok(())
@@ -44,24 +44,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_return_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expression: Expression,
         return_type: Option<Type>,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Make sure we return the correct number of values
 
-        let result = self.enforce_operand(
-            cs,
-            file_scope,
-            function_scope,
-            return_type.clone(),
-            expression,
-            span.clone(),
-        )?;
+        let result = self.enforce_operand(cs, file_scope, function_scope, return_type.clone(), expression, span)?;
 
-        check_return_type(return_type, result.to_type(span.clone())?, span)?;
+        check_return_type(return_type, result.to_type(&span)?, span)?;
 
         Ok(result)
     }
