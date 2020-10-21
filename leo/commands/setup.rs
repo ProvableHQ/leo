@@ -146,7 +146,7 @@ impl CLI for SetupCommand {
                 Ok((program, proving_key, prepared_verifying_key))
             }
             None => {
-                let mut main_file_path = path.clone();
+                let mut main_file_path = path;
                 main_file_path.push(SOURCE_DIRECTORY_NAME);
                 main_file_path.push(MAIN_FILENAME);
 

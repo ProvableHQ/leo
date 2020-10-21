@@ -25,6 +25,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -35,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (declared_circuit_reference, function_value) = match *function.clone() {
+        let (declared_circuit_reference, function_value) = match *function {
             Expression::CircuitMemberAccess(circuit_identifier, circuit_member, span) => {
                 // Call a circuit function that can mutate self.
 
@@ -62,7 +63,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ),
         };
 
-        let (outer_scope, function_call) = function_value.extract_function(file_scope.clone(), span.clone())?;
+        let (outer_scope, function_call) = function_value.extract_function(file_scope, span.clone())?;
 
         let name_unique = format!(
             "function call {} {}:{}",

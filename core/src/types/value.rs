@@ -71,7 +71,7 @@ impl fmt::Display for Value {
             }
         };
 
-        let string = string_option.unwrap_or("[input]".to_owned());
+        let string = string_option.unwrap_or_else(|| "[input]".to_owned());
 
         write!(f, "{}", string)
     }

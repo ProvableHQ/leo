@@ -71,7 +71,7 @@ impl CorePackage {
             let span = circuit.span.clone();
 
             // take the alias if it is present
-            let id = circuit.alias.clone().unwrap_or(circuit.symbol.clone());
+            let id = circuit.alias.clone().unwrap_or_else(|| circuit.symbol.clone());
             let name = id.name.clone();
 
             let circuit = if self.unstable {
@@ -87,9 +87,7 @@ impl CorePackage {
                 }
             } else {
                 // match core circuit
-                match circuit_name {
-                    name => return Err(CorePackageError::undefined_core_circuit(name.to_string(), span)),
-                }
+                return Err(CorePackageError::undefined_core_circuit(circuit_name.to_string(), span));
             };
 
             circuit_structs.push(name, circuit)

@@ -53,20 +53,17 @@ pub enum InputParserError {
 
 impl InputParserError {
     pub fn set_path(&mut self, path: PathBuf) {
-        match self {
-            InputParserError::SyntaxError(error) => {
-                let new_error: Error<Rule> = match error {
-                    InputSyntaxError::Error(error) => {
-                        let new_error = error.clone();
-                        new_error.with_path(path.to_str().unwrap())
-                    }
-                };
+        if let InputParserError::SyntaxError(error) = self {
+            let new_error: Error<Rule> = match error {
+                InputSyntaxError::Error(error) => {
+                    let new_error = error.clone();
+                    new_error.with_path(path.to_str().unwrap())
+                }
+            };
 
-                tracing::error!("{}", new_error);
+            tracing::error!("{}", new_error);
 
-                *error = InputSyntaxError::Error(new_error);
-            }
-            _ => {}
+            *error = InputSyntaxError::Error(new_error);
         }
     }
 

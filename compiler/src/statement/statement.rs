@@ -24,12 +24,16 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
+pub type StatementResult<T> = Result<T, StatementError>;
+pub type IndicatorAndConstrainedValue<T, U> = (Option<Boolean>, ConstrainedValue<T, U>);
+
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
     /// To indicate which of these return values to take we conditionally select the value according
     /// to the `indicator` bit that evaluates to true.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -39,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: Statement,
         return_type: Option<Type>,
         declared_circuit_reference: String,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
         match statement {
@@ -70,7 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declared_circuit_reference,
                     indicator,
                     variable,
-                    expression,
+                    *expression,
                     span,
                 )?;
             }
@@ -94,8 +98,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     indicator,
                     index,
-                    start,
-                    stop,
+                    *start,
+                    *stop,
                     statements,
                     return_type,
                     span,

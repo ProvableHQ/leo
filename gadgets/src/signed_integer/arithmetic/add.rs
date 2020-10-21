@@ -87,7 +87,7 @@ macro_rules! add_int_impl {
                             all_constants = false;
 
                             // Add the coeff * bit_gadget
-                            lc = lc + (coeff, bit.get_variable());
+                            lc += (coeff, bit.get_variable());
                         }
                         Boolean::Not(ref bit) => {
                             all_constants = false;
@@ -97,7 +97,7 @@ macro_rules! add_int_impl {
                         }
                         Boolean::Constant(bit) => {
                             if bit {
-                                lc = lc + (coeff, CS::one());
+                                lc += (coeff, CS::one());
                             }
                         }
                     }

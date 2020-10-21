@@ -35,6 +35,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_assign_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -57,7 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match assignee {
             Assignee::Identifier(_identifier) => {
                 let condition = indicator.unwrap_or(Boolean::Constant(true));
-                let old_value = self.get_mutable_assignee(variable_name.clone(), span.clone())?;
+                let old_value = self.get_mutable_assignee(variable_name, span.clone())?;
 
                 new_value.resolve_type(Some(old_value.to_type(span.clone())?), span.clone())?;
 
@@ -76,7 +77,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 function_scope,
                 indicator,
                 variable_name,
-                range_or_expression,
+                *range_or_expression,
                 new_value,
                 span,
             ),

@@ -146,7 +146,7 @@ impl ExpressionError {
     }
 
     pub fn self_keyword(span: Span) -> Self {
-        let message = format!("cannot call keyword `Self` outside of a circuit function");
+        let message = "cannot call keyword `Self` outside of a circuit function".to_string();
 
         Self::new_from_span(message, span)
     }

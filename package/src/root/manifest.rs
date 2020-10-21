@@ -139,7 +139,7 @@ impl TryFrom<&PathBuf> for Manifest {
             // Determine if the old remote format is being used
             if line.starts_with("remote") {
                 let remote = line
-                    .split("=") // Split the line as 'remote' = '"{author}/{package_name}"'
+                    .split('=') // Split the line as 'remote' = '"{author}/{package_name}"'
                     .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
                 old_remote_format = Some(remote);
 
@@ -182,7 +182,7 @@ impl TryFrom<&PathBuf> for Manifest {
             if !new_remote_format_exists {
                 // Fetch the author from the old remote.
                 let remote_author = old_remote
-                    .split("/") // Split the old remote as '"{author}' and '{package_name}"'
+                    .split('/') // Split the old remote as '"{author}' and '{package_name}"'
                     .collect::<Vec<&str>>()[0] // Fetch just the '"{author}'
                     .replace(&['\"', ' '][..], ""); // Remove the quotes from the author string
 

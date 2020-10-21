@@ -88,13 +88,13 @@ impl GroupError {
     }
 
     pub fn x_recover(span: Span) -> Self {
-        let message = format!("could not recover group element from x coordinate");
+        let message = "could not recover group element from x coordinate".to_string();
 
         Self::new_from_span(message, span)
     }
 
     pub fn y_recover(span: Span) -> Self {
-        let message = format!("could not recover group element from y coordinate");
+        let message = "could not recover group element from y coordinate".to_string();
 
         Self::new_from_span(message, span)
     }

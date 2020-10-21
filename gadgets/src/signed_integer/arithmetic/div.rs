@@ -206,13 +206,13 @@ macro_rules! div_int_impl {
                         &r
                     )?;
 
-                    index = index - 1;
+                    index -= 1;
 
                     let mut q_new = q.clone();
                     q_new.bits[index] = true_bit.clone();
                     q_new.value = Some(q_new.value.unwrap() + bit_value);
 
-                    bit_value = (bit_value >> 1);
+                    bit_value >>= 1;
 
                     q = Self::conditionally_select(
                         &mut cs.ns(|| format!("set_bit_or_same_{}", i)),

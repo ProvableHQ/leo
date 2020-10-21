@@ -52,14 +52,11 @@ impl CLI for UpdateCommand {
     ];
 
     fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
-        match arguments.subcommand() {
-            ("automatic", Some(arguments)) => {
-                // Run the `automatic` subcommand
-                let options = UpdateAutomatic::parse(arguments)?;
-                let _output = UpdateAutomatic::output(options)?;
-                return Ok(None);
-            }
-            _ => {}
+        if let ("automatic", Some(arguments)) = arguments.subcommand() {
+            // Run the `automatic` subcommand
+            let options = UpdateAutomatic::parse(arguments)?;
+            let _output = UpdateAutomatic::output(options)?;
+            return Ok(None);
         };
 
         let show_all_versions = arguments.is_present("list");

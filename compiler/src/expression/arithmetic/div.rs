@@ -45,11 +45,9 @@ pub fn enforce_div<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
             let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
             enforce_div(cs, val_1, val_2, span)
         }
-        (val_1, val_2) => {
-            return Err(ExpressionError::incompatible_types(
-                format!("{} / {}", val_1, val_2,),
-                span,
-            ));
-        }
+        (val_1, val_2) => Err(ExpressionError::incompatible_types(
+            format!("{} / {}", val_1, val_2,),
+            span,
+        )),
     }
 }

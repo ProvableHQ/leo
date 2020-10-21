@@ -27,7 +27,7 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Assignee {
     Identifier(Identifier),
-    Array(Box<Assignee>, RangeOrExpression),
+    Array(Box<Assignee>, Box<RangeOrExpression>),
     Tuple(Box<Assignee>, usize),
     CircuitField(Box<Assignee>, Identifier), // (circuit name, circuit field name)
 }
@@ -54,7 +54,7 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 AstAssigneeAccess::Array(array) => {
-                    Assignee::Array(Box::new(acc), RangeOrExpression::from(array.expression))
+                    Assignee::Array(Box::new(acc), Box::new(RangeOrExpression::from(array.expression)))
                 }
                 AstAssigneeAccess::Tuple(tuple) => {
                     Assignee::Tuple(Box::new(acc), Expression::get_count_from_ast(tuple.number))

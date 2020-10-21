@@ -59,7 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             let value = match matched_circuit {
                 Some((_circuit_name, circuit)) => ConstrainedValue::Import(
-                    program_name.clone(),
+                    program_name,
                     Box::new(ConstrainedValue::CircuitDefinition(circuit.clone())),
                 ),
                 None => {
@@ -71,7 +71,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                     match matched_function {
                         Some((_function_name, function)) => ConstrainedValue::Import(
-                            program_name.clone(),
+                            program_name,
                             Box::new(ConstrainedValue::Function(None, function.clone())),
                         ),
                         None => return Err(ImportError::unknown_symbol(symbol.to_owned(), program_name)),
@@ -80,7 +80,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             };
 
             // take the alias if it is present
-            let id = symbol.alias.clone().unwrap_or(symbol.symbol.clone());
+            let id = symbol.alias.clone().unwrap_or_else(|| symbol.symbol.clone());
             let name = new_scope(scope, id.to_string());
 
             // store imported circuit under imported name

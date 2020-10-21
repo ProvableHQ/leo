@@ -91,7 +91,7 @@ impl Config {
         let toml_string = match fs::read_to_string(&config_path) {
             Ok(mut toml) => {
                 // If the config is using an incorrect format, rewrite it.
-                if let Err(_) = toml::from_str::<Config>(&toml) {
+                if toml::from_str::<Config>(&toml).is_err() {
                     let default_config_string = toml::to_string(&Config::default())?;
                     fs::write(&config_path, default_config_string.clone())?;
                     toml = default_config_string;
@@ -131,7 +131,7 @@ pub fn write_token(token: &str) -> Result<(), io::Error> {
     let config_dir = LEO_CONFIG_DIRECTORY.clone();
 
     // Create Leo config directory if it not exists
-    if !Path::new(&config_dir.to_path_buf()).exists() {
+    if !Path::new(&config_dir).exists() {
         create_dir_all(&config_dir)?;
     }
 
