@@ -27,9 +27,7 @@ fn to_typed_ast(program_filepath: &PathBuf) -> LeoTypedAst {
     let ast = LeoAst::new(&program_filepath, &program_string).unwrap();
 
     // Parse the abstract syntax tree and constructs a typed syntax tree.
-    let typed_ast = LeoTypedAst::new("leo_typed_tree", &ast);
-
-    typed_ast
+    LeoTypedAst::new("leo_typed_tree", &ast)
 }
 
 #[test]

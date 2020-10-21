@@ -23,12 +23,12 @@ use std::{fs::File, io::Write, path::PathBuf};
 
 pub static GITIGNORE_FILENAME: &str = ".gitignore";
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct Gitignore;
 
 impl Gitignore {
     pub fn new() -> Self {
-        Self
+        Self::default()
     }
 
     pub fn exists_at(path: &PathBuf) -> bool {
@@ -50,9 +50,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        format!(
-            r#"outputs/
-"#,
-        )
+        "outputs/\n".to_string()
     }
 }

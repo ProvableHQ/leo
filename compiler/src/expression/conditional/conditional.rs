@@ -26,6 +26,7 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce ternary conditional expression
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -57,14 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             span.clone(),
         )?;
 
-        let second_value = self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            second,
-            span.clone(),
-        )?;
+        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span.clone())?;
 
         let unique_namespace = cs.ns(|| {
             format!(
@@ -74,6 +68,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         });
 
         ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce(format!("conditional select"), e, span))
+            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span))
     }
 }

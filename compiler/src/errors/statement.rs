@@ -67,13 +67,13 @@ impl StatementError {
     }
 
     pub fn array_assign_index(span: Span) -> Self {
-        let message = format!("Cannot assign single index to array of values");
+        let message = "Cannot assign single index to array of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
     pub fn array_assign_range(span: Span) -> Self {
-        let message = format!("Cannot assign range of array values to single value");
+        let message = "Cannot assign range of array values to single value".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -145,7 +145,7 @@ impl StatementError {
     }
 
     pub fn tuple_assign_index(span: Span) -> Self {
-        let message = format!("Cannot assign single index to tuple of values");
+        let message = "Cannot assign single index to tuple of values".to_string();
 
         Self::new_from_span(message, span)
     }

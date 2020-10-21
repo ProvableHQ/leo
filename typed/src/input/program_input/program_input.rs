@@ -20,18 +20,16 @@ use leo_input::{
     InputParserError,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramInput {
     pub main: MainInput,
     registers: Registers,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl ProgramInput {
     pub fn new() -> Self {
-        Self {
-            main: MainInput::new(),
-            registers: Registers::new(),
-        }
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.
@@ -67,6 +65,7 @@ impl ProgramInput {
     }
 
     /// Returns the main function input value with the given `name`
+    #[allow(clippy::ptr_arg)]
     pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.main.get(name)
     }

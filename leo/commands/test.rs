@@ -60,7 +60,7 @@ impl CLI for TestCommand {
         let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory
-        let mut package_path = path.clone();
+        let mut package_path = path;
         if package_path.is_file() {
             package_path.pop();
         }
@@ -92,17 +92,14 @@ impl CLI for TestCommand {
         let start = Instant::now();
 
         // Parse the current main program file
-        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
-            package_name.clone(),
-            file_path.clone(),
-            output_directory,
-        )?;
+        let program =
+            Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(package_name, file_path, output_directory)?;
 
         // Parse all inputs as input pairs
         let pairs = InputPairs::try_from(&package_path)?;
 
         // Run tests
-        let temporary_program = program.clone();
+        let temporary_program = program;
         let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
 
         // Drop "Test" context for console logging

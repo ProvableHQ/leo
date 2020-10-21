@@ -40,7 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Circuit definitions are located at the minimum file scope
-        let scopes: Vec<&str> = file_scope.split("_").collect();
+        let scopes: Vec<&str> = file_scope.split('_').collect();
         let mut program_identifier = new_scope(scopes[0].to_string(), identifier.to_string());
 
         if identifier.is_self() {
@@ -53,9 +53,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let circuit_identifier = circuit.circuit_name.clone();
-        let mut resolved_members = vec![];
+        let mut resolved_members = Vec::with_capacity(circuit.members.len());
 
-        for member in circuit.members.clone().into_iter() {
+        for member in circuit.members.into_iter() {
             match member {
                 CircuitMember::CircuitVariable(is_mutable, identifier, type_) => {
                     let matched_variable = members
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         Ok(ConstrainedValue::CircuitExpression(
-            circuit_identifier.clone(),
+            circuit_identifier,
             resolved_members,
         ))
     }

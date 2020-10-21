@@ -25,6 +25,7 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Call a default core circuit function with arguments
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -36,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the value of each core function argument
-        let mut argument_values = vec![];
+        let mut argument_values = Vec::with_capacity(arguments.len());
         for argument in arguments.into_iter() {
             let argument_value =
                 self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, argument)?;
@@ -49,10 +50,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let res = call_core_circuit(cs, core_circuit, argument_values, span.clone())?;
 
         // Convert the core function returns into constrained values
-        let returns = res
-            .into_iter()
-            .map(|value| ConstrainedValue::from(value))
-            .collect::<Vec<_>>();
+        let returns = res.into_iter().map(ConstrainedValue::from).collect::<Vec<_>>();
 
         let return_value = if returns.len() == 1 {
             // The function has a single return
@@ -72,6 +70,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        return Ok(return_value);
+        Ok(return_value)
     }
 }

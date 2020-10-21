@@ -55,7 +55,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         check_arguments_length(function.input.len(), input.len(), function.span.clone())?;
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.input.clone().iter().zip(input.into_iter()) {
+        for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 InputVariable::InputKeyword(identifier) => {
                     let input_value = self.enforce_function_input(

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{errors::ParserError, files::File, LeoAst};
+use leo_ast::LeoAst;
 use leo_typed::LeoTypedAst;
 
 use criterion::{criterion_group, criterion_main, Criterion};

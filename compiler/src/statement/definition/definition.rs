@@ -56,20 +56,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<Vec<ConstrainedValue<F, G>>, StatementError> {
         let types = match type_ {
             Some(Type::Tuple(types)) => types,
-            Some(type_) => return Err(StatementError::tuple_type(type_.to_string(), span.clone())),
+            Some(type_) => return Err(StatementError::tuple_type(type_.to_string(), span)),
             None => vec![],
         };
 
         let implicit_types = types.is_empty();
-        let mut expected_types = vec![];
+        let mut expected_types = Vec::with_capacity(expressions.len());
 
-        for i in 0..expressions.len() {
-            let expected_type = if implicit_types { None } else { Some(types[i].clone()) };
+        for ty in types.iter().take(expressions.len()) {
+            let expected_type = if implicit_types { None } else { Some(ty.clone()) };
 
             expected_types.push(expected_type);
         }
 
-        let mut values = vec![];
+        let mut values = Vec::with_capacity(expressions.len());
 
         for (expression, expected_type) in expressions.into_iter().zip(expected_types.into_iter()) {
             let value = self.enforce_expression(
@@ -86,6 +86,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(values)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn enforce_tuple_definition<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -135,6 +136,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -157,7 +159,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let variable = variables.names[0].clone();
             let expression = self.enforce_expression(
                 cs,
-                file_scope.clone(),
+                file_scope,
                 function_scope.clone(),
                 variables.type_,
                 expressions[0].clone(),
@@ -181,14 +183,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             let values = match self.enforce_expression(
                 cs,
-                file_scope.clone(),
+                file_scope,
                 function_scope.clone(),
                 variables.type_.clone(),
                 expressions[0].clone(),
             )? {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
+                value => return Err(StatementError::multiple_definition(value.to_string(), span)),
             };
 
             self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)

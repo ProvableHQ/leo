@@ -79,7 +79,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .add(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -88,7 +88,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .add_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
             )),
         }
     }
@@ -102,7 +102,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .sub(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation(format!("-"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -111,7 +111,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .sub_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
             )),
         }
     }
@@ -125,7 +125,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .mul(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation(format!("*"), e, span))?;
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -134,7 +134,7 @@ impl<F: Field + PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .mul_by_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation(format!("*"), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?,
             )),
         }
     }
@@ -144,14 +144,14 @@ impl<F: Field + PrimeField> FieldType<F> {
             FieldType::Constant(constant) => {
                 let constant_inverse = constant
                     .inverse()
-                    .ok_or(FieldError::no_inverse(constant.to_string(), span.clone()))?;
+                    .ok_or_else(|| FieldError::no_inverse(constant.to_string(), span.clone()))?;
 
                 FieldType::Constant(constant_inverse)
             }
             FieldType::Allocated(allocated) => {
                 let allocated_inverse = allocated
                     .inverse(&mut cs)
-                    .map_err(|e| FieldError::binary_operation(format!("+"), e, span.clone()))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.clone()))?;
 
                 FieldType::Allocated(allocated_inverse)
             }

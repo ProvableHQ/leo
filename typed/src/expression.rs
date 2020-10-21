@@ -92,7 +92,7 @@ pub enum Expression {
 
     // Arrays
     // (array_elements, span)
-    Array(Vec<Box<SpreadOrExpression>>, Span),
+    Array(Vec<SpreadOrExpression>, Span),
     // (array_name, range, span)
     ArrayAccess(Box<Expression>, Box<RangeOrExpression>, Span),
 
@@ -170,7 +170,7 @@ impl<'ast> Expression {
             InputArrayDimensions::Multiple(multiple) => multiple
                 .numbers
                 .into_iter()
-                .map(|number| Self::get_count_from_input_ast(number))
+                .map(Self::get_count_from_input_ast)
                 .collect(),
         }
     }
@@ -185,11 +185,7 @@ impl<'ast> Expression {
     pub(crate) fn get_array_dimensions(dimensions: ArrayDimensions<'ast>) -> Vec<usize> {
         match dimensions {
             ArrayDimensions::Single(single) => vec![Self::get_count_from_ast(single.number)],
-            ArrayDimensions::Multiple(multiple) => multiple
-                .numbers
-                .into_iter()
-                .map(|number| Self::get_count_from_ast(number))
-                .collect(),
+            ArrayDimensions::Multiple(multiple) => multiple.numbers.into_iter().map(Self::get_count_from_ast).collect(),
         }
     }
 }
@@ -301,7 +297,7 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
         let members = expression
             .members
             .into_iter()
-            .map(|member| CircuitVariableDefinition::from(member))
+            .map(CircuitVariableDefinition::from)
             .collect::<Vec<CircuitVariableDefinition>>();
 
         Expression::Circuit(circuit_name, members, Span::from(expression.span))
@@ -343,7 +339,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
                             .expressions
                             .expressions
                             .into_iter()
-                            .map(|expression| Expression::from(expression))
+                            .map(Expression::from)
                             .collect(),
                         span,
                     )
@@ -503,11 +499,7 @@ impl<'ast> From<TernaryExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
     fn from(array: ArrayInlineExpression<'ast>) -> Self {
         Expression::Array(
-            array
-                .expressions
-                .into_iter()
-                .map(|s_or_e| Box::new(SpreadOrExpression::from(s_or_e)))
-                .collect(),
+            array.expressions.into_iter().map(SpreadOrExpression::from).collect(),
             Span::from(array.span),
         )
     }
@@ -516,7 +508,7 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
         let dimensions = Expression::get_array_dimensions(array.dimensions);
-        let expression = Box::new(SpreadOrExpression::from(*array.expression));
+        let expression = SpreadOrExpression::from(*array.expression);
 
         let mut elements = vec![];
 
@@ -527,10 +519,8 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
             if i == 0 {
                 elements = vec![expression.clone(); dimension];
             } else {
-                let element = Box::new(SpreadOrExpression::Expression(Expression::Array(
-                    elements,
-                    Span::from(array.span.clone()),
-                )));
+                let element =
+                    SpreadOrExpression::Expression(Expression::Array(elements, Span::from(array.span.clone())));
 
                 elements = vec![element; dimension];
             }
@@ -543,7 +533,7 @@ impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
 impl<'ast> From<TupleExpression<'ast>> for Expression {
     fn from(tuple: TupleExpression<'ast>) -> Self {
         Expression::Tuple(
-            tuple.expressions.into_iter().map(|e| Expression::from(e)).collect(),
+            tuple.expressions.into_iter().map(Expression::from).collect(),
             Span::from(tuple.span),
         )
     }

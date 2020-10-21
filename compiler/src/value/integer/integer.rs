@@ -157,7 +157,7 @@ impl Integer {
         let unsigned_integer = self;
         let value_option: Option<String> = match_unsigned_integer!(unsigned_integer => unsigned_integer.get_value());
 
-        let value = value_option.ok_or(IntegerError::invalid_index(span.clone()))?;
+        let value = value_option.ok_or_else(|| IntegerError::invalid_index(span.clone()))?;
         let value_usize = value
             .parse::<usize>()
             .map_err(|_| IntegerError::invalid_integer(value, span))?;
@@ -378,7 +378,7 @@ impl Integer {
 
         let result = match_signed_integer!(a, s => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or(IntegerError::negate_operation(span))
+        result.ok_or_else(|| IntegerError::negate_operation(span))
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -395,7 +395,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), s => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("+"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span))
     }
 
     pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -412,7 +412,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), s => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("-"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span))
     }
 
     pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -429,7 +429,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), s => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("*"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span))
     }
 
     pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -446,7 +446,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("÷"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span))
     }
 
     pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
@@ -463,7 +463,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), s => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("**"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("**".to_string(), span))
     }
 }
 

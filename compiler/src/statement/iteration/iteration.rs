@@ -17,12 +17,13 @@
 //! Enforces an iteration statement in a compiled Leo program.
 
 use crate::{
-    errors::StatementError,
     new_scope,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
+    IndicatorAndConstrainedValue,
     Integer,
+    StatementResult,
 };
 use leo_typed::{Expression, Identifier, Span, Statement, Type};
 
@@ -35,6 +36,7 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -47,7 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statements: Vec<Statement>,
         return_type: Option<Type>,
         span: Span,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
         let from = self.enforce_index(cs, file_scope.clone(), function_scope.clone(), start, span.clone())?;

@@ -39,11 +39,11 @@ pub struct ConditionalStatement<'ast> {
 
 impl<'ast> fmt::Display for ConditionalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {{\n", self.condition)?;
-        write!(f, "\t{:#?}\n", self.statements)?;
+        writeln!(f, "if ({}) {{", self.condition)?;
+        writeln!(f, "\t{:#?}", self.statements)?;
         self.next
             .as_ref()
             .map(|n_or_e| write!(f, "}} {}", n_or_e))
-            .unwrap_or(write!(f, "}}"))
+            .unwrap_or_else(|| write!(f, "}}"))
     }
 }
