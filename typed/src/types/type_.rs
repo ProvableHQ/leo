@@ -45,17 +45,11 @@ pub enum Type {
 
 impl Type {
     pub fn is_self(&self) -> bool {
-        if let Type::SelfType = self {
-            return true;
-        }
-        false
+        matches!(self, Type::SelfType)
     }
 
     pub fn is_circuit(&self) -> bool {
-        if let Type::Circuit(_) = self {
-            return true;
-        }
-        false
+        matches!(self, Type::Circuit(_))
     }
 
     pub fn match_array_types(&self, other: &Type) -> bool {
