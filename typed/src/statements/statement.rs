@@ -58,7 +58,7 @@ impl<'ast> From<DefinitionStatement<'ast>> for Statement {
             .into_iter()
             .map(|e| {
                 let mut expression = Expression::from(e);
-                expression.set_span(&span);
+                expression.set_span(span.clone());
 
                 expression
             })
@@ -155,7 +155,7 @@ impl<'ast> From<ExpressionStatement<'ast>> for Statement {
         let span = Span::from(statement.span);
         let mut expression = Expression::from(statement.expression);
 
-        expression.set_span(&span);
+        expression.set_span(span.clone());
 
         Statement::Expression(expression, span)
     }
