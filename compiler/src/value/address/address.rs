@@ -60,13 +60,7 @@ impl Address {
     }
 
     pub(crate) fn is_constant(&self) -> bool {
-        let mut result = true;
-
-        for byte in self.bytes.iter() {
-            result = result && byte.is_constant()
-        }
-
-        result
+        self.bytes.iter().all(|byte| byte.is_constant())
     }
 
     pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
