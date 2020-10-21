@@ -27,7 +27,7 @@ fn parse_import_file(entry: &DirEntry, span: &Span) -> Result<Program, ImportErr
     // make sure the given entry is file
     let file_type = entry
         .file_type()
-        .map_err(|error| ImportError::directory_error(error, span.clone(), entry.path()))?;
+        .map_err(|error| ImportError::directory_error(error, span.clone(), &entry.path()))?;
     let file_name = entry
         .file_name()
         .into_string()
@@ -92,7 +92,7 @@ impl ImportParser {
             Ok(())
         } else {
             // importing * from a directory or non-leo file in `package/src/` is illegal
-            Err(ImportError::star(entry.path(), span.clone()))
+            Err(ImportError::star(&entry.path(), span.clone()))
         }
     }
 

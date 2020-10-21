@@ -19,7 +19,7 @@ use crate::{
     InputsDirectoryError,
 };
 
-use std::{collections::HashMap, convert::TryFrom, path::PathBuf};
+use std::{collections::HashMap, convert::TryFrom, path::Path};
 
 #[derive(Default)]
 pub struct InputPairs {
@@ -38,10 +38,10 @@ impl InputPairs {
     }
 }
 
-impl TryFrom<&PathBuf> for InputPairs {
+impl TryFrom<&Path> for InputPairs {
     type Error = InputsDirectoryError;
 
-    fn try_from(directory: &PathBuf) -> Result<Self, Self::Error> {
+    fn try_from(directory: &Path) -> Result<Self, Self::Error> {
         let files = InputsDirectory::files(directory)?;
 
         let mut pairs = HashMap::<String, InputPair>::new();

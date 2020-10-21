@@ -28,7 +28,11 @@ use pest::{
     error::{Error, ErrorVariant},
     Span,
 };
-use std::{num::ParseIntError, path::PathBuf, str::ParseBoolError};
+use std::{
+    num::ParseIntError,
+    path::{Path, PathBuf},
+    str::ParseBoolError,
+};
 
 #[derive(Debug, Error)]
 pub enum InputParserError {
@@ -52,7 +56,7 @@ pub enum InputParserError {
 }
 
 impl InputParserError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         if let InputParserError::SyntaxError(error) = self {
             let new_error: Error<Rule> = match error {
                 InputSyntaxError::Error(error) => {
@@ -74,7 +78,7 @@ impl InputParserError {
     }
 
     pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
-        let message = format!("expected `{}`, found `{}`", data_type.to_string(), implicit.to_string());
+        let message = format!("expected `{}`, found `{}`", data_type, implicit);
 
         Self::new_from_span(message, implicit.span().clone())
     }
@@ -86,22 +90,14 @@ impl InputParserError {
     }
 
     pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
-        let message = format!(
-            "expected data type `{}`, found `{}`",
-            data_type.to_string(),
-            value.to_string()
-        );
+        let message = format!("expected data type `{}`, found `{}`", data_type, value);
         let span = value.span().to_owned();
 
         Self::new_from_span(message, span)
     }
 
     pub fn expression_type_mismatch(type_: Type, expression: Expression) -> Self {
-        let message = format!(
-            "expected expression type `{}`, found `{}`",
-            type_.to_string(),
-            expression.to_string()
-        );
+        let message = format!("expected expression type `{}`, found `{}`", type_, expression);
         let span = expression.span().to_owned();
 
         Self::new_from_span(message, span)

@@ -20,9 +20,10 @@ use crate::{errors::ProofFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
-    path::PathBuf,
+    path::Path,
 };
 
 pub static PROOF_FILE_EXTENSION: &str = ".proof";
@@ -39,21 +40,21 @@ impl ProofFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
     /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &PathBuf) -> Result<String, ProofFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, ProofFileError> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.clone()))?;
+        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.into_owned()))?;
         Ok(proof)
     }
 
     /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &PathBuf, proof: &[u8]) -> Result<(), ProofFileError> {
+    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<(), ProofFileError> {
         let path = self.setup_file_path(path);
 
         let mut file = File::create(&path)?;
@@ -66,23 +67,24 @@ impl ProofFile {
 
     /// Removes the proof at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ProofFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ProofFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION)));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION));
         }
         path
     }

@@ -217,15 +217,11 @@ impl fmt::Display for Type {
             Type::Circuit(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => {
-                let dimensions = dimensions
-                    .iter()
-                    .map(|x| format!("{}", x))
-                    .collect::<Vec<_>>()
-                    .join(", ");
+                let dimensions = dimensions.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
                 write!(f, "[{}; ({})]", *array, dimensions)
             }
             Type::Tuple(ref tuple) => {
-                let types = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", types)
             }

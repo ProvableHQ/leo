@@ -27,7 +27,7 @@ use crate::errors::{
 };
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum FunctionError {
@@ -63,7 +63,7 @@ pub enum FunctionError {
 }
 
 impl FunctionError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             FunctionError::AddressError(error) => error.set_path(path),
             FunctionError::BooleanError(error) => error.set_path(path),

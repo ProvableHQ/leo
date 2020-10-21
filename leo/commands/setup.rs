@@ -62,7 +62,7 @@ impl CLI for SetupCommand {
     fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         // Get the package name
         let path = current_dir()?;
-        let package_name = Manifest::try_from(&path)?.get_package_name();
+        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
 
         match BuildCommand::output(options)? {
             Some((program, checksum_differs)) => {

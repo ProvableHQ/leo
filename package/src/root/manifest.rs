@@ -18,10 +18,11 @@ use crate::{errors::ManifestError, package::Package};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
-    path::PathBuf,
+    path::Path,
 };
 
 pub const MANIFEST_FILENAME: &str = "Leo.toml";
@@ -49,10 +50,10 @@ impl Manifest {
         MANIFEST_FILENAME.to_string()
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
         path.exists()
     }
@@ -77,10 +78,10 @@ impl Manifest {
         self.remote.clone()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
-        let mut path = path.to_owned();
+    pub fn write_to(self, path: &Path) -> Result<(), ManifestError> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
 
         let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
@@ -104,13 +105,13 @@ author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or or
     }
 }
 
-impl TryFrom<&PathBuf> for Manifest {
+impl TryFrom<&Path> for Manifest {
     type Error = ManifestError;
 
-    fn try_from(path: &PathBuf) -> Result<Self, Self::Error> {
-        let mut path = path.to_owned();
+    fn try_from(path: &Path) -> Result<Self, Self::Error> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
 
         let mut file = File::open(path.clone()).map_err(|error| ManifestError::Opening(MANIFEST_FILENAME, error))?;

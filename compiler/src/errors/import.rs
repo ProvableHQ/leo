@@ -18,7 +18,7 @@ use leo_ast::ParserError;
 use leo_typed::{Error as FormattedError, Identifier, ImportSymbol, Span};
 
 use leo_core::LeoCoreError;
-use std::{io, path::PathBuf};
+use std::{io, path::Path};
 
 #[derive(Debug, Error)]
 pub enum ImportError {
@@ -37,7 +37,7 @@ impl ImportError {
         ImportError::Error(FormattedError::new_from_span(message, span))
     }
 
-    fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+    fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
         ImportError::Error(FormattedError::new_from_span_with_path(message, span, path))
     }
 
@@ -65,13 +65,13 @@ impl ImportError {
         Self::new_from_span(message, span)
     }
 
-    pub fn directory_error(error: io::Error, span: Span, path: PathBuf) -> Self {
+    pub fn directory_error(error: io::Error, span: Span, path: &Path) -> Self {
         let message = format!("compilation failed due to directory error - {:?}", error);
 
         Self::new_from_span_with_path(message, span, path)
     }
 
-    pub fn star(path: PathBuf, span: Span) -> Self {
+    pub fn star(path: &Path, span: Span) -> Self {
         let message = format!("cannot import `*` from path `{:?}`", path);
 
         Self::new_from_span(message, span)

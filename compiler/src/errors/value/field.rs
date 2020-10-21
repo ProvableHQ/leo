@@ -17,7 +17,7 @@
 use leo_typed::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum FieldError {
@@ -26,7 +26,7 @@ pub enum FieldError {
 }
 
 impl FieldError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             FieldError::Error(error) => error.set_path(path),
         }

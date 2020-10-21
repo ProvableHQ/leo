@@ -43,7 +43,7 @@ impl<'ast> fmt::Display for DefinitionStatement<'ast> {
         let expressions = self
             .expressions
             .iter()
-            .map(|x| format!("{}", x))
+            .map(|x| x.to_string())
             .collect::<Vec<_>>()
             .join(",");
 

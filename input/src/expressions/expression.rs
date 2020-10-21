@@ -50,7 +50,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 let values = array
                     .expressions
                     .iter()
-                    .map(|x| format!("{}", x))
+                    .map(|x| x.to_string())
                     .collect::<Vec<_>>()
                     .join(", ");
 
@@ -60,7 +60,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
                 let values = tuple
                     .expressions
                     .iter()
-                    .map(|x| format!("{}", x))
+                    .map(|x| x.to_string())
                     .collect::<Vec<_>>()
                     .join(", ");
 

@@ -30,6 +30,6 @@ pub enum READMEError {
 
 impl From<std::io::Error> for READMEError {
     fn from(error: std::io::Error) -> Self {
-        READMEError::Crate("std::io", format!("{}", error))
+        READMEError::Crate("std::io", error.to_string())
     }
 }

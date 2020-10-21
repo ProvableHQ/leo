@@ -16,11 +16,12 @@
 
 use leo_ast::LeoAst;
 
-use criterion::{criterion_group, criterion_main, Criterion};
-use std::path::{Path, PathBuf};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use std::path::Path;
 
-fn leo_ast<'ast>(filepath: &'ast PathBuf, program_string: &'ast str) -> LeoAst<'ast> {
-    LeoAst::<'ast>::new(filepath, program_string).unwrap()
+fn leo_ast<'ast>(filepath: &'ast Path, program_string: &'ast str) {
+    let result = LeoAst::<'ast>::new(filepath, program_string).unwrap();
+    black_box(result);
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

@@ -45,7 +45,7 @@ pub(crate) mod span;
 pub(crate) use span::*;
 
 use from_pest::FromPest;
-use std::{fs, path::PathBuf};
+use std::{fs, path::Path};
 
 pub struct LeoAst<'ast> {
     ast: files::File<'ast>,
@@ -53,7 +53,7 @@ pub struct LeoAst<'ast> {
 
 impl<'ast> LeoAst<'ast> {
     /// Creates a new abstract syntax tree given the file path.
-    pub fn new(file_path: &'ast PathBuf, program_string: &'ast str) -> Result<Self, ParserError> {
+    pub fn new(file_path: &'ast Path, program_string: &'ast str) -> Result<Self, ParserError> {
         // TODO (howardwu): Turn this check back on after fixing the testing module.
         // assert_eq!(program_string, fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.clone()))?);
 
@@ -71,8 +71,8 @@ impl<'ast> LeoAst<'ast> {
     // TODO (howardwu): Remove this in favor of a dedicated file loader to verify checksums
     //  and maintain a global cache of program strings during the compilation process.
     /// Loads the Leo code as a string from the given file path.
-    pub fn load_file(file_path: &'ast PathBuf) -> Result<String, ParserError> {
-        Ok(fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.clone()))?)
+    pub fn load_file(file_path: &'ast Path) -> Result<String, ParserError> {
+        Ok(fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.to_owned()))?)
     }
 
     /// Returns a reference to the inner abstract syntax tree representation.

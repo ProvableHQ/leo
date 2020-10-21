@@ -30,6 +30,6 @@ pub enum LibraryFileError {
 
 impl From<std::io::Error> for LibraryFileError {
     fn from(error: std::io::Error) -> Self {
-        LibraryFileError::Crate("std::io", format!("{}", error))
+        LibraryFileError::Crate("std::io", error.to_string())
     }
 }

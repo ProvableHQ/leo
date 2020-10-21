@@ -75,7 +75,7 @@ impl CLI for PublishCommand {
 
         // Get the package manifest
         let path = current_dir()?;
-        let package_manifest = Manifest::try_from(&path)?;
+        let package_manifest = Manifest::try_from(path.as_path())?;
 
         let package_name = package_manifest.get_package_name();
         let package_version = package_manifest.get_package_version();

@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 // Save a reference to the circuit we are mutating.
                 let circuit_id_string = circuit_identifier.to_string();
-                let declared_circuit_reference = new_scope(&function_scope, &circuit_id_string);
+                let declared_circuit_reference = new_scope(function_scope.clone(), &circuit_id_string);
 
                 (
                     declared_circuit_reference,

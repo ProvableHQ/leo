@@ -159,7 +159,7 @@ impl_cli_error!(
 impl From<clap::Error> for CLIError {
     fn from(error: clap::Error) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("clap", format!("{}", error))
+        CLIError::Crate("clap", error.to_string())
     }
 }
 
@@ -180,34 +180,34 @@ impl From<leo_input::errors::InputParserError> for CLIError {
 impl From<reqwest::Error> for CLIError {
     fn from(error: reqwest::Error) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("rewquest", format!("{}", error))
+        CLIError::Crate("rewquest", error.to_string())
     }
 }
 
 impl From<snarkos_errors::algorithms::snark::SNARKError> for CLIError {
     fn from(error: snarkos_errors::algorithms::snark::SNARKError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("snarkos_errors", format!("{}", error))
+        CLIError::Crate("snarkos_errors", error.to_string())
     }
 }
 
 impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
     fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("snarkos_errors", format!("{}", error))
+        CLIError::Crate("snarkos_errors", error.to_string())
     }
 }
 
 impl From<serde_json::error::Error> for CLIError {
     fn from(error: serde_json::error::Error) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("serde_json", format!("{}", error))
+        CLIError::Crate("serde_json", error.to_string())
     }
 }
 
 impl From<std::io::Error> for CLIError {
     fn from(error: std::io::Error) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("std::io", format!("{}", error))
+        CLIError::Crate("std::io", error.to_string())
     }
 }

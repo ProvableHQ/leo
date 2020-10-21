@@ -30,6 +30,6 @@ pub enum GitignoreError {
 
 impl From<std::io::Error> for GitignoreError {
     fn from(error: std::io::Error) -> Self {
-        GitignoreError::Crate("std::io", format!("{}", error))
+        GitignoreError::Crate("std::io", error.to_string())
     }
 }

@@ -36,6 +36,6 @@ pub enum CircuitFileError {
 
 impl From<std::io::Error> for CircuitFileError {
     fn from(error: std::io::Error) -> Self {
-        CircuitFileError::Crate("std::io", format!("{}", error))
+        CircuitFileError::Crate("std::io", error.to_string())
     }
 }

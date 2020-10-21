@@ -16,7 +16,11 @@
 
 use crate::errors::SourceDirectoryError;
 
-use std::{fs, path::PathBuf};
+use std::{
+    borrow::Cow,
+    fs,
+    path::{Path, PathBuf},
+};
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
@@ -26,19 +30,19 @@ pub struct SourceDirectory;
 
 impl SourceDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &PathBuf) -> Result<(), SourceDirectoryError> {
-        let mut path = path.to_owned();
+    pub fn create(path: &Path) -> Result<(), SourceDirectoryError> {
+        let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
-            path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+            path.to_mut().push(SOURCE_DIRECTORY_NAME);
         }
 
         fs::create_dir_all(&path).map_err(SourceDirectoryError::Creating)
     }
 
     /// Returns a list of files in the source directory.
-    pub fn files(path: &PathBuf) -> Result<Vec<PathBuf>, SourceDirectoryError> {
-        let mut path = path.to_owned();
-        path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>, SourceDirectoryError> {
+        let mut path = Cow::from(path);
+        path.to_mut().push(SOURCE_DIRECTORY_NAME);
         let directory = fs::read_dir(&path).map_err(SourceDirectoryError::Reading)?;
 
         let mut file_paths = Vec::new();

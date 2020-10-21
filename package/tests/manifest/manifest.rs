@@ -23,7 +23,7 @@ use std::{
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 const OLD_MANIFEST_FORMAT: &str = r#"[package]
@@ -46,7 +46,7 @@ const NEW_PROJECT_FORMAT: &str = "[project]";
 fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
     let mut path = path;
     if path.is_dir() {
-        path.push(PathBuf::from(MANIFEST_FILENAME));
+        path.push(MANIFEST_FILENAME);
     }
 
     let mut file = File::create(&path).unwrap();
@@ -56,8 +56,8 @@ fn create_outdated_manifest_file(path: PathBuf) -> PathBuf {
 }
 
 /// Read the manifest file into a string.
-fn read_manifest_file(path: &PathBuf) -> String {
-    let mut file = File::open(path.clone()).unwrap();
+fn read_manifest_file(path: &Path) -> String {
+    let mut file = File::open(path).unwrap();
     let size = file.metadata().unwrap().len() as usize;
 
     let mut buffer = String::with_capacity(size);
@@ -67,7 +67,7 @@ fn read_manifest_file(path: &PathBuf) -> String {
 }
 
 /// Read the manifest file and check that the remote format is updated.
-fn remote_is_updated(path: &PathBuf) -> bool {
+fn remote_is_updated(path: &Path) -> bool {
     let manifest_string = read_manifest_file(&path);
     for line in manifest_string.lines() {
         if line.starts_with("remote") {
@@ -79,7 +79,7 @@ fn remote_is_updated(path: &PathBuf) -> bool {
 }
 
 /// Read the manifest file and check that the project format is updated.
-fn project_is_updated(path: &PathBuf) -> bool {
+fn project_is_updated(path: &Path) -> bool {
     let manifest_string = read_manifest_file(&path);
 
     !manifest_string.contains(OLD_PROJECT_FORMAT) && manifest_string.contains(NEW_PROJECT_FORMAT)
@@ -96,7 +96,7 @@ fn test_manifest_no_refactors() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has NOT been updated.
     assert!(!project_is_updated(&manifest_path));
@@ -116,7 +116,7 @@ fn test_manifest_refactor_remote() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has NOT been updated.
     assert!(!project_is_updated(&manifest_path));
@@ -136,7 +136,7 @@ fn test_manifest_refactor_project() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has been updated.
     assert!(project_is_updated(&manifest_path));
@@ -159,7 +159,7 @@ fn test_manifest_refactors() {
     let manifest_path = create_outdated_manifest_file(test_directory);
 
     // Load the manifest file, and discard the new struct.
-    let _manifest = Manifest::try_from(&manifest_path).unwrap();
+    let _manifest = Manifest::try_from(manifest_path.as_path()).unwrap();
 
     // Check that the manifest file project has been updated.
     assert!(project_is_updated(&manifest_path));

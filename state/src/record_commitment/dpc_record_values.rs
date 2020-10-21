@@ -58,7 +58,7 @@ impl TryFrom<&TypedRecord> for DPCRecordValues {
 
         // Lookup record owner
         let owner_value = find_input(OWNER_PARAMETER_STRING.to_owned(), &parameters)?;
-        let owner = AccountAddress::<Components>::from_str(&format!("{}", owner_value))?;
+        let owner = AccountAddress::<Components>::from_str(&owner_value.to_string())?;
 
         // Lookup record is_dummy
         let is_dummy_value = find_input(IS_DUMMY_PARAMETER_STRING.to_owned(), &parameters)?;

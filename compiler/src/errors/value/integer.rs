@@ -18,7 +18,7 @@ use leo_gadgets::errors::SignedIntegerError;
 use leo_typed::{error::Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum IntegerError {
@@ -27,7 +27,7 @@ pub enum IntegerError {
 }
 
 impl IntegerError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             IntegerError::Error(error) => error.set_path(path),
         }

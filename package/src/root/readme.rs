@@ -19,7 +19,7 @@
 use crate::errors::READMEError;
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static README_FILENAME: &str = "README.md";
 
@@ -39,18 +39,18 @@ impl README {
         self.package_name.clone()
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(README_FILENAME));
+            path.to_mut().push(README_FILENAME);
         }
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), READMEError> {
-        let mut path = path.to_owned();
+    pub fn write_to(self, path: &Path) -> Result<(), READMEError> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(README_FILENAME));
+            path.to_mut().push(README_FILENAME);
         }
 
         let mut file = File::create(&path)?;
