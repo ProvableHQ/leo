@@ -53,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let circuit_identifier = circuit.circuit_name.clone();
-        let mut resolved_members = vec![];
+        let mut resolved_members = Vec::with_capacity(circuit.members.len());
 
         for member in circuit.members.into_iter() {
             match member {

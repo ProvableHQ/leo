@@ -123,7 +123,7 @@ impl InputValue {
             Type::Array(array_type)
         };
 
-        let mut elements = vec![];
+        let mut elements = Vec::with_capacity(inline.expressions.len());
         for expression in inline.expressions.into_iter() {
             let element = InputValue::from_expression(inner_array_type.clone(), expression)?;
 
@@ -229,7 +229,7 @@ impl InputValue {
             ));
         }
 
-        let mut values = vec![];
+        let mut values = Vec::with_capacity(tuple_type.types_.len());
         for (type_, value) in tuple_type.types_.into_iter().zip(tuple.expressions.into_iter()) {
             let value = InputValue::from_expression(type_, value)?;
 

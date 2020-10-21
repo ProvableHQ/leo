@@ -84,7 +84,7 @@ macro_rules! mul_int_impl {
                     a_shifted.truncate(size);
 
                     // conditionally add
-                    let mut to_add = vec![];
+                    let mut to_add = Vec::with_capacity(a_shifted.len());
                     for (j, a_bit) in a_shifted.iter().enumerate() {
                         let selected_bit = Boolean::conditionally_select(
                             &mut cs.ns(|| format!("select product bit {} {}", i, j)),
@@ -175,7 +175,7 @@ macro_rules! mul_int_impl {
                 }
 
                 // Storage area for the resulting bits
-                let mut result_bits = vec![];
+                let mut result_bits = Vec::with_capacity(max_bits);
 
                 // Allocate each bit_gadget of the result
                 let mut coeff = F::one();

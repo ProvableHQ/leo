@@ -34,15 +34,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statements: Vec<Statement>,
         return_type: Option<Type>,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
-        let mut results = vec![];
+        let mut results = Vec::with_capacity(statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
-        for statement in statements.iter() {
+        for statement in statements.into_iter() {
             let mut value = self.enforce_statement(
                 cs,
                 file_scope.clone(),
                 function_scope.clone(),
                 indicator,
-                statement.clone(),
+                statement,
                 return_type.clone(),
                 "".to_owned(),
             )?;

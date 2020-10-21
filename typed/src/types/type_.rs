@@ -82,8 +82,7 @@ impl Type {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[1..]);
+            let next = dimensions[1..].to_vec();
 
             return Type::Array(Box::new(type_), next);
         }
@@ -95,8 +94,7 @@ impl Type {
         let type_ = self.clone();
 
         if dimensions.len() > 1 {
-            let mut next = vec![];
-            next.extend_from_slice(&dimensions[..dimensions.len() - 1]);
+            let next = dimensions[..dimensions.len() - 1].to_vec();
 
             return Type::Array(Box::new(type_), next);
         }

@@ -158,7 +158,7 @@ fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>
         return Err(CoreCircuitError::array_length(size, array_value.len(), span));
     }
 
-    let mut array_bytes = vec![];
+    let mut array_bytes = Vec::with_capacity(array_value.len());
 
     for value in array_value {
         let byte = match value {

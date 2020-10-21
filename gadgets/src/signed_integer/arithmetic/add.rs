@@ -117,7 +117,7 @@ macro_rules! add_int_impl {
                 }
 
                 // Storage area for the resulting bits
-                let mut result_bits = vec![];
+                let mut result_bits = Vec::with_capacity(max_bits);
 
                 // Allocate each bit_gadget of the result
                 let mut coeff = F::one();

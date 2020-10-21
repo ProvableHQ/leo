@@ -37,7 +37,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the value of each core function argument
-        let mut argument_values = vec![];
+        let mut argument_values = Vec::with_capacity(arguments.len());
         for argument in arguments.into_iter() {
             let argument_value =
                 self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, argument)?;
