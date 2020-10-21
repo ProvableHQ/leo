@@ -252,6 +252,7 @@ impl Frame {
                 self.parse_definition(declare, variables, expression, span)
             }
             UnresolvedStatement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
+            UnresolvedStatement::Expression(expression, span) => self.parse_statement_expression(expression, span),
             statement => unimplemented!("statement {} not implemented", statement),
         }
     }
@@ -325,8 +326,21 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from an assignment statement.
     ///
-    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) {
-        //
+    fn parse_assign(&mut self, _assignee: &Assignee, _expression: &Expression, _span: &Span) {
+        // TODO (collinc97) impl locations.
+    }
+
+    ///
+    /// Asserts that the statement `UnresolvedExpression` returns an empty tuple.
+    ///
+    fn parse_statement_expression(&mut self, expression: &Expression, _span: &Span) {
+        // Create empty tuple type.
+        let expected_type = Type::Tuple(Vec::with_capacity(0));
+
+        // Parse the actual type of the expression.
+        let actual_type = self.parse_expression(expression);
+
+        self.assert_equal(expected_type, actual_type);
     }
 
     ///
