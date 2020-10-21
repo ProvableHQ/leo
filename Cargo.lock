@@ -1297,6 +1297,7 @@ dependencies = [
 name = "leo-gadgets"
 version = "1.0.3"
 dependencies = [
+ "criterion",
  "rand",
  "rand_xorshift",
  "snarkos-errors",
