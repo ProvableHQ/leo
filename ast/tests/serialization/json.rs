@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
-
-use std::path::PathBuf;
-
 #[test]
 #[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
+    use leo_ast::LeoAst;
+    use std::path::PathBuf;
+
     let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     program_filepath.push("tests/serialization/main.leo");
 

@@ -18,10 +18,7 @@ use leo_ast::LeoAst;
 use leo_typed::LeoTypedAst;
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use std::{
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use std::{path::Path, time::Duration};
 
 fn leo_typed_ast<'ast>(ast: &LeoAst<'ast>) -> LeoTypedAst {
     LeoTypedAst::new("leo_typed_tree", &ast)

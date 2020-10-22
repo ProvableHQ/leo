@@ -32,11 +32,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         expected_type: Option<Type>,
-        tuple: Box<Expression>,
+        tuple: Expression,
         index: usize,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let tuple = match self.enforce_operand(cs, file_scope, function_scope, expected_type, *tuple, &span)? {
+        let tuple = match self.enforce_operand(cs, file_scope, function_scope, expected_type, tuple, &span)? {
             ConstrainedValue::Tuple(tuple) => tuple,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };

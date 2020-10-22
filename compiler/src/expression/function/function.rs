@@ -32,17 +32,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         expected_type: Option<Type>,
-        function: Box<Expression>,
+        function: Expression,
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (declared_circuit_reference, function_value) = match *function {
+        let (declared_circuit_reference, function_value) = match function {
             Expression::CircuitMemberAccess(circuit_identifier, circuit_member, span) => {
                 // Call a circuit function that can mutate self.
 
                 // Save a reference to the circuit we are mutating.
                 let circuit_id_string = circuit_identifier.to_string();
-                let declared_circuit_reference = new_scope(function_scope.clone(), &circuit_id_string);
+                let declared_circuit_reference = new_scope(function_scope, &circuit_id_string);
 
                 (
                     declared_circuit_reference,
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         file_scope,
                         function_scope,
                         expected_type,
-                        circuit_identifier,
+                        *circuit_identifier,
                         circuit_member,
                         span,
                     )?,

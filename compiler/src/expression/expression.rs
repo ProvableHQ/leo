@@ -261,7 +261,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
             }
             Expression::TupleAccess(tuple, index, span) => {
-                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, tuple, index, &span)
+                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, *tuple, index, &span)
             }
 
             // Circuits
@@ -273,7 +273,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 file_scope,
                 function_scope,
                 expected_type,
-                circuit_variable,
+                *circuit_variable,
                 circuit_member,
                 span,
             ),
@@ -283,7 +283,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     file_scope,
                     function_scope,
                     expected_type,
-                    circuit_identifier,
+                    *circuit_identifier,
                     circuit_member,
                     span,
                 ),
@@ -294,7 +294,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 file_scope,
                 function_scope,
                 expected_type,
-                function,
+                *function,
                 arguments,
                 span,
             ),
