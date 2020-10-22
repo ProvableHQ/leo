@@ -53,7 +53,8 @@ macro_rules! eq_gadget_impl {
 
         impl PartialEq for $gadget {
             fn eq(&self, other: &Self) -> bool {
-                !self.value.is_none() && !other.value.is_none() && self.value == other.value
+                // self.value == other.value means that other.value.is_some() too
+                self.value.is_some() && self.value == other.value
             }
         }
 
