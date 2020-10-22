@@ -100,7 +100,7 @@ version = "0.13.0"
 version = "0.15.0"
 
 [dependencies.env_logger]
-version = "0.7"
+version = "0.8"
 
 [dependencies.from-pest]
 version = "0.3.1"
