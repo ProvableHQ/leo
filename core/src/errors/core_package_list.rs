@@ -17,7 +17,7 @@
 use leo_typed::{Error as FormattedError, ImportSymbol, Span};
 
 use crate::CorePackageError;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum CorePackageListError {
@@ -29,7 +29,7 @@ pub enum CorePackageListError {
 }
 
 impl CorePackageListError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             CorePackageListError::CorePackageError(error) => error.set_path(path),
             CorePackageListError::Error(error) => error.set_path(path),
@@ -48,7 +48,7 @@ impl CorePackageListError {
     }
 
     pub fn core_package_star(span: Span) -> Self {
-        let message = format!("Cannot import star from leo-core");
+        let message = "Cannot import star from leo-core".to_string();
 
         Self::new_from_span(message, span)
     }

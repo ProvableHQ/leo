@@ -114,7 +114,7 @@ impl CLI for AddCommand {
 
         let path = current_dir()?;
         // Enforce that the current directory is a leo package
-        Manifest::try_from(&path)?;
+        Manifest::try_from(path.as_path())?;
 
         let (response, package_name) = match options {
             (Some(author), Some(package_name), version) => {
@@ -167,7 +167,7 @@ impl CLI for AddCommand {
             let mut file_path = path.clone();
             file_path.push(file_name);
 
-            if file_name.ends_with("/") {
+            if file_name.ends_with('/') {
                 create_dir_all(file_path)?;
             } else {
                 if let Some(parent_directory) = path.parent() {

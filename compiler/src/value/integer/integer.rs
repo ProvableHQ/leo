@@ -67,40 +67,40 @@ impl fmt::Display for Integer {
 }
 
 impl Integer {
-    pub fn new_constant(integer_type: &IntegerType, string: String, span: Span) -> Result<Self, IntegerError> {
+    pub fn new_constant(integer_type: &IntegerType, string: String, span: &Span) -> Result<Self, IntegerError> {
         match integer_type {
             IntegerType::U8 => {
                 let number = string
                     .parse::<u8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::U8(UInt8::constant(number)))
             }
             IntegerType::U16 => {
                 let number = string
                     .parse::<u16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::U16(UInt16::constant(number)))
             }
             IntegerType::U32 => {
                 let number = string
                     .parse::<u32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::U32(UInt32::constant(number)))
             }
             IntegerType::U64 => {
                 let number = string
                     .parse::<u64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::U64(UInt64::constant(number)))
             }
             IntegerType::U128 => {
                 let number = string
                     .parse::<u128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::U128(UInt128::constant(number)))
             }
@@ -108,35 +108,35 @@ impl Integer {
             IntegerType::I8 => {
                 let number = string
                     .parse::<i8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::I8(Int8::constant(number)))
             }
             IntegerType::I16 => {
                 let number = string
                     .parse::<i16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::I16(Int16::constant(number)))
             }
             IntegerType::I32 => {
                 let number = string
                     .parse::<i32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::I32(Int32::constant(number)))
             }
             IntegerType::I64 => {
                 let number = string
                     .parse::<i64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::I64(Int64::constant(number)))
             }
             IntegerType::I128 => {
                 let number = string
                     .parse::<i128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span))?;
+                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
 
                 Ok(Integer::I128(Int128::constant(number)))
             }
@@ -153,14 +153,14 @@ impl Integer {
         match_integer!(integer => integer.get_value())
     }
 
-    pub fn to_usize(&self, span: Span) -> Result<usize, IntegerError> {
+    pub fn to_usize(&self, span: &Span) -> Result<usize, IntegerError> {
         let unsigned_integer = self;
         let value_option: Option<String> = match_unsigned_integer!(unsigned_integer => unsigned_integer.get_value());
 
-        let value = value_option.ok_or(IntegerError::invalid_index(span.clone()))?;
+        let value = value_option.ok_or_else(|| IntegerError::invalid_index(span.to_owned()))?;
         let value_usize = value
             .parse::<usize>()
-            .map_err(|_| IntegerError::invalid_integer(value, span))?;
+            .map_err(|_| IntegerError::invalid_integer(value, span.to_owned()))?;
         Ok(value_usize)
     }
 
@@ -183,9 +183,9 @@ impl Integer {
     pub fn allocate_type<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         integer_type: IntegerType,
-        name: String,
+        name: &str,
         option: Option<String>,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
             IntegerType::U8 => {
@@ -194,14 +194,14 @@ impl Integer {
 
                 let u8_option = option.map(|s| {
                     s.parse::<u8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
 
                 let u8_result = UInt8::alloc(cs.ns(|| u8_name_unique), || {
                     u8_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(u8_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(u8_name, span.to_owned()))?;
 
                 Integer::U8(u8_result)
             }
@@ -210,13 +210,13 @@ impl Integer {
                 let u16_name_unique = format!("`{}` {}:{}", u16_name, span.line, span.start);
                 let u16_option = option.map(|s| {
                     s.parse::<u16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let u16_result = UInt16::alloc(cs.ns(|| u16_name_unique), || {
                     u16_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(u16_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(u16_name, span.to_owned()))?;
 
                 Integer::U16(u16_result)
             }
@@ -225,13 +225,13 @@ impl Integer {
                 let u32_name_unique = format!("`{}` {}:{}", u32_name, span.line, span.start);
                 let u32_option = option.map(|s| {
                     s.parse::<u32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let u32_result = UInt32::alloc(cs.ns(|| u32_name_unique), || {
                     u32_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(u32_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(u32_name, span.to_owned()))?;
 
                 Integer::U32(u32_result)
             }
@@ -240,13 +240,13 @@ impl Integer {
                 let u64_name_unique = format!("`{}` {}:{}", u64_name, span.line, span.start);
                 let u64_option = option.map(|s| {
                     s.parse::<u64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let u64_result = UInt64::alloc(cs.ns(|| u64_name_unique), || {
                     u64_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(u64_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(u64_name, span.to_owned()))?;
 
                 Integer::U64(u64_result)
             }
@@ -255,13 +255,13 @@ impl Integer {
                 let u128_name_unique = format!("`{}` {}:{}", u128_name, span.line, span.start);
                 let u128_option = option.map(|s| {
                     s.parse::<u128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let u128_result = UInt128::alloc(cs.ns(|| u128_name_unique), || {
                     u128_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(u128_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(u128_name, span.to_owned()))?;
 
                 Integer::U128(u128_result)
             }
@@ -271,13 +271,13 @@ impl Integer {
                 let i8_name_unique = format!("`{}` {}:{}", i8_name, span.line, span.start);
                 let i8_option = option.map(|s| {
                     s.parse::<i8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let i8_result = Int8::alloc(cs.ns(|| i8_name_unique), || {
                     i8_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(i8_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(i8_name, span.to_owned()))?;
 
                 Integer::I8(i8_result)
             }
@@ -286,13 +286,13 @@ impl Integer {
                 let i16_name_unique = format!("`{}` {}:{}", i16_name, span.line, span.start);
                 let i16_option = option.map(|s| {
                     s.parse::<i16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let i16_result = Int16::alloc(cs.ns(|| i16_name_unique), || {
                     i16_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(i16_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(i16_name, span.to_owned()))?;
 
                 Integer::I16(i16_result)
             }
@@ -301,13 +301,13 @@ impl Integer {
                 let i32_name_unique = format!("`{}` {}:{}", i32_name, span.line, span.start);
                 let i32_option = option.map(|s| {
                     s.parse::<i32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let i32_result = Int32::alloc(cs.ns(|| i32_name_unique), || {
                     i32_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(i32_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(i32_name, span.to_owned()))?;
 
                 Integer::I32(i32_result)
             }
@@ -316,13 +316,13 @@ impl Integer {
                 let i64_name_unique = format!("`{}` {}:{}", i64_name, span.line, span.start);
                 let i64_option = option.map(|s| {
                     s.parse::<i64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let i64_result = Int64::alloc(cs.ns(|| i64_name_unique), || {
                     i64_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(i64_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(i64_name, span.to_owned()))?;
 
                 Integer::I64(i64_result)
             }
@@ -331,13 +331,13 @@ impl Integer {
                 let i128_name_unique = format!("`{}` {}:{}", i128_name, span.line, span.start);
                 let i128_option = option.map(|s| {
                     s.parse::<i128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.clone()))
+                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
                         .unwrap()
                 });
                 let i128_result = Int128::alloc(cs.ns(|| i128_name_unique), || {
                     i128_option.ok_or(SynthesisError::AssignmentMissing)
                 })
-                .map_err(|_| IntegerError::missing_integer(i128_name, span))?;
+                .map_err(|_| IntegerError::missing_integer(i128_name, span.to_owned()))?;
 
                 Integer::I128(i128_result)
             }
@@ -347,9 +347,9 @@ impl Integer {
     pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         integer_type: IntegerType,
-        name: String,
+        name: &str,
         integer_value: Option<InputValue>,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         // Check that the input value is the correct type
         let option = match integer_value {
@@ -357,7 +357,7 @@ impl Integer {
                 if let InputValue::Integer(_type_, number) = input {
                     Some(number)
                 } else {
-                    return Err(IntegerError::invalid_integer(input.to_string(), span));
+                    return Err(IntegerError::invalid_integer(input.to_string(), span.to_owned()));
                 }
             }
             None => None,
@@ -369,101 +369,95 @@ impl Integer {
     pub fn negate<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce -{} {}:{}", self, span.line, span.start);
 
         let a = self;
-        let s = span.clone();
 
-        let result = match_signed_integer!(a, s => a.neg(cs.ns(|| unique_namespace)));
+        let result = match_signed_integer!(a, span => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or(IntegerError::negate_operation(span))
+        result.ok_or_else(|| IntegerError::negate_operation(span.to_owned()))
     }
 
     pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
-        let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.add(cs.ns(|| unique_namespace), &b));
+        let result = match_integers_span!((a, b), span => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("+"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span.to_owned()))
     }
 
     pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
-        let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.sub(cs.ns(|| unique_namespace), &b));
+        let result = match_integers_span!((a, b), span => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("-"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span.to_owned()))
     }
 
     pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
-        let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.mul(cs.ns(|| unique_namespace), &b));
+        let result = match_integers_span!((a, b), span => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("*"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span.to_owned()))
     }
 
     pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
-        let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.div(cs.ns(|| unique_namespace), &b));
+        let result = match_integers_span!((a, b), span => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("÷"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span.to_owned()))
     }
 
     pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
-        span: Span,
+        span: &Span,
     ) -> Result<Self, IntegerError> {
         let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line, span.start);
 
         let a = self;
         let b = other;
-        let s = span.clone();
 
-        let result = match_integers_span!((a, b), s => a.pow(cs.ns(|| unique_namespace), &b));
+        let result = match_integers_span!((a, b), span => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or(IntegerError::binary_operation(format!("**"), span))
+        result.ok_or_else(|| IntegerError::binary_operation("**".to_string(), span.to_owned()))
     }
 }
 

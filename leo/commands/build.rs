@@ -62,7 +62,7 @@ impl CLI for BuildCommand {
         let path = current_dir()?;
 
         // Get the package name
-        let manifest = Manifest::try_from(&path)?;
+        let manifest = Manifest::try_from(path.as_path())?;
         let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory
@@ -93,7 +93,7 @@ impl CLI for BuildCommand {
             // Compile the library file but do not output
             let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
                 package_name.clone(),
-                lib_file_path.clone(),
+                lib_file_path,
                 output_directory.clone(),
             )?;
             tracing::info!("Complete");
@@ -121,12 +121,12 @@ impl CLI for BuildCommand {
             // Load the program at `main_file_path`
             let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
                 package_name.clone(),
-                main_file_path.clone(),
+                main_file_path,
                 output_directory,
                 &input_string,
-                input_path,
+                &input_path,
                 &state_string,
-                state_path,
+                &state_path,
             )?;
 
             // Compute the current program checksum

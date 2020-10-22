@@ -123,7 +123,7 @@ impl InputValue {
             Type::Array(array_type)
         };
 
-        let mut elements = vec![];
+        let mut elements = Vec::with_capacity(inline.expressions.len());
         for expression in inline.expressions.into_iter() {
             let element = InputValue::from_expression(inner_array_type.clone(), expression)?;
 
@@ -229,7 +229,7 @@ impl InputValue {
             ));
         }
 
-        let mut values = vec![];
+        let mut values = Vec::with_capacity(tuple_type.types_.len());
         for (type_, value) in tuple_type.types_.into_iter().zip(tuple.expressions.into_iter()) {
             let value = InputValue::from_expression(type_, value)?;
 
@@ -260,12 +260,12 @@ impl fmt::Display for InputValue {
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),
             InputValue::Array(ref array) => {
-                let values = array.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let values = array.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "array [{}]", values)
             }
             InputValue::Tuple(ref tuple) => {
-                let values = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let values = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", values)
             }

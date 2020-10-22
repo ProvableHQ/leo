@@ -28,23 +28,23 @@ pub fn enforce_pow<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,
-    span: Span,
+    span: &Span,
 ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
     match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
         }
         (ConstrainedValue::Unresolved(string), val_2) => {
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span.clone())?;
+            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
             enforce_pow(cs, val_1, val_2, span)
         }
         (val_1, ConstrainedValue::Unresolved(string)) => {
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span.clone())?;
+            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
             enforce_pow(cs, val_1, val_2, span)
         }
         (val_1, val_2) => Err(ExpressionError::incompatible_types(
             format!("{} ** {}", val_1, val_2,),
-            span,
+            span.to_owned(),
         )),
     }
 }

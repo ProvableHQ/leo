@@ -34,9 +34,10 @@ use crate::{
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::{Read, Write},
-    path::{Path, PathBuf},
+    path::Path,
 };
 use walkdir::WalkDir;
 use zip::write::{FileOptions, ZipWriter};
@@ -55,26 +56,26 @@ impl ZipFile {
         }
     }
 
-    pub fn exists_at(&self, path: &PathBuf) -> bool {
+    pub fn exists_at(&self, path: &Path) -> bool {
         let path = self.setup_file_path(path);
         path.exists()
     }
 
-    pub fn get_file_path(&self, current_dir: &PathBuf) -> PathBuf {
+    pub fn get_file_path<'a>(&self, current_dir: &'a Path) -> Cow<'a, Path> {
         self.setup_file_path(current_dir)
     }
 
     // /// Reads the program bytes from the given file path if it exists.
-    // pub fn read_from(&self, path: &PathBuf) -> Result<Vec<u8>, ZipFileError> {
+    // pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ZipFileError> {
     //     let path = self.setup_file_path(path);
     //
     //     Ok(fs::read(&path).map_err(|_| ZipFileError::FileReadError(path.clone()))?)
     // }
 
     /// Writes the current package contents to a zip file.
-    pub fn write(&self, src_dir: &PathBuf) -> Result<(), ZipFileError> {
+    pub fn write(&self, src_dir: &Path) -> Result<(), ZipFileError> {
         // Build walkdir iterator from current package
-        let walkdir = WalkDir::new(src_dir.clone());
+        let walkdir = WalkDir::new(src_dir);
 
         // Create zip file
         let path = self.setup_file_path(src_dir);
@@ -89,7 +90,7 @@ impl ZipFile {
         let mut buffer = Vec::new();
         for entry in walkdir.into_iter().filter_map(|e| e.ok()) {
             let path = entry.path();
-            let name = path.strip_prefix(src_dir.as_path()).unwrap();
+            let name = path.strip_prefix(src_dir).unwrap();
 
             // Add file/directory exclusion
 
@@ -102,17 +103,17 @@ impl ZipFile {
             // Write file or directory
             if path.is_file() {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
-                zip.start_file_from_path(name, options)?;
+                zip.start_file(name.to_string_lossy(), options)?;
                 let mut f = File::open(path)?;
 
                 f.read_to_end(&mut buffer)?;
                 zip.write_all(&*buffer)?;
                 buffer.clear();
-            } else if name.as_os_str().len() != 0 {
+            } else if !name.as_os_str().is_empty() {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
-                zip.add_directory_from_path(name, options)?;
+                zip.add_directory(name.to_string_lossy(), options)?;
             }
         }
 
@@ -125,23 +126,24 @@ impl ZipFile {
 
     /// Removes the zip file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &PathBuf) -> Result<bool, ZipFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, ZipFileError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.clone()))?;
+        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.into_owned()))?;
         Ok(true)
     }
 
-    fn setup_file_path(&self, path: &PathBuf) -> PathBuf {
-        let mut path = path.to_owned();
+    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.push(PathBuf::from(OUTPUTS_DIRECTORY_NAME));
+                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION)));
+            path.to_mut()
+                .push(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION));
         }
         path
     }
@@ -150,23 +152,23 @@ impl ZipFile {
 /// Check if the file path should be included in the package zip file.
 fn is_included(path: &Path) -> bool {
     // excluded directories: `input`, `output`, `imports`
-    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches("/"))
-        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches("/"))
+    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches('/'))
+        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches('/'))
+        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches('/'))
     {
         return false;
     }
 
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     if let Some(true) = path.extension().map(|ext| {
-        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches("."))
-            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches("."))
+        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
+            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches('.'))
     }) {
         return false;
     }
@@ -177,12 +179,12 @@ fn is_included(path: &Path) -> bool {
     }
 
     // Only allow additional files in the `src/` directory
-    if !path.starts_with(SOURCE_DIRECTORY_NAME.trim_end_matches("/")) {
+    if !path.starts_with(SOURCE_DIRECTORY_NAME.trim_end_matches('/')) {
         return false;
     }
 
     // Allow the `.leo` files in the `src/` directory
     path.extension()
-        .map(|ext| ext.eq(SOURCE_FILE_EXTENSION.trim_start_matches(".")))
+        .map(|ext| ext.eq(SOURCE_FILE_EXTENSION.trim_start_matches('.')))
         .unwrap_or(false)
 }

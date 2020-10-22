@@ -25,7 +25,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::expression_unary))]
 pub struct UnaryExpression<'ast> {
     pub operation: UnaryOperation,
-    pub expression: Box<Expression<'ast>>,
+    pub expression: Expression<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

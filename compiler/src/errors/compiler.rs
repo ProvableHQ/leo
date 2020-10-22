@@ -20,7 +20,7 @@ use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
@@ -65,7 +65,7 @@ pub enum CompilerError {
 }
 
 impl CompilerError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),

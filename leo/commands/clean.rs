@@ -52,7 +52,7 @@ impl CLI for CleanCommand {
 
         // Get the package name
         let path = current_dir()?;
-        let package_name = Manifest::try_from(&path)?.get_package_name();
+        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;

@@ -16,7 +16,7 @@
 
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum OutputBytesError {
@@ -25,7 +25,7 @@ pub enum OutputBytesError {
 }
 
 impl OutputBytesError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             OutputBytesError::Error(error) => error.set_path(path),
         }
@@ -36,7 +36,7 @@ impl OutputBytesError {
     }
 
     pub fn not_enough_registers(span: Span) -> Self {
-        let message = format!("number of input registers must be greater than or equal to output registers");
+        let message = "number of input registers must be greater than or equal to output registers".to_string();
 
         Self::new_from_span(message, span)
     }

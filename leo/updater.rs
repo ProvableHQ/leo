@@ -75,9 +75,9 @@ impl Updater {
         } else {
             // If the auto update configuration is off, notify the user to update leo.
             if let Some(latest_version) = Self::update_available().unwrap() {
-                let mut message = format!("{}", "🟢 A new version is available! Run".bold().green());
-                message += &format!("{}", " `leo update` ".bold().white());
-                message += &format!("{}", &(format!("to update to v{}.", latest_version)).bold().green());
+                let mut message = "🟢 A new version is available! Run".bold().green().to_string();
+                message += &" `leo update` ".bold().white();
+                message += &format!("to update to v{}.", latest_version).bold().green();
 
                 tracing::info!("\n{}\n", message);
             }

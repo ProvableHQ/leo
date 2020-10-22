@@ -24,29 +24,33 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
+pub type StatementResult<T> = Result<T, StatementError>;
+pub type IndicatorAndConstrainedValue<T, U> = (Option<Boolean>, ConstrainedValue<T, U>);
+
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
     /// To indicate which of these return values to take we conditionally select the value according
     /// to the `indicator` bit that evaluates to true.
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         statement: Statement,
         return_type: Option<Type>,
-        declared_circuit_reference: String,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
+        declared_circuit_reference: &str,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
         match statement {
             Statement::Return(expression, span) => {
                 let return_value = (
                     indicator,
-                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, span)?,
+                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, &span)?,
                 );
 
                 results.push(return_value);
@@ -59,7 +63,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declare,
                     variables,
                     expressions,
-                    span,
+                    &span,
                 )?;
             }
             Statement::Assign(variable, expression, span) => {
@@ -70,8 +74,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declared_circuit_reference,
                     indicator,
                     variable,
-                    expression,
-                    span,
+                    *expression,
+                    &span,
                 )?;
             }
             Statement::Conditional(statement, span) => {
@@ -82,23 +86,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     statement,
                     return_type,
-                    span,
+                    &span,
                 )?;
 
                 results.append(&mut result);
             }
-            Statement::Iteration(index, start, stop, statements, span) => {
+            Statement::Iteration(index, start_stop, statements, span) => {
                 let mut result = self.enforce_iteration_statement(
                     cs,
                     file_scope,
                     function_scope,
                     indicator,
                     index,
-                    start,
-                    stop,
+                    start_stop.0,
+                    start_stop.1,
                     statements,
                     return_type,
-                    span,
+                    &span,
                 )?;
 
                 results.append(&mut result);

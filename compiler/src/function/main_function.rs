@@ -34,15 +34,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_main_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        scope: String,
+        scope: &str,
         function: Function,
         input: Input,
     ) -> Result<Output, FunctionError> {
-        let function_name = new_scope(scope.clone(), function.get_name());
+        let function_name = new_scope(scope, function.get_name());
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        let mut input_variables = vec![];
+        let mut input_variables = Vec::with_capacity(function.input.len());
         for input_model in function.input.clone().into_iter() {
             let (identifier, value) = match input_model {
                 InputVariable::InputKeyword(identifier) => {
@@ -54,21 +54,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let name = input_model.identifier.name.clone();
                     let input_option = input
                         .get(&name)
-                        .ok_or(FunctionError::input_not_found(name.clone(), function.span.clone()))?;
-                    let input_value = self.allocate_main_function_input(
-                        cs,
-                        input_model.type_,
-                        name.clone(),
-                        input_option,
-                        function.span.clone(),
-                    )?;
+                        .ok_or_else(|| FunctionError::input_not_found(name.clone(), function.span.clone()))?;
+                    let input_value =
+                        self.allocate_main_function_input(cs, input_model.type_, &name, input_option, &function.span)?;
 
                     (input_model.identifier, input_value)
                 }
             };
 
             // Store input as variable with {function_name}_{identifier_name}
-            let input_name = new_scope(function_name.clone(), identifier.name.clone());
+            let input_name = new_scope(&function_name, &identifier.name);
 
             // Store a new variable for every allocated main function input
             self.store(input_name, value);
@@ -77,7 +72,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         let span = function.span.clone();
-        let result_value = self.enforce_function(cs, scope, function_name, function, input_variables, "".to_owned())?;
+        let result_value = self.enforce_function(cs, scope, &function_name, function, input_variables, "")?;
 
         // Lookup result value constraint variable indices.
         let constraint_system_indices = result_value.get_constraint_system_indices(cs);

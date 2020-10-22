@@ -38,7 +38,11 @@ use snarkos_models::{
 };
 
 use sha2::{Digest, Sha256};
-use std::{fs, marker::PhantomData, path::PathBuf};
+use std::{
+    fs,
+    marker::PhantomData,
+    path::{Path, PathBuf},
+};
 
 #[derive(Clone)]
 pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
@@ -71,17 +75,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_input(
         &mut self,
         input_string: &str,
-        input_path: PathBuf,
+        input_path: &Path,
         state_string: &str,
-        state_path: PathBuf,
+        state_path: &Path,
     ) -> Result<(), CompilerError> {
         let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
-            e.set_path(input_path.clone());
+            e.set_path(input_path);
 
             e
         })?;
         let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
-            e.set_path(state_path.clone());
+            e.set_path(state_path);
 
             e
         })?;
@@ -121,9 +125,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         input_string: &str,
-        input_path: PathBuf,
+        input_path: &Path,
         state_string: &str,
-        state_path: PathBuf,
+        state_path: &Path,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(package_name, main_file_path, output_directory);
 
@@ -135,6 +139,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     /// Parses the Leo program file, constructs a syntax tree, and generates a program.
+    #[allow(deprecated)]
     pub(crate) fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Use the parser to construct the abstract syntax tree.
         let program_string = LeoAst::load_file(&self.main_file_path)?;
@@ -148,16 +153,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
         let ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
-            e.set_path(self.main_file_path.clone());
+            e.set_path(&self.main_file_path);
 
             e
         })?;
 
         // Derive the package name.
-        let package_name = self.package_name.clone();
+        let package_name = &self.package_name;
 
         // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoTypedAst::new(&package_name, &ast);
+        let typed_tree = LeoTypedAst::new(package_name, &ast);
 
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;
@@ -201,7 +206,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         generate_constraints::<F, G, CS>(cs, self.program, self.program_input, &self.imported_programs).map_err(
             |mut error| {
-                error.set_path(path);
+                error.set_path(&path);
 
                 error
             },
@@ -224,7 +229,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let path = self.main_file_path;
         generate_constraints::<_, G, _>(cs, self.program, self.program_input, &self.imported_programs).map_err(
             |mut error| {
-                error.set_path(path);
+                error.set_path(&path);
                 error
             },
         )

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum CorePackageError {
@@ -24,7 +24,7 @@ pub enum CorePackageError {
 }
 
 impl CorePackageError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             CorePackageError::Error(error) => error.set_path(path),
         }
@@ -35,7 +35,7 @@ impl CorePackageError {
     }
 
     pub fn core_package_star(span: Span) -> Self {
-        let message = format!("Cannot import star from leo-core");
+        let message = "Cannot import star from leo-core".to_string();
 
         Self::new_from_span(message, span)
     }

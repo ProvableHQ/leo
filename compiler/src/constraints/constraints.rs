@@ -34,7 +34,7 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
-use std::path::PathBuf;
+use std::path::Path;
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -44,7 +44,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 ) -> Result<Output, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
-    let main_function_name = new_scope(program_name.clone(), "main".into());
+    let main_function_name = new_scope(&program_name, "main");
 
     resolved_program.store_definitions(program, imported_programs)?;
 
@@ -54,7 +54,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, program_name, function, input)?;
+            let result = resolved_program.enforce_main_function(cs, &program_name, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -65,8 +65,8 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     program: Program,
     input: InputPairs,
     imported_programs: &ImportParser,
-    main_file_path: &PathBuf,
-    output_directory: &PathBuf,
+    main_file_path: &Path,
+    output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
@@ -87,7 +87,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
     for (test_name, test) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
-        let full_test_name = format!("{}::{}", program_name.clone(), test_name.to_string());
+        let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
         // get input file name from annotation or use test_name
@@ -118,9 +118,9 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
         input.parse_state(state_ast)?;
 
         // run test function on new program with input
-        let result = resolved_program.clone().enforce_main_function(
+        let result = resolved_program.enforce_main_function(
             cs,
-            program_name.clone(),
+            &program_name,
             test.function,
             input, // pass program input into every test
         );
@@ -147,7 +147,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             (false, _) => {
                 // Set file location of error
                 let mut error = result.unwrap_err();
-                error.set_path(main_file_path.clone());
+                error.set_path(main_file_path);
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

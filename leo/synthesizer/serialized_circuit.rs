@@ -56,17 +56,9 @@ impl SerializedCircuit {
         let num_aux = synthesizer.aux_assignment.len();
         let num_constraints = synthesizer.num_constraints();
 
-        // Serialize a vector of assignments.
-        fn get_serialized_assignments<E: PairingEngine>(assignments: &Vec<E::Fr>) -> Vec<SerializedField> {
-            let mut serialized = vec![];
-
-            for assignment in assignments {
-                let field = SerializedField::from(assignment);
-
-                serialized.push(field);
-            }
-
-            serialized
+        // Serialize assignments
+        fn get_serialized_assignments<E: PairingEngine>(assignments: &[E::Fr]) -> Vec<SerializedField> {
+            assignments.iter().map(SerializedField::from).collect()
         }
 
         // Serialize input assignments.
@@ -80,9 +72,9 @@ impl SerializedCircuit {
 
         // Serialize constraints.
         fn get_serialized_constraints<E: PairingEngine>(
-            constraints: &Vec<(E::Fr, Index)>,
+            constraints: &[(E::Fr, Index)],
         ) -> Vec<(SerializedField, SerializedIndex)> {
-            let mut serialized = vec![];
+            let mut serialized = Vec::with_capacity(constraints.len());
 
             for &(ref coeff, index) in constraints {
                 let field = SerializedField::from(coeff);
@@ -94,9 +86,9 @@ impl SerializedCircuit {
             serialized
         }
 
-        let mut at = vec![];
-        let mut bt = vec![];
-        let mut ct = vec![];
+        let mut at = Vec::with_capacity(num_constraints);
+        let mut bt = Vec::with_capacity(num_constraints);
+        let mut ct = Vec::with_capacity(num_constraints);
 
         for i in 0..num_constraints {
             // Serialize at[i].
@@ -133,9 +125,9 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
     fn try_from(serialized: SerializedCircuit) -> Result<CircuitSynthesizer<Bls12_377>, Self::Error> {
         // Deserialize assignments
         fn get_deserialized_assignments(
-            assignments: &Vec<SerializedField>,
+            assignments: &[SerializedField],
         ) -> Result<Vec<<Bls12_377 as PairingEngine>::Fr>, FieldError> {
-            let mut deserialized = vec![];
+            let mut deserialized = Vec::with_capacity(assignments.len());
 
             for serialized_assignment in assignments {
                 let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_assignment)?;
@@ -151,9 +143,9 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
 
         // Deserialize constraints
         fn get_deserialized_constraints(
-            constraints: &Vec<(SerializedField, SerializedIndex)>,
+            constraints: &[(SerializedField, SerializedIndex)],
         ) -> Result<Vec<(<Bls12_377 as PairingEngine>::Fr, Index)>, FieldError> {
-            let mut deserialized = vec![];
+            let mut deserialized = Vec::with_capacity(constraints.len());
 
             for &(ref serialized_coeff, ref serialized_index) in constraints {
                 let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_coeff)?;
@@ -165,9 +157,9 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
             Ok(deserialized)
         }
 
-        let mut at = vec![];
-        let mut bt = vec![];
-        let mut ct = vec![];
+        let mut at = Vec::with_capacity(serialized.num_constraints);
+        let mut bt = Vec::with_capacity(serialized.num_constraints);
+        let mut ct = Vec::with_capacity(serialized.num_constraints);
 
         for i in 0..serialized.num_constraints {
             // Deserialize at[i]

@@ -18,10 +18,11 @@ use crate::{errors::ManifestError, package::Package};
 
 use serde::Deserialize;
 use std::{
+    borrow::Cow,
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
-    path::PathBuf,
+    path::Path,
 };
 
 pub const MANIFEST_FILENAME: &str = "Leo.toml";
@@ -49,10 +50,10 @@ impl Manifest {
         MANIFEST_FILENAME.to_string()
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
         path.exists()
     }
@@ -77,10 +78,10 @@ impl Manifest {
         self.remote.clone()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), ManifestError> {
-        let mut path = path.to_owned();
+    pub fn write_to(self, path: &Path) -> Result<(), ManifestError> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
 
         let mut file = File::create(&path).map_err(|error| ManifestError::Creating(MANIFEST_FILENAME, error))?;
@@ -104,13 +105,13 @@ author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or or
     }
 }
 
-impl TryFrom<&PathBuf> for Manifest {
+impl TryFrom<&Path> for Manifest {
     type Error = ManifestError;
 
-    fn try_from(path: &PathBuf) -> Result<Self, Self::Error> {
-        let mut path = path.to_owned();
+    fn try_from(path: &Path) -> Result<Self, Self::Error> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(MANIFEST_FILENAME));
+            path.to_mut().push(MANIFEST_FILENAME);
         }
 
         let mut file = File::open(path.clone()).map_err(|error| ManifestError::Opening(MANIFEST_FILENAME, error))?;
@@ -139,7 +140,7 @@ impl TryFrom<&PathBuf> for Manifest {
             // Determine if the old remote format is being used
             if line.starts_with("remote") {
                 let remote = line
-                    .split("=") // Split the line as 'remote' = '"{author}/{package_name}"'
+                    .split('=') // Split the line as 'remote' = '"{author}/{package_name}"'
                     .collect::<Vec<&str>>()[1]; // Fetch just '"{author}/{package_name}"'
                 old_remote_format = Some(remote);
 
@@ -182,7 +183,7 @@ impl TryFrom<&PathBuf> for Manifest {
             if !new_remote_format_exists {
                 // Fetch the author from the old remote.
                 let remote_author = old_remote
-                    .split("/") // Split the old remote as '"{author}' and '{package_name}"'
+                    .split('/') // Split the old remote as '"{author}' and '{package_name}"'
                     .collect::<Vec<&str>>()[0] // Fetch just the '"{author}'
                     .replace(&['\"', ' '][..], ""); // Remove the quotes from the author string
 

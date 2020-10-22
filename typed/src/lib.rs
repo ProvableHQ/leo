@@ -58,8 +58,6 @@ pub use self::types::*;
 
 use leo_ast::LeoAst;
 
-use serde_json;
-
 #[derive(Debug, Eq, PartialEq)]
 pub struct LeoTypedAst {
     typed_ast: Program,

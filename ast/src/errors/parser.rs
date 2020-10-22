@@ -17,7 +17,7 @@
 use crate::{ast::Rule, errors::SyntaxError};
 
 use pest::error::Error;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
 pub enum ParserError {
@@ -38,21 +38,18 @@ pub enum ParserError {
 }
 
 impl ParserError {
-    pub fn set_path(&mut self, path: PathBuf) {
-        match self {
-            ParserError::SyntaxError(error) => {
-                let new_error: Error<Rule> = match error {
-                    SyntaxError::Error(error) => {
-                        let new_error = error.clone();
-                        new_error.with_path(path.to_str().unwrap())
-                    }
-                };
+    pub fn set_path(&mut self, path: &Path) {
+        if let ParserError::SyntaxError(error) = self {
+            let new_error: Error<Rule> = match error {
+                SyntaxError::Error(error) => {
+                    let new_error = error.clone();
+                    new_error.with_path(path.to_str().unwrap())
+                }
+            };
 
-                tracing::error!("{}", new_error);
+            tracing::error!("{}", new_error);
 
-                *error = SyntaxError::Error(new_error);
-            }
-            _ => {}
+            *error = SyntaxError::Error(new_error);
         }
     }
 }
@@ -65,6 +62,6 @@ impl From<Error<Rule>> for ParserError {
 
 impl From<std::io::Error> for ParserError {
     fn from(error: std::io::Error) -> Self {
-        ParserError::Crate("std::io", format!("{}", error))
+        ParserError::Crate("std::io", error.to_string())
     }
 }

@@ -28,22 +28,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_index<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         index: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<usize, ExpressionError> {
         let expected_type = Some(Type::IntegerType(IntegerType::U32));
-        match self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type,
-            index,
-            span.clone(),
-        )? {
-            ConstrainedValue::Integer(number) => Ok(number.to_usize(span.clone())?),
-            value => Err(ExpressionError::invalid_index(value.to_string(), span)),
+        match self.enforce_operand(cs, file_scope, function_scope, expected_type, index, &span)? {
+            ConstrainedValue::Integer(number) => Ok(number.to_usize(span)?),
+            value => Err(ExpressionError::invalid_index(value.to_string(), span.to_owned())),
         }
     }
 }

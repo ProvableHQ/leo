@@ -28,14 +28,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_console_function_call<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         console: ConsoleFunctionCall,
     ) -> Result<(), ConsoleError> {
         match console.function {
             ConsoleFunction::Assert(expression) => {
-                self.evaluate_console_assert(cs, file_scope, function_scope, indicator, expression, console.span)?;
+                self.evaluate_console_assert(cs, file_scope, function_scope, indicator, expression, &console.span)?;
             }
             ConsoleFunction::Debug(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;

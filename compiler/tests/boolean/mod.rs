@@ -43,7 +43,7 @@ fn fail_boolean_statement(program: EdwardsTestCompiler) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
             ExpressionError::BooleanError(BooleanError::Error(_)),
         ))) => {}
-        _ => panic!("Expected boolean error, got {}"),
+        e => panic!("Expected boolean error, got {}", e),
     }
 }
 

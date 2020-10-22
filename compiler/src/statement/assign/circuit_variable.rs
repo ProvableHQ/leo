@@ -32,18 +32,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         indicator: Option<Boolean>,
-        circuit_name: String,
+        circuit_name: &str,
         variable_name: Identifier,
         mut new_value: ConstrainedValue<F, G>,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         let condition = indicator.unwrap_or(Boolean::Constant(true));
 
         // Get the mutable circuit by name
-        match self.get_mutable_assignee(circuit_name, span.clone())? {
+        match self.get_mutable_assignee(circuit_name, span)? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit variable in place
-                let matched_variable = members.into_iter().find(|member| member.0 == variable_name);
+                let matched_variable = members.iter_mut().find(|member| member.0 == variable_name);
 
                 match matched_variable {
                     Some(member) => match &member.1 {
@@ -51,18 +51,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             // Throw an error if we try to mutate a circuit function
                             Err(StatementError::immutable_circuit_function(
                                 function.identifier.to_string(),
-                                span,
+                                span.to_owned(),
                             ))
                         }
                         ConstrainedValue::Static(_circuit_function) => {
                             // Throw an error if we try to mutate a static circuit function
-                            Err(StatementError::immutable_circuit_function("static".into(), span))
+                            Err(StatementError::immutable_circuit_function(
+                                "static".into(),
+                                span.to_owned(),
+                            ))
                         }
                         ConstrainedValue::Mutable(value) => {
                             // Mutate the circuit variable's value in place
 
                             // Check that the new value type == old value type
-                            new_value.resolve_type(Some(value.to_type(span.clone())?), span.clone())?;
+                            new_value.resolve_type(Some(value.to_type(span)?), span)?;
 
                             // Conditionally select the value if this branch is executed.
                             let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
@@ -73,7 +76,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 &member.1,
                             )
                             .map_err(|_| {
-                                StatementError::select_fail(new_value.to_string(), member.1.to_string(), span)
+                                StatementError::select_fail(
+                                    new_value.to_string(),
+                                    member.1.to_string(),
+                                    span.to_owned(),
+                                )
                             })?;
 
                             // Make sure the new value is still mutable
@@ -81,24 +88,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                             member.1 = selected_value.to_owned();
 
-                            Ok(selected_value.to_owned())
+                            Ok(selected_value)
                         }
                         _ => {
                             // Throw an error if we try to mutate an immutable circuit variable
-                            Err(StatementError::immutable_circuit_variable(variable_name.name, span))
+                            Err(StatementError::immutable_circuit_variable(
+                                variable_name.name,
+                                span.to_owned(),
+                            ))
                         }
                     },
                     None => {
                         // Throw an error if the circuit variable does not exist in the circuit
                         Err(StatementError::undefined_circuit_variable(
                             variable_name.to_string(),
-                            span,
+                            span.to_owned(),
                         ))
                     }
                 }
             }
             // Throw an error if the circuit definition does not exist in the file
-            _ => Err(StatementError::undefined_circuit(variable_name.to_string(), span)),
+            _ => Err(StatementError::undefined_circuit(
+                variable_name.to_string(),
+                span.to_owned(),
+            )),
         }
     }
 }
