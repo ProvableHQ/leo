@@ -21,6 +21,7 @@ use leo_typed::{
     CircuitVariableDefinition,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
+    ConsoleFunctionCall,
     Declare,
     Expression,
     Function as UnresolvedFunction,
@@ -35,7 +36,7 @@ use leo_typed::{
 
 use leo_typed::integer_type::IntegerType;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, path::PathBuf};
+use std::collections::HashMap;
 
 /// Performs a dynamic type inference check over a program.
 pub struct DynamicCheck {
@@ -259,7 +260,7 @@ impl Frame {
                 self.parse_iteration(identifier, from, to, statements, span)
             }
             UnresolvedStatement::Expression(expression, span) => self.parse_statement_expression(expression, span),
-            statement => unimplemented!("statement {} not implemented", statement),
+            UnresolvedStatement::Console(console_call) => self.parse_console_function_call(console_call),
         }
     }
 
@@ -426,6 +427,13 @@ impl Frame {
         let actual_type = self.parse_expression(expression);
 
         self.assert_equal(expected_type, actual_type);
+    }
+
+    ///
+    /// Collects `TypeAssertion` predicates from a console statement.
+    ///
+    fn parse_console_function_call(&mut self, _console_function_call: &ConsoleFunctionCall) {
+        // TODO (collinc97) find a way to fetch console function call types here
     }
 
     ///
@@ -700,7 +708,7 @@ impl Frame {
     ///
     /// Returns the type of the accessed array element.
     ///
-    fn parse_array_access(&mut self, expression: &Expression, r_or_e: &RangeOrExpression, span: &Span) -> Type {
+    fn parse_array_access(&mut self, expression: &Expression, r_or_e: &RangeOrExpression, _span: &Span) -> Type {
         // Parse the array expression which could be a variable with type array.
         let type_ = self.parse_expression(expression);
 
