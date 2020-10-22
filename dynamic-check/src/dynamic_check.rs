@@ -19,6 +19,8 @@ use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable
 use leo_typed::{
     Assignee,
     CircuitVariableDefinition,
+    ConditionalNestedOrEndStatement,
+    ConditionalStatement,
     Declare,
     Expression,
     Function as UnresolvedFunction,
@@ -252,6 +254,7 @@ impl Frame {
                 self.parse_definition(declare, variables, expression, span)
             }
             UnresolvedStatement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
+            UnresolvedStatement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
             UnresolvedStatement::Expression(expression, span) => self.parse_statement_expression(expression, span),
             statement => unimplemented!("statement {} not implemented", statement),
         }
@@ -328,6 +331,58 @@ impl Frame {
     ///
     fn parse_assign(&mut self, _assignee: &Assignee, _expression: &Expression, _span: &Span) {
         // TODO (collinc97) impl locations.
+    }
+
+    ///
+    /// Collects `TypeAssertion` predicates from a conditional statement.
+    ///
+    /// Creates a new scope for each code block in the conditional.
+    ///
+    fn parse_statement_conditional(&mut self, conditional: &ConditionalStatement, span: &Span) {
+        // Parse the condition expression.
+        let condition = self.parse_expression(&conditional.condition);
+
+        // Assert that the condition is a boolean type.
+        let boolean_type = Type::Boolean;
+        self.assert_equal(boolean_type, condition);
+
+        // Parse conditional statements.
+        self.parse_block(&conditional.statements, span);
+
+        // Parse conditional or end.
+        match &conditional.next {
+            Some(cond_or_end) => self.parse_conditional_nested_or_end(cond_or_end, span),
+            None => {}
+        }
+    }
+
+    ///
+    /// Collects `TypeAssertion` predicates from a conditional statement.
+    ///
+    fn parse_conditional_nested_or_end(&mut self, cond_or_end: &ConditionalNestedOrEndStatement, span: &Span) {
+        match cond_or_end {
+            ConditionalNestedOrEndStatement::Nested(nested) => {
+                self.parse_statement_conditional(nested, span);
+            }
+            ConditionalNestedOrEndStatement::End(statements) => self.parse_block(statements, span),
+        }
+    }
+
+    ///
+    /// Collects `TypeAssertion` predicates from a block of statements.
+    ///
+    fn parse_block(&mut self, statements: &Vec<UnresolvedStatement>, _span: &Span) {
+        // Push new scope.
+        let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
+        self.push_scope(scope);
+
+        // Parse all statements.
+        for statement in statements.iter() {
+            self.parse_statement(statement);
+        }
+
+        // Pop out of scope.
+        let _scope = self.pop_scope();
     }
 
     ///
