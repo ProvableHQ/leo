@@ -255,6 +255,9 @@ impl Frame {
             }
             UnresolvedStatement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
             UnresolvedStatement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
+            UnresolvedStatement::Iteration(identifier, from, to, statements, span) => {
+                self.parse_iteration(identifier, from, to, statements, span)
+            }
             UnresolvedStatement::Expression(expression, span) => self.parse_statement_expression(expression, span),
             statement => unimplemented!("statement {} not implemented", statement),
         }
@@ -334,6 +337,23 @@ impl Frame {
     }
 
     ///
+    /// Collects `TypeAssertion` predicates from a block of statements.
+    ///
+    fn parse_block(&mut self, statements: &Vec<UnresolvedStatement>, _span: &Span) {
+        // Push new scope.
+        let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
+        self.push_scope(scope);
+
+        // Parse all statements.
+        for statement in statements.iter() {
+            self.parse_statement(statement);
+        }
+
+        // Pop out of scope.
+        let _scope = self.pop_scope();
+    }
+
+    ///
     /// Collects `TypeAssertion` predicates from a conditional statement.
     ///
     /// Creates a new scope for each code block in the conditional.
@@ -369,20 +389,30 @@ impl Frame {
     }
 
     ///
-    /// Collects `TypeAssertion` predicates from a block of statements.
+    /// Collects `TypeAssertion` predicates from an iteration statement.
     ///
-    fn parse_block(&mut self, statements: &Vec<UnresolvedStatement>, _span: &Span) {
-        // Push new scope.
-        let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
-        self.push_scope(scope);
+    fn parse_iteration(
+        &mut self,
+        identifier: &Identifier,
+        from: &Expression,
+        to: &Expression,
+        statements: &Vec<UnresolvedStatement>,
+        span: &Span,
+    ) {
+        // Insert variable into symbol table with u32 type.
+        let u32_type = Type::IntegerType(IntegerType::U32);
+        self.insert_variable(identifier.name.to_owned(), u32_type.clone());
 
-        // Parse all statements.
-        for statement in statements.iter() {
-            self.parse_statement(statement);
-        }
+        // Parse `from` and `to` expressions.
+        let from_type = self.parse_expression(from);
+        let to_type = self.parse_expression(to);
 
-        // Pop out of scope.
-        let _scope = self.pop_scope();
+        // Assert `from` and `to` types are a u32 or implicit.
+        self.assert_equal(u32_type.clone(), from_type);
+        self.assert_equal(u32_type, to_type);
+
+        // Parse block of statements.
+        self.parse_block(statements, span);
     }
 
     ///
