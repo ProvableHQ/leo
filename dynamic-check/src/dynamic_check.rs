@@ -18,6 +18,7 @@ use crate::{DynamicCheckError, FrameError, VariableTableError};
 use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
 use leo_typed::{
     Assignee,
+    AssigneeAccess,
     CircuitVariableDefinition,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
@@ -309,7 +310,7 @@ impl Frame {
             let variable = variables.names[0].clone();
 
             // TODO (collinc97) throw error for duplicate variable definitions.
-            self.insert_variable(variable.identifier.name, actual_type).unwrap();
+            let _expect_none = self.insert_variable(variable.identifier.name, actual_type);
         } else {
             // Expect a tuple type.
             let types = match actual_type {
@@ -325,16 +326,44 @@ impl Frame {
             // Insert variables into symbol table
             for (variable, type_) in variables.names.iter().zip(types) {
                 // TODO (collinc97) throw error for duplicate variable definitions.
-                self.insert_variable(variable.identifier.name.clone(), type_).unwrap();
+                let _expect_none = self.insert_variable(variable.identifier.name.clone(), type_);
             }
         }
     }
 
     ///
-    /// Collects `TypeAssertion` predicates from an assignment statement.
+    /// Asserts that the assignee's type is equal to the `Expression` type.
     ///
-    fn parse_assign(&mut self, _assignee: &Assignee, _expression: &Expression, _span: &Span) {
-        // TODO (collinc97) impl locations.
+    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) {
+        // Parse assignee type.
+        let assignee_type = self.parse_assignee(assignee, span);
+
+        // Parse expression type.
+        let expression_type = self.parse_expression(expression);
+
+        // Assert that the assignee_type == expression_type.
+        self.assert_equal(assignee_type, expression_type);
+    }
+
+    ///
+    /// Returns the type of the assignee.
+    ///
+    fn parse_assignee(&mut self, assignee: &Assignee, span: &Span) -> Type {
+        // Get the type of the assignee variable.
+        let mut type_ = self.get_variable(&assignee.identifier.name).to_owned();
+
+        // Iteratively evaluate assignee access types.
+        for access in &assignee.accesses {
+            let access_type = match access {
+                AssigneeAccess::Array(r_or_e) => self.parse_array_access(type_, r_or_e, span),
+                AssigneeAccess::Tuple(index) => self.parse_tuple_access(type_, *index, span),
+                AssigneeAccess::Member(identifier) => self.parse_circuit_member_access(type_, identifier, span),
+            };
+
+            type_ = access_type;
+        }
+
+        type_
     }
 
     ///
@@ -402,7 +431,7 @@ impl Frame {
     ) {
         // Insert variable into symbol table with u32 type.
         let u32_type = Type::IntegerType(IntegerType::U32);
-        self.insert_variable(identifier.name.to_owned(), u32_type.clone());
+        let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone());
 
         // Parse `from` and `to` expressions.
         let from_type = self.parse_expression(from);
@@ -477,16 +506,16 @@ impl Frame {
 
             // Arrays
             Expression::Array(expressions, span) => self.parse_array(expressions, span),
-            Expression::ArrayAccess(array, access, span) => self.parse_array_access(array, access, span),
+            Expression::ArrayAccess(array, access, span) => self.parse_expression_array_access(array, access, span),
 
             // Tuples
             Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
-            Expression::TupleAccess(tuple, index, span) => self.parse_tuple_access(tuple, *index, span),
+            Expression::TupleAccess(tuple, index, span) => self.parse_expression_tuple_access(tuple, *index, span),
 
             // Circuits
             Expression::Circuit(identifier, members, span) => self.parse_circuit(identifier, members, span),
             Expression::CircuitMemberAccess(expression, identifier, span) => {
-                self.parse_circuit_member_access(expression, identifier, span)
+                self.parse_expression_circuit_member_access(expression, identifier, span)
             }
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
                 self.parse_circuit_static_function_access(expression, identifier, span)
@@ -622,12 +651,20 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed tuple element.
+    /// Returns the type of the accessed tuple element when called as an expression.
     ///
-    fn parse_tuple_access(&mut self, expression: &Expression, index: usize, _span: &Span) -> Type {
+    fn parse_expression_tuple_access(&mut self, expression: &Expression, index: usize, span: &Span) -> Type {
         // Parse the tuple expression which could be a variable with type tuple.
         let type_ = self.parse_expression(expression);
 
+        // Parse the tuple access.
+        self.parse_tuple_access(type_, index, span)
+    }
+
+    ///
+    /// Returns the type of the accessed tuple element.
+    ///
+    fn parse_tuple_access(&mut self, type_: Type, index: usize, _span: &Span) -> Type {
         // Check the type is a tuple.
         let elements = match type_ {
             Type::Tuple(elements) => elements,
@@ -706,14 +743,27 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed array element.
+    /// Returns the type of the accessed array element when called as an expression.
     ///
-    fn parse_array_access(&mut self, expression: &Expression, r_or_e: &RangeOrExpression, _span: &Span) -> Type {
+    fn parse_expression_array_access(
+        &mut self,
+        expression: &Expression,
+        r_or_e: &RangeOrExpression,
+        span: &Span,
+    ) -> Type {
         // Parse the array expression which could be a variable with type array.
         let type_ = self.parse_expression(expression);
 
+        // Parse the array access.
+        self.parse_array_access(type_, r_or_e, span)
+    }
+
+    ///
+    /// Returns the type of the accessed array element.
+    ///
+    fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, _span: &Span) -> Type {
         // Check the type is an array.
-        let (element_type, dimensions) = match type_ {
+        let (element_type, _dimensions) = match type_ {
             Type::Array(type_, dimensions) => (type_, dimensions),
             _ => unimplemented!("expected an array type"),
         };
@@ -788,12 +838,25 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed circuit member.
+    /// Returns the type of the accessed circuit member when called as an expression.
     ///
-    fn parse_circuit_member_access(&mut self, expression: &Expression, identifier: &Identifier, _span: &Span) -> Type {
+    fn parse_expression_circuit_member_access(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> Type {
         // Parse circuit name.
         let type_ = self.parse_expression(expression);
 
+        // Parse the circuit member access.
+        self.parse_circuit_member_access(type_, identifier, span)
+    }
+
+    ///
+    /// Returns the type of the accessed circuit member.
+    ///
+    fn parse_circuit_member_access(&mut self, type_: Type, identifier: &Identifier, _span: &Span) -> Type {
         // Check that type is a circuit type.
         let circuit_type = match type_ {
             Type::Circuit(identifier) => {
@@ -834,6 +897,8 @@ impl Frame {
 
     ///
     /// Returns the type returned by calling the function.
+    ///
+    /// Does not attempt to evaluate the function call. We are just checking types at this step.
     ///
     fn parse_function_call(&mut self, expression: &Expression, inputs: &Vec<Expression>, _span: &Span) -> Type {
         // Parse the function name.
@@ -886,11 +951,13 @@ impl Frame {
             println!("assertion: {:?}", type_assertion);
 
             // Get type variable and type
-            if let Some((type_variable, type_)) = type_assertion.get_pair() {
+            if let Some((type_variable, type_)) = type_assertion.solve() {
                 // Substitute type variable for type in unsolved
                 for original in &mut unsolved {
                     original.substitute(&type_variable, &type_)
                 }
+            } else {
+                // Evaluate the type assertion.
             }
         }
 
@@ -1051,8 +1118,13 @@ impl TypeAssertion {
         Self::Membership(TypeMembership::new(given, set))
     }
 
-    pub fn substitute(&mut self, _variable: &TypeVariable, _type: &Type) {
-        unimplemented!("substitution not impl")
+    ///
+    /// Substitutes the given type for self if self is equal to the type variable.
+    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
+        match self {
+            TypeAssertion::Equality(equality) => equality.substitute(variable, type_),
+            TypeAssertion::Membership(_) => unimplemented!(),
+        }
     }
 
     ///
@@ -1065,8 +1137,11 @@ impl TypeAssertion {
         }
     }
 
-    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
-        unimplemented!("pair resolution not impl")
+    pub fn solve(&self) -> Option<(TypeVariable, Type)> {
+        match self {
+            TypeAssertion::Equality(equality) => equality.solve(),
+            TypeAssertion::Membership(_) => unimplemented!(),
+        }
     }
 }
 
@@ -1109,7 +1184,7 @@ impl TypeMembership {
         //     (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
         //     (_type1, _type2) => None, // No (type variable, type) pair can be returned from two types
         // }
-        unimplemented!("pair resolution not impl")
+        unimplemented!()
     }
 }
 
@@ -1131,9 +1206,9 @@ impl TypeEquality {
     ///
     /// Substitutes the given `TypeVariable` for each `Types` in the `TypeEquality`.
     ///
-    pub fn substitute(&mut self, _variable: &TypeVariable, _type_: &Type) {
-        // self.left.substitute(variable, type_);
-        // self.right.substitute(variable, type_);
+    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
+        self.left.substitute(variable, type_);
+        self.right.substitute(variable, type_);
     }
 
     ///
@@ -1146,11 +1221,19 @@ impl TypeEquality {
     ///
     /// Returns the (type variable, type) pair from this assertion.
     ///
-    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
+    pub fn solve(&self) -> Option<(TypeVariable, Type)> {
         match (&self.left, &self.right) {
             (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
             (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
-            (_type1, _type2) => None, // No (type variable, type) pair can be returned from two types
+            (type1, type2) => {
+                // Compare types.
+                if type1.eq(type2) {
+                    // Return None if the two types are equal (the equality is satisfied).
+                    None
+                } else {
+                    unimplemented!("ERROR type equality `{} == {}` failed", type1, type2)
+                }
+            }
         }
     }
 }

@@ -230,6 +230,17 @@ impl Type {
             Type::IntegerType(IntegerType::U32),
         ]
     }
+
+    ///
+    /// Replaces self with the given type if self is equal to the given `TypeVariable`.
+    ///
+    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
+        if let Type::TypeVariable(self_variable) = self {
+            if self_variable == variable {
+                *self = type_.to_owned()
+            }
+        }
+    }
 }
 
 impl fmt::Display for Type {

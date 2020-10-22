@@ -54,7 +54,7 @@ impl TestDynamicCheck {
     }
 
     pub fn solve(self) {
-        self.dynamic_check.solve();
+        self.dynamic_check.solve().unwrap();
     }
 }
 
