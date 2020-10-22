@@ -61,12 +61,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 new_value.resolve_type(Some(old_value.to_type(&span)?), &span)?;
 
-                let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
-                let selected_value =
-                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_value, old_value)
-                        .map_err(|_| {
-                            StatementError::select_fail(new_value.to_string(), old_value.to_string(), span.to_owned())
-                        })?;
+                let selected_value = ConstrainedValue::conditionally_select(
+                    cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
+                    &condition,
+                    &new_value,
+                    old_value,
+                )
+                .map_err(|_| {
+                    StatementError::select_fail(new_value.to_string(), old_value.to_string(), span.to_owned())
+                })?;
 
                 *old_value = selected_value;
 

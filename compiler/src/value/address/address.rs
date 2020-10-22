@@ -81,12 +81,10 @@ impl Address {
             None => None,
         };
 
-        let address_name = format!("{}: address", name);
-        let address_namespace = format!("`{}` {}:{}", address_name, span.line, span.start);
-
-        let address = Address::alloc(cs.ns(|| address_namespace), || {
-            address_value.ok_or(SynthesisError::AssignmentMissing)
-        })
+        let address = Address::alloc(
+            cs.ns(|| format!("`{}: address` {}:{}", name, span.line, span.start)),
+            || address_value.ok_or(SynthesisError::AssignmentMissing),
+        )
         .map_err(|_| AddressError::missing_address(span.to_owned()))?;
 
         Ok(ConstrainedValue::Address(address))
