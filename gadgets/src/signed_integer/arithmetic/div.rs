@@ -163,7 +163,7 @@ macro_rules! div_int_impl {
                 )?;
 
                 let mut q = zero.clone();
-                let mut r = zero.clone();
+                let mut r = zero;
 
                 let mut index = <$gadget as Int>::SIZE - 1 as usize;
                 let mut bit_value = (1 as <$gadget as Int>::IntegerType) << ((index - 1) as <$gadget as Int>::IntegerType);
@@ -197,20 +197,22 @@ macro_rules! div_int_impl {
                     let sub = r.sub(
                         &mut cs.ns(|| format!("subtract_divisor_{}", i)),
                         &b
-                    );
+                    )?;
 
                     r = Self::conditionally_select(
                         &mut cs.ns(|| format!("subtract_or_same_{}", i)),
                         &can_sub,
-                        &sub?,
+                        &sub,
                         &r
                     )?;
 
                     index -= 1;
 
                     let mut q_new = q.clone();
-                    q_new.bits[index] = true_bit.clone();
-                    q_new.value = Some(q_new.value.unwrap() + bit_value);
+                    q_new.bits[index] = true_bit;
+                    if let Some(ref mut value) = q_new.value {
+                        *value += bit_value;
+                    }
 
                     bit_value >>= 1;
 
