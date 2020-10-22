@@ -51,23 +51,15 @@ macro_rules! select_int_impl {
 
                     let result = Self::alloc(cs.ns(|| "cond_select_result"), || result_val.get())?;
 
-                    let expected_bits = first
-                        .bits
-                        .iter()
-                        .zip(&second.bits)
-                        .enumerate()
-                        .map(|(i, (a, b))| {
-                            Boolean::conditionally_select(
-                                &mut cs.ns(|| format!("{}_cond_select_{}", <$gadget as Int>::SIZE, i)),
-                                cond,
-                                a,
-                                b,
-                            ).unwrap()
-                        })
-                        .collect::<Vec<Boolean>>();
+                    for (i, ((bit1, bit2), actual)) in first.bits.iter().zip(second.bits.iter()).zip(result.bits.iter()).enumerate() {
+                        let expected = Boolean::conditionally_select(
+                            &mut cs.ns(|| format!("{}_cond_select_{}", <$gadget as Int>::SIZE, i)),
+                            cond,
+                            bit1,
+                            bit2,
+                        ).unwrap();
 
-                    for (i, (actual, expected)) in result.bits.iter().zip(expected_bits.iter()).enumerate() {
-                        actual.enforce_equal(&mut cs.ns(|| format!("selected_result_bit_{}", i)), expected)?;
+                        actual.enforce_equal(&mut cs.ns(|| format!("selected_result_bit_{}", i)), &expected)?;
                     }
 
                     Ok(result)
