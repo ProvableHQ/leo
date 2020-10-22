@@ -182,12 +182,26 @@ impl Frame {
     ///
     /// Get a variable's type from the symbol table in the current scope.
     ///
-    fn get_variable(&self, name: &String) -> &Type {
+    fn get_variable(&self, name: &String) -> Option<&Type> {
         // Lookup in the current scope.
         let scope = self.scopes.last().unwrap();
 
         // Get the variable by name.
-        scope.get_variable(name).unwrap()
+        scope.get_variable(name)
+    }
+
+    ///
+    /// Get a function's type from the user defined types in the current scope.
+    ///
+    fn get_function(&self, name: &String) -> Option<&FunctionType> {
+        self.user_defined_types.get_function(name)
+    }
+
+    ///
+    /// Get a circuit's type from the user defined types in the current scope.
+    ///
+    fn get_circuit(&self, name: &String) -> Option<&CircuitType> {
+        self.user_defined_types.get_circuit(name)
     }
 
     ///
@@ -195,6 +209,7 @@ impl Frame {
     ///
     fn assert_equal(&mut self, left: Type, right: Type) {
         let type_assertion = TypeAssertion::new_equality(left, right);
+        println!("TYPE ASSERTION: {:?}", type_assertion);
 
         self.type_assertions.push(type_assertion);
     }
@@ -350,7 +365,7 @@ impl Frame {
     ///
     fn parse_assignee(&mut self, assignee: &Assignee, span: &Span) -> Type {
         // Get the type of the assignee variable.
-        let mut type_ = self.get_variable(&assignee.identifier.name).to_owned();
+        let mut type_ = self.get_variable(&assignee.identifier.name).unwrap().to_owned();
 
         // Iteratively evaluate assignee access types.
         for access in &assignee.accesses {
@@ -531,8 +546,21 @@ impl Frame {
     /// Returns the type of the identifier in the symbol table.
     ///
     fn parse_identifier(&self, identifier: &Identifier) -> Type {
-        // TODO (collinc97) throw an error if identifier is not present.
-        self.get_variable(&identifier.name).clone()
+        // Check variable symbol table.
+        if let Some(type_) = self.get_variable(&identifier.name) {
+            return type_.to_owned();
+        };
+
+        // Check function symbol table.
+        if let Some(function_type) = self.get_function(&identifier.name) {
+            return Type::Function(function_type.identifier.to_owned());
+        };
+
+        // Check circuit symbol table.
+        match self.get_circuit(&identifier.name) {
+            Some(circuit_type) => Type::Circuit(circuit_type.identifier.to_owned()),
+            None => unimplemented!("ERROR identifier not found"),
+        }
     }
 
     ///
