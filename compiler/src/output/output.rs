@@ -26,21 +26,34 @@ use snarkos_models::gadgets::r1cs::Index;
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Output {
     bytes: Vec<u8>,
-    indices: Vec<usize>,
+    input_indices: Vec<usize>,
+    output_indices: Vec<usize>,
 }
 impl Output {
     pub fn bytes(&self) -> &Vec<u8> {
         &self.bytes
     }
 
-    pub fn indices(&self) -> Vec<usize> {
-        self.indices.clone()
+    pub fn input_indices(&self) -> Vec<usize> {
+        self.input_indices.to_owned()
+    }
+
+    pub fn input_range(&self) -> (usize, usize) {
+        let first = self.input_indices.first().map(|num| num.to_owned()).unwrap_or(0);
+        let last = self.input_indices.last().map(|num| num.to_owned()).unwrap_or(0);
+
+        (first, last)
+    }
+
+    pub fn output_indices(&self) -> Vec<usize> {
+        self.output_indices.to_owned()
     }
 
     pub fn new<F: Field + PrimeField, G: GroupType<F>>(
         registers: &Registers,
         value: ConstrainedValue<F, G>,
-        constraint_system_indices: Vec<Index>,
+        cs_input_indices: Vec<Index>,
+        cs_output_indices: Vec<Index>,
         span: Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
@@ -82,14 +95,23 @@ impl Output {
         let bytes = string.into_bytes();
 
         // Serialize constraint system indices.
-        let indices = constraint_system_indices
-            .iter()
-            .map(|index| match index {
-                Index::Input(index) => index.clone(),
-                Index::Aux(index) => index.clone(),
-            })
-            .collect::<Vec<_>>();
+        let input_indices = indices_to_usize(cs_input_indices);
+        let output_indices = indices_to_usize(cs_output_indices);
 
-        Ok(Self { bytes, indices })
+        Ok(Self {
+            bytes,
+            input_indices,
+            output_indices,
+        })
     }
+}
+
+fn indices_to_usize(indices: Vec<Index>) -> Vec<usize> {
+    indices
+        .iter()
+        .map(|index| match index {
+            Index::Input(index) => index.to_owned(),
+            Index::Aux(index) => index.to_owned(),
+        })
+        .collect::<Vec<_>>()
 }

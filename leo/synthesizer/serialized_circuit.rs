@@ -35,6 +35,7 @@ pub struct SerializedCircuit {
 
     pub input_assignment: Vec<SerializedField>,
     pub aux_assignment: Vec<SerializedField>,
+    pub program_input_range: (usize, usize),
     pub output_indices: Vec<usize>,
 
     pub at: Vec<Vec<(SerializedField, SerializedIndex)>>,
@@ -67,8 +68,11 @@ impl SerializedCircuit {
         // Serialize aux assignments.
         let aux_assignment = get_serialized_assignments::<E>(&synthesizer.aux_assignment);
 
+        // Serialize program input indices.
+        let program_input_range = output.input_range();
+
         // Serialize output indices.
-        let output_indices = output.indices();
+        let output_indices = output.output_indices();
 
         // Serialize constraints.
         fn get_serialized_constraints<E: PairingEngine>(
@@ -111,6 +115,7 @@ impl SerializedCircuit {
             num_constraints,
             input_assignment,
             aux_assignment,
+            program_input_range,
             output_indices,
             at,
             bt,

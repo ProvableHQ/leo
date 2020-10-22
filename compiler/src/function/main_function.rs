@@ -27,7 +27,7 @@ use leo_typed::{Expression, Function, Input, InputVariable};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    gadgets::r1cs::{ConstraintSystem, Index},
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -43,7 +43,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Iterate over main function input variables and allocate new values
         let mut input_variables = Vec::with_capacity(function.input.len());
-        for input_model in function.input.clone().into_iter() {
+        let mut cs_input_indices: Vec<Index> = Vec::with_capacity(0);
+        for (i, input_model) in function.input.clone().into_iter().enumerate() {
             let (identifier, value) = match input_model {
                 InputVariable::InputKeyword(identifier) => {
                     let value = self.allocate_input_keyword(cs, identifier.clone(), &input)?;
@@ -65,6 +66,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Store input as variable with {function_name}_{identifier_name}
             let input_name = new_scope(&function_name, &identifier.name);
 
+            // Store constraint system input variable indices for serialization.
+            let mut indices = value.get_constraint_system_indices(cs.ns(|| format!("input index {}", i)));
+            cs_input_indices.append(&mut indices);
+
             // Store a new variable for every allocated main function input
             self.store(input_name, value);
 
@@ -75,9 +80,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let result_value = self.enforce_function(cs, scope, &function_name, function, input_variables, "")?;
 
         // Lookup result value constraint variable indices.
-        let constraint_system_indices = result_value.get_constraint_system_indices(cs);
+        let cs_output_indices = result_value.get_constraint_system_indices(cs);
 
-        let output_bytes = Output::new(registers, result_value, constraint_system_indices, span)?;
+        let output_bytes = Output::new(registers, result_value, cs_input_indices, cs_output_indices, span)?;
 
         Ok(output_bytes)
     }
