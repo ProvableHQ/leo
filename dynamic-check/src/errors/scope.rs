@@ -14,41 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ScopeError;
-use leo_static_check::TypeError;
-use leo_typed::{Error as FormattedError, Span};
+use crate::VariableTableError;
+use leo_typed::Error as FormattedError;
 
 use std::path::PathBuf;
 
-/// Errors encountered when tracking variable names in a program.
+/// Errors encountered when evaluating variables in a scope.
 #[derive(Debug, Error)]
-pub enum FrameError {
+pub enum ScopeError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 
     #[error("{}", _0)]
-    ScopeError(#[from] ScopeError),
-
-    #[error("{}", _0)]
-    TypeError(#[from] TypeError),
+    VariableTableError(#[from] VariableTableError),
 }
 
-impl FrameError {
+impl ScopeError {
     ///
-    /// Set the filepath for the error stacktrace
+    /// Set the filepath for the error stacktrace.
     ///
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
-            FrameError::Error(error) => error.set_path(path),
-            FrameError::ScopeError(error) => error.set_path(path),
-            FrameError::TypeError(error) => error.set_path(path),
+            ScopeError::Error(error) => error.set_path(path),
+            ScopeError::VariableTableError(error) => error.set_path(path),
         }
-    }
-
-    ///
-    /// Return a new formatted error with a given message and span information
-    ///
-    fn new_from_span(message: String, span: Span) -> Self {
-        FrameError::Error(FormattedError::new_from_span(message, span))
     }
 }

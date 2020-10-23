@@ -25,6 +25,10 @@ version = "1.0.3"
 path = "../core"
 version = "1.0.3"
 
+[dependencies.leo-dynamic-check]
+path = "../dynamic-check"
+version = "1.0.3"
+
 [dependencies.leo-gadgets]
 path = "../gadgets"
 version = "1.0.3"
@@ -47,6 +51,10 @@ version = "1.0.3"
 
 [dependencies.leo-state]
 path = "../state"
+version = "1.0.3"
+
+[dependencies.leo-static-check]
+path = "../static-check"
 version = "1.0.3"
 
 [dependencies.snarkos-curves]

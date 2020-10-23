@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// use crate::{ExpressionError, FunctionError, ProgramError, StatementError};
 use crate::FrameError;
 use leo_typed::Error as FormattedError;
 
@@ -43,7 +42,9 @@ pub enum DynamicCheckError {
 }
 
 impl DynamicCheckError {
-    /// Set the filepath for the error stacktrace
+    ///
+    /// Set the filepath for the error stacktrace.
+    ///
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
             DynamicCheckError::Error(error) => error.set_path(path),

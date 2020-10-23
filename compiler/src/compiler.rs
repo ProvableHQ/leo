@@ -24,10 +24,12 @@ use crate::{
     OutputFile,
 };
 use leo_ast::LeoAst;
+use leo_dynamic_check::DynamicCheck;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
+use leo_static_check::StaticCheck;
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
@@ -160,6 +162,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let typed_tree = LeoTypedAst::new(&package_name, &ast);
 
         self.program = typed_tree.into_repr();
+
+        let symbol_table = StaticCheck::run(&self.program).unwrap();
+
+        let dynamic_check = DynamicCheck::new(&self.program, symbol_table).unwrap();
+
+        dynamic_check.solve().unwrap();
+
         self.imported_programs = ImportParser::parse(&self.program)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);

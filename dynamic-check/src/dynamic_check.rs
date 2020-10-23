@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DynamicCheckError, FrameError, VariableTableError};
+use crate::{DynamicCheckError, FrameError, ScopeError, VariableTableError};
 use leo_static_check::{
     Attribute,
     CircuitFunctionType,
@@ -62,28 +62,28 @@ impl DynamicCheck {
     ///
     /// Returns a new `DynamicCheck` from a given program and symbol table.
     ///
-    pub fn new(program: &Program, symbol_table: SymbolTable) -> Self {
+    pub fn new(program: &Program, symbol_table: SymbolTable) -> Result<Self, DynamicCheckError> {
         let mut dynamic_check = Self {
             table: symbol_table,
-            frames: vec![],
+            frames: Vec::new(),
         };
 
-        dynamic_check.parse_program(program);
+        dynamic_check.parse_program(program)?;
 
-        dynamic_check
+        Ok(dynamic_check)
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a program.
     ///
-    fn parse_program(&mut self, program: &Program) {
+    fn parse_program(&mut self, program: &Program) -> Result<(), DynamicCheckError> {
         let circuits = program
             .circuits
             .iter()
             .map(|(_identifier, circuit)| circuit)
             .collect::<Vec<_>>();
 
-        self.parse_circuits(circuits);
+        self.parse_circuits(circuits)?;
 
         let functions = program
             .functions
@@ -91,34 +91,40 @@ impl DynamicCheck {
             .map(|(_identifier, function)| function)
             .collect::<Vec<_>>();
 
-        self.parse_functions(functions);
+        self.parse_functions(functions)
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of functions.
     ///
-    fn parse_functions(&mut self, functions: Vec<&Function>) {
+    fn parse_functions(&mut self, functions: Vec<&Function>) -> Result<(), DynamicCheckError> {
         for function in functions {
-            self.parse_function(function);
+            self.parse_function(function)?;
         }
+
+        Ok(())
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    fn parse_function(&mut self, function: &Function) {
-        let frame = Frame::new_function(function.to_owned(), None, None, self.table.clone());
+    fn parse_function(&mut self, function: &Function) -> Result<(), DynamicCheckError> {
+        let frame = Frame::new_function(function.to_owned(), None, None, self.table.clone())?;
 
         self.frames.push(frame);
+
+        Ok(())
     }
 
     ///
     /// Collects a vector of `Frames`s from a vector of circuit functions.
     ///
-    fn parse_circuits(&mut self, circuits: Vec<&Circuit>) {
+    fn parse_circuits(&mut self, circuits: Vec<&Circuit>) -> Result<(), DynamicCheckError> {
         for circuit in circuits {
-            self.parse_circuit(circuit);
+            self.parse_circuit(circuit)?;
         }
+
+        Ok(())
     }
 
     ///
@@ -126,33 +132,11 @@ impl DynamicCheck {
     ///
     /// Each frame collects a vector of `TypeAssertion` predicates from each function.
     ///
-    fn parse_circuit(&mut self, circuit: &Circuit) {
+    fn parse_circuit(&mut self, circuit: &Circuit) -> Result<(), DynamicCheckError> {
         let name = &circuit.circuit_name.name;
 
         // Get circuit type from circuit symbol table.
         let circuit_type = self.table.get_circuit(name).unwrap().clone();
-
-        // Insert circuit member variable types into variable table.
-        let variable_table = Scope::empty();
-
-        // for circuit_variable in &circuit_type.variables {
-        //     // Get name and type from circuit variables.
-        //     let name = circuit_variable.identifier.name.to_owned();
-        //     let type_ = circuit_variable.type_.to_owned();
-        //
-        //     variable_table.insert_variable(name, type_);
-        // }
-        //
-        // // Insert circuit member function types into function table.
-        let user_defined_types = self.table.clone();
-        //
-        // for circuit_function in &circuit_type.functions {
-        //     // Get the name and type from circuit functions.
-        //     let identifier = circuit_function.function.identifier.to_owned();
-        //     let function_type = circuit_function.function.to_owned();
-        //
-        //     user_defined_types.insert_function(identifier, function_type);
-        // }
 
         // Create a new function for each circuit member function.
         for circuit_member in &circuit.members {
@@ -163,13 +147,15 @@ impl DynamicCheck {
                 let frame = Frame::new_circuit_function(
                     function.to_owned(),
                     circuit_type.clone(),
-                    variable_table.clone(),
-                    user_defined_types.clone(),
-                );
+                    Scope::empty(),
+                    self.table.clone(),
+                )?;
 
                 self.frames.push(frame)
             }
         }
+
+        Ok(())
     }
 
     ///
@@ -208,7 +194,7 @@ impl Frame {
         self_type: Option<CircuitType>,
         parent_scope: Option<Scope>,
         user_defined_types: SymbolTable,
-    ) -> Self {
+    ) -> Result<Self, FrameError> {
         let name = &function.identifier.name;
 
         // Get function type from symbol table.
@@ -218,7 +204,7 @@ impl Frame {
         let mut scope = Scope::new(parent_scope);
 
         // Initialize function inputs as variables.
-        scope.parse_function_inputs(&function_type.inputs);
+        scope.parse_function_inputs(&function_type.inputs)?;
 
         // Create new list of scopes for frame.
         let scopes = vec![scope];
@@ -235,9 +221,9 @@ impl Frame {
         };
 
         // Create type assertions for function statements
-        frame.parse_statements();
+        frame.parse_statements()?;
 
-        frame
+        Ok(frame)
     }
 
     ///
@@ -248,7 +234,7 @@ impl Frame {
         self_type: CircuitType,
         parent_scope: Scope,
         user_defined_types: SymbolTable,
-    ) -> Self {
+    ) -> Result<Self, FrameError> {
         let identifier = &function.identifier;
 
         // Find function name in circuit members.
@@ -258,7 +244,7 @@ impl Frame {
         let mut scope = Scope::new(Some(parent_scope));
 
         // Initialize function inputs as variables.
-        scope.parse_function_inputs(&circuit_function_type.function.inputs);
+        scope.parse_function_inputs(&circuit_function_type.function.inputs)?;
 
         // Create new list of scopes for frame.
         let scopes = vec![scope];
@@ -275,9 +261,9 @@ impl Frame {
         };
 
         // Create type assertions for function statements
-        frame.parse_statements();
+        frame.parse_statements()?;
 
-        frame
+        Ok(frame)
     }
 
     ///
@@ -379,20 +365,20 @@ impl Frame {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
-    fn parse_statements(&mut self) {
+    fn parse_statements(&mut self) -> Result<(), FrameError> {
         for statement in self.statements.clone() {
-            self.parse_statement(&statement);
+            self.parse_statement(&statement)?;
         }
+
+        Ok(())
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a statement.
     ///
-    fn parse_statement(&mut self, statement: &Statement) {
+    fn parse_statement(&mut self, statement: &Statement) -> Result<(), FrameError> {
         match statement {
-            Statement::Return(expression, span) => {
-                self.parse_return(expression, span);
-            }
+            Statement::Return(expression, span) => self.parse_return(expression, span),
             Statement::Definition(declare, variables, expression, span) => {
                 self.parse_definition(declare, variables, expression, span)
             }
@@ -409,7 +395,7 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a return statement.
     ///
-    fn parse_return(&mut self, expression: &Expression, _span: &Span) {
+    fn parse_return(&mut self, expression: &Expression, _span: &Span) -> Result<(), FrameError> {
         // Get the function output type.
         let output_type = &self.function_type.output.type_;
 
@@ -417,18 +403,26 @@ impl Frame {
         let left = output_type.clone();
 
         // Create the right hand side from the statement return expression.
-        let right = self.parse_expression(expression);
+        let right = self.parse_expression(expression)?;
 
         // Create a new type assertion for the statement return.
         self.assert_equal(left, right);
+
+        Ok(())
     }
 
     ///
     /// Collects `Type Assertion` predicates from a definition statement.
     ///
-    fn parse_definition(&mut self, _declare: &Declare, variables: &Variables, expression: &Expression, span: &Span) {
+    fn parse_definition(
+        &mut self,
+        _declare: &Declare,
+        variables: &Variables,
+        expression: &Expression,
+        span: &Span,
+    ) -> Result<(), FrameError> {
         // Parse the definition expression.
-        let actual_type = self.parse_expression(expression);
+        let actual_type = self.parse_expression(expression)?;
 
         // Check if an explicit type is given.
         if let Some(type_) = variables.type_.clone() {
@@ -470,26 +464,30 @@ impl Frame {
                 let _expect_none = self.insert_variable(variable.identifier.name.clone(), type_);
             }
         }
+
+        Ok(())
     }
 
     ///
     /// Asserts that the assignee's type is equal to the `Expression` type.
     ///
-    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) {
+    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) -> Result<(), FrameError> {
         // Parse assignee type.
-        let assignee_type = self.parse_assignee(assignee, span);
+        let assignee_type = self.parse_assignee(assignee, span)?;
 
         // Parse expression type.
-        let expression_type = self.parse_expression(expression);
+        let expression_type = self.parse_expression(expression)?;
 
         // Assert that the assignee_type == expression_type.
         self.assert_equal(assignee_type, expression_type);
+
+        Ok(())
     }
 
     ///
     /// Returns the type of the assignee.
     ///
-    fn parse_assignee(&mut self, assignee: &Assignee, span: &Span) -> Type {
+    fn parse_assignee(&mut self, assignee: &Assignee, span: &Span) -> Result<Type, FrameError> {
         // Get the type of the assignee variable.
         let mut type_ = self.get_variable(&assignee.identifier.name).unwrap().to_owned();
 
@@ -499,29 +497,31 @@ impl Frame {
                 AssigneeAccess::Array(r_or_e) => self.parse_array_access(type_, r_or_e, span),
                 AssigneeAccess::Tuple(index) => self.parse_tuple_access(type_, *index, span),
                 AssigneeAccess::Member(identifier) => self.parse_circuit_member_access(type_, identifier, span),
-            };
+            }?;
 
             type_ = access_type;
         }
 
-        type_
+        Ok(type_)
     }
 
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, statements: &Vec<Statement>, _span: &Span) {
+    fn parse_block(&mut self, statements: &Vec<Statement>, _span: &Span) -> Result<(), FrameError> {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
         self.push_scope(scope);
 
         // Parse all statements.
         for statement in statements.iter() {
-            self.parse_statement(statement);
+            self.parse_statement(statement)?;
         }
 
         // Pop out of scope.
         let _scope = self.pop_scope();
+
+        Ok(())
     }
 
     ///
@@ -529,32 +529,40 @@ impl Frame {
     ///
     /// Creates a new scope for each code block in the conditional.
     ///
-    fn parse_statement_conditional(&mut self, conditional: &ConditionalStatement, span: &Span) {
+    fn parse_statement_conditional(
+        &mut self,
+        conditional: &ConditionalStatement,
+        span: &Span,
+    ) -> Result<(), FrameError> {
         // Parse the condition expression.
-        let condition = self.parse_expression(&conditional.condition);
+        let condition = self.parse_expression(&conditional.condition)?;
 
         // Assert that the condition is a boolean type.
         let boolean_type = Type::Boolean;
         self.assert_equal(boolean_type, condition);
 
         // Parse conditional statements.
-        self.parse_block(&conditional.statements, span);
+        self.parse_block(&conditional.statements, span)?;
 
         // Parse conditional or end.
         match &conditional.next {
-            Some(cond_or_end) => self.parse_conditional_nested_or_end(cond_or_end, span),
+            Some(cond_or_end) => self.parse_conditional_nested_or_end(cond_or_end, span)?,
             None => {}
         }
+
+        Ok(())
     }
 
     ///
     /// Collects `TypeAssertion` predicates from a conditional statement.
     ///
-    fn parse_conditional_nested_or_end(&mut self, cond_or_end: &ConditionalNestedOrEndStatement, span: &Span) {
+    fn parse_conditional_nested_or_end(
+        &mut self,
+        cond_or_end: &ConditionalNestedOrEndStatement,
+        span: &Span,
+    ) -> Result<(), FrameError> {
         match cond_or_end {
-            ConditionalNestedOrEndStatement::Nested(nested) => {
-                self.parse_statement_conditional(nested, span);
-            }
+            ConditionalNestedOrEndStatement::Nested(nested) => self.parse_statement_conditional(nested, span),
             ConditionalNestedOrEndStatement::End(statements) => self.parse_block(statements, span),
         }
     }
@@ -569,58 +577,61 @@ impl Frame {
         to: &Expression,
         statements: &Vec<Statement>,
         span: &Span,
-    ) {
+    ) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
         let u32_type = Type::IntegerType(IntegerType::U32);
         let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone());
 
         // Parse `from` and `to` expressions.
-        let from_type = self.parse_expression(from);
-        let to_type = self.parse_expression(to);
+        let from_type = self.parse_expression(from)?;
+        let to_type = self.parse_expression(to)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
         self.assert_equal(u32_type.clone(), from_type);
         self.assert_equal(u32_type, to_type);
 
         // Parse block of statements.
-        self.parse_block(statements, span);
+        self.parse_block(statements, span)
     }
 
     ///
     /// Asserts that the statement `UnresolvedExpression` returns an empty tuple.
     ///
-    fn parse_statement_expression(&mut self, expression: &Expression, _span: &Span) {
+    fn parse_statement_expression(&mut self, expression: &Expression, _span: &Span) -> Result<(), FrameError> {
         // Create empty tuple type.
         let expected_type = Type::Tuple(Vec::with_capacity(0));
 
         // Parse the actual type of the expression.
-        let actual_type = self.parse_expression(expression);
+        let actual_type = self.parse_expression(expression)?;
 
         self.assert_equal(expected_type, actual_type);
+
+        Ok(())
     }
 
     ///
     /// Collects `TypeAssertion` predicates from a console statement.
     ///
-    fn parse_console_function_call(&mut self, _console_function_call: &ConsoleFunctionCall) {
+    fn parse_console_function_call(&mut self, _console_function_call: &ConsoleFunctionCall) -> Result<(), FrameError> {
         // TODO (collinc97) find a way to fetch console function call types here
+        Ok(())
     }
 
     ///
     /// Returns the type of an expression.
     ///
-    fn parse_expression(&mut self, expression: &Expression) -> Type {
+    fn parse_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
         match expression {
             // Type variables
             Expression::Identifier(identifier) => self.parse_identifier(identifier),
 
             // Explicit types
-            Expression::Boolean(_, _) => Type::Boolean,
-            Expression::Address(_, _) => Type::Address,
-            Expression::Field(_, _) => Type::Field,
-            Expression::Group(_) => Type::Group,
-            Expression::Implicit(name, _) => Self::parse_implicit(name),
-            Expression::Integer(integer_type, _, _) => Type::IntegerType(integer_type.clone()),
+            Expression::Boolean(_, _) => Ok(Type::Boolean),
+            Expression::Address(_, _) => Ok(Type::Address),
+            Expression::Field(_, _) => Ok(Type::Field),
+            Expression::Group(_) => Ok(Type::Group),
+            Expression::Implicit(name, _) => Ok(Self::parse_implicit(name)),
+            Expression::Integer(integer_type, _, _) => Ok(Type::IntegerType(integer_type.clone())),
 
             // Number operations
             Expression::Add(left, right, span) => self.parse_integer_binary_expression(left, right, span),
@@ -671,20 +682,20 @@ impl Frame {
     ///
     /// Returns the type of the identifier in the symbol table.
     ///
-    fn parse_identifier(&self, identifier: &Identifier) -> Type {
+    fn parse_identifier(&self, identifier: &Identifier) -> Result<Type, FrameError> {
         // Check variable symbol table.
         if let Some(type_) = self.get_variable(&identifier.name) {
-            return type_.to_owned();
+            return Ok(type_.to_owned());
         };
 
         // Check function symbol table.
         if let Some(function_type) = self.get_function(&identifier.name) {
-            return Type::Function(function_type.identifier.to_owned());
+            return Ok(Type::Function(function_type.identifier.to_owned()));
         };
 
         // Check circuit symbol table.
         match self.get_circuit(&identifier.name) {
-            Some(circuit_type) => Type::Circuit(circuit_type.identifier.to_owned()),
+            Some(circuit_type) => Ok(Type::Circuit(circuit_type.identifier.to_owned())),
             None => unimplemented!("ERROR identifier not found"),
         }
     }
@@ -699,17 +710,22 @@ impl Frame {
     ///
     /// Returns the type of a binary expression.
     ///
-    fn parse_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+    fn parse_binary_expression(
+        &mut self,
+        left: &Expression,
+        right: &Expression,
+        _span: &Span,
+    ) -> Result<Type, FrameError> {
         // Get the left expression type.
-        let left_type = self.parse_expression(left);
+        let left_type = self.parse_expression(left)?;
 
         // Get the right expression type.
-        let right_type = self.parse_expression(right);
+        let right_type = self.parse_expression(right)?;
 
         // Create a type assertion left_type == right_type.
         self.assert_equal(left_type.clone(), right_type);
 
-        left_type
+        Ok(left_type)
     }
 
     ///
@@ -717,58 +733,68 @@ impl Frame {
     ///
     /// Asserts that the `Type` is an integer.
     ///
-    fn parse_integer_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
-        let type_ = self.parse_binary_expression(left, right, _span);
+    fn parse_integer_binary_expression(
+        &mut self,
+        left: &Expression,
+        right: &Expression,
+        _span: &Span,
+    ) -> Result<Type, FrameError> {
+        let type_ = self.parse_binary_expression(left, right, _span)?;
 
         // Assert that the type is an integer.
         self.assert_integer(&type_);
 
-        type_
+        Ok(type_)
     }
 
     ///
     /// Returns the `Boolean` type if the expression is a `Boolean` type.
     ///
-    fn parse_boolean_expression(&mut self, expression: &Expression) -> Type {
+    fn parse_boolean_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
         // Return the `Boolean` type
         let boolean_type = Type::Boolean;
 
         // Get the type of the expression
-        let expression_type = self.parse_expression(expression);
+        let expression_type = self.parse_expression(expression)?;
 
         // Assert that the type is a boolean.
         self.assert_equal(boolean_type.clone(), expression_type);
 
-        boolean_type
+        Ok(boolean_type)
     }
 
     ///
     /// Returns the `Type` of the expression being negated. Must be a negative integer type.
     ///
-    fn parse_negate_expression(&mut self, expression: &Expression) -> Type {
+    fn parse_negate_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
         // Parse the expression type.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         // Assert that this integer can be negated.
         self.assert_negative_integer(&type_);
 
-        type_
+        Ok(type_)
     }
 
     ///
     /// Returns the `Boolean` type if the binary expression is a `Boolean` type.
     ///
-    fn parse_boolean_binary_expression(&mut self, left: &Expression, right: &Expression, _span: &Span) -> Type {
+    fn parse_boolean_binary_expression(
+        &mut self,
+        left: &Expression,
+        right: &Expression,
+        _span: &Span,
+    ) -> Result<Type, FrameError> {
         // Return the `Boolean` type.
         let boolean_type = Type::Boolean;
 
         // Get the type of the binary expression.
-        let binary_expression_type = self.parse_binary_expression(left, right, _span);
+        let binary_expression_type = self.parse_binary_expression(left, right, _span)?;
 
         // Create a type assertion boolean_type == expression_type.
         self.assert_equal(boolean_type.clone(), binary_expression_type);
 
-        boolean_type
+        Ok(boolean_type)
     }
 
     ///
@@ -780,9 +806,9 @@ impl Frame {
         first: &Expression,
         second: &Expression,
         _span: &Span,
-    ) -> Type {
+    ) -> Result<Type, FrameError> {
         // Check that the type of the condition expression is a boolean.
-        let _condition_type = self.parse_boolean_expression(condition);
+        let _condition_type = self.parse_boolean_expression(condition)?;
 
         // Check that the types of the first and second expression are equal.
         self.parse_binary_expression(first, second, _span)
@@ -791,25 +817,30 @@ impl Frame {
     ///
     /// Returns the type of the tuple expression.
     ///
-    fn parse_tuple(&mut self, expressions: &Vec<Expression>, _span: &Span) -> Type {
+    fn parse_tuple(&mut self, expressions: &Vec<Expression>, _span: &Span) -> Result<Type, FrameError> {
         let mut types = vec![];
 
         // Parse all tuple expressions.
         for expression in expressions {
-            let type_ = self.parse_expression(expression);
+            let type_ = self.parse_expression(expression)?;
 
             types.push(type_)
         }
 
-        Type::Tuple(types)
+        Ok(Type::Tuple(types))
     }
 
     ///
     /// Returns the type of the accessed tuple element when called as an expression.
     ///
-    fn parse_expression_tuple_access(&mut self, expression: &Expression, index: usize, span: &Span) -> Type {
+    fn parse_expression_tuple_access(
+        &mut self,
+        expression: &Expression,
+        index: usize,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
         // Parse the tuple expression which could be a variable with type tuple.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         // Parse the tuple access.
         self.parse_tuple_access(type_, index, span)
@@ -818,7 +849,7 @@ impl Frame {
     ///
     /// Returns the type of the accessed tuple element.
     ///
-    fn parse_tuple_access(&mut self, type_: Type, index: usize, _span: &Span) -> Type {
+    fn parse_tuple_access(&mut self, type_: Type, index: usize, _span: &Span) -> Result<Type, FrameError> {
         // Check the type is a tuple.
         let elements = match type_ {
             Type::Tuple(elements) => elements,
@@ -827,13 +858,13 @@ impl Frame {
 
         let element_type = elements[index].clone();
 
-        element_type
+        Ok(element_type)
     }
 
     ///
     /// Returns the type of the array expression.
     ///
-    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Type {
+    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
         let mut count = 0usize;
@@ -841,7 +872,7 @@ impl Frame {
         // Parse all array elements.
         for expression in expressions {
             // Get the type and count of elements in each spread or expression.
-            let (type_, element_count) = self.parse_spread_or_expression(expression);
+            let (type_, element_count) = self.parse_spread_or_expression(expression)?;
 
             // Assert that array element types are the same.
             if let Some(prev_type) = element_type {
@@ -861,17 +892,17 @@ impl Frame {
             None => unimplemented!("return empty array error"),
         };
 
-        Type::Array(Box::new(type_), vec![count])
+        Ok(Type::Array(Box::new(type_), vec![count]))
     }
 
     ///
     /// Returns the type and count of elements in a spread or expression.
     ///
-    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> (Type, usize) {
-        match s_or_e {
+    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> Result<(Type, usize), FrameError> {
+        Ok(match s_or_e {
             SpreadOrExpression::Spread(expression) => {
                 // Parse the type of the spread array expression.
-                let array_type = self.parse_expression(expression);
+                let array_type = self.parse_expression(expression)?;
 
                 // Check that the type is an array.
                 let (element_type, mut dimensions) = match array_type {
@@ -892,8 +923,8 @@ impl Frame {
 
                 (type_, count)
             }
-            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression), 1),
-        }
+            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression)?, 1),
+        })
     }
 
     ///
@@ -904,9 +935,9 @@ impl Frame {
         expression: &Expression,
         r_or_e: &RangeOrExpression,
         span: &Span,
-    ) -> Type {
+    ) -> Result<Type, FrameError> {
         // Parse the array expression which could be a variable with type array.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         // Parse the array access.
         self.parse_array_access(type_, r_or_e, span)
@@ -915,7 +946,12 @@ impl Frame {
     ///
     /// Returns the type of the accessed array element.
     ///
-    fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, _span: &Span) -> Type {
+    fn parse_array_access(
+        &mut self,
+        type_: Type,
+        r_or_e: &RangeOrExpression,
+        _span: &Span,
+    ) -> Result<Type, FrameError> {
         // Check the type is an array.
         let (element_type, _dimensions) = match type_ {
             Type::Array(type_, dimensions) => (type_, dimensions),
@@ -930,28 +966,28 @@ impl Frame {
             RangeOrExpression::Range(from, to) => {
                 if let Some(expression) = from {
                     // Parse the expression type.
-                    let type_ = self.parse_expression(expression);
+                    let type_ = self.parse_expression(expression)?;
 
                     self.assert_index(&type_);
                 }
 
                 if let Some(expression) = to {
                     // Parse the expression type.
-                    let type_ = self.parse_expression(expression);
+                    let type_ = self.parse_expression(expression)?;
 
                     self.assert_index(&type_);
                 }
             }
             RangeOrExpression::Expression(expression) => {
                 // Parse the expression type.
-                let type_ = self.parse_expression(expression);
+                let type_ = self.parse_expression(expression)?;
 
                 // Assert the type is an index.
                 self.assert_index(&type_);
             }
         }
 
-        *element_type
+        Ok(*element_type)
     }
 
     ///
@@ -962,7 +998,7 @@ impl Frame {
         identifier: &Identifier,
         members: &Vec<CircuitVariableDefinition>,
         _span: &Span,
-    ) -> Type {
+    ) -> Result<Type, FrameError> {
         // Check if identifier is Self circuit type.
         let circuit_type = if identifier.is_self() {
             self.self_type.clone()
@@ -982,13 +1018,13 @@ impl Frame {
         // Assert members are circuit type member types.
         for (expected_variable, actual_variable) in circuit_type.variables.iter().zip(members) {
             // Parse actual variable expression.
-            let actual_type = self.parse_expression(&actual_variable.expression);
+            let actual_type = self.parse_expression(&actual_variable.expression)?;
 
             // Assert expected variable type == actual variable type.
             self.assert_equal(expected_variable.type_.clone(), actual_type)
         }
 
-        Type::Circuit(identifier.clone())
+        Ok(Type::Circuit(identifier.to_owned()))
     }
 
     ///
@@ -999,9 +1035,9 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> Type {
+    ) -> Result<Type, FrameError> {
         // Parse circuit name.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         // Parse the circuit member access.
         self.parse_circuit_member_access(type_, identifier, span)
@@ -1010,12 +1046,17 @@ impl Frame {
     ///
     /// Returns the type of the accessed circuit member.
     ///
-    fn parse_circuit_member_access(&mut self, type_: Type, identifier: &Identifier, span: &Span) -> Type {
+    fn parse_circuit_member_access(
+        &mut self,
+        type_: Type,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
         // Check that type is a circuit type.
-        let circuit_type = self.parse_circuit_name(type_, span);
+        let circuit_type = self.parse_circuit_name(type_, span)?;
 
         // Look for member with matching name.
-        circuit_type.member_type(&identifier).unwrap()
+        Ok(circuit_type.member_type(&identifier).unwrap())
     }
 
     ///
@@ -1026,9 +1067,9 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> Type {
+    ) -> Result<Type, FrameError> {
         // Parse the circuit name.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         self.parse_circuit_member_access(type_, identifier, span)
     }
@@ -1036,21 +1077,21 @@ impl Frame {
     ///
     /// Returns a `CircuitType` given a circuit expression.
     ///
-    fn parse_circuit_name(&mut self, type_: Type, _span: &Span) -> &CircuitType {
+    fn parse_circuit_name(&mut self, type_: Type, _span: &Span) -> Result<&CircuitType, FrameError> {
         // Check that type is a circuit type.
-        match type_ {
+        Ok(match type_ {
             Type::Circuit(identifier) => {
                 // Lookup circuit identifier.
                 self.user_defined_types.get_circuit(&identifier.name).unwrap()
             }
             _ => unimplemented!("expected circuit type"),
-        }
+        })
     }
 
     ///
     /// Returns a `FunctionType` given a function expression.
     ///
-    fn parse_function_name(&mut self, expression: &Expression, span: &Span) -> FunctionType {
+    fn parse_function_name(&mut self, expression: &Expression, span: &Span) -> Result<FunctionType, FrameError> {
         // Case 1: Call a function defined in the program file.
         // Case 2: Call a circuit function.
         // Case 3: Call a static circuit function.
@@ -1070,11 +1111,12 @@ impl Frame {
     ///
     /// Returns a `FunctionType` given a function identifier.
     ///
-    fn parse_program_function(&mut self, identifier: &Identifier, _span: &Span) -> FunctionType {
-        self.user_defined_types
+    fn parse_program_function(&mut self, identifier: &Identifier, _span: &Span) -> Result<FunctionType, FrameError> {
+        Ok(self
+            .user_defined_types
             .get_function(&identifier.name)
             .unwrap()
-            .to_owned()
+            .to_owned())
     }
 
     ///
@@ -1085,15 +1127,15 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> &CircuitFunctionType {
+    ) -> Result<&CircuitFunctionType, FrameError> {
         // Parse circuit name.
-        let type_ = self.parse_expression(expression);
+        let type_ = self.parse_expression(expression)?;
 
         // Get circuit type.
-        let circuit_type = self.parse_circuit_name(type_, span);
+        let circuit_type = self.parse_circuit_name(type_, span)?;
 
         // Find circuit function by identifier.
-        circuit_type.member_function_type(identifier).unwrap()
+        Ok(circuit_type.member_function_type(identifier).unwrap())
     }
 
     ///
@@ -1104,9 +1146,9 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> FunctionType {
+    ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span);
+        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
         // Check that the function is non-static.
         if circuit_function_type.attributes.contains(&Attribute::Static) {
@@ -1114,7 +1156,7 @@ impl Frame {
         }
 
         // Return the function type.
-        circuit_function_type.function.to_owned()
+        Ok(circuit_function_type.function.to_owned())
     }
 
     ///
@@ -1125,16 +1167,16 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> FunctionType {
+    ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span);
+        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
         // Check that the function is static.
         if !circuit_function_type.attributes.contains(&Attribute::Static) {
             unimplemented!("Called non-static function using double colon syntax")
         }
 
-        circuit_function_type.function.to_owned()
+        Ok(circuit_function_type.function.to_owned())
     }
 
     ///
@@ -1142,10 +1184,15 @@ impl Frame {
     ///
     /// Does not attempt to evaluate the function call. We are just checking types at this step.
     ///
-    fn parse_function_call(&mut self, expression: &Expression, inputs: &Vec<Expression>, span: &Span) -> Type {
+    fn parse_function_call(
+        &mut self,
+        expression: &Expression,
+        inputs: &Vec<Expression>,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
         // Parse the function name.
         println!("expression {}", expression);
-        let function_type = self.parse_function_name(expression, span);
+        let function_type = self.parse_function_name(expression, span)?;
 
         // Check the length of arguments
         if function_type.inputs.len() != inputs.len() {
@@ -1155,20 +1202,25 @@ impl Frame {
         // Assert function inputs are correct types.
         for (expected_input, actual_input) in function_type.inputs.iter().zip(inputs) {
             // Parse actual input expression.
-            let actual_type = self.parse_expression(actual_input);
+            let actual_type = self.parse_expression(actual_input)?;
 
             // Assert expected input type == actual input type.
             self.assert_equal(expected_input.type_().clone(), actual_type);
         }
 
         // Return the function output type.
-        function_type.output.type_.clone()
+        Ok(function_type.output.type_.clone())
     }
 
     ///
     /// Returns the type returned by calling the core function.
     ///
-    fn parse_core_function_call(&mut self, _name: &String, _arguments: &Vec<Expression>, _span: &Span) -> Type {
+    fn parse_core_function_call(
+        &mut self,
+        _name: &String,
+        _arguments: &Vec<Expression>,
+        _span: &Span,
+    ) -> Result<Type, FrameError> {
         unimplemented!("type checks for core function calls not implemented")
     }
 
@@ -1277,8 +1329,10 @@ impl Scope {
     ///
     /// Inserts a vector of function input types into the `Scope` variable table.
     ///
-    pub fn parse_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) {
-        self.variables.parse_function_inputs(function_inputs)
+    pub fn parse_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) -> Result<(), ScopeError> {
+        self.variables
+            .parse_function_inputs(function_inputs)
+            .map_err(|err| ScopeError::VariableTableError(err))
     }
 }
 
@@ -1319,7 +1373,10 @@ impl VariableTable {
     ///
     /// Inserts a vector of function input types into the variable table.
     ///
-    pub fn parse_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) {
+    pub fn parse_function_inputs(
+        &mut self,
+        function_inputs: &Vec<FunctionInputType>,
+    ) -> Result<(), VariableTableError> {
         for input in function_inputs {
             let input_name = input.identifier().name.clone();
             let input_type = input.type_().clone();
@@ -1327,6 +1384,7 @@ impl VariableTable {
             // TODO (collinc97) throw an error for duplicate function input names.
             self.insert(input_name, input_type);
         }
+        Ok(())
     }
 }
 

@@ -38,5 +38,8 @@ pub use self::frame::*;
 // pub mod statement;
 // pub use self::statement::*;
 
+pub mod scope;
+pub use self::scope::*;
+
 pub mod variable_table;
 pub use self::variable_table::*;
