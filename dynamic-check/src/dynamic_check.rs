@@ -60,6 +60,17 @@ pub struct VariableEnvironment {}
 
 impl DynamicCheck {
     ///
+    /// Creates a new `DynamicCheck` from a given program and symbol table.
+    ///
+    /// Evaluates all `TypeAssertion` predicates.
+    ///
+    pub fn run(program: &Program, symbol_table: SymbolTable) -> Result<(), DynamicCheckError> {
+        let dynamic_check = Self::new(program, symbol_table)?;
+
+        dynamic_check.solve()
+    }
+
+    ///
     /// Returns a new `DynamicCheck` from a given program and symbol table.
     ///
     pub fn new(program: &Program, symbol_table: SymbolTable) -> Result<Self, DynamicCheckError> {
@@ -694,10 +705,11 @@ impl Frame {
         };
 
         // Check circuit symbol table.
-        match self.get_circuit(&identifier.name) {
-            Some(circuit_type) => Ok(Type::Circuit(circuit_type.identifier.to_owned())),
-            None => unimplemented!("ERROR identifier not found"),
+        if let Some(circuit_type) = self.get_circuit(&identifier.name) {
+            return Ok(Type::Circuit(circuit_type.identifier.to_owned()));
         }
+
+        Ok(Self::parse_implicit(&identifier.name))
     }
 
     ///

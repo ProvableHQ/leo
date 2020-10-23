@@ -163,11 +163,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 
         self.program = typed_tree.into_repr();
 
-        let symbol_table = StaticCheck::run(&self.program).unwrap();
+        // Run static check on program.
+        let symbol_table = StaticCheck::run(&self.program)?;
 
-        let dynamic_check = DynamicCheck::new(&self.program, symbol_table).unwrap();
-
-        dynamic_check.solve().unwrap();
+        // Run dynamic check on program.
+        DynamicCheck::run(&self.program, symbol_table)?;
 
         self.imported_programs = ImportParser::parse(&self.program)?;
 

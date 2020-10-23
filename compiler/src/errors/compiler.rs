@@ -21,10 +21,15 @@ use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
+use leo_dynamic_check::DynamicCheckError;
+use leo_static_check::StaticCheckError;
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
+    #[error("{}", _0)]
+    DynamicCheckError(#[from] DynamicCheckError),
+
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
 
@@ -66,6 +71,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
+
+    #[error("{}", _0)]
+    StaticCheckError(#[from] StaticCheckError),
 }
 
 impl CompilerError {
