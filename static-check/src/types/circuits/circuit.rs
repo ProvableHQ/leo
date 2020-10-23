@@ -107,12 +107,21 @@ impl CircuitType {
     }
 
     ///
+    /// Returns the function type of a circuit member given an identifier.
+    ///
+    pub fn member_function_type(&self, identifier: &Identifier) -> Option<&CircuitFunctionType> {
+        self.functions
+            .iter()
+            .find(|function| function.function.identifier.eq(identifier))
+    }
+
+    ///
     /// Returns the type of a circuit member.
     ///
     /// If the member is a circuit variable, then the type of the variable is returned.
     /// If the member is a circuit function, then the return type of the function is returned.
     ///
-    pub fn member_type(&self, identifier: &Identifier) -> Result<&Type, TypeError> {
+    pub fn member_type(&self, identifier: &Identifier) -> Result<Type, TypeError> {
         // Check if the circuit member is a circuit variable.
         let matched_variable = self
             .variables
@@ -120,16 +129,13 @@ impl CircuitType {
             .find(|variable| variable.identifier.eq(identifier));
 
         match matched_variable {
-            Some(variable) => Ok(&variable.type_),
+            Some(variable) => Ok(variable.type_.to_owned()),
             None => {
                 // Check if the circuit member is a circuit function.
-                let matched_function = self
-                    .functions
-                    .iter()
-                    .find(|function| function.function.identifier.eq(identifier));
+                let matched_function = self.member_function_type(identifier);
 
                 match matched_function {
-                    Some(function) => Ok(&function.function.output.type_),
+                    Some(function) => Ok(Type::Function(function.function.identifier.to_owned())),
                     None => Err(TypeError::undefined_circuit_member(identifier.clone())),
                 }
             }

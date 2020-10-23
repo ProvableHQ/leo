@@ -15,23 +15,34 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DynamicCheckError, FrameError, VariableTableError};
-use leo_static_check::{CircuitType, FunctionInputType, FunctionType, SymbolTable, Type, TypeVariable};
+use leo_static_check::{
+    Attribute,
+    CircuitFunctionType,
+    CircuitType,
+    FunctionInputType,
+    FunctionType,
+    SymbolTable,
+    Type,
+    TypeVariable,
+};
 use leo_typed::{
     Assignee,
     AssigneeAccess,
+    Circuit,
+    CircuitMember,
     CircuitVariableDefinition,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
     ConsoleFunctionCall,
     Declare,
     Expression,
-    Function as UnresolvedFunction,
+    Function,
     Identifier,
     Program,
     RangeOrExpression,
     Span,
     SpreadOrExpression,
-    Statement as UnresolvedStatement,
+    Statement,
     Variables,
 };
 
@@ -42,8 +53,10 @@ use std::collections::HashMap;
 /// Performs a dynamic type inference check over a program.
 pub struct DynamicCheck {
     table: SymbolTable,
-    functions: Vec<Frame>,
+    frames: Vec<Frame>,
 }
+
+pub struct VariableEnvironment {}
 
 impl DynamicCheck {
     ///
@@ -52,7 +65,7 @@ impl DynamicCheck {
     pub fn new(program: &Program, symbol_table: SymbolTable) -> Self {
         let mut dynamic_check = Self {
             table: symbol_table,
-            functions: vec![],
+            frames: vec![],
         };
 
         dynamic_check.parse_program(program);
@@ -64,6 +77,14 @@ impl DynamicCheck {
     /// Collects a vector of `TypeAssertion` predicates from a program.
     ///
     fn parse_program(&mut self, program: &Program) {
+        let circuits = program
+            .circuits
+            .iter()
+            .map(|(_identifier, circuit)| circuit)
+            .collect::<Vec<_>>();
+
+        self.parse_circuits(circuits);
+
         let functions = program
             .functions
             .iter()
@@ -76,19 +97,79 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of functions.
     ///
-    fn parse_functions(&mut self, functions: Vec<&UnresolvedFunction>) {
+    fn parse_functions(&mut self, functions: Vec<&Function>) {
         for function in functions {
-            self.parse_function(function)
+            self.parse_function(function);
         }
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    fn parse_function(&mut self, function: &UnresolvedFunction) {
-        let frame = Frame::new(function.clone(), self.table.clone());
+    fn parse_function(&mut self, function: &Function) {
+        let frame = Frame::new_function(function.to_owned(), None, None, self.table.clone());
 
-        self.functions.push(frame);
+        self.frames.push(frame);
+    }
+
+    ///
+    /// Collects a vector of `Frames`s from a vector of circuit functions.
+    ///
+    fn parse_circuits(&mut self, circuits: Vec<&Circuit>) {
+        for circuit in circuits {
+            self.parse_circuit(circuit);
+        }
+    }
+
+    ///
+    /// Collects a vector of `Frames`s from a circuit function.
+    ///
+    /// Each frame collects a vector of `TypeAssertion` predicates from each function.
+    ///
+    fn parse_circuit(&mut self, circuit: &Circuit) {
+        let name = &circuit.circuit_name.name;
+
+        // Get circuit type from circuit symbol table.
+        let circuit_type = self.table.get_circuit(name).unwrap().clone();
+
+        // Insert circuit member variable types into variable table.
+        let variable_table = Scope::empty();
+
+        // for circuit_variable in &circuit_type.variables {
+        //     // Get name and type from circuit variables.
+        //     let name = circuit_variable.identifier.name.to_owned();
+        //     let type_ = circuit_variable.type_.to_owned();
+        //
+        //     variable_table.insert_variable(name, type_);
+        // }
+        //
+        // // Insert circuit member function types into function table.
+        let user_defined_types = self.table.clone();
+        //
+        // for circuit_function in &circuit_type.functions {
+        //     // Get the name and type from circuit functions.
+        //     let identifier = circuit_function.function.identifier.to_owned();
+        //     let function_type = circuit_function.function.to_owned();
+        //
+        //     user_defined_types.insert_function(identifier, function_type);
+        // }
+
+        // Create a new function for each circuit member function.
+        for circuit_member in &circuit.members {
+            // ignore circuit member variables
+            if let CircuitMember::CircuitFunction(_, function) = circuit_member {
+                // Collect `TypeAssertion` predicates from the function.
+                // Pass down circuit self type and circuit variable types to each function.
+                let frame = Frame::new_circuit_function(
+                    function.to_owned(),
+                    circuit_type.clone(),
+                    variable_table.clone(),
+                    user_defined_types.clone(),
+                );
+
+                self.frames.push(frame)
+            }
+        }
     }
 
     ///
@@ -99,7 +180,7 @@ impl DynamicCheck {
     /// Returns ERROR if a `TypeAssertion` predicate is false or a solution does not exist.
     ///
     pub fn solve(self) -> Result<(), DynamicCheckError> {
-        for frame in self.functions {
+        for frame in self.frames {
             frame.solve()?;
         }
 
@@ -113,7 +194,7 @@ pub struct Frame {
     pub function_type: FunctionType,
     pub self_type: Option<CircuitType>,
     pub scopes: Vec<Scope>,
-    pub statements: Vec<UnresolvedStatement>,
+    pub statements: Vec<Statement>,
     pub type_assertions: Vec<TypeAssertion>,
     pub user_defined_types: SymbolTable,
 }
@@ -122,14 +203,19 @@ impl Frame {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    pub fn new(function: UnresolvedFunction, symbol_table: SymbolTable) -> Self {
+    pub fn new_function(
+        function: Function,
+        self_type: Option<CircuitType>,
+        parent_scope: Option<Scope>,
+        user_defined_types: SymbolTable,
+    ) -> Self {
         let name = &function.identifier.name;
 
         // Get function type from symbol table.
-        let function_type = symbol_table.get_function(name).unwrap().clone();
+        let function_type = user_defined_types.get_function(name).unwrap().clone();
 
         // Create a new scope for the function variables.
-        let mut scope = Scope::new(None);
+        let mut scope = Scope::new(parent_scope);
 
         // Initialize function inputs as variables.
         scope.parse_function_inputs(&function_type.inputs);
@@ -141,11 +227,51 @@ impl Frame {
         // Update variables when encountering let/const variable definitions.
         let mut frame = Self {
             function_type,
-            self_type: None,
+            self_type,
             scopes,
             statements: function.statements,
             type_assertions: vec![],
-            user_defined_types: symbol_table,
+            user_defined_types,
+        };
+
+        // Create type assertions for function statements
+        frame.parse_statements();
+
+        frame
+    }
+
+    ///
+    /// Collects vector of `TypeAssertion` predicates from a circuit function.
+    ///
+    pub fn new_circuit_function(
+        function: Function,
+        self_type: CircuitType,
+        parent_scope: Scope,
+        user_defined_types: SymbolTable,
+    ) -> Self {
+        let identifier = &function.identifier;
+
+        // Find function name in circuit members.
+        let circuit_function_type = self_type.member_function_type(identifier).unwrap().to_owned();
+
+        // Create a new scope for the function variables.
+        let mut scope = Scope::new(Some(parent_scope));
+
+        // Initialize function inputs as variables.
+        scope.parse_function_inputs(&circuit_function_type.function.inputs);
+
+        // Create new list of scopes for frame.
+        let scopes = vec![scope];
+
+        // Create new frame struct.
+        // Update variables when encountering let/const variable definitions.
+        let mut frame = Self {
+            function_type: circuit_function_type.function,
+            self_type: Some(self_type),
+            scopes,
+            statements: function.statements,
+            type_assertions: Vec::new(),
+            user_defined_types,
         };
 
         // Create type assertions for function statements
@@ -262,21 +388,21 @@ impl Frame {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a statement.
     ///
-    fn parse_statement(&mut self, statement: &UnresolvedStatement) {
+    fn parse_statement(&mut self, statement: &Statement) {
         match statement {
-            UnresolvedStatement::Return(expression, span) => {
+            Statement::Return(expression, span) => {
                 self.parse_return(expression, span);
             }
-            UnresolvedStatement::Definition(declare, variables, expression, span) => {
+            Statement::Definition(declare, variables, expression, span) => {
                 self.parse_definition(declare, variables, expression, span)
             }
-            UnresolvedStatement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
-            UnresolvedStatement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
-            UnresolvedStatement::Iteration(identifier, from, to, statements, span) => {
+            Statement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
+            Statement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
+            Statement::Iteration(identifier, from, to, statements, span) => {
                 self.parse_iteration(identifier, from, to, statements, span)
             }
-            UnresolvedStatement::Expression(expression, span) => self.parse_statement_expression(expression, span),
-            UnresolvedStatement::Console(console_call) => self.parse_console_function_call(console_call),
+            Statement::Expression(expression, span) => self.parse_statement_expression(expression, span),
+            Statement::Console(console_call) => self.parse_console_function_call(console_call),
         }
     }
 
@@ -384,7 +510,7 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, statements: &Vec<UnresolvedStatement>, _span: &Span) {
+    fn parse_block(&mut self, statements: &Vec<Statement>, _span: &Span) {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
         self.push_scope(scope);
@@ -441,7 +567,7 @@ impl Frame {
         identifier: &Identifier,
         from: &Expression,
         to: &Expression,
-        statements: &Vec<UnresolvedStatement>,
+        statements: &Vec<Statement>,
         span: &Span,
     ) {
         // Insert variable into symbol table with u32 type.
@@ -533,7 +659,7 @@ impl Frame {
                 self.parse_expression_circuit_member_access(expression, identifier, span)
             }
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_circuit_static_function_access(expression, identifier, span)
+                self.parse_static_circuit_function_access(expression, identifier, span)
             }
 
             // Functions
@@ -884,43 +1010,131 @@ impl Frame {
     ///
     /// Returns the type of the accessed circuit member.
     ///
-    fn parse_circuit_member_access(&mut self, type_: Type, identifier: &Identifier, _span: &Span) -> Type {
+    fn parse_circuit_member_access(&mut self, type_: Type, identifier: &Identifier, span: &Span) -> Type {
         // Check that type is a circuit type.
-        let circuit_type = match type_ {
-            Type::Circuit(identifier) => {
-                // Lookup circuit.
-                self.user_defined_types.get_circuit(&identifier.name).unwrap()
-            }
-            _ => unimplemented!("expected circuit type to access member"),
-        };
+        let circuit_type = self.parse_circuit_name(type_, span);
 
         // Look for member with matching name.
-        circuit_type.member_type(&identifier).unwrap().clone()
+        circuit_type.member_type(&identifier).unwrap()
     }
 
     ///
     /// Returns the type returned by calling the static circuit function.
     ///
-    fn parse_circuit_static_function_access(
+    fn parse_static_circuit_function_access(
         &mut self,
         expression: &Expression,
         identifier: &Identifier,
-        _span: &Span,
+        span: &Span,
     ) -> Type {
         // Parse the circuit name.
         let type_ = self.parse_expression(expression);
 
+        self.parse_circuit_member_access(type_, identifier, span)
+    }
+
+    ///
+    /// Returns a `CircuitType` given a circuit expression.
+    ///
+    fn parse_circuit_name(&mut self, type_: Type, _span: &Span) -> &CircuitType {
         // Check that type is a circuit type.
-        let circuit_type = match type_ {
+        match type_ {
             Type::Circuit(identifier) => {
-                // Lookup circuit.
+                // Lookup circuit identifier.
                 self.user_defined_types.get_circuit(&identifier.name).unwrap()
             }
-            _ => unimplemented!("expected circuit type to access static member"),
-        };
+            _ => unimplemented!("expected circuit type"),
+        }
+    }
 
-        // Look for member with matching name.
-        circuit_type.member_type(&identifier).unwrap().clone()
+    ///
+    /// Returns a `FunctionType` given a function expression.
+    ///
+    fn parse_function_name(&mut self, expression: &Expression, span: &Span) -> FunctionType {
+        // Case 1: Call a function defined in the program file.
+        // Case 2: Call a circuit function.
+        // Case 3: Call a static circuit function.
+        // Return an Error in any other case.
+        match expression {
+            Expression::Identifier(identifier) => self.parse_program_function(identifier, span),
+            Expression::CircuitMemberAccess(expression, identifier, span) => {
+                self.parse_circuit_function(expression, identifier, span)
+            }
+            Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
+                self.parse_static_circuit_function(expression, identifier, span)
+            }
+            _ => unimplemented!("Invalid function name"),
+        }
+    }
+
+    ///
+    /// Returns a `FunctionType` given a function identifier.
+    ///
+    fn parse_program_function(&mut self, identifier: &Identifier, _span: &Span) -> FunctionType {
+        self.user_defined_types
+            .get_function(&identifier.name)
+            .unwrap()
+            .to_owned()
+    }
+
+    ///
+    /// Returns a `CircuitFunctionType` given a circuit expression and function identifier.
+    ///
+    fn parse_circuit_function_type(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> &CircuitFunctionType {
+        // Parse circuit name.
+        let type_ = self.parse_expression(expression);
+
+        // Get circuit type.
+        let circuit_type = self.parse_circuit_name(type_, span);
+
+        // Find circuit function by identifier.
+        circuit_type.member_function_type(identifier).unwrap()
+    }
+
+    ///
+    /// Returns a `FunctionType` given a circuit expression and non-static function identifier.
+    ///
+    fn parse_circuit_function(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> FunctionType {
+        // Find circuit function type.
+        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span);
+
+        // Check that the function is non-static.
+        if circuit_function_type.attributes.contains(&Attribute::Static) {
+            unimplemented!("Called static function using dot syntax")
+        }
+
+        // Return the function type.
+        circuit_function_type.function.to_owned()
+    }
+
+    ///
+    /// Returns a `FunctionType` given a circuit expression and static function identifier.
+    ///
+    fn parse_static_circuit_function(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> FunctionType {
+        // Find circuit function type.
+        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span);
+
+        // Check that the function is static.
+        if !circuit_function_type.attributes.contains(&Attribute::Static) {
+            unimplemented!("Called non-static function using double colon syntax")
+        }
+
+        circuit_function_type.function.to_owned()
     }
 
     ///
@@ -928,18 +1142,10 @@ impl Frame {
     ///
     /// Does not attempt to evaluate the function call. We are just checking types at this step.
     ///
-    fn parse_function_call(&mut self, expression: &Expression, inputs: &Vec<Expression>, _span: &Span) -> Type {
+    fn parse_function_call(&mut self, expression: &Expression, inputs: &Vec<Expression>, span: &Span) -> Type {
         // Parse the function name.
-        let type_ = self.parse_expression(expression);
-
-        // Check that type is a function type.
-        let function_type = match type_ {
-            Type::Function(identifier) => {
-                // Lookup function.
-                self.user_defined_types.get_function(&identifier.name).unwrap().clone()
-            }
-            _ => unimplemented!("expected function type for function call"),
-        };
+        println!("expression {}", expression);
+        let function_type = self.parse_function_name(expression, span);
 
         // Check the length of arguments
         if function_type.inputs.len() != inputs.len() {
