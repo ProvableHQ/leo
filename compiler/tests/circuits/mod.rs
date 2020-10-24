@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_dynamic_check_error, parse_program, EdwardsTestCompiler};
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
+use crate::{assert_satisfied, expect_compiler_error, expect_dynamic_check_error, parse_program};
 
 // Expressions
 

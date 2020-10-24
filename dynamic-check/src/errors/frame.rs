@@ -121,4 +121,13 @@ impl FrameError {
 
         Self::new_from_span(message, identifier.span.to_owned())
     }
+
+    ///
+    /// Attempted to call a function that is not defined in the current context.
+    ///
+    pub fn undefined_function(identifier: &Identifier) -> Self {
+        let message = format!("The function `{}` is not defined.", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
 }

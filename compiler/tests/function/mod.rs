@@ -17,21 +17,12 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
+    expect_dynamic_check_error,
     get_output,
     parse_program,
     parse_program_with_input,
-    EdwardsTestCompiler,
 };
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-
-fn expect_undefined_identifier(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected function undefined, got {}", error),
-    }
-}
 
 #[test]
 fn test_empty() {
@@ -129,9 +120,9 @@ fn test_scope_fail() {
 #[test]
 fn test_undefined() {
     let bytes = include_bytes!("undefined.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_undefined_identifier(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
@@ -147,9 +138,9 @@ fn test_value_unchanged() {
 #[test]
 fn test_return_array_nested_fail() {
     let bytes = include_bytes!("return_array_nested_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
@@ -163,9 +154,9 @@ fn test_return_array_nested_pass() {
 #[test]
 fn test_return_array_tuple_fail() {
     let bytes = include_bytes!("return_array_tuple_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]

@@ -23,7 +23,6 @@ use crate::{
     parse_program_with_input,
     EdwardsTestCompiler,
 };
-use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
     let expected = include_bytes!("output/registers_true.out");

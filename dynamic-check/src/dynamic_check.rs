@@ -1143,11 +1143,10 @@ impl Frame {
     /// Returns a `FunctionType` given a function identifier.
     ///
     fn parse_program_function(&mut self, identifier: &Identifier, _span: &Span) -> Result<FunctionType, FrameError> {
-        Ok(self
-            .user_defined_types
+        self.user_defined_types
             .get_function(&identifier.name)
-            .unwrap()
-            .to_owned())
+            .map(|function_type| function_type.to_owned())
+            .ok_or_else(|| FrameError::undefined_function(identifier))
     }
 
     ///
@@ -1715,9 +1714,7 @@ impl TypeVariablePairs {
         }
 
         // Compare the array element types.
-        self.push_pairs(left_type_flat, right_type_flat, span);
-
-        Ok(())
+        self.push_pairs(left_type_flat, right_type_flat, span)
     }
 
     ///
