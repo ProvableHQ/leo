@@ -311,7 +311,7 @@ impl Eq for Type {}
 ///
 /// Will flatten an array type `[[[u8; 1]; 2]; 3]` into `[u8; (3, 2, 1)]`.
 ///
-fn flatten_array_type(type_: &Type, mut dimensions: Vec<usize>) -> (&Type, Vec<usize>) {
+pub fn flatten_array_type(type_: &Type, mut dimensions: Vec<usize>) -> (&Type, Vec<usize>) {
     if let Type::Array(element_type, element_dimensions) = type_ {
         dimensions.append(&mut element_dimensions.to_owned());
         flatten_array_type(element_type, dimensions)
