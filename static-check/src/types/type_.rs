@@ -17,10 +17,13 @@ use crate::{SymbolTable, TypeError, TypeVariable};
 use leo_typed::{Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{
+    cmp::{Eq, PartialEq},
+    fmt,
+};
 
 /// A type in a Leo program.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     Address,
@@ -271,5 +274,48 @@ impl fmt::Display for Type {
             Type::Function(identifier) => write!(f, "function {}", identifier),
             Type::TypeVariable(type_variable) => write!(f, "{}", type_variable),
         }
+    }
+}
+
+impl PartialEq for Type {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Type::Address, Type::Address) => true,
+            (Type::Boolean, Type::Boolean) => true,
+            (Type::Field, Type::Field) => true,
+            (Type::Group, Type::Group) => true,
+            (Type::IntegerType(integer_type1), Type::IntegerType(integer_type2)) => integer_type1.eq(integer_type2),
+
+            (Type::Array(type1, dimensions1), Type::Array(type2, dimensions2)) => {
+                // Flatten both array types before comparison.
+                let (type1_flat, dimensions1_flat) = flatten_array_type(type1, dimensions1.to_owned());
+                let (type2_flat, dimensions2_flat) = flatten_array_type(type2, dimensions2.to_owned());
+
+                // Element types and dimensions must match
+                type1_flat.eq(type2_flat) && dimensions1_flat.eq(&dimensions2_flat)
+            }
+
+            (Type::Tuple(types1), Type::Tuple(types2)) => types1.eq(types2),
+            (Type::Circuit(identifier1), Type::Circuit(identifier2)) => identifier1.eq(identifier2),
+            (Type::Function(identifier1), Type::Function(identifier2)) => identifier1.eq(identifier2),
+            (Type::TypeVariable(variable1), Type::TypeVariable(variable2)) => variable1.eq(variable2),
+            _ => false,
+        }
+    }
+}
+
+impl Eq for Type {}
+
+///
+/// Returns the data type of the array element and vector of dimensions.
+///
+/// Will flatten an array type `[[[u8; 1]; 2]; 3]` into `[u8; (3, 2, 1)]`.
+///
+fn flatten_array_type(type_: &Type, mut dimensions: Vec<usize>) -> (&Type, Vec<usize>) {
+    if let Type::Array(element_type, element_dimensions) = type_ {
+        dimensions.append(&mut element_dimensions.to_owned());
+        flatten_array_type(element_type, dimensions)
+    } else {
+        (type_, dimensions)
     }
 }
