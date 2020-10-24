@@ -48,7 +48,7 @@ impl TestDynamicCheck {
         let symbol_table = StaticCheck::run(&program).unwrap();
 
         // Create dynamic check
-        let dynamic_check = DynamicCheck::new(&program, symbol_table);
+        let dynamic_check = DynamicCheck::new(&program, symbol_table).unwrap();
 
         Self { dynamic_check }
     }

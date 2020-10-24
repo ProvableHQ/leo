@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DynamicCheckError, FrameError, ScopeError, VariableTableError};
+use crate::{DynamicCheckError, FrameError, ScopeError, TypeAssertionError, VariableTableError};
 use leo_static_check::{
     Attribute,
     CircuitFunctionType,
@@ -330,9 +330,10 @@ impl Frame {
     ///
     /// Creates a new equality type assertion between the given types.
     ///
-    fn assert_equal(&mut self, left: Type, right: Type) {
-        let type_assertion = TypeAssertion::new_equality(left, right);
-        println!("TYPE ASSERTION: {:?}", type_assertion);
+    fn assert_equal(&mut self, left: Type, right: Type, span: &Span) {
+        let type_assertion = TypeAssertion::new_equality(left, right, span);
+
+        println!("equality: {:?}", type_assertion);
 
         self.type_assertions.push(type_assertion);
     }
@@ -406,7 +407,7 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a return statement.
     ///
-    fn parse_return(&mut self, expression: &Expression, _span: &Span) -> Result<(), FrameError> {
+    fn parse_return(&mut self, expression: &Expression, span: &Span) -> Result<(), FrameError> {
         // Get the function output type.
         let output_type = &self.function_type.output.type_;
 
@@ -417,7 +418,7 @@ impl Frame {
         let right = self.parse_expression(expression)?;
 
         // Create a new type assertion for the statement return.
-        self.assert_equal(left, right);
+        self.assert_equal(left, right, span);
 
         Ok(())
     }
@@ -447,7 +448,7 @@ impl Frame {
             };
 
             // Assert that the expected type is equal to the actual type.
-            self.assert_equal(expected_type.clone(), actual_type.clone())
+            self.assert_equal(expected_type.clone(), actual_type.clone(), span)
         }
 
         // Check for multiple defined variables.
@@ -490,7 +491,7 @@ impl Frame {
         let expression_type = self.parse_expression(expression)?;
 
         // Assert that the assignee_type == expression_type.
-        self.assert_equal(assignee_type, expression_type);
+        self.assert_equal(assignee_type, expression_type, span);
 
         Ok(())
     }
@@ -550,7 +551,7 @@ impl Frame {
 
         // Assert that the condition is a boolean type.
         let boolean_type = Type::Boolean;
-        self.assert_equal(boolean_type, condition);
+        self.assert_equal(boolean_type, condition, span);
 
         // Parse conditional statements.
         self.parse_block(&conditional.statements, span)?;
@@ -598,8 +599,8 @@ impl Frame {
         let to_type = self.parse_expression(to)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
-        self.assert_equal(u32_type.clone(), from_type);
-        self.assert_equal(u32_type, to_type);
+        self.assert_equal(u32_type.clone(), from_type, span);
+        self.assert_equal(u32_type, to_type, span);
 
         // Parse block of statements.
         self.parse_block(statements, span)
@@ -608,14 +609,14 @@ impl Frame {
     ///
     /// Asserts that the statement `UnresolvedExpression` returns an empty tuple.
     ///
-    fn parse_statement_expression(&mut self, expression: &Expression, _span: &Span) -> Result<(), FrameError> {
+    fn parse_statement_expression(&mut self, expression: &Expression, span: &Span) -> Result<(), FrameError> {
         // Create empty tuple type.
         let expected_type = Type::Tuple(Vec::with_capacity(0));
 
         // Parse the actual type of the expression.
         let actual_type = self.parse_expression(expression)?;
 
-        self.assert_equal(expected_type, actual_type);
+        self.assert_equal(expected_type, actual_type, span);
 
         Ok(())
     }
@@ -650,10 +651,10 @@ impl Frame {
             Expression::Mul(left, right, span) => self.parse_integer_binary_expression(left, right, span),
             Expression::Div(left, right, span) => self.parse_integer_binary_expression(left, right, span),
             Expression::Pow(left, right, span) => self.parse_integer_binary_expression(left, right, span),
-            Expression::Negate(expression, _span) => self.parse_negate_expression(expression),
+            Expression::Negate(expression, span) => self.parse_negate_expression(expression, span),
 
             // Boolean operations
-            Expression::Not(expression, _span) => self.parse_boolean_expression(expression),
+            Expression::Not(expression, span) => self.parse_boolean_expression(expression, span),
             Expression::Or(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::And(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
             Expression::Eq(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
@@ -726,8 +727,9 @@ impl Frame {
         &mut self,
         left: &Expression,
         right: &Expression,
-        _span: &Span,
+        span: &Span,
     ) -> Result<Type, FrameError> {
+        println!("left {}, right {}", left, right);
         // Get the left expression type.
         let left_type = self.parse_expression(left)?;
 
@@ -735,7 +737,7 @@ impl Frame {
         let right_type = self.parse_expression(right)?;
 
         // Create a type assertion left_type == right_type.
-        self.assert_equal(left_type.clone(), right_type);
+        self.assert_equal(left_type.clone(), right_type, span);
 
         Ok(left_type)
     }
@@ -762,7 +764,7 @@ impl Frame {
     ///
     /// Returns the `Boolean` type if the expression is a `Boolean` type.
     ///
-    fn parse_boolean_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
+    fn parse_boolean_expression(&mut self, expression: &Expression, span: &Span) -> Result<Type, FrameError> {
         // Return the `Boolean` type
         let boolean_type = Type::Boolean;
 
@@ -770,7 +772,7 @@ impl Frame {
         let expression_type = self.parse_expression(expression)?;
 
         // Assert that the type is a boolean.
-        self.assert_equal(boolean_type.clone(), expression_type);
+        self.assert_equal(boolean_type.clone(), expression_type, span);
 
         Ok(boolean_type)
     }
@@ -778,7 +780,7 @@ impl Frame {
     ///
     /// Returns the `Type` of the expression being negated. Must be a negative integer type.
     ///
-    fn parse_negate_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
+    fn parse_negate_expression(&mut self, expression: &Expression, _span: &Span) -> Result<Type, FrameError> {
         // Parse the expression type.
         let type_ = self.parse_expression(expression)?;
 
@@ -795,17 +797,15 @@ impl Frame {
         &mut self,
         left: &Expression,
         right: &Expression,
-        _span: &Span,
+        span: &Span,
     ) -> Result<Type, FrameError> {
-        // Return the `Boolean` type.
+        // Create the `Boolean` type.
         let boolean_type = Type::Boolean;
 
-        // Get the type of the binary expression.
-        let binary_expression_type = self.parse_binary_expression(left, right, _span)?;
+        // Create a new type assertion for the binary expression
+        let _binary_expression_type = self.parse_binary_expression(left, right, span)?;
 
-        // Create a type assertion boolean_type == expression_type.
-        self.assert_equal(boolean_type.clone(), binary_expression_type);
-
+        // Return the `Boolean` type.
         Ok(boolean_type)
     }
 
@@ -817,13 +817,13 @@ impl Frame {
         condition: &Expression,
         first: &Expression,
         second: &Expression,
-        _span: &Span,
+        span: &Span,
     ) -> Result<Type, FrameError> {
         // Check that the type of the condition expression is a boolean.
-        let _condition_type = self.parse_boolean_expression(condition)?;
+        let _condition_type = self.parse_boolean_expression(condition, span)?;
 
         // Check that the types of the first and second expression are equal.
-        self.parse_binary_expression(first, second, _span)
+        self.parse_binary_expression(first, second, span)
     }
 
     ///
@@ -876,7 +876,7 @@ impl Frame {
     ///
     /// Returns the type of the array expression.
     ///
-    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, _span: &Span) -> Result<Type, FrameError> {
+    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
         let mut count = 0usize;
@@ -888,7 +888,7 @@ impl Frame {
 
             // Assert that array element types are the same.
             if let Some(prev_type) = element_type {
-                self.assert_equal(prev_type, type_.clone())
+                self.assert_equal(prev_type, type_.clone(), span);
             }
 
             // Update array element type.
@@ -1009,7 +1009,7 @@ impl Frame {
         &mut self,
         identifier: &Identifier,
         members: &Vec<CircuitVariableDefinition>,
-        _span: &Span,
+        span: &Span,
     ) -> Result<Type, FrameError> {
         // Check if identifier is Self circuit type.
         let circuit_type = if identifier.is_self() {
@@ -1033,7 +1033,7 @@ impl Frame {
             let actual_type = self.parse_expression(&actual_variable.expression)?;
 
             // Assert expected variable type == actual variable type.
-            self.assert_equal(expected_variable.type_.clone(), actual_type)
+            self.assert_equal(expected_variable.type_.clone(), actual_type, span)
         }
 
         Ok(Type::Circuit(identifier.to_owned()))
@@ -1217,7 +1217,7 @@ impl Frame {
             let actual_type = self.parse_expression(actual_input)?;
 
             // Assert expected input type == actual input type.
-            self.assert_equal(expected_input.type_().clone(), actual_type);
+            self.assert_equal(expected_input.type_().clone(), actual_type, span);
         }
 
         // Return the function output type.
@@ -1248,15 +1248,17 @@ impl Frame {
 
             println!("assertion: {:?}", type_assertion);
 
-            // Get type variable and type
-            if let Some((type_variable, type_)) = type_assertion.solve() {
-                // Substitute type variable for type in unsolved
+            // Solve the `TypeAssertion`.
+            //
+            // If the `TypeAssertion` has a solution, then continue the loop.
+            // If the `TypeAssertion` returns a `TypeVariablePair`, then substitute the `TypeVariable`
+            // for it's paired `Type` in all `TypeAssertion`s.
+            if let Some(pair) = type_assertion.solve()? {
+                // Substitute the `TypeVariable` for it's paired `Type` in all `TypeAssertion`s.
                 for original in &mut unsolved {
-                    original.substitute(&type_variable, &type_)
+                    original.substitute(&pair.0, &pair.1)
                 }
-            } else {
-                // Evaluate the type assertion.
-            }
+            };
         }
 
         // for type_assertion in unsolved.pop() {
@@ -1400,6 +1402,9 @@ impl VariableTable {
     }
 }
 
+/// A type variable -> type pair.
+pub struct TypeVariablePair(TypeVariable, Type);
+
 /// A predicate that evaluates equality between two `Types`s.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TypeAssertion {
@@ -1411,8 +1416,8 @@ impl TypeAssertion {
     ///
     /// Returns a `TypeAssertion::Equality` predicate from given left and right `Types`s.
     ///
-    pub fn new_equality(left: Type, right: Type) -> Self {
-        Self::Equality(TypeEquality::new(left, right))
+    pub fn new_equality(left: Type, right: Type, span: &Span) -> Self {
+        Self::Equality(TypeEquality::new(left, right, span))
     }
 
     ///
@@ -1432,16 +1437,12 @@ impl TypeAssertion {
     }
 
     ///
-    /// Returns true if the given type assertion outputs true.
+    /// Returns `None` if the `TypeAssertion` is solvable.
     ///
-    pub fn evaluate(&self) -> bool {
-        match self {
-            TypeAssertion::Equality(equality) => equality.evaluate(),
-            TypeAssertion::Membership(membership) => membership.evaluate(),
-        }
-    }
-
-    pub fn solve(&self) -> Option<(TypeVariable, Type)> {
+    /// If the `TypeAssertion` is not solvable, throw a `TypeAssertionError`.
+    /// If the `TypeAssertion` contains a `TypeVariable`, then return `Some(TypeVariable, Type)`.
+    ///
+    pub fn solve(&self) -> Result<Option<TypeVariablePair>, TypeAssertionError> {
         match self {
             TypeAssertion::Equality(equality) => equality.solve(),
             TypeAssertion::Membership(_) => unimplemented!(),
@@ -1497,14 +1498,19 @@ impl TypeMembership {
 pub struct TypeEquality {
     left: Type,
     right: Type,
+    span: Span,
 }
 
 impl TypeEquality {
     ///
     /// Returns a `TypeEquality` predicate from given left and right `Types`s
     ///
-    pub fn new(left: Type, right: Type) -> Self {
-        Self { left, right }
+    pub fn new(left: Type, right: Type, span: &Span) -> Self {
+        Self {
+            left,
+            right,
+            span: span.to_owned(),
+        }
     }
 
     ///
@@ -1516,28 +1522,21 @@ impl TypeEquality {
     }
 
     ///
-    /// Returns true if the left `Types` is equal to the right `Types`.
-    ///
-    pub fn evaluate(&self) -> bool {
-        self.left.eq(&self.right)
-    }
-
-    ///
     /// Returns the (type variable, type) pair from this assertion.
     ///
-    pub fn solve(&self) -> Option<(TypeVariable, Type)> {
-        match (&self.left, &self.right) {
-            (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
-            (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
+    pub fn solve(&self) -> Result<Option<TypeVariablePair>, TypeAssertionError> {
+        Ok(match (&self.left, &self.right) {
+            (Type::TypeVariable(variable), type_) => Some(TypeVariablePair(variable.clone(), type_.clone())),
+            (type_, Type::TypeVariable(variable)) => Some(TypeVariablePair(variable.clone(), type_.clone())),
             (type1, type2) => {
                 // Compare types.
                 if type1.eq(type2) {
                     // Return None if the two types are equal (the equality is satisfied).
                     None
                 } else {
-                    unimplemented!("ERROR type equality `{} == {}` failed", type1, type2)
+                    return Err(TypeAssertionError::assertion_failed(type1, type2, &self.span));
                 }
             }
-        }
+        })
     }
 }

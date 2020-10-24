@@ -17,6 +17,7 @@
 use crate::{expect_compiler_error, parse_input, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
+use leo_dynamic_check::errors::{DynamicCheckError, FrameError, TypeAssertionError};
 use leo_input::InputParserError;
 
 pub mod identifiers;
@@ -67,6 +68,7 @@ fn input_syntax_error() {
     let bytes = include_bytes!("input_semicolon.leo");
     let error = parse_input(bytes).err().unwrap();
 
+    // Expect an input parser error.
     match error {
         CompilerError::InputParserError(InputParserError::SyntaxError(_)) => {}
         _ => panic!("input syntax error should be a ParserError"),
@@ -76,8 +78,13 @@ fn input_syntax_error() {
 #[test]
 fn test_compare_mismatched_types() {
     let bytes = include_bytes!("compare_mismatched_types.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    // previously this bug caused a stack overflow
-    expect_compiler_error(program);
+    // Expect a dynamic check error.
+    match error {
+        CompilerError::DynamicCheckError(DynamicCheckError::FrameError(FrameError::TypeAssertionError(
+            TypeAssertionError::Error(_),
+        ))) => {}
+        error => panic!("Expected dynamic check error, found {}", error),
+    }
 }

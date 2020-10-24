@@ -41,5 +41,8 @@ pub use self::frame::*;
 pub mod scope;
 pub use self::scope::*;
 
+pub mod type_assertion;
+pub use self::type_assertion::*;
+
 pub mod variable_table;
 pub use self::variable_table::*;
