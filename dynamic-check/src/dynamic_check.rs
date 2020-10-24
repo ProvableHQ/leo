@@ -341,8 +341,8 @@ impl Frame {
     ///
     /// Creates a new membership type assertion between a given and set of types.
     ///
-    fn assert_membership(&mut self, given: Type, set: Vec<Type>) {
-        let type_assertion = TypeAssertion::new_membership(given, set);
+    fn assert_membership(&mut self, given: Type, set: Vec<Type>, span: &Span) {
+        let type_assertion = TypeAssertion::new_membership(given, set, span);
 
         self.type_assertions.push(type_assertion);
     }
@@ -350,28 +350,28 @@ impl Frame {
     ///
     /// Creates a new membership type assertion between a given and the set of negative integer types.
     ///
-    fn assert_negative_integer(&mut self, given: &Type) {
+    fn assert_negative_integer(&mut self, given: &Type, span: &Span) {
         let negative_integer_types = Type::negative_integer_types();
 
-        self.assert_membership(given.clone(), negative_integer_types)
+        self.assert_membership(given.clone(), negative_integer_types, span)
     }
 
     ///
     /// Creates a new membership type assertion between a given and the set of all integer types.
     ///
-    fn assert_integer(&mut self, given: &Type) {
+    fn assert_integer(&mut self, given: &Type, span: &Span) {
         let integer_types = Type::integer_types();
 
-        self.assert_membership(given.clone(), integer_types)
+        self.assert_membership(given.clone(), integer_types, span)
     }
 
     ///
     /// Creates a new membership type assertion between a given and the set of index types.
     ///
-    fn assert_index(&mut self, given: &Type) {
+    fn assert_index(&mut self, given: &Type, span: &Span) {
         let index_types = Type::index_types();
 
-        self.assert_membership(given.clone(), index_types)
+        self.assert_membership(given.clone(), index_types, span)
     }
 
     ///
@@ -751,12 +751,12 @@ impl Frame {
         &mut self,
         left: &Expression,
         right: &Expression,
-        _span: &Span,
+        span: &Span,
     ) -> Result<Type, FrameError> {
-        let type_ = self.parse_binary_expression(left, right, _span)?;
+        let type_ = self.parse_binary_expression(left, right, span)?;
 
         // Assert that the type is an integer.
-        self.assert_integer(&type_);
+        self.assert_integer(&type_, span);
 
         Ok(type_)
     }
@@ -780,12 +780,12 @@ impl Frame {
     ///
     /// Returns the `Type` of the expression being negated. Must be a negative integer type.
     ///
-    fn parse_negate_expression(&mut self, expression: &Expression, _span: &Span) -> Result<Type, FrameError> {
+    fn parse_negate_expression(&mut self, expression: &Expression, span: &Span) -> Result<Type, FrameError> {
         // Parse the expression type.
         let type_ = self.parse_expression(expression)?;
 
         // Assert that this integer can be negated.
-        self.assert_negative_integer(&type_);
+        self.assert_negative_integer(&type_, span);
 
         Ok(type_)
     }
@@ -958,12 +958,7 @@ impl Frame {
     ///
     /// Returns the type of the accessed array element.
     ///
-    fn parse_array_access(
-        &mut self,
-        type_: Type,
-        r_or_e: &RangeOrExpression,
-        _span: &Span,
-    ) -> Result<Type, FrameError> {
+    fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, span: &Span) -> Result<Type, FrameError> {
         // Check the type is an array.
         let (element_type, _dimensions) = match type_ {
             Type::Array(type_, dimensions) => (type_, dimensions),
@@ -980,14 +975,14 @@ impl Frame {
                     // Parse the expression type.
                     let type_ = self.parse_expression(expression)?;
 
-                    self.assert_index(&type_);
+                    self.assert_index(&type_, span);
                 }
 
                 if let Some(expression) = to {
                     // Parse the expression type.
                     let type_ = self.parse_expression(expression)?;
 
-                    self.assert_index(&type_);
+                    self.assert_index(&type_, span);
                 }
             }
             RangeOrExpression::Expression(expression) => {
@@ -995,7 +990,7 @@ impl Frame {
                 let type_ = self.parse_expression(expression)?;
 
                 // Assert the type is an index.
-                self.assert_index(&type_);
+                self.assert_index(&type_, span);
             }
         }
 
@@ -1423,8 +1418,8 @@ impl TypeAssertion {
     ///
     /// Returns a `TypeAssertion::Membership` predicate from given and set `Type`s.
     ///
-    pub fn new_membership(given: Type, set: Vec<Type>) -> Self {
-        Self::Membership(TypeMembership::new(given, set))
+    pub fn new_membership(given: Type, set: Vec<Type>, span: &Span) -> Self {
+        Self::Membership(TypeMembership::new(given, set, span))
     }
 
     ///
@@ -1445,7 +1440,11 @@ impl TypeAssertion {
     pub fn solve(&self) -> Result<Option<TypeVariablePair>, TypeAssertionError> {
         match self {
             TypeAssertion::Equality(equality) => equality.solve(),
-            TypeAssertion::Membership(_) => unimplemented!(),
+            TypeAssertion::Membership(membership) => {
+                membership.solve()?;
+
+                Ok(None)
+            }
         }
     }
 }
@@ -1455,14 +1454,19 @@ impl TypeAssertion {
 pub struct TypeMembership {
     given: Type,
     set: Vec<Type>,
+    span: Span,
 }
 
 impl TypeMembership {
     ///
     /// Returns a `TypeMembership` predicate from given and set `Type`s.
     ///
-    pub fn new(given: Type, set: Vec<Type>) -> Self {
-        Self { given, set }
+    pub fn new(given: Type, set: Vec<Type>, span: &Span) -> Self {
+        Self {
+            given,
+            set,
+            span: span.to_owned(),
+        }
     }
 
     ///
@@ -1476,8 +1480,16 @@ impl TypeMembership {
     ///
     /// Returns true if the given type is equal to a member of the set.
     ///
-    pub fn evaluate(&self) -> bool {
-        self.set.contains(&self.given)
+    pub fn solve(&self) -> Result<(), TypeAssertionError> {
+        if self.set.contains(&self.given) {
+            Ok(())
+        } else {
+            Err(TypeAssertionError::membership_failed(
+                &self.given,
+                &self.set,
+                &self.span,
+            ))
+        }
     }
 
     ///
@@ -1534,7 +1546,7 @@ impl TypeEquality {
                     // Return None if the two types are equal (the equality is satisfied).
                     None
                 } else {
-                    return Err(TypeAssertionError::assertion_failed(type1, type2, &self.span));
+                    return Err(TypeAssertionError::equality_failed(type1, type2, &self.span));
                 }
             }
         })

@@ -46,8 +46,20 @@ impl TypeAssertionError {
     ///
     /// Found mismatched types during program parsing.
     ///
-    pub fn assertion_failed(left: &Type, right: &Type, span: &Span) -> Self {
-        let message = format!("Mismatched types expected type `{}`, found type `{}`", left, right);
+    pub fn equality_failed(left: &Type, right: &Type, span: &Span) -> Self {
+        let message = format!("Mismatched types. Expected type `{}`, found type `{}`.", left, right);
+
+        Self::new_from_span(message, span.to_owned())
+    }
+
+    ///
+    /// Given type is not a member of the set of expected types.
+    ///
+    pub fn membership_failed(given: &Type, set: &Vec<Type>, span: &Span) -> Self {
+        let message = format!(
+            "Mismatched types. Given type `{}` is not in the expected type set `{:?}`.",
+            given, set
+        );
 
         Self::new_from_span(message, span.to_owned())
     }
