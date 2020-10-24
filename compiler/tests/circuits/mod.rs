@@ -138,9 +138,9 @@ fn test_member_static_function_undefined() {
 #[test]
 fn test_mutate_function_fail() {
     let bytes = include_bytes!("mut_function_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
@@ -178,9 +178,9 @@ fn test_mutate_self_static_function_fail() {
 #[test]
 fn test_mutate_static_function_fail() {
     let bytes = include_bytes!("mut_static_function_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]

@@ -1039,7 +1039,11 @@ impl Frame {
 
         // Check the length of the circuit members.
         if circuit_type.variables.len() != members.len() {
-            unimplemented!("Number of circuit arguments invalid")
+            return Err(FrameError::num_variables(
+                circuit_type.variables.len(),
+                members.len(),
+                span,
+            ));
         }
 
         // Assert members are circuit type member types.
@@ -1224,7 +1228,7 @@ impl Frame {
 
         // Check the length of arguments
         if function_type.inputs.len() != inputs.len() {
-            unimplemented!("Number of function arguments invalid")
+            return Err(FrameError::num_inputs(function_type.inputs.len(), inputs.len(), span));
         }
 
         // Assert function inputs are correct types.

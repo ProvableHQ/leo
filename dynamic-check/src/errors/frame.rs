@@ -69,7 +69,7 @@ impl FrameError {
     /// Attempted to call non-static member using `::`.
     ///
     pub fn invalid_member_access(identifier: &Identifier) -> Self {
-        let message = format!("non-static member `{}` must be accessed using `.` syntax", identifier);
+        let message = format!("non-static member `{}` must be accessed using `.` syntax.", identifier);
 
         Self::new_from_span(message, identifier.span.to_owned())
     }
@@ -78,9 +78,30 @@ impl FrameError {
     /// Attempted to call static member using `.`.
     ///
     pub fn invalid_static_access(identifier: &Identifier) -> Self {
-        let message = format!("static member `{}` must be accessed using `::` syntax", identifier);
+        let message = format!("static member `{}` must be accessed using `::` syntax.", identifier);
 
         Self::new_from_span(message, identifier.span.to_owned())
+    }
+
+    ///
+    /// Attempted to call a function with the incorrect number of inputs.
+    ///
+    pub fn num_inputs(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!(
+            "Function expected {} input variables, found {} inputs.",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span.clone())
+    }
+
+    ///
+    /// Attempted to create a circuit with the incorrect number of member variables.
+    ///
+    pub fn num_variables(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!("Circuit expected {} variables, found {} variables.", expected, actual);
+
+        Self::new_from_span(message, span.clone())
     }
 
     ///
