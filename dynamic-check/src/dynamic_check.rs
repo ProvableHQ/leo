@@ -1237,9 +1237,19 @@ impl Frame {
     fn solve(self) -> Result<(), FrameError> {
         let mut unsolved = self.type_assertions.clone();
 
+        // Solve all type equality assertions first.
+        let mut unsolved_membership = Vec::new();
+
         while !unsolved.is_empty() {
             // Pop type assertion from list
             let type_assertion = unsolved.pop().unwrap();
+
+            // If it is a membership assertion, then skip it for now.
+            if let TypeAssertion::Membership(membership) = type_assertion {
+                unsolved_membership.push(membership);
+
+                continue;
+            }
 
             println!("assertion: {:?}", type_assertion);
 
@@ -1253,7 +1263,20 @@ impl Frame {
                 for original in &mut unsolved {
                     original.substitute(&pair.0, &pair.1)
                 }
+
+                for original in &mut unsolved_membership {
+                    original.substitute(&pair.0, &pair.1)
+                }
             };
+        }
+
+        // Solve all type membership assertions.
+        while !unsolved_membership.is_empty() {
+            // Pop type assertion from list
+            let type_assertion = unsolved_membership.pop().unwrap();
+
+            // Solve the membership assertion.
+            type_assertion.solve()?;
         }
 
         // for type_assertion in unsolved.pop() {
@@ -1427,7 +1450,7 @@ impl TypeAssertion {
     pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
         match self {
             TypeAssertion::Equality(equality) => equality.substitute(variable, type_),
-            TypeAssertion::Membership(_) => unimplemented!(),
+            TypeAssertion::Membership(membership) => membership.substitute(variable, type_),
         }
     }
 
@@ -1472,9 +1495,8 @@ impl TypeMembership {
     ///
     /// Substitutes the given `TypeVariable` for each `Type` in the `TypeMembership`.
     ///
-    pub fn substitute(&mut self, _variable: &TypeVariable, _type_: &Type) {
-        // self.left.substitute(variable, type_);
-        // self.right.substitute(variable, type_);
+    pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
+        self.given.substitute(variable, type_)
     }
 
     ///
