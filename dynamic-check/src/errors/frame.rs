@@ -16,7 +16,7 @@
 
 use crate::{ScopeError, TypeAssertionError};
 use leo_static_check::TypeError;
-use leo_typed::{Error as FormattedError, Span};
+use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;
 
@@ -49,10 +49,55 @@ impl FrameError {
         }
     }
 
-    // ///
-    // /// Return a new formatted error with a given message and span information
-    // ///
-    // fn new_from_span(message: String, span: Span) -> Self {
-    //     FrameError::Error(FormattedError::new_from_span(message, span))
-    // }
+    ///
+    /// Return a new formatted error with a given message and span information
+    ///
+    fn new_from_span(message: String, span: Span) -> Self {
+        FrameError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    ///
+    /// Attempted to access the `Self` type outside of a circuit context.
+    ///
+    pub fn circuit_self(span: &Span) -> Self {
+        let message = "The `Self` keyword is only valid inside a circuit context.".to_string();
+
+        Self::new_from_span(message, span.to_owned())
+    }
+
+    ///
+    /// Attempted to call non-static member using `::`.
+    ///
+    pub fn invalid_member_access(identifier: &Identifier) -> Self {
+        let message = format!("non-static member `{}` must be accessed using `.` syntax", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
+
+    ///
+    /// Attempted to call static member using `.`.
+    ///
+    pub fn invalid_static_access(identifier: &Identifier) -> Self {
+        let message = format!("static member `{}` must be accessed using `::` syntax", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
+
+    ///
+    /// Attempted to call a circuit type that is not defined in the current context.
+    ///
+    pub fn undefined_circuit(identifier: &Identifier) -> Self {
+        let message = format!("The circuit `{}` is not defined.", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
+
+    ///
+    /// Attempted to call a circuit function that is not defined in the current context.
+    ///
+    pub fn undefined_circuit_function(identifier: &Identifier) -> Self {
+        let message = format!("The circuit function `{}` is not defined.", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
 }

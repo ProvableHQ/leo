@@ -46,8 +46,12 @@ pub struct Identifier {
 }
 
 impl Identifier {
+    pub fn is_self_type(&self) -> bool {
+        self.name == "Self"
+    }
+
     pub fn is_self(&self) -> bool {
-        self.name == "Self" || self.name == "self"
+        self.is_self_type() || self.name == "self"
     }
 }
 

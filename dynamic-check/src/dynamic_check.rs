@@ -696,6 +696,15 @@ impl Frame {
     /// Returns the type of the identifier in the symbol table.
     ///
     fn parse_identifier(&self, identifier: &Identifier) -> Result<Type, FrameError> {
+        // Check Self type.
+        if identifier.is_self_type() {
+            // Check for frame circuit self type.
+            let circuit_type = self.self_type_or_error(&identifier.span)?;
+
+            // Return new type with circuit identifier.
+            return Ok(Type::Circuit(circuit_type.identifier));
+        }
+
         // Check variable symbol table.
         if let Some(type_) = self.get_variable(&identifier.name) {
             return Ok(type_.to_owned());
@@ -730,7 +739,6 @@ impl Frame {
         right: &Expression,
         span: &Span,
     ) -> Result<Type, FrameError> {
-        println!("left {}, right {}", left, right);
         // Get the left expression type.
         let left_type = self.parse_expression(left)?;
 
@@ -999,6 +1007,16 @@ impl Frame {
     }
 
     ///
+    /// Returns the Self type of the frame or an error if it does not exist.
+    ///
+    fn self_type_or_error(&self, span: &Span) -> Result<CircuitType, FrameError> {
+        self.self_type
+            .as_ref()
+            .map(|circuit_type| circuit_type.clone())
+            .ok_or_else(|| FrameError::circuit_self(span))
+    }
+
+    ///
     /// Returns the type of inline circuit expression.
     ///
     fn parse_circuit(
@@ -1009,14 +1027,15 @@ impl Frame {
     ) -> Result<Type, FrameError> {
         // Check if identifier is Self circuit type.
         let circuit_type = if identifier.is_self() {
-            self.self_type.clone()
+            // Get the Self type of the frame.
+            self.self_type_or_error(span)?
         } else {
             // Get circuit type.
             self.user_defined_types
                 .get_circuit(&identifier.name)
                 .map(|circuit_type| circuit_type.clone())
-        }
-        .unwrap();
+                .ok_or_else(|| FrameError::undefined_circuit(identifier))?
+        };
 
         // Check the length of the circuit members.
         if circuit_type.variables.len() != members.len() {
@@ -1064,7 +1083,7 @@ impl Frame {
         let circuit_type = self.parse_circuit_name(type_, span)?;
 
         // Look for member with matching name.
-        Ok(circuit_type.member_type(&identifier).unwrap())
+        Ok(circuit_type.member_type(&identifier)?)
     }
 
     ///
@@ -1092,7 +1111,7 @@ impl Frame {
                 // Lookup circuit identifier.
                 self.user_defined_types.get_circuit(&identifier.name).unwrap()
             }
-            _ => unimplemented!("expected circuit type"),
+            type_ => unimplemented!("expected circuit type {:?}", type_),
         })
     }
 
@@ -1143,7 +1162,9 @@ impl Frame {
         let circuit_type = self.parse_circuit_name(type_, span)?;
 
         // Find circuit function by identifier.
-        Ok(circuit_type.member_function_type(identifier).unwrap())
+        circuit_type
+            .member_function_type(identifier)
+            .ok_or_else(|| FrameError::undefined_circuit_function(identifier))
     }
 
     ///
@@ -1160,7 +1181,7 @@ impl Frame {
 
         // Check that the function is non-static.
         if circuit_function_type.attributes.contains(&Attribute::Static) {
-            unimplemented!("Called static function using dot syntax")
+            return Err(FrameError::invalid_static_access(identifier));
         }
 
         // Return the function type.
@@ -1181,7 +1202,7 @@ impl Frame {
 
         // Check that the function is static.
         if !circuit_function_type.attributes.contains(&Attribute::Static) {
-            unimplemented!("Called non-static function using double colon syntax")
+            return Err(FrameError::invalid_member_access(identifier));
         }
 
         Ok(circuit_function_type.function.to_owned())
@@ -1199,7 +1220,6 @@ impl Frame {
         span: &Span,
     ) -> Result<Type, FrameError> {
         // Parse the function name.
-        println!("expression {}", expression);
         let function_type = self.parse_function_name(expression, span)?;
 
         // Check the length of arguments
@@ -1656,9 +1676,10 @@ impl TypeVariablePairs {
         match (left, right) {
             (Type::TypeVariable(variable), type_) => Ok(self.push(variable, type_)),
             (type_, Type::TypeVariable(variable)) => Ok(self.push(variable, type_)),
-            (Type::Array(type1, dimensions1), Type::Array(type2, dimensions2)) => {
-                self.push_pairs_array(type1, dimensions1, type2, dimensions2, span)
+            (Type::Array(left_type, left_dimensions), Type::Array(right_type, right_dimensions)) => {
+                self.push_pairs_array(left_type, left_dimensions, right_type, right_dimensions, span)
             }
+            (Type::Tuple(left_types), Type::Tuple(right_types)) => self.push_pairs_tuple(left_types, right_types, span),
             (_, _) => Ok(()), // No `TypeVariable` found so we do not push any pairs.
         }
     }
@@ -1691,6 +1712,26 @@ impl TypeVariablePairs {
 
         // Compare the array element types.
         self.push_pairs(left_type_flat, right_type_flat, span);
+
+        Ok(())
+    }
+
+    ///
+    /// Checks if any given left or right tuple type contains a `TypeVariable`.
+    /// If a `TypeVariable` is found, create a new `TypeVariablePair` between the given left
+    /// and right type.
+    ///
+    fn push_pairs_tuple(
+        &mut self,
+        left_types: &Vec<Type>,
+        right_types: &Vec<Type>,
+        span: &Span,
+    ) -> Result<(), TypeAssertionError> {
+        // Iterate over each left == right pair of types.
+        for (left, right) in left_types.iter().zip(right_types) {
+            // Check for `TypeVariablePair`s.
+            self.push_pairs(left, right, span)?;
+        }
 
         Ok(())
     }

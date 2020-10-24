@@ -14,17 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, parse_program, EdwardsTestCompiler};
+use crate::{assert_satisfied, expect_compiler_error, expect_dynamic_check_error, parse_program, EdwardsTestCompiler};
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-
-fn expect_fail(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_string),
-        ))) => {}
-        error => panic!("Expected invalid circuit member error, got {}", error),
-    }
-}
 
 // Expressions
 
@@ -41,15 +32,15 @@ fn test_inline_fail() {
     let bytes = include_bytes!("inline_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    expect_fail(program);
+    expect_compiler_error(program);
 }
 
 #[test]
 fn test_inline_undefined() {
     let bytes = include_bytes!("inline_undefined.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program);
+    expect_dynamic_check_error(error);
 }
 
 // Members
@@ -65,9 +56,9 @@ fn test_member_variable() {
 #[test]
 fn test_member_variable_fail() {
     let bytes = include_bytes!("member_variable_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
@@ -89,17 +80,17 @@ fn test_member_function() {
 #[test]
 fn test_member_function_fail() {
     let bytes = include_bytes!("member_function_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
 fn test_member_function_invalid() {
     let bytes = include_bytes!("member_function_invalid.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
@@ -129,17 +120,17 @@ fn test_member_static_function_nested() {
 #[test]
 fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program)
+    expect_dynamic_check_error(error)
 }
 
 #[test]
 fn test_member_static_function_undefined() {
     let bytes = include_bytes!("member_static_function_undefined.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_fail(program)
+    expect_dynamic_check_error(error)
 }
 
 // Mutability
@@ -213,9 +204,9 @@ fn test_mutate_variable_fail() {
 #[test]
 fn test_self_fail() {
     let bytes = include_bytes!("self_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
