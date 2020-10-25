@@ -57,8 +57,6 @@ pub struct DynamicCheck {
     frames: Vec<Frame>,
 }
 
-pub struct VariableEnvironment {}
-
 impl DynamicCheck {
     ///
     /// Creates a new `DynamicCheck` from a given program and symbol table.
@@ -89,20 +87,27 @@ impl DynamicCheck {
     /// Collects a vector of `TypeAssertion` predicates from a program.
     ///
     fn parse_program(&mut self, program: &Program) -> Result<(), DynamicCheckError> {
+        // Parse program input keyword as a circuit type.
+        // let input_type = CircuitType::from_input()
+
+        // Iterate over circuit types.
         let circuits = program
             .circuits
             .iter()
             .map(|(_identifier, circuit)| circuit)
             .collect::<Vec<_>>();
 
+        // Parse circuit types in program context.
         self.parse_circuits(circuits)?;
 
+        // Iterate over functions.
         let functions = program
             .functions
             .iter()
             .map(|(_identifier, function)| function)
             .collect::<Vec<_>>();
 
+        // Parse functions in program context.
         self.parse_functions(functions)
     }
 
@@ -334,8 +339,6 @@ impl Frame {
     fn assert_equal(&mut self, left: Type, right: Type, span: &Span) {
         let type_assertion = TypeAssertion::new_equality(left, right, span);
 
-        println!("equality: {:?}", type_assertion);
-
         self.type_assertions.push(type_assertion);
     }
 
@@ -502,7 +505,17 @@ impl Frame {
     ///
     fn parse_assignee(&mut self, assignee: &Assignee, span: &Span) -> Result<Type, FrameError> {
         // Get the type of the assignee variable.
-        let mut type_ = self.get_variable(&assignee.identifier.name).unwrap().to_owned();
+        let mut type_ = if assignee.identifier.is_self() {
+            // If the variable is the self keyword, then return the self.circuit_type
+            let self_type = self.self_type_or_error(span)?;
+
+            Type::Circuit(self_type.identifier)
+        } else {
+            // Otherwise, lookup the variable by name in the symbol table.
+            self.get_variable(&assignee.identifier.name)
+                .map(|type_| type_.to_owned())
+                .ok_or_else(|| FrameError::undefined_variable(&assignee.identifier))?
+        };
 
         // Iteratively evaluate assignee access types.
         for access in &assignee.accesses {
@@ -697,7 +710,7 @@ impl Frame {
     ///
     fn parse_identifier(&self, identifier: &Identifier) -> Result<Type, FrameError> {
         // Check Self type.
-        if identifier.is_self_type() {
+        if identifier.is_self() {
             // Check for frame circuit self type.
             let circuit_type = self.self_type_or_error(&identifier.span)?;
 
@@ -1037,6 +1050,8 @@ impl Frame {
                 .ok_or_else(|| FrameError::undefined_circuit(identifier))?
         };
 
+        println!("circuit_type: {:?}", circuit_type);
+
         // Check the length of the circuit members.
         if circuit_type.variables.len() != members.len() {
             return Err(FrameError::num_variables(
@@ -1055,7 +1070,7 @@ impl Frame {
             self.assert_equal(expected_variable.type_.clone(), actual_type, span)
         }
 
-        Ok(Type::Circuit(identifier.to_owned()))
+        Ok(Type::Circuit(circuit_type.identifier))
     }
 
     ///

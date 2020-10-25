@@ -130,4 +130,13 @@ impl FrameError {
 
         Self::new_from_span(message, identifier.span.to_owned())
     }
+
+    ///
+    /// Attempted to call a variable that is not defined in the current context.
+    ///
+    pub fn undefined_variable(identifier: &Identifier) -> Self {
+        let message = format!("The variable `{}` is not defined.", identifier);
+
+        Self::new_from_span(message, identifier.span.to_owned())
+    }
 }

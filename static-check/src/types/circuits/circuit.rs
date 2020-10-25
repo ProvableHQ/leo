@@ -22,7 +22,7 @@ use crate::{
     Type,
     TypeError,
 };
-use leo_typed::{Circuit, CircuitMember, Identifier};
+use leo_typed::{Circuit, CircuitMember, Identifier, Input};
 
 use serde::{Deserialize, Serialize};
 
@@ -141,4 +141,13 @@ impl CircuitType {
             }
         }
     }
+
+    // ///
+    // /// Returns a new `CircuitType` from a given `Input` struct.
+    // ///
+    // pub fn from_input(input: &Input) -> Self {
+    //     // Get definitions for each input variable.
+    //
+    //     // Create a new `CircuitType` for each
+    // }
 }

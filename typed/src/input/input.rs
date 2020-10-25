@@ -73,7 +73,7 @@ impl Input {
         Ok(())
     }
 
-    /// Parse all input variables included in a file and store them in `self`.
+    /// Parse all state variables included in a file and store them in `self`.
     pub fn parse_state(&mut self, file: File) -> Result<(), InputParserError> {
         for entry in file.entries.into_iter() {
             match entry {
