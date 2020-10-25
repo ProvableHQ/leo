@@ -45,3 +45,14 @@ impl<'ast> From<AstSpan<'ast>> for Span {
         }
     }
 }
+
+impl Default for Span {
+    fn default() -> Self {
+        Self {
+            text: String::new(),
+            line: 0,
+            start: 0,
+            end: 0,
+        }
+    }
+}

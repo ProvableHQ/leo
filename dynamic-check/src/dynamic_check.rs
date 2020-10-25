@@ -1125,13 +1125,15 @@ impl Frame {
     ///
     fn parse_circuit_name(&mut self, type_: Type, _span: &Span) -> Result<&CircuitType, FrameError> {
         // Check that type is a circuit type.
-        Ok(match type_ {
+        match type_ {
             Type::Circuit(identifier) => {
                 // Lookup circuit identifier.
-                self.user_defined_types.get_circuit(&identifier.name).unwrap()
+                self.user_defined_types
+                    .get_circuit(&identifier.name)
+                    .ok_or_else(|| FrameError::undefined_circuit(&identifier))
             }
             type_ => unimplemented!("expected circuit type {:?}", type_),
-        })
+        }
     }
 
     ///
@@ -1247,11 +1249,14 @@ impl Frame {
 
         // Assert function inputs are correct types.
         for (expected_input, actual_input) in function_type.inputs.iter().zip(inputs) {
-            // Parse actual input expression.
+            // Parse expected input type.
+            let expected_type = expected_input.type_();
+
+            // Parse actual input type.
             let actual_type = self.parse_expression(actual_input)?;
 
             // Assert expected input type == actual input type.
-            self.assert_equal(expected_input.type_().clone(), actual_type, span);
+            self.assert_equal(expected_type, actual_type, span);
         }
 
         // Return the function output type.
@@ -1471,7 +1476,7 @@ impl VariableTable {
     ) -> Result<(), VariableTableError> {
         for input in function_inputs {
             let input_name = input.identifier().name.clone();
-            let input_type = input.type_().clone();
+            let input_type = input.type_();
 
             // TODO (collinc97) throw an error for duplicate function input names.
             self.insert(input_name, input_type);

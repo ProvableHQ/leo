@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Attribute, Type};
+use crate::{Attribute, CircuitType, Type};
 use leo_typed::Identifier;
 
 use serde::{Deserialize, Serialize};
@@ -27,4 +27,14 @@ pub struct CircuitVariableType {
     pub type_: Type,
     /// The attributes of the circuit variable
     pub attributes: Vec<Attribute>,
+}
+
+impl From<&CircuitType> for CircuitVariableType {
+    fn from(type_: &CircuitType) -> Self {
+        Self {
+            identifier: type_.identifier.clone(),
+            type_: Type::Circuit(type_.identifier.clone()),
+            attributes: Vec::new(),
+        }
+    }
 }

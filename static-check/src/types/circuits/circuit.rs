@@ -22,9 +22,10 @@ use crate::{
     Type,
     TypeError,
 };
-use leo_typed::{Circuit, CircuitMember, Identifier, Input};
+use leo_typed::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Stores circuit definition details.
 ///
@@ -142,12 +143,35 @@ impl CircuitType {
         }
     }
 
-    // ///
-    // /// Returns a new `CircuitType` from a given `Input` struct.
-    // ///
-    // pub fn from_input(input: &Input) -> Self {
-    //     // Get definitions for each input variable.
-    //
-    //     // Create a new `CircuitType` for each
-    // }
+    ///
+    /// Returns a new `CircuitType` from a given `Input` struct.
+    ///
+    pub fn from_input_section(
+        table: &SymbolTable,
+        name: String,
+        section: HashMap<Parameter, Option<InputValue>>,
+    ) -> Result<Self, TypeError> {
+        // Create a new `CircuitVariableType` for each section pair.
+        let mut variables = Vec::new();
+
+        for (parameter, _option) in section.into_iter() {
+            let variable = CircuitVariableType {
+                identifier: parameter.variable,
+                type_: Type::new(table, parameter.type_, Span::default())?,
+                attributes: Vec::new(),
+            };
+
+            variables.push(variable);
+        }
+
+        // Create a new `Identifier` for the input section.
+        let identifier = Identifier::new(name);
+
+        // Return a new `CircuitType` with the given name.
+        Ok(Self {
+            identifier,
+            variables,
+            functions: Vec::new(),
+        })
+    }
 }

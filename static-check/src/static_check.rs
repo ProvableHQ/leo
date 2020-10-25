@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{StaticCheckError, SymbolTable};
-use leo_typed::Program;
+use leo_typed::{Input, Program};
 
 /// Performs a static type check over a program.
 pub struct StaticCheck {
@@ -35,8 +35,11 @@ impl StaticCheck {
     ///
     /// Returns a new `SymbolTable` from a given program.
     ///
-    pub fn run(program: &Program) -> Result<SymbolTable, StaticCheckError> {
+    pub fn run(program: &Program, input: &Input) -> Result<SymbolTable, StaticCheckError> {
         let mut check = Self::new();
+
+        // Load program input types.
+        check.load_input(input)?;
 
         // Run pass one checks
         check.pass_one(program)?;
@@ -45,6 +48,15 @@ impl StaticCheck {
         check.pass_two(program)?;
 
         Ok(check.table)
+    }
+
+    ///
+    /// Loads the program input types into the symbol table.
+    ///
+    pub fn load_input(&mut self, input: &Input) -> Result<(), StaticCheckError> {
+        self.table
+            .load_input(input)
+            .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 
     ///

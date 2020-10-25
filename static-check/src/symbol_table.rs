@@ -14,11 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitType, FunctionType, ParameterType, SymbolTableError};
-use leo_typed::{Circuit, Function, Identifier};
+use crate::{CircuitType, CircuitVariableType, FunctionType, ParameterType, SymbolTableError};
+use leo_typed::{Circuit, Function, Identifier, Input};
 
 use leo_imports::ImportParser;
 use std::collections::HashMap;
+
+pub const INPUT_VARIABLE_NAME: &str = "input";
+pub const RECORD_VARIABLE_NAME: &str = "record";
+pub const REGISTERS_VARIABLE_NAME: &str = "registers";
+pub const STATE_VARIABLE_NAME: &str = "state";
+pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
 /// A abstract data type that builds symbol tables for functions and circuits
 ///
@@ -140,6 +146,47 @@ impl SymbolTable {
                 }
             }
         }
+    }
+
+    ///
+    /// Loads function input types into symbol table.
+    ///
+    pub fn load_input(&mut self, input: &Input) -> Result<(), SymbolTableError> {
+        // Get values for each input section.
+        let registers_values = input.get_registers().values();
+        let record_values = input.get_record().values();
+        let state_values = input.get_state().values();
+        let state_leaf_values = input.get_state_leaf().values();
+
+        // Create a new `CircuitType` for each input section.
+        let registers_type =
+            CircuitType::from_input_section(&self, REGISTERS_VARIABLE_NAME.to_string(), registers_values)?;
+        let record_type = CircuitType::from_input_section(&self, RECORD_VARIABLE_NAME.to_string(), record_values)?;
+        let state_type = CircuitType::from_input_section(&self, STATE_VARIABLE_NAME.to_string(), state_values)?;
+        let state_leaf_type =
+            CircuitType::from_input_section(&self, STATE_LEAF_VARIABLE_NAME.to_string(), state_leaf_values)?;
+
+        // Create a new `CircuitVariableType` for each type.
+        let registers_variable = CircuitVariableType::from(&registers_type);
+        let record_variable = CircuitVariableType::from(&record_type);
+        let state_variable = CircuitVariableType::from(&state_type);
+        let state_leaf_variable = CircuitVariableType::from(&state_leaf_type);
+
+        // Create new `CircuitType` for input keyword.
+        let input_type = CircuitType {
+            identifier: Identifier::new(INPUT_VARIABLE_NAME.to_string()),
+            variables: vec![registers_variable, record_variable, state_variable, state_leaf_variable],
+            functions: Vec::new(),
+        };
+
+        // Insert each circuit type into the symbol table.
+        self.insert_circuit(registers_type.identifier.clone(), registers_type);
+        self.insert_circuit(record_type.identifier.clone(), record_type);
+        self.insert_circuit(state_type.identifier.clone(), state_type);
+        self.insert_circuit(state_leaf_type.identifier.clone(), state_leaf_type);
+        self.insert_circuit(input_type.identifier.clone(), input_type);
+
+        Ok(())
     }
 
     ///

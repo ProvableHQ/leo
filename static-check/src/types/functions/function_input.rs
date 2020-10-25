@@ -39,10 +39,10 @@ impl FunctionInputType {
     ///
     /// Return the `Type` of the current function input.
     ///
-    pub fn type_(&self) -> &Type {
+    pub fn type_(&self) -> Type {
         match self {
-            FunctionInputType::InputKeyword(_) => unimplemented!("ERROR: input type not implemented"),
-            FunctionInputType::Variable(variable) => &variable.type_,
+            FunctionInputType::InputKeyword(identifier) => Type::Circuit(identifier.to_owned()),
+            FunctionInputType::Variable(variable) => variable.type_.to_owned(),
         }
     }
 

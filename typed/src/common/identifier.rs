@@ -46,6 +46,13 @@ pub struct Identifier {
 }
 
 impl Identifier {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            span: Span::default(),
+        }
+    }
+
     pub fn is_self_type(&self) -> bool {
         self.name == "Self"
     }
