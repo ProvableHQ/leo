@@ -53,6 +53,13 @@ impl Identifier {
         }
     }
 
+    pub fn new_with_span(name: &String, span: &Span) -> Self {
+        Self {
+            name: name.to_owned(),
+            span: span.to_owned(),
+        }
+    }
+
     pub fn is_self_type(&self) -> bool {
         self.name == "Self"
     }

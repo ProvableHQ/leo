@@ -656,7 +656,7 @@ impl Frame {
             Expression::Address(_, _) => Ok(Type::Address),
             Expression::Field(_, _) => Ok(Type::Field),
             Expression::Group(_) => Ok(Type::Group),
-            Expression::Implicit(name, _) => Ok(Self::parse_implicit(name)),
+            Expression::Implicit(name, span) => Ok(Self::parse_implicit(Identifier::new_with_span(name, span))),
             Expression::Integer(integer_type, _, _) => Ok(Type::IntegerType(integer_type.clone())),
 
             // Number operations
@@ -733,14 +733,14 @@ impl Frame {
             return Ok(Type::Circuit(circuit_type.identifier.to_owned()));
         }
 
-        Ok(Self::parse_implicit(&identifier.name))
+        Ok(Self::parse_implicit(identifier.to_owned()))
     }
 
     ///
     /// Returns a new type variable from a given identifier
     ///
-    fn parse_implicit(name: &String) -> Type {
-        Type::TypeVariable(TypeVariable::from(name.clone()))
+    fn parse_implicit(identifier: Identifier) -> Type {
+        Type::TypeVariable(TypeVariable::from(identifier))
     }
 
     ///

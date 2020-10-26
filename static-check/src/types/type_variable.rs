@@ -19,25 +19,28 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An unknown type in a Leo program.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
 pub struct TypeVariable {
-    name: String,
+    identifier: Identifier,
 }
 
 impl fmt::Display for TypeVariable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)
-    }
-}
-
-impl From<String> for TypeVariable {
-    fn from(name: String) -> Self {
-        Self { name }
+        write!(f, "{}", self.identifier)
     }
 }
 
 impl From<Identifier> for TypeVariable {
     fn from(identifier: Identifier) -> Self {
-        Self::from(identifier.name)
+        Self { identifier }
     }
 }
+
+/// Compare the type variable `Identifier` and `Span`.
+impl PartialEq for TypeVariable {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.name.eq(&other.identifier.name) || self.identifier.span.eq(&other.identifier.span)
+    }
+}
+
+impl Eq for TypeVariable {}
