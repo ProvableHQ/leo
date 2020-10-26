@@ -61,12 +61,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             let condition = indicator.unwrap_or(Boolean::Constant(true));
-            let name_unique = format!("select {} {}:{}", result, span.line, span.start);
-            let selected_value =
-                ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &result, return_value)
-                    .map_err(|_| {
-                        StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned())
-                    })?;
+            let selected_value = ConstrainedValue::conditionally_select(
+                cs.ns(|| format!("select {} {}:{}", result, span.line, span.start)),
+                &condition,
+                &result,
+                return_value,
+            )
+            .map_err(|_| StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned()))?;
 
             *return_value = selected_value;
         }

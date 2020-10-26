@@ -31,13 +31,11 @@ pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: Constra
     option: Option<GroupValue>,
     span: &Span,
 ) -> Result<G, GroupError> {
-    let group_name = format!("{}: group", name);
-    let group_name_unique = format!("`{}` {}:{}", group_name, span.line, span.start);
-
-    G::alloc(cs.ns(|| group_name_unique), || {
-        option.ok_or(SynthesisError::AssignmentMissing)
-    })
-    .map_err(|_| GroupError::missing_group(group_name, span.to_owned()))
+    G::alloc(
+        cs.ns(|| format!("`{}: group` {}:{}", name, span.line, span.start)),
+        || option.ok_or(SynthesisError::AssignmentMissing),
+    )
+    .map_err(|_| GroupError::missing_group(format!("{}: group", name), span.to_owned()))
 }
 
 pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

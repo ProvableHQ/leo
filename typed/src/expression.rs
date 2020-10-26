@@ -118,39 +118,39 @@ pub enum Expression {
 }
 
 impl Expression {
-    pub fn set_span(&mut self, new_span: &Span) {
+    pub fn set_span(&mut self, new_span: Span) {
         match self {
-            Expression::Field(_, old_span) => *old_span = new_span.clone(),
+            Expression::Field(_, old_span) => *old_span = new_span,
             Expression::Group(value) => value.set_span(new_span),
 
-            Expression::Add(_, old_span) => *old_span = new_span.clone(),
-            Expression::Sub(_, old_span) => *old_span = new_span.clone(),
-            Expression::Mul(_, old_span) => *old_span = new_span.clone(),
-            Expression::Div(_, old_span) => *old_span = new_span.clone(),
-            Expression::Pow(_, old_span) => *old_span = new_span.clone(),
+            Expression::Add(_, old_span) => *old_span = new_span,
+            Expression::Sub(_, old_span) => *old_span = new_span,
+            Expression::Mul(_, old_span) => *old_span = new_span,
+            Expression::Div(_, old_span) => *old_span = new_span,
+            Expression::Pow(_, old_span) => *old_span = new_span,
 
-            Expression::Not(_, old_span) => *old_span = new_span.clone(),
-            Expression::Or(_, old_span) => *old_span = new_span.clone(),
-            Expression::And(_, old_span) => *old_span = new_span.clone(),
-            Expression::Eq(_, old_span) => *old_span = new_span.clone(),
-            Expression::Ge(_, old_span) => *old_span = new_span.clone(),
-            Expression::Gt(_, old_span) => *old_span = new_span.clone(),
-            Expression::Le(_, old_span) => *old_span = new_span.clone(),
-            Expression::Lt(_, old_span) => *old_span = new_span.clone(),
+            Expression::Not(_, old_span) => *old_span = new_span,
+            Expression::Or(_, old_span) => *old_span = new_span,
+            Expression::And(_, old_span) => *old_span = new_span,
+            Expression::Eq(_, old_span) => *old_span = new_span,
+            Expression::Ge(_, old_span) => *old_span = new_span,
+            Expression::Gt(_, old_span) => *old_span = new_span,
+            Expression::Le(_, old_span) => *old_span = new_span,
+            Expression::Lt(_, old_span) => *old_span = new_span,
 
-            Expression::IfElse(_, old_span) => *old_span = new_span.clone(),
-            Expression::Array(_, old_span) => *old_span = new_span.clone(),
-            Expression::ArrayAccess(_, old_span) => *old_span = new_span.clone(),
+            Expression::IfElse(_, old_span) => *old_span = new_span,
+            Expression::Array(_, old_span) => *old_span = new_span,
+            Expression::ArrayAccess(_, old_span) => *old_span = new_span,
 
-            Expression::Tuple(_, old_span) => *old_span = new_span.clone(),
-            Expression::TupleAccess(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Tuple(_, old_span) => *old_span = new_span,
+            Expression::TupleAccess(_, _, old_span) => *old_span = new_span,
 
-            Expression::Circuit(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::Circuit(_, _, old_span) => *old_span = new_span,
+            Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span,
+            Expression::CircuitStaticFunctionAccess(_, _, old_span) => *old_span = new_span,
 
-            Expression::FunctionCall(_, _, old_span) => *old_span = new_span.clone(),
-            Expression::CoreFunctionCall(_, _, old_span) => *old_span = new_span.clone(),
+            Expression::FunctionCall(_, _, old_span) => *old_span = new_span,
+            Expression::CoreFunctionCall(_, _, old_span) => *old_span = new_span,
             _ => {}
         }
     }
