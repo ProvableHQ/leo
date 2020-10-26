@@ -104,12 +104,8 @@ impl StaticCheck {
     /// refer to its expected types.
     ///
     pub fn pass_two(&mut self, program: &Program) -> Result<(), StaticCheckError> {
-        // Check unresolved program circuit definitions.
-        self.table.check_unknown_types_circuits(&program.circuits)?;
-
-        // Check unresolved program function definitions.
-        self.table.check_unknown_types_functions(&program.functions)?;
-
-        Ok(())
+        self.table
+            .check_unknown_types_program(program)
+            .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 }

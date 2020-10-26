@@ -1293,8 +1293,6 @@ impl Frame {
                 continue;
             }
 
-            println!("assertion: {:?}", type_assertion);
-
             // Collect `TypeVariablePairs` from the `TypeAssertion`.
             let pairs = type_assertion.pairs()?;
 

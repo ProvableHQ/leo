@@ -69,7 +69,6 @@ impl SymbolTable {
     /// variable type is returned.
     ///
     pub fn insert_name(&mut self, name: String, variable_type: ParameterType) -> Option<ParameterType> {
-        println!("name: {}", name);
         self.names.insert(name, variable_type)
     }
 
@@ -296,8 +295,11 @@ impl SymbolTable {
                 .get_import(&name)
                 .ok_or_else(|| SymbolTableError::unknown_package(&name, &symbol.span))?;
 
-            // Check the imported program.
+            // Check the imported program for duplicate types.
             self.check_duplicate_program(program, import_parser)?;
+
+            // Check the imported program for undefined types.
+            self.check_unknown_types_program(program)?;
 
             // Push the imported file's name to checked import files.
             checked.push(name);
@@ -353,17 +355,6 @@ impl SymbolTable {
         if let Some(package) = core_package {
             return self.insert_core_package(package);
         }
-
-        // // Get the import file name from the import statement.
-        // let import_file_name = import.get_file_name();
-        //
-        // // Check if the import file name exists in the import parser.
-        // let program = import_parser
-        //     .get_import(&import_file_name)
-        //     .ok_or_else(|| SymbolTableError::unknown_package(import_file_name, &import.span))?;
-        //
-        // // Check the imported file.
-        // self.check_duplicate_program(program, import_parser)?;
 
         // Attempt to insert the imported names into the symbol table.
         self.insert_import(import, import_parser)
@@ -445,6 +436,23 @@ impl SymbolTable {
             // Attempt to insert the function name into the symbol table.
             self.insert_function_name(identifier.to_string(), ParameterType::from(function.clone()))?;
         }
+
+        Ok(())
+    }
+
+    ///
+    /// Checks for unknown types in circuit and function definitions given an unresolved program.
+    ///
+    /// If a circuit or function definition only contains known types, then it is inserted into the
+    /// symbol table. Variables defined later in the unresolved program can lookup the definition and
+    /// refer to its expected types.
+    ///
+    pub fn check_unknown_types_program(&mut self, program: &Program) -> Result<(), SymbolTableError> {
+        // Check unresolved program circuit definitions.
+        self.check_unknown_types_circuits(&program.circuits)?;
+
+        // Check unresolved program function definitions.
+        self.check_unknown_types_functions(&program.functions)?;
 
         Ok(())
     }
