@@ -17,8 +17,9 @@
 use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
+use leo_imports::ImportParser;
 use leo_static_check::StaticCheck;
-use leo_typed::LeoTypedAst;
+use leo_typed::{Input, LeoTypedAst};
 use std::path::PathBuf;
 
 const TEST_PROGRAM_PATH: &str = "";
@@ -44,8 +45,14 @@ impl TestDynamicCheck {
         let typed = LeoTypedAst::new(TEST_PROGRAM_NAME, &ast);
         let program = typed.into_repr();
 
+        // Create empty import parser.
+        let import_parser = ImportParser::new();
+
+        // Create empty input.
+        let input = Input::new();
+
         // Create static check.
-        let symbol_table = StaticCheck::run_with_input(&program).unwrap();
+        let symbol_table = StaticCheck::run_with_input(&program, &import_parser, &input).unwrap();
 
         // Create dynamic check
         let dynamic_check = DynamicCheck::new(&program, symbol_table).unwrap();

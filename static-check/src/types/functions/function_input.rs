@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariableType, ParameterType, SymbolTable, Type, TypeError};
+use crate::{FunctionInputVariableType, SymbolTable, Type, TypeError};
 use leo_typed::{FunctionInput, Identifier};
 
 use serde::{Deserialize, Serialize};
@@ -86,19 +86,5 @@ impl FunctionInputType {
                 FunctionInputType::Variable(function_input)
             }
         })
-    }
-
-    ///
-    /// Insert the current function input type into the given symbol table.
-    ///
-    /// If the symbol table did not have this name present, `None` is returned.
-    ///
-    pub fn insert(&self, table: &mut SymbolTable) -> Option<ParameterType> {
-        match self {
-            FunctionInputType::Variable(variable) => variable.insert(table),
-            FunctionInputType::InputKeyword(_identifier) => {
-                unimplemented!("uncomment when support for input types is added")
-            }
-        }
     }
 }

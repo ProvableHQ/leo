@@ -18,8 +18,9 @@ pub mod symbol_table;
 
 use leo_ast::LeoAst;
 use leo_static_check::{StaticCheck, StaticCheckError, SymbolTableError};
-use leo_typed::LeoTypedAst;
+use leo_typed::{Input, LeoTypedAst};
 
+use leo_imports::ImportParser;
 use std::path::PathBuf;
 
 const TEST_PROGRAM_PATH: &str = "";
@@ -58,8 +59,14 @@ impl TestStaticCheck {
         // Get program.
         let program = self.typed.into_repr();
 
+        // Create empty import parser.
+        let import_parser = ImportParser::new();
+
+        // Create empty input.
+        let input = Input::new();
+
         // Create new symbol table.
-        let _symbol_table = StaticCheck::run_with_input(&program).unwrap();
+        let _symbol_table = StaticCheck::run_with_input(&program, &import_parser, &input).unwrap();
     }
 
     ///
@@ -74,8 +81,11 @@ impl TestStaticCheck {
         // Create new symbol table.
         let static_check = &mut StaticCheck::new();
 
+        // Create empty import parser.
+        let import_parser = ImportParser::new();
+
         // Run pass one and expect an error.
-        let error = static_check.pass_one(&program).unwrap_err();
+        let error = static_check.pass_one(&program, &import_parser).unwrap_err();
 
         match error {
             StaticCheckError::SymbolTableError(SymbolTableError::Error(_)) => {} // Ok
@@ -95,8 +105,11 @@ impl TestStaticCheck {
         // Create a new symbol table.
         let static_check = &mut StaticCheck::new();
 
+        // Create empty import parser.
+        let import_parser = ImportParser::new();
+
         // Run the pass one and expect no errors.
-        static_check.pass_one(&program).unwrap();
+        static_check.pass_one(&program, &import_parser).unwrap();
 
         // Run the pass two and expect and error.
         let error = static_check.pass_two(&program).unwrap_err();
