@@ -1050,8 +1050,6 @@ impl Frame {
                 .ok_or_else(|| FrameError::undefined_circuit(identifier))?
         };
 
-        println!("circuit_type: {:?}", circuit_type);
-
         // Check the length of the circuit members.
         if circuit_type.variables.len() != members.len() {
             return Err(FrameError::num_variables(

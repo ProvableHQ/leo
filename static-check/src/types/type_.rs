@@ -238,10 +238,19 @@ impl Type {
     /// Replaces self with the given type if self is equal to the given `TypeVariable`.
     ///
     pub fn substitute(&mut self, variable: &TypeVariable, type_: &Type) {
-        if let Type::TypeVariable(self_variable) = self {
-            if self_variable == variable {
-                *self = type_.to_owned()
+        match self {
+            Type::TypeVariable(self_variable) => {
+                if self_variable == variable {
+                    *self = type_.to_owned()
+                }
             }
+            Type::Array(self_type, _) => {
+                self_type.substitute(variable, type_);
+            }
+            Type::Tuple(types) => types
+                .iter_mut()
+                .for_each(|tuple_type| tuple_type.substitute(variable, type_)),
+            _ => {}
         }
     }
 }

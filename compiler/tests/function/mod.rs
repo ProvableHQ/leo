@@ -133,6 +133,14 @@ fn test_value_unchanged() {
     assert_satisfied(program);
 }
 
+#[test]
+fn test_array_input() {
+    let bytes = include_bytes!("array_input.leo");
+    let error = parse_program(bytes).err().unwrap();
+
+    expect_dynamic_check_error(error)
+}
+
 // Test return multidimensional arrays
 
 #[test]
