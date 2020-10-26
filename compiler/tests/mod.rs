@@ -187,6 +187,15 @@ pub(crate) fn expect_dynamic_check_error(error: CompilerError) {
     assert!(is_dynamic_check)
 }
 
+pub(crate) fn expect_static_check_error(error: CompilerError) {
+    let is_static_check = match error {
+        CompilerError::StaticCheckError(_) => true,
+        _ => false,
+    };
+
+    assert!(is_static_check)
+}
+
 // pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
 //     let mut cs = TestConstraintSystem::<Fq>::new();
 //     let _output = program.generate_constraints_helper(&mut cs).unwrap();

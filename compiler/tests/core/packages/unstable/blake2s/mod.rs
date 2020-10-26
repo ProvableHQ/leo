@@ -17,6 +17,7 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
+    expect_dynamic_check_error,
     generate_main_input,
     get_output,
     parse_program,
@@ -33,9 +34,9 @@ use snarkos_models::algorithms::PRF;
 #[test]
 fn test_arguments_length_fail() {
     let program_bytes = include_bytes!("arguments_length_fail.leo");
-    let program = parse_program(program_bytes).unwrap();
+    let error = parse_program(program_bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_dynamic_check_error(error);
 }
 
 #[test]
