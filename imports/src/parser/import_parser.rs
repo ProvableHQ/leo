@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportParserError;
-use leo_typed::{Package, Program, Span};
+use leo_typed::{Package, Program};
 
 use std::{collections::HashMap, env::current_dir};
 
@@ -43,25 +43,12 @@ impl ImportParser {
     ///
     /// Inserts a (file name -> program) pair into the `ImportParser`.
     ///
-    /// If the map did not have this file name present, `Ok()` is returned.
+    /// It is okay if the imported program is already present since importing multiple symbols from
+    /// the same file is allowed.
     ///
-    /// If the map did have this file name present, a duplicate import error is thrown.
-    ///
-    pub(crate) fn insert_import(
-        &mut self,
-        file_name: String,
-        program: Program,
-        span: &Span,
-    ) -> Result<(), ImportParserError> {
+    pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
         // Insert the imported program.
-        let duplicate = self.imports.insert(file_name.clone(), program);
-
-        // Check for duplicate import name.
-        if duplicate.is_some() {
-            return Err(ImportParserError::duplicate_import(file_name, span.clone()));
-        }
-
-        Ok(())
+        let _program = self.imports.insert(file_name.clone(), program);
     }
 
     ///
@@ -86,7 +73,7 @@ impl ImportParser {
     ///
     /// Returns a reference to the program corresponding to the file name.
     ///
-    pub fn get_import(&self, file_name: &String) -> Option<&Program> {
+    pub fn get_import(&self, file_name: &str) -> Option<&Program> {
         self.imports.get(file_name)
     }
 

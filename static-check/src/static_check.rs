@@ -34,28 +34,45 @@ impl StaticCheck {
     }
 
     ///
-    /// Returns a new `SymbolTable` from a given program.
+    /// Returns a new `SymbolTable` from a given program and import parser.
     ///
-    pub fn run(
+    pub fn run(program: &Program, import_parser: &ImportParser) -> Result<SymbolTable, StaticCheckError> {
+        let mut check = Self::new();
+
+        // Run checks on program and imports.
+        check.check(program, import_parser)?;
+
+        Ok(check.table)
+    }
+
+    ///
+    /// Returns a new `SymbolTable` from a given program, input, and import parser.
+    ///
+    pub fn run_with_input(
         program: &Program,
-        input: &Input,
         import_parser: &ImportParser,
+        input: &Input,
     ) -> Result<SymbolTable, StaticCheckError> {
         let mut check = Self::new();
 
         // Load program input types.
         check.insert_input(input)?;
 
-        // // Load the program imports into the symbol table.
-        // check.insert_imports()?;
-
-        // Run pass one checks
-        check.pass_one(program, import_parser)?;
-
-        // Run pass two checks
-        check.pass_two(program)?;
+        // Run checks on program and imports.
+        check.check(program, import_parser)?;
 
         Ok(check.table)
+    }
+
+    ///
+    /// Computes pass one and pass two checks on self.
+    ///
+    pub fn check(&mut self, program: &Program, import_parser: &ImportParser) -> Result<(), StaticCheckError> {
+        // Run pass one checks.
+        self.pass_one(program, import_parser)?;
+
+        // Run pass two checks.
+        self.pass_two(program)
     }
 
     ///
@@ -67,11 +84,6 @@ impl StaticCheck {
             .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 
-    // ///
-    // /// Inserts the program imports into the symbol table.
-    // ///
-    // pub fn insert_imports(&mut self, imports: &ImportParser) -> Result<(), StaticCheckError> {}
-
     ///
     /// Checks for duplicate circuit and function names given an unresolved program.
     ///
@@ -79,16 +91,9 @@ impl StaticCheck {
     /// Variables defined later in the unresolved program cannot have the same name.
     ///
     pub fn pass_one(&mut self, program: &Program, import_parser: &ImportParser) -> Result<(), StaticCheckError> {
-        // Check unresolved program import names.
-        self.table.check_imports(&program.imports, import_parser)?;
-
-        // Check unresolved program circuit names.
-        self.table.check_duplicate_circuits(&program.circuits)?;
-
-        // Check unresolved program function names.
-        self.table.check_duplicate_functions(&program.functions)?;
-
-        Ok(())
+        self.table
+            .check_duplicate_program(program, import_parser)
+            .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 
     ///

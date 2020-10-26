@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Circuit, Function, FunctionInput, Identifier, Import, TestFunction};
+use crate::{Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
 use leo_ast::{
     annotations::{Annotation, AnnotationArguments, AnnotationName},
     definitions::{AnnotatedDefinition, Definition},
@@ -24,7 +24,7 @@ use std::collections::HashMap;
 
 pub fn load_annotation(
     annotated_definition: AnnotatedDefinition,
-    _imports: &mut Vec<Import>,
+    _imports: &mut Vec<ImportStatement>,
     _circuits: &mut HashMap<Identifier, Circuit>,
     _functions: &mut HashMap<Identifier, Function>,
     tests: &mut HashMap<Identifier, TestFunction>,

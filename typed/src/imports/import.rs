@@ -14,42 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The import type for a Leo program.
-
 use crate::{Package, Span};
 use leo_ast::imports::Import as AstImport;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// Represents an import statement in a Leo program.
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Import {
+pub struct ImportStatement {
     pub package: Package,
     pub span: Span,
 }
 
-impl<'ast> From<AstImport<'ast>> for Import {
+impl ImportStatement {
+    ///
+    /// Returns the the package file name of the self import statement.
+    ///
+    pub fn get_file_name(&self) -> &str {
+        &self.package.name.name
+    }
+}
+
+impl<'ast> From<AstImport<'ast>> for ImportStatement {
     fn from(import: AstImport<'ast>) -> Self {
-        Import {
+        ImportStatement {
             package: Package::from(import.package),
             span: Span::from(import.span),
         }
     }
 }
 
-impl Import {
+impl ImportStatement {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "import {};", self.package)
     }
 }
 
-impl fmt::Display for Import {
+impl fmt::Display for ImportStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for Import {
+impl fmt::Debug for ImportStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

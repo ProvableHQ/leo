@@ -17,7 +17,7 @@
 //! A typed Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
-use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, Import, TestFunction};
+use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
 use leo_ast::{definitions::Definition, files::File};
 
 use serde::{Deserialize, Serialize};
@@ -28,7 +28,7 @@ use std::collections::HashMap;
 pub struct Program {
     pub name: String,
     pub expected_input: Vec<FunctionInput>,
-    pub imports: Vec<Import>,
+    pub imports: Vec<ImportStatement>,
     pub circuits: HashMap<Identifier, Circuit>,
     pub functions: HashMap<Identifier, Function>,
     pub tests: HashMap<Identifier, TestFunction>,
@@ -50,7 +50,7 @@ impl<'ast> Program {
             .to_owned()
             .into_iter()
             .for_each(|definition| match definition {
-                Definition::Import(import) => imports.push(Import::from(import)),
+                Definition::Import(import) => imports.push(ImportStatement::from(import)),
                 Definition::Circuit(circuit) => {
                     circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
                 }

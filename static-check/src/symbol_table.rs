@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitType, CircuitVariableType, FunctionType, ParameterType, SymbolTableError};
+use crate::{CircuitType, CircuitVariableType, FunctionType, ImportedSymbols, ParameterType, SymbolTableError};
 use leo_core::CorePackageList;
 use leo_imports::ImportParser;
-use leo_typed::{Circuit, Function, Identifier, Import, Input, Package};
+use leo_typed::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Input, Package, Program};
 
 use std::collections::HashMap;
 
@@ -69,7 +69,34 @@ impl SymbolTable {
     /// variable type is returned.
     ///
     pub fn insert_name(&mut self, name: String, variable_type: ParameterType) -> Option<ParameterType> {
+        println!("name: {}", name);
         self.names.insert(name, variable_type)
+    }
+
+    ///
+    /// Insert a circuit name into the symbol table from a given name and variable type.
+    ///
+    /// Returns an error if the circuit name is a duplicate.
+    ///
+    pub fn insert_circuit_name(&mut self, name: String, variable_type: ParameterType) -> Result<(), SymbolTableError> {
+        // Check that the circuit name is unique.
+        match self.insert_name(name, variable_type) {
+            Some(duplicate) => Err(SymbolTableError::duplicate_circuit(duplicate)),
+            None => Ok(()),
+        }
+    }
+
+    ///
+    /// Insert a function name into the symbol table from a given name and variable type.
+    ///
+    /// Returns an error if the function name is a duplicate.
+    ///
+    pub fn insert_function_name(&mut self, name: String, variable_type: ParameterType) -> Result<(), SymbolTableError> {
+        // Check that the circuit name is unique.
+        match self.insert_name(name, variable_type) {
+            Some(duplicate) => Err(SymbolTableError::duplicate_function(duplicate)),
+            None => Ok(()),
+        }
     }
 
     ///
@@ -153,7 +180,7 @@ impl SymbolTable {
     /// Inserts function input types into symbol table.
     ///
     /// Creates a new `CircuitType` to represent the input values.
-    /// The type contains register, record, state, and state leaf circuit variables.
+    /// The new type contains register, record, state, and state leaf circuit variables.
     /// This allows easy access to input types using dot syntax: `input.register.r0`.
     ///
     pub fn insert_input(&mut self, input: &Input) -> Result<(), SymbolTableError> {
@@ -195,17 +222,92 @@ impl SymbolTable {
     }
 
     ///
-    /// Inserts all imported identifiers for a given list of imported programs.
+    /// Inserts the imported symbol into the symbol table if it is present in the given program.
+    ///
+    pub fn insert_import_symbol(&mut self, symbol: ImportSymbol, program: &Program) -> Result<(), SymbolTableError> {
+        // Check for import *.
+        if symbol.is_star() {
+            // Insert all program circuits.
+            self.check_duplicate_circuits(&program.circuits)?;
+
+            // Insert all program functions.
+            self.check_duplicate_functions(&program.functions)
+        } else {
+            // Check for a symbol alias.
+            let identifier = symbol.alias.to_owned().unwrap_or(symbol.symbol.to_owned());
+
+            // Check if the imported symbol is a circuit
+            let matched_circuit = program
+                .circuits
+                .iter()
+                .find(|(circuit_name, _circuit_def)| symbol.symbol == **circuit_name);
+
+            match matched_circuit {
+                Some((_circuit_name, circuit)) => {
+                    // Insert imported circuit.
+                    self.insert_circuit_name(identifier.to_string(), ParameterType::from(circuit.to_owned()))
+                }
+                None => {
+                    // Check if the imported symbol is a function.
+                    let matched_function = program
+                        .functions
+                        .iter()
+                        .find(|(function_name, _function)| symbol.symbol == **function_name);
+
+                    match matched_function {
+                        Some((_function_name, function)) => {
+                            // Insert the imported function.
+                            self.insert_function_name(identifier.to_string(), ParameterType::from(function.to_owned()))
+                        }
+                        None => Err(SymbolTableError::unknown_symbol(&symbol, program)),
+                    }
+                }
+            }
+        }
+    }
+
+    ///
+    /// Inserts one or more imported symbols for a given import statement.
     ///
     /// No type resolution performed at this step.
     ///
-    // pub fn insert_imports(&mut self, imports: ImportParser) -> Result<(), SymbolTableError> {
-    //     // Iterate over each imported program.
-    //
-    //     // Store separate symbol table for each program.
-    //
-    //     //
-    // }
+    pub fn insert_import(
+        &mut self,
+        import: &ImportStatement,
+        import_parser: &ImportParser,
+    ) -> Result<(), SymbolTableError> {
+        // Get imported symbols from statement.
+        let imported_symbols = ImportedSymbols::from(import);
+
+        // Import all symbols from an imported file for now.
+
+        // Keep track of which import files have already been checked.
+        let mut checked = Vec::new();
+
+        // Iterate over each imported symbol.
+        for (name, symbol) in imported_symbols.symbols {
+            // Skip the imported symbol if we have already checked the file.
+            if checked.contains(&name) {
+                continue;
+            };
+
+            // Find the imported program.
+            let program = import_parser
+                .get_import(&name)
+                .ok_or_else(|| SymbolTableError::unknown_package(&name, &symbol.span))?;
+
+            // Check the imported program.
+            self.check_duplicate_program(program, import_parser)?;
+
+            // Push the imported file's name to checked import files.
+            checked.push(name);
+
+            // Store the imported symbol.
+            // self.insert_import_symbol(symbol, program)?; // TODO (collinc97) uncomment this line when public/private import scopes are implemented.
+        }
+
+        Ok(())
+    }
 
     ///
     /// Inserts core package name and type information into the symbol table.
@@ -220,7 +322,7 @@ impl SymbolTable {
         // Insert name and type information for each core package symbol.
         for (name, circuit) in symbol_list.symbols() {
             // Store name of symbol.
-            self.insert_name(name, ParameterType::from(circuit.clone()));
+            self.insert_circuit_name(name, ParameterType::from(circuit.clone()))?;
 
             // Create new circuit type for symbol.
             let circuit_type = CircuitType::new(&self, circuit)?;
@@ -233,6 +335,41 @@ impl SymbolTable {
     }
 
     ///
+    /// Checks that a given import statement contains imported names that exist in the list of
+    /// imported programs.
+    ///
+    /// Additionally checks for duplicate imported names in the given vector of imports.
+    /// Types defined later in the program cannot have the same name.
+    ///
+    pub fn check_import(
+        &mut self,
+        import: &ImportStatement,
+        import_parser: &ImportParser,
+    ) -> Result<(), SymbolTableError> {
+        // Check if the import name exists as core package.
+        let core_package = import_parser.get_core_package(&import.package);
+
+        // If the core package exists, then attempt to insert the import into the symbol table.
+        if let Some(package) = core_package {
+            return self.insert_core_package(package);
+        }
+
+        // // Get the import file name from the import statement.
+        // let import_file_name = import.get_file_name();
+        //
+        // // Check if the import file name exists in the import parser.
+        // let program = import_parser
+        //     .get_import(&import_file_name)
+        //     .ok_or_else(|| SymbolTableError::unknown_package(import_file_name, &import.span))?;
+        //
+        // // Check the imported file.
+        // self.check_duplicate_program(program, import_parser)?;
+
+        // Attempt to insert the imported names into the symbol table.
+        self.insert_import(import, import_parser)
+    }
+
+    ///
     /// Checks that all given imported names exist in the list of imported programs.
     ///
     /// Additionally checks for duplicate imported names in the given vector of imports.
@@ -240,27 +377,36 @@ impl SymbolTable {
     ///
     pub fn check_imports(
         &mut self,
-        imports: &Vec<Import>,
+        imports: &Vec<ImportStatement>,
         import_parser: &ImportParser,
     ) -> Result<(), SymbolTableError> {
         // Iterate over imported names.
         for import in imports.iter() {
-            // Check if the import name exists as core package.
-            let core_package = import_parser.get_core_package(&import.package);
-
-            // If the core package exists, then attempt to insert the import into the symbol table.
-            match core_package {
-                Some(package) => self.insert_core_package(package)?,
-                None => {
-                    // Check if the import name exists in the import parser.
-
-                    // Attempt to insert the imported name into the symbol table.
-
-                    // Check that the imported name is unique.
-                    unimplemented!("normal imports not supported yet")
-                }
-            }
+            self.check_import(import, import_parser)?;
         }
+
+        Ok(())
+    }
+
+    ///
+    /// Checks for duplicate import, circuit, and function names given a program.
+    ///
+    /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
+    /// Variables defined later in the unresolved program cannot have the same name.
+    ///
+    pub fn check_duplicate_program(
+        &mut self,
+        program: &Program,
+        import_parser: &ImportParser,
+    ) -> Result<(), SymbolTableError> {
+        // Check unresolved program import names.
+        self.check_imports(&program.imports, import_parser)?;
+
+        // Check unresolved program circuit names.
+        self.check_duplicate_circuits(&program.circuits)?;
+
+        // Check unresolved program function names.
+        self.check_duplicate_functions(&program.functions)?;
 
         Ok(())
     }
@@ -278,15 +424,7 @@ impl SymbolTable {
         // Iterate over circuit names and definitions.
         for (identifier, circuit) in circuits.iter() {
             // Attempt to insert the circuit name into the symbol table.
-            let duplicate = self.insert_name(identifier.to_string(), ParameterType::from(circuit.clone()));
-
-            // Check that the circuit name is unique.
-            if duplicate.is_some() {
-                return Err(SymbolTableError::duplicate_circuit(
-                    identifier.clone(),
-                    circuit.circuit_name.span.clone(),
-                ));
-            }
+            self.insert_circuit_name(identifier.to_string(), ParameterType::from(circuit.clone()))?;
         }
 
         Ok(())
@@ -305,15 +443,7 @@ impl SymbolTable {
         // Iterate over function names and definitions.
         for (identifier, function) in functions.iter() {
             // Attempt to insert the function name into the symbol table.
-            let duplicate = self.insert_name(identifier.to_string(), ParameterType::from(function.clone()));
-
-            // Check that the function name is unique.
-            if duplicate.is_some() {
-                return Err(SymbolTableError::duplicate_function(
-                    identifier.clone(),
-                    function.identifier.span.clone(),
-                ));
-            }
+            self.insert_function_name(identifier.to_string(), ParameterType::from(function.clone()))?;
         }
 
         Ok(())

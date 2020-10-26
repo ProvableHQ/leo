@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TypeError;
+use crate::{ParameterType, TypeError};
 use leo_core::{CorePackageListError, LeoCoreError};
-use leo_typed::{Error as FormattedError, Identifier, Span};
+use leo_typed::{Error as FormattedError, ImportSymbol, Program, Span};
 
 use std::path::PathBuf;
 
@@ -59,18 +59,42 @@ impl SymbolTableError {
     ///
     /// Two circuits have been defined with the same name.
     ///
-    pub fn duplicate_circuit(identifier: Identifier, span: Span) -> Self {
-        let message = format!("Duplicate circuit definition found for `{}`", identifier);
+    pub fn duplicate_circuit(variable: ParameterType) -> Self {
+        let message = format!("Duplicate circuit definition found for `{}`", variable.identifier);
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, variable.identifier.span)
     }
 
     ///
     /// Two functions have been defined with the same name.
     ///
-    pub fn duplicate_function(identifier: Identifier, span: Span) -> Self {
-        let message = format!("Duplicate function definition found for `{}`", identifier);
+    pub fn duplicate_function(variable: ParameterType) -> Self {
+        let message = format!("Duplicate function definition found for `{}`", variable.identifier);
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, variable.identifier.span)
+    }
+
+    ///
+    /// Attempted to access a package name that is not defined.
+    ///
+    pub fn unknown_package(name: &str, span: &Span) -> Self {
+        let message = format!(
+            "Cannot find imported package `{}` in source files or import directory",
+            name
+        );
+
+        Self::new_from_span(message, span.to_owned())
+    }
+
+    ///
+    /// Attempted to import a name that is not defined in the current file.
+    ///
+    pub fn unknown_symbol(symbol: &ImportSymbol, program: &Program) -> Self {
+        let message = format!(
+            "Cannot find imported symbol `{}` in imported file `{}`",
+            symbol, program.name
+        );
+
+        Self::new_from_span(message, symbol.span.to_owned())
     }
 }

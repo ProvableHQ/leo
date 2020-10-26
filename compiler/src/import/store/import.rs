@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType};
+use crate::{errors::ImportError, ConstrainedProgram, GroupType};
 use leo_imports::ImportParser;
-use leo_typed::Import;
+use leo_static_check::imported_symbols::ImportedSymbols;
+use leo_typed::ImportStatement;
 
 use snarkos_models::curves::{Field, PrimeField};
 
@@ -24,7 +25,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_import(
         &mut self,
         scope: String,
-        import: &Import,
+        import: &ImportStatement,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
         // Fetch core packages

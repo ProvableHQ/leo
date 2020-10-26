@@ -59,7 +59,7 @@ impl TestStaticCheck {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let _symbol_table = StaticCheck::run(&program).unwrap();
+        let _symbol_table = StaticCheck::run_with_input(&program).unwrap();
     }
 
     ///

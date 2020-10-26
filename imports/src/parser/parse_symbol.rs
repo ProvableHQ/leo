@@ -107,7 +107,7 @@ impl ImportParser {
                 .unwrap(); // the file exists so these will not fail
 
             // Attempt to insert the typed syntax tree for the imported package.
-            self.insert_import(file_name, program, span)?;
+            self.insert_import(file_name, program);
 
             Ok(())
         } else {
@@ -140,7 +140,7 @@ impl ImportParser {
             .unwrap(); // the file exists so these will not fail
 
         // Attempt to insert the typed syntax tree for the imported package.
-        self.insert_import(file_name, program, &symbol.span)?;
+        self.insert_import(file_name, program);
 
         Ok(())
     }
