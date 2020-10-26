@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{StaticCheckError, SymbolTable};
+use leo_imports::ImportParser;
 use leo_typed::{Input, Program};
 
 /// Performs a static type check over a program.
@@ -35,14 +36,21 @@ impl StaticCheck {
     ///
     /// Returns a new `SymbolTable` from a given program.
     ///
-    pub fn run(program: &Program, input: &Input) -> Result<SymbolTable, StaticCheckError> {
+    pub fn run(
+        program: &Program,
+        input: &Input,
+        import_parser: &ImportParser,
+    ) -> Result<SymbolTable, StaticCheckError> {
         let mut check = Self::new();
 
         // Load program input types.
-        check.load_input(input)?;
+        check.insert_input(input)?;
+
+        // // Load the program imports into the symbol table.
+        // check.insert_imports()?;
 
         // Run pass one checks
-        check.pass_one(program)?;
+        check.pass_one(program, import_parser)?;
 
         // Run pass two checks
         check.pass_two(program)?;
@@ -51,13 +59,18 @@ impl StaticCheck {
     }
 
     ///
-    /// Loads the program input types into the symbol table.
+    /// Inserts the program input types into the symbol table.
     ///
-    pub fn load_input(&mut self, input: &Input) -> Result<(), StaticCheckError> {
+    pub fn insert_input(&mut self, input: &Input) -> Result<(), StaticCheckError> {
         self.table
-            .load_input(input)
+            .insert_input(input)
             .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
+
+    // ///
+    // /// Inserts the program imports into the symbol table.
+    // ///
+    // pub fn insert_imports(&mut self, imports: &ImportParser) -> Result<(), StaticCheckError> {}
 
     ///
     /// Checks for duplicate circuit and function names given an unresolved program.
@@ -65,7 +78,10 @@ impl StaticCheck {
     /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
     /// Variables defined later in the unresolved program cannot have the same name.
     ///
-    pub fn pass_one(&mut self, program: &Program) -> Result<(), StaticCheckError> {
+    pub fn pass_one(&mut self, program: &Program, import_parser: &ImportParser) -> Result<(), StaticCheckError> {
+        // Check unresolved program import names.
+        self.table.check_imports(&program.imports, import_parser)?;
+
         // Check unresolved program circuit names.
         self.table.check_duplicate_circuits(&program.circuits)?;
 

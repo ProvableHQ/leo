@@ -27,13 +27,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         import: &Import,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
-        // Fetch core dependencies
-        let core_dependency = imported_programs
-            .core_packages()
-            .iter()
-            .find(|package| import.package.eq(package));
+        // Fetch core packages
+        let core_package = imported_programs.get_core_package(&import.package);
 
-        if let Some(package) = core_dependency {
+        if let Some(package) = core_package {
             self.store_core_package(scope.clone(), package.clone())?;
 
             return Ok(());
@@ -42,17 +39,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Fetch dependencies for the current import
         let imported_symbols = ImportedSymbols::from(import);
 
-        for (package, symbol) in imported_symbols.symbols {
+        for (name, symbol) in imported_symbols.symbols {
             // Find imported program
             let program = imported_programs
-                .get_import(&package)
+                .get_import(&name)
                 .ok_or(ImportError::unknown_package(import.package.name.clone()))?;
 
             // Parse imported program
             self.store_definitions(program.clone(), imported_programs)?;
 
             // Store the imported symbol
-            self.store_symbol(scope.clone(), package, &symbol, program)?;
+            self.store_symbol(scope.clone(), name, &symbol, program)?;
         }
 
         Ok(())

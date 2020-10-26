@@ -162,14 +162,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let typed_tree = LeoTypedAst::new(&package_name, &ast);
 
         self.program = typed_tree.into_repr();
+        self.imported_programs = ImportParser::parse(&self.program)?;
 
         // Run static check on program.
-        let symbol_table = StaticCheck::run(&self.program, &self.program_input)?;
+        let symbol_table = StaticCheck::run(&self.program, &self.program_input, &self.imported_programs)?;
 
         // Run dynamic check on program.
         DynamicCheck::run(&self.program, symbol_table)?;
-
-        self.imported_programs = ImportParser::parse(&self.program)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 

@@ -91,6 +91,15 @@ impl ImportParser {
     }
 
     ///
+    /// Returns a reference to the core package corresponding to the given package.
+    ///
+    pub fn get_core_package(&self, package: &Package) -> Option<&Package> {
+        self.core_packages()
+            .iter()
+            .find(|core_package| core_package.eq(&package))
+    }
+
+    ///
     /// Returns a reference to the vector of core packages.
     ///
     pub fn core_packages(&self) -> &Vec<Package> {

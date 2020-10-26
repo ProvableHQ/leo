@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::TypeError;
+use leo_core::{CorePackageListError, LeoCoreError};
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;
@@ -23,7 +24,13 @@ use std::path::PathBuf;
 #[derive(Debug, Error)]
 pub enum SymbolTableError {
     #[error("{}", _0)]
+    CorePackageListError(#[from] CorePackageListError),
+
+    #[error("{}", _0)]
     Error(#[from] FormattedError),
+
+    #[error("{}", _0)]
+    LeoCoreError(#[from] LeoCoreError),
 
     #[error("{}", _0)]
     TypeError(#[from] TypeError),
@@ -35,7 +42,9 @@ impl SymbolTableError {
     ///
     pub fn set_path(&mut self, path: PathBuf) {
         match self {
+            SymbolTableError::CorePackageListError(error) => error.set_path(path),
             SymbolTableError::Error(error) => error.set_path(path),
+            SymbolTableError::LeoCoreError(error) => error.set_path(path),
             SymbolTableError::TypeError(error) => error.set_path(path),
         }
     }

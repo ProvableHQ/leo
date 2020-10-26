@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitType, CircuitVariableType, FunctionType, ParameterType, SymbolTableError};
-use leo_typed::{Circuit, Function, Identifier, Input};
-
+use leo_core::CorePackageList;
 use leo_imports::ImportParser;
+use leo_typed::{Circuit, Function, Identifier, Import, Input, Package};
+
 use std::collections::HashMap;
 
 pub const INPUT_VARIABLE_NAME: &str = "input";
@@ -149,9 +150,13 @@ impl SymbolTable {
     }
 
     ///
-    /// Loads function input types into symbol table.
+    /// Inserts function input types into symbol table.
     ///
-    pub fn load_input(&mut self, input: &Input) -> Result<(), SymbolTableError> {
+    /// Creates a new `CircuitType` to represent the input values.
+    /// The type contains register, record, state, and state leaf circuit variables.
+    /// This allows easy access to input types using dot syntax: `input.register.r0`.
+    ///
+    pub fn insert_input(&mut self, input: &Input) -> Result<(), SymbolTableError> {
         // Get values for each input section.
         let registers_values = input.get_registers().values();
         let record_values = input.get_record().values();
@@ -194,13 +199,77 @@ impl SymbolTable {
     ///
     /// No type resolution performed at this step.
     ///
-    pub fn insert_imports(&mut self, _imports: ImportParser) {}
+    // pub fn insert_imports(&mut self, imports: ImportParser) -> Result<(), SymbolTableError> {
+    //     // Iterate over each imported program.
+    //
+    //     // Store separate symbol table for each program.
+    //
+    //     //
+    // }
 
     ///
-    /// Checks for duplicate circuit names given a hashmap of unresolved circuits.
+    /// Inserts core package name and type information into the symbol table.
+    ///
+    pub fn insert_core_package(&mut self, package: &Package) -> Result<(), SymbolTableError> {
+        // Create list of imported core packages.
+        let list = CorePackageList::from_package_access(package.access.to_owned())?;
+
+        // Fetch core package symbols from `leo-core`.
+        let symbol_list = list.to_symbols()?;
+
+        // Insert name and type information for each core package symbol.
+        for (name, circuit) in symbol_list.symbols() {
+            // Store name of symbol.
+            self.insert_name(name, ParameterType::from(circuit.clone()));
+
+            // Create new circuit type for symbol.
+            let circuit_type = CircuitType::new(&self, circuit)?;
+
+            // Insert circuit type of symbol.
+            self.insert_circuit(circuit_type.identifier.clone(), circuit_type);
+        }
+
+        Ok(())
+    }
+
+    ///
+    /// Checks that all given imported names exist in the list of imported programs.
+    ///
+    /// Additionally checks for duplicate imported names in the given vector of imports.
+    /// Types defined later in the program cannot have the same name.
+    ///
+    pub fn check_imports(
+        &mut self,
+        imports: &Vec<Import>,
+        import_parser: &ImportParser,
+    ) -> Result<(), SymbolTableError> {
+        // Iterate over imported names.
+        for import in imports.iter() {
+            // Check if the import name exists as core package.
+            let core_package = import_parser.get_core_package(&import.package);
+
+            // If the core package exists, then attempt to insert the import into the symbol table.
+            match core_package {
+                Some(package) => self.insert_core_package(package)?,
+                None => {
+                    // Check if the import name exists in the import parser.
+
+                    // Attempt to insert the imported name into the symbol table.
+
+                    // Check that the imported name is unique.
+                    unimplemented!("normal imports not supported yet")
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    ///
+    /// Checks for duplicate circuit names given a hashmap of circuits.
     ///
     /// If a circuit name has no duplicates, then it is inserted into the symbol table.
-    /// Variables defined later in the unresolved program cannot have the same name.
+    /// Types defined later in the program cannot have the same name.
     ///
     pub fn check_duplicate_circuits(
         &mut self,
@@ -224,10 +293,10 @@ impl SymbolTable {
     }
 
     ///
-    /// Checks for duplicate function names given a hashmap of unresolved functions.
+    /// Checks for duplicate function names given a hashmap of functions.
     ///
     /// If a function name has no duplicates, then it is inserted into the symbol table.
-    /// Variables defined later in the unresolved program cannot have the same name.
+    /// Types defined later in the program cannot have the same name.
     ///
     pub fn check_duplicate_functions(
         &mut self,
@@ -251,10 +320,10 @@ impl SymbolTable {
     }
 
     ///
-    /// Checks for unknown types in a circuit given a hashmap of unresolved circuits.
+    /// Checks for unknown types in a circuit given a hashmap of circuits.
     ///
     /// If a circuit definition only contains known types, then it is inserted into the
-    /// symbol table. Variables defined later in the unresolved program can lookup the definition
+    /// symbol table. Variables defined later in the program can lookup the definition
     /// and refer to its expected types
     ///
     pub fn check_unknown_types_circuits(
@@ -263,10 +332,10 @@ impl SymbolTable {
     ) -> Result<(), SymbolTableError> {
         // Iterate over circuit names and definitions.
         for (_, circuit) in circuits.iter() {
-            // Get the identifier of the unresolved circuit.
+            // Get the identifier of the circuit.
             let identifier = circuit.circuit_name.clone();
 
-            // Resolve unknown types in the unresolved circuit definition.
+            // Resolve unknown types in the circuit definition.
             let circuit_type = CircuitType::new(self, circuit.clone())?;
 
             // Attempt to insert the circuit definition into the symbol table.
@@ -277,10 +346,10 @@ impl SymbolTable {
     }
 
     ///
-    /// Checks for unknown types in a function given a hashmap of unresolved functions.
+    /// Checks for unknown types in a function given a hashmap of functions.
     ///
     /// If a function definition only contains known types, then it is inserted into the
-    /// symbol table. Variables defined later in the unresolved program can lookup the definition
+    /// symbol table. Variables defined later in the program can lookup the definition
     /// and refer to its expected types
     ///
     pub fn check_unknown_types_functions(
@@ -289,10 +358,10 @@ impl SymbolTable {
     ) -> Result<(), SymbolTableError> {
         // Iterate over function names and definitions.
         for (_, function) in functions.iter() {
-            // Get the identifier of the unresolved function.
+            // Get the identifier of the function.
             let identifier = function.identifier.clone();
 
-            // Resolve unknown types in the unresolved function definition.
+            // Resolve unknown types in the function definition.
             let function_type = FunctionType::new(&self, function.clone())?;
 
             // Attempt to insert the function definition into the symbol table.
