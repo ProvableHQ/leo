@@ -63,6 +63,6 @@ impl TypeEquality {
     /// Returns the (type variable, type) pair from this assertion.
     ///
     pub fn pairs(&self) -> Result<TypeVariablePairs, TypeAssertionError> {
-        TypeVariablePairs::new(&self.left, &self.right, &self.span)
+        TypeVariablePairs::new(self.left.to_owned(), self.right.to_owned(), &self.span)
     }
 }
