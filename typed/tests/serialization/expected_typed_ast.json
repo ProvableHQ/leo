@@ -7,7 +7,7 @@
     "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}": {
       "identifier": "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}",
       "input": [],
-      "returns": null,
+      "output": null,
       "statements": [
         {
           "Return": [
