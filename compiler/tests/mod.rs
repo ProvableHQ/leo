@@ -182,21 +182,11 @@ pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerErr
 }
 
 pub(crate) fn expect_dynamic_check_error(error: CompilerError) {
-    let is_dynamic_check = match error {
-        CompilerError::DynamicCheckError(_) => true,
-        _ => false,
-    };
-
-    assert!(is_dynamic_check)
+    assert!(matches!(error, CompilerError::DynamicCheckError(_)))
 }
 
 pub(crate) fn expect_static_check_error(error: CompilerError) {
-    let is_static_check = match error {
-        CompilerError::StaticCheckError(_) => true,
-        _ => false,
-    };
-
-    assert!(is_static_check)
+    assert!(matches!(error, CompilerError::StaticCheckError(_)))
 }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {
