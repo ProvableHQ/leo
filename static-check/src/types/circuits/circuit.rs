@@ -34,7 +34,7 @@ use std::{
 ///
 /// This type should be added to the circuit symbol table for a resolved syntax tree.
 /// This is a user-defined type.
-#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CircuitType {
     /// The name of the circuit definition.
     pub identifier: Identifier,
@@ -184,6 +184,8 @@ impl PartialEq for CircuitType {
         self.identifier.eq(&other.identifier)
     }
 }
+
+impl Eq for CircuitType {}
 
 impl Hash for CircuitType {
     fn hash<H: Hasher>(&self, state: &mut H) {

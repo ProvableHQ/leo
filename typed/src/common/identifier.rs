@@ -43,7 +43,7 @@ use std::{
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update it's Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone, Eq)]
+#[derive(Clone)]
 pub struct Identifier {
     pub name: String,
     pub span: Span,
@@ -180,6 +180,8 @@ impl PartialEq for Identifier {
         self.name == other.name
     }
 }
+
+impl Eq for Identifier {}
 
 impl Hash for Identifier {
     fn hash<H: Hasher>(&self, state: &mut H) {

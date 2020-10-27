@@ -18,7 +18,7 @@ use pest::Span as AstSpan;
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Span {
     /// text of input string
     pub text: String,
@@ -35,6 +35,8 @@ impl PartialEq for Span {
         self.line == other.line && self.start == other.start && self.end == other.end
     }
 }
+
+impl Eq for Span {}
 
 impl Hash for Span {
     fn hash<H: Hasher>(&self, state: &mut H) {

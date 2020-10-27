@@ -24,7 +24,7 @@ use std::{
 /// Stores variable definition details.
 ///
 /// This type should be added to the variable symbol table for a resolved syntax tree.
-#[derive(Clone, Debug, Eq)]
+#[derive(Clone, Debug)]
 pub struct ParameterType {
     pub identifier: Identifier,
     pub type_: Type,
@@ -76,6 +76,8 @@ impl PartialEq for ParameterType {
         self.identifier.eq(&other.identifier)
     }
 }
+
+impl Eq for ParameterType {}
 
 impl Hash for ParameterType {
     fn hash<H: Hasher>(&self, state: &mut H) {

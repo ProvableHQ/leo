@@ -20,7 +20,7 @@ use leo_typed::{FunctionInputVariable, Identifier, Span};
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FunctionInputVariableType {
     /// Name of function input.
     pub identifier: Identifier,
@@ -109,6 +109,8 @@ impl PartialEq for FunctionInputVariableType {
         self.identifier.eq(&other.identifier)
     }
 }
+
+impl Eq for FunctionInputVariableType {}
 
 impl Hash for FunctionInputVariableType {
     fn hash<H: Hasher>(&self, state: &mut H) {
