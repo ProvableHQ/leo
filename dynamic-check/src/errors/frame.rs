@@ -66,6 +66,15 @@ impl FrameError {
     }
 
     ///
+    /// Two variables have been defined with the same name.
+    ///
+    pub fn duplicate_variable(name: &str, span: &Span) -> Self {
+        let message = format!("Duplicate variable definition found for `{}`", name);
+
+        Self::new_from_span(message, span.to_owned())
+    }
+
+    ///
     /// Attempted to call non-static member using `::`.
     ///
     pub fn invalid_member_access(identifier: &Identifier) -> Self {
@@ -84,6 +93,15 @@ impl FrameError {
     }
 
     ///
+    /// Attempted to create a circuit with the incorrect number of member variables.
+    ///
+    pub fn num_circuit_variables(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!("Circuit expected {} variables, found {} variables.", expected, actual);
+
+        Self::new_from_span(message, span.clone())
+    }
+
+    ///
     /// Attempted to call a function with the incorrect number of inputs.
     ///
     pub fn num_inputs(expected: usize, actual: usize, span: &Span) -> Self {
@@ -91,15 +109,6 @@ impl FrameError {
             "Function expected {} input variables, found {} inputs.",
             expected, actual
         );
-
-        Self::new_from_span(message, span.clone())
-    }
-
-    ///
-    /// Attempted to create a circuit with the incorrect number of member variables.
-    ///
-    pub fn num_variables(expected: usize, actual: usize, span: &Span) -> Self {
-        let message = format!("Circuit expected {} variables, found {} variables.", expected, actual);
 
         Self::new_from_span(message, span.clone())
     }
@@ -138,5 +147,26 @@ impl FrameError {
         let message = format!("The variable `{}` is not defined.", identifier);
 
         Self::new_from_span(message, identifier.span.to_owned())
+    }
+
+    ///
+    /// Attempted to assign a tuple of variables to a single value.
+    ///
+    pub fn not_enough_values(span: &Span) -> Self {
+        let message = "Expected a tuple type for multiple defined variables".to_string();
+
+        Self::new_from_span(message, span.to_owned())
+    }
+
+    ///
+    /// Attempted to assign a tuple with a different number of variables than values.
+    ///
+    pub fn invalid_number_of_values(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!(
+            "Incorrect number of defined variables. Expected `{}`, found `{}`.",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span.to_owned())
     }
 }

@@ -13,13 +13,14 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+pub mod variables;
 
 use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
 use leo_imports::ImportParser;
-use leo_static_check::StaticCheck;
-use leo_typed::{Input, LeoTypedAst};
+use leo_static_check::{StaticCheck, SymbolTable};
+use leo_typed::{Input, LeoTypedAst, Program};
 use std::path::PathBuf;
 
 const TEST_PROGRAM_PATH: &str = "";
@@ -27,7 +28,8 @@ const TEST_PROGRAM_NAME: &str = "test";
 
 /// A helper struct to test a `DynamicCheck`.
 pub struct TestDynamicCheck {
-    dynamic_check: DynamicCheck,
+    program: Program,
+    symbol_table: SymbolTable,
 }
 
 impl TestDynamicCheck {
@@ -54,14 +56,24 @@ impl TestDynamicCheck {
         // Create static check.
         let symbol_table = StaticCheck::run_with_input(&program, &import_parser, &input).unwrap();
 
-        // Create dynamic check
-        let dynamic_check = DynamicCheck::new(&program, symbol_table).unwrap();
-
-        Self { dynamic_check }
+        // Store fields for new dynamic check.
+        Self { program, symbol_table }
     }
 
     pub fn solve(self) {
-        self.dynamic_check.solve().unwrap();
+        let dynamic_check = DynamicCheck::new(&self.program, self.symbol_table).unwrap();
+
+        dynamic_check.solve().unwrap();
+    }
+
+    pub fn expect_create_error(self) {
+        assert!(DynamicCheck::new(&self.program, self.symbol_table).is_err());
+    }
+
+    pub fn expect_solve_error(self) {
+        let dynamic_check = DynamicCheck::new(&self.program, self.symbol_table).unwrap();
+
+        assert!(dynamic_check.solve().is_err());
     }
 }
 

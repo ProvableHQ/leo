@@ -299,12 +299,15 @@ impl Frame {
     ///
     /// Insert a variable into the symbol table in the current scope.
     ///
-    fn insert_variable(&mut self, name: String, type_: Type) -> Option<Type> {
+    fn insert_variable(&mut self, name: String, type_: Type, span: &Span) -> Result<(), FrameError> {
         // Modify the current scope.
         let scope = self.scopes.last_mut().unwrap();
 
         // Insert the variable name -> type.
-        scope.variables.insert(name, type_)
+        match scope.variables.insert(name.clone(), type_) {
+            Some(_type) => Err(FrameError::duplicate_variable(&name, span)),
+            None => Ok(()),
+        }
     }
 
     ///
@@ -459,24 +462,26 @@ impl Frame {
             // Insert variable into symbol table
             let variable = variables.names[0].clone();
 
-            // TODO (collinc97) throw error for duplicate variable definitions.
-            let _expect_none = self.insert_variable(variable.identifier.name, actual_type);
+            self.insert_variable(variable.identifier.name, actual_type, span)?;
         } else {
             // Expect a tuple type.
             let types = match actual_type {
                 Type::Tuple(types) => types,
-                _ => unimplemented!("expected a tuple type for multiple defined variables"),
+                _ => return Err(FrameError::not_enough_values(span)),
             };
 
             // Check number of variables == number of types.
             if types.len() != variables.names.len() {
-                unimplemented!("Incorrect number of defined variables")
+                return Err(FrameError::invalid_number_of_values(
+                    types.len(),
+                    variables.names.len(),
+                    span,
+                ));
             }
 
             // Insert variables into symbol table
             for (variable, type_) in variables.names.iter().zip(types) {
-                // TODO (collinc97) throw error for duplicate variable definitions.
-                let _expect_none = self.insert_variable(variable.identifier.name.clone(), type_);
+                self.insert_variable(variable.identifier.name.clone(), type_, span)?;
             }
         }
 
@@ -605,7 +610,7 @@ impl Frame {
     ) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
         let u32_type = Type::IntegerType(IntegerType::U32);
-        let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone());
+        let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone(), span);
 
         // Parse `from` and `to` expressions.
         let from_type = self.parse_expression(from)?;
@@ -1043,7 +1048,7 @@ impl Frame {
 
         // Check the length of the circuit members.
         if circuit_type.variables.len() != members.len() {
-            return Err(FrameError::num_variables(
+            return Err(FrameError::num_circuit_variables(
                 circuit_type.variables.len(),
                 members.len(),
                 span,

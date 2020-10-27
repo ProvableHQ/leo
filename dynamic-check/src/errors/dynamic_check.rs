@@ -27,18 +27,6 @@ pub enum DynamicCheckError {
 
     #[error("{}", _0)]
     FrameError(#[from] FrameError),
-    //
-    // #[error("{}", _0)]
-    // ExpressionError(#[from] ExpressionError),
-    //
-    // #[error("{}", _0)]
-    // FunctionError(#[from] FunctionError),
-    //
-    // #[error("{}", _0)]
-    // StatementError(#[from] StatementError),
-    //
-    // #[error("{}", _0)]
-    // ProgramError(#[from] ProgramError),
 }
 
 impl DynamicCheckError {
@@ -49,10 +37,6 @@ impl DynamicCheckError {
         match self {
             DynamicCheckError::Error(error) => error.set_path(path),
             DynamicCheckError::FrameError(error) => error.set_path(path),
-            // DynamicCheckError::ExpressionError(error) => error.set_path(path),
-            // DynamicCheckError::FunctionError(error) => error.set_path(path),
-            // DynamicCheckError::StatementError(error) => error.set_path(path),
-            // DynamicCheckError::ProgramError(error) => error.set_path(path),
         }
     }
 }
