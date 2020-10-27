@@ -109,8 +109,8 @@ impl TypeVariablePairs {
         span: &Span,
     ) -> Result<(), TypeAssertionError> {
         // Flatten the array types to get the element types.
-        let (left_type_flat, left_dimensions_flat) = flatten_array_type(&left_type, left_dimensions.to_owned());
-        let (right_type_flat, right_dimensions_flat) = flatten_array_type(&right_type, right_dimensions.to_owned());
+        let (left_type_flat, left_dimensions_flat) = flatten_array_type(&left_type, left_dimensions.to_vec());
+        let (right_type_flat, right_dimensions_flat) = flatten_array_type(&right_type, right_dimensions.to_vec());
 
         // If the dimensions do not match, then throw an error.
         if left_dimensions_flat.ne(&right_dimensions_flat) {
