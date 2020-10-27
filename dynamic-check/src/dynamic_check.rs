@@ -111,7 +111,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of functions.
     ///
-    fn parse_functions(&mut self, functions: Vec<&Function>) -> Result<(), DynamicCheckError> {
+    fn parse_functions<'a>(&mut self, functions: impl Iterator<Item = &'a Function>) -> Result<(), DynamicCheckError> {
         for function in functions {
             self.parse_function(function)?;
         }
