@@ -69,7 +69,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `Frames`s from a vector of circuit functions.
     ///
-    fn parse_circuits(&mut self, circuits: Vec<&Circuit>) -> Result<(), DynamicCheckError> {
+    fn parse_circuits<'a>(&mut self, circuits: impl Iterator<Item = &'a Circuit>) -> Result<(), DynamicCheckError> {
         for circuit in circuits {
             self.parse_circuit(circuit)?;
         }
