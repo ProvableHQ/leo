@@ -168,7 +168,7 @@ impl Frame {
     ///
     /// Get a function's type from the user defined types in the current scope.
     ///
-    fn get_function(&self, name: &String) -> Option<&FunctionType> {
+    fn get_function(&self, name: &str) -> Option<&FunctionType> {
         self.user_defined_types.get_function_type(name)
     }
 
