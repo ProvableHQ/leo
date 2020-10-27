@@ -18,7 +18,7 @@ use crate::{ScopeError, VariableTable};
 use leo_static_check::{FunctionInputType, Type};
 
 /// A structure for tracking the types of defined variables in a block of code.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Scope {
     pub loop_variables: VariableTable,
     pub variables: VariableTable,
@@ -32,7 +32,7 @@ impl Scope {
     ///
     pub fn new(parent: Option<Scope>) -> Self {
         match parent {
-            Some(scope) => scope.clone(),
+            Some(scope) => scope,
             None => Self::default(),
         }
     }
@@ -73,18 +73,9 @@ impl Scope {
     ///
     /// Inserts a vector of function input types into the `Scope` variable table.
     ///
-    pub fn insert_function_inputs(&mut self, function_inputs: &Vec<FunctionInputType>) -> Result<(), ScopeError> {
+    pub fn insert_function_inputs(&mut self, function_inputs: &[FunctionInputType]) -> Result<(), ScopeError> {
         self.variables
             .insert_function_inputs(function_inputs)
-            .map_err(|err| ScopeError::VariableTableError(err))
-    }
-}
-
-impl Default for Scope {
-    fn default() -> Self {
-        Self {
-            loop_variables: VariableTable::default(),
-            variables: VariableTable::default(),
-        }
+            .map_err(ScopeError::VariableTableError)
     }
 }

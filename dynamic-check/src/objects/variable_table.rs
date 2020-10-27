@@ -48,10 +48,7 @@ impl VariableTable {
     ///
     /// Inserts a vector of function input types into the variable table.
     ///
-    pub fn insert_function_inputs(
-        &mut self,
-        function_inputs: &Vec<FunctionInputType>,
-    ) -> Result<(), VariableTableError> {
+    pub fn insert_function_inputs(&mut self, function_inputs: &[FunctionInputType]) -> Result<(), VariableTableError> {
         for input in function_inputs {
             let input_name = input.identifier().name.clone();
             let input_type = input.type_();
