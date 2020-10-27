@@ -13,6 +13,9 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+pub mod arrays;
+pub mod tuples;
 pub mod variables;
 
 use leo_ast::LeoAst;

@@ -879,11 +879,11 @@ impl Frame {
     ///
     /// Returns the type of the accessed tuple element.
     ///
-    fn parse_tuple_access(&mut self, type_: Type, index: usize, _span: &Span) -> Result<Type, FrameError> {
+    fn parse_tuple_access(&mut self, type_: Type, index: usize, span: &Span) -> Result<Type, FrameError> {
         // Check the type is a tuple.
         let elements = match type_ {
             Type::Tuple(elements) => elements,
-            _ => unimplemented!("expected a tuple type"),
+            type_ => return Err(FrameError::tuple_access(&type_, span)),
         };
 
         let element_type = elements[index].clone();
@@ -902,7 +902,7 @@ impl Frame {
         // Parse all array elements.
         for expression in expressions {
             // Get the type and count of elements in each spread or expression.
-            let (type_, element_count) = self.parse_spread_or_expression(expression)?;
+            let (type_, element_count) = self.parse_spread_or_expression(expression, span)?;
 
             // Assert that array element types are the same.
             if let Some(prev_type) = element_type {
@@ -919,7 +919,7 @@ impl Frame {
         // Return an error for empty arrays.
         let type_ = match element_type {
             Some(type_) => type_,
-            None => unimplemented!("return empty array error"),
+            None => return Err(FrameError::empty_array(span)),
         };
 
         Ok(Type::Array(Box::new(type_), vec![count]))
@@ -928,7 +928,11 @@ impl Frame {
     ///
     /// Returns the type and count of elements in a spread or expression.
     ///
-    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression) -> Result<(Type, usize), FrameError> {
+    fn parse_spread_or_expression(
+        &mut self,
+        s_or_e: &SpreadOrExpression,
+        span: &Span,
+    ) -> Result<(Type, usize), FrameError> {
         Ok(match s_or_e {
             SpreadOrExpression::Spread(expression) => {
                 // Parse the type of the spread array expression.
@@ -937,7 +941,7 @@ impl Frame {
                 // Check that the type is an array.
                 let (element_type, mut dimensions) = match array_type {
                     Type::Array(element_type, dimensions) => (element_type, dimensions),
-                    _ => unimplemented!("Spread type must be an array"),
+                    type_ => return Err(FrameError::invalid_spread(type_, span)),
                 };
 
                 // A spread copies the elements of an array.
@@ -980,7 +984,7 @@ impl Frame {
         // Check the type is an array.
         let (element_type, _dimensions) = match type_ {
             Type::Array(type_, dimensions) => (type_, dimensions),
-            _ => unimplemented!("expected an array type"),
+            type_ => return Err(FrameError::array_access(&type_, span)),
         };
 
         // Get the length of the array.

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ScopeError, TypeAssertionError};
-use leo_static_check::TypeError;
+use leo_static_check::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
 use std::path::PathBuf;
@@ -52,8 +52,17 @@ impl FrameError {
     ///
     /// Return a new formatted error with a given message and span information
     ///
-    fn new_from_span(message: String, span: Span) -> Self {
-        FrameError::Error(FormattedError::new_from_span(message, span))
+    fn new_from_span(message: String, span: &Span) -> Self {
+        FrameError::Error(FormattedError::new_from_span(message, span.to_owned()))
+    }
+
+    ///
+    /// Attempted to access the index of a non-array type.
+    ///
+    pub fn array_access(actual: &Type, span: &Span) -> Self {
+        let message = format!("Cannot access the index of non-array type `{}`.", actual);
+
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -62,7 +71,7 @@ impl FrameError {
     pub fn circuit_self(span: &Span) -> Self {
         let message = "The `Self` keyword is only valid inside a circuit context.".to_string();
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -71,7 +80,18 @@ impl FrameError {
     pub fn duplicate_variable(name: &str, span: &Span) -> Self {
         let message = format!("Duplicate variable definition found for `{}`", name);
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// Attempted to create an empty array in a Leo program.
+    ///
+    /// Arrays in Leo are not resizeable so defining empty arrays are effectively dead code.
+    ///
+    pub fn empty_array(span: &Span) -> Self {
+        let message = "Cannot create an empty array in a Leo program.".to_string();
+
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -80,7 +100,19 @@ impl FrameError {
     pub fn invalid_member_access(identifier: &Identifier) -> Self {
         let message = format!("non-static member `{}` must be accessed using `.` syntax.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
+    }
+
+    ///
+    /// Attempted to use the spread operator on a non-array type.
+    ///
+    pub fn invalid_spread(actual: Type, span: &Span) -> Self {
+        let message = format!(
+            "The spread operator `...` can only be applied to array types. Found type `{}`.",
+            actual
+        );
+
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -89,7 +121,7 @@ impl FrameError {
     pub fn invalid_static_access(identifier: &Identifier) -> Self {
         let message = format!("static member `{}` must be accessed using `::` syntax.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -98,7 +130,7 @@ impl FrameError {
     pub fn num_circuit_variables(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!("Circuit expected {} variables, found {} variables.", expected, actual);
 
-        Self::new_from_span(message, span.clone())
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -110,7 +142,16 @@ impl FrameError {
             expected, actual
         );
 
-        Self::new_from_span(message, span.clone())
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// Attempted to access the index of a non-tuple type.
+    ///
+    pub fn tuple_access(actual: &Type, span: &Span) -> Self {
+        let message = format!("Cannot access the index of non-tuple type `{}`.", actual);
+
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -119,7 +160,7 @@ impl FrameError {
     pub fn undefined_circuit(identifier: &Identifier) -> Self {
         let message = format!("The circuit `{}` is not defined.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -128,7 +169,7 @@ impl FrameError {
     pub fn undefined_circuit_function(identifier: &Identifier) -> Self {
         let message = format!("The circuit function `{}` is not defined.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -137,7 +178,7 @@ impl FrameError {
     pub fn undefined_function(identifier: &Identifier) -> Self {
         let message = format!("The function `{}` is not defined.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -146,7 +187,7 @@ impl FrameError {
     pub fn undefined_variable(identifier: &Identifier) -> Self {
         let message = format!("The variable `{}` is not defined.", identifier);
 
-        Self::new_from_span(message, identifier.span.to_owned())
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -155,7 +196,7 @@ impl FrameError {
     pub fn not_enough_values(span: &Span) -> Self {
         let message = "Expected a tuple type for multiple defined variables".to_string();
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -167,6 +208,6 @@ impl FrameError {
             expected, actual
         );
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
     }
 }
