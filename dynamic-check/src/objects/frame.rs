@@ -157,7 +157,7 @@ impl Frame {
     ///
     /// Get a variable's type from the symbol table in the current scope.
     ///
-    fn get_variable(&self, name: &String) -> Option<&Type> {
+    fn get_variable(&self, name: &str) -> Option<&Type> {
         // Lookup in the current scope.
         let scope = self.scopes.last().unwrap();
 
