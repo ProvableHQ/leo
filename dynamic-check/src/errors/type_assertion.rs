@@ -57,7 +57,7 @@ impl TypeAssertionError {
     ///
     /// Given type is not a member of the set of expected types.
     ///
-    pub fn membership_failed(given: &Type, set: &Vec<Type>, span: &Span) -> Self {
+    pub fn membership_failed(given: &Type, set: &[Type], span: &Span) -> Self {
         let message = format!(
             "Mismatched types. Given type `{}` is not in the expected type set `{:?}`.",
             given, set
