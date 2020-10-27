@@ -63,7 +63,7 @@ impl TypeVariablePairs {
     ///
     /// Returns the self vector of pairs.
     ///
-    pub fn get_pairs(&self) -> &Vec<TypeVariablePair> {
+    pub fn get_pairs(&self) -> &[TypeVariablePair] {
         &self.0
     }
 
