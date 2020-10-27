@@ -132,7 +132,7 @@ impl SymbolTable {
     /// If the symbol table did not have this name present, then the parent symbol table is checked.
     /// If there is no parent symbol table, then `None` is returned.
     ///
-    pub fn get_circuit_type(&self, name: &String) -> Option<&CircuitType> {
+    pub fn get_circuit_type(&self, name: &str) -> Option<&CircuitType> {
         // Lookup name in symbol table.
         match self.circuits.get(name) {
             Some(circuit) => Some(circuit),
@@ -152,14 +152,14 @@ impl SymbolTable {
     /// If the symbol table did not have this name present, then the parent symbol table is checked.
     /// If there is no parent symbol table, then `None` is returned.
     ///
-    pub fn get_function_type(&self, key: &String) -> Option<&FunctionType> {
+    pub fn get_function_type(&self, name: &str) -> Option<&FunctionType> {
         // Lookup name in symbol table.
-        match self.functions.get(key) {
+        match self.functions.get(name) {
             Some(circuit) => Some(circuit),
             None => {
                 // Lookup name in parent symbol table
                 match &self.parent {
-                    Some(parent) => parent.get_function_type(key),
+                    Some(parent) => parent.get_function_type(name),
                     None => None,
                 }
             }

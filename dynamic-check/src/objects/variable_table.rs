@@ -41,7 +41,7 @@ impl VariableTable {
     /// If the variable table did not have this key present, throw an undefined variable error
     /// using the given span.
     ///
-    pub fn get(&self, name: &String) -> Option<&Type> {
+    pub fn get(&self, name: &str) -> Option<&Type> {
         self.0.get(name)
     }
 

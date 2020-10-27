@@ -54,7 +54,7 @@ impl Scope {
     ///
     /// Returns a reference to the type corresponding to the loop variable name.
     ///
-    pub fn get_loop_variable(&self, name: &String) -> Option<&Type> {
+    pub fn get_loop_variable(&self, name: &str) -> Option<&Type> {
         self.loop_variables.get(name)
     }
 
@@ -63,7 +63,7 @@ impl Scope {
     ///
     /// Checks loop variables first, then non-loop variables.
     ///
-    pub fn get_variable(&self, name: &String) -> Option<&Type> {
+    pub fn get_variable(&self, name: &str) -> Option<&Type> {
         match self.get_loop_variable(name) {
             Some(loop_variable_type) => Some(loop_variable_type),
             None => self.variables.get(name),

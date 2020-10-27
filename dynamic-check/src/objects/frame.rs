@@ -228,7 +228,7 @@ impl Frame {
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) -> Result<(), FrameError> {
-        for statement in &self.statements {
+        for statement in self.statements.clone() {
             self.parse_statement(&statement)?;
         }
 
@@ -382,14 +382,14 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, statements: impl Iterator<Item = Statement>, _span: &Span) -> Result<(), FrameError> {
+    fn parse_block(&mut self, statements: &[Statement], _span: &Span) -> Result<(), FrameError> {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().cloned());
         self.push_scope(scope);
 
         // Parse all statements.
-        for statement in statements.iter() {
-            self.parse_statement(statement)?;
+        for statement in statements {
+            self.parse_statement(&statement)?;
         }
 
         // Pop out of scope.
@@ -448,7 +448,7 @@ impl Frame {
         &mut self,
         identifier: &Identifier,
         from_to: &(Expression, Expression),
-        statements: impl Iterator<Item = Statement>,
+        statements: &[Statement],
         span: &Span,
     ) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
@@ -763,7 +763,7 @@ impl Frame {
     ///
     /// Returns the type of the array expression.
     ///
-    fn parse_array(&mut self, expressions: impl Iterator<Item = SpreadOrExpression>, span: &Span) -> Result<Type, FrameError> {
+    fn parse_array(&mut self, expressions: &[SpreadOrExpression], span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
         let mut count = 0usize;

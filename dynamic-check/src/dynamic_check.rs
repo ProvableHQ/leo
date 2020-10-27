@@ -45,25 +45,11 @@ impl DynamicCheck {
     /// Collects a vector of `TypeAssertion` predicates from a program.
     ///
     fn parse_program(&mut self, program: &Program) -> Result<(), DynamicCheckError> {
-        // Iterate over circuit types.
-        let circuits = program
-            .circuits
-            .iter()
-            .map(|(_identifier, circuit)| circuit)
-            .collect::<Vec<_>>();
-
         // Parse circuit types in program context.
-        self.parse_circuits(circuits)?;
-
-        // Iterate over functions.
-        let functions = program
-            .functions
-            .iter()
-            .map(|(_identifier, function)| function)
-            .collect::<Vec<_>>();
+        self.parse_circuits(program.circuits.iter().map(|(_identifier, circuit)| circuit))?;
 
         // Parse functions in program context.
-        self.parse_functions(functions)
+        self.parse_functions(program.functions.iter().map(|(_identifier, function)| function))
     }
 
     ///
