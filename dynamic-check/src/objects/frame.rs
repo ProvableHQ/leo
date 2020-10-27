@@ -472,7 +472,7 @@ impl Frame {
     ///
     fn parse_statement_expression(&mut self, expression: &Expression, span: &Span) -> Result<(), FrameError> {
         // Create empty tuple type.
-        let expected_type = Type::Tuple(Vec::with_capacity(0));
+        let expected_type = Type::Tuple(Vec::new());
 
         // Parse the actual type of the expression.
         let actual_type = self.parse_expression(expression)?;
