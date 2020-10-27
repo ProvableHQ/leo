@@ -27,15 +27,6 @@ pub struct VariableName {
     pub span: Span,
 }
 
-impl VariableName {
-    ///
-    /// Returns the name of the `VariableName` as a string.
-    ///
-    pub fn name_string(&self) -> &String {
-        &self.identifier.name
-    }
-}
-
 impl<'ast> From<AstVariableName<'ast>> for VariableName {
     fn from(name: AstVariableName<'ast>) -> Self {
         Self {

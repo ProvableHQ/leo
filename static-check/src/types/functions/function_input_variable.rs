@@ -18,8 +18,9 @@ use crate::{Attribute, ParameterType, SymbolTable, Type, TypeError};
 use leo_typed::{FunctionInputVariable, Identifier, Span};
 
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
 pub struct FunctionInputVariableType {
     /// Name of function input.
     pub identifier: Identifier,
@@ -28,7 +29,7 @@ pub struct FunctionInputVariableType {
     pub type_: Type,
 
     /// The attributes of the function input.
-    pub attributes: Vec<Attribute>,
+    pub attribute: Option<Attribute>,
 
     /// The span of the function input.
     pub span: Span,
@@ -42,16 +43,16 @@ impl FunctionInputVariableType {
     ///
     pub fn new(table: &SymbolTable, unresolved: FunctionInputVariable) -> Result<Self, TypeError> {
         let type_ = Type::new(table, unresolved.type_, unresolved.span.clone())?;
-        let attributes = if unresolved.mutable {
-            vec![Attribute::Mutable]
+        let attribute = if unresolved.mutable {
+            Some(Attribute::Mutable)
         } else {
-            vec![]
+            None
         };
 
         Ok(FunctionInputVariableType {
             identifier: unresolved.identifier,
             type_,
-            attributes,
+            attribute,
             span: unresolved.span,
         })
     }
@@ -75,16 +76,17 @@ impl FunctionInputVariableType {
             circuit_name,
             unresolved_function_input.span.clone(),
         )?;
-        let attributes = if unresolved_function_input.mutable {
-            vec![Attribute::Mutable]
+
+        let attribute = if unresolved_function_input.mutable {
+            Some(Attribute::Mutable)
         } else {
-            vec![]
+            None
         };
 
         Ok(FunctionInputVariableType {
             identifier: unresolved_function_input.identifier,
             type_,
-            attributes,
+            attribute,
             span: unresolved_function_input.span,
         })
     }
@@ -99,5 +101,17 @@ impl FunctionInputVariableType {
         let value = ParameterType::from(self.clone());
 
         table.insert_name(key, value)
+    }
+}
+
+impl PartialEq for FunctionInputVariableType {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.eq(&other.identifier)
+    }
+}
+
+impl Hash for FunctionInputVariableType {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.identifier.hash(state)
     }
 }

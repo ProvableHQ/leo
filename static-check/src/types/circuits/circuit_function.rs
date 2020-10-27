@@ -23,5 +23,5 @@ pub struct CircuitFunctionType {
     /// The function signature of the circuit function
     pub function: FunctionType,
     /// The attributes of the circuit function
-    pub attributes: Vec<Attribute>,
+    pub attribute: Option<Attribute>,
 }

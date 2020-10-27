@@ -19,7 +19,7 @@ use leo_core::CorePackageList;
 use leo_imports::ImportParser;
 use leo_typed::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Input, Package, Program};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub const INPUT_VARIABLE_NAME: &str = "input";
 pub const RECORD_VARIABLE_NAME: &str = "record";
@@ -229,11 +229,11 @@ impl SymbolTable {
     ///
     pub fn check_import_names(
         &mut self,
-        imports: &Vec<ImportStatement>,
+        imports: &[ImportStatement],
         import_parser: &ImportParser,
     ) -> Result<(), SymbolTableError> {
         // Iterate over imported names.
-        for import in imports.iter() {
+        for import in imports {
             self.check_import_statement(import, import_parser)?;
         }
 
@@ -307,28 +307,26 @@ impl SymbolTable {
 
         // Import all symbols from an imported file for now.
         // Keep track of which import files have already been checked.
-        let mut checked = Vec::new();
+        let mut checked = HashSet::new();
 
         // Iterate over each imported symbol.
         for (name, symbol) in imported_symbols.symbols {
-            // Skip the imported symbol if we have already checked the file.
-            if checked.contains(&name) {
-                continue;
-            };
-
             // Find the imported program.
             let program = import_parser
                 .get_import(&name)
                 .ok_or_else(|| SymbolTableError::unknown_package(&name, &symbol.span))?;
+
+            // Push the imported file's name to checked import files.
+            if !checked.insert(name) {
+                // Skip the imported symbol if we have already checked the file.
+                continue;
+            };
 
             // Check the imported program for duplicate types.
             self.check_program_names(program, import_parser)?;
 
             // Check the imported program for undefined types.
             self.check_types_program(program)?;
-
-            // Push the imported file's name to checked import files.
-            checked.push(name);
 
             // Store the imported symbol.
             // self.insert_import_symbol(symbol, program)?; // TODO (collinc97) uncomment this line when public/private import scopes are implemented.
@@ -353,25 +351,15 @@ impl SymbolTable {
             let identifier = symbol.alias.to_owned().unwrap_or(symbol.symbol.to_owned());
 
             // Check if the imported symbol is a circuit
-            let matched_circuit = program
-                .circuits
-                .iter()
-                .find(|(circuit_name, _circuit_def)| symbol.symbol == **circuit_name);
-
-            match matched_circuit {
-                Some((_circuit_name, circuit)) => {
+            match program.circuits.get(&symbol.symbol) {
+                Some(circuit) => {
                     // Insert imported circuit.
                     self.insert_circuit_name(identifier.to_string(), ParameterType::from(circuit.to_owned()))
                 }
                 None => {
                     // Check if the imported symbol is a function.
-                    let matched_function = program
-                        .functions
-                        .iter()
-                        .find(|(function_name, _function)| symbol.symbol == **function_name);
-
-                    match matched_function {
-                        Some((_function_name, function)) => {
+                    match program.functions.get(&symbol.symbol) {
+                        Some(function) => {
                             // Insert the imported function.
                             self.insert_function_name(identifier.to_string(), ParameterType::from(function.to_owned()))
                         }
@@ -408,7 +396,7 @@ impl SymbolTable {
     ///
     pub fn check_types_circuits(&mut self, circuits: &HashMap<Identifier, Circuit>) -> Result<(), SymbolTableError> {
         // Iterate over circuit names and definitions.
-        for (_, circuit) in circuits.iter() {
+        for circuit in circuits.values() {
             // Get the identifier of the circuit.
             let identifier = circuit.circuit_name.clone();
 
@@ -431,7 +419,7 @@ impl SymbolTable {
     ///
     pub fn check_types_functions(&mut self, functions: &HashMap<Identifier, Function>) -> Result<(), SymbolTableError> {
         // Iterate over function names and definitions.
-        for (_, function) in functions.iter() {
+        for function in functions.values() {
             // Get the identifier of the function.
             let identifier = function.identifier.clone();
 

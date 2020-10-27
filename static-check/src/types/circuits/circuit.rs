@@ -25,13 +25,16 @@ use crate::{
 use leo_typed::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    hash::{Hash, Hasher},
+};
 
 /// Stores circuit definition details.
 ///
 /// This type should be added to the circuit symbol table for a resolved syntax tree.
 /// This is a user-defined type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
 pub struct CircuitType {
     /// The name of the circuit definition.
     pub identifier: Identifier,
@@ -68,13 +71,13 @@ impl CircuitType {
                     )?;
 
                     // Check if the circuit member variable is mutable.
-                    let attributes = if is_mutable { vec![Attribute::Mutable] } else { vec![] };
+                    let attribute = if is_mutable { Some(Attribute::Mutable) } else { None };
 
                     // Create a new circuit variable type.
                     let variable = CircuitVariableType {
                         identifier: variable_identifier,
                         type_,
-                        attributes,
+                        attribute,
                     };
 
                     // Store the circuit variable type.
@@ -85,12 +88,12 @@ impl CircuitType {
                     let function_type = FunctionType::from_circuit(table, circuit_identifier.clone(), function)?;
 
                     // Check if the circuit member function is static.
-                    let attributes = if is_static { vec![Attribute::Static] } else { vec![] };
+                    let attribute = if is_static { Some(Attribute::Static) } else { None };
 
                     // Create a new circuit function type.
                     let function = CircuitFunctionType {
                         function: function_type,
-                        attributes,
+                        attribute,
                     };
 
                     // Store the circuit function type.
@@ -101,7 +104,7 @@ impl CircuitType {
 
         // Return a new circuit type.
         Ok(CircuitType {
-            identifier: circuit_identifier.clone(),
+            identifier: circuit_identifier,
             variables,
             functions,
         })
@@ -158,7 +161,7 @@ impl CircuitType {
             let variable = CircuitVariableType {
                 identifier: parameter.variable,
                 type_: Type::new(table, parameter.type_, Span::default())?,
-                attributes: Vec::new(),
+                attribute: None,
             };
 
             variables.push(variable);
@@ -173,5 +176,17 @@ impl CircuitType {
             variables,
             functions: Vec::new(),
         })
+    }
+}
+
+impl PartialEq for CircuitType {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.eq(&other.identifier)
+    }
+}
+
+impl Hash for CircuitType {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.identifier.hash(state);
     }
 }

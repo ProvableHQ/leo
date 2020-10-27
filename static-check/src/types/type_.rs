@@ -23,7 +23,7 @@ use std::{
 };
 
 /// A type in a Leo program.
-#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     Address,
@@ -186,8 +186,8 @@ impl Type {
     }
 
     /// Returns a list of signed integer types.
-    pub fn signed_integer_types() -> Vec<Type> {
-        vec![
+    pub const fn signed_integer_types() -> [Type; 5] {
+        [
             Type::IntegerType(IntegerType::I8),
             Type::IntegerType(IntegerType::I16),
             Type::IntegerType(IntegerType::I32),
@@ -197,8 +197,8 @@ impl Type {
     }
 
     /// Returns a list of unsigned integer types.
-    pub fn unsigned_integer_types() -> Vec<Type> {
-        vec![
+    pub const fn unsigned_integer_types() -> [Type; 5] {
+        [
             Type::IntegerType(IntegerType::U8),
             Type::IntegerType(IntegerType::U16),
             Type::IntegerType(IntegerType::U32),
@@ -209,29 +209,39 @@ impl Type {
 
     /// Returns a list of positive integer types.
     pub fn negative_integer_types() -> Vec<Type> {
-        let mut types = vec![Type::Field, Type::Group];
+        let field_group = [Type::Field, Type::Group];
 
-        types.append(&mut Self::signed_integer_types());
+        let mut types = Vec::new();
+
+        types.extend_from_slice(&field_group);
+        types.extend_from_slice(&Self::signed_integer_types());
 
         types
     }
 
     /// Returns a list of integer types.
     pub fn integer_types() -> Vec<Type> {
-        let mut types = Self::negative_integer_types();
+        let mut types = Vec::new();
 
-        types.append(&mut Self::unsigned_integer_types());
+        types.extend_from_slice(&Self::unsigned_integer_types());
+        types.extend_from_slice(&Self::negative_integer_types());
 
         types
     }
 
     /// Returns a list of possible index types (u8, u16, u32).
     pub fn index_types() -> Vec<Type> {
-        vec![
+        let index_types = [
             Type::IntegerType(IntegerType::U8),
             Type::IntegerType(IntegerType::U16),
             Type::IntegerType(IntegerType::U32),
-        ]
+        ];
+
+        let mut types = Vec::new();
+
+        types.extend_from_slice(&index_types);
+
+        types
     }
 
     ///
@@ -267,14 +277,14 @@ impl fmt::Display for Type {
             Type::Array(type_, dimensions) => {
                 let dimensions_string = dimensions
                     .iter()
-                    .map(|dimension| format!("{}", dimension))
+                    .map(|dimension| dimension.to_string())
                     .collect::<Vec<_>>()
                     .join(", ");
 
                 write!(f, "[{}; ({})]", *type_, dimensions_string)
             }
             Type::Tuple(tuple) => {
-                let tuple_string = tuple.iter().map(|x| format!("{}", x)).collect::<Vec<_>>().join(", ");
+                let tuple_string = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
                 write!(f, "({})", tuple_string)
             }
@@ -312,8 +322,6 @@ impl PartialEq for Type {
         }
     }
 }
-
-impl Eq for Type {}
 
 ///
 /// Returns the data type of the array element and vector of dimensions.

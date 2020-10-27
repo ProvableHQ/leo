@@ -47,7 +47,7 @@ impl FunctionType {
     /// user-defined types.
     ///
     pub fn new(table: &SymbolTable, unresolved: Function) -> Result<Self, TypeError> {
-        let mut inputs_resolved = vec![];
+        let mut inputs_resolved = Vec::with_capacity(unresolved.input.len());
 
         // Type check function inputs
         for input in unresolved.input {
@@ -80,7 +80,7 @@ impl FunctionType {
         unresolved_function: Function,
     ) -> Result<Self, TypeError> {
         let function_identifier = unresolved_function.identifier;
-        let mut inputs = vec![];
+        let mut inputs = Vec::with_capacity(unresolved_function.input.len());
 
         // Type check function inputs.
         for unresolved_input in unresolved_function.input {
@@ -97,7 +97,7 @@ impl FunctionType {
         )?;
 
         Ok(FunctionType {
-            identifier: function_identifier.clone(),
+            identifier: function_identifier,
             inputs,
             output,
         })

@@ -17,7 +17,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Indicates that a program variable has additional functionality.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Attribute {
     Mutable,
     Static,

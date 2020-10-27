@@ -13,29 +13,22 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{Attribute, Type};
+use crate::{Attribute, FunctionInputVariableType, Type};
 use leo_typed::{Circuit, Function, Identifier};
 
-use crate::FunctionInputVariableType;
-use std::fmt;
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// Stores variable definition details.
 ///
 /// This type should be added to the variable symbol table for a resolved syntax tree.
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq)]
 pub struct ParameterType {
     pub identifier: Identifier,
     pub type_: Type,
-    pub attributes: Vec<Attribute>,
-}
-
-impl ParameterType {
-    ///
-    /// Returns `true` if this variable's value can be modified.
-    ///
-    pub fn is_mutable(&self) -> bool {
-        self.attributes.contains(&Attribute::Mutable)
-    }
+    pub attribute: Option<Attribute>,
 }
 
 impl From<Circuit> for ParameterType {
@@ -45,7 +38,7 @@ impl From<Circuit> for ParameterType {
         ParameterType {
             identifier: identifier.clone(),
             type_: Type::Circuit(identifier),
-            attributes: vec![],
+            attribute: None,
         }
     }
 }
@@ -56,8 +49,8 @@ impl From<Function> for ParameterType {
 
         ParameterType {
             identifier: identifier.clone(),
-            type_: Type::Function(identifier.clone()),
-            attributes: vec![],
+            type_: Type::Function(identifier),
+            attribute: None,
         }
     }
 }
@@ -67,7 +60,7 @@ impl From<FunctionInputVariableType> for ParameterType {
         ParameterType {
             identifier: value.identifier,
             type_: value.type_,
-            attributes: value.attributes,
+            attribute: value.attribute,
         }
     }
 }
@@ -75,5 +68,17 @@ impl From<FunctionInputVariableType> for ParameterType {
 impl fmt::Display for ParameterType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.identifier)
+    }
+}
+
+impl PartialEq for ParameterType {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.eq(&other.identifier)
+    }
+}
+
+impl Hash for ParameterType {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.identifier.hash(state);
     }
 }

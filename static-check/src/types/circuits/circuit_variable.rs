@@ -25,8 +25,8 @@ pub struct CircuitVariableType {
     pub identifier: Identifier,
     /// The type of the circuit variable
     pub type_: Type,
-    /// The attributes of the circuit variable
-    pub attributes: Vec<Attribute>,
+    /// The attribute of the circuit variable
+    pub attribute: Option<Attribute>,
 }
 
 impl From<&CircuitType> for CircuitVariableType {
@@ -34,7 +34,7 @@ impl From<&CircuitType> for CircuitVariableType {
         Self {
             identifier: type_.identifier.clone(),
             type_: Type::Circuit(type_.identifier.clone()),
-            attributes: Vec::new(),
+            attribute: None,
         }
     }
 }

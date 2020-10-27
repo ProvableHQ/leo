@@ -59,7 +59,7 @@ impl<'ast> From<AstAssignee<'ast>> for Assignee {
             accesses: assignee
                 .accesses
                 .into_iter()
-                .map(|access| AssigneeAccess::from(access))
+                .map(AssigneeAccess::from)
                 .collect::<Vec<_>>(),
             span: Span::from(assignee.span),
         }

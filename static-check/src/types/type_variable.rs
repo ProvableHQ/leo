@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An unknown type in a Leo program.
-#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, Serialize, Deserialize)]
 pub struct TypeVariable {
     identifier: Identifier,
 }
@@ -42,5 +42,3 @@ impl PartialEq for TypeVariable {
         self.identifier.name.eq(&other.identifier.name) || self.identifier.span.eq(&other.identifier.span)
     }
 }
-
-impl Eq for TypeVariable {}

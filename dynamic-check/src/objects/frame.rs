@@ -1066,7 +1066,7 @@ impl Frame {
         let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
         // Check that the function is non-static.
-        if circuit_function_type.attributes.contains(&Attribute::Static) {
+        if let Some(Attribute::Static) = circuit_function_type.attribute {
             return Err(FrameError::invalid_static_access(identifier));
         }
 
@@ -1087,11 +1087,11 @@ impl Frame {
         let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
         // Check that the function is static.
-        if !circuit_function_type.attributes.contains(&Attribute::Static) {
-            return Err(FrameError::invalid_member_access(identifier));
+        if let Some(Attribute::Static) = circuit_function_type.attribute {
+            Ok(circuit_function_type.function.to_owned())
+        } else {
+            Err(FrameError::invalid_member_access(identifier))
         }
-
-        Ok(circuit_function_type.function.to_owned())
     }
 
     ///
