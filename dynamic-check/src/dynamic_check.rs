@@ -34,7 +34,6 @@ use leo_typed::{
     CircuitVariableDefinition,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
-    ConsoleFunctionCall,
     Declare,
     Expression,
     Function,
@@ -404,7 +403,7 @@ impl Frame {
                 self.parse_iteration(identifier, from, to, statements, span)
             }
             Statement::Expression(expression, span) => self.parse_statement_expression(expression, span),
-            Statement::Console(console_call) => self.parse_console_function_call(console_call),
+            Statement::Console(_console_call) => Ok(()), // Console function calls do not generate type assertions.
         }
     }
 
@@ -632,14 +631,6 @@ impl Frame {
 
         self.assert_equal(expected_type, actual_type, span);
 
-        Ok(())
-    }
-
-    ///
-    /// Collects `TypeAssertion` predicates from a console statement.
-    ///
-    fn parse_console_function_call(&mut self, _console_function_call: &ConsoleFunctionCall) -> Result<(), FrameError> {
-        // TODO (collinc97) find a way to fetch console function call types here
         Ok(())
     }
 
@@ -1313,22 +1304,6 @@ impl Frame {
                     }
                 }
             }
-
-            // Solve the `TypeAssertion`.
-            //
-            // If the `TypeAssertion` has a solution, then continue the loop.
-            // If the `TypeAssertion` returns a `TypeVariablePair`, then substitute the `TypeVariable`
-            // for it's paired `Type` in all `TypeAssertion`s.
-            // if let Some(pair) = type_assertion.solve()? {
-            //     // Substitute the `TypeVariable` for it's paired `Type` in all `TypeAssertion`s.
-            //     for original in &mut unsolved {
-            //         original.substitute(&pair.0, &pair.1)
-            //     }
-            //
-            //     for original in &mut unsolved_membership {
-            //         original.substitute(&pair.0, &pair.1)
-            //     }
-            // };
         }
 
         // Solve all type membership assertions.
@@ -1339,18 +1314,6 @@ impl Frame {
             // Solve the membership assertion.
             type_assertion.evaluate()?;
         }
-
-        // for type_assertion in unsolved.pop() {
-        //     if let Some((type_variable, type_)) = type_assertion.get_substitute() {
-        //         // Substitute type variable in unsolved type assertions
-        //         for mut original in unsolved {
-        //             original.substitute(type_variable, type_)
-        //         }
-        //     }
-        // }
-
-        // Return a new resolved function struct.
-        // Function::new(self)
 
         Ok(())
     }
@@ -1574,18 +1537,6 @@ impl TypeMembership {
                 &self.span,
             ))
         }
-    }
-
-    ///
-    /// Returns the (type variable, type) pair from this assertion.
-    ///
-    pub fn get_pair(&self) -> Option<(TypeVariable, Type)> {
-        // match (&self.left, &self.right) {
-        //     (Type::TypeVariable(variable), type_) => Some((variable.clone(), type_.clone())),
-        //     (type_, Type::TypeVariable(variable)) => Some((variable.clone(), type_.clone())),
-        //     (_type1, _type2) => None, // No (type variable, type) pair can be returned from two types
-        // }
-        unimplemented!()
     }
 }
 
