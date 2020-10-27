@@ -448,7 +448,7 @@ impl Frame {
         &mut self,
         identifier: &Identifier,
         from_to: &(Expression, Expression),
-        statements: &Vec<Statement>,
+        statements: impl Iterator<Item = Statement>,
         span: &Span,
     ) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
