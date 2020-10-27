@@ -66,7 +66,7 @@ impl TestStaticCheck {
         let input = Input::new();
 
         // Create new symbol table.
-        let _symbol_table = StaticCheck::run_with_input(&program, &import_parser, &input).unwrap();
+        let _symbol_table = StaticCheck::new(&program, &import_parser, &input).unwrap();
     }
 
     ///
@@ -79,7 +79,7 @@ impl TestStaticCheck {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let static_check = &mut StaticCheck::new();
+        let static_check = &mut StaticCheck::default();
 
         // Create empty import parser.
         let import_parser = ImportParser::new();
@@ -103,7 +103,7 @@ impl TestStaticCheck {
         let program = self.typed.into_repr();
 
         // Create a new symbol table.
-        let static_check = &mut StaticCheck::new();
+        let static_check = &mut StaticCheck::default();
 
         // Create empty import parser.
         let import_parser = ImportParser::new();

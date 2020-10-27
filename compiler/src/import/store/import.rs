@@ -38,7 +38,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Fetch dependencies for the current import
-        let imported_symbols = ImportedSymbols::from(import);
+        let imported_symbols = ImportedSymbols::new(import);
 
         for (name, symbol) in imported_symbols.symbols {
             // Find imported program

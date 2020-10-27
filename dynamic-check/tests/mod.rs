@@ -59,31 +59,18 @@ impl TestDynamicCheck {
         let input = Input::new();
 
         // Create static check.
-        let symbol_table = StaticCheck::run_with_input(&program, &import_parser, &input).unwrap();
+        let symbol_table = StaticCheck::new(&program, &import_parser, &input).unwrap();
 
         // Store fields for new dynamic check.
         Self { program, symbol_table }
     }
 
-    pub fn solve(self) {
-        let dynamic_check = DynamicCheck::new(&self.program, self.symbol_table).unwrap();
-
-        dynamic_check.solve().unwrap();
+    pub fn run(self) {
+        DynamicCheck::new(&self.program, self.symbol_table).unwrap();
     }
 
-    pub fn expect_create_error(self) {
-        // println!(
-        //     "{:?}",
-        //     DynamicCheck::new(&self.program, self.symbol_table.clone()).err()
-        // );
-
+    pub fn expect_error(self) {
         assert!(DynamicCheck::new(&self.program, self.symbol_table).is_err());
-    }
-
-    pub fn expect_solve_error(self) {
-        let dynamic_check = DynamicCheck::new(&self.program, self.symbol_table).unwrap();
-
-        assert!(dynamic_check.solve().is_err());
     }
 }
 
@@ -93,5 +80,5 @@ fn test_new() {
 
     let dynamic_check = TestDynamicCheck::new(bytes);
 
-    dynamic_check.solve()
+    dynamic_check.run()
 }

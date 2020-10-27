@@ -17,8 +17,14 @@
 #[macro_use]
 extern crate thiserror;
 
+pub mod assertions;
+pub use self::assertions::*;
+
 pub mod dynamic_check;
 pub use self::dynamic_check::*;
 
 pub mod errors;
 pub use self::errors::*;
+
+pub mod objects;
+pub use self::objects::*;

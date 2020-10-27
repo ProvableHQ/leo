@@ -14,23 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use]
-extern crate thiserror;
+pub mod type_assertion;
+pub use self::type_assertion::*;
 
-pub mod attributes;
-pub use self::attributes::*;
+pub mod type_equality;
+pub use self::type_equality::*;
 
-pub mod errors;
-pub use self::errors::*;
+pub mod type_membership;
+pub use self::type_membership::*;
 
-pub mod imports;
-pub use self::imports::*;
-
-pub mod objects;
-pub use self::objects::*;
-
-pub mod static_check;
-pub use self::static_check::*;
-
-pub mod types;
-pub use self::types::*;
+pub mod type_variable_pair;
+pub use self::type_variable_pair::*;

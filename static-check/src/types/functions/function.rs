@@ -114,7 +114,7 @@ impl FunctionType {
         let function = Self::new(table, unresolved_function)?;
 
         // Insert (function_identifier -> function_type) as a (key -> value) pair in the symbol table.
-        table.insert_function(function_identifier, function);
+        table.insert_function_type(function_identifier, function);
 
         Ok(())
     }

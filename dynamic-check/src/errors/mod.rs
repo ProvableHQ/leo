@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// pub mod circuit;
-// pub use self::circuit::*;
-
 pub mod dynamic_check;
 pub use self::dynamic_check::*;
 

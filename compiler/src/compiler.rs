@@ -170,10 +170,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.imported_programs = ImportParser::parse(&self.program)?;
 
         // Run static check on program.
-        let symbol_table = StaticCheck::run_with_input(&self.program, &self.imported_programs, &self.program_input)?;
+        let symbol_table = StaticCheck::new(&self.program, &self.imported_programs, &self.program_input)?;
 
         // Run dynamic check on program.
-        DynamicCheck::run(&self.program, symbol_table)?;
+        DynamicCheck::new(&self.program, symbol_table)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 

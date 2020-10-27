@@ -21,5 +21,5 @@ fn test_invalid_function() {
     let bytes = include_bytes!("invalid_function.leo");
     let check = TestDynamicCheck::new(bytes);
 
-    check.expect_create_error();
+    check.expect_error();
 }

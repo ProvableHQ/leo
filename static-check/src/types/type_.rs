@@ -75,7 +75,7 @@ impl Type {
             UnresolvedType::Circuit(identifier) => {
                 // Lookup the circuit type in the symbol table
                 let circuit_type = table
-                    .get_circuit(&identifier.name)
+                    .get_circuit_type(&identifier.name)
                     .ok_or(TypeError::undefined_circuit(identifier))?;
 
                 Type::Circuit(circuit_type.identifier.clone())

@@ -23,25 +23,21 @@ pub struct ImportedSymbols {
 }
 
 impl ImportedSymbols {
-    fn new() -> Self {
-        Self { symbols: vec![] }
+    pub fn new(import: &ImportStatement) -> Self {
+        let mut imported_symbols = Self::default();
+
+        imported_symbols.push_package(&import.package);
+
+        imported_symbols
     }
 
-    pub fn from(import: &ImportStatement) -> Self {
-        let mut symbols = Self::new();
-
-        symbols.from_package(&import.package);
-
-        symbols
+    fn push_package(&mut self, package: &Package) {
+        self.push_package_access(package.name.name.clone(), &package.access);
     }
 
-    fn from_package(&mut self, package: &Package) {
-        self.from_package_access(package.name.name.clone(), &package.access);
-    }
-
-    fn from_package_access(&mut self, package: String, access: &PackageAccess) {
+    fn push_package_access(&mut self, package: String, access: &PackageAccess) {
         match access {
-            PackageAccess::SubPackage(package) => self.from_package(package),
+            PackageAccess::SubPackage(package) => self.push_package(package),
             PackageAccess::Star(span) => {
                 let star = ImportSymbol::star(span);
                 self.symbols.push((package, star));
@@ -49,7 +45,13 @@ impl ImportedSymbols {
             PackageAccess::Symbol(symbol) => self.symbols.push((package, symbol.clone())),
             PackageAccess::Multiple(packages) => packages
                 .iter()
-                .for_each(|access| self.from_package_access(package.clone(), access)),
+                .for_each(|access| self.push_package_access(package.clone(), access)),
         }
+    }
+}
+
+impl Default for ImportedSymbols {
+    fn default() -> Self {
+        Self { symbols: Vec::new() }
     }
 }

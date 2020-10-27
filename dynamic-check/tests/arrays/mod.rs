@@ -22,7 +22,7 @@ fn test_empty_array() {
 
     let check = TestDynamicCheck::new(bytes);
 
-    check.expect_create_error();
+    check.expect_error();
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn test_invalid_array_access() {
 
     let check = TestDynamicCheck::new(bytes);
 
-    check.expect_create_error();
+    check.expect_error();
 }
 
 #[test]
@@ -40,5 +40,5 @@ fn test_invalid_spread() {
 
     let check = TestDynamicCheck::new(bytes);
 
-    check.expect_create_error();
+    check.expect_error();
 }
