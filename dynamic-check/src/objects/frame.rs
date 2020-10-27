@@ -384,7 +384,7 @@ impl Frame {
     ///
     fn parse_block(&mut self, statements: impl Iterator<Item = Statement>, _span: &Span) -> Result<(), FrameError> {
         // Push new scope.
-        let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
+        let scope = Scope::new(self.scopes.last().cloned());
         self.push_scope(scope);
 
         // Parse all statements.
