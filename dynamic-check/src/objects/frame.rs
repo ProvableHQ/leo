@@ -763,7 +763,7 @@ impl Frame {
     ///
     /// Returns the type of the array expression.
     ///
-    fn parse_array(&mut self, expressions: &Vec<SpreadOrExpression>, span: &Span) -> Result<Type, FrameError> {
+    fn parse_array(&mut self, expressions: impl Iterator<Item = SpreadOrExpression>, span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
         let mut count = 0usize;
