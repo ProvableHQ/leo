@@ -15,6 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod arrays;
+pub mod circuits;
+pub mod functions;
 pub mod tuples;
 pub mod variables;
 
@@ -70,6 +72,11 @@ impl TestDynamicCheck {
     }
 
     pub fn expect_create_error(self) {
+        // println!(
+        //     "{:?}",
+        //     DynamicCheck::new(&self.program, self.symbol_table.clone()).err()
+        // );
+
         assert!(DynamicCheck::new(&self.program, self.symbol_table).is_err());
     }
 

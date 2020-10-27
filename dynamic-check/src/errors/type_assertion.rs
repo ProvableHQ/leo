@@ -17,6 +17,7 @@
 use leo_static_check::Type;
 use leo_typed::{Error as FormattedError, Span};
 
+use crate::TypeMembership;
 use std::path::PathBuf;
 
 /// Errors encountered when attempting to solve a type assertion.
@@ -39,8 +40,8 @@ impl TypeAssertionError {
     ///
     /// Returns a new formatted error with a given message and span information.
     ///
-    fn new_from_span(message: String, span: Span) -> Self {
-        TypeAssertionError::Error(FormattedError::new_from_span(message, span))
+    fn new_from_span(message: String, span: &Span) -> Self {
+        TypeAssertionError::Error(FormattedError::new_from_span(message, span.to_owned()))
     }
 
     ///
@@ -49,7 +50,7 @@ impl TypeAssertionError {
     pub fn equality_failed(left: &Type, right: &Type, span: &Span) -> Self {
         let message = format!("Mismatched types. Expected type `{}`, found type `{}`.", left, right);
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -61,7 +62,16 @@ impl TypeAssertionError {
             given, set
         );
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// Attempted to generate pairs from a membership assertion.
+    ///
+    pub fn membership_pairs(membership: &TypeMembership) -> Self {
+        let message = "Cannot generate a type variable -> type pair for the given type membership".to_string();
+
+        Self::new_from_span(message, membership.span())
     }
 
     ///
@@ -73,6 +83,6 @@ impl TypeAssertionError {
             dimensions1, dimensions2
         );
 
-        Self::new_from_span(message, span.to_owned())
+        Self::new_from_span(message, span)
     }
 }

@@ -14,20 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// pub mod circuit;
-// pub use self::circuit::*;
+use crate::TestDynamicCheck;
 
-pub mod dynamic_check;
-pub use self::dynamic_check::*;
+#[test]
+fn test_invalid_function() {
+    let bytes = include_bytes!("invalid_function.leo");
+    let check = TestDynamicCheck::new(bytes);
 
-pub mod frame;
-pub use self::frame::*;
-
-pub mod scope;
-pub use self::scope::*;
-
-pub mod type_assertion;
-pub use self::type_assertion::*;
-
-pub mod variable_table;
-pub use self::variable_table::*;
+    check.expect_create_error();
+}

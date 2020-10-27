@@ -16,7 +16,7 @@
 
 use crate::{ScopeError, TypeAssertionError};
 use leo_static_check::{Type, TypeError};
-use leo_typed::{Error as FormattedError, Identifier, Span};
+use leo_typed::{Error as FormattedError, Expression, Identifier, Span};
 
 use std::path::PathBuf;
 
@@ -95,6 +95,24 @@ impl FrameError {
     }
 
     ///
+    /// Expected a circuit name but found a different type.
+    ///
+    pub fn invalid_circuit(type_: Type, span: &Span) -> Self {
+        let message = format!("Expected a circuit type. Found type `{}`.", type_);
+
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// Expected a function name but found a different expression.
+    ///
+    pub fn invalid_function(expression: &Expression, span: &Span) -> Self {
+        let message = format!("Expected a function name. Found expression `{}`.", expression);
+
+        Self::new_from_span(message, span)
+    }
+
+    ///
     /// Attempted to call non-static member using `::`.
     ///
     pub fn invalid_member_access(identifier: &Identifier) -> Self {
@@ -119,7 +137,7 @@ impl FrameError {
     /// Attempted to call static member using `.`.
     ///
     pub fn invalid_static_access(identifier: &Identifier) -> Self {
-        let message = format!("static member `{}` must be accessed using `::` syntax.", identifier);
+        let message = format!("Static member `{}` must be accessed using `::` syntax.", identifier);
 
         Self::new_from_span(message, &identifier.span)
     }

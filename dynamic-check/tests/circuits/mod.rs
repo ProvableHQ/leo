@@ -13,22 +13,13 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::ProgramError;
-use leo_imports::ImportParserError;
-use leo_static_check::SymbolTableError;
-use leo_typed::Error as FormattedError;
 
-#[derive(Debug, Error)]
-pub enum ResolverError {
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
+use crate::TestDynamicCheck;
 
-    #[error("{}", _0)]
-    ImportParserError(#[from] ImportParserError),
+#[test]
+fn test_invalid_circuit() {
+    let bytes = include_bytes!("invalid_circuit.leo");
+    let check = TestDynamicCheck::new(bytes);
 
-    #[error("{}", _0)]
-    ProgramError(#[from] ProgramError),
-
-    #[error("{}", _0)]
-    SymbolTableError(#[from] SymbolTableError),
+    check.expect_create_error();
 }

@@ -1121,7 +1121,7 @@ impl Frame {
     ///
     /// Returns a `CircuitType` given a circuit expression.
     ///
-    fn parse_circuit_name(&mut self, type_: Type, _span: &Span) -> Result<&CircuitType, FrameError> {
+    fn parse_circuit_name(&mut self, type_: Type, span: &Span) -> Result<&CircuitType, FrameError> {
         // Check that type is a circuit type.
         match type_ {
             Type::Circuit(identifier) => {
@@ -1130,7 +1130,7 @@ impl Frame {
                     .get_circuit(&identifier.name)
                     .ok_or_else(|| FrameError::undefined_circuit(&identifier))
             }
-            type_ => unimplemented!("expected circuit type {:?}", type_),
+            type_ => Err(FrameError::invalid_circuit(type_, span)),
         }
     }
 
@@ -1150,7 +1150,7 @@ impl Frame {
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
                 self.parse_static_circuit_function(expression, identifier, span)
             }
-            _ => unimplemented!("Invalid function name"),
+            expression => Err(FrameError::invalid_function(expression, span)),
         }
     }
 
@@ -1481,7 +1481,7 @@ impl TypeAssertion {
     pub fn pairs(&self) -> Result<TypeVariablePairs, TypeAssertionError> {
         match self {
             TypeAssertion::Equality(equality) => equality.pairs(),
-            TypeAssertion::Membership(_) => unimplemented!("Cannot generate pairs from type membership"),
+            TypeAssertion::Membership(membership) => Err(TypeAssertionError::membership_pairs(membership)),
         }
     }
 
@@ -1546,6 +1546,13 @@ impl TypeMembership {
                 &self.span,
             ))
         }
+    }
+
+    ///
+    /// Returns the self.span.
+    ///
+    pub fn span(&self) -> &Span {
+        &self.span
     }
 }
 
