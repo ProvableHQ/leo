@@ -289,11 +289,14 @@ impl Frame {
         // Check if an explicit type is given.
         if let Some(type_) = variables.type_.clone() {
             // Convert the expected type into a dynamic check type.
-            let expected_type = match self.self_type.clone() {
-                Some(circuit_type) => {
-                    Type::new_from_circuit(&self.user_defined_types, type_, circuit_type.identifier, span.clone())
-                        .unwrap()
-                }
+            let expected_type = match self.self_type {
+                Some(ref circuit_type) => Type::new_from_circuit(
+                    &self.user_defined_types,
+                    type_,
+                    circuit_type.identifier.clone(),
+                    span.clone(),
+                )
+                .unwrap(),
                 None => Type::new(&self.user_defined_types, type_, span.clone()).unwrap(),
             };
 
@@ -419,9 +422,8 @@ impl Frame {
         self.parse_block(&conditional.statements, span)?;
 
         // Parse conditional or end.
-        match &conditional.next {
-            Some(cond_or_end) => self.parse_conditional_nested_or_end(cond_or_end, span)?,
-            None => {}
+        if let Some(cond_or_end) = &conditional.next {
+            self.parse_conditional_nested_or_end(cond_or_end, span)?;
         }
 
         Ok(())
@@ -716,8 +718,8 @@ impl Frame {
     ///
     /// Returns the type of the tuple expression.
     ///
-    fn parse_tuple(&mut self, expressions: &Vec<Expression>, _span: &Span) -> Result<Type, FrameError> {
-        let mut types = vec![];
+    fn parse_tuple(&mut self, expressions: &[Expression], _span: &Span) -> Result<Type, FrameError> {
+        let mut types = Vec::with_capacity(expressions.len());
 
         // Parse all tuple expressions.
         for expression in expressions {
@@ -750,12 +752,12 @@ impl Frame {
     ///
     fn parse_tuple_access(&mut self, type_: Type, index: usize, span: &Span) -> Result<Type, FrameError> {
         // Check the type is a tuple.
-        let elements = match type_ {
+        let mut elements = match type_ {
             Type::Tuple(elements) => elements,
             type_ => return Err(FrameError::tuple_access(&type_, span)),
         };
 
-        let element_type = elements[index].clone();
+        let element_type = elements.swap_remove(index);
 
         Ok(element_type)
     }
@@ -892,10 +894,7 @@ impl Frame {
     /// Returns the Self type of the frame or an error if it does not exist.
     ///
     fn self_type_or_error(&self, span: &Span) -> Result<CircuitType, FrameError> {
-        self.self_type
-            .as_ref()
-            .map(|circuit_type| circuit_type.clone())
-            .ok_or_else(|| FrameError::circuit_self(span))
+        self.self_type.clone().ok_or_else(|| FrameError::circuit_self(span))
     }
 
     ///
@@ -904,7 +903,7 @@ impl Frame {
     fn parse_circuit(
         &mut self,
         identifier: &Identifier,
-        members: &Vec<CircuitVariableDefinition>,
+        members: &[CircuitVariableDefinition],
         span: &Span,
     ) -> Result<Type, FrameError> {
         // Check if identifier is Self circuit type.
@@ -915,7 +914,7 @@ impl Frame {
             // Get circuit type.
             self.user_defined_types
                 .get_circuit_type(&identifier.name)
-                .map(|circuit_type| circuit_type.clone())
+                .cloned()
                 .ok_or_else(|| FrameError::undefined_circuit(identifier))?
         };
 
@@ -1029,7 +1028,7 @@ impl Frame {
     fn parse_program_function(&mut self, identifier: &Identifier, _span: &Span) -> Result<FunctionType, FrameError> {
         self.user_defined_types
             .get_function_type(&identifier.name)
-            .map(|function_type| function_type.to_owned())
+            .cloned()
             .ok_or_else(|| FrameError::undefined_function(identifier))
     }
 
@@ -1103,7 +1102,7 @@ impl Frame {
     fn parse_function_call(
         &mut self,
         expression: &Expression,
-        inputs: &Vec<Expression>,
+        inputs: &[Expression],
         span: &Span,
     ) -> Result<Type, FrameError> {
         // Parse the function name.
@@ -1135,8 +1134,8 @@ impl Frame {
     ///
     fn parse_core_function_call(
         &mut self,
-        _name: &String,
-        _arguments: &Vec<Expression>,
+        _name: &str,
+        _arguments: &[Expression],
         _span: &Span,
     ) -> Result<Type, FrameError> {
         unimplemented!("type checks for core function calls not implemented")
@@ -1146,7 +1145,7 @@ impl Frame {
     /// Returns `Ok` if all `TypeAssertions` can be solved successfully.
     ///
     pub(crate) fn check(self) -> Result<(), FrameError> {
-        let mut unsolved = self.type_assertions.clone();
+        let mut unsolved = self.type_assertions;
 
         // Solve all type equality assertions first.
         let mut unsolved_membership = Vec::new();
