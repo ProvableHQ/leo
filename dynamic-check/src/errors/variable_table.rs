@@ -45,7 +45,7 @@ impl VariableTableError {
     ///
     /// Attempted to lookup a variable name that does not exist in the table.
     ///
-    pub fn undefined_variable_name(name: &String, span: &Span) -> Self {
+    pub fn undefined_variable_name(name: &str, span: &Span) -> Self {
         let message = format!("Cannot find variable `{}` in this scope.", name);
 
         Self::new_from_span(message, span.clone())
