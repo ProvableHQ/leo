@@ -228,7 +228,7 @@ impl Frame {
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) -> Result<(), FrameError> {
-        for statement in self.statements.clone() {
+        for statement in &self.statements {
             self.parse_statement(&statement)?;
         }
 
