@@ -20,7 +20,7 @@ use leo_typed::{Identifier, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionOutputType {
     /// Type of function output.
     pub type_: Type,

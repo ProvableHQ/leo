@@ -19,7 +19,7 @@ use leo_typed::Identifier;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitVariableType {
     /// The name of the circuit variable
     pub identifier: Identifier,

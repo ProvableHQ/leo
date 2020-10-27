@@ -23,7 +23,7 @@ use std::{
 };
 
 /// A type in a Leo program.
-#[derive(Clone, Debug, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     Address,
@@ -322,6 +322,8 @@ impl PartialEq for Type {
         }
     }
 }
+
+impl Eq for Type {}
 
 ///
 /// Returns the data type of the array element and vector of dimensions.

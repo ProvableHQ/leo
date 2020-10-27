@@ -19,7 +19,7 @@ use leo_typed::{FunctionInput, Identifier};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FunctionInputType {
     InputKeyword(Identifier),
     Variable(FunctionInputVariableType),

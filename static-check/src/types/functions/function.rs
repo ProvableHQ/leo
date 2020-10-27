@@ -22,12 +22,13 @@ use crate::{
 use leo_typed::{Function, Identifier};
 
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 
 /// Stores function definition details.
 ///
 /// This type should be added to the function symbol table for a resolved syntax tree.
 /// This is a user-defined type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FunctionType {
     /// The name of the function definition.
     pub identifier: Identifier,
@@ -117,5 +118,19 @@ impl FunctionType {
         table.insert_function_type(function_identifier, function);
 
         Ok(())
+    }
+}
+
+impl PartialEq for FunctionType {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.eq(&other.identifier)
+    }
+}
+
+impl Eq for FunctionType {}
+
+impl Hash for FunctionType {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.identifier.hash(state);
     }
 }
