@@ -90,7 +90,9 @@ impl TypeVariablePairs {
             (Type::Array(left_type, left_dimensions), Type::Array(right_type, right_dimensions)) => {
                 self.push_pairs_array(*left_type, left_dimensions, *right_type, right_dimensions, span)
             }
-            (Type::Tuple(left_types), Type::Tuple(right_types)) => self.push_pairs_tuple(left_types, right_types, span),
+            (Type::Tuple(left_types), Type::Tuple(right_types)) => {
+                self.push_pairs_tuple(left_types.into_iter(), right_types.into_iter(), span)
+            }
             (_, _) => Ok(()), // No `TypeVariable` found so we do not push any pairs.
         }
     }
