@@ -382,7 +382,7 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, statements: &Vec<Statement>, _span: &Span) -> Result<(), FrameError> {
+    fn parse_block(&mut self, statements: impl Iterator<Item = Statement>, _span: &Span) -> Result<(), FrameError> {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().map(|scope| scope.clone()));
         self.push_scope(scope);
