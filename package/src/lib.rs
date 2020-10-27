@@ -27,18 +27,18 @@ pub mod package;
 pub mod root;
 pub mod source;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 pub struct LeoPackage;
 
 impl LeoPackage {
     /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, is_lib: bool, path: &Path) -> Result<(), PackageError> {
         package::Package::initialize(package_name, is_lib, path)
     }
 
     /// Removes an imported Leo package
-    pub fn remove_imported_package(package_name: &str, path: &PathBuf) -> Result<(), PackageError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
         package::Package::remove_imported_package(package_name, path)
     }
 }

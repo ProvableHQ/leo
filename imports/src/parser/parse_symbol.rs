@@ -32,17 +32,13 @@ fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportP
     // Get the package file type.
     let file_type = package
         .file_type()
-        .map_err(|error| ImportParserError::directory_error(error, span.clone(), package.path()))?;
-
-    // Get the package file name.
+        .map_err(|error| ImportParserError::directory_error(error, span.clone(), &package.path()))?;
     let file_name = package
         .file_name()
-        .to_os_string()
         .into_string()
         .map_err(|_| ImportParserError::convert_os_string(span.clone()))?;
 
-    // Construct the package file path.
-    let mut file_path = package.path().to_path_buf();
+    let mut file_path = package.path();
     if file_type.is_dir() {
         file_path.push(LIBRARY_FILE);
 
@@ -78,8 +74,7 @@ impl ImportParser {
             .extension()
             .map_or(false, |ext| ext.eq(&OsString::from(FILE_EXTENSION)));
 
-        // Construct the library file path to use if the package is a directory.
-        let mut package_path = path.to_path_buf();
+        let mut package_path = path;
         package_path.push(LIBRARY_FILE);
 
         // Check if the package is a directory.
@@ -112,7 +107,7 @@ impl ImportParser {
             Ok(())
         } else {
             // importing * from a directory or non-leo file in `package/src/` is illegal
-            Err(ImportParserError::star(package.path().to_path_buf(), span.clone()))
+            Err(ImportParserError::star(&package.path(), span.clone()))
         }
     }
 

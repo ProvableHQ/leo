@@ -33,6 +33,6 @@ pub enum StateFileError {
 
 impl From<std::io::Error> for StateFileError {
     fn from(error: std::io::Error) -> Self {
-        StateFileError::Crate("std::io", format!("{}", error))
+        StateFileError::Crate("std::io", error.to_string())
     }
 }

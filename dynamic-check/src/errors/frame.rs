@@ -18,7 +18,7 @@ use crate::{ScopeError, TypeAssertionError};
 use leo_static_check::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Expression, Identifier, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when tracking variable names in a program.
 #[derive(Debug, Error)]
@@ -40,7 +40,7 @@ impl FrameError {
     ///
     /// Set the filepath for the error stacktrace
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             FrameError::Error(error) => error.set_path(path),
             FrameError::ScopeError(error) => error.set_path(path),

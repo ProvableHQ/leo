@@ -36,6 +36,6 @@ pub enum ProofFileError {
 
 impl From<std::io::Error> for ProofFileError {
     fn from(error: std::io::Error) -> Self {
-        ProofFileError::Crate("std::io", format!("{}", error))
+        ProofFileError::Crate("std::io", error.to_string())
     }
 }

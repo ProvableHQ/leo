@@ -50,7 +50,7 @@ impl<'ast> ArrayDimensions<'ast> {
                 span: single.span.clone(),
             }),
             ArrayDimensions::Multiple(multiple) => {
-                let old_dimension = multiple.numbers.clone();
+                let old_dimension = &multiple.numbers;
 
                 ArrayDimensions::Multiple(Multiple {
                     numbers: old_dimension[1..].to_vec(),

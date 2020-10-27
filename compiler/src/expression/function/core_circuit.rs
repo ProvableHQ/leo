@@ -25,21 +25,21 @@ use snarkos_models::{
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Call a default core circuit function with arguments
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         core_circuit: String,
         arguments: Vec<Expression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the value of each core function argument
-        let mut argument_values = vec![];
+        let mut argument_values = Vec::with_capacity(arguments.len());
         for argument in arguments.into_iter() {
-            let argument_value =
-                self.enforce_expression(cs, file_scope.clone(), function_scope.clone(), None, argument)?;
+            let argument_value = self.enforce_expression(cs, file_scope, function_scope, None, argument)?;
             let core_function_argument = argument_value.to_value();
 
             argument_values.push(core_function_argument);
@@ -49,10 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let res = call_core_circuit(cs, core_circuit, argument_values, span.clone())?;
 
         // Convert the core function returns into constrained values
-        let returns = res
-            .into_iter()
-            .map(|value| ConstrainedValue::from(value))
-            .collect::<Vec<_>>();
+        let returns = res.into_iter().map(ConstrainedValue::from).collect::<Vec<_>>();
 
         let return_value = if returns.len() == 1 {
             // The function has a single return
@@ -64,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Check that function returns expected type
         if let Some(expected) = expected_type {
-            let actual = return_value.to_type(span.clone())?;
+            let actual = return_value.to_type(&span)?;
             if expected.ne(&actual) {
                 return Err(ExpressionError::FunctionError(Box::new(
                     FunctionError::return_argument_type(expected.to_string(), actual.to_string(), span),
@@ -72,6 +69,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        return Ok(return_value);
+        Ok(return_value)
     }
 }

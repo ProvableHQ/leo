@@ -16,7 +16,7 @@
 use leo_ast::ParserError;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
-use std::{io, path::PathBuf};
+use std::{io, path::Path};
 
 #[derive(Debug, Error)]
 pub enum ImportParserError {
@@ -32,7 +32,7 @@ impl ImportParserError {
         ImportParserError::Error(FormattedError::new_from_span(message, span))
     }
 
-    fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+    fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
         ImportParserError::Error(FormattedError::new_from_span_with_path(message, span, path))
     }
 
@@ -90,7 +90,7 @@ impl ImportParserError {
     ///
     /// Failed to open or get the name of a directory.
     ///
-    pub fn directory_error(error: io::Error, span: Span, path: PathBuf) -> Self {
+    pub fn directory_error(error: io::Error, span: Span, path: &Path) -> Self {
         let message = format!("Compilation failed due to directory error - {:?}.", error);
 
         Self::new_from_span_with_path(message, span, path)
@@ -99,7 +99,7 @@ impl ImportParserError {
     ///
     /// Failed to import all symbols at a package path.
     ///
-    pub fn star(path: PathBuf, span: Span) -> Self {
+    pub fn star(path: &Path, span: Span) -> Self {
         let message = format!("Cannot import `*` from path `{:?}`.", path);
 
         Self::new_from_span(message, span)

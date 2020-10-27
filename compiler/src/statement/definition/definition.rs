@@ -28,14 +28,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     fn enforce_single_definition<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function_scope: String,
+        function_scope: &str,
         is_constant: bool,
         variable_name: VariableName,
         mut value: ConstrainedValue<F, G>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         if is_constant && variable_name.mutable {
-            return Err(StatementError::immutable_assign(variable_name.to_string(), span));
+            return Err(StatementError::immutable_assign(
+                variable_name.to_string(),
+                span.to_owned(),
+            ));
         } else {
             value.allocate_value(cs, span)?
         }
@@ -48,36 +51,37 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     fn enforce_multiple_definition<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function_scope: String,
+        function_scope: &str,
         is_constant: bool,
         variables: Variables,
         values: Vec<ConstrainedValue<F, G>>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         if values.len() != variables.names.len() {
             return Err(StatementError::invalid_number_of_definitions(
                 values.len(),
                 variables.names.len(),
-                span,
+                span.to_owned(),
             ));
         }
 
         for (variable, value) in variables.names.into_iter().zip(values.into_iter()) {
-            self.enforce_single_definition(cs, function_scope.clone(), is_constant, variable, value, span.clone())?;
+            self.enforce_single_definition(cs, function_scope, is_constant, variable, value, span)?;
         }
 
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         declare: Declare,
         variables: Variables,
         expression: Expression,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         let num_variables = variables.names.len();
         let is_constant = match declare {
@@ -102,7 +106,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
+                value => return Err(StatementError::multiple_definition(value.to_string(), span.to_owned())),
             };
 
             self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)

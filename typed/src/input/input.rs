@@ -27,13 +27,20 @@ pub struct Input {
     program_state: ProgramState,
 }
 
-impl Input {
-    pub fn new() -> Self {
+impl Default for Input {
+    fn default() -> Self {
         Self {
             name: "default".to_owned(),
             program_input: ProgramInput::new(),
             program_state: ProgramState::new(),
         }
+    }
+}
+
+#[allow(clippy::len_without_is_empty)]
+impl Input {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Returns an empty version of this struct with `None` values.
@@ -88,6 +95,7 @@ impl Input {
     }
 
     /// Returns the main function input value with the given `name`
+    #[allow(clippy::ptr_arg)]
     pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.program_input.get(name)
     }

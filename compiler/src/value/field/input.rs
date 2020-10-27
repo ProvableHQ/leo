@@ -27,24 +27,22 @@ use snarkos_models::{
 
 pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     option: Option<String>,
-    span: Span,
+    span: &Span,
 ) -> Result<FieldType<F>, FieldError> {
-    let field_name = format!("{}: field", name);
-    let field_name_unique = format!("`{}` {}:{}", field_name, span.line, span.start);
-
-    FieldType::alloc(cs.ns(|| field_name_unique), || {
-        option.ok_or(SynthesisError::AssignmentMissing)
-    })
-    .map_err(|_| FieldError::missing_field(field_name, span))
+    FieldType::alloc(
+        cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+        || option.ok_or(SynthesisError::AssignmentMissing),
+    )
+    .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))
 }
 
 pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    name: String,
+    name: &str,
     input_value: Option<InputValue>,
-    span: Span,
+    span: &Span,
 ) -> Result<ConstrainedValue<F, G>, FieldError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
@@ -52,7 +50,7 @@ pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(FieldError::invalid_field(input.to_string(), span));
+                return Err(FieldError::invalid_field(input.to_string(), span.to_owned()));
             }
         }
         None => None,

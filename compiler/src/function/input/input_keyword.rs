@@ -62,14 +62,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Allocate each input variable as a circuit expression
 
-        let mut sections = vec![];
+        let mut sections = Vec::with_capacity(4);
 
         sections.push((registers_name, registers_values));
         sections.push((record_name, record_values));
         sections.push((state_name, state_values));
         sections.push((state_leaf_name, state_leaf_values));
 
-        let mut members = vec![];
+        let mut members = Vec::with_capacity(sections.len());
 
         for (name, values) in sections {
             let member_name = name.clone();

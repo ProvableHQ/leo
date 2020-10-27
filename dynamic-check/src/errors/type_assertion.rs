@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::TypeMembership;
+
 use leo_static_check::Type;
 use leo_typed::{Error as FormattedError, Span};
 
-use crate::TypeMembership;
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when attempting to solve a type assertion.
 #[derive(Debug, Error)]
@@ -31,7 +32,7 @@ impl TypeAssertionError {
     ///
     /// Set the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             TypeAssertionError::Error(error) => error.set_path(path),
         }

@@ -34,10 +34,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         mut expected_type: Option<Type>,
-        array: Vec<Box<SpreadOrExpression>>,
+        array: Vec<SpreadOrExpression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
@@ -47,12 +47,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             match type_ {
                 Type::Array(ref type_, ref dimensions) => {
                     let number = match dimensions.first() {
-                        Some(number) => number.clone(),
+                        Some(number) => *number,
                         None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
                     };
 
                     expected_dimensions.push(number);
-                    expected_type = Some(type_.outer_dimension(dimensions).clone());
+                    expected_type = Some(type_.outer_dimension(dimensions));
                 }
                 ref type_ => {
                     return Err(ExpressionError::unexpected_array(type_.to_string(), span));
@@ -62,10 +62,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let mut result = vec![];
         for element in array.into_iter() {
-            match *element {
+            match element {
                 SpreadOrExpression::Spread(spread) => match spread {
                     Expression::Identifier(identifier) => {
-                        let array_name = new_scope(function_scope.clone(), identifier.to_string());
+                        let array_name = new_scope(&function_scope, &identifier.name);
                         match self.get(&array_name) {
                             Some(value) => match value {
                                 ConstrainedValue::Array(array) => result.extend(array.clone()),
@@ -79,8 +79,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 SpreadOrExpression::Expression(expression) => {
                     result.push(self.enforce_expression(
                         cs,
-                        file_scope.clone(),
-                        function_scope.clone(),
+                        file_scope,
+                        function_scope,
                         expected_type.clone(),
                         expression,
                     )?);
@@ -89,14 +89,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Check expected_dimensions if given
-        if !expected_dimensions.is_empty() {
-            if expected_dimensions[expected_dimensions.len() - 1] != result.len() {
-                return Err(ExpressionError::invalid_length(
-                    expected_dimensions[expected_dimensions.len() - 1],
-                    result.len(),
-                    span,
-                ));
-            }
+        if !expected_dimensions.is_empty() && expected_dimensions[expected_dimensions.len() - 1] != result.len() {
+            return Err(ExpressionError::invalid_length(
+                expected_dimensions[expected_dimensions.len() - 1],
+                result.len(),
+                span,
+            ));
         }
 
         Ok(ConstrainedValue::Array(result))

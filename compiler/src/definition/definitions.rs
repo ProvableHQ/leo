@@ -35,18 +35,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         program
             .imports
             .iter()
-            .map(|import| self.store_import(program_name.to_owned(), import, imported_programs))
+            .map(|import| self.store_import(&program_name, import, imported_programs))
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
         program.circuits.into_iter().for_each(|(identifier, circuit)| {
-            let resolved_circuit_name = new_scope(program_name.to_owned(), identifier.to_string());
+            let resolved_circuit_name = new_scope(program_name, &identifier.name);
             self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
         });
 
         // evaluate and store all function definitions
         program.functions.into_iter().for_each(|(function_name, function)| {
-            let resolved_function_name = new_scope(program_name.to_owned(), function_name.to_string());
+            let resolved_function_name = new_scope(program_name, &function_name.name);
             self.store(resolved_function_name, ConstrainedValue::Function(None, function));
         });
 

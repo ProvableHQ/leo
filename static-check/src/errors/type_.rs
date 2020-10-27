@@ -17,7 +17,7 @@
 use crate::Type;
 use leo_typed::{Error as FormattedError, Identifier, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when resolving types.
 #[derive(Debug, Error)]
@@ -30,7 +30,7 @@ impl TypeError {
     ///
     /// Set the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             TypeError::Error(error) => error.set_path(path),
         }

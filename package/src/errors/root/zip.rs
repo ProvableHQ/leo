@@ -44,6 +44,6 @@ pub enum ZipFileError {
 
 impl From<std::io::Error> for ZipFileError {
     fn from(error: std::io::Error) -> Self {
-        ZipFileError::Crate("std::io", format!("{}", error))
+        ZipFileError::Crate("std::io", error.to_string())
     }
 }

@@ -16,7 +16,7 @@
 
 use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
-use core::borrow::Borrow;
+use core::{borrow::Borrow, iter};
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
     curves::Field,
@@ -28,6 +28,21 @@ use snarkos_models::{
         },
     },
 };
+
+fn create_value<T: Borrow<bool>, I: IntoIterator<Item = Option<T>>, F: Field, CS: ConstraintSystem<F>>(
+    cs: &mut CS,
+    iter: I,
+) -> Result<Vec<Boolean>, SynthesisError> {
+    iter.into_iter()
+        .enumerate()
+        .map(|(i, v)| {
+            Ok(Boolean::from(AllocatedBit::alloc(
+                &mut cs.ns(|| format!("allocated bit_gadget {}", i)),
+                || v.ok_or(SynthesisError::AssignmentMissing),
+            )?))
+        })
+        .collect()
+}
 
 macro_rules! alloc_int_impl {
     ($($gadget: ident)*) => ($(
@@ -41,30 +56,21 @@ macro_rules! alloc_int_impl {
                 value_gen: Fn,
             ) -> Result<Self, SynthesisError> {
                 let value = value_gen().map(|val| *val.borrow());
-                let values = match value {
+
+                let bits = match value {
                     Ok(mut val) => {
                         let mut v = Vec::with_capacity(<$gadget as Int>::SIZE);
-
                         for _ in 0..<$gadget as Int>::SIZE {
                             v.push(Some(val & 1 == 1));
                             val >>= 1;
                         }
-
-                        v
+                        create_value(&mut cs, v)
                     }
-                    _ => vec![None; <$gadget as Int>::SIZE],
-                };
-
-                let bits = values
-                    .into_iter()
-                    .enumerate()
-                    .map(|(i, v)| {
-                        Ok(Boolean::from(AllocatedBit::alloc(
-                            &mut cs.ns(|| format!("allocated bit_gadget {}", i)),
-                            || v.ok_or(SynthesisError::AssignmentMissing),
-                        )?))
-                    })
-                    .collect::<Result<Vec<_>, SynthesisError>>()?;
+                    Err(_) => {
+                        let i = iter::repeat(None::<bool>).take(<$gadget as Int>::SIZE);
+                        create_value(&mut cs, i)
+                    },
+                }?;
 
                 Ok(Self {
                     bits,
@@ -81,30 +87,21 @@ macro_rules! alloc_int_impl {
                 value_gen: Fn,
             ) -> Result<Self, SynthesisError> {
                 let value = value_gen().map(|val| *val.borrow());
-                let values = match value {
+
+                let bits = match value {
                     Ok(mut val) => {
                         let mut v = Vec::with_capacity(<$gadget as Int>::SIZE);
-
                         for _ in 0..<$gadget as Int>::SIZE {
                             v.push(Some(val & 1 == 1));
                             val >>= 1;
                         }
-
-                        v
+                        create_value(&mut cs, v)
                     }
-                    _ => vec![None; <$gadget as Int>::SIZE],
-                };
-
-                let bits = values
-                    .into_iter()
-                    .enumerate()
-                    .map(|(i, v)| {
-                        Ok(Boolean::from(AllocatedBit::alloc(
-                            &mut cs.ns(|| format!("allocated bit_gadget {}", i)),
-                            || v.ok_or(SynthesisError::AssignmentMissing),
-                        )?))
-                    })
-                    .collect::<Result<Vec<_>, SynthesisError>>()?;
+                    Err(_) => {
+                        let i = iter::repeat(None::<bool>).take(<$gadget as Int>::SIZE);
+                        create_value(&mut cs, i)
+                    },
+                }?;
 
                 Ok(Self {
                     bits,

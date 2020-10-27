@@ -28,8 +28,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         formatted: FormattedString,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
@@ -37,29 +37,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Err(ConsoleError::length(
                 formatted.containers.len(),
                 formatted.parameters.len(),
-                formatted.span.clone(),
+                formatted.span,
             ));
         }
 
         // Trim starting double quote `"`
         let mut string = formatted.string.as_str();
-        string = string.trim_start_matches("\"");
+        string = string.trim_start_matches('\"');
 
         // Trim everything after the ending double quote `"`
-        let parts: Vec<&str> = string.split("\"").collect();
-        string = parts[0];
+        let string = string.split('\"').next().unwrap();
 
         // Insert the parameter for each container `{}`
         let mut result = string.to_string();
 
         for parameter in formatted.parameters.into_iter() {
-            let parameter_value = self.enforce_expression(
-                cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                None,
-                parameter.expression,
-            )?;
+            let parameter_value =
+                self.enforce_expression(cs, file_scope, function_scope, None, parameter.expression)?;
 
             result = result.replacen("{}", &parameter_value.to_string(), 1);
         }

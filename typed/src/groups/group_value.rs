@@ -36,10 +36,10 @@ pub enum GroupValue {
 }
 
 impl GroupValue {
-    pub fn set_span(&mut self, new_span: &Span) {
+    pub fn set_span(&mut self, new_span: Span) {
         match self {
-            GroupValue::Single(_, old_span) => *old_span = new_span.clone(),
-            GroupValue::Tuple(tuple) => tuple.span = new_span.clone(),
+            GroupValue::Single(_, old_span) => *old_span = new_span,
+            GroupValue::Tuple(tuple) => tuple.span = new_span,
         }
     }
 

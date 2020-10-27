@@ -23,7 +23,7 @@ use crate::{
 };
 
 use serde::Deserialize;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Deserialize)]
 pub struct Package {
@@ -44,53 +44,53 @@ impl Package {
     }
 
     /// Returns `true` if a package is can be initialized at a given path.
-    pub fn can_initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
+    pub fn can_initialize(package_name: &str, is_lib: bool, path: &Path) -> bool {
         let mut result = true;
         let mut existing_files = vec![];
 
         // Check if the manifest file already exists.
-        if Manifest::exists_at(&path) {
+        if Manifest::exists_at(path) {
             existing_files.push(Manifest::filename());
             result = false;
         }
 
         if is_lib {
             // Check if the library file already exists.
-            if LibraryFile::exists_at(&path) {
+            if LibraryFile::exists_at(path) {
                 existing_files.push(LibraryFile::filename());
                 result = false;
             }
         } else {
             // Check if the input file already exists.
             let input_file = InputFile::new(&package_name);
-            if input_file.exists_at(&path) {
+            if input_file.exists_at(path) {
                 existing_files.push(input_file.filename());
                 result = false;
             }
 
             // Check if the state file already exists.
             let state_file = StateFile::new(&package_name);
-            if state_file.exists_at(&path) {
+            if state_file.exists_at(path) {
                 existing_files.push(state_file.filename());
                 result = false;
             }
 
             // Check if the main file already exists.
-            if MainFile::exists_at(&path) {
+            if MainFile::exists_at(path) {
                 existing_files.push(MainFile::filename());
                 result = false;
             }
         }
 
-        if existing_files.len() > 0 {
+        if !existing_files.is_empty() {
             tracing::error!("File(s) {:?} already exist", existing_files);
         }
 
-        return result;
+        result
     }
 
     /// Returns `true` if a package is initialized at the given path
-    pub fn is_initialized(package_name: &str, is_lib: bool, path: &PathBuf) -> bool {
+    pub fn is_initialized(package_name: &str, is_lib: bool, path: &Path) -> bool {
         // Check if the manifest file exists.
         if !Manifest::exists_at(&path) {
             return false;
@@ -120,17 +120,18 @@ impl Package {
             }
         }
 
-        return true;
+        true
     }
 
     /// Creates a package at the given path
-    pub fn initialize(package_name: &str, is_lib: bool, path: &PathBuf) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, is_lib: bool, path: &Path) -> Result<(), PackageError> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -174,9 +175,10 @@ impl Package {
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, is_lib, path) {
-                return Err(
-                    PackageError::FailedToInitialize(package_name.to_owned(), path.as_os_str().to_owned()).into(),
-                );
+                return Err(PackageError::FailedToInitialize(
+                    package_name.to_owned(),
+                    path.as_os_str().to_owned(),
+                ));
             }
         }
 
@@ -184,7 +186,7 @@ impl Package {
     }
 
     /// Removes the package at the given path
-    pub fn remove_imported_package(package_name: &str, path: &PathBuf) -> Result<(), PackageError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
         Ok(ImportsDirectory::remove_import(path, package_name)?)
     }
 }

@@ -38,7 +38,7 @@ pub enum Statement {
     Definition(Declare, Variables, Expression, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
-    Iteration(Identifier, Expression, Expression, Vec<Statement>, Span),
+    Iteration(Identifier, Box<(Expression, Expression)>, Vec<Statement>, Span),
     Console(ConsoleFunctionCall),
     Expression(Expression, Span),
 }
@@ -78,8 +78,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                     AssignOperation::AddAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
                         Expression::Add(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
+                            Box::new((converted, Expression::from(statement.expression))),
                             Span::from(statement.span.clone()),
                         ),
                         Span::from(statement.span),
@@ -87,8 +86,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                     AssignOperation::SubAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
                         Expression::Sub(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
+                            Box::new((converted, Expression::from(statement.expression))),
                             Span::from(statement.span.clone()),
                         ),
                         Span::from(statement.span),
@@ -96,8 +94,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                     AssignOperation::MulAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
                         Expression::Mul(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
+                            Box::new((converted, Expression::from(statement.expression))),
                             Span::from(statement.span.clone()),
                         ),
                         Span::from(statement.span),
@@ -105,8 +102,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                     AssignOperation::DivAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
                         Expression::Div(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
+                            Box::new((converted, Expression::from(statement.expression))),
                             Span::from(statement.span.clone()),
                         ),
                         Span::from(statement.span),
@@ -114,8 +110,7 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                     AssignOperation::PowAssign(ref _assign) => Statement::Assign(
                         Assignee::from(statement.assignee),
                         Expression::Pow(
-                            Box::new(converted),
-                            Box::new(Expression::from(statement.expression)),
+                            Box::new((converted, Expression::from(statement.expression))),
                             Span::from(statement.span.clone()),
                         ),
                         Span::from(statement.span),
@@ -131,13 +126,8 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     fn from(statement: ForStatement<'ast>) -> Self {
         Statement::Iteration(
             Identifier::from(statement.index),
-            Expression::from(statement.start),
-            Expression::from(statement.stop),
-            statement
-                .statements
-                .into_iter()
-                .map(|statement| Statement::from(statement))
-                .collect(),
+            Box::new((Expression::from(statement.start), Expression::from(statement.stop))),
+            statement.statements.into_iter().map(Statement::from).collect(),
             Span::from(statement.span),
         )
     }
@@ -154,7 +144,7 @@ impl<'ast> From<ExpressionStatement<'ast>> for Statement {
         let span = Span::from(statement.span);
         let mut expression = Expression::from(statement.expression);
 
-        expression.set_span(&span);
+        expression.set_span(span.clone());
 
         Statement::Expression(expression, span)
     }
@@ -186,10 +176,10 @@ impl fmt::Display for Statement {
             }
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
-            Statement::Iteration(ref var, ref start, ref stop, ref list, ref _span) => {
-                write!(f, "for {} in {}..{} {{\n", var, start, stop)?;
+            Statement::Iteration(ref var, ref start_stop, ref list, ref _span) => {
+                writeln!(f, "for {} in {}..{} {{", var, start_stop.0, start_stop.1)?;
                 for l in list {
-                    write!(f, "\t\t{}\n", l)?;
+                    writeln!(f, "\t\t{}", l)?;
                 }
                 write!(f, "\t}}")
             }

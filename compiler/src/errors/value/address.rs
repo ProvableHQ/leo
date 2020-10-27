@@ -17,7 +17,7 @@
 use leo_typed::{Error as FormattedError, Span};
 
 use snarkos_errors::{gadgets::SynthesisError, objects::account::AccountError};
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum AddressError {
@@ -26,7 +26,7 @@ pub enum AddressError {
 }
 
 impl AddressError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             AddressError::Error(error) => error.set_path(path),
         }
@@ -64,7 +64,7 @@ impl AddressError {
     }
 
     pub fn missing_address(span: Span) -> Self {
-        let message = format!("expected address input not found");
+        let message = "expected address input not found".to_string();
 
         Self::new_from_span(message, span)
     }

@@ -324,10 +324,10 @@ impl SymbolTable {
         // Insert name and type information for each core package symbol.
         for (name, circuit) in symbol_list.symbols() {
             // Store name of symbol.
-            self.insert_circuit_name(name, ParameterType::from(circuit.clone()))?;
+            self.insert_circuit_name(name.to_string(), ParameterType::from(circuit.clone()))?;
 
             // Create new circuit type for symbol.
-            let circuit_type = CircuitType::new(&self, circuit)?;
+            let circuit_type = CircuitType::new(&self, circuit.to_owned())?;
 
             // Insert circuit type of symbol.
             self.insert_circuit(circuit_type.identifier.clone(), circuit_type);

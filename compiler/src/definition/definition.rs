@@ -28,17 +28,17 @@ use snarkos_models::curves::{Field, PrimeField};
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn store_definition(
         &mut self,
-        function_scope: String,
+        function_scope: &str,
         mutable: bool,
         identifier: Identifier,
         mut value: ConstrainedValue<F, G>,
-    ) -> () {
+    ) {
         // Store with given mutability
         if mutable {
             value = ConstrainedValue::Mutable(Box::new(value));
         }
 
-        let variable_program_identifier = new_scope(function_scope, identifier.name);
+        let variable_program_identifier = new_scope(function_scope, &identifier.name);
 
         self.store(variable_program_identifier, value);
     }

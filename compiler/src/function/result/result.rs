@@ -34,17 +34,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         return_value: &mut ConstrainedValue<F, G>,
         results: Vec<(Option<Boolean>, ConstrainedValue<F, G>)>,
-        span: Span,
+        span: &Span,
     ) -> Result<(), StatementError> {
         // if there are no results, continue
-        if results.len() == 0 {
+        if results.is_empty() {
             return Ok(());
         }
 
         // If all indicators are none, then there are no branch conditions in the function.
         // We simply return the last result.
 
-        if let None = results.iter().find(|(indicator, _res)| indicator.is_some()) {
+        if results.iter().all(|(indicator, _res)| indicator.is_none()) {
             let result = &results[results.len() - 1].1;
 
             *return_value = result.clone();
@@ -61,12 +61,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             let condition = indicator.unwrap_or(Boolean::Constant(true));
-            let name_unique = format!("select {} {}:{}", result, span.line, span.start);
-            let selected_value =
-                ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &result, return_value)
-                    .map_err(|_| {
-                        StatementError::select_fail(result.to_string(), return_value.to_string(), span.clone())
-                    })?;
+            let selected_value = ConstrainedValue::conditionally_select(
+                cs.ns(|| format!("select {} {}:{}", result, span.line, span.start)),
+                &condition,
+                &result,
+                return_value,
+            )
+            .map_err(|_| StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned()))?;
 
             *return_value = selected_value;
         }

@@ -19,7 +19,7 @@
 use crate::{errors::MainFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static MAIN_FILENAME: &str = "main.leo";
 
@@ -39,24 +39,24 @@ impl MainFile {
         format!("{}{}", SOURCE_DIRECTORY_NAME, MAIN_FILENAME)
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+                path.to_mut().push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(MAIN_FILENAME));
+            path.to_mut().push(MAIN_FILENAME);
         }
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), MainFileError> {
-        let mut path = path.to_owned();
+    pub fn write_to(self, path: &Path) -> Result<(), MainFileError> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.push(PathBuf::from(SOURCE_DIRECTORY_NAME));
+                path.to_mut().push(SOURCE_DIRECTORY_NAME);
             }
-            path.push(PathBuf::from(MAIN_FILENAME));
+            path.to_mut().push(MAIN_FILENAME);
         }
 
         let mut file = File::create(&path)?;

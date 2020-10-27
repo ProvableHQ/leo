@@ -22,6 +22,8 @@ use snarkos_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
+use std::iter;
+
 /// Returns a negated representation of `self` in the constraint system.
 pub trait Neg<F: Field>
 where
@@ -29,7 +31,6 @@ where
 {
     type ErrorType;
 
-    #[must_use]
     fn neg<CS: ConstraintSystem<F>>(&self, cs: CS) -> Result<Self, Self::ErrorType>;
 }
 
@@ -41,10 +42,11 @@ impl<F: Field> Neg<F> for Vec<Boolean> {
         let flipped: Self = self.iter().map(|bit| bit.not()).collect();
 
         // add one
-        let mut one = vec![Boolean::constant(true)];
-        one.append(&mut vec![Boolean::Constant(false); self.len() - 1]);
+        let mut one = Vec::with_capacity(self.len());
+        one.push(Boolean::constant(true));
+        one.extend(iter::repeat(Boolean::Constant(false)).take(self.len() - 1));
 
-        let mut bits = flipped.add_bits(cs.ns(|| format!("add one")), &one)?;
+        let mut bits = flipped.add_bits(cs.ns(|| "add one"), &one)?;
         let _carry = bits.pop(); // we already accounted for overflow above
 
         Ok(bits)

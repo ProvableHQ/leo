@@ -17,7 +17,7 @@
 use crate::{CoreCircuitError, CorePackageListError};
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum LeoCoreError {
@@ -32,7 +32,7 @@ pub enum LeoCoreError {
 }
 
 impl LeoCoreError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             LeoCoreError::CoreCircuitError(error) => error.set_path(path),
             LeoCoreError::CorePackageListError(error) => error.set_path(path),

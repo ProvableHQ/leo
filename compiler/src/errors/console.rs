@@ -17,7 +17,7 @@
 use crate::errors::ExpressionError;
 use leo_typed::{Error as FormattedError, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ConsoleError {
@@ -29,7 +29,7 @@ pub enum ConsoleError {
 }
 
 impl ConsoleError {
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ConsoleError::Expression(error) => error.set_path(path),
             ConsoleError::Error(error) => error.set_path(path),
@@ -50,7 +50,8 @@ impl ConsoleError {
     }
 
     pub fn assertion_depends_on_input(span: Span) -> Self {
-        let message = format!("console.assert() failed to evaluate. This error is caused by empty input file values");
+        let message =
+            "console.assert() failed to evaluate. This error is caused by empty input file values".to_string();
 
         Self::new_from_span(message, span)
     }

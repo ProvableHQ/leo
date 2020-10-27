@@ -22,22 +22,22 @@ use leo_typed::{Assignee, Span};
 use snarkos_models::curves::{Field, PrimeField};
 
 pub fn resolve_assignee(scope: String, assignee: Assignee) -> String {
-    new_scope(scope, assignee.identifier().to_string())
+    new_scope(&scope, &assignee.identifier().to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn get_mutable_assignee(
         &mut self,
-        name: String,
-        span: Span,
+        name: &str,
+        span: &Span,
     ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
         // Check that assignee exists and is mutable
-        Ok(match self.get_mut(&name) {
+        Ok(match self.get_mut(name) {
             Some(value) => match value {
                 ConstrainedValue::Mutable(mutable_value) => mutable_value,
-                _ => return Err(StatementError::immutable_assign(name, span)),
+                _ => return Err(StatementError::immutable_assign(name.to_owned(), span.to_owned())),
             },
-            None => return Err(StatementError::undefined_variable(name, span)),
+            None => return Err(StatementError::undefined_variable(name.to_owned(), span.to_owned())),
         })
     }
 }

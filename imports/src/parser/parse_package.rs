@@ -82,18 +82,14 @@ impl ImportParser {
 
         // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
-            .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone()))?
-            .into_iter()
+            .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), &error_path))?
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| {
-                ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
-            })?;
+            .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), &error_path))?;
 
         // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
             entry
                 .file_name()
-                .to_os_string()
                 .into_string()
                 .unwrap()
                 .trim_end_matches(SOURCE_FILE_EXTENSION)
@@ -106,14 +102,9 @@ impl ImportParser {
         } else if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| {
-                    ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
-                })?
-                .into_iter()
+                .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), &error_path))?
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| {
-                    ImportParserError::directory_error(error, package_name.span.clone(), error_path.clone())
-                })?;
+                .map_err(|error| ImportParserError::directory_error(error, package_name.span.clone(), &error_path))?;
 
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries

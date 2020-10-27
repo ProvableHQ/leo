@@ -18,7 +18,7 @@ use crate::{ParameterType, TypeError};
 use leo_core::{CorePackageListError, LeoCoreError};
 use leo_typed::{Error as FormattedError, ImportSymbol, Program, Span};
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when tracking variable, function, and circuit names in a program.
 #[derive(Debug, Error)]
@@ -40,7 +40,7 @@ impl SymbolTableError {
     ///
     /// Sets the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             SymbolTableError::CorePackageListError(error) => error.set_path(path),
             SymbolTableError::Error(error) => error.set_path(path),

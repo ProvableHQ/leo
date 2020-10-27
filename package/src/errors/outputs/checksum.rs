@@ -36,6 +36,6 @@ pub enum ChecksumFileError {
 
 impl From<std::io::Error> for ChecksumFileError {
     fn from(error: std::io::Error) -> Self {
-        ChecksumFileError::Crate("std::io", format!("{}", error))
+        ChecksumFileError::Crate("std::io", error.to_string())
     }
 }

@@ -16,9 +16,9 @@
 
 use crate::Span;
 
-use std::{fmt, path::PathBuf};
+use std::{fmt, path::Path};
 
-pub const INDENT: &'static str = "    ";
+pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
 ///     --> file.leo 2:8
@@ -55,7 +55,7 @@ impl Error {
         }
     }
 
-    pub fn new_from_span_with_path(message: String, span: Span, path: PathBuf) -> Self {
+    pub fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
         Self {
             path: Some(format!("{:?}", path)),
             line: span.line,
@@ -66,7 +66,7 @@ impl Error {
         }
     }
 
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         self.path = Some(format!("{:?}", path));
     }
 
@@ -95,9 +95,7 @@ impl Error {
 
 fn underline(mut start: usize, mut end: usize) -> String {
     if start > end {
-        let tmp = start;
-        start = end;
-        end = tmp;
+        std::mem::swap(&mut start, &mut end)
     }
 
     let mut underline = String::new();
@@ -138,7 +136,7 @@ fn test_error() {
     };
 
     assert_eq!(
-        format!("{}", err),
+        err.to_string(),
         vec![
             "    --> file.leo: 2:8",
             "     |",

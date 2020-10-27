@@ -402,8 +402,8 @@ impl Frame {
             }
             Statement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
             Statement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
-            Statement::Iteration(identifier, from, to, statements, span) => {
-                self.parse_iteration(identifier, from, to, statements, span)
+            Statement::Iteration(identifier, from_to, statements, span) => {
+                self.parse_iteration(identifier, from_to, statements, span)
             }
             Statement::Expression(expression, span) => self.parse_statement_expression(expression, span),
             Statement::Console(_console_call) => Ok(()), // Console function calls do not generate type assertions.
@@ -603,8 +603,7 @@ impl Frame {
     fn parse_iteration(
         &mut self,
         identifier: &Identifier,
-        from: &Expression,
-        to: &Expression,
+        from_to: &(Expression, Expression),
         statements: &Vec<Statement>,
         span: &Span,
     ) -> Result<(), FrameError> {
@@ -613,8 +612,8 @@ impl Frame {
         let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone(), span);
 
         // Parse `from` and `to` expressions.
-        let from_type = self.parse_expression(from)?;
-        let to_type = self.parse_expression(to)?;
+        let from_type = self.parse_expression(&from_to.0)?;
+        let to_type = self.parse_expression(&from_to.1)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
         self.assert_equal(u32_type.clone(), from_type, span);
@@ -656,31 +655,57 @@ impl Frame {
             Expression::Integer(integer_type, _, _) => Ok(Type::IntegerType(integer_type.clone())),
 
             // Number operations
-            Expression::Add(left, right, span) => self.parse_integer_binary_expression(left, right, span),
-            Expression::Sub(left, right, span) => self.parse_integer_binary_expression(left, right, span),
-            Expression::Mul(left, right, span) => self.parse_integer_binary_expression(left, right, span),
-            Expression::Div(left, right, span) => self.parse_integer_binary_expression(left, right, span),
-            Expression::Pow(left, right, span) => self.parse_integer_binary_expression(left, right, span),
+            Expression::Add(left_right, span) => {
+                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Sub(left_right, span) => {
+                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Mul(left_right, span) => {
+                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Div(left_right, span) => {
+                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Pow(left_right, span) => {
+                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
+            }
             Expression::Negate(expression, span) => self.parse_negate_expression(expression, span),
 
             // Boolean operations
             Expression::Not(expression, span) => self.parse_boolean_expression(expression, span),
-            Expression::Or(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::And(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::Eq(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::Ge(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::Gt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::Le(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
-            Expression::Lt(left, right, span) => self.parse_boolean_binary_expression(left, right, span),
+            Expression::Or(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::And(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Eq(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Ge(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Gt(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Le(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
+            Expression::Lt(left_right, span) => {
+                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            }
 
             // Conditionals
-            Expression::IfElse(condition, first, second, span) => {
-                self.parse_conditional_expression(condition, first, second, span)
+            Expression::IfElse(triplet, span) => {
+                self.parse_conditional_expression(&triplet.0, &triplet.1, &triplet.2, span)
             }
 
             // Arrays
             Expression::Array(expressions, span) => self.parse_array(expressions, span),
-            Expression::ArrayAccess(array, access, span) => self.parse_expression_array_access(array, access, span),
+            Expression::ArrayAccess(array_w_index, span) => {
+                self.parse_expression_array_access(&array_w_index.0, &array_w_index.1, span)
+            }
 
             // Tuples
             Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
@@ -894,7 +919,7 @@ impl Frame {
     ///
     /// Returns the type of the array expression.
     ///
-    fn parse_array(&mut self, expressions: &Vec<Box<SpreadOrExpression>>, span: &Span) -> Result<Type, FrameError> {
+    fn parse_array(&mut self, expressions: &Vec<SpreadOrExpression>, span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
         let mut count = 0usize;

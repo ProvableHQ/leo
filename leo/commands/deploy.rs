@@ -58,14 +58,14 @@ impl CLI for DeployCommand {
         match BuildCommand::output(options)? {
             Some((_program, _checksum_differs)) => {
                 // Get the package name
-                let _package_name = Manifest::try_from(&path)?.get_package_name();
+                let _package_name = Manifest::try_from(path.as_path())?.get_package_name();
 
                 tracing::error!("Unimplemented - `leo deploy`");
 
                 Ok(())
             }
             None => {
-                let mut main_file_path = path.clone();
+                let mut main_file_path = path;
                 main_file_path.push(SOURCE_DIRECTORY_NAME);
                 main_file_path.push(MAIN_FILENAME);
 

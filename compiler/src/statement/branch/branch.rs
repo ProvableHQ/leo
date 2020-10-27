@@ -16,7 +16,7 @@
 
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
 use leo_typed::{Statement, Type};
 
 use snarkos_models::{
@@ -28,23 +28,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_type: Option<Type>,
-    ) -> Result<Vec<(Option<Boolean>, ConstrainedValue<F, G>)>, StatementError> {
-        let mut results = vec![];
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        let mut results = Vec::with_capacity(statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
-        for statement in statements.iter() {
+        for statement in statements.into_iter() {
             let mut value = self.enforce_statement(
                 cs,
-                file_scope.clone(),
-                function_scope.clone(),
-                indicator.clone(),
-                statement.clone(),
+                file_scope,
+                function_scope,
+                indicator,
+                statement,
                 return_type.clone(),
-                "".to_owned(),
+                "",
             )?;
 
             results.append(&mut value);

@@ -44,8 +44,9 @@ pub struct Address {
 }
 
 impl Address {
-    pub(crate) fn constant(address: String, span: Span) -> Result<Self, AddressError> {
-        let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
+    pub(crate) fn constant(address: String, span: &Span) -> Result<Self, AddressError> {
+        let address =
+            AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span.to_owned()))?;
 
         let mut address_bytes = vec![];
         address.write(&mut address_bytes).unwrap();
@@ -59,20 +60,14 @@ impl Address {
     }
 
     pub(crate) fn is_constant(&self) -> bool {
-        let mut result = true;
-
-        for byte in self.bytes.iter() {
-            result = result && byte.is_constant()
-        }
-
-        result
+        self.bytes.iter().all(|byte| byte.is_constant())
     }
 
     pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        name: String,
+        name: &str,
         input_value: Option<InputValue>,
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, AddressError> {
         // Check that the input value is the correct type
         let address_value = match input_value {
@@ -80,19 +75,17 @@ impl Address {
                 if let InputValue::Address(string) = input {
                     Some(string)
                 } else {
-                    return Err(AddressError::invalid_address(name, span));
+                    return Err(AddressError::invalid_address(name.to_owned(), span.to_owned()));
                 }
             }
             None => None,
         };
 
-        let address_name = format!("{}: address", name);
-        let address_namespace = format!("`{}` {}:{}", address_name, span.line, span.start);
-
-        let address = Address::alloc(cs.ns(|| address_namespace), || {
-            address_value.ok_or(SynthesisError::AssignmentMissing)
-        })
-        .map_err(|_| AddressError::missing_address(span))?;
+        let address = Address::alloc(
+            cs.ns(|| format!("`{}: address` {}:{}", name, span.line, span.start)),
+            || address_value.ok_or(SynthesisError::AssignmentMissing),
+        )
+        .map_err(|_| AddressError::missing_address(span.to_owned()))?;
 
         Ok(ConstrainedValue::Address(address))
     }
@@ -153,7 +146,7 @@ impl<F: Field + PrimeField> AllocGadget<String, F> for Address {
 impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         if self.is_constant() && other.is_constant() {
-            return Ok(Boolean::Constant(self.eq(other)));
+            Ok(Boolean::Constant(self.eq(other)))
         } else {
             let mut result = Boolean::constant(true);
 

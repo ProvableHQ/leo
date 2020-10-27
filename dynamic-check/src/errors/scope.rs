@@ -17,7 +17,7 @@
 use crate::VariableTableError;
 use leo_typed::Error as FormattedError;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when evaluating variables in a scope.
 #[derive(Debug, Error)]
@@ -33,7 +33,7 @@ impl ScopeError {
     ///
     /// Set the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             ScopeError::Error(error) => error.set_path(path),
             ScopeError::VariableTableError(error) => error.set_path(path),

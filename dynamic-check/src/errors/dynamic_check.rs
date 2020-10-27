@@ -17,7 +17,7 @@
 use crate::FrameError;
 use leo_typed::Error as FormattedError;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when running dynamic type inference checks.
 #[derive(Debug, Error)]
@@ -33,7 +33,7 @@ impl DynamicCheckError {
     ///
     /// Set the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             DynamicCheckError::Error(error) => error.set_path(path),
             DynamicCheckError::FrameError(error) => error.set_path(path),

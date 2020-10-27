@@ -17,7 +17,7 @@
 use crate::SymbolTableError;
 use leo_typed::Error as FormattedError;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Errors encountered when tracking variable, function and circuit names in a program.
 #[derive(Debug, Error)]
@@ -33,17 +33,10 @@ impl StaticCheckError {
     ///
     /// Sets the filepath for the error stacktrace.
     ///
-    pub fn set_path(&mut self, path: PathBuf) {
+    pub fn set_path(&mut self, path: &Path) {
         match self {
             StaticCheckError::Error(error) => error.set_path(path),
             StaticCheckError::SymbolTableError(error) => error.set_path(path),
         }
     }
-
-    // ///
-    // /// Returns a new formatted error with a given message and span information.
-    // ///
-    // fn new_from_span(message: String, span: Span) -> Self {
-    //     StaticCheckError::Error(FormattedError::new_from_span(message, span))
-    // }
 }

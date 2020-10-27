@@ -19,30 +19,30 @@
 use crate::errors::GitignoreError;
 
 use serde::Deserialize;
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static GITIGNORE_FILENAME: &str = ".gitignore";
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct Gitignore;
 
 impl Gitignore {
     pub fn new() -> Self {
-        Self
+        Self::default()
     }
 
-    pub fn exists_at(path: &PathBuf) -> bool {
-        let mut path = path.to_owned();
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(GITIGNORE_FILENAME));
+            path.to_mut().push(GITIGNORE_FILENAME);
         }
         path.exists()
     }
 
-    pub fn write_to(self, path: &PathBuf) -> Result<(), GitignoreError> {
-        let mut path = path.to_owned();
+    pub fn write_to(self, path: &Path) -> Result<(), GitignoreError> {
+        let mut path = Cow::from(path);
         if path.is_dir() {
-            path.push(PathBuf::from(GITIGNORE_FILENAME));
+            path.to_mut().push(GITIGNORE_FILENAME);
         }
 
         let mut file = File::create(&path)?;
@@ -50,9 +50,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        format!(
-            r#"outputs/
-"#,
-        )
+        "outputs/\n".to_string()
     }
 }

@@ -24,33 +24,24 @@ use snarkos_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
+type ConstrainedValuePair<T, U> = (ConstrainedValue<T, U>, ConstrainedValue<T, U>);
+
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: String,
-        function_scope: String,
+        file_scope: &str,
+        function_scope: &str,
         expected_type: Option<Type>,
         left: Expression,
         right: Expression,
-        span: Span,
-    ) -> Result<(ConstrainedValue<F, G>, ConstrainedValue<F, G>), ExpressionError> {
-        let mut resolved_left = self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type.clone(),
-            left,
-            span.clone(),
-        )?;
-        let mut resolved_right = self.enforce_operand(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            expected_type.clone(),
-            right,
-            span.clone(),
-        )?;
+        span: &Span,
+    ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
+        let mut resolved_left =
+            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), left, span)?;
+        let mut resolved_right =
+            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), right, span)?;
 
         resolved_left.resolve_types(&mut resolved_right, expected_type, span)?;
 

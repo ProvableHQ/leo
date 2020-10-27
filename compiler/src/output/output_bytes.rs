@@ -71,8 +71,7 @@ impl OutputBytes {
             string.push_str(&format);
         }
 
-        let mut bytes: Vec<u8> = vec![];
-        bytes.extend_from_slice(string.as_bytes());
+        let bytes = string.into_bytes();
 
         Ok(Self(bytes))
     }

@@ -29,6 +29,6 @@ pub struct Public<'ast> {
 
 impl<'ast> fmt::Display for Public<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.span.as_str().to_string())
+        write!(f, "{}", self.span.as_str())
     }
 }

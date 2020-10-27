@@ -23,6 +23,5 @@ where
 {
     type ErrorType;
 
-    #[must_use]
     fn div<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, Self::ErrorType>;
 }
