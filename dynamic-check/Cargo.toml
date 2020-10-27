@@ -4,7 +4,7 @@ version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Checks that a program is correct using type inference"
 homepage = "https://aleo.org"
-respository = "https://github.com/AleoHQ/leo"
+repository = "https://github.com/AleoHQ/leo"
 keywords = [
     "aleo",
     "cryptography",
