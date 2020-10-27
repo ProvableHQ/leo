@@ -175,7 +175,7 @@ impl Frame {
     ///
     /// Get a circuit's type from the user defined types in the current scope.
     ///
-    fn get_circuit(&self, name: &String) -> Option<&CircuitType> {
+    fn get_circuit(&self, name: &str) -> Option<&CircuitType> {
         self.user_defined_types.get_circuit_type(name)
     }
 
