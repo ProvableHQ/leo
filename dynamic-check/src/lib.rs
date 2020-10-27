@@ -17,9 +17,6 @@
 #[macro_use]
 extern crate thiserror;
 
-// pub mod ast;
-// pub use self::ast::*;
-
 pub mod dynamic_check;
 pub use self::dynamic_check::*;
 
