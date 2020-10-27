@@ -20,7 +20,7 @@ use leo_ast::imports::PackageAccess as AstPackageAccess;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum PackageAccess {
     Star(Span),
     SubPackage(Box<Package>),

@@ -20,7 +20,7 @@ use leo_ast::imports::Package as AstPackage;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Package {
     pub name: Identifier,
     pub access: PackageAccess,

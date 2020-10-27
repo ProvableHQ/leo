@@ -82,29 +82,7 @@ impl ImportParser {
 
         // import * can only be invoked on a package with a library file or a leo file
         if is_package || is_leo_file {
-            // Get the package typed syntax tree.
-            let program = parse_import_file(package, span)?;
-
-            // Insert the package's imports into the import parser.
-            program
-                .imports
-                .iter()
-                .map(|import| self.parse_package(package.path(), &import.package))
-                .collect::<Result<Vec<()>, ImportParserError>>()?;
-
-            // Get the package file name from the path.
-            let file_name_path = PathBuf::from(package.file_name());
-            let file_name = file_name_path
-                .file_stem()
-                .unwrap()
-                .to_os_string()
-                .into_string()
-                .unwrap(); // the file exists so these will not fail
-
-            // Attempt to insert the typed syntax tree for the imported package.
-            self.insert_import(file_name, program);
-
-            Ok(())
+            self.parse_import_package(package, span)
         } else {
             // importing * from a directory or non-leo file in `package/src/` is illegal
             Err(ImportParserError::star(&package.path(), span.clone()))
@@ -116,14 +94,20 @@ impl ImportParser {
     ///
     pub fn parse_import_symbol(&mut self, package: &DirEntry, symbol: &ImportSymbol) -> Result<(), ImportParserError> {
         // Get the package typed syntax tree.
-        let program = parse_import_file(package, &symbol.span)?;
+        self.parse_import_package(package, &symbol.span)
+    }
+
+    ///
+    /// Import a symbol from a given package.
+    ///
+    pub fn parse_import_package(&mut self, package: &DirEntry, span: &Span) -> Result<(), ImportParserError> {
+        // Get the package typed syntax tree.
+        let program = parse_import_file(package, span)?;
 
         // Insert the package's imports into the import parser.
-        program
-            .imports
-            .iter()
-            .map(|import| self.parse_package(package.path(), &import.package))
-            .collect::<Result<Vec<()>, ImportParserError>>()?;
+        for import in &program.imports {
+            self.parse_package(package.path(), &import.package)?;
+        }
 
         // Get the package file name from the path.
         let file_name_path = PathBuf::from(package.file_name());

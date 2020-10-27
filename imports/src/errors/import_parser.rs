@@ -46,15 +46,6 @@ impl ImportParserError {
     }
 
     ///
-    /// A package name has been imported twice.
-    ///
-    pub fn duplicate_import(name: String, span: Span) -> Self {
-        let message = format!("Duplicate imports found for `{}`.", name);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
     /// A core package name has been imported twice.
     ///
     pub fn duplicate_core_package(identifier: Identifier) -> Self {

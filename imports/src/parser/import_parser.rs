@@ -17,7 +17,10 @@
 use crate::errors::ImportParserError;
 use leo_typed::{Package, Program};
 
-use std::{collections::HashMap, env::current_dir};
+use std::{
+    collections::{HashMap, HashSet},
+    env::current_dir,
+};
 
 /// Stores imported packages.
 ///
@@ -26,7 +29,7 @@ use std::{collections::HashMap, env::current_dir};
 #[derive(Clone)]
 pub struct ImportParser {
     imports: HashMap<String, Program>,
-    core_packages: Vec<Package>,
+    core_packages: HashSet<Package>,
 }
 
 impl ImportParser {
@@ -36,7 +39,7 @@ impl ImportParser {
     pub fn new() -> Self {
         Self {
             imports: HashMap::new(),
-            core_packages: vec![],
+            core_packages: HashSet::new(),
         }
     }
 
@@ -48,7 +51,7 @@ impl ImportParser {
     ///
     pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
         // Insert the imported program.
-        let _program = self.imports.insert(file_name.clone(), program);
+        let _program = self.imports.insert(file_name, program);
     }
 
     ///
@@ -65,7 +68,7 @@ impl ImportParser {
         }
 
         // Append the core package.
-        self.core_packages.push(package.clone());
+        self.core_packages.insert(package.clone());
 
         Ok(())
     }
@@ -81,16 +84,7 @@ impl ImportParser {
     /// Returns a reference to the core package corresponding to the given package.
     ///
     pub fn get_core_package(&self, package: &Package) -> Option<&Package> {
-        self.core_packages()
-            .iter()
-            .find(|core_package| core_package.eq(&package))
-    }
-
-    ///
-    /// Returns a reference to the vector of core packages.
-    ///
-    pub fn core_packages(&self) -> &Vec<Package> {
-        &self.core_packages
+        self.core_packages.iter().find(|core_package| core_package.eq(&package))
     }
 
     ///
@@ -108,11 +102,9 @@ impl ImportParser {
         let path = current_dir().map_err(|error| ImportParserError::current_directory_error(error))?;
 
         // Parse each import statement.
-        program
-            .imports
-            .iter()
-            .map(|import| imports.parse_package(path.clone(), &import.package))
-            .collect::<Result<Vec<()>, ImportParserError>>()?;
+        for import in &program.imports {
+            imports.parse_package(path.clone(), &import.package)?;
+        }
 
         Ok(imports)
     }

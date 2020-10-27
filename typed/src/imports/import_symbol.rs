@@ -20,7 +20,7 @@ use leo_ast::imports::ImportSymbol as AstImportSymbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ImportSymbol {
     pub symbol: Identifier,
     pub alias: Option<Identifier>,
