@@ -18,7 +18,7 @@ use pest::Span as AstSpan;
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Span {
     /// text of input string
     pub text: String,
@@ -59,17 +59,6 @@ impl<'ast> From<AstSpan<'ast>> for Span {
             line: line_col.0,
             start: line_col.1,
             end,
-        }
-    }
-}
-
-impl Default for Span {
-    fn default() -> Self {
-        Self {
-            text: String::new(),
-            line: 0,
-            start: 0,
-            end: 0,
         }
     }
 }
