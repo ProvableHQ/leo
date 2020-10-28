@@ -118,8 +118,8 @@ impl TypeVariablePairs {
         // If the dimensions do not match, then throw an error.
         if left_dimensions_flat.ne(&right_dimensions_flat) {
             return Err(TypeAssertionError::array_dimensions(
-                left_dimensions_flat,
-                right_dimensions_flat,
+                &left_dimensions_flat,
+                &right_dimensions_flat,
                 span,
             ));
         }

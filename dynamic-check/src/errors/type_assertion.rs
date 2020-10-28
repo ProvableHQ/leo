@@ -19,7 +19,7 @@ use crate::TypeMembership;
 use leo_static_check::Type;
 use leo_typed::{Error as FormattedError, Span};
 
-use std::{borrow::Cow, path::Path};
+use std::path::Path;
 
 /// Errors encountered when attempting to solve a type assertion.
 #[derive(Debug, Error)]
@@ -78,7 +78,7 @@ impl TypeAssertionError {
     ///
     /// Mismatched array type dimensions.
     ///
-    pub fn array_dimensions(dimensions1: Cow<[usize]>, dimensions2: Cow<[usize]>, span: &Span) -> Self {
+    pub fn array_dimensions(dimensions1: &[usize], dimensions2: &[usize], span: &Span) -> Self {
         let message = format!(
             "Expected array with dimensions `{:?}`, found array with dimensions `{:?}`.",
             dimensions1, dimensions2
