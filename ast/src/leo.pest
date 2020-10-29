@@ -114,7 +114,7 @@ operation_gt = { ">" }
 operation_le = { "<=" }
 operation_lt = { "<" }
 operation_add = { "+" }
-operation_sub = { "- " }
+operation_sub = { "-" }
 operation_mul = { "*" }
 operation_div = { "/" }
 operation_pow = { "**" }
