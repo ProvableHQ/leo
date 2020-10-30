@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ScopeError, TypeAssertionError};
-use leo_static_check::{Type, TypeError};
+use leo_symbol_table::{Type, TypeError};
 use leo_typed::{Error as FormattedError, Expression, Identifier, Span};
 
 use std::path::Path;

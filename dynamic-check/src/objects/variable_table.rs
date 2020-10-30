@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::VariableTableError;
-use leo_static_check::{FunctionInputType, Type};
+use leo_symbol_table::{FunctionInputType, Type};
 use std::collections::HashMap;
 
 /// Mapping of variable names to types

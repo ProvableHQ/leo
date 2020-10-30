@@ -29,7 +29,7 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
-use leo_static_check::SymbolTable;
+use leo_symbol_table::SymbolTable;
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
@@ -232,7 +232,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;
 
-        // Run static check on program.
+        // Create a new symbol table from the program, imported programs, and program input.
         let symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
 
         // Run dynamic check on program.

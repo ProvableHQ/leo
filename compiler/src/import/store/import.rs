@@ -16,7 +16,7 @@
 
 use crate::{errors::ImportError, ConstrainedProgram, GroupType};
 use leo_imports::ImportParser;
-use leo_static_check::imported_symbols::ImportedSymbols;
+use leo_symbol_table::imported_symbols::ImportedSymbols;
 use leo_typed::ImportStatement;
 
 use snarkos_models::curves::{Field, PrimeField};

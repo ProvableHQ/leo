@@ -24,7 +24,7 @@ use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
 use leo_imports::ImportParser;
-use leo_static_check::SymbolTable;
+use leo_symbol_table::SymbolTable;
 use leo_typed::{Input, LeoTypedAst, Program};
 use std::path::PathBuf;
 

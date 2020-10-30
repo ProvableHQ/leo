@@ -37,7 +37,7 @@ members = [
   "package",
   "typed",
   "state",
-  "static-check",
+  "symbol-table",
 ]
 
 [dependencies.leo-compiler]
@@ -72,8 +72,8 @@ version = "1.0.3"
 path = "./state"
 version = "1.0.3"
 
-[dependencies.leo-static-check]
-path = "./static-check"
+[dependencies.leo-symbol-table]
+path = "./symbol-table"
 version = "1.0.3"
 
 [dependencies.snarkos-algorithms]

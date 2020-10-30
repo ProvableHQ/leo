@@ -1,5 +1,5 @@
 [package]
-name = "leo-static-check"
+name = "leo-symbol-table"
 version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Stores user-defined variables during type resolution"

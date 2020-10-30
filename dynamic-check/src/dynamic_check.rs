@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DynamicCheckError, Frame, Scope};
-use leo_static_check::SymbolTable;
+use leo_symbol_table::SymbolTable;
 use leo_typed::{Circuit, CircuitMember, Function, Program};
 
 /// Performs a dynamic type inference check over a program.

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ScopeError, VariableTable};
-use leo_static_check::{FunctionInputType, Type};
+use leo_symbol_table::{FunctionInputType, Type};
 
 /// A structure for tracking the types of defined variables in a block of code.
 #[derive(Clone, Default)]

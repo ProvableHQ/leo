@@ -1259,7 +1259,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-static-check",
+ "leo-symbol-table",
  "leo-typed",
  "num-bigint",
  "pest",
@@ -1302,7 +1302,7 @@ version = "1.0.3"
 dependencies = [
  "leo-ast",
  "leo-imports",
- "leo-static-check",
+ "leo-symbol-table",
  "leo-typed",
  "serde",
  "serde_json",
@@ -1369,7 +1369,7 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-static-check",
+ "leo-symbol-table",
  "notify",
  "num-bigint",
  "rand",
@@ -1430,7 +1430,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-static-check"
+name = "leo-symbol-table"
 version = "1.0.3"
 dependencies = [
  "leo-ast",

@@ -28,8 +28,8 @@ version = "1.0.3"
 [dependencies.serde_json]
 version = "1.0"
 
-[dependencies.leo-static-check]
-path = "../static-check"
+[dependencies.leo-symbol-table]
+path = "../symbol-table"
 version = "1.0.3"
 
 [dependencies.leo-typed]

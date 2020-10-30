@@ -20,7 +20,7 @@ use leo_dynamic_check::DynamicCheckError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
-use leo_static_check::SymbolTableError;
+use leo_symbol_table::SymbolTableError;
 
 use bincode::Error as SerdeError;
 use std::path::{Path, PathBuf};
