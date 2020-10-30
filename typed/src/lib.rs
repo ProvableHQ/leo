@@ -59,29 +59,29 @@ pub use self::types::*;
 use leo_ast::LeoAst;
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct LeoTypedAst {
+pub struct LeoCoreAst {
     typed_ast: Program,
 }
 
-impl LeoTypedAst {
-    /// Creates a new typed syntax tree from a given program name and abstract syntax tree.
+impl LeoCoreAst {
+    /// Creates a new core syntax tree from a given program name and abstract syntax tree.
     pub fn new<'ast>(program_name: &str, ast: &LeoAst<'ast>) -> Self {
         Self {
             typed_ast: Program::from(program_name, ast.as_repr()),
         }
     }
 
-    /// Returns a reference to the inner typed syntax tree representation.
+    /// Returns a reference to the inner program syntax tree representation.
     pub fn into_repr(self) -> Program {
         self.typed_ast
     }
 
-    /// Serializes the typed syntax tree into a JSON string.
+    /// Serializes the core syntax tree into a JSON string.
     pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
         Ok(serde_json::to_string_pretty(&self.typed_ast)?)
     }
 
-    /// Deserializes the JSON string into a typed syntax tree.
+    /// Deserializes the JSON string into a core syntax tree.
     pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
         let typed_ast: Program = serde_json::from_str(json)?;
         Ok(Self { typed_ast })

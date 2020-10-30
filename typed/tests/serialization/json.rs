@@ -15,13 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::LeoAst;
-use leo_typed::LeoTypedAst;
+use leo_typed::LeoCoreAst;
 #[cfg(not(feature = "ci_skip"))]
 use leo_typed::Program;
 
 use std::path::{Path, PathBuf};
 
-fn to_typed_ast(program_filepath: &Path) -> LeoTypedAst {
+fn to_typed_ast(program_filepath: &Path) -> LeoCoreAst {
     // Loads the Leo code as a string from the given file path.
     let program_string = LeoAst::load_file(program_filepath).unwrap();
 
@@ -29,7 +29,7 @@ fn to_typed_ast(program_filepath: &Path) -> LeoTypedAst {
     let ast = LeoAst::new(&program_filepath, &program_string).unwrap();
 
     // Parse the abstract syntax tree and constructs a typed syntax tree.
-    LeoTypedAst::new("leo_typed_tree", &ast)
+    LeoCoreAst::new("leo_typed_tree", &ast)
 }
 
 #[test]
@@ -66,7 +66,7 @@ fn test_deserialize() {
 
     // Construct a typed syntax tree by deserializing a typed syntax tree JSON file.
     let serialized_typed_ast = include_str!("expected_typed_ast.json");
-    let typed_ast = LeoTypedAst::from_json_string(serialized_typed_ast).unwrap();
+    let typed_ast = LeoCoreAst::from_json_string(serialized_typed_ast).unwrap();
 
     assert_eq!(expected_typed_ast, typed_ast);
 }
@@ -85,7 +85,7 @@ fn test_serialize_deserialize_serialize() {
     let serialized_typed_ast = typed_ast.to_json_string().unwrap();
 
     // Deserializes the typed syntax tree into a LeoTypedAst.
-    let typed_ast = LeoTypedAst::from_json_string(&serialized_typed_ast).unwrap();
+    let typed_ast = LeoCoreAst::from_json_string(&serialized_typed_ast).unwrap();
 
     // Reserializes the typed syntax tree into JSON format.
     let reserialized_typed_ast = typed_ast.to_json_string().unwrap();

@@ -30,7 +30,7 @@ use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
-use leo_typed::{Input, LeoTypedAst, MainInput, Program};
+use leo_typed::{Input, LeoCoreAst, MainInput, Program};
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;
@@ -176,7 +176,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoTypedAst::new(&self.package_name, &ast);
+        let typed_tree = LeoCoreAst::new(&self.package_name, &ast);
 
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;
@@ -227,7 +227,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = &self.package_name;
 
         // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoTypedAst::new(package_name, &ast);
+        let typed_tree = LeoCoreAst::new(package_name, &ast);
 
         self.program = typed_tree.into_repr();
         self.imported_programs = ImportParser::parse(&self.program)?;

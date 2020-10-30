@@ -23,7 +23,7 @@ use leo_ast::{definitions::Definition, files::File};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// A simple program with statement expressions, program arguments and program returns.
+/// Stores the Leo program abstract syntax tree.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,

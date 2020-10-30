@@ -25,7 +25,7 @@ use leo_dynamic_check::DynamicCheck;
 
 use leo_imports::ImportParser;
 use leo_symbol_table::SymbolTable;
-use leo_typed::{Input, LeoTypedAst, Program};
+use leo_typed::{Input, LeoCoreAst, Program};
 use std::path::PathBuf;
 
 const TEST_PROGRAM_PATH: &str = "";
@@ -49,7 +49,7 @@ impl TestDynamicCheck {
         let ast = LeoAst::new(&file_path, &*file_string).unwrap();
 
         // Get typed syntax tree.
-        let typed = LeoTypedAst::new(TEST_PROGRAM_NAME, &ast);
+        let typed = LeoCoreAst::new(TEST_PROGRAM_NAME, &ast);
         let program = typed.into_repr();
 
         // Create empty import parser.

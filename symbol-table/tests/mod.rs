@@ -18,7 +18,7 @@ pub mod symbol_table;
 
 use leo_ast::LeoAst;
 use leo_symbol_table::{SymbolTable, SymbolTableError};
-use leo_typed::{Input, LeoTypedAst};
+use leo_typed::{Input, LeoCoreAst};
 
 use leo_imports::ImportParser;
 use std::path::PathBuf;
@@ -27,7 +27,7 @@ const TEST_PROGRAM_PATH: &str = "";
 
 /// A helper struct to test a `SymbolTable`.
 pub struct TestSymbolTable {
-    typed: LeoTypedAst,
+    typed: LeoCoreAst,
 }
 
 impl TestSymbolTable {
@@ -45,7 +45,7 @@ impl TestSymbolTable {
         let ast = LeoAst::new(&file_path, &*file_string).unwrap();
 
         // Get typed syntax tree
-        let typed = LeoTypedAst::new(TEST_PROGRAM_PATH, &ast);
+        let typed = LeoCoreAst::new(TEST_PROGRAM_PATH, &ast);
 
         Self { typed }
     }
