@@ -25,8 +25,8 @@ version = "1.0.3"
 path = "../core"
 version = "1.0.3"
 
-[dependencies.leo-dynamic-check]
-path = "../dynamic-check"
+[dependencies.leo-core-ast]
+path = "../core-ast"
 version = "1.0.3"
 
 [dependencies.leo-gadgets]
@@ -45,16 +45,16 @@ version = "1.0.3"
 path = "../package"
 version = "1.0.3"
 
-[dependencies.leo-core-ast]
-path = "../core-ast"
-version = "1.0.3"
-
 [dependencies.leo-state]
 path = "../state"
 version = "1.0.3"
 
 [dependencies.leo-symbol-table]
 path = "../symbol-table"
+version = "1.0.3"
+
+[dependencies.leo-type-inference]
+path = "../type-inference"
 version = "1.0.3"
 
 [dependencies.snarkos-curves]

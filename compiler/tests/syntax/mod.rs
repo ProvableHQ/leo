@@ -17,8 +17,8 @@
 use crate::{expect_compiler_error, parse_input, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-use leo_dynamic_check::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 use leo_input::InputParserError;
+use leo_type_inference::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 
 pub mod identifiers;
 
@@ -80,11 +80,11 @@ fn test_compare_mismatched_types() {
     let bytes = include_bytes!("compare_mismatched_types.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    // Expect a dynamic check error.
+    // Expect a type inference error.
     match error {
-        CompilerError::DynamicCheckError(TypeInferenceError::FrameError(FrameError::TypeAssertionError(
+        CompilerError::TypeInferenceError(TypeInferenceError::FrameError(FrameError::TypeAssertionError(
             TypeAssertionError::Error(_),
         ))) => {}
-        error => panic!("Expected dynamic check error, found {}", error),
+        error => panic!("Expected type inference error, found {}", error),
     }
 }

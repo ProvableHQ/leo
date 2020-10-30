@@ -30,7 +30,6 @@ members = [
   "compiler",
   "core-ast",
   "core",
-  "dynamic-check",
   "gadgets",
   "imports",
   "input",
@@ -38,6 +37,7 @@ members = [
   "package",
   "state",
   "symbol-table",
+  "type-inference",
 ]
 
 [dependencies.leo-compiler]
@@ -50,10 +50,6 @@ version = "1.0.1"
 
 [dependencies.leo-core-ast]
 path = "./core-ast"
-version = "1.0.3"
-
-[dependencies.leo-dynamic-check]
-path = "./dynamic-check"
 version = "1.0.3"
 
 [dependencies.leo-gadgets]

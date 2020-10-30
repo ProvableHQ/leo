@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_dynamic_check_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, expect_type_inference_error, generate_main_input, parse_program};
 use leo_core_ast::InputValue;
 
 #[test]
@@ -94,7 +94,7 @@ fn test_circuit_function_mut() {
     let bytes = include_bytes!("circuit_function_mut.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn test_circuit_static_function_mut() {
     let bytes = include_bytes!("circuit_static_function_mut.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]

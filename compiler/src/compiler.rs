@@ -25,12 +25,12 @@ use crate::{
 };
 use leo_ast::LeoAst;
 use leo_core_ast::{Input, LeoCoreAst, MainInput, Program};
-use leo_dynamic_check::TypeInference;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
+use leo_type_inference::TypeInference;
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;
@@ -187,7 +187,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Runs static and dynamic type checks on the program, imports, and input.
+    /// Runs a type check on the program, imports, and input.
+    ///
+    /// First, a symbol table of all user defined types is created.
+    /// Second, a type inference check is run on the program - inferring a data type for all implicit types and
+    /// catching type mismatch errors.
     ///
     pub(crate) fn check_program(&self) -> Result<(), CompilerError> {
         // Create a new symbol table from the program, imported_programs, and program_input.
@@ -198,7 +202,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
                 e
             })?;
 
-        // Run dynamic check on program.
+        // Run type inference check on program.
         TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
             e.set_path(&self.main_file_path);
 
@@ -235,7 +239,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Create a new symbol table from the program, imported programs, and program input.
         let symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
 
-        // Run dynamic check on program.
+        // Run type inference check on program.
         TypeInference::new(&self.program, symbol_table)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);

@@ -181,8 +181,8 @@ pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerErr
     program.generate_constraints_helper(&mut cs).unwrap_err()
 }
 
-pub(crate) fn expect_dynamic_check_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::DynamicCheckError(_)))
+pub(crate) fn expect_type_inference_error(error: CompilerError) {
+    assert!(matches!(error, CompilerError::TypeInferenceError(_)))
 }
 
 pub(crate) fn expect_symbol_table_error(error: CompilerError) {

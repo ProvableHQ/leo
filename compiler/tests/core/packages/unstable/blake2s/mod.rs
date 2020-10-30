@@ -16,7 +16,7 @@
 
 use crate::{
     assert_satisfied,
-    expect_dynamic_check_error,
+    expect_type_inference_error,
     generate_main_input,
     get_output,
     parse_program,
@@ -35,7 +35,7 @@ fn test_arguments_length_fail() {
     let program_bytes = include_bytes!("arguments_length_fail.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn test_arguments_type_fail() {
     let program_bytes = include_bytes!("arguments_type_fail.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]

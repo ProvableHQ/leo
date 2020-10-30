@@ -17,7 +17,7 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_dynamic_check_error,
+    expect_type_inference_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -132,7 +132,7 @@ fn test_true_or_u32() {
     let bytes = include_bytes!("true_or_u32.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 // Boolean and &&
@@ -166,7 +166,7 @@ fn test_true_and_u32() {
     let bytes = include_bytes!("true_and_u32.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 // All

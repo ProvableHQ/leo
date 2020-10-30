@@ -1254,13 +1254,13 @@ dependencies = [
  "leo-ast",
  "leo-core",
  "leo-core-ast",
- "leo-dynamic-check",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",
  "leo-symbol-table",
+ "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1308,19 +1308,6 @@ dependencies = [
  "serde_json",
  "snarkos-errors",
  "snarkos-models",
-]
-
-[[package]]
-name = "leo-dynamic-check"
-version = "1.0.3"
-dependencies = [
- "leo-ast",
- "leo-core-ast",
- "leo-imports",
- "leo-symbol-table",
- "serde",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]
@@ -1378,7 +1365,6 @@ dependencies = [
  "leo-compiler",
  "leo-core",
  "leo-core-ast",
- "leo-dynamic-check",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
@@ -1453,6 +1439,19 @@ dependencies = [
  "leo-core-ast",
  "leo-imports",
  "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-type-inference"
+version = "1.0.3"
+dependencies = [
+ "leo-ast",
+ "leo-core-ast",
+ "leo-imports",
+ "leo-symbol-table",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

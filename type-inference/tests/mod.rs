@@ -21,7 +21,7 @@ pub mod tuples;
 pub mod variables;
 
 use leo_ast::LeoAst;
-use leo_dynamic_check::TypeInference;
+use leo_type_inference::TypeInference;
 
 use leo_core_ast::{Input, LeoCoreAst, Program};
 use leo_imports::ImportParser;

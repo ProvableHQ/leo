@@ -17,7 +17,7 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_dynamic_check_error,
+    expect_type_inference_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -122,7 +122,7 @@ fn test_undefined() {
     let bytes = include_bytes!("undefined.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn test_array_input() {
     let bytes = include_bytes!("array_input.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error)
+    expect_type_inference_error(error)
 }
 
 // Test return multidimensional arrays
@@ -148,7 +148,7 @@ fn test_return_array_nested_fail() {
     let bytes = include_bytes!("return_array_nested_fail.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn test_return_array_tuple_fail() {
     let bytes = include_bytes!("return_array_tuple_fail.leo");
     let error = parse_program(bytes).err().unwrap();
 
-    expect_dynamic_check_error(error);
+    expect_type_inference_error(error);
 }
 
 #[test]
