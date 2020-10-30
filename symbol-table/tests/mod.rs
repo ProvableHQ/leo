@@ -17,7 +17,7 @@
 pub mod symbol_table;
 
 use leo_ast::LeoAst;
-use leo_static_check::{SymbolTable, SymbolTableError};
+use leo_symbol_table::{SymbolTable, SymbolTableError};
 use leo_typed::{Input, LeoTypedAst};
 
 use leo_imports::ImportParser;
