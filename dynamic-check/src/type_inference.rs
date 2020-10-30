@@ -14,37 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DynamicCheckError, Frame, Scope};
+use crate::{Frame, Scope, TypeInferenceError};
 use leo_core_ast::{Circuit, CircuitMember, Function, Program};
 use leo_symbol_table::SymbolTable;
 
-/// Performs a dynamic type inference check over a program.
-pub struct DynamicCheck {
+/// Stores information need to run a type inference check over a program.
+pub struct TypeInference {
     table: SymbolTable,
     frames: Vec<Frame>,
 }
 
-impl DynamicCheck {
+impl TypeInference {
     ///
-    /// Creates a new `DynamicCheck` on a given program and symbol table.
+    /// Creates and runs a new `TypeInference` check on a given program and symbol table.
     ///
     /// Evaluates all `TypeAssertion` predicates.
     ///
-    pub fn new(program: &Program, symbol_table: SymbolTable) -> Result<(), DynamicCheckError> {
-        let mut dynamic_check = Self {
+    pub fn new(program: &Program, symbol_table: SymbolTable) -> Result<(), TypeInferenceError> {
+        let mut type_inference = Self {
             table: symbol_table,
             frames: Vec::new(),
         };
 
-        dynamic_check.parse_program(program)?;
+        type_inference.parse_program(program)?;
 
-        dynamic_check.check()
+        type_inference.check()
     }
 
     ///
     /// Collects a vector of `TypeAssertion` predicates from a program.
     ///
-    fn parse_program(&mut self, program: &Program) -> Result<(), DynamicCheckError> {
+    fn parse_program(&mut self, program: &Program) -> Result<(), TypeInferenceError> {
         // Parse circuit types in program context.
         self.parse_circuits(program.circuits.iter().map(|(_identifier, circuit)| circuit))?;
 
@@ -55,7 +55,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `Frames`s from a vector of circuit functions.
     ///
-    fn parse_circuits<'a>(&mut self, circuits: impl Iterator<Item = &'a Circuit>) -> Result<(), DynamicCheckError> {
+    fn parse_circuits<'a>(&mut self, circuits: impl Iterator<Item = &'a Circuit>) -> Result<(), TypeInferenceError> {
         for circuit in circuits {
             self.parse_circuit(circuit)?;
         }
@@ -68,7 +68,7 @@ impl DynamicCheck {
     ///
     /// Each frame collects a vector of `TypeAssertion` predicates from each function.
     ///
-    fn parse_circuit(&mut self, circuit: &Circuit) -> Result<(), DynamicCheckError> {
+    fn parse_circuit(&mut self, circuit: &Circuit) -> Result<(), TypeInferenceError> {
         let name = &circuit.circuit_name.name;
 
         // Get circuit type from circuit symbol table.
@@ -97,7 +97,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a vector of functions.
     ///
-    fn parse_functions<'a>(&mut self, functions: impl Iterator<Item = &'a Function>) -> Result<(), DynamicCheckError> {
+    fn parse_functions<'a>(&mut self, functions: impl Iterator<Item = &'a Function>) -> Result<(), TypeInferenceError> {
         for function in functions {
             self.parse_function(function)?;
         }
@@ -108,7 +108,7 @@ impl DynamicCheck {
     ///
     /// Collects a vector of `TypeAssertion` predicates from a function.
     ///
-    fn parse_function(&mut self, function: &Function) -> Result<(), DynamicCheckError> {
+    fn parse_function(&mut self, function: &Function) -> Result<(), TypeInferenceError> {
         let frame = Frame::new_function(function.to_owned(), None, None, self.table.clone())?;
 
         self.frames.push(frame);
@@ -123,7 +123,7 @@ impl DynamicCheck {
     /// Returns a `LeoResolvedAst` if all `TypeAssertion` predicates are true.
     /// Returns ERROR if a `TypeAssertion` predicate is false or a solution does not exist.
     ///
-    pub fn check(self) -> Result<(), DynamicCheckError> {
+    pub fn check(self) -> Result<(), TypeInferenceError> {
         for frame in self.frames {
             frame.check()?;
         }

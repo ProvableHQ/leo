@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TestDynamicCheck;
+use crate::TestTypeInference;
 
 #[test]
 fn test_duplicate_variable() {
     let bytes = include_bytes!("duplicate_variable.leo");
-    let check = TestDynamicCheck::new(bytes);
+    let check = TestTypeInference::new(bytes);
 
     check.expect_error();
 }
@@ -27,7 +27,7 @@ fn test_duplicate_variable() {
 #[test]
 fn test_duplicate_variable_multi() {
     let bytes = include_bytes!("duplicate_variable_multi.leo");
-    let check = TestDynamicCheck::new(bytes);
+    let check = TestTypeInference::new(bytes);
 
     check.expect_error();
 }
@@ -35,7 +35,7 @@ fn test_duplicate_variable_multi() {
 #[test]
 fn test_not_enough_values() {
     let bytes = include_bytes!("not_enough_values.leo");
-    let check = TestDynamicCheck::new(bytes);
+    let check = TestTypeInference::new(bytes);
 
     check.expect_error();
 }
@@ -43,7 +43,7 @@ fn test_not_enough_values() {
 #[test]
 fn test_too_many_values() {
     let bytes = include_bytes!("too_many_values.leo");
-    let check = TestDynamicCheck::new(bytes);
+    let check = TestTypeInference::new(bytes);
 
     check.expect_error();
 }

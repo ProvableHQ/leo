@@ -16,7 +16,7 @@
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
-use leo_dynamic_check::DynamicCheckError;
+use leo_dynamic_check::TypeInferenceError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
@@ -28,7 +28,7 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Error)]
 pub enum CompilerError {
     #[error("{}", _0)]
-    DynamicCheckError(#[from] DynamicCheckError),
+    DynamicCheckError(#[from] TypeInferenceError),
 
     #[error("{}", _0)]
     ImportError(#[from] ImportError),

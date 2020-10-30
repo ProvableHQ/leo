@@ -19,9 +19,9 @@ use leo_core_ast::Error as FormattedError;
 
 use std::path::Path;
 
-/// Errors encountered when running dynamic type inference checks.
+/// Errors encountered when running type inference checks.
 #[derive(Debug, Error)]
-pub enum DynamicCheckError {
+pub enum TypeInferenceError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 
@@ -29,14 +29,14 @@ pub enum DynamicCheckError {
     FrameError(#[from] FrameError),
 }
 
-impl DynamicCheckError {
+impl TypeInferenceError {
     ///
     /// Set the filepath for the error stacktrace.
     ///
     pub fn set_path(&mut self, path: &Path) {
         match self {
-            DynamicCheckError::Error(error) => error.set_path(path),
-            DynamicCheckError::FrameError(error) => error.set_path(path),
+            TypeInferenceError::Error(error) => error.set_path(path),
+            TypeInferenceError::FrameError(error) => error.set_path(path),
         }
     }
 }

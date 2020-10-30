@@ -20,8 +20,8 @@ extern crate thiserror;
 pub mod assertions;
 pub use self::assertions::*;
 
-pub mod dynamic_check;
-pub use self::dynamic_check::*;
+pub mod type_inference;
+pub use self::type_inference::*;
 
 pub mod errors;
 pub use self::errors::*;

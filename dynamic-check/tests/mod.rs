@@ -21,7 +21,7 @@ pub mod tuples;
 pub mod variables;
 
 use leo_ast::LeoAst;
-use leo_dynamic_check::DynamicCheck;
+use leo_dynamic_check::TypeInference;
 
 use leo_core_ast::{Input, LeoCoreAst, Program};
 use leo_imports::ImportParser;
@@ -31,13 +31,13 @@ use std::path::PathBuf;
 const TEST_PROGRAM_PATH: &str = "";
 const TEST_PROGRAM_NAME: &str = "test";
 
-/// A helper struct to test a `DynamicCheck`.
-pub struct TestDynamicCheck {
+/// A helper struct to test a `TypeInference` check.
+pub struct TestTypeInference {
     program: Program,
     symbol_table: SymbolTable,
 }
 
-impl TestDynamicCheck {
+impl TestTypeInference {
     pub fn new(bytes: &[u8]) -> Self {
         // Get file string from bytes.
         let file_string = String::from_utf8_lossy(bytes);
@@ -61,16 +61,16 @@ impl TestDynamicCheck {
         // Create symbol table.
         let symbol_table = SymbolTable::new(&program, &import_parser, &input).unwrap();
 
-        // Store fields for new dynamic check.
+        // Store fields for new type inference check.
         Self { program, symbol_table }
     }
 
-    pub fn run(self) {
-        DynamicCheck::new(&self.program, self.symbol_table).unwrap();
+    pub fn check(self) {
+        TypeInference::new(&self.program, self.symbol_table).unwrap();
     }
 
     pub fn expect_error(self) {
-        assert!(DynamicCheck::new(&self.program, self.symbol_table).is_err());
+        assert!(TypeInference::new(&self.program, self.symbol_table).is_err());
     }
 }
 
@@ -78,7 +78,7 @@ impl TestDynamicCheck {
 fn test_new() {
     let bytes = include_bytes!("empty.leo");
 
-    let dynamic_check = TestDynamicCheck::new(bytes);
+    let type_inference = TestTypeInference::new(bytes);
 
-    dynamic_check.run()
+    type_inference.check()
 }

@@ -288,7 +288,7 @@ impl Frame {
 
         // Check if an explicit type is given.
         if let Some(type_) = variables.type_.clone() {
-            // Convert the expected type into a dynamic check type.
+            // Check the expected type.
             let expected_type = match self.self_type {
                 Some(ref circuit_type) => Type::new_from_circuit(
                     &self.user_defined_types,

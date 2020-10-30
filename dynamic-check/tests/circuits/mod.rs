@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TestDynamicCheck;
+use crate::TestTypeInference;
 
 #[test]
 fn test_invalid_circuit() {
     let bytes = include_bytes!("invalid_circuit.leo");
-    let check = TestDynamicCheck::new(bytes);
+    let check = TestTypeInference::new(bytes);
 
     check.expect_error();
 }

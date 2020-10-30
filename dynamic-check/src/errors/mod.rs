@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod dynamic_check;
-pub use self::dynamic_check::*;
-
 pub mod frame;
 pub use self::frame::*;
 
@@ -25,6 +22,9 @@ pub use self::scope::*;
 
 pub mod type_assertion;
 pub use self::type_assertion::*;
+
+pub mod type_inference;
+pub use self::type_inference::*;
 
 pub mod variable_table;
 pub use self::variable_table::*;

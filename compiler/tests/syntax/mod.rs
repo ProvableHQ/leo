@@ -17,7 +17,7 @@
 use crate::{expect_compiler_error, parse_input, parse_program};
 use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-use leo_dynamic_check::errors::{DynamicCheckError, FrameError, TypeAssertionError};
+use leo_dynamic_check::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 use leo_input::InputParserError;
 
 pub mod identifiers;
@@ -82,7 +82,7 @@ fn test_compare_mismatched_types() {
 
     // Expect a dynamic check error.
     match error {
-        CompilerError::DynamicCheckError(DynamicCheckError::FrameError(FrameError::TypeAssertionError(
+        CompilerError::DynamicCheckError(TypeInferenceError::FrameError(FrameError::TypeAssertionError(
             TypeAssertionError::Error(_),
         ))) => {}
         error => panic!("Expected dynamic check error, found {}", error),
