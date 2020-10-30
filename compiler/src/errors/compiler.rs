@@ -16,13 +16,13 @@
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_ast::ParserError;
+use leo_dynamic_check::DynamicCheckError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
+use leo_static_check::SymbolTableError;
 
 use bincode::Error as SerdeError;
-use leo_dynamic_check::DynamicCheckError;
-use leo_static_check::{StaticCheckError, SymbolTableError};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
@@ -71,9 +71,6 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
-
-    #[error("{}", _0)]
-    StaticCheckError(#[from] StaticCheckError),
 
     #[error("{}", _0)]
     SymbolTableError(#[from] SymbolTableError),

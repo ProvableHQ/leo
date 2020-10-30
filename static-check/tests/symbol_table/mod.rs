@@ -11,7 +11,7 @@
 // GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::TestStaticCheck;
+use crate::TestSymbolTable;
 
 ///
 /// Defines a circuit `Foo {}`.
@@ -23,7 +23,7 @@ use crate::TestStaticCheck;
 #[test]
 fn test_duplicate_circuit() {
     let program_bytes = include_bytes!("duplicate_circuit.leo");
-    let resolver = TestStaticCheck::new(program_bytes);
+    let resolver = TestSymbolTable::new(program_bytes);
 
     resolver.expect_pass_one_error();
 }
@@ -38,7 +38,7 @@ fn test_duplicate_circuit() {
 #[test]
 fn test_duplicate_function() {
     let program_bytes = include_bytes!("duplicate_function.leo");
-    let resolver = TestStaticCheck::new(program_bytes);
+    let resolver = TestSymbolTable::new(program_bytes);
 
     resolver.expect_pass_one_error();
 }
@@ -52,7 +52,7 @@ fn test_duplicate_function() {
 #[test]
 fn test_self_not_available() {
     let program_bytes = include_bytes!("self_not_available.leo");
-    let resolver = TestStaticCheck::new(program_bytes);
+    let resolver = TestSymbolTable::new(program_bytes);
 
     resolver.expect_pass_two_error();
 }
@@ -66,7 +66,7 @@ fn test_self_not_available() {
 #[test]
 fn test_undefined_circuit() {
     let program_bytes = include_bytes!("undefined_circuit.leo");
-    let resolver = TestStaticCheck::new(program_bytes);
+    let resolver = TestSymbolTable::new(program_bytes);
 
     resolver.expect_pass_two_error();
 }

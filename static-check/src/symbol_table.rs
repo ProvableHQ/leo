@@ -50,18 +50,6 @@ pub struct SymbolTable {
 
 impl SymbolTable {
     ///
-    /// Creates a new symbol table with a given parent symbol table.
-    ///
-    pub fn new(parent: Option<Box<SymbolTable>>) -> Self {
-        SymbolTable {
-            names: HashMap::new(),
-            circuits: HashMap::new(),
-            functions: HashMap::new(),
-            parent,
-        }
-    }
-
-    ///
     /// Returns a new `SymbolTable` from a given, program, imported programs, and program input.
     ///
     /// Checks that each circuit or function name is unique.
@@ -69,8 +57,7 @@ impl SymbolTable {
     ///
     /// Checks that each circuit or function definition contains valid types.
     ///
-    ///
-    pub fn run(
+    pub fn new(
         program: &Program,
         import_parser: &ImportParser,
         input: &Input,

@@ -185,8 +185,8 @@ pub(crate) fn expect_dynamic_check_error(error: CompilerError) {
     assert!(matches!(error, CompilerError::DynamicCheckError(_)))
 }
 
-pub(crate) fn expect_static_check_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::StaticCheckError(_)))
+pub(crate) fn expect_symbol_table_error(error: CompilerError) {
+    assert!(matches!(error, CompilerError::SymbolTableError(_)))
 }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {

@@ -17,7 +17,7 @@
 pub mod symbol_table;
 
 use leo_ast::LeoAst;
-use leo_static_check::{StaticCheck, StaticCheckError, SymbolTableError};
+use leo_static_check::{SymbolTable, SymbolTableError};
 use leo_typed::{Input, LeoTypedAst};
 
 use leo_imports::ImportParser;
@@ -26,11 +26,11 @@ use std::path::PathBuf;
 const TEST_PROGRAM_PATH: &str = "";
 
 /// A helper struct to test a `SymbolTable`.
-pub struct TestStaticCheck {
+pub struct TestSymbolTable {
     typed: LeoTypedAst,
 }
 
-impl TestStaticCheck {
+impl TestSymbolTable {
     ///
     /// Returns a typed syntax tree given a Leo program.
     ///
@@ -66,7 +66,7 @@ impl TestStaticCheck {
         let input = Input::new();
 
         // Create new symbol table.
-        let _symbol_table = StaticCheck::new(&program, &import_parser, &input).unwrap();
+        let _symbol_table = SymbolTable::new(&program, &import_parser, &input).unwrap();
     }
 
     ///
@@ -79,16 +79,16 @@ impl TestStaticCheck {
         let program = self.typed.into_repr();
 
         // Create new symbol table.
-        let static_check = &mut StaticCheck::default();
+        let static_check = &mut SymbolTable::default();
 
         // Create empty import parser.
         let import_parser = ImportParser::new();
 
         // Run pass one and expect an error.
-        let error = static_check.pass_one(&program, &import_parser).unwrap_err();
+        let error = static_check.check_names(&program, &import_parser).unwrap_err();
 
         match error {
-            StaticCheckError::SymbolTableError(SymbolTableError::Error(_)) => {} // Ok
+            SymbolTableError::Error(_) => {} // Ok
             error => panic!("Expected a symbol table error found `{}`", error),
         }
     }
@@ -103,19 +103,19 @@ impl TestStaticCheck {
         let program = self.typed.into_repr();
 
         // Create a new symbol table.
-        let static_check = &mut StaticCheck::default();
+        let static_check = &mut SymbolTable::default();
 
         // Create empty import parser.
         let import_parser = ImportParser::new();
 
         // Run the pass one and expect no errors.
-        static_check.pass_one(&program, &import_parser).unwrap();
+        static_check.check_names(&program, &import_parser).unwrap();
 
         // Run the pass two and expect and error.
-        let error = static_check.pass_two(&program).unwrap_err();
+        let error = static_check.check_types(&program).unwrap_err();
 
         match error {
-            StaticCheckError::SymbolTableError(SymbolTableError::TypeError(_)) => {} //Ok
+            SymbolTableError::TypeError(_) => {} //Ok
             error => panic!("Expected a type error found `{}`", error),
         }
     }

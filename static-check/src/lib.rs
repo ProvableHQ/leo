@@ -26,11 +26,8 @@ pub use self::errors::*;
 pub mod imports;
 pub use self::imports::*;
 
-pub mod objects;
-pub use self::objects::*;
-
-pub mod static_check;
-pub use self::static_check::*;
+pub mod symbol_table;
+pub use self::symbol_table::*;
 
 pub mod types;
 pub use self::types::*;

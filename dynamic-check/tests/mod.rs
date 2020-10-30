@@ -24,7 +24,7 @@ use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
 use leo_imports::ImportParser;
-use leo_static_check::{StaticCheck, SymbolTable};
+use leo_static_check::SymbolTable;
 use leo_typed::{Input, LeoTypedAst, Program};
 use std::path::PathBuf;
 
@@ -58,8 +58,8 @@ impl TestDynamicCheck {
         // Create empty input.
         let input = Input::new();
 
-        // Create static check.
-        let symbol_table = StaticCheck::new(&program, &import_parser, &input).unwrap();
+        // Create symbol table.
+        let symbol_table = SymbolTable::new(&program, &import_parser, &input).unwrap();
 
         // Store fields for new dynamic check.
         Self { program, symbol_table }
