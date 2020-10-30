@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_core::LeoCoreError;
 use leo_core_ast::{Error as FormattedError, Identifier, ImportSymbol, Span};
+use leo_core_packages::LeoCorePackageError;
 
 #[derive(Debug, Error)]
 pub enum ImportError {
@@ -23,7 +23,7 @@ pub enum ImportError {
     Error(#[from] FormattedError),
 
     #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCoreError),
+    LeoCoreError(#[from] LeoCorePackageError),
 }
 
 impl ImportError {

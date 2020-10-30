@@ -20,7 +20,7 @@ use leo_core_ast::{Error as FormattedError, Span};
 use std::path::Path;
 
 #[derive(Debug, Error)]
-pub enum LeoCoreError {
+pub enum LeoCorePackageError {
     #[error("{}", _0)]
     CoreCircuitError(#[from] CoreCircuitError),
 
@@ -31,17 +31,17 @@ pub enum LeoCoreError {
     Error(#[from] FormattedError),
 }
 
-impl LeoCoreError {
+impl LeoCorePackageError {
     pub fn set_path(&mut self, path: &Path) {
         match self {
-            LeoCoreError::CoreCircuitError(error) => error.set_path(path),
-            LeoCoreError::CorePackageListError(error) => error.set_path(path),
-            LeoCoreError::Error(error) => error.set_path(path),
+            LeoCorePackageError::CoreCircuitError(error) => error.set_path(path),
+            LeoCorePackageError::CorePackageListError(error) => error.set_path(path),
+            LeoCorePackageError::Error(error) => error.set_path(path),
         }
     }
 
     fn new_from_span(message: String, span: Span) -> Self {
-        LeoCoreError::Error(FormattedError::new_from_span(message, span))
+        LeoCorePackageError::Error(FormattedError::new_from_span(message, span))
     }
 
     pub fn undefined_core_circuit(circuit_name: String, span: Span) -> Self {

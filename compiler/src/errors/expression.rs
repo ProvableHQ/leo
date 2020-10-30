@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_core::LeoCoreError;
 use leo_core_ast::{Error as FormattedError, Identifier, Span};
+use leo_core_packages::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::Path;
@@ -45,7 +45,7 @@ pub enum ExpressionError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCoreError),
+    LeoCoreError(#[from] LeoCorePackageError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),

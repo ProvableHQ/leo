@@ -17,11 +17,11 @@
 use crate::{new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_core_ast::Package;
 
-use leo_core::{CorePackageList, LeoCoreError};
+use leo_core_packages::{CorePackageList, LeoCorePackageError};
 use snarkos_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub(crate) fn store_core_package(&mut self, scope: &str, package: Package) -> Result<(), LeoCoreError> {
+    pub(crate) fn store_core_package(&mut self, scope: &str, package: Package) -> Result<(), LeoCorePackageError> {
         // Create list of imported core packages.
         let list = CorePackageList::from_package_access(package.access)?;
 

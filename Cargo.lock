@@ -1252,8 +1252,8 @@ dependencies = [
  "bincode",
  "hex",
  "leo-ast",
- "leo-core",
  "leo-core-ast",
+ "leo-core-packages",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
@@ -1281,7 +1281,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-core"
+name = "leo-core-ast"
+version = "1.0.3"
+dependencies = [
+ "criterion",
+ "leo-ast",
+ "leo-input",
+ "pest",
+ "serde",
+ "serde_json",
+ "snarkos-errors",
+ "snarkos-models",
+]
+
+[[package]]
+name = "leo-core-packages"
 version = "1.0.3"
 dependencies = [
  "leo-core-ast",
@@ -1294,20 +1308,6 @@ dependencies = [
  "snarkos-models",
  "snarkos-utilities",
  "thiserror",
-]
-
-[[package]]
-name = "leo-core-ast"
-version = "1.0.3"
-dependencies = [
- "criterion",
- "leo-ast",
- "leo-input",
- "pest",
- "serde",
- "serde_json",
- "snarkos-errors",
- "snarkos-models",
 ]
 
 [[package]]
@@ -1363,7 +1363,6 @@ dependencies = [
  "from-pest",
  "lazy_static",
  "leo-compiler",
- "leo-core",
  "leo-core-ast",
  "leo-gadgets",
  "leo-imports",
@@ -1435,8 +1434,8 @@ name = "leo-symbol-table"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
- "leo-core",
  "leo-core-ast",
+ "leo-core-packages",
  "leo-imports",
  "serde",
  "thiserror",

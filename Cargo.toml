@@ -29,7 +29,7 @@ members = [
   "ast",
   "compiler",
   "core-ast",
-  "core",
+  "core-packages",
   "gadgets",
   "imports",
   "input",
@@ -43,10 +43,6 @@ members = [
 [dependencies.leo-compiler]
 path = "./compiler"
 version = "1.0.3"
-
-[dependencies.leo-core]
-path = "./core"
-version = "1.0.1"
 
 [dependencies.leo-core-ast]
 path = "./core-ast"

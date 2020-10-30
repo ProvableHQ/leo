@@ -28,6 +28,7 @@ pub use self::types::*;
 
 use crate::CoreCircuit;
 use leo_core_ast::Span;
+
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -40,10 +41,10 @@ pub fn call_core_circuit<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     circuit_name: String,
     arguments: Vec<Value>,
     span: Span,
-) -> Result<Vec<Value>, LeoCoreError> {
+) -> Result<Vec<Value>, LeoCorePackageError> {
     // Match core circuit name
     Ok(match circuit_name.as_str() {
         CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::call(cs, arguments, span)?,
-        _ => return Err(LeoCoreError::undefined_core_circuit(circuit_name, span)),
+        _ => return Err(LeoCorePackageError::undefined_core_circuit(circuit_name, span)),
     })
 }
