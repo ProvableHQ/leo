@@ -46,6 +46,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Stores information to compile a Leo program.
 #[derive(Clone)]
 pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     package_name: String,
@@ -76,9 +77,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Parses program files.
+    /// Returns a new `Compiler` from the given main file path.
     ///
-    /// Returns a compiler struct that stores the typed program abstract syntax trees (ast).
+    /// Parses and stores a program from the main file path.
+    /// Parses and stores all imported programs.
+    /// Performs type inference checking on the program and imported programs.
     ///
     pub fn parse_program_without_input(
         package_name: String,
@@ -93,9 +96,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Parses input, state, and program files.
+    /// Returns a new `Compiler` from the given main file path.
     ///
-    /// Returns a compiler struct that stores the typed input and typed program abstract syntax trees (ast).
+    /// Parses and stores program input from from the input file path and state file path
+    /// Parses and stores a program from the main file path.
+    /// Parses and stores all imported programs.
+    /// Performs type inference checking on the program, imported programs, and program input.
     ///
     pub fn parse_program_with_input(
         package_name: String,
@@ -116,9 +122,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Parse the input and state files.
+    /// Parses and stores program input from from the input file path and state file path
     ///
-    /// Stores a typed ast of all input variables to the program.
+    /// Calls `set_path()` on compiler errors with the given input file path or state file path
     ///
     pub fn parse_input(
         &mut self,
@@ -153,7 +159,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Runs program parser and program checker consecutively.
+    /// Runs program parser and type inference checker consecutively.
     ///
     pub(crate) fn parse_and_check_program(&mut self) -> Result<(), CompilerError> {
         self.parse_program()?;
@@ -162,23 +168,28 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Parses the Leo program file, constructs a syntax tree, and generates a program.
+    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
+    ///
+    /// Parses and stores all programs imported by the main program file.
     ///
     pub(crate) fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Load the program file.
         let program_string = LeoAst::load_file(&self.main_file_path)?;
 
-        // Use the parser to construct the abstract syntax tree.
-        let ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
+        // Use the parser to construct the pest abstract syntax tree (ast).
+        let pest_ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
             e.set_path(&self.main_file_path);
 
             e
         })?;
 
-        // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoCoreAst::new(&self.package_name, &ast);
+        // Construct the core ast from the pest ast.
+        let core_ast = LeoCoreAst::new(&self.package_name, &pest_ast);
 
-        self.program = typed_tree.into_repr();
+        // Store the main program file.
+        self.program = core_ast.into_repr();
+
+        // Parse and store all programs imported by the main program file.
         self.imported_programs = ImportParser::parse(&self.program)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
@@ -215,7 +226,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Parses the Leo program string, constructs a syntax tree, and generates a program.
+    /// Equivalent to parse_and_check_program but uses the given program_string instead of a main
+    /// file path.
+    ///
     /// Used for testing only.
     ///
     #[deprecated(note = "Please use the 'parse_program' method instead.")]
@@ -230,10 +243,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Derive the package name.
         let package_name = &self.package_name;
 
-        // Use the typed parser to construct the typed syntax tree.
-        let typed_tree = LeoCoreAst::new(package_name, &ast);
+        // Construct the core ast from the pest ast.
+        let core_ast = LeoCoreAst::new(package_name, &ast);
 
-        self.program = typed_tree.into_repr();
+        // Store the main program file.
+        self.program = core_ast.into_repr();
+
+        // Parse and store all programs imported by the main program file.
         self.imported_programs = ImportParser::parse(&self.program)?;
 
         // Create a new symbol table from the program, imported programs, and program input.
@@ -248,14 +264,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 
     ///
-    /// Manually sets main function input
+    /// Manually sets main function input.
+    ///
+    /// Used for testing only.
     ///
     pub fn set_main_input(&mut self, input: MainInput) {
         self.program_input.set_main_input(input);
     }
 
     ///
-    /// Verifies the input to the program
+    /// Verifies the input to the program.
     ///
     pub fn verify_local_data_commitment(
         &self,
@@ -297,7 +315,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         )
     }
 
+    ///
     /// Synthesizes the circuit for test functions with program input.
+    ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         generate_test_constraints::<F, G>(
             self.program,
@@ -308,7 +328,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         )
     }
 
-    /// Calls the internal generate_constraints method with arguments
+    ///
+    /// Calls the internal generate_constraints method with arguments.
+    ///
     pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
@@ -324,7 +346,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
+    ///
     /// Synthesizes the circuit with program input.
+    ///
     fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
         let output_directory = self.output_directory.clone();
         let package_name = self.package_name.clone();

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A typed Leo program consists of import, circuit, and function definitions.
+//! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of typed statements and expressions.
 
 use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};

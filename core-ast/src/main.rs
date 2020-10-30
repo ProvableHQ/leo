@@ -23,16 +23,16 @@ fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
     let program_filepath = filepath.to_path_buf();
     let program_string = LeoAst::load_file(&program_filepath)?;
 
-    // Parses the Leo file and constructs an abstract syntax tree.
+    // Parses the Leo file and constructs a pest ast.
     let ast = LeoAst::new(&program_filepath, &program_string)?;
 
-    // Parse the abstract core tree and constructs a typed core tree.
-    let typed_ast = LeoCoreAst::new("leo_core_tree", &ast);
+    // Parse the pest ast and constructs a core ast.
+    let core_ast = LeoCoreAst::new("leo_core_tree", &ast);
 
-    // Serializes the typed core tree into JSON format.
-    let serialized_typed_tree = LeoCoreAst::to_json_string(&typed_ast)?;
+    // Serializes the core tree into JSON format.
+    let serialized_core_ast = LeoCoreAst::to_json_string(&core_ast)?;
 
-    Ok(serialized_typed_tree)
+    Ok(serialized_core_ast)
 }
 
 fn main() -> Result<(), ParserError> {

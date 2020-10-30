@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! The symbol table for a Leo program.
+//!
+//! This module contains the [`SymbolTable`] type, an abstract data type that tracks the current
+//! bindings for functions and circuits in a Leo program.
+
 #[macro_use]
 extern crate thiserror;
 

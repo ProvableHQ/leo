@@ -21,74 +21,74 @@ use leo_core_ast::Program;
 
 use std::path::{Path, PathBuf};
 
-fn to_typed_ast(program_filepath: &Path) -> LeoCoreAst {
+fn to_core_ast(program_filepath: &Path) -> LeoCoreAst {
     // Loads the Leo code as a string from the given file path.
     let program_string = LeoAst::load_file(program_filepath).unwrap();
 
-    // Parses the Leo file and constructs an abstract syntax tree.
+    // Parses the Leo file and constructs a pest ast.
     let ast = LeoAst::new(&program_filepath, &program_string).unwrap();
 
-    // Parse the abstract syntax tree and constructs a typed syntax tree.
+    // Parses the pest ast and constructs a core ast.
     LeoCoreAst::new("leo_core_tree", &ast)
 }
 
 #[test]
 #[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
-    // Construct a typed syntax tree from the given test file.
-    let typed_ast = {
+    // Construct a core ast from the given test file.
+    let core_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_typed_ast(&program_filepath)
+        to_core_ast(&program_filepath)
     };
 
-    // Serializes the typed syntax tree into JSON format.
-    let serialized_typed_ast: Program =
-        serde_json::from_value(serde_json::to_value(typed_ast.into_repr()).unwrap()).unwrap();
+    // Serializes the core ast into JSON format.
+    let serialized_core_ast: Program =
+        serde_json::from_value(serde_json::to_value(core_ast.into_repr()).unwrap()).unwrap();
 
-    // Load the expected typed syntax tree.
-    let expected: Program = serde_json::from_str(include_str!("expected_typed_ast.json")).unwrap();
+    // Load the expected core ast.
+    let expected: Program = serde_json::from_str(include_str!("expected_core_ast.json")).unwrap();
 
-    assert_eq!(expected, serialized_typed_ast);
+    assert_eq!(expected, serialized_core_ast);
 }
 
 #[test]
 #[cfg(not(feature = "ci_skip"))]
 fn test_deserialize() {
-    // Load the expected typed syntax tree.
-    let expected_typed_ast = {
+    // Load the expected core ast.
+    let expected_core_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_typed_ast(&program_filepath)
+        to_core_ast(&program_filepath)
     };
 
-    // Construct a typed syntax tree by deserializing a typed syntax tree JSON file.
-    let serialized_typed_ast = include_str!("expected_typed_ast.json");
-    let typed_ast = LeoCoreAst::from_json_string(serialized_typed_ast).unwrap();
+    // Construct a core ast by deserializing a core ast JSON file.
+    let serialized_typed_ast = include_str!("expected_core_ast.json");
+    let core_ast = LeoCoreAst::from_json_string(serialized_typed_ast).unwrap();
 
-    assert_eq!(expected_typed_ast, typed_ast);
+    assert_eq!(expected_core_ast, core_ast);
 }
 
 #[test]
 fn test_serialize_deserialize_serialize() {
-    // Construct a typed syntax tree from the given test file.
-    let typed_ast = {
+    // Construct a core ast from the given test file.
+    let core_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_typed_ast(&program_filepath)
+        to_core_ast(&program_filepath)
     };
 
-    // Serializes the typed syntax tree into JSON format.
-    let serialized_typed_ast = typed_ast.to_json_string().unwrap();
+    // Serializes the core ast into JSON format.
+    let serialized_core_ast = core_ast.to_json_string().unwrap();
 
-    // Deserializes the typed syntax tree into a LeoTypedAst.
-    let typed_ast = LeoCoreAst::from_json_string(&serialized_typed_ast).unwrap();
+    // Deserializes the serialized core ast into a LeoCoreAst.
+    let core_ast = LeoCoreAst::from_json_string(&serialized_core_ast).unwrap();
 
-    // Reserializes the typed syntax tree into JSON format.
-    let reserialized_typed_ast = typed_ast.to_json_string().unwrap();
+    // Reserializes the core ast into JSON format.
+    let reserialized_core_ast = core_ast.to_json_string().unwrap();
 
-    assert_eq!(serialized_typed_ast, reserialized_typed_ast);
+    assert_eq!(serialized_core_ast, reserialized_core_ast);
 }

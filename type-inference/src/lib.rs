@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! A type inference check for a Leo program.
+//!
+//! This module contains the [`TypeInference`] type, which stores information needed to run a type
+//! inference check over a program.
+
 #[macro_use]
 extern crate thiserror;
 

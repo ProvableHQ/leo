@@ -18,7 +18,11 @@ use crate::{Frame, Scope, TypeInferenceError};
 use leo_core_ast::{Circuit, CircuitMember, Function, Program};
 use leo_symbol_table::SymbolTable;
 
-/// Stores information need to run a type inference check over a program.
+/// A type inference check for a Leo program.
+///
+/// A [`TypeInference`] type stores a stack of frames. A new frame is created for every
+/// function. Frames store type assertions that assert an expression is a type.
+/// Calling the `check()` method on a [`TypeInference`] checks that all type assertions are satisfied.
 pub struct TypeInference {
     table: SymbolTable,
     frames: Vec<Frame>,

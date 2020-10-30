@@ -27,12 +27,11 @@ pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
-/// A abstract data type that tracks the current bindings for functions and circuits.
+/// The symbol table for a Leo program.
 ///
-/// A symbol table has access to all function and circuit names in its
-/// parent's symbol table.
+/// A symbol table has access to all function and circuit names in its parent's symbol table.
 /// A symbol table cannot access names in its child's symbol table.
-/// Children cannot access names in another sibling's symbol table.
+/// A child symbol table cannot access names in another sibling's symbol table.
 #[derive(Clone, Default)]
 pub struct SymbolTable {
     /// Maps name -> parameter type.
