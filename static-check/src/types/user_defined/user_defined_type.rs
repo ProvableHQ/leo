@@ -21,21 +21,21 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-/// Stores variable definition details.
+/// Stores information for a user defined type.
 ///
-/// This type should be added to the variable symbol table for a resolved syntax tree.
+/// User defined types include circuits and functions in a Leo program.
 #[derive(Clone, Debug)]
-pub struct ParameterType {
+pub struct UserDefinedType {
     pub identifier: Identifier,
     pub type_: Type,
     pub attribute: Option<Attribute>,
 }
 
-impl From<Circuit> for ParameterType {
+impl From<Circuit> for UserDefinedType {
     fn from(value: Circuit) -> Self {
         let identifier = value.circuit_name;
 
-        ParameterType {
+        UserDefinedType {
             identifier: identifier.clone(),
             type_: Type::Circuit(identifier),
             attribute: None,
@@ -43,11 +43,11 @@ impl From<Circuit> for ParameterType {
     }
 }
 
-impl From<Function> for ParameterType {
+impl From<Function> for UserDefinedType {
     fn from(value: Function) -> Self {
         let identifier = value.identifier;
 
-        ParameterType {
+        UserDefinedType {
             identifier: identifier.clone(),
             type_: Type::Function(identifier),
             attribute: None,
@@ -55,9 +55,9 @@ impl From<Function> for ParameterType {
     }
 }
 
-impl From<FunctionInputVariableType> for ParameterType {
+impl From<FunctionInputVariableType> for UserDefinedType {
     fn from(value: FunctionInputVariableType) -> Self {
-        ParameterType {
+        UserDefinedType {
             identifier: value.identifier,
             type_: value.type_,
             attribute: value.attribute,
@@ -65,21 +65,21 @@ impl From<FunctionInputVariableType> for ParameterType {
     }
 }
 
-impl fmt::Display for ParameterType {
+impl fmt::Display for UserDefinedType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.identifier)
     }
 }
 
-impl PartialEq for ParameterType {
+impl PartialEq for UserDefinedType {
     fn eq(&self, other: &Self) -> bool {
         self.identifier.eq(&other.identifier)
     }
 }
 
-impl Eq for ParameterType {}
+impl Eq for UserDefinedType {}
 
-impl Hash for ParameterType {
+impl Hash for UserDefinedType {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.identifier.hash(state);
     }

@@ -73,7 +73,7 @@ impl StaticCheck {
     ///
     pub fn pass_one(&mut self, program: &Program, import_parser: &ImportParser) -> Result<(), StaticCheckError> {
         self.table
-            .check_program_names(program, import_parser)
+            .check_names(program, import_parser)
             .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 
@@ -86,7 +86,7 @@ impl StaticCheck {
     ///
     pub fn pass_two(&mut self, program: &Program) -> Result<(), StaticCheckError> {
         self.table
-            .check_types_program(program)
+            .check_types(program)
             .map_err(|err| StaticCheckError::SymbolTableError(err))
     }
 }

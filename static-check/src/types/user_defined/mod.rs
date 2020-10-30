@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod parameter;
-pub use self::parameter::*;
+pub mod user_defined_type;
+pub use self::user_defined_type::*;

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CircuitType, CircuitVariableType, FunctionType, ImportedSymbols, ParameterType, SymbolTableError};
+use crate::{CircuitType, CircuitVariableType, FunctionType, ImportedSymbols, SymbolTableError, UserDefinedType};
 use leo_core::CorePackageList;
 use leo_imports::ImportParser;
 use leo_typed::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Input, Package, Program};
@@ -33,10 +33,10 @@ pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 /// parent's symbol table.
 /// A symbol table cannot access names in its child's symbol table.
 /// Children cannot access names in another sibling's symbol table.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct SymbolTable {
     /// Maps name -> parameter type.
-    names: HashMap<String, ParameterType>,
+    names: HashMap<String, UserDefinedType>,
 
     /// Maps circuit name -> circuit type.
     circuits: HashMap<String, CircuitType>,
@@ -62,13 +62,42 @@ impl SymbolTable {
     }
 
     ///
+    /// Returns a new `SymbolTable` from a given, program, imported programs, and program input.
+    ///
+    /// Checks that each circuit or function name is unique.
+    /// Unique names are added to a table of name -> user defined type.
+    ///
+    /// Checks that each circuit or function definition contains valid types.
+    ///
+    ///
+    pub fn run(
+        program: &Program,
+        import_parser: &ImportParser,
+        input: &Input,
+    ) -> Result<SymbolTable, SymbolTableError> {
+        // Create a new symbol table.
+        let mut table = Self::default();
+
+        // Insert input types into symbol table.
+        table.insert_input(input)?;
+
+        // Check for duplicate program and import names.
+        table.check_names(program, import_parser)?;
+
+        // Check for unknown or invalid types.
+        table.check_types(program)?;
+
+        Ok(table)
+    }
+
+    ///
     /// Insert a function or circuit name into the symbol table from a given name and variable type.
     ///
     /// If the symbol table did not have this name present, `None` is returned.
     /// If the symbol table did have this name present, the variable type is updated, and the old
     /// variable type is returned.
     ///
-    pub fn insert_name(&mut self, name: String, variable_type: ParameterType) -> Option<ParameterType> {
+    pub fn insert_name(&mut self, name: String, variable_type: UserDefinedType) -> Option<UserDefinedType> {
         self.names.insert(name, variable_type)
     }
 
@@ -77,7 +106,11 @@ impl SymbolTable {
     ///
     /// Returns an error if the circuit name is a duplicate.
     ///
-    pub fn insert_circuit_name(&mut self, name: String, variable_type: ParameterType) -> Result<(), SymbolTableError> {
+    pub fn insert_circuit_name(
+        &mut self,
+        name: String,
+        variable_type: UserDefinedType,
+    ) -> Result<(), SymbolTableError> {
         // Check that the circuit name is unique.
         match self.insert_name(name, variable_type) {
             Some(duplicate) => Err(SymbolTableError::duplicate_circuit(duplicate)),
@@ -90,7 +123,11 @@ impl SymbolTable {
     ///
     /// Returns an error if the function name is a duplicate.
     ///
-    pub fn insert_function_name(&mut self, name: String, variable_type: ParameterType) -> Result<(), SymbolTableError> {
+    pub fn insert_function_name(
+        &mut self,
+        name: String,
+        variable_type: UserDefinedType,
+    ) -> Result<(), SymbolTableError> {
         // Check that the circuit name is unique.
         match self.insert_name(name, variable_type) {
             Some(duplicate) => Err(SymbolTableError::duplicate_function(duplicate)),
@@ -172,11 +209,7 @@ impl SymbolTable {
     /// If a circuit or function name has no duplicates, then it is inserted into the symbol table.
     /// Variables defined later in the unresolved program cannot have the same name.
     ///
-    pub fn check_program_names(
-        &mut self,
-        program: &Program,
-        import_parser: &ImportParser,
-    ) -> Result<(), SymbolTableError> {
+    pub fn check_names(&mut self, program: &Program, import_parser: &ImportParser) -> Result<(), SymbolTableError> {
         // Check unresolved program import names.
         self.check_import_names(&program.imports, import_parser)?;
 
@@ -199,7 +232,7 @@ impl SymbolTable {
         // Iterate over circuit names and definitions.
         for (identifier, circuit) in circuits.iter() {
             // Attempt to insert the circuit name into the symbol table.
-            self.insert_circuit_name(identifier.to_string(), ParameterType::from(circuit.clone()))?;
+            self.insert_circuit_name(identifier.to_string(), UserDefinedType::from(circuit.clone()))?;
         }
 
         Ok(())
@@ -215,7 +248,7 @@ impl SymbolTable {
         // Iterate over function names and definitions.
         for (identifier, function) in functions.iter() {
             // Attempt to insert the function name into the symbol table.
-            self.insert_function_name(identifier.to_string(), ParameterType::from(function.clone()))?;
+            self.insert_function_name(identifier.to_string(), UserDefinedType::from(function.clone()))?;
         }
 
         Ok(())
@@ -279,7 +312,7 @@ impl SymbolTable {
         // Insert name and type information for each core package symbol.
         for (name, circuit) in symbol_list.symbols() {
             // Store name of symbol.
-            self.insert_circuit_name(name.to_string(), ParameterType::from(circuit.clone()))?;
+            self.insert_circuit_name(name.to_string(), UserDefinedType::from(circuit.clone()))?;
 
             // Create new circuit type for symbol.
             let circuit_type = CircuitType::new(&self, circuit.to_owned())?;
@@ -323,10 +356,10 @@ impl SymbolTable {
             };
 
             // Check the imported program for duplicate types.
-            self.check_program_names(program, import_parser)?;
+            self.check_names(program, import_parser)?;
 
             // Check the imported program for undefined types.
-            self.check_types_program(program)?;
+            self.check_types(program)?;
 
             // Store the imported symbol.
             // self.insert_import_symbol(symbol, program)?; // TODO (collinc97) uncomment this line when public/private import scopes are implemented.
@@ -354,14 +387,17 @@ impl SymbolTable {
             match program.circuits.get(&symbol.symbol) {
                 Some(circuit) => {
                     // Insert imported circuit.
-                    self.insert_circuit_name(identifier.to_string(), ParameterType::from(circuit.to_owned()))
+                    self.insert_circuit_name(identifier.to_string(), UserDefinedType::from(circuit.to_owned()))
                 }
                 None => {
                     // Check if the imported symbol is a function.
                     match program.functions.get(&symbol.symbol) {
                         Some(function) => {
                             // Insert the imported function.
-                            self.insert_function_name(identifier.to_string(), ParameterType::from(function.to_owned()))
+                            self.insert_function_name(
+                                identifier.to_string(),
+                                UserDefinedType::from(function.to_owned()),
+                            )
                         }
                         None => Err(SymbolTableError::unknown_symbol(&symbol, program)),
                     }
@@ -377,7 +413,7 @@ impl SymbolTable {
     /// symbol table. Variables defined later in the unresolved program can lookup the definition and
     /// refer to its expected types.
     ///
-    pub fn check_types_program(&mut self, program: &Program) -> Result<(), SymbolTableError> {
+    pub fn check_types(&mut self, program: &Program) -> Result<(), SymbolTableError> {
         // Check unresolved program circuit definitions.
         self.check_types_circuits(&program.circuits)?;
 

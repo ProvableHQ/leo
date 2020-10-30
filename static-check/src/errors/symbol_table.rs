@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ParameterType, TypeError};
+use crate::{TypeError, UserDefinedType};
 use leo_core::{CorePackageListError, LeoCoreError};
 use leo_typed::{Error as FormattedError, ImportSymbol, Program, Span};
 
@@ -59,7 +59,7 @@ impl SymbolTableError {
     ///
     /// Two circuits have been defined with the same name.
     ///
-    pub fn duplicate_circuit(variable: ParameterType) -> Self {
+    pub fn duplicate_circuit(variable: UserDefinedType) -> Self {
         let message = format!("Duplicate circuit definition found for `{}`", variable.identifier);
 
         Self::new_from_span(message, variable.identifier.span)
@@ -68,7 +68,7 @@ impl SymbolTableError {
     ///
     /// Two functions have been defined with the same name.
     ///
-    pub fn duplicate_function(variable: ParameterType) -> Self {
+    pub fn duplicate_function(variable: UserDefinedType) -> Self {
         let message = format!("Duplicate function definition found for `{}`", variable.identifier);
 
         Self::new_from_span(message, variable.identifier.span)

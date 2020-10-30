@@ -29,7 +29,7 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
-use leo_static_check::StaticCheck;
+use leo_static_check::{StaticCheck, SymbolTable};
 use leo_typed::{Input, LeoTypedAst, MainInput, Program};
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
@@ -190,11 +190,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Runs static and dynamic type checks on the program, imports, and input.
     ///
     pub(crate) fn check_program(&self) -> Result<(), CompilerError> {
-        // Run static check on program.
-        let symbol_table = StaticCheck::new(&self.program, &self.imported_programs, &self.program_input)?;
+        // Create a new symbol table from the program, imported_programs, and program_input.
+        let symbol_table =
+            SymbolTable::run(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
+                e.set_path(&self.main_file_path);
+
+                e
+            })?;
 
         // Run dynamic check on program.
-        DynamicCheck::new(&self.program, symbol_table)?;
+        DynamicCheck::new(&self.program, symbol_table).map_err(|mut e| {
+            e.set_path(&self.main_file_path);
+
+            e
+        })?;
 
         tracing::debug!("Program checks complete");
 
