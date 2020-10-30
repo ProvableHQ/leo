@@ -22,7 +22,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_typed::{Expression, Span, SpreadOrExpression, Type};
+use leo_core_ast::{Expression, Span, SpreadOrExpression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

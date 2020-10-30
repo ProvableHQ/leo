@@ -42,8 +42,8 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
+use leo_core_ast::{InputValue, MainInput};
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
-use leo_typed::{InputValue, MainInput};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;

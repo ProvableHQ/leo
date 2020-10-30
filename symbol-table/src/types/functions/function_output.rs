@@ -16,7 +16,7 @@
 
 use crate::{SymbolTable, Type, TypeError};
 
-use leo_typed::{Identifier, Span, Type as UnresolvedType};
+use leo_core_ast::{Identifier, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
 

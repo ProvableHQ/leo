@@ -17,7 +17,7 @@
 //! Evaluates a macro in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_typed::{ConsoleFunction, ConsoleFunctionCall};
+use leo_core_ast::{ConsoleFunction, ConsoleFunctionCall};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

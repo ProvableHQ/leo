@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::LeoAst;
-use leo_typed::LeoCoreAst;
+use leo_core_ast::LeoCoreAst;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, time::Duration};

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DPCRecordValues, RecordVerificationError};
-use leo_typed::Record as TypedRecord;
+use leo_core_ast::Record as TypedRecord;
 
 use snarkos_dpc::base_dpc::{
     instantiated::{Components, RecordCommitment},

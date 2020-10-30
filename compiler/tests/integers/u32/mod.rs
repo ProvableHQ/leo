@@ -21,8 +21,8 @@ use crate::{
     integers::{expect_parsing_error, IntegerTester},
     parse_program,
 };
+use leo_core_ast::InputValue;
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
-use leo_typed::InputValue;
 
 test_uint!(
     TestU32,

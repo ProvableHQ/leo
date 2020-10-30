@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, ConsoleError, ExpressionError, IntegerError, ValueError};
-use leo_typed::{Error as FormattedError, Span, Type};
+use leo_core_ast::{Error as FormattedError, Span, Type};
 
 use std::path::Path;
 

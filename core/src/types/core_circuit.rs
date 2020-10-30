@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CoreCircuitError, Value};
-use leo_typed::{Circuit, Identifier, Span};
+use leo_core_ast::{Circuit, Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

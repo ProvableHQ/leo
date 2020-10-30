@@ -25,10 +25,10 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
+use leo_core_ast::{Input, Program};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
-use leo_typed::{Input, Program};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

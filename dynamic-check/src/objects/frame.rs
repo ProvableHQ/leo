@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FrameError, Scope, TypeAssertion};
-use leo_symbol_table::{Attribute, CircuitFunctionType, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
-use leo_typed::{
+use leo_core_ast::{
     Assignee,
     AssigneeAccess,
     CircuitVariableDefinition,
@@ -33,6 +32,7 @@ use leo_typed::{
     Statement,
     Variables,
 };
+use leo_symbol_table::{Attribute, CircuitFunctionType, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
 
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]

@@ -17,8 +17,8 @@
 pub mod symbol_table;
 
 use leo_ast::LeoAst;
+use leo_core_ast::{Input, LeoCoreAst};
 use leo_symbol_table::{SymbolTable, SymbolTableError};
-use leo_typed::{Input, LeoCoreAst};
 
 use leo_imports::ImportParser;
 use std::path::PathBuf;

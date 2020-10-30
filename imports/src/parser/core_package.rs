@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::ImportParserError, ImportParser};
-use leo_typed::Package;
+use leo_core_ast::Package;
 
 pub static CORE_PACKAGE_NAME: &str = "core";
 

@@ -22,7 +22,7 @@ use crate::{
     Type,
     TypeError,
 };
-use leo_typed::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
+use leo_core_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
 use serde::{Deserialize, Serialize};
 use std::{

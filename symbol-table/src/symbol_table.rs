@@ -16,8 +16,8 @@
 
 use crate::{CircuitType, CircuitVariableType, FunctionType, ImportedSymbols, SymbolTableError, UserDefinedType};
 use leo_core::CorePackageList;
+use leo_core_ast::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Input, Package, Program};
 use leo_imports::ImportParser;
-use leo_typed::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Input, Package, Program};
 
 use std::collections::{HashMap, HashSet};
 

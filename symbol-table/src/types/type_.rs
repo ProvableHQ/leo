@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{SymbolTable, TypeError, TypeVariable};
-use leo_typed::{Identifier, IntegerType, Span, Type as UnresolvedType};
+use leo_core_ast::{Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
 use std::{

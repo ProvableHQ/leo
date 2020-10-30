@@ -1,8 +1,8 @@
 [package]
-name = "leo-typed"
+name = "leo-core-ast"
 version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Typed AST of the Leo programming language"
+description = "Core AST of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -18,12 +18,12 @@ license = "GPL-3.0"
 edition = "2018"
 
 [[bin]]
-name = "leo_typed_ast"
+name = "leo_core_ast"
 path = "src/main.rs"
 
 [[bench]]
-name = "typed_ast"
-path = "benches/typed_ast.rs"
+name = "core_ast"
+path = "benches/core_ast.rs"
 harness = false
 
 [dependencies.leo-ast]

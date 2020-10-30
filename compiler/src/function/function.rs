@@ -23,7 +23,7 @@ use crate::{
     GroupType,
 };
 
-use leo_typed::{Expression, Function, FunctionInput, Span, Type};
+use leo_core_ast::{Expression, Function, FunctionInput, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

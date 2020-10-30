@@ -21,7 +21,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_typed::Identifier;
+use leo_core_ast::Identifier;
 
 use snarkos_models::curves::{Field, PrimeField};
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{LeoAst, ParserError};
-use leo_typed::LeoCoreAst;
+use leo_core_ast::LeoCoreAst;
 use std::{env, fs, path::Path};
 
 fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
@@ -27,7 +27,7 @@ fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
     let ast = LeoAst::new(&program_filepath, &program_string)?;
 
     // Parse the abstract core tree and constructs a typed core tree.
-    let typed_ast = LeoCoreAst::new("leo_typed_tree", &ast);
+    let typed_ast = LeoCoreAst::new("leo_core_tree", &ast);
 
     // Serializes the typed core tree into JSON format.
     let serialized_typed_tree = LeoCoreAst::to_json_string(&typed_ast)?;
@@ -43,7 +43,7 @@ fn main() -> Result<(), ParserError> {
     if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
         eprintln!("Warning - an invalid number of command-line arguments were provided.");
         println!(
-            "\nCommand-line usage:\n\n\tleo_typed_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
+            "\nCommand-line usage:\n\n\tleo_core_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
         );
         return Ok(()); // Exit innocently
     }

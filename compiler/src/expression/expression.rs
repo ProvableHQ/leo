@@ -28,7 +28,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_typed::{Expression, Type};
+use leo_core_ast::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

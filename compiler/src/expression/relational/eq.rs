@@ -17,7 +17,7 @@
 //! Enforces a relational `==` operator in a resolved Leo program.
 
 use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_typed::Span;
+use leo_core_ast::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -23,9 +23,9 @@ pub mod variables;
 use leo_ast::LeoAst;
 use leo_dynamic_check::DynamicCheck;
 
+use leo_core_ast::{Input, LeoCoreAst, Program};
 use leo_imports::ImportParser;
 use leo_symbol_table::SymbolTable;
-use leo_typed::{Input, LeoCoreAst, Program};
 use std::path::PathBuf;
 
 const TEST_PROGRAM_PATH: &str = "";

@@ -28,6 +28,7 @@ path = "leo/main.rs"
 members = [
   "ast",
   "compiler",
+  "core-ast",
   "core",
   "dynamic-check",
   "gadgets",
@@ -35,7 +36,6 @@ members = [
   "input",
   "linter",
   "package",
-  "typed",
   "state",
   "symbol-table",
 ]
@@ -47,6 +47,10 @@ version = "1.0.3"
 [dependencies.leo-core]
 path = "./core"
 version = "1.0.1"
+
+[dependencies.leo-core-ast]
+path = "./core-ast"
+version = "1.0.3"
 
 [dependencies.leo-dynamic-check]
 path = "./dynamic-check"

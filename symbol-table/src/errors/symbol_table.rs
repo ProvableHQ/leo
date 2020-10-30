@@ -16,7 +16,7 @@
 
 use crate::{TypeError, UserDefinedType};
 use leo_core::{CorePackageListError, LeoCoreError};
-use leo_typed::{Error as FormattedError, ImportSymbol, Program, Span};
+use leo_core_ast::{Error as FormattedError, ImportSymbol, Program, Span};
 
 use std::path::Path;
 

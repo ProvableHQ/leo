@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use leo_typed::Identifier;
+use leo_core_ast::Identifier;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

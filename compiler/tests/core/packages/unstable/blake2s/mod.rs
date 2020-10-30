@@ -23,8 +23,8 @@ use crate::{
     parse_program_with_input,
 };
 
+use leo_core_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
-use leo_typed::InputValue;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use snarkos_algorithms::prf::blake2s::Blake2s as B2SPRF;

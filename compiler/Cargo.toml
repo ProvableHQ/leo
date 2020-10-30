@@ -45,8 +45,8 @@ version = "1.0.3"
 path = "../package"
 version = "1.0.3"
 
-[dependencies.leo-typed]
-path = "../typed"
+[dependencies.leo-core-ast]
+path = "../core-ast"
 version = "1.0.3"
 
 [dependencies.leo-state]
@@ -124,4 +124,4 @@ default-features = false
 
 [features]
 default = [ ]
-ci_skip = [ "leo-ast/ci_skip", "leo-typed/ci_skip" ]
+ci_skip = [ "leo-ast/ci_skip", "leo-core-ast/ci_skip" ]

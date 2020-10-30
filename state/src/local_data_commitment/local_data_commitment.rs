@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
-use leo_typed::Input as TypedInput;
+use leo_core_ast::Input as TypedInput;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
 use snarkos_dpc::base_dpc::{

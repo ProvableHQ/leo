@@ -24,7 +24,7 @@ use crate::{
     parse_program_with_input,
     EdwardsTestCompiler,
 };
-use leo_typed::InputValue;
+use leo_core_ast::InputValue;
 
 #[test]
 fn test_assert() {

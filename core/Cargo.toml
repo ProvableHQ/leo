@@ -21,8 +21,8 @@ edition = "2018"
 path = "../gadgets"
 version = "1.0.3"
 
-[dependencies.leo-typed]
-path = "../typed"
+[dependencies.leo-core-ast]
+path = "../core-ast"
 version = "1.0.3"
 
 [dependencies.snarkos-errors]

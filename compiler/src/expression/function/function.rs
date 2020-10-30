@@ -17,7 +17,7 @@
 //! Enforce a function call expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, Span, Type};
+use leo_core_ast::{Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

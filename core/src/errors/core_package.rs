@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use leo_typed::{Error as FormattedError, Span};
+use leo_core_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
 

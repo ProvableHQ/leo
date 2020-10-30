@@ -24,13 +24,13 @@ use crate::{
     OutputFile,
 };
 use leo_ast::LeoAst;
+use leo_core_ast::{Input, LeoCoreAst, MainInput, Program};
 use leo_dynamic_check::DynamicCheck;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
-use leo_typed::{Input, LeoCoreAst, MainInput, Program};
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;

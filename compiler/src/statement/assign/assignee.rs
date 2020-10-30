@@ -17,7 +17,7 @@
 //! Resolves assignees in a compiled Leo program.
 
 use crate::{errors::StatementError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Assignee, Span};
+use leo_core_ast::{Assignee, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
 

@@ -16,12 +16,12 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
+use leo_core_ast::{InputValue, IntegerType, Span};
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
     signed_integer::*,
 };
-use leo_typed::{InputValue, IntegerType, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

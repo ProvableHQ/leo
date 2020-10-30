@@ -22,8 +22,8 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
+use leo_core_ast::Program;
 use leo_imports::ImportParser;
-use leo_typed::Program;
 
 use snarkos_models::curves::{Field, PrimeField};
 

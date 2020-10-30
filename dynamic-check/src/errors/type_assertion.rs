@@ -16,8 +16,8 @@
 
 use crate::TypeMembership;
 
+use leo_core_ast::{Error as FormattedError, Span};
 use leo_symbol_table::Type;
-use leo_typed::{Error as FormattedError, Span};
 
 use std::path::Path;
 

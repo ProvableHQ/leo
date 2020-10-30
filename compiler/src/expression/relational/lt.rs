@@ -17,8 +17,8 @@
 //! Enforces a relational `<` operator in a resolved Leo program.
 
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
+use leo_core_ast::Span;
 use leo_gadgets::bits::comparator::EvaluateLtGadget;
-use leo_typed::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

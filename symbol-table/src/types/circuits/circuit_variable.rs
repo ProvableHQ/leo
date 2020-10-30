@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Attribute, CircuitType, Type};
-use leo_typed::Identifier;
+use leo_core_ast::Identifier;
 
 use serde::{Deserialize, Serialize};
 

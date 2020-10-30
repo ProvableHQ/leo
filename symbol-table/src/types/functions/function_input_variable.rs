@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Attribute, SymbolTable, Type, TypeError, UserDefinedType};
-use leo_typed::{FunctionInputVariable, Identifier, Span};
+use leo_core_ast::{FunctionInputVariable, Identifier, Span};
 
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};

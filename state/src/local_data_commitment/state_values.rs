@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{find_input, input_to_integer_string, input_to_u8_vec, StateValuesError};
-use leo_typed::State as TypedState;
+use leo_core_ast::State as TypedState;
 
 use std::convert::TryFrom;
 

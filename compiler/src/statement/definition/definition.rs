@@ -17,7 +17,7 @@
 //! Enforces a definition statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_typed::{Declare, Expression, Span, VariableName, Variables};
+use leo_core_ast::{Declare, Expression, Span, VariableName, Variables};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

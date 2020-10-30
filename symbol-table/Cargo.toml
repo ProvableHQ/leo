@@ -29,8 +29,8 @@ version = "1.0.3"
 path = "../imports"
 version = "1.0.3"
 
-[dependencies.leo-typed]
-path = "../typed"
+[dependencies.leo-core-ast]
+path = "../core-ast"
 version = "1.0.3"
 
 [dependencies.serde]

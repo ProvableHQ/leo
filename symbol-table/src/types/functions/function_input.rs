@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInputVariableType, SymbolTable, Type, TypeError};
-use leo_typed::{FunctionInput, Identifier};
+use leo_core_ast::{FunctionInput, Identifier};
 
 use serde::{Deserialize, Serialize};
 

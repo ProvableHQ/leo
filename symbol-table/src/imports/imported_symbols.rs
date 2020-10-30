@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_typed::{ImportStatement, ImportSymbol, Package, PackageAccess};
+use leo_core_ast::{ImportStatement, ImportSymbol, Package, PackageAccess};
 
 /// Stores the the package file name and imported symbol from an import statement
 #[derive(Debug)]

@@ -1253,6 +1253,7 @@ dependencies = [
  "hex",
  "leo-ast",
  "leo-core",
+ "leo-core-ast",
  "leo-dynamic-check",
  "leo-gadgets",
  "leo-imports",
@@ -1260,7 +1261,6 @@ dependencies = [
  "leo-package",
  "leo-state",
  "leo-symbol-table",
- "leo-typed",
  "num-bigint",
  "pest",
  "rand",
@@ -1284,8 +1284,8 @@ dependencies = [
 name = "leo-core"
 version = "1.0.3"
 dependencies = [
+ "leo-core-ast",
  "leo-gadgets",
- "leo-typed",
  "rand",
  "rand_xorshift",
  "snarkos-curves",
@@ -1297,13 +1297,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-core-ast"
+version = "1.0.3"
+dependencies = [
+ "criterion",
+ "leo-ast",
+ "leo-input",
+ "pest",
+ "serde",
+ "serde_json",
+ "snarkos-errors",
+ "snarkos-models",
+]
+
+[[package]]
 name = "leo-dynamic-check"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
+ "leo-core-ast",
  "leo-imports",
  "leo-symbol-table",
- "leo-typed",
  "serde",
  "serde_json",
  "thiserror",
@@ -1327,7 +1341,7 @@ name = "leo-imports"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
- "leo-typed",
+ "leo-core-ast",
  "thiserror",
  "tracing",
 ]
@@ -1363,6 +1377,7 @@ dependencies = [
  "lazy_static",
  "leo-compiler",
  "leo-core",
+ "leo-core-ast",
  "leo-dynamic-check",
  "leo-gadgets",
  "leo-imports",
@@ -1414,8 +1429,8 @@ dependencies = [
 name = "leo-state"
 version = "1.0.3"
 dependencies = [
+ "leo-core-ast",
  "leo-input",
- "leo-typed",
  "rand",
  "rand_xorshift",
  "snarkos-algorithms",
@@ -1435,24 +1450,10 @@ version = "1.0.3"
 dependencies = [
  "leo-ast",
  "leo-core",
+ "leo-core-ast",
  "leo-imports",
- "leo-typed",
  "serde",
  "thiserror",
-]
-
-[[package]]
-name = "leo-typed"
-version = "1.0.3"
-dependencies = [
- "criterion",
- "leo-ast",
- "leo-input",
- "pest",
- "serde",
- "serde_json",
- "snarkos-errors",
- "snarkos-models",
 ]
 
 [[package]]

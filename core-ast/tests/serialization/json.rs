@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::LeoAst;
-use leo_typed::LeoCoreAst;
+use leo_core_ast::LeoCoreAst;
 #[cfg(not(feature = "ci_skip"))]
-use leo_typed::Program;
+use leo_core_ast::Program;
 
 use std::path::{Path, PathBuf};
 
@@ -29,7 +29,7 @@ fn to_typed_ast(program_filepath: &Path) -> LeoCoreAst {
     let ast = LeoAst::new(&program_filepath, &program_string).unwrap();
 
     // Parse the abstract syntax tree and constructs a typed syntax tree.
-    LeoCoreAst::new("leo_typed_tree", &ast)
+    LeoCoreAst::new("leo_core_tree", &ast)
 }
 
 #[test]

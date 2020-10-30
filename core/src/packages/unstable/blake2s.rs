@@ -16,7 +16,7 @@
 
 use crate::{CoreCircuit, CoreCircuitError, Value};
 
-use leo_typed::{
+use leo_core_ast::{
     Circuit,
     CircuitMember,
     Expression,
