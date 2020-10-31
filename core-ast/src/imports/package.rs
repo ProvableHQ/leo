@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{common::Identifier, PackageAccess, Span};
-use leo_ast::imports::Package as AstPackage;
+use leo_grammar::imports::Package as AstPackage;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

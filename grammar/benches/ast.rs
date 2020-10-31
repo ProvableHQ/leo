@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
+use leo_grammar::Grammar;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::path::Path;
 
-fn leo_ast<'ast>(filepath: &'ast Path, program_string: &'ast str) {
-    let result = LeoAst::<'ast>::new(filepath, program_string).unwrap();
+fn leo_grammar<'ast>(filepath: &'ast Path, program_string: &'ast str) {
+    let result = Grammar::<'ast>::new(filepath, program_string).unwrap();
     black_box(result);
 }
 
@@ -28,7 +28,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let filepath = Path::new("./main.leo").to_path_buf();
     let program_string = include_str!("./main.leo");
 
-    c.bench_function("LeoAst::new", |b| b.iter(|| leo_ast(&filepath, program_string)));
+    c.bench_function("Grammar::new", |b| b.iter(|| leo_grammar(&filepath, program_string)));
 }
 
 criterion_group!(benches, criterion_benchmark);

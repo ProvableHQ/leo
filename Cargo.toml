@@ -26,11 +26,11 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
-  "ast",
   "compiler",
   "core-ast",
   "core-packages",
   "gadgets",
+  "grammar",
   "imports",
   "input",
   "linter",

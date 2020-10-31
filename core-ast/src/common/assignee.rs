@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, RangeOrExpression, Span};
-use leo_ast::{access::AssigneeAccess as AstAssigneeAccess, common::Assignee as AstAssignee};
+use leo_grammar::{access::AssigneeAccess as AstAssigneeAccess, common::Assignee as AstAssignee};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

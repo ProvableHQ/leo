@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, FormattedString};
-use leo_ast::console::{
+use leo_grammar::console::{
     ConsoleAssert as AstConsoleAssert,
     ConsoleDebug as AstConsoleDebug,
     ConsoleError as AstConsoleError,

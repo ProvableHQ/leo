@@ -1230,31 +1230,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
-name = "leo-ast"
-version = "1.0.3"
-dependencies = [
- "criterion",
- "from-pest",
- "lazy_static",
- "pest",
- "pest-ast",
- "pest_derive",
- "serde",
- "serde_json",
- "thiserror",
- "tracing",
-]
-
-[[package]]
 name = "leo-compiler"
 version = "1.0.3"
 dependencies = [
  "bincode",
  "hex",
- "leo-ast",
  "leo-core-ast",
  "leo-core-packages",
  "leo-gadgets",
+ "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
@@ -1285,7 +1269,7 @@ name = "leo-core-ast"
 version = "1.0.3"
 dependencies = [
  "criterion",
- "leo-ast",
+ "leo-grammar",
  "leo-input",
  "pest",
  "serde",
@@ -1324,11 +1308,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-grammar"
+version = "1.0.3"
+dependencies = [
+ "criterion",
+ "from-pest",
+ "lazy_static",
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "leo-imports"
 version = "1.0.3"
 dependencies = [
- "leo-ast",
  "leo-core-ast",
+ "leo-grammar",
  "thiserror",
  "tracing",
 ]
@@ -1433,9 +1433,9 @@ dependencies = [
 name = "leo-symbol-table"
 version = "1.0.3"
 dependencies = [
- "leo-ast",
  "leo-core-ast",
  "leo-core-packages",
+ "leo-grammar",
  "leo-imports",
  "serde",
  "thiserror",
@@ -1445,8 +1445,8 @@ dependencies = [
 name = "leo-type-inference"
 version = "1.0.3"
 dependencies = [
- "leo-ast",
  "leo-core-ast",
+ "leo-grammar",
  "leo-imports",
  "leo-symbol-table",
  "serde",

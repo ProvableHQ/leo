@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_ast::ParserError;
+use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;

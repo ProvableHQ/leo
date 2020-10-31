@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{LeoAst, ParserError};
+use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
-fn to_leo_ast(filepath: &Path) -> Result<String, ParserError> {
+fn to_grammar(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
-    let program_string = LeoAst::load_file(&program_filepath)?;
+    let program_string = Grammar::load_file(&program_filepath)?;
 
     // Parses the Leo file and constructs an abstract syntax tree.
-    let ast = LeoAst::new(&program_filepath, &program_string)?;
+    let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Serializes the abstract syntax tree into JSON format.
-    let serialized_ast = LeoAst::to_json_string(&ast)?;
+    let serialized_ast = Grammar::to_json_string(&ast)?;
 
     Ok(serialized_ast)
 }
@@ -39,7 +39,7 @@ fn main() -> Result<(), ParserError> {
     if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
         eprintln!("Warning - an invalid number of command-line arguments were provided.");
         println!(
-            "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
+            "\nCommand-line usage:\n\n\tleo_grammar {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
         );
         return Ok(()); // Exit innocently
     }
@@ -48,7 +48,7 @@ fn main() -> Result<(), ParserError> {
     let input_filepath = Path::new(&cli_arguments[1]);
 
     // Construct the serialized abstract syntax tree.
-    let serialized_ast = to_leo_ast(&input_filepath)?;
+    let serialized_ast = to_grammar(&input_filepath)?;
     println!("{}", serialized_ast);
 
     // Determine the output directory.

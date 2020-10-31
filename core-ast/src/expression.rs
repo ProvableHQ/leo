@@ -23,7 +23,7 @@ use crate::{
     Span,
     SpreadOrExpression,
 };
-use leo_ast::{
+use leo_grammar::{
     access::{Access, AssigneeAccess},
     common::{Assignee, Identifier as AstIdentifier},
     expressions::{
@@ -50,7 +50,7 @@ use leo_ast::{
 };
 use leo_input::{types::ArrayDimensions as InputArrayDimensions, values::PositiveNumber as InputAstPositiveNumber};
 
-use leo_ast::{expressions::TupleExpression, types::ArrayDimensions};
+use leo_grammar::{expressions::TupleExpression, types::ArrayDimensions};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

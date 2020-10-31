@@ -20,7 +20,7 @@ pub mod functions;
 pub mod tuples;
 pub mod variables;
 
-use leo_ast::LeoAst;
+use leo_grammar::Grammar;
 use leo_type_inference::TypeInference;
 
 use leo_core_ast::{Input, LeoCoreAst, Program};
@@ -46,7 +46,7 @@ impl TestTypeInference {
         let file_path = PathBuf::from(TEST_PROGRAM_PATH);
 
         // Get parser syntax tree.
-        let ast = LeoAst::new(&file_path, &*file_string).unwrap();
+        let ast = Grammar::new(&file_path, &*file_string).unwrap();
 
         // Get typed syntax tree.
         let typed = LeoCoreAst::new(TEST_PROGRAM_NAME, &ast);

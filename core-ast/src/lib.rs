@@ -59,7 +59,7 @@ pub use self::statements::*;
 pub mod types;
 pub use self::types::*;
 
-use leo_ast::LeoAst;
+use leo_grammar::Grammar;
 
 /// The core abstract syntax tree (ast) for a Leo program.
 ///
@@ -74,7 +74,7 @@ pub struct LeoCoreAst {
 
 impl LeoCoreAst {
     /// Creates a new core syntax tree from a given program name and abstract syntax tree.
-    pub fn new<'ast>(program_name: &str, ast: &LeoAst<'ast>) -> Self {
+    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Self {
         Self {
             core_ast: Program::from(program_name, ast.as_repr()),
         }

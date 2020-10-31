@@ -1,4 +1,4 @@
-use leo_ast::ast::{LanguageParser, Rule};
+use leo_grammar::ast::{LanguageParser, Rule};
 
 use pest::*;
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Span};
-use leo_ast::imports::ImportSymbol as AstImportSymbol;
+use leo_grammar::imports::ImportSymbol as AstImportSymbol;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

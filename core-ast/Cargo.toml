@@ -26,8 +26,8 @@ name = "core_ast"
 path = "benches/core_ast.rs"
 harness = false
 
-[dependencies.leo-ast]
-path = "../ast"
+[dependencies.leo-grammar]
+path = "../grammar"
 version = "1.0.3"
 
 [dependencies.leo-input]
@@ -56,4 +56,4 @@ version = "0.3"
 
 [features]
 default = [ ]
-ci_skip = [ "leo-ast/ci_skip" ]
+ci_skip = [ "leo-grammar/ci_skip" ]

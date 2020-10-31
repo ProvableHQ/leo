@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConsoleFunction, Span};
-use leo_ast::console::ConsoleFunctionCall as AstConsoleFunctionCall;
+use leo_grammar::console::ConsoleFunctionCall as AstConsoleFunctionCall;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

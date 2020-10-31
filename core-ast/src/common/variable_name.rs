@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::common::{Identifier, Span};
-use leo_ast::common::VariableName as AstVariableName;
+use leo_grammar::common::VariableName as AstVariableName;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

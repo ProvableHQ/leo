@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{expect_compiler_error, parse_input, parse_program};
-use leo_ast::ParserError;
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
+use leo_grammar::ParserError;
 use leo_input::InputParserError;
 use leo_type_inference::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 

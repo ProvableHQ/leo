@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
 use leo_core_ast::LeoCoreAst;
+use leo_grammar::Grammar;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, time::Duration};
 
-fn leo_core_ast<'ast>(ast: &LeoAst<'ast>) -> LeoCoreAst {
+fn leo_core_ast<'ast>(ast: &Grammar<'ast>) -> LeoCoreAst {
     LeoCoreAst::new("leo_core_tree", &ast)
 }
 
 fn bench_big_if_else(c: &mut Criterion) {
     let filepath = Path::new("./big_if_else.leo").to_path_buf();
     let program_string = include_str!("./big_if_else.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::big_if_else", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -35,7 +35,7 @@ fn bench_big_if_else(c: &mut Criterion) {
 fn bench_big_ternary(c: &mut Criterion) {
     let filepath = Path::new("./big_ternary.leo").to_path_buf();
     let program_string = include_str!("./big_ternary.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::big_ternary", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -43,7 +43,7 @@ fn bench_big_ternary(c: &mut Criterion) {
 fn bench_big_circuit(c: &mut Criterion) {
     let filepath = Path::new("./big_circuit.leo").to_path_buf();
     let program_string = include_str!("./big_circuit.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::big_circuit", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -51,7 +51,7 @@ fn bench_big_circuit(c: &mut Criterion) {
 fn bench_long_expr(c: &mut Criterion) {
     let filepath = Path::new("./long_expr.leo").to_path_buf();
     let program_string = include_str!("./long_expr.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::long_expr", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -59,7 +59,7 @@ fn bench_long_expr(c: &mut Criterion) {
 fn bench_long_array(c: &mut Criterion) {
     let filepath = Path::new("./long_array.leo").to_path_buf();
     let program_string = include_str!("./long_array.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::long_array", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -67,7 +67,7 @@ fn bench_long_array(c: &mut Criterion) {
 fn bench_many_foos(c: &mut Criterion) {
     let filepath = Path::new("./many_foos.leo").to_path_buf();
     let program_string = include_str!("./many_foos.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::many_foos", |b| b.iter(|| leo_core_ast(&ast)));
 }
@@ -75,7 +75,7 @@ fn bench_many_foos(c: &mut Criterion) {
 fn bench_many_assigns(c: &mut Criterion) {
     let filepath = Path::new("./many_assigns.leo").to_path_buf();
     let program_string = include_str!("./many_assigns.leo");
-    let ast = LeoAst::new(&filepath, program_string).unwrap();
+    let ast = Grammar::new(&filepath, program_string).unwrap();
 
     c.bench_function("LeoCoreAst::many_assigns", |b| b.iter(|| leo_core_ast(&ast)));
 }

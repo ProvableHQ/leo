@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_ast::common::RangeOrExpression as AstRangeOrExpression;
+use leo_grammar::common::RangeOrExpression as AstRangeOrExpression;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

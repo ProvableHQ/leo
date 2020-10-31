@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::ImportParserError, ImportParser};
-use leo_ast::LeoAst;
 use leo_core_ast::{ImportSymbol, Program, Span};
+use leo_grammar::Grammar;
 
 use std::{ffi::OsString, fs::DirEntry, path::PathBuf};
 
@@ -51,8 +51,8 @@ fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportP
     }
 
     // Build the package abstract syntax tree.
-    let program_string = &LeoAst::load_file(&file_path)?;
-    let ast = &LeoAst::new(&file_path, &program_string)?;
+    let program_string = &Grammar::load_file(&file_path)?;
+    let ast = &Grammar::new(&file_path, &program_string)?;
 
     // Build the package typed syntax tree from the package abstract syntax tree.
     Ok(Program::from(&file_name, ast.as_repr()))

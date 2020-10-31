@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Assignee, ConditionalStatement, ConsoleFunctionCall, Declare, Expression, Identifier, Span, Variables};
-use leo_ast::{
+use leo_grammar::{
     console::ConsoleFunctionCall as AstConsoleFunctionCall,
     operations::AssignOperation,
     statements::{

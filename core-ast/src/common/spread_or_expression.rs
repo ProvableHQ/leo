@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_ast::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as AstExpression};
+use leo_grammar::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as AstExpression};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

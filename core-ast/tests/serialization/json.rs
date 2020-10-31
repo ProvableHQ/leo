@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
 use leo_core_ast::LeoCoreAst;
 #[cfg(not(feature = "ci_skip"))]
 use leo_core_ast::Program;
+use leo_grammar::Grammar;
 
 use std::path::{Path, PathBuf};
 
 fn to_core_ast(program_filepath: &Path) -> LeoCoreAst {
     // Loads the Leo code as a string from the given file path.
-    let program_string = LeoAst::load_file(program_filepath).unwrap();
+    let program_string = Grammar::load_file(program_filepath).unwrap();
 
     // Parses the Leo file and constructs a pest ast.
-    let ast = LeoAst::new(&program_filepath, &program_string).unwrap();
+    let ast = Grammar::new(&program_filepath, &program_string).unwrap();
 
     // Parses the pest ast and constructs a core ast.
     LeoCoreAst::new("leo_core_tree", &ast)

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier};
-use leo_ast::circuits::CircuitVariable;
+use leo_grammar::circuits::CircuitVariable;
 
 use serde::{Deserialize, Serialize};
 

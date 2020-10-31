@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Span;
-use leo_ast::{
+use leo_grammar::{
     annotations::AnnotationArgument,
     common::{Identifier as AstIdentifier, KeywordOrIdentifier, SelfKeyword, SelfKeywordOrIdentifier},
     expressions::CircuitName,

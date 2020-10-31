@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier};
-use leo_ast::functions::TestFunction as AstTestFunction;
+use leo_grammar::functions::TestFunction as AstTestFunction;
 
 use serde::{Deserialize, Serialize};
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
-use leo_ast::{
+use leo_grammar::{
     annotations::{Annotation, AnnotationArguments, AnnotationName},
     definitions::{AnnotatedDefinition, Definition},
 };

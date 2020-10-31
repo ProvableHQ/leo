@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Type};
-use leo_ast::circuits::{
+use leo_grammar::circuits::{
     CircuitFunction as AstCircuitFunction,
     CircuitMember as AstCircuitMember,
     CircuitVariableDefinition as AstCircuitVariableDefinition,

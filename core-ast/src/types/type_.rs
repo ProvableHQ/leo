@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, IntegerType};
-use leo_ast::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
+use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
 use leo_input::types::{
     ArrayType as InputArrayType,
     DataType as InputDataType,

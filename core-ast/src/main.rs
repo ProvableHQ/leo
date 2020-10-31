@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{LeoAst, ParserError};
 use leo_core_ast::LeoCoreAst;
+use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
 fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
-    let program_string = LeoAst::load_file(&program_filepath)?;
+    let program_string = Grammar::load_file(&program_filepath)?;
 
     // Parses the Leo file and constructs a pest ast.
-    let ast = LeoAst::new(&program_filepath, &program_string)?;
+    let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parse the pest ast and constructs a core ast.
     let core_ast = LeoCoreAst::new("leo_core_tree", &ast);

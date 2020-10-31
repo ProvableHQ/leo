@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalStatement, Statement};
-use leo_ast::statements::ConditionalNestedOrEndStatement as AstConditionalNestedOrEndStatement;
+use leo_grammar::statements::ConditionalNestedOrEndStatement as AstConditionalNestedOrEndStatement;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

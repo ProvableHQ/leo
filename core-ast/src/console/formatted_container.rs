@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Span;
-use leo_ast::console::FormattedContainer as AstFormattedContainer;
+use leo_grammar::console::FormattedContainer as AstFormattedContainer;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

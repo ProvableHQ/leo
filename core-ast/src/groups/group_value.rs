@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{common::span::Span, groups::GroupCoordinate};
-use leo_ast::values::{
+use leo_grammar::values::{
     GroupRepresentation as AstGroupRepresentation,
     GroupTuple as AstGroupTuple,
     GroupValue as AstGroupValue,

@@ -23,8 +23,8 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
-use leo_ast::LeoAst;
 use leo_core_ast::{Input, LeoCoreAst, MainInput, Program};
+use leo_grammar::Grammar;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -174,10 +174,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     pub(crate) fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Load the program file.
-        let program_string = LeoAst::load_file(&self.main_file_path)?;
+        let program_string = Grammar::load_file(&self.main_file_path)?;
 
         // Use the parser to construct the pest abstract syntax tree (ast).
-        let pest_ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
+        let pest_ast = Grammar::new(&self.main_file_path, &program_string).map_err(|mut e| {
             e.set_path(&self.main_file_path);
 
             e
@@ -234,7 +234,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     #[deprecated(note = "Please use the 'parse_program' method instead.")]
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
-        let ast = LeoAst::new(&self.main_file_path, &program_string).map_err(|mut e| {
+        let ast = Grammar::new(&self.main_file_path, &program_string).map_err(|mut e| {
             e.set_path(&self.main_file_path);
 
             e

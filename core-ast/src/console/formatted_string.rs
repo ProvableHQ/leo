@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FormattedContainer, FormattedParameter, Span};
-use leo_ast::console::FormattedString as AstFormattedString;
+use leo_grammar::console::FormattedString as AstFormattedString;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

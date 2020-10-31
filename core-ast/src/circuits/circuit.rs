@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitMember, Identifier};
-use leo_ast::circuits::Circuit as AstCircuit;
+use leo_grammar::circuits::Circuit as AstCircuit;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

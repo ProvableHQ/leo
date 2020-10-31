@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Span, Type};
-use leo_ast::functions::FunctionInput as AstFunctionInput;
+use leo_grammar::functions::FunctionInput as AstFunctionInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

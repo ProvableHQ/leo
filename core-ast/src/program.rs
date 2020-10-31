@@ -18,7 +18,7 @@
 //! Each defined type consists of typed statements and expressions.
 
 use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
-use leo_ast::{definitions::Definition, files::File};
+use leo_grammar::{definitions::Definition, files::File};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
