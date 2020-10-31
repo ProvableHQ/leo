@@ -27,7 +27,7 @@ use crate::{
     Integer,
 };
 use leo_ast::{Circuit, Function, GroupValue, Identifier, Span, Type};
-use leo_core_packages::Value;
+use leo_core::Value;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

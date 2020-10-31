@@ -16,7 +16,7 @@
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
 use leo_ast::{Error as FormattedError, Identifier, Span};
-use leo_core_packages::LeoCorePackageError;
+use leo_core::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::Path;

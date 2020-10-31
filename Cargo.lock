@@ -1250,7 +1250,7 @@ dependencies = [
  "bincode",
  "hex",
  "leo-ast",
- "leo-core-packages",
+ "leo-core",
  "leo-gadgets",
  "leo-grammar",
  "leo-imports",
@@ -1279,7 +1279,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-core-packages"
+name = "leo-core"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
@@ -1434,7 +1434,7 @@ name = "leo-symbol-table"
 version = "1.0.3"
 dependencies = [
  "leo-ast",
- "leo-core-packages",
+ "leo-core",
  "leo-grammar",
  "leo-imports",
  "serde",

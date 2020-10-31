@@ -1,5 +1,5 @@
 [package]
-name = "leo-core-packages"
+name = "leo-core"
 version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core package dependencies of the Leo programming language"
@@ -17,12 +17,12 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies.leo-gadgets]
-path = "../gadgets"
-version = "1.0.3"
-
 [dependencies.leo-ast]
 path = "../ast"
+version = "1.0.3"
+
+[dependencies.leo-gadgets]
+path = "../gadgets"
 version = "1.0.3"
 
 [dependencies.snarkos-errors]

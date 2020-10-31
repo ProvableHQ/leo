@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Error as FormattedError, Identifier, ImportSymbol, Span};
-use leo_core_packages::LeoCorePackageError;
+use leo_core::LeoCorePackageError;
 
 #[derive(Debug, Error)]
 pub enum ImportError {

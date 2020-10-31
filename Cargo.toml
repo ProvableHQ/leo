@@ -28,7 +28,7 @@ path = "leo/main.rs"
 members = [
   "ast",
   "compiler",
-  "core-packages",
+  "core",
   "gadgets",
   "grammar",
   "imports",
