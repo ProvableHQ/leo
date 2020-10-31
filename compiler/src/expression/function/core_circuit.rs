@@ -16,7 +16,7 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use crate::errors::{ExpressionError, FunctionError};
-use leo_core_ast::{Expression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 use leo_core_packages::call_core_circuit;
 use snarkos_models::{
     curves::{Field, PrimeField},

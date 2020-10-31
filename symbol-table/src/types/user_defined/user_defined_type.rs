@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{Attribute, FunctionInputVariableType, Type};
-use leo_core_ast::{Circuit, Function, Identifier};
+use leo_ast::{Circuit, Function, Identifier};
 
 use std::{
     fmt,

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{TypeError, UserDefinedType};
-use leo_core_ast::{Error as FormattedError, ImportSymbol, Program, Span};
+use leo_ast::{Error as FormattedError, ImportSymbol, Program, Span};
 use leo_core_packages::{CorePackageListError, LeoCorePackageError};
 
 use std::path::Path;

@@ -30,7 +30,7 @@ use crate::{
     Integer,
 };
 
-use leo_core_ast::{InputValue, Span, Type};
+use leo_ast::{InputValue, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

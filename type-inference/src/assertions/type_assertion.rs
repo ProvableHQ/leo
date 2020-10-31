@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{TypeAssertionError, TypeEquality, TypeMembership, TypeVariablePairs};
-use leo_core_ast::Span;
+use leo_ast::Span;
 use leo_symbol_table::{Type, TypeVariable};
 
 use serde::{Deserialize, Serialize};

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
-use leo_core_ast::{Parameter, Registers, Span};
+use leo_ast::{Parameter, Registers, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
 

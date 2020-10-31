@@ -17,7 +17,7 @@
 //! A data type that represents members in the group formed by the set of affine points on a curve.
 
 use crate::errors::GroupError;
-use leo_core_ast::{GroupValue, Span};
+use leo_ast::{GroupValue, Span};
 
 use snarkos_models::{
     curves::{Field, One},

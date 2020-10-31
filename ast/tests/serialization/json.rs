@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_core_ast::LeoCoreAst;
+use leo_ast::LeoAst;
 #[cfg(not(feature = "ci_skip"))]
-use leo_core_ast::Program;
+use leo_ast::Program;
 use leo_grammar::Grammar;
 
 use std::path::{Path, PathBuf};
 
-fn to_core_ast(program_filepath: &Path) -> LeoCoreAst {
+fn to_core_ast(program_filepath: &Path) -> LeoAst {
     // Loads the Leo code as a string from the given file path.
     let program_string = Grammar::load_file(program_filepath).unwrap();
 
@@ -29,7 +29,7 @@ fn to_core_ast(program_filepath: &Path) -> LeoCoreAst {
     let ast = Grammar::new(&program_filepath, &program_string).unwrap();
 
     // Parses the pest ast and constructs a core ast.
-    LeoCoreAst::new("leo_core_tree", &ast)
+    LeoAst::new("leo_core_tree", &ast)
 }
 
 #[test]
@@ -66,7 +66,7 @@ fn test_deserialize() {
 
     // Construct a core ast by deserializing a core ast JSON file.
     let serialized_typed_ast = include_str!("expected_core_ast.json");
-    let core_ast = LeoCoreAst::from_json_string(serialized_typed_ast).unwrap();
+    let core_ast = LeoAst::from_json_string(serialized_typed_ast).unwrap();
 
     assert_eq!(expected_core_ast, core_ast);
 }
@@ -84,8 +84,8 @@ fn test_serialize_deserialize_serialize() {
     // Serializes the core ast into JSON format.
     let serialized_core_ast = core_ast.to_json_string().unwrap();
 
-    // Deserializes the serialized core ast into a LeoCoreAst.
-    let core_ast = LeoCoreAst::from_json_string(&serialized_core_ast).unwrap();
+    // Deserializes the serialized core ast into a LeoAst.
+    let core_ast = LeoAst::from_json_string(&serialized_core_ast).unwrap();
 
     // Reserializes the core ast into JSON format.
     let reserialized_core_ast = core_ast.to_json_string().unwrap();

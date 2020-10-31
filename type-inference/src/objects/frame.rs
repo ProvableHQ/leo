@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FrameError, Scope, TypeAssertion};
-use leo_core_ast::{
+use leo_ast::{
     Assignee,
     AssigneeAccess,
     CircuitVariableDefinition,

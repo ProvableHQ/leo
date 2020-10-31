@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::ImportParserError, ImportParser};
-use leo_core_ast::{ImportSymbol, Program, Span};
+use leo_ast::{ImportSymbol, Program, Span};
 use leo_grammar::Grammar;
 
 use std::{ffi::OsString, fs::DirEntry, path::PathBuf};

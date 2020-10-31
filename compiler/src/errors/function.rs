@@ -25,7 +25,7 @@ use crate::errors::{
     StatementError,
     ValueError,
 };
-use leo_core_ast::{Error as FormattedError, Span};
+use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
 

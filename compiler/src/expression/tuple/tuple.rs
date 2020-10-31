@@ -17,7 +17,7 @@
 //! Enforces an tuple expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_core_ast::{Expression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -25,7 +25,7 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_core_ast::{Expression, Identifier, Span, Statement, Type};
+use leo_ast::{Expression, Identifier, Span, Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_core_ast::{Identifier, Input};
+use leo_ast::{Identifier, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

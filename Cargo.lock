@@ -1230,12 +1230,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
+name = "leo-ast"
+version = "1.0.3"
+dependencies = [
+ "criterion",
+ "leo-grammar",
+ "leo-input",
+ "pest",
+ "serde",
+ "serde_json",
+ "snarkos-errors",
+ "snarkos-models",
+]
+
+[[package]]
 name = "leo-compiler"
 version = "1.0.3"
 dependencies = [
  "bincode",
  "hex",
- "leo-core-ast",
+ "leo-ast",
  "leo-core-packages",
  "leo-gadgets",
  "leo-grammar",
@@ -1265,24 +1279,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-core-ast"
-version = "1.0.3"
-dependencies = [
- "criterion",
- "leo-grammar",
- "leo-input",
- "pest",
- "serde",
- "serde_json",
- "snarkos-errors",
- "snarkos-models",
-]
-
-[[package]]
 name = "leo-core-packages"
 version = "1.0.3"
 dependencies = [
- "leo-core-ast",
+ "leo-ast",
  "leo-gadgets",
  "rand",
  "rand_xorshift",
@@ -1327,7 +1327,7 @@ dependencies = [
 name = "leo-imports"
 version = "1.0.3"
 dependencies = [
- "leo-core-ast",
+ "leo-ast",
  "leo-grammar",
  "thiserror",
  "tracing",
@@ -1362,8 +1362,8 @@ dependencies = [
  "env_logger 0.8.1",
  "from-pest",
  "lazy_static",
+ "leo-ast",
  "leo-compiler",
- "leo-core-ast",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
@@ -1414,7 +1414,7 @@ dependencies = [
 name = "leo-state"
 version = "1.0.3"
 dependencies = [
- "leo-core-ast",
+ "leo-ast",
  "leo-input",
  "rand",
  "rand_xorshift",
@@ -1433,7 +1433,7 @@ dependencies = [
 name = "leo-symbol-table"
 version = "1.0.3"
 dependencies = [
- "leo-core-ast",
+ "leo-ast",
  "leo-core-packages",
  "leo-grammar",
  "leo-imports",
@@ -1445,7 +1445,7 @@ dependencies = [
 name = "leo-type-inference"
 version = "1.0.3"
 dependencies = [
- "leo-core-ast",
+ "leo-ast",
  "leo-grammar",
  "leo-imports",
  "leo-symbol-table",

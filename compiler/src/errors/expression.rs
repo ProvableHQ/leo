@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_core_ast::{Error as FormattedError, Identifier, Span};
+use leo_ast::{Error as FormattedError, Identifier, Span};
 use leo_core_packages::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;

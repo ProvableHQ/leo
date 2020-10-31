@@ -23,7 +23,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_core_ast::{Expression, Function, FunctionInput, Input};
+use leo_ast::{Expression, Function, FunctionInput, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -18,7 +18,7 @@
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_core_ast::Span;
+use leo_ast::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

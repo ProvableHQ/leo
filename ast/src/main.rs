@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_core_ast::LeoCoreAst;
+use leo_ast::LeoAst;
 use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
@@ -27,10 +27,10 @@ fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
     let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parse the pest ast and constructs a core ast.
-    let core_ast = LeoCoreAst::new("leo_core_tree", &ast);
+    let core_ast = LeoAst::new("leo_core_tree", &ast);
 
     // Serializes the core tree into JSON format.
-    let serialized_core_ast = LeoCoreAst::to_json_string(&core_ast)?;
+    let serialized_core_ast = LeoAst::to_json_string(&core_ast)?;
 
     Ok(serialized_core_ast)
 }
@@ -43,7 +43,7 @@ fn main() -> Result<(), ParserError> {
     if cli_arguments.len() < 2 || cli_arguments.len() > 3 {
         eprintln!("Warning - an invalid number of command-line arguments were provided.");
         println!(
-            "\nCommand-line usage:\n\n\tleo_core_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
+            "\nCommand-line usage:\n\n\tleo_ast {{PATH/TO/INPUT_FILENAME}}.leo {{PATH/TO/OUTPUT_DIRECTORY (optional)}}\n"
         );
         return Ok(()); // Exit innocently
     }

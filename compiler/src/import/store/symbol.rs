@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::ImportError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_core_ast::{ImportSymbol, Program};
+use leo_ast::{ImportSymbol, Program};
 
 use snarkos_models::curves::{Field, PrimeField};
 

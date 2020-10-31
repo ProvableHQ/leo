@@ -24,7 +24,7 @@ use crate::{
     IndicatorAndConstrainedValue,
     StatementResult,
 };
-use leo_core_ast::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
+use leo_ast::{ConditionalNestedOrEndStatement, ConditionalStatement, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_core_ast::{error::Error as FormattedError, Span};
+use leo_ast::{error::Error as FormattedError, Span};
 use leo_gadgets::errors::SignedIntegerError;
 
 use snarkos_errors::gadgets::SynthesisError;

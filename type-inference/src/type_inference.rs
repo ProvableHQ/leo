@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Frame, Scope, TypeInferenceError};
-use leo_core_ast::{Circuit, CircuitMember, Function, Program};
+use leo_ast::{Circuit, CircuitMember, Function, Program};
 use leo_symbol_table::SymbolTable;
 
 /// A type inference check for a Leo program.

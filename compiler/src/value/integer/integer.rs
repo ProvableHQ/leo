@@ -16,7 +16,7 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
-use leo_core_ast::{InputValue, IntegerType, Span};
+use leo_ast::{InputValue, IntegerType, Span};
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},

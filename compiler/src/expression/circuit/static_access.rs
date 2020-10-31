@@ -17,7 +17,7 @@
 //! Enforces a circuit static access expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_core_ast::{CircuitMember, Expression, Identifier, Span, Type};
+use leo_ast::{CircuitMember, Expression, Identifier, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

@@ -1,5 +1,5 @@
 [package]
-name = "leo-core-ast"
+name = "leo-ast"
 version = "1.0.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core AST of the Leo programming language"
@@ -18,12 +18,12 @@ license = "GPL-3.0"
 edition = "2018"
 
 [[bin]]
-name = "leo_core_ast"
+name = "leo_ast"
 path = "src/main.rs"
 
 [[bench]]
-name = "core_ast"
-path = "benches/core_ast.rs"
+name = "leo_ast"
+path = "benches/leo_ast.rs"
 harness = false
 
 [dependencies.leo-grammar]

@@ -17,7 +17,7 @@
 //! Methods to enforce constraints on input boolean values in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_core_ast::{InputValue, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

@@ -17,7 +17,7 @@
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
 use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
-use leo_core_ast::{InputValue, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

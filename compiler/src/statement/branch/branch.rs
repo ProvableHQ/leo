@@ -17,7 +17,7 @@
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
 use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
-use leo_core_ast::{Statement, Type};
+use leo_ast::{Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

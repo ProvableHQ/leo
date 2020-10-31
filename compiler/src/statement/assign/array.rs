@@ -17,7 +17,7 @@
 //! Enforces an array assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_core_ast::{RangeOrExpression, Span};
+use leo_ast::{RangeOrExpression, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

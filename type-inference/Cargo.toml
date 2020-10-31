@@ -17,8 +17,8 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies.leo-core-ast]
-path = "../core-ast"
+[dependencies.leo-ast]
+path = "../ast"
 version = "1.0.3"
 
 [dependencies.leo-imports]

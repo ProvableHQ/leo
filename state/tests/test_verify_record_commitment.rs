@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_core_ast::Input;
+use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_record_commitment;
 

@@ -35,6 +35,7 @@ pub mod statements;
 pub mod syntax;
 pub mod tuples;
 
+use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
     errors::CompilerError,
@@ -42,7 +43,6 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
-use leo_core_ast::{InputValue, MainInput};
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
 use snarkos_curves::edwards_bls12::Fq;

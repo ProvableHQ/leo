@@ -23,7 +23,7 @@ use crate::{
     Address,
     GroupType,
 };
-use leo_core_ast::{Identifier, Type};
+use leo_ast::{Identifier, Type};
 
 use snarkos_models::curves::{Field, PrimeField};
 

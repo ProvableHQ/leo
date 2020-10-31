@@ -16,7 +16,7 @@
 
 pub mod symbol_table;
 
-use leo_core_ast::{Input, LeoCoreAst};
+use leo_ast::{Input, LeoAst};
 use leo_grammar::Grammar;
 use leo_symbol_table::{SymbolTable, SymbolTableError};
 
@@ -27,7 +27,7 @@ const TEST_PROGRAM_PATH: &str = "";
 
 /// A helper struct to test a `SymbolTable`.
 pub struct TestSymbolTable {
-    typed: LeoCoreAst,
+    typed: LeoAst,
 }
 
 impl TestSymbolTable {
@@ -45,7 +45,7 @@ impl TestSymbolTable {
         let ast = Grammar::new(&file_path, &*file_string).unwrap();
 
         // Get typed syntax tree
-        let typed = LeoCoreAst::new(TEST_PROGRAM_PATH, &ast);
+        let typed = LeoAst::new(TEST_PROGRAM_PATH, &ast);
 
         Self { typed }
     }

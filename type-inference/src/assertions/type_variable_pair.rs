@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::TypeAssertionError;
-use leo_core_ast::Span;
+use leo_ast::Span;
 use leo_symbol_table::{flatten_array_type, Type, TypeVariable};
 use std::borrow::Cow;
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::VariableTableError;
-use leo_core_ast::Error as FormattedError;
+use leo_ast::Error as FormattedError;
 
 use std::path::Path;
 

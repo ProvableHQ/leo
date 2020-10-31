@@ -27,7 +27,7 @@ pub mod types;
 pub use self::types::*;
 
 use crate::CoreCircuit;
-use leo_core_ast::Span;
+use leo_ast::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},

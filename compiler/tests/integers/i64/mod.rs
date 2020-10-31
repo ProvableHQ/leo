@@ -21,7 +21,7 @@ use crate::{
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
-use leo_core_ast::InputValue;
+use leo_ast::InputValue;
 use leo_input::types::{I64Type, IntegerType, SignedIntegerType};
 
 test_int!(

@@ -23,7 +23,7 @@ use crate::{
     parse_program_with_input,
 };
 
-use leo_core_ast::InputValue;
+use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;

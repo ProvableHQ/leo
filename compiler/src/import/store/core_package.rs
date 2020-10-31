@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_core_ast::Package;
+use leo_ast::Package;
 
 use leo_core_packages::{CorePackageList, LeoCorePackageError};
 use snarkos_models::curves::{Field, PrimeField};

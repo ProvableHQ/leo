@@ -24,7 +24,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_core_ast::{Assignee, AssigneeAccess, Expression, Span};
+use leo_ast::{Assignee, AssigneeAccess, Expression, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

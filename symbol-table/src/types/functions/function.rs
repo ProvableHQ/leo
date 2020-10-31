@@ -19,7 +19,7 @@ use crate::{
     SymbolTable,
     TypeError,
 };
-use leo_core_ast::{Function, Identifier};
+use leo_ast::{Function, Identifier};
 
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};

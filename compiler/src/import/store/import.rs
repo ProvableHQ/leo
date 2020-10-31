@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::ImportError, ConstrainedProgram, GroupType};
-use leo_core_ast::ImportStatement;
+use leo_ast::ImportStatement;
 use leo_imports::ImportParser;
 use leo_symbol_table::imported_symbols::ImportedSymbols;
 
