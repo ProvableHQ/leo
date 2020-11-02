@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression as TypedExpression, GroupValue};
+use crate::{ArrayDimensions, GroupValue};
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
     types::{ArrayType, DataType, IntegerType, TupleType, Type},
     values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
 };
+use pest::Span;
 
 use std::fmt;
 
@@ -102,11 +103,18 @@ impl InputValue {
         }
     }
 
+    ///
+    /// Returns a new `InputValue` from the given `ArrayType` and `ArrayInlineExpression`.
+    ///
     pub(crate) fn from_array_inline(
         mut array_type: ArrayType,
         inline: ArrayInlineExpression,
     ) -> Result<Self, InputParserError> {
-        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+        // Create a new `ArrayDimensions` type from the input array_type dimensions.
+        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+
+        // Convert the array dimensions to usize.
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
 
         // Return an error if the outer array dimension does not equal the number of array elements.
         if array_dimensions[0] != inline.expressions.len() {
@@ -137,14 +145,15 @@ impl InputValue {
         array_type: ArrayType,
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
-        let initializer_dimensions = TypedExpression::get_input_array_dimensions(initializer.dimensions.clone());
+        let array_dimensions_type = ArrayDimensions::from(initializer.dimensions.clone());
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
 
-        if initializer_dimensions.len() > 1 {
+        if array_dimensions.len() > 1 {
             // The expression is an array initializer with tuple syntax
-            Self::from_array_initializer_tuple(array_type, initializer, initializer_dimensions)
+            Self::from_array_initializer_tuple(array_type, initializer, array_dimensions)
         } else {
             // The expression is an array initializer with nested syntax
-            Self::from_array_initializer_nested(array_type, initializer, initializer_dimensions)
+            Self::from_array_initializer_nested(array_type, initializer, array_dimensions)
         }
     }
 
@@ -153,7 +162,7 @@ impl InputValue {
         initializer: ArrayInitializerExpression,
         initializer_dimensions: Vec<usize>,
     ) -> Result<Self, InputParserError> {
-        let (array_dimensions, array_element_type) = fetch_nested_array_type_dimensions(array_type.clone(), vec![]);
+        let (array_dimensions, array_element_type) = fetch_nested_array_type_dimensions(array_type.clone(), vec![])?;
 
         // Return an error if the dimensions of the array are incorrect.
         if array_dimensions.ne(&initializer_dimensions) {
@@ -186,7 +195,11 @@ impl InputValue {
         initializer: ArrayInitializerExpression,
         initializer_dimensions: Vec<usize>,
     ) -> Result<Self, InputParserError> {
-        let array_dimensions = TypedExpression::get_input_array_dimensions(array_type.dimensions.clone());
+        // Create a new `ArrayDimensions` type from the input array_type dimensions.
+        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+
+        // Convert the array dimensions to usize.
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
 
         let current_array_dimension = array_dimensions[0];
         let current_initializer_dimension = initializer_dimensions[0];
@@ -240,14 +253,52 @@ impl InputValue {
     }
 }
 
-// Recursively fetch all dimensions from the array type
-fn fetch_nested_array_type_dimensions(array_type: ArrayType, mut array_dimensions: Vec<usize>) -> (Vec<usize>, Type) {
-    let mut current_dimension = TypedExpression::get_input_array_dimensions(array_type.dimensions);
+///
+/// Returns a new vector of usize values from an [`ArrayDimensions`] type.
+///
+/// Attempts to parse each dimension in the array from a `String` to a `usize` value. If parsing
+/// is successful, the `usize` value is appended to the return vector. If parsing fails, an error
+/// is returned.
+///
+fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: Span) -> Result<Vec<usize>, InputParserError> {
+    // Convert the array dimensions to usize.
+    let mut array_dimensions = Vec::with_capacity(array_dimensions_type.0.len());
+
+    for dimension in array_dimensions_type.0 {
+        // Convert the dimension to a string.
+        let dimension_string = dimension.to_string();
+
+        // Convert the string to usize.
+        let dimension_usize = match dimension_string.parse::<usize>() {
+            Ok(dimension_usize) => dimension_usize,
+            Err(_) => return Err(InputParserError::array_index(dimension_string, span.clone())),
+        };
+
+        // Collect dimension usize values.
+        array_dimensions.push(dimension_usize);
+    }
+
+    Ok(array_dimensions)
+}
+
+///
+/// Recursively fetch all dimensions from the array type.
+///
+fn fetch_nested_array_type_dimensions(
+    array_type: ArrayType,
+    mut array_dimensions: Vec<usize>,
+) -> Result<(Vec<usize>, Type), InputParserError> {
+    // Create a new `ArrayDimensions` type from the input array_type dimensions.
+    let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+
+    // Convert the array dimensions to usize.
+    let mut current_dimension = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
+
     array_dimensions.append(&mut current_dimension);
 
     match *array_type.type_ {
         Type::Array(next_array_type) => fetch_nested_array_type_dimensions(next_array_type, array_dimensions),
-        type_ => (array_dimensions, type_),
+        type_ => Ok((array_dimensions, type_)),
     }
 }
 

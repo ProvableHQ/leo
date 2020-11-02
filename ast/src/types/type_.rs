@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, IntegerType};
+use crate::{ArrayDimensions, Identifier, IntegerType};
 use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
 use leo_input::types::{
     ArrayType as InputArrayType,
@@ -37,7 +37,7 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type>, Vec<usize>),
+    Array(Box<Type>, ArrayDimensions),
     Tuple(Vec<Type>),
     Circuit(Identifier),
     SelfType,
@@ -52,62 +52,66 @@ impl Type {
         matches!(self, Type::Circuit(_))
     }
 
-    pub fn match_array_types(&self, other: &Type) -> bool {
-        // Check that both `self` and `other` are of type array
-        let (type_1, dimensions_1) = match self {
-            Type::Array(type_, dimensions) => (type_, dimensions),
-            _ => return false,
-        };
-
-        let (type_2, dimensions_2) = match other {
-            Type::Array(type_, dimensions) => (type_, dimensions),
-            _ => return false,
-        };
-
-        // Expand multidimensional array syntax
-        let (type_1_expanded, dimensions_1_expanded) = expand_array_type(type_1, dimensions_1);
-        let (type_2_expanded, dimensions_2_expanded) = expand_array_type(type_2, dimensions_2);
-
-        // Return true if expanded array types and dimensions match
-        type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
+    pub fn match_array_types(&self, _other: &Type) -> bool {
+        unimplemented!("deprecated")
+        // // Check that both `self` and `other` are of type array
+        // let (type_1, dimensions_1) = match self {
+        //     Type::Array(type_, dimensions) => (type_, dimensions),
+        //     _ => return false,
+        // };
+        //
+        // let (type_2, dimensions_2) = match other {
+        //     Type::Array(type_, dimensions) => (type_, dimensions),
+        //     _ => return false,
+        // };
+        //
+        // // Expand multidimensional array syntax
+        // let (type_1_expanded, dimensions_1_expanded) = expand_array_type(type_1, dimensions_1);
+        // let (type_2_expanded, dimensions_2_expanded) = expand_array_type(type_2, dimensions_2);
+        //
+        // // Return true if expanded array types and dimensions match
+        // type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
     }
 
-    pub fn outer_dimension(&self, dimensions: &[usize]) -> Self {
-        let type_ = self.clone();
-
-        if dimensions.len() > 1 {
-            let next = dimensions[1..].to_vec();
-
-            return Type::Array(Box::new(type_), next);
-        }
-
-        type_
+    pub fn outer_dimension(&self, _dimensions: &[usize]) -> Self {
+        unimplemented!("deprecated")
+        // let type_ = self.clone();
+        //
+        // if dimensions.len() > 1 {
+        //     let next = dimensions[1..].to_vec();
+        //
+        //     return Type::Array(Box::new(type_), next);
+        // }
+        //
+        // type_
     }
 
-    pub fn inner_dimension(&self, dimensions: &[usize]) -> Self {
-        let type_ = self.clone();
-
-        if dimensions.len() > 1 {
-            let next = dimensions[..dimensions.len() - 1].to_vec();
-
-            return Type::Array(Box::new(type_), next);
-        }
-
-        type_
+    pub fn inner_dimension(&self, _dimensions: &[usize]) -> Self {
+        unimplemented!("deprecated")
+        // let type_ = self.clone();
+        //
+        // if dimensions.len() > 1 {
+        //     let next = dimensions[..dimensions.len() - 1].to_vec();
+        //
+        //     return Type::Array(Box::new(type_), next);
+        // }
+        //
+        // type_
     }
 }
 
-fn expand_array_type(type_: &Type, dimensions: &[usize]) -> (Type, Vec<usize>) {
-    if let Type::Array(nested_type, nested_dimensions) = type_ {
-        // Expand nested array type
-        let mut expanded_dimensions = dimensions.to_vec();
-        expanded_dimensions.append(&mut nested_dimensions.clone());
-
-        expand_array_type(nested_type, &expanded_dimensions)
-    } else {
-        // Array type is fully expanded
-        (type_.clone(), dimensions.to_vec())
-    }
+fn expand_array_type(_type: &Type, _dimensions: &[usize]) -> (Type, Vec<usize>) {
+    unimplemented!("deprecated")
+    // if let Type::Array(nested_type, nested_dimensions) = type_ {
+    //     // Expand nested array type
+    //     let mut expanded_dimensions = dimensions.to_vec();
+    //     expanded_dimensions.append(&mut nested_dimensions.clone());
+    //
+    //     expand_array_type(nested_type, &expanded_dimensions)
+    // } else {
+    //     // Array type is fully expanded
+    //     (type_.clone(), dimensions.to_vec())
+    // }
 }
 
 /// pest ast -> Explicit Type for defining circuit members and function params
@@ -127,7 +131,7 @@ impl From<DataType> for Type {
 impl<'ast> From<ArrayType<'ast>> for Type {
     fn from(array_type: ArrayType<'ast>) -> Self {
         let element_type = Box::new(Type::from(*array_type.type_));
-        let dimensions = Expression::get_array_dimensions(array_type.dimensions);
+        let dimensions = ArrayDimensions::from(array_type.dimensions);
 
         Type::Array(element_type, dimensions)
     }
@@ -176,7 +180,7 @@ impl From<InputDataType> for Type {
 impl<'ast> From<InputArrayType<'ast>> for Type {
     fn from(array_type: InputArrayType<'ast>) -> Self {
         let element_type = Box::new(Type::from(*array_type.type_));
-        let dimensions = Expression::get_input_array_dimensions(array_type.dimensions);
+        let dimensions = ArrayDimensions::from(array_type.dimensions);
 
         Type::Array(element_type, dimensions)
     }
@@ -210,10 +214,7 @@ impl fmt::Display for Type {
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Circuit(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
-            Type::Array(ref array, ref dimensions) => {
-                let dimensions = dimensions.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-                write!(f, "[{}; ({})]", *array, dimensions)
-            }
+            Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {
                 let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 

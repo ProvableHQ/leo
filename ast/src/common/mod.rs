@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod array_dimensions;
+pub use array_dimensions::*;
+
 pub mod assignee;
 pub use assignee::*;
 
@@ -22,6 +25,9 @@ pub use declare::*;
 
 pub mod identifier;
 pub use identifier::*;
+
+pub mod positive_number;
+pub use positive_number::*;
 
 pub mod range_or_expression;
 pub use range_or_expression::*;

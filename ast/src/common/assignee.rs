@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, RangeOrExpression, Span};
-use leo_grammar::{access::AssigneeAccess as AstAssigneeAccess, common::Assignee as AstAssignee};
+use crate::{Identifier, PositiveNumber, RangeOrExpression, Span};
+use leo_grammar::{access::AssigneeAccess as GrammarAssigneeAccess, common::Assignee as GrammarAssignee};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,16 +23,18 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssigneeAccess {
     Array(RangeOrExpression),
-    Tuple(usize),
+    Tuple(PositiveNumber, Span),
     Member(Identifier),
 }
 
-impl<'ast> From<AstAssigneeAccess<'ast>> for AssigneeAccess {
-    fn from(access: AstAssigneeAccess<'ast>) -> Self {
+impl<'ast> From<GrammarAssigneeAccess<'ast>> for AssigneeAccess {
+    fn from(access: GrammarAssigneeAccess<'ast>) -> Self {
         match access {
-            AstAssigneeAccess::Array(array) => AssigneeAccess::Array(RangeOrExpression::from(array.expression)),
-            AstAssigneeAccess::Tuple(tuple) => AssigneeAccess::Tuple(Expression::get_count_from_ast(tuple.number)),
-            AstAssigneeAccess::Member(member) => AssigneeAccess::Member(Identifier::from(member.identifier)),
+            GrammarAssigneeAccess::Array(array) => AssigneeAccess::Array(RangeOrExpression::from(array.expression)),
+            GrammarAssigneeAccess::Tuple(tuple) => {
+                AssigneeAccess::Tuple(PositiveNumber::from(tuple.number), Span::from(tuple.span))
+            }
+            GrammarAssigneeAccess::Member(member) => AssigneeAccess::Member(Identifier::from(member.identifier)),
         }
     }
 }
@@ -52,8 +54,8 @@ impl Assignee {
     }
 }
 
-impl<'ast> From<AstAssignee<'ast>> for Assignee {
-    fn from(assignee: AstAssignee<'ast>) -> Self {
+impl<'ast> From<GrammarAssignee<'ast>> for Assignee {
+    fn from(assignee: GrammarAssignee<'ast>) -> Self {
         Assignee {
             identifier: Identifier::from(assignee.name),
             accesses: assignee
@@ -73,7 +75,7 @@ impl fmt::Display for Assignee {
         for access in &self.accesses {
             match access {
                 AssigneeAccess::Array(expression) => write!(f, "[{}]", expression)?,
-                AssigneeAccess::Tuple(index) => write!(f, ".{}", index)?,
+                AssigneeAccess::Tuple(index, _span) => write!(f, ".{}", index)?,
                 AssigneeAccess::Member(member) => write!(f, ".{}", member)?,
             }
         }

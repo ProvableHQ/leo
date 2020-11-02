@@ -15,10 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    ArrayDimensions,
     CircuitVariableDefinition,
     GroupValue,
     Identifier,
     IntegerType,
+    PositiveNumber,
     RangeOrExpression,
     Span,
     SpreadOrExpression,
@@ -44,13 +46,11 @@ use leo_grammar::{
         GroupValue as AstGroupValue,
         IntegerValue,
         NumberValue as AstNumber,
-        PositiveNumber as AstPositiveNumber,
         Value,
     },
 };
-use leo_input::{types::ArrayDimensions as InputArrayDimensions, values::PositiveNumber as InputAstPositiveNumber};
 
-use leo_grammar::{expressions::TupleExpression, types::ArrayDimensions};
+use leo_grammar::{access::TupleAccess, expressions::TupleExpression};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -92,15 +92,17 @@ pub enum Expression {
 
     // Arrays
     // (array_elements, span)
-    Array(Vec<SpreadOrExpression>, Span),
-    // (array_name, range, span)
+    ArrayInline(Vec<SpreadOrExpression>, Span),
+    // ((array element, dimensions), span)
+    ArrayInitializer(Box<(Expression, ArrayDimensions)>, Span),
+    // ((array_name, range), span)
     ArrayAccess(Box<(Expression, RangeOrExpression)>, Span),
 
     // Tuples
     // (tuple_elements, span)
     Tuple(Vec<Expression>, Span),
-    // (tuple_name, index, span)
-    TupleAccess(Box<Expression>, usize, Span),
+    // ((tuple_name, index), span)
+    TupleAccess(Box<(Expression, PositiveNumber)>, Span),
 
     // Circuits
     // (defined_circuit_name, circuit_members, span)
@@ -139,11 +141,12 @@ impl Expression {
             Expression::Lt(_, old_span) => *old_span = new_span,
 
             Expression::IfElse(_, old_span) => *old_span = new_span,
-            Expression::Array(_, old_span) => *old_span = new_span,
+            Expression::ArrayInline(_, old_span) => *old_span = new_span,
+            Expression::ArrayInitializer(_, old_span) => *old_span = new_span,
             Expression::ArrayAccess(_, old_span) => *old_span = new_span,
 
             Expression::Tuple(_, old_span) => *old_span = new_span,
-            Expression::TupleAccess(_, _, old_span) => *old_span = new_span,
+            Expression::TupleAccess(_, old_span) => *old_span = new_span,
 
             Expression::Circuit(_, _, old_span) => *old_span = new_span,
             Expression::CircuitMemberAccess(_, _, old_span) => *old_span = new_span,
@@ -152,40 +155,6 @@ impl Expression {
             Expression::FunctionCall(_, _, old_span) => *old_span = new_span,
             Expression::CoreFunctionCall(_, _, old_span) => *old_span = new_span,
             _ => {}
-        }
-    }
-}
-
-impl<'ast> Expression {
-    pub(crate) fn get_count_from_input_ast(number: InputAstPositiveNumber<'ast>) -> usize {
-        number
-            .value
-            .parse::<usize>()
-            .expect("Array size should be a positive number")
-    }
-
-    pub(crate) fn get_input_array_dimensions(dimensions: InputArrayDimensions<'ast>) -> Vec<usize> {
-        match dimensions {
-            InputArrayDimensions::Single(single) => vec![Self::get_count_from_input_ast(single.number)],
-            InputArrayDimensions::Multiple(multiple) => multiple
-                .numbers
-                .into_iter()
-                .map(Self::get_count_from_input_ast)
-                .collect(),
-        }
-    }
-
-    pub(crate) fn get_count_from_ast(number: AstPositiveNumber<'ast>) -> usize {
-        number
-            .value
-            .parse::<usize>()
-            .expect("Array size should be a positive number")
-    }
-
-    pub(crate) fn get_array_dimensions(dimensions: ArrayDimensions<'ast>) -> Vec<usize> {
-        match dimensions {
-            ArrayDimensions::Single(single) => vec![Self::get_count_from_ast(single.number)],
-            ArrayDimensions::Multiple(multiple) => multiple.numbers.into_iter().map(Self::get_count_from_ast).collect(),
         }
     }
 }
@@ -228,7 +197,7 @@ impl<'ast> fmt::Display for Expression {
             }
 
             // Arrays
-            Expression::Array(ref array, ref _span) => {
+            Expression::ArrayInline(ref array, ref _span) => {
                 write!(f, "[")?;
                 for (i, e) in array.iter().enumerate() {
                     write!(f, "{}", e)?;
@@ -238,6 +207,7 @@ impl<'ast> fmt::Display for Expression {
                 }
                 write!(f, "]")
             }
+            Expression::ArrayInitializer(ref array, ref _span) => write!(f, "[{}; {}]", array.0, array.1),
             Expression::ArrayAccess(ref array_w_index, ref _span) => {
                 write!(f, "{}[{}]", array_w_index.0, array_w_index.1)
             }
@@ -248,7 +218,9 @@ impl<'ast> fmt::Display for Expression {
 
                 write!(f, "({})", values)
             }
-            Expression::TupleAccess(ref tuple, ref index, ref _span) => write!(f, "{}.{}", tuple, index),
+            Expression::TupleAccess(ref tuple_w_index, ref _span) => {
+                write!(f, "{}.{}", tuple_w_index.0, tuple_w_index.1)
+            }
 
             // Circuits
             Expression::Circuit(ref var, ref members, ref _span) => {
@@ -326,8 +298,7 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
 
                 // Handle tuple access
                 Access::Tuple(tuple) => Expression::TupleAccess(
-                    Box::new(acc),
-                    Expression::get_count_from_ast(tuple.number),
+                    Box::new((acc, PositiveNumber::from(tuple.number))),
                     Span::from(tuple.span),
                 ),
 
@@ -393,9 +364,8 @@ impl<'ast> From<Assignee<'ast>> for Expression {
                     Span::from(array.span),
                 ),
                 AssigneeAccess::Tuple(tuple) => Expression::TupleAccess(
-                    Box::new(acc),
-                    Expression::get_count_from_ast(tuple.number),
-                    Span::from(tuple.span),
+                    Box::new((acc, PositiveNumber::from(tuple.number))),
+                    Span::from(tuple.span.clone()),
                 ),
             })
     }
@@ -482,7 +452,7 @@ impl<'ast> From<TernaryExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
     fn from(array: ArrayInlineExpression<'ast>) -> Self {
-        Expression::Array(
+        Expression::ArrayInline(
             array.expressions.into_iter().map(SpreadOrExpression::from).collect(),
             Span::from(array.span),
         )
@@ -491,26 +461,13 @@ impl<'ast> From<ArrayInlineExpression<'ast>> for Expression {
 
 impl<'ast> From<ArrayInitializerExpression<'ast>> for Expression {
     fn from(array: ArrayInitializerExpression<'ast>) -> Self {
-        let dimensions = Expression::get_array_dimensions(array.dimensions);
-        let expression = SpreadOrExpression::from(array.expression);
-
-        let mut elements = vec![];
-
-        // Initializes an arrays elements using the rust `vec!` macro.
-        // If there are multiple array dimensions, then `elements` is used as the first expression in a `vec!` macro.
-        // This creates a multi-dimensional array by chaining `vec!` macros.
-        for (i, dimension) in dimensions.into_iter().rev().enumerate() {
-            if i == 0 {
-                elements = vec![expression.clone(); dimension];
-            } else {
-                let element =
-                    SpreadOrExpression::Expression(Expression::Array(elements, Span::from(array.span.clone())));
-
-                elements = vec![element; dimension];
-            }
-        }
-
-        Expression::Array(elements, Span::from(array.span))
+        Expression::ArrayInitializer(
+            Box::new((
+                Expression::from(array.expression),
+                ArrayDimensions::from(array.dimensions),
+            )),
+            Span::from(array.span),
+        )
     }
 }
 
@@ -608,6 +565,12 @@ impl<'ast> From<IntegerValue<'ast>> for Expression {
         };
 
         Expression::Integer(type_, value, span)
+    }
+}
+
+impl<'ast> From<TupleAccess<'ast>> for Expression {
+    fn from(tuple: TupleAccess<'ast>) -> Self {
+        Expression::Implicit(tuple.number.to_string(), Span::from(tuple.span))
     }
 }
 
