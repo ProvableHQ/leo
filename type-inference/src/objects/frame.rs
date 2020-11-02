@@ -548,7 +548,7 @@ impl Frame {
             }
 
             // Arrays
-            Expression::Array(expressions, span) => self.parse_array(expressions, span),
+            Expression::ArrayInline(expressions, span) => self.parse_array(expressions, span),
             Expression::ArrayAccess(array_w_index, span) => {
                 self.parse_expression_array_access(&array_w_index.0, &array_w_index.1, span)
             }

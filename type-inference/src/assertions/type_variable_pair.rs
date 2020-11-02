@@ -16,7 +16,7 @@
 
 use crate::TypeAssertionError;
 use leo_ast::Span;
-use leo_symbol_table::{flatten_array_type, Type, TypeVariable};
+use leo_symbol_table::{get_array_element_type, Type, TypeVariable};
 use std::borrow::Cow;
 
 /// A type variable -> type pair.
@@ -88,8 +88,8 @@ impl TypeVariablePairs {
         match (left, right) {
             (Type::TypeVariable(variable), type_) => Ok(self.push(variable, type_)),
             (type_, Type::TypeVariable(variable)) => Ok(self.push(variable, type_)),
-            (Type::Array(left_type, left_dimensions), Type::Array(right_type, right_dimensions)) => {
-                self.push_pairs_array(*left_type, left_dimensions, *right_type, right_dimensions, span)
+            (Type::Array(left_type, _), Type::Array(right_type, _)) => {
+                self.push_pairs_array(*left_type, *right_type, span)
             }
             (Type::Tuple(left_types), Type::Tuple(right_types)) => {
                 self.push_pairs_tuple(left_types.into_iter(), right_types.into_iter(), span)
@@ -103,29 +103,13 @@ impl TypeVariablePairs {
     /// If a `TypeVariable` is found, create a new `TypeVariablePair` between the given left
     /// and right type.
     ///
-    fn push_pairs_array(
-        &mut self,
-        left_type: Type,
-        left_dimensions: Vec<usize>,
-        right_type: Type,
-        right_dimensions: Vec<usize>,
-        span: &Span,
-    ) -> Result<(), TypeAssertionError> {
-        // Flatten the array types to get the element types.
-        let (left_type_flat, left_dimensions_flat) = flatten_array_type(&left_type, Cow::from(&left_dimensions));
-        let (right_type_flat, right_dimensions_flat) = flatten_array_type(&right_type, Cow::from(&right_dimensions));
-
-        // If the dimensions do not match, then throw an error.
-        if left_dimensions_flat.ne(&right_dimensions_flat) {
-            return Err(TypeAssertionError::array_dimensions(
-                &left_dimensions_flat,
-                &right_dimensions_flat,
-                span,
-            ));
-        }
+    fn push_pairs_array(&mut self, left_type: Type, right_type: Type, span: &Span) -> Result<(), TypeAssertionError> {
+        // Get both array element types before comparison.
+        let array1_element = get_array_element_type(&left_type);
+        let array2_element = get_array_element_type(&right_type);
 
         // Compare the array element types.
-        self.push_pairs(left_type_flat.to_owned(), right_type_flat.to_owned(), span)
+        self.push_pairs(array1_element.to_owned(), array2_element.to_owned(), span)
     }
 
     ///

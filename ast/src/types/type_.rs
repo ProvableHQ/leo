@@ -100,20 +100,6 @@ impl Type {
     }
 }
 
-fn expand_array_type(_type: &Type, _dimensions: &[usize]) -> (Type, Vec<usize>) {
-    unimplemented!("deprecated")
-    // if let Type::Array(nested_type, nested_dimensions) = type_ {
-    //     // Expand nested array type
-    //     let mut expanded_dimensions = dimensions.to_vec();
-    //     expanded_dimensions.append(&mut nested_dimensions.clone());
-    //
-    //     expand_array_type(nested_type, &expanded_dimensions)
-    // } else {
-    //     // Array type is fully expanded
-    //     (type_.clone(), dimensions.to_vec())
-    // }
-}
-
 /// pest ast -> Explicit Type for defining circuit members and function params
 
 impl From<DataType> for Type {

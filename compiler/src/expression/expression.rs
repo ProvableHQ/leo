@@ -243,7 +243,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ),
 
             // Arrays
-            Expression::Array(array, span) => {
+            Expression::ArrayInline(array, span) => {
                 self.enforce_array(cs, file_scope, function_scope, expected_type, array, span)
             }
             Expression::ArrayAccess(array_w_index, span) => self.enforce_array_access(

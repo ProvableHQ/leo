@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{SymbolTable, TypeError, TypeVariable};
-use leo_ast::{Identifier, IntegerType, Span, Type as UnresolvedType};
+use leo_ast::{ArrayDimensions, Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
 use std::{
-    borrow::Cow,
     cmp::{Eq, PartialEq},
     fmt,
 };
@@ -34,7 +33,7 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type>, Vec<usize>),
+    Array(Box<Type>, ArrayDimensions),
     Tuple(Vec<Type>),
 
     // User defined types
@@ -145,7 +144,7 @@ impl Type {
     ///
     /// Returns array element type and dimensions if self is an expected array type `Type::Array`.
     ///
-    pub fn get_type_array(&self, span: Span) -> Result<(&Type, &Vec<usize>), TypeError> {
+    pub fn get_type_array(&self, span: Span) -> Result<(&Type, &ArrayDimensions), TypeError> {
         match self {
             Type::Array(element_type, dimensions) => Ok((element_type, dimensions)),
             // Throw mismatched type error
@@ -275,15 +274,7 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::IntegerType(integer_type) => write!(f, "{}", integer_type),
 
-            Type::Array(type_, dimensions) => {
-                let dimensions_string = dimensions
-                    .iter()
-                    .map(|dimension| dimension.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-
-                write!(f, "[{}; ({})]", *type_, dimensions_string)
-            }
+            Type::Array(type_, dimensions) => write!(f, "[{}; {}]", *type_, dimensions),
             Type::Tuple(tuple) => {
                 let tuple_string = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
@@ -306,13 +297,13 @@ impl PartialEq for Type {
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(integer_type1), Type::IntegerType(integer_type2)) => integer_type1.eq(integer_type2),
 
-            (Type::Array(type1, dimensions1), Type::Array(type2, dimensions2)) => {
-                // Flatten both array types before comparison.
-                let (type1_flat, dimensions1_flat) = flatten_array_type(type1, Cow::from(dimensions1));
-                let (type2_flat, dimensions2_flat) = flatten_array_type(type2, Cow::from(dimensions2));
+            (Type::Array(array1, _), Type::Array(array2, _)) => {
+                // Get both array element types before comparison.
+                let array1_element = get_array_element_type(array1);
+                let array2_element = get_array_element_type(array2);
 
-                // Element types and dimensions must match
-                type1_flat.eq(type2_flat) && dimensions1_flat.eq(&dimensions2_flat)
+                // Check that both arrays have the same element type.
+                array1_element.eq(array2_element)
             }
 
             (Type::Tuple(types1), Type::Tuple(types2)) => types1.eq(types2),
@@ -327,15 +318,15 @@ impl PartialEq for Type {
 impl Eq for Type {}
 
 ///
-/// Returns the data type of the array element and vector of dimensions.
+/// Returns the data type of the array element.
 ///
-/// Will flatten an array type `[[[u8; 1]; 2]; 3]` into `[u8; (3, 2, 1)]`.
+/// If the given `type_` is an array, call `get_array_element_type()` on the array element type.
+/// If the given `type_` is any other type, return the `type_`.
 ///
-pub fn flatten_array_type<'a>(type_: &'a Type, mut dimensions: Cow<'a, [usize]>) -> (&'a Type, Cow<'a, [usize]>) {
-    if let Type::Array(element_type, element_dimensions) = type_ {
-        dimensions.to_mut().extend(element_dimensions);
-        flatten_array_type(element_type, dimensions)
+pub fn get_array_element_type(type_: &Type) -> &Type {
+    if let Type::Array(element_type, _) = type_ {
+        get_array_element_type(element_type)
     } else {
-        (type_, dimensions)
+        type_
     }
 }
