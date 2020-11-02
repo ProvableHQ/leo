@@ -18,6 +18,8 @@
 //!
 //! This module contains the [`TypeInference`] type, which stores information needed to run a type
 //! inference check over a program.
+//!
+//! A new [`TypeInference`] type can be created from a [`LeoAst`] type and a [`Symbol Table`].
 
 #[macro_use]
 extern crate thiserror;

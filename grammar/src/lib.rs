@@ -59,7 +59,8 @@ use std::{fs, path::Path};
 /// The [`Grammar`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`File`] type root.
 ///
-/// A new [`Grammar`] can be created from a `*.leo` file at a [`Path`].
+/// A new [`Grammar`] type can be created from a `*.leo` file at a [`Path`].
+/// A [`Grammar`] type can be used to create a new [`LeoAst`] type.
 pub struct Grammar<'ast> {
     ast: files::File<'ast>,
 }

@@ -18,6 +18,9 @@
 //!
 //! This module contains the [`SymbolTable`] type, an abstract data type that tracks the current
 //! bindings for functions and circuits in a Leo program.
+//!
+//! A new [`Symbol Table`] type can be created from a reference to a [`LeoAst`].
+//! A [`Symbol Table`] type can be used to create a new [`TypeInference`] type.
 
 #[macro_use]
 extern crate thiserror;
