@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{SymbolTable, TypeError, TypeVariable};
-use leo_ast::{ArrayDimensions, Identifier, IntegerType, Span, Type as UnresolvedType};
+use leo_ast::{Identifier, IntegerType, Span, Type as UnresolvedType};
 
 use serde::{Deserialize, Serialize};
 use std::{
@@ -33,7 +33,7 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type>, ArrayDimensions),
+    Array(Box<Type>),
     Tuple(Vec<Type>),
 
     // User defined types
@@ -58,10 +58,10 @@ impl Type {
             UnresolvedType::Group => Type::Group,
             UnresolvedType::IntegerType(integer) => Type::IntegerType(integer),
 
-            UnresolvedType::Array(type_, dimensions) => {
+            UnresolvedType::Array(type_, _) => {
                 let array_type = Type::new(table, *type_, span)?;
 
-                Type::Array(Box::new(array_type), dimensions)
+                Type::Array(Box::new(array_type))
             }
             UnresolvedType::Tuple(types) => {
                 let tuple_types = types
@@ -100,9 +100,9 @@ impl Type {
         span: Span,
     ) -> Result<Self, TypeError> {
         Ok(match type_ {
-            UnresolvedType::Array(type_, dimensions) => {
+            UnresolvedType::Array(type_, _) => {
                 let array_type = Type::new_from_circuit(table, *type_, circuit_name, span)?;
-                Type::Array(Box::new(array_type), dimensions)
+                Type::Array(Box::new(array_type))
             }
             UnresolvedType::Tuple(types) => {
                 let tuple_types = types
@@ -116,73 +116,6 @@ impl Type {
             // The unresolved type does not depend on the current circuit definition
             unresolved => Type::new(table, unresolved, span)?,
         })
-    }
-
-    ///
-    /// Returns `Ok` if the given expected type is `Some` and expected type == actual type.
-    ///
-    pub fn check_type(expected_option: &Option<Self>, actual: &Type, span: Span) -> Result<(), TypeError> {
-        if let Some(expected) = expected_option {
-            if expected.ne(actual) {
-                return Err(TypeError::mismatched_types(expected, actual, span));
-            }
-        }
-        Ok(())
-    }
-
-    ///
-    /// Returns `Ok` if self is an expected integer type `Type::IntegerType`.
-    ///
-    pub fn check_type_integer(&self, span: Span) -> Result<(), TypeError> {
-        match self {
-            Type::IntegerType(_) => Ok(()),
-            // Throw mismatched type error
-            type_ => Err(TypeError::invalid_integer(type_, span)),
-        }
-    }
-
-    ///
-    /// Returns array element type and dimensions if self is an expected array type `Type::Array`.
-    ///
-    pub fn get_type_array(&self, span: Span) -> Result<(&Type, &ArrayDimensions), TypeError> {
-        match self {
-            Type::Array(element_type, dimensions) => Ok((element_type, dimensions)),
-            // Throw mismatched type error
-            type_ => Err(TypeError::invalid_array(type_, span)),
-        }
-    }
-
-    ///
-    /// Returns tuple element types if self is an expected tuple type `Type::Tuple`.
-    ///
-    pub fn get_type_tuple(&self, span: Span) -> Result<&Vec<Type>, TypeError> {
-        match self {
-            Type::Tuple(types) => Ok(types),
-            // Throw mismatched type error
-            type_ => Err(TypeError::invalid_tuple(type_, span)),
-        }
-    }
-
-    ///
-    /// Returns circuit identifier if self is an expected circuit type `Type::Circuit`.
-    ///
-    pub fn get_type_circuit(&self, span: Span) -> Result<&Identifier, TypeError> {
-        match self {
-            Type::Circuit(identifier) => Ok(identifier),
-            // Throw mismatched type error
-            type_ => Err(TypeError::invalid_circuit(type_, span)),
-        }
-    }
-
-    ///
-    /// Returns function identifier if self is an expected function type `Type::Function`.
-    ///
-    pub fn get_type_function(&self, span: Span) -> Result<&Identifier, TypeError> {
-        match self {
-            Type::Function(identifier) => Ok(identifier),
-            // Throw mismatched type error
-            type_ => Err(TypeError::invalid_function(type_, span)),
-        }
     }
 
     /// Returns a list of signed integer types.
@@ -254,7 +187,7 @@ impl Type {
                     *self = type_.to_owned()
                 }
             }
-            Type::Array(self_type, _) => {
+            Type::Array(self_type) => {
                 self_type.substitute(variable, type_);
             }
             Type::Tuple(types) => types
@@ -274,7 +207,7 @@ impl fmt::Display for Type {
             Type::Group => write!(f, "group"),
             Type::IntegerType(integer_type) => write!(f, "{}", integer_type),
 
-            Type::Array(type_, dimensions) => write!(f, "[{}; {}]", *type_, dimensions),
+            Type::Array(type_) => write!(f, "[{}]", *type_),
             Type::Tuple(tuple) => {
                 let tuple_string = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
@@ -297,7 +230,7 @@ impl PartialEq for Type {
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(integer_type1), Type::IntegerType(integer_type2)) => integer_type1.eq(integer_type2),
 
-            (Type::Array(array1, _), Type::Array(array2, _)) => {
+            (Type::Array(array1), Type::Array(array2)) => {
                 // Get both array element types before comparison.
                 let array1_element = get_array_element_type(array1);
                 let array2_element = get_array_element_type(array2);
@@ -324,7 +257,7 @@ impl Eq for Type {}
 /// If the given `type_` is any other type, return the `type_`.
 ///
 pub fn get_array_element_type(type_: &Type) -> &Type {
-    if let Type::Array(element_type, _) = type_ {
+    if let Type::Array(element_type) = type_ {
         get_array_element_type(element_type)
     } else {
         type_

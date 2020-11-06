@@ -113,6 +113,15 @@ impl FrameError {
     }
 
     ///
+    /// Expected a usize number for the index.
+    ///
+    pub fn invalid_index(actual: String, span: &Span) -> Self {
+        let message = format!("Expected constant number for index, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    ///
     /// Attempted to call non-static member using `::`.
     ///
     pub fn invalid_member_access(identifier: &Identifier) -> Self {

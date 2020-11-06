@@ -17,7 +17,6 @@
 use crate::TypeAssertionError;
 use leo_ast::Span;
 use leo_symbol_table::{get_array_element_type, Type, TypeVariable};
-use std::borrow::Cow;
 
 /// A type variable -> type pair.
 pub struct TypeVariablePair(TypeVariable, Type);
@@ -88,9 +87,7 @@ impl TypeVariablePairs {
         match (left, right) {
             (Type::TypeVariable(variable), type_) => Ok(self.push(variable, type_)),
             (type_, Type::TypeVariable(variable)) => Ok(self.push(variable, type_)),
-            (Type::Array(left_type, _), Type::Array(right_type, _)) => {
-                self.push_pairs_array(*left_type, *right_type, span)
-            }
+            (Type::Array(left_type), Type::Array(right_type)) => self.push_pairs_array(*left_type, *right_type, span),
             (Type::Tuple(left_types), Type::Tuple(right_types)) => {
                 self.push_pairs_tuple(left_types.into_iter(), right_types.into_iter(), span)
             }

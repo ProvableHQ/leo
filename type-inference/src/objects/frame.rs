@@ -26,6 +26,7 @@ use leo_ast::{
     Function,
     Identifier,
     IntegerType,
+    PositiveNumber,
     RangeOrExpression,
     Span,
     SpreadOrExpression,
@@ -372,7 +373,7 @@ impl Frame {
         for access in &assignee.accesses {
             let access_type = match access {
                 AssigneeAccess::Array(r_or_e) => self.parse_array_access(type_, r_or_e, span),
-                AssigneeAccess::Tuple(index) => self.parse_tuple_access(type_, *index, span),
+                AssigneeAccess::Tuple(index, _) => self.parse_tuple_access(type_, &index, span),
                 AssigneeAccess::Member(identifier) => self.parse_circuit_member_access(type_, identifier, span),
             }?;
 
@@ -549,13 +550,18 @@ impl Frame {
 
             // Arrays
             Expression::ArrayInline(expressions, span) => self.parse_array(expressions, span),
+            Expression::ArrayInitializer(array_w_dimensions, _span) => {
+                self.parse_array_initializer(&array_w_dimensions.0)
+            }
             Expression::ArrayAccess(array_w_index, span) => {
                 self.parse_expression_array_access(&array_w_index.0, &array_w_index.1, span)
             }
 
             // Tuples
             Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
-            Expression::TupleAccess(tuple, index, span) => self.parse_expression_tuple_access(tuple, *index, span),
+            Expression::TupleAccess(tuple_w_index, span) => {
+                self.parse_expression_tuple_access(&tuple_w_index.0, &tuple_w_index.1, span)
+            }
 
             // Circuits
             Expression::Circuit(identifier, members, span) => self.parse_circuit(identifier, members, span),
@@ -737,7 +743,7 @@ impl Frame {
     fn parse_expression_tuple_access(
         &mut self,
         expression: &Expression,
-        index: usize,
+        index: &PositiveNumber,
         span: &Span,
     ) -> Result<Type, FrameError> {
         // Parse the tuple expression which could be a variable with type tuple.
@@ -750,14 +756,20 @@ impl Frame {
     ///
     /// Returns the type of the accessed tuple element.
     ///
-    fn parse_tuple_access(&mut self, type_: Type, index: usize, span: &Span) -> Result<Type, FrameError> {
+    fn parse_tuple_access(&mut self, type_: Type, index: &PositiveNumber, span: &Span) -> Result<Type, FrameError> {
         // Check the type is a tuple.
         let mut elements = match type_ {
             Type::Tuple(elements) => elements,
             type_ => return Err(FrameError::tuple_access(&type_, span)),
         };
 
-        let element_type = elements.swap_remove(index);
+        // Parse index `String` to `usize`.
+        let index_usize = match index.to_string().parse::<usize>() {
+            Ok(index_usize) => index_usize,
+            Err(_) => return Err(FrameError::invalid_index(index.to_string(), span)),
+        };
+
+        let element_type = elements.swap_remove(index_usize);
 
         Ok(element_type)
     }
@@ -768,12 +780,11 @@ impl Frame {
     fn parse_array(&mut self, expressions: &[SpreadOrExpression], span: &Span) -> Result<Type, FrameError> {
         // Store array element type.
         let mut element_type = None;
-        let mut count = 0usize;
 
         // Parse all array elements.
         for expression in expressions {
             // Get the type and count of elements in each spread or expression.
-            let (type_, element_count) = self.parse_spread_or_expression(expression, span)?;
+            let type_ = self.parse_spread_or_expression(expression, span)?;
 
             // Assert that array element types are the same.
             if let Some(prev_type) = element_type {
@@ -782,9 +793,6 @@ impl Frame {
 
             // Update array element type.
             element_type = Some(type_);
-
-            // Update number of array elements.
-            count += element_count;
         }
 
         // Return an error for empty arrays.
@@ -793,43 +801,37 @@ impl Frame {
             None => return Err(FrameError::empty_array(span)),
         };
 
-        Ok(Type::Array(Box::new(type_), vec![count]))
+        Ok(Type::Array(Box::new(type_)))
+    }
+
+    ///
+    /// Returns the type of the array initializer expression.
+    ///
+    fn parse_array_initializer(&mut self, array: &Expression) -> Result<Type, FrameError> {
+        // Get element type.
+        let element_type = self.parse_expression(array)?;
+
+        // Return array type.
+        Ok(Type::Array(Box::new(element_type)))
     }
 
     ///
     /// Returns the type and count of elements in a spread or expression.
     ///
-    fn parse_spread_or_expression(
-        &mut self,
-        s_or_e: &SpreadOrExpression,
-        span: &Span,
-    ) -> Result<(Type, usize), FrameError> {
-        Ok(match s_or_e {
+    fn parse_spread_or_expression(&mut self, s_or_e: &SpreadOrExpression, span: &Span) -> Result<Type, FrameError> {
+        match s_or_e {
             SpreadOrExpression::Spread(expression) => {
                 // Parse the type of the spread array expression.
                 let array_type = self.parse_expression(expression)?;
 
                 // Check that the type is an array.
-                let (element_type, mut dimensions) = match array_type {
-                    Type::Array(element_type, dimensions) => (element_type, dimensions),
-                    type_ => return Err(FrameError::invalid_spread(type_, span)),
-                };
-
-                // A spread copies the elements of an array.
-                // If the array has elements of type array, we must return a new array type with proper dimensions.
-                // If the array has elements of any other type, we can return the type and count directly.
-                let count = dimensions.pop().unwrap();
-
-                let type_ = if dimensions.is_empty() {
-                    *element_type
-                } else {
-                    Type::Array(element_type, dimensions)
-                };
-
-                (type_, count)
+                match array_type {
+                    Type::Array(element_type) => Ok(Type::Array(element_type)),
+                    type_ => Err(FrameError::invalid_spread(type_, span)),
+                }
             }
-            SpreadOrExpression::Expression(expression) => (self.parse_expression(expression)?, 1),
-        })
+            SpreadOrExpression::Expression(expression) => self.parse_expression(expression),
+        }
     }
 
     ///
@@ -853,8 +855,8 @@ impl Frame {
     ///
     fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, span: &Span) -> Result<Type, FrameError> {
         // Check the type is an array.
-        let (element_type, _dimensions) = match type_ {
-            Type::Array(type_, dimensions) => (type_, dimensions),
+        let element_type = match type_ {
+            Type::Array(type_) => type_,
             type_ => return Err(FrameError::array_access(&type_, span)),
         };
 

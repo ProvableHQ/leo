@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
 use leo_ast::{Error as FormattedError, Identifier, Span};
 
 use std::path::Path;
@@ -41,60 +40,6 @@ impl TypeError {
     ///
     fn new_from_span(message: String, span: Span) -> Self {
         TypeError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    ///
-    /// Expected an array type from the given expression.
-    ///
-    pub fn invalid_array(actual: &Type, span: Span) -> Self {
-        let message = format!("Expected array type, found type `{}`.", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// Expected a circuit type from the given expression.
-    ///
-    pub fn invalid_circuit(actual: &Type, span: Span) -> Self {
-        let message = format!("Expected circuit type, found type `{}`.", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// Expected a function type from the given expression.
-    ///
-    pub fn invalid_function(actual: &Type, span: Span) -> Self {
-        let message = format!("Expected function type, found type `{}`.", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// Expected an integer type from the given expression.
-    ///
-    pub fn invalid_integer(actual: &Type, span: Span) -> Self {
-        let message = format!("Expected integer type, found type `{}`.", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// Expected a tuple type from the given expression.
-    ///
-    pub fn invalid_tuple(actual: &Type, span: Span) -> Self {
-        let message = format!("Expected tuple type, found type `{}`.", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// The value of the expression does not match the given explicit type.
-    ///
-    pub fn mismatched_types(expected: &Type, actual: &Type, span: Span) -> Self {
-        let message = format!("Expected type `{}`, found type `{}`.", expected, actual);
-
-        Self::new_from_span(message, span)
     }
 
     ///
