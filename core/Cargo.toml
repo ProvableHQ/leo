@@ -1,6 +1,6 @@
 [package]
 name = "leo-core"
-version = "1.0.1"
+version = "1.0.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core package dependencies of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,11 +19,11 @@ edition = "2018"
 
 [dependencies.leo-gadgets]
 path = "../gadgets"
-version = "1.0.3"
+version = "1.0.4"
 
 [dependencies.leo-typed]
 path = "../typed"
-version = "1.0.3"
+version = "1.0.4"
 
 [dependencies.snarkos-errors]
 version = "1.1.3"

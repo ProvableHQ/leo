@@ -1,6 +1,6 @@
 [package]
 name = "leo-typed"
-version = "1.0.3"
+version = "1.0.4"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Typed AST of the Leo programming language"
 homepage = "https://aleo.org"
@@ -28,11 +28,11 @@ harness = false
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.0.3"
+version = "1.0.4"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.0.3"
+version = "1.0.4"
 
 [dependencies.snarkos-errors]
 version = "1.1.3"
