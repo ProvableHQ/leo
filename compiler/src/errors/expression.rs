@@ -109,10 +109,10 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_index(actual: String, span: Span) -> Self {
+    pub fn invalid_index(actual: String, span: &Span) -> Self {
         let message = format!("index must resolve to an integer, found `{}`", actual);
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, span.to_owned())
     }
 
     pub fn invalid_length(expected: usize, actual: usize, span: Span) -> Self {
@@ -153,6 +153,12 @@ impl ExpressionError {
 
     pub fn undefined_array(actual: String, span: Span) -> Self {
         let message = format!("array `{}` must be declared before it is used in an expression", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_tuple(actual: String, span: Span) -> Self {
+        let message = format!("tuple `{}` must be declared before it is used in an expression", actual);
 
         Self::new_from_span(message, span)
     }

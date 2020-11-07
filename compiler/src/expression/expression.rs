@@ -260,9 +260,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Tuple(tuple, span) => {
                 self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
             }
-            Expression::TupleAccess(tuple, index, span) => {
-                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, *tuple, index, &span)
-            }
+            Expression::TupleAccess(tuple_w_index, span) => self.enforce_tuple_access(
+                cs,
+                file_scope,
+                function_scope,
+                expected_type,
+                tuple_w_index.0,
+                tuple_w_index.1,
+                &span,
+            ),
 
             // Circuits
             Expression::Circuit(circuit_name, members, span) => {

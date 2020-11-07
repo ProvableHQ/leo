@@ -26,7 +26,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_ast::{Circuit, Function, GroupValue, Identifier, Span, Type};
+use leo_ast::{ArrayDimensions, Circuit, Function, GroupValue, Identifier, Span, Type};
 use leo_core::Value;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -114,7 +114,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // Data type wrappers
             ConstrainedValue::Array(array) => {
                 let array_type = array[0].to_type(span)?;
-                let mut dimensions = vec![array.len()];
+                let mut dimensions = ArrayDimensions::default();
+                dimensions.push_usize(array.len(), span.to_owned());
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {

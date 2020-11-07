@@ -22,7 +22,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_ast::{Expression, Span, SpreadOrExpression, Type};
+use leo_ast::{ArrayDimensions, Expression, PositiveNumber, Span, SpreadOrExpression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -41,20 +41,28 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Check explicit array type dimension if given
-        let mut expected_dimensions = vec![];
+        let mut expected_dimension = None;
 
         if let Some(type_) = expected_type {
             match type_ {
-                Type::Array(ref type_, ref dimensions) => {
-                    let number = match dimensions.first() {
-                        Some(number) => *number,
+                Type::Array(type_, mut dimensions) => {
+                    // Remove the first dimension of the array.
+                    let first = match dimensions.remove_first() {
+                        Some(number) => {
+                            // Parse the array dimension into a `usize`.
+                            parse_index(&number, &span)?
+                        }
                         None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
                     };
 
-                    expected_dimensions.push(number);
-                    expected_type = Some(type_.outer_dimension(dimensions));
+                    // Update the expected dimension to the first dimension.
+                    expected_dimension = Some(first);
+
+                    // Update the expected type to a new array type with the first dimension removed.
+                    expected_type = Some(inner_array_type(*type_, dimensions));
                 }
                 ref type_ => {
+                    // Return an error if the expected type is not an array.
                     return Err(ExpressionError::unexpected_array(type_.to_string(), span));
                 }
             }
@@ -88,15 +96,44 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        // Check expected_dimensions if given
-        if !expected_dimensions.is_empty() && expected_dimensions[expected_dimensions.len() - 1] != result.len() {
-            return Err(ExpressionError::invalid_length(
-                expected_dimensions[expected_dimensions.len() - 1],
-                result.len(),
-                span,
-            ));
+        // Check expected_dimension if given.
+        if let Some(dimension) = expected_dimension {
+            // Return an error if the expected dimension != the actual dimension.
+            if dimension != result.len() {
+                return Err(ExpressionError::invalid_length(dimension, result.len(), span));
+            }
         }
 
         Ok(ConstrainedValue::Array(result))
+    }
+}
+
+///
+/// Returns the index as a usize.
+///
+pub fn parse_index(number: &PositiveNumber, span: &Span) -> Result<usize, ExpressionError> {
+    number
+        .value
+        .parse::<usize>()
+        .map_err(|_| ExpressionError::invalid_index(number.value.to_owned(), span))
+}
+
+///
+/// Returns the type of the inner array given an array element and array dimensions.
+///
+/// If the array has no dimensions, then an inner array does not exist. Simply return the given
+/// element type.
+///
+/// If the array has dimensions, then an inner array exists. Create a new type for the
+/// inner array. The element type of the new array should be the same as the old array. The
+/// dimensions of the new array should be the old array dimensions with the first dimension removed.
+///
+pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type {
+    if dimensions.is_empty() {
+        // The array has one dimension.
+        element_type
+    } else {
+        // The array has multiple dimensions.
+        Type::Array(Box::new(element_type), dimensions)
     }
 }

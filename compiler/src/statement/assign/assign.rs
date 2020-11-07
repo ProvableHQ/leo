@@ -83,8 +83,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     new_value,
                     span,
                 ),
-                AssigneeAccess::Tuple(index) => {
-                    self.assign_tuple(cs, indicator, &variable_name, index, new_value, span)
+                AssigneeAccess::Tuple(index, span) => {
+                    self.assign_tuple(cs, indicator, &variable_name, index, new_value, &span)
                 }
                 AssigneeAccess::Member(identifier) => {
                     // Mutate a circuit variable using the self keyword.

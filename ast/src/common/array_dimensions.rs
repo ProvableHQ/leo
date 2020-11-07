@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::PositiveNumber;
+use crate::{PositiveNumber, Span};
 use leo_grammar::types::ArrayDimensions as GrammarArrayDimensions;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
@@ -23,15 +23,70 @@ use std::fmt;
 
 /// A vector of positive numbers that represent array dimensions.
 /// Can be used in an array [`Type`] or an array initializer [`Expression`].
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayDimensions(pub Vec<PositiveNumber>);
 
 impl ArrayDimensions {
+    ///
+    /// Creates a new `PositiveNumber` from the given `usize` and `Span`.
+    /// Appends the new `PositiveNumber` to the array dimensions.
+    ///
+    pub fn push_usize(&mut self, number: usize, span: Span) {
+        let positive_number = PositiveNumber {
+            value: number.to_string(),
+            span,
+        };
+
+        self.0.push(positive_number)
+    }
+
+    ///
+    /// Appends a vector of array dimensions to the self array dimensions.
+    ///
+    pub fn append(&mut self, other: &mut ArrayDimensions) {
+        self.0.append(&mut other.0)
+    }
+
     ///
     /// Returns the array dimensions as strings.
     ///
     pub fn to_strings(&self) -> Vec<String> {
         self.0.iter().map(|number| number.to_string()).collect()
+    }
+
+    ///
+    /// Returns `true` if the all array dimensions have been removed.
+    ///
+    /// This method is called after repeated calls to `remove_first`.
+    ///
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    ///
+    /// Returns the first dimension of the array.
+    ///
+    pub fn first(&self) -> Option<&PositiveNumber> {
+        self.0.first()
+    }
+
+    ///
+    /// Attempts to remove the first dimension from the array.
+    ///
+    /// If the first dimension exists, then remove and return `Some(PositiveNumber)`.
+    /// If the first dimension does not exist, then return `None`.
+    ///
+    pub fn remove_first(&mut self) -> Option<PositiveNumber> {
+        // If there are no dimensions in the array, then return None.
+        if self.0.get(0).is_none() {
+            return None;
+        }
+
+        // Remove the first dimension.
+        let removed = self.0.remove(0);
+
+        // Return the first dimension.
+        Some(removed)
     }
 }
 
