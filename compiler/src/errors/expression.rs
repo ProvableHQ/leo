@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_ast::{Error as FormattedError, Identifier, Span};
+use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, Span};
 use leo_core::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -105,6 +105,15 @@ impl ExpressionError {
 
     pub fn index_out_of_bounds(index: usize, span: Span) -> Self {
         let message = format!("cannot access index {} of tuple out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_dimensions(expected: &ArrayDimensions, actual: &ArrayDimensions, span: Span) -> Self {
+        let message = format!(
+            "expected array dimensions {}, found array dimensions {}",
+            expected, actual
+        );
 
         Self::new_from_span(message, span)
     }

@@ -40,9 +40,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         array: Vec<SpreadOrExpression>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Check explicit array type dimension if given
         let mut expected_dimension = None;
 
+        // Check explicit array type dimension if given
         if let Some(type_) = expected_type {
             match type_ {
                 Type::Array(type_, mut dimensions) => {
@@ -105,6 +105,65 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         Ok(ConstrainedValue::Array(result))
+    }
+
+    /// Enforce array expressions
+    pub fn enforce_array_initializer<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        file_scope: &str,
+        function_scope: &str,
+        mut expected_type: Option<Type>,
+        element_expression: Expression,
+        mut actual_dimensions: ArrayDimensions,
+        span: Span,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        let mut expected_dimensions = None;
+
+        // Check explicit array type dimension if given
+        if let Some(type_) = expected_type {
+            match type_ {
+                Type::Array(element_type, dimensions) => {
+                    // Update the expected type to the element type.
+                    expected_type = Some(*element_type);
+
+                    // Update the expected dimensions to the first dimension.
+                    expected_dimensions = Some(dimensions);
+                }
+                ref type_ => {
+                    // Return an error if the expected type is not an array.
+                    return Err(ExpressionError::unexpected_array(type_.to_string(), span));
+                }
+            }
+        }
+
+        // Evaluate array element expression.
+        let mut value = self.enforce_expression(cs, file_scope, function_scope, expected_type, element_expression)?;
+
+        // Check array dimensions.
+        if let Some(dimensions) = expected_dimensions {
+            if dimensions.ne(&actual_dimensions) {
+                return Err(ExpressionError::invalid_dimensions(
+                    &dimensions,
+                    &actual_dimensions,
+                    span,
+                ));
+            }
+        }
+
+        // Allocate the array.
+        while let Some(dimension) = actual_dimensions.remove_first() {
+            // Parse the dimension into a `usize`.
+            let dimension_usize = parse_index(&dimension, &span)?;
+
+            // Allocate the array dimension.
+            let array = vec![value; dimension_usize];
+
+            // Set the array value.
+            value = ConstrainedValue::Array(array);
+        }
+
+        Ok(value)
     }
 }
 

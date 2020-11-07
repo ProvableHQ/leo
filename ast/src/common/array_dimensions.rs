@@ -19,11 +19,14 @@ use leo_grammar::types::ArrayDimensions as GrammarArrayDimensions;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// A vector of positive numbers that represent array dimensions.
 /// Can be used in an array [`Type`] or an array initializer [`Expression`].
-#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ArrayDimensions(pub Vec<PositiveNumber>);
 
 impl ArrayDimensions {
@@ -125,5 +128,29 @@ impl fmt::Display for ArrayDimensions {
 
             write!(f, "({})", dimensions)
         }
+    }
+}
+
+/// Compares two array dimensions and ignores `Span`s.
+impl PartialEq for ArrayDimensions {
+    fn eq(&self, other: &Self) -> bool {
+        // If the number of dimensions differs return false
+        if self.0.len() != other.0.len() {
+            return false;
+        }
+
+        // Iteratively compare each dimension.
+        self.0
+            .iter()
+            .zip(&other.0)
+            .all(|(first, second)| first.value.eq(&second.value))
+    }
+}
+
+impl Eq for ArrayDimensions {}
+
+impl Hash for ArrayDimensions {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.hash(state)
     }
 }

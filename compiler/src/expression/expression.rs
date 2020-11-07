@@ -246,6 +246,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::ArrayInline(array, span) => {
                 self.enforce_array(cs, file_scope, function_scope, expected_type, array, span)
             }
+            Expression::ArrayInitializer(array_w_dimensions, span) => self.enforce_array_initializer(
+                cs,
+                file_scope,
+                function_scope,
+                expected_type,
+                array_w_dimensions.0,
+                array_w_dimensions.1,
+                span,
+            ),
             Expression::ArrayAccess(array_w_index, span) => self.enforce_array_access(
                 cs,
                 file_scope,
