@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, Span};
+use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, PositiveNumber, Span};
 use leo_core::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -118,6 +118,15 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber) -> Self {
+        let message = format!(
+            "expected array dimension {}, found array dimension {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, actual.span.to_owned())
+    }
+
     pub fn invalid_index(actual: String, span: &Span) -> Self {
         let message = format!("index must resolve to an integer, found `{}`", actual);
 
@@ -181,10 +190,10 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_identifier(identifier: Identifier) -> Self {
-        let message = format!("cannot find value `{}` in this scope", identifier.name);
+    pub fn undefined_first_dimension(span: Span) -> Self {
+        let message = "the first dimension of the array must be a number".to_string();
 
-        Self::new_from_span(message, identifier.span)
+        Self::new_from_span(message, span)
     }
 
     pub fn undefined_function(function: String, span: Span) -> Self {
@@ -194,6 +203,12 @@ impl ExpressionError {
         );
 
         Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_identifier(identifier: Identifier) -> Self {
+        let message = format!("cannot find value `{}` in this scope", identifier.name);
+
+        Self::new_from_span(message, identifier.span)
     }
 
     pub fn undefined_member_access(circuit: String, member: String, span: Span) -> Self {

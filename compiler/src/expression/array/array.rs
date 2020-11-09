@@ -113,57 +113,95 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        mut expected_type: Option<Type>,
+        expected_type: Option<Type>,
         element_expression: Expression,
         mut actual_dimensions: ArrayDimensions,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut expected_dimensions = None;
+        // Compare dimensions
+        // Case 1: expected == actual => enforce expression with array element type
+        // Case 2: expected first dimension == actual first dimension => enforce expression with updated array type
+        // Case 3: expected first dimension != actual first dimension => return mismatched dimensions error
 
-        // Check explicit array type dimension if given
-        if let Some(type_) = expected_type {
-            match type_ {
-                Type::Array(element_type, dimensions) => {
-                    // Update the expected type to the element type.
-                    expected_type = Some(*element_type);
+        if let Some(Type::Array(type_, mut expected_dimensions)) = expected_type {
+            if expected_dimensions.eq(&actual_dimensions) {
+                // Case 1 - enforce expression with array element type
+                let mut value =
+                    self.enforce_expression(cs, file_scope, function_scope, Some(*type_), element_expression)?;
 
-                    // Update the expected dimensions to the first dimension.
-                    expected_dimensions = Some(dimensions);
+                // Allocate the array.
+                while let Some(dimension) = actual_dimensions.remove_first() {
+                    // Parse the dimension into a `usize`.
+                    let dimension_usize = parse_index(&dimension, &span)?;
+
+                    // Allocate the array dimension.
+                    let array = vec![value; dimension_usize];
+
+                    // Set the array value.
+                    value = ConstrainedValue::Array(array);
                 }
-                ref type_ => {
-                    // Return an error if the expected type is not an array.
-                    return Err(ExpressionError::unexpected_array(type_.to_string(), span));
+
+                Ok(value)
+            } else {
+                if expected_dimensions.first().eq(&actual_dimensions.first()) {
+                    // Case 2 - enforce expression with updated array type.
+                    let dimension = match expected_dimensions.remove_first() {
+                        Some(number) => {
+                            // Parse the array dimension into a `usize`.
+                            parse_index(&number, &span)?
+                        }
+                        None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
+                    };
+
+                    // Update the expected type to a new array type with the first dimension removed.
+                    let expected_expression_type = Some(inner_array_type(*type_, expected_dimensions));
+                    println!("expected type {:?}", expected_expression_type);
+
+                    // Get the value of the array element.
+                    let element_value = self.enforce_expression(
+                        cs,
+                        file_scope,
+                        function_scope,
+                        expected_expression_type,
+                        element_expression,
+                    )?;
+
+                    // Allocate the array of values.
+                    let array_values = vec![element_value; dimension];
+
+                    // Create a new value with the expected dimension.
+                    Ok(ConstrainedValue::Array(array_values))
+                } else {
+                    // Case 3 - return mismatched dimensions error.
+                    Err(ExpressionError::invalid_first_dimension(
+                        expected_dimensions
+                            .first()
+                            .ok_or(ExpressionError::undefined_first_dimension(span.clone()))?,
+                        actual_dimensions
+                            .first()
+                            .ok_or(ExpressionError::undefined_first_dimension(span.clone()))?,
+                    ))
                 }
             }
-        }
+        } else {
+            // No explicit type given - evaluate array element expression.
+            let mut value =
+                self.enforce_expression(cs, file_scope, function_scope, expected_type, element_expression)?;
 
-        // Evaluate array element expression.
-        let mut value = self.enforce_expression(cs, file_scope, function_scope, expected_type, element_expression)?;
+            // Allocate the array.
+            while let Some(dimension) = actual_dimensions.remove_first() {
+                // Parse the dimension into a `usize`.
+                let dimension_usize = parse_index(&dimension, &span)?;
 
-        // Check array dimensions.
-        if let Some(dimensions) = expected_dimensions {
-            if dimensions.ne(&actual_dimensions) {
-                return Err(ExpressionError::invalid_dimensions(
-                    &dimensions,
-                    &actual_dimensions,
-                    span,
-                ));
+                // Allocate the array dimension.
+                let array = vec![value; dimension_usize];
+
+                // Set the array value.
+                value = ConstrainedValue::Array(array);
             }
+
+            Ok(value)
         }
-
-        // Allocate the array.
-        while let Some(dimension) = actual_dimensions.remove_first() {
-            // Parse the dimension into a `usize`.
-            let dimension_usize = parse_index(&dimension, &span)?;
-
-            // Allocate the array dimension.
-            let array = vec![value; dimension_usize];
-
-            // Set the array value.
-            value = ConstrainedValue::Array(array);
-        }
-
-        Ok(value)
     }
 }
 

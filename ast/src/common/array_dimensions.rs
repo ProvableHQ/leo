@@ -134,16 +134,13 @@ impl fmt::Display for ArrayDimensions {
 /// Compares two array dimensions and ignores `Span`s.
 impl PartialEq for ArrayDimensions {
     fn eq(&self, other: &Self) -> bool {
-        // If the number of dimensions differs return false
+        // If the number of dimensions differs return false.
         if self.0.len() != other.0.len() {
             return false;
         }
 
-        // Iteratively compare each dimension.
-        self.0
-            .iter()
-            .zip(&other.0)
-            .all(|(first, second)| first.value.eq(&second.value))
+        // Compare all dimensions and ignore `Span`s.
+        self.0.eq(&other.0)
     }
 }
 

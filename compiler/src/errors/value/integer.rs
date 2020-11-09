@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{error::Error as FormattedError, Span};
+use leo_ast::{error::Error as FormattedError, IntegerType, Span, Type};
 use leo_gadgets::errors::SignedIntegerError;
 
 use snarkos_errors::gadgets::SynthesisError;
@@ -92,6 +92,18 @@ impl IntegerError {
 
     pub fn invalid_integer(actual: String, span: Span) -> Self {
         let message = format!("failed to parse `{}` as expected integer type", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_integer_type(expected: &IntegerType, actual: &IntegerType, span: Span) -> Self {
+        let message = format!("expected integer type {} found integer type {}", expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_type(actual: &Type, span: Span) -> Self {
+        let message = format!("expected type {}, found type IntegerType", actual);
 
         Self::new_from_span(message, span)
     }

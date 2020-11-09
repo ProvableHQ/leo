@@ -19,10 +19,13 @@ use leo_grammar::values::PositiveNumber as GrammarPositiveNumber;
 use leo_input::values::PositiveNumber as InputPositiveNumber;
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// A number string guaranteed to be positive by the pest grammar.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PositiveNumber {
     pub value: String,
     pub span: Span,
@@ -51,5 +54,20 @@ impl<'ast> From<InputPositiveNumber<'ast>> for PositiveNumber {
 impl fmt::Display for PositiveNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
+    }
+}
+
+/// Compares two positive numbers and ignores `Span`s.
+impl PartialEq for PositiveNumber {
+    fn eq(&self, other: &Self) -> bool {
+        self.value.eq(&other.value)
+    }
+}
+
+impl Eq for PositiveNumber {}
+
+impl Hash for PositiveNumber {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value.hash(state)
     }
 }

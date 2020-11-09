@@ -151,17 +151,17 @@ fn test_input_tuple_3x2_fail() {
 #[test]
 fn test_multi_fail_initializer() {
     let program_bytes = include_bytes!("multi_fail_initializer.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
 fn test_multi_inline_fail() {
     let program_bytes = include_bytes!("multi_fail_inline.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -175,9 +175,9 @@ fn test_multi_initializer() {
 #[test]
 fn test_multi_initializer_fail() {
     let program_bytes = include_bytes!("multi_initializer_fail.leo");
-    let err = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(err);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]

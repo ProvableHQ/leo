@@ -44,6 +44,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         expected_type: Option<Type>,
         expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        println!("expr {}", expression);
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => {
@@ -56,8 +57,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?)),
             Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(*group_element)?)),
             Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, &span)?),
-            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new_constant(
-                &type_, integer, &span,
+            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new(
+                expected_type,
+                &type_,
+                integer,
+                &span,
             )?)),
 
             // Binary operations
