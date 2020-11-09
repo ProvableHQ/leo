@@ -44,7 +44,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         expected_type: Option<Type>,
         expression: Expression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        println!("expr {}", expression);
         match expression {
             // Variables
             Expression::Identifier(unresolved_variable) => {

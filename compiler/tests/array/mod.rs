@@ -17,7 +17,6 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_type_inference_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -191,9 +190,9 @@ fn test_nested_3x2_value() {
 #[test]
 fn test_nested_3x2_value_fail() {
     let program_bytes = include_bytes!("nested_3x2_value_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -207,9 +206,9 @@ fn test_tuple_3x2_value() {
 #[test]
 fn test_tuple_3x2_value_fail() {
     let program_bytes = include_bytes!("tuple_3x2_value_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -251,9 +250,9 @@ fn test_type_nested_value_nested_3x2() {
 #[test]
 fn test_type_nested_value_nested_3x2_fail() {
     let program_bytes = include_bytes!("type_nested_value_nested_3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -267,9 +266,9 @@ fn test_type_nested_value_nested_4x3x2() {
 #[test]
 fn test_type_nested_value_nested_4x3x2_fail() {
     let program_bytes = include_bytes!("type_nested_value_nested_4x3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -283,9 +282,9 @@ fn test_type_nested_value_tuple_3x2() {
 #[test]
 fn test_type_nested_value_tuple_3x2_fail() {
     let program_bytes = include_bytes!("type_nested_value_tuple_3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -299,9 +298,9 @@ fn test_type_nested_value_tuple_4x3x2() {
 #[test]
 fn test_type_nested_value_tuple_4x3x2_fail() {
     let program_bytes = include_bytes!("type_nested_value_tuple_4x3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -315,9 +314,9 @@ fn test_type_tuple_value_nested_3x2() {
 #[test]
 fn test_type_tuple_value_nested_3x2_fail() {
     let program_bytes = include_bytes!("type_tuple_value_nested_3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -331,9 +330,9 @@ fn test_type_tuple_value_nested_4x3x2() {
 #[test]
 fn test_type_tuple_value_nested_4x3x2_fail() {
     let program_bytes = include_bytes!("type_tuple_value_nested_4x3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -347,9 +346,9 @@ fn test_type_tuple_value_tuple_3x2() {
 #[test]
 fn test_type_tuple_value_tuple_3x2_fail() {
     let program_bytes = include_bytes!("type_tuple_value_tuple_3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -363,9 +362,9 @@ fn test_type_tuple_value_tuple_4x3x2() {
 #[test]
 fn test_type_tuple_value_tuple_4x3x2_fail() {
     let program_bytes = include_bytes!("type_tuple_value_tuple_4x3x2_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program = parse_program(program_bytes).unwrap();
 
-    expect_type_inference_error(error);
+    let _err = expect_compiler_error(program);
 }
 
 // Tests for nested multi-dimensional arrays as input to the program

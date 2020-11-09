@@ -153,18 +153,37 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
                     };
 
+                    // Update the actual array dimensions.
+                    let _first_dimension = actual_dimensions.remove_first();
+
                     // Update the expected type to a new array type with the first dimension removed.
                     let expected_expression_type = Some(inner_array_type(*type_, expected_dimensions));
-                    println!("expected type {:?}", expected_expression_type);
 
-                    // Get the value of the array element.
-                    let element_value = self.enforce_expression(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        expected_expression_type,
-                        element_expression,
-                    )?;
+                    // If the expression has more dimensions.
+                    let element_value = match actual_dimensions.first() {
+                        Some(_dimension) => {
+                            // Get the value of the array element as an initializer.
+                            self.enforce_array_initializer(
+                                cs,
+                                file_scope,
+                                function_scope,
+                                expected_expression_type,
+                                element_expression,
+                                actual_dimensions.clone(),
+                                span.clone(),
+                            )?
+                        }
+                        None => {
+                            // Get the value of the array element as an expression.
+                            self.enforce_expression(
+                                cs,
+                                file_scope,
+                                function_scope,
+                                expected_expression_type,
+                                element_expression,
+                            )?
+                        }
+                    };
 
                     // Allocate the array of values.
                     let array_values = vec![element_value; dimension];
