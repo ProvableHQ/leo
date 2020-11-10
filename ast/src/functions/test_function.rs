@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier};
-use leo_grammar::functions::TestFunction as AstTestFunction;
+use leo_grammar::functions::TestFunction as GrammarTestFunction;
 
 use serde::{Deserialize, Serialize};
 
@@ -25,8 +25,8 @@ pub struct TestFunction {
     pub input_file: Option<Identifier>,
 }
 
-impl<'ast> From<AstTestFunction<'ast>> for TestFunction {
-    fn from(test: AstTestFunction) -> Self {
+impl<'ast> From<GrammarTestFunction<'ast>> for TestFunction {
+    fn from(test: GrammarTestFunction) -> Self {
         TestFunction {
             function: Function::from(test.function),
             input_file: None, // pass custom input file with `@context` annotation

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FormattedContainer, FormattedParameter, Span};
-use leo_grammar::console::FormattedString as AstFormattedString;
+use leo_grammar::console::FormattedString as GrammarFormattedString;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -28,8 +28,8 @@ pub struct FormattedString {
     pub span: Span,
 }
 
-impl<'ast> From<AstFormattedString<'ast>> for FormattedString {
-    fn from(formatted: AstFormattedString<'ast>) -> Self {
+impl<'ast> From<GrammarFormattedString<'ast>> for FormattedString {
+    fn from(formatted: GrammarFormattedString<'ast>) -> Self {
         let string = formatted.string;
         let span = Span::from(formatted.span);
         let containers = formatted.containers.into_iter().map(FormattedContainer::from).collect();

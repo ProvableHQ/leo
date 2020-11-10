@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInput, Identifier, Span, Statement, Type};
-use leo_grammar::functions::Function as AstFunction;
+use leo_grammar::functions::Function as GrammarFunction;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -37,8 +37,8 @@ impl PartialEq for Function {
 
 impl Eq for Function {}
 
-impl<'ast> From<AstFunction<'ast>> for Function {
-    fn from(function: AstFunction<'ast>) -> Self {
+impl<'ast> From<GrammarFunction<'ast>> for Function {
+    fn from(function: GrammarFunction<'ast>) -> Self {
         let function_name = Identifier::from(function.identifier);
 
         let parameters = function.parameters.into_iter().map(FunctionInput::from).collect();

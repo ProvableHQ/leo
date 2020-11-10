@@ -16,9 +16,9 @@
 
 use crate::{common::span::Span, groups::GroupCoordinate};
 use leo_grammar::values::{
-    GroupRepresentation as AstGroupRepresentation,
-    GroupTuple as AstGroupTuple,
-    GroupValue as AstGroupValue,
+    GroupRepresentation as GrammarGroupRepresentation,
+    GroupTuple as GrammarGroupTuple,
+    GroupValue as GrammarGroupValue,
 };
 use leo_input::values::{
     GroupRepresentation as InputGroupRepresentation,
@@ -51,13 +51,13 @@ impl GroupValue {
     }
 }
 
-impl<'ast> From<AstGroupValue<'ast>> for GroupValue {
-    fn from(ast_group: AstGroupValue) -> Self {
+impl<'ast> From<GrammarGroupValue<'ast>> for GroupValue {
+    fn from(ast_group: GrammarGroupValue) -> Self {
         let span = Span::from(ast_group.span);
 
         match ast_group.value {
-            AstGroupRepresentation::Single(number) => GroupValue::Single(number.to_string(), span),
-            AstGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
+            GrammarGroupRepresentation::Single(number) => GroupValue::Single(number.to_string(), span),
+            GrammarGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
         }
     }
 }
@@ -89,8 +89,8 @@ pub struct GroupTuple {
     pub span: Span,
 }
 
-impl<'ast> From<AstGroupTuple<'ast>> for GroupTuple {
-    fn from(ast_group: AstGroupTuple<'ast>) -> Self {
+impl<'ast> From<GrammarGroupTuple<'ast>> for GroupTuple {
+    fn from(ast_group: GrammarGroupTuple<'ast>) -> Self {
         let ast_x = ast_group.x;
         let ast_y = ast_group.y;
 

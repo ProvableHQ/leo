@@ -16,11 +16,11 @@
 
 use crate::common::span::Span;
 use leo_grammar::values::{
-    GroupCoordinate as AstGroupCoordinate,
-    Inferred as AstInferred,
-    NumberValue as AstNumberValue,
-    SignHigh as AstSignHigh,
-    SignLow as AstSignLow,
+    GroupCoordinate as GrammarGroupCoordinate,
+    Inferred as GrammarInferred,
+    NumberValue as GrammarNumberValue,
+    SignHigh as GrammarSignHigh,
+    SignLow as GrammarSignLow,
 };
 use leo_input::values::{
     GroupCoordinate as InputGroupCoordinate,
@@ -41,13 +41,13 @@ pub enum GroupCoordinate {
     Inferred,
 }
 
-impl<'ast> From<AstGroupCoordinate<'ast>> for GroupCoordinate {
-    fn from(coordinate: AstGroupCoordinate<'ast>) -> Self {
+impl<'ast> From<GrammarGroupCoordinate<'ast>> for GroupCoordinate {
+    fn from(coordinate: GrammarGroupCoordinate<'ast>) -> Self {
         match coordinate {
-            AstGroupCoordinate::Number(number) => GroupCoordinate::from(number),
-            AstGroupCoordinate::SignHigh(sign_high) => GroupCoordinate::from(sign_high),
-            AstGroupCoordinate::SignLow(sign_low) => GroupCoordinate::from(sign_low),
-            AstGroupCoordinate::Inferred(inferred) => GroupCoordinate::from(inferred),
+            GrammarGroupCoordinate::Number(number) => GroupCoordinate::from(number),
+            GrammarGroupCoordinate::SignHigh(sign_high) => GroupCoordinate::from(sign_high),
+            GrammarGroupCoordinate::SignLow(sign_low) => GroupCoordinate::from(sign_low),
+            GrammarGroupCoordinate::Inferred(inferred) => GroupCoordinate::from(inferred),
         }
     }
 }
@@ -74,8 +74,8 @@ impl fmt::Display for GroupCoordinate {
     }
 }
 
-impl<'ast> From<AstNumberValue<'ast>> for GroupCoordinate {
-    fn from(number: AstNumberValue<'ast>) -> Self {
+impl<'ast> From<GrammarNumberValue<'ast>> for GroupCoordinate {
+    fn from(number: GrammarNumberValue<'ast>) -> Self {
         let value = number.to_string();
         let span = Span::from(number.span().clone());
 
@@ -83,20 +83,20 @@ impl<'ast> From<AstNumberValue<'ast>> for GroupCoordinate {
     }
 }
 
-impl<'ast> From<AstSignHigh<'ast>> for GroupCoordinate {
-    fn from(_sign: AstSignHigh<'ast>) -> Self {
+impl<'ast> From<GrammarSignHigh<'ast>> for GroupCoordinate {
+    fn from(_sign: GrammarSignHigh<'ast>) -> Self {
         GroupCoordinate::SignHigh
     }
 }
 
-impl<'ast> From<AstSignLow<'ast>> for GroupCoordinate {
-    fn from(_sign: AstSignLow<'ast>) -> Self {
+impl<'ast> From<GrammarSignLow<'ast>> for GroupCoordinate {
+    fn from(_sign: GrammarSignLow<'ast>) -> Self {
         GroupCoordinate::SignLow
     }
 }
 
-impl<'ast> From<AstInferred<'ast>> for GroupCoordinate {
-    fn from(_sign: AstInferred<'ast>) -> Self {
+impl<'ast> From<GrammarInferred<'ast>> for GroupCoordinate {
+    fn from(_sign: GrammarInferred<'ast>) -> Self {
         GroupCoordinate::Inferred
     }
 }

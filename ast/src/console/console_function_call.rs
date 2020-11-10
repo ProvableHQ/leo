@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConsoleFunction, Span};
-use leo_grammar::console::ConsoleFunctionCall as AstConsoleFunctionCall;
+use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,8 +26,8 @@ pub struct ConsoleFunctionCall {
     pub span: Span,
 }
 
-impl<'ast> From<AstConsoleFunctionCall<'ast>> for ConsoleFunctionCall {
-    fn from(console: AstConsoleFunctionCall<'ast>) -> Self {
+impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleFunctionCall {
+    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
         ConsoleFunctionCall {
             function: ConsoleFunction::from(console.function),
             span: Span::from(console.span),

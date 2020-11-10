@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInputVariable, Identifier, Span};
-use leo_grammar::functions::input::Input as AstInput;
+use leo_grammar::functions::input::Input as GrammarInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,10 +26,10 @@ pub enum FunctionInput {
     Variable(FunctionInputVariable),
 }
 
-impl<'ast> From<AstInput<'ast>> for FunctionInput {
-    fn from(input: AstInput<'ast>) -> Self {
+impl<'ast> From<GrammarInput<'ast>> for FunctionInput {
+    fn from(input: GrammarInput<'ast>) -> Self {
         match input {
-            AstInput::InputKeyword(input_keyword) => {
+            GrammarInput::InputKeyword(input_keyword) => {
                 let id = Identifier {
                     name: input_keyword.keyword,
                     span: Span::from(input_keyword.span),
@@ -37,7 +37,7 @@ impl<'ast> From<AstInput<'ast>> for FunctionInput {
 
                 FunctionInput::InputKeyword(id)
             }
-            AstInput::FunctionInput(function_input) => {
+            GrammarInput::FunctionInput(function_input) => {
                 FunctionInput::Variable(FunctionInputVariable::from(function_input))
             }
         }

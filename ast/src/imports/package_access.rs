@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ImportSymbol, Package, Span};
-use leo_grammar::imports::PackageAccess as AstPackageAccess;
+use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -28,13 +28,13 @@ pub enum PackageAccess {
     Multiple(Vec<PackageAccess>),
 }
 
-impl<'ast> From<AstPackageAccess<'ast>> for PackageAccess {
-    fn from(access: AstPackageAccess<'ast>) -> Self {
+impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
+    fn from(access: GrammarPackageAccess<'ast>) -> Self {
         match access {
-            AstPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
-            AstPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
-            AstPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
-            AstPackageAccess::Multiple(accesses) => {
+            GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
+            GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
+            GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
+            GrammarPackageAccess::Multiple(accesses) => {
                 PackageAccess::Multiple(accesses.into_iter().map(PackageAccess::from).collect())
             }
         }

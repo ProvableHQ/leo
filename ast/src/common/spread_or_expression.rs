@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_grammar::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as GrammarExpression};
+use leo_grammar::{
+    common::SpreadOrExpression as GrammarSpreadOrExpression,
+    expressions::Expression as GrammarExpression,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,11 +30,13 @@ pub enum SpreadOrExpression {
     Expression(Expression),
 }
 
-impl<'ast> From<AstSpreadOrExpression<'ast>> for SpreadOrExpression {
-    fn from(s_or_e: AstSpreadOrExpression<'ast>) -> Self {
+impl<'ast> From<GrammarSpreadOrExpression<'ast>> for SpreadOrExpression {
+    fn from(s_or_e: GrammarSpreadOrExpression<'ast>) -> Self {
         match s_or_e {
-            AstSpreadOrExpression::Spread(spread) => SpreadOrExpression::Spread(Expression::from(spread.expression)),
-            AstSpreadOrExpression::Expression(expression) => {
+            GrammarSpreadOrExpression::Spread(spread) => {
+                SpreadOrExpression::Spread(Expression::from(spread.expression))
+            }
+            GrammarSpreadOrExpression::Expression(expression) => {
                 SpreadOrExpression::Expression(Expression::from(expression))
             }
         }

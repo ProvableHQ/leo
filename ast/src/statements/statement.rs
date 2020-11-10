@@ -16,7 +16,7 @@
 
 use crate::{Assignee, ConditionalStatement, ConsoleFunctionCall, Declare, Expression, Identifier, Span, Variables};
 use leo_grammar::{
-    console::ConsoleFunctionCall as AstConsoleFunctionCall,
+    console::ConsoleFunctionCall as GrammarConsoleFunctionCall,
     operations::AssignOperation,
     statements::{
         AssignStatement,
@@ -133,8 +133,8 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<AstConsoleFunctionCall<'ast>> for Statement {
-    fn from(function_call: AstConsoleFunctionCall<'ast>) -> Self {
+impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for Statement {
+    fn from(function_call: GrammarConsoleFunctionCall<'ast>) -> Self {
         Statement::Console(ConsoleFunctionCall::from(function_call))
     }
 }

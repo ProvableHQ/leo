@@ -27,13 +27,13 @@ use crate::{
 };
 use leo_grammar::{
     access::{Access, AssigneeAccess},
-    common::{Assignee, Identifier as AstIdentifier},
+    common::{Assignee, Identifier as GrammarIdentifier},
     expressions::{
         ArrayInitializerExpression,
         ArrayInlineExpression,
         BinaryExpression,
         CircuitInlineExpression,
-        Expression as AstExpression,
+        Expression as GrammarExpression,
         PostfixExpression,
         TernaryExpression,
         UnaryExpression,
@@ -43,9 +43,9 @@ use leo_grammar::{
         AddressValue,
         BooleanValue,
         FieldValue,
-        GroupValue as AstGroupValue,
+        GroupValue as GrammarGroupValue,
         IntegerValue,
-        NumberValue as AstNumber,
+        NumberValue as GrammarNumber,
         Value,
     },
 };
@@ -327,19 +327,19 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<AstExpression<'ast>> for Expression {
-    fn from(expression: AstExpression<'ast>) -> Self {
+impl<'ast> From<GrammarExpression<'ast>> for Expression {
+    fn from(expression: GrammarExpression<'ast>) -> Self {
         match expression {
-            AstExpression::Value(value) => Expression::from(value),
-            AstExpression::Identifier(variable) => Expression::from(variable),
-            AstExpression::Unary(expression) => Expression::from(*expression),
-            AstExpression::Binary(expression) => Expression::from(*expression),
-            AstExpression::Ternary(expression) => Expression::from(*expression),
-            AstExpression::ArrayInline(expression) => Expression::from(expression),
-            AstExpression::ArrayInitializer(expression) => Expression::from(*expression),
-            AstExpression::Tuple(expression) => Expression::from(expression),
-            AstExpression::CircuitInline(expression) => Expression::from(expression),
-            AstExpression::Postfix(expression) => Expression::from(expression),
+            GrammarExpression::Value(value) => Expression::from(value),
+            GrammarExpression::Identifier(variable) => Expression::from(variable),
+            GrammarExpression::Unary(expression) => Expression::from(*expression),
+            GrammarExpression::Binary(expression) => Expression::from(*expression),
+            GrammarExpression::Ternary(expression) => Expression::from(*expression),
+            GrammarExpression::ArrayInline(expression) => Expression::from(expression),
+            GrammarExpression::ArrayInitializer(expression) => Expression::from(*expression),
+            GrammarExpression::Tuple(expression) => Expression::from(expression),
+            GrammarExpression::CircuitInline(expression) => Expression::from(expression),
+            GrammarExpression::Postfix(expression) => Expression::from(expression),
         }
     }
 }
@@ -526,17 +526,17 @@ impl<'ast> From<FieldValue<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<AstGroupValue<'ast>> for Expression {
-    fn from(ast_group: AstGroupValue<'ast>) -> Self {
+impl<'ast> From<GrammarGroupValue<'ast>> for Expression {
+    fn from(ast_group: GrammarGroupValue<'ast>) -> Self {
         Expression::Group(Box::new(GroupValue::from(ast_group)))
     }
 }
 
-impl<'ast> From<AstNumber<'ast>> for Expression {
-    fn from(number: AstNumber<'ast>) -> Self {
+impl<'ast> From<GrammarNumber<'ast>> for Expression {
+    fn from(number: GrammarNumber<'ast>) -> Self {
         let (value, span) = match number {
-            AstNumber::Positive(number) => (number.value, number.span),
-            AstNumber::Negative(number) => (number.value, number.span),
+            GrammarNumber::Positive(number) => (number.value, number.span),
+            GrammarNumber::Negative(number) => (number.value, number.span),
         };
 
         Expression::Implicit(value, Span::from(span))
@@ -550,8 +550,8 @@ impl<'ast> From<IntegerValue<'ast>> for Expression {
             IntegerValue::Signed(integer) => {
                 let type_ = IntegerType::from(integer.type_);
                 let number = match integer.number {
-                    AstNumber::Negative(number) => number.value,
-                    AstNumber::Positive(number) => number.value,
+                    GrammarNumber::Negative(number) => number.value,
+                    GrammarNumber::Positive(number) => number.value,
                 };
 
                 (type_, number)
@@ -574,8 +574,8 @@ impl<'ast> From<TupleAccess<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<AstIdentifier<'ast>> for Expression {
-    fn from(identifier: AstIdentifier<'ast>) -> Self {
+impl<'ast> From<GrammarIdentifier<'ast>> for Expression {
+    fn from(identifier: GrammarIdentifier<'ast>) -> Self {
         Expression::Identifier(Identifier::from(identifier))
     }
 }

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Package, Span};
-use leo_grammar::imports::Import as AstImport;
+use leo_grammar::imports::Import as GrammarImport;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -36,8 +36,8 @@ impl ImportStatement {
     }
 }
 
-impl<'ast> From<AstImport<'ast>> for ImportStatement {
-    fn from(import: AstImport<'ast>) -> Self {
+impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
+    fn from(import: GrammarImport<'ast>) -> Self {
         ImportStatement {
             package: Package::from(import.package),
             span: Span::from(import.span),

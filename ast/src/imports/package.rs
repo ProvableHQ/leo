@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{common::Identifier, PackageAccess, Span};
-use leo_grammar::imports::Package as AstPackage;
+use leo_grammar::imports::Package as GrammarPackage;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ pub struct Package {
     pub span: Span,
 }
 
-impl<'ast> From<AstPackage<'ast>> for Package {
-    fn from(package: AstPackage<'ast>) -> Self {
+impl<'ast> From<GrammarPackage<'ast>> for Package {
+    fn from(package: GrammarPackage<'ast>) -> Self {
         Package {
             name: Identifier::from(package.name),
             access: PackageAccess::from(package.access),

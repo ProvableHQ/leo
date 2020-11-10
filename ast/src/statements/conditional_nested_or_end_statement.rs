@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalStatement, Statement};
-use leo_grammar::statements::ConditionalNestedOrEndStatement as AstConditionalNestedOrEndStatement;
+use leo_grammar::statements::ConditionalNestedOrEndStatement as GrammarConditionalNestedOrEndStatement;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,13 +26,13 @@ pub enum ConditionalNestedOrEndStatement {
     End(Vec<Statement>),
 }
 
-impl<'ast> From<AstConditionalNestedOrEndStatement<'ast>> for ConditionalNestedOrEndStatement {
-    fn from(statement: AstConditionalNestedOrEndStatement<'ast>) -> Self {
+impl<'ast> From<GrammarConditionalNestedOrEndStatement<'ast>> for ConditionalNestedOrEndStatement {
+    fn from(statement: GrammarConditionalNestedOrEndStatement<'ast>) -> Self {
         match statement {
-            AstConditionalNestedOrEndStatement::Nested(nested) => {
+            GrammarConditionalNestedOrEndStatement::Nested(nested) => {
                 ConditionalNestedOrEndStatement::Nested(Box::new(ConditionalStatement::from(*nested)))
             }
-            AstConditionalNestedOrEndStatement::End(statements) => {
+            GrammarConditionalNestedOrEndStatement::End(statements) => {
                 ConditionalNestedOrEndStatement::End(statements.into_iter().map(Statement::from).collect())
             }
         }

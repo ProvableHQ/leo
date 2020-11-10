@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalNestedOrEndStatement, Expression, Statement};
-use leo_grammar::statements::ConditionalStatement as AstConditionalStatement;
+use leo_grammar::statements::ConditionalStatement as GrammarConditionalStatement;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ pub struct ConditionalStatement {
     pub next: Option<ConditionalNestedOrEndStatement>,
 }
 
-impl<'ast> From<AstConditionalStatement<'ast>> for ConditionalStatement {
-    fn from(statement: AstConditionalStatement<'ast>) -> Self {
+impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
+    fn from(statement: GrammarConditionalStatement<'ast>) -> Self {
         ConditionalStatement {
             condition: Expression::from(statement.condition),
             statements: statement.statements.into_iter().map(Statement::from).collect(),

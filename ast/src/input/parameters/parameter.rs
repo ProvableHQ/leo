@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Span, Type};
-use leo_input::parameters::Parameter as AstParameter;
+use leo_input::parameters::Parameter as GrammarParameter;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Parameter {
@@ -24,8 +24,8 @@ pub struct Parameter {
     pub span: Span,
 }
 
-impl<'ast> From<AstParameter<'ast>> for Parameter {
-    fn from(parameter: AstParameter<'ast>) -> Self {
+impl<'ast> From<GrammarParameter<'ast>> for Parameter {
+    fn from(parameter: GrammarParameter<'ast>) -> Self {
         Self {
             variable: Identifier::from(parameter.variable),
             type_: Type::from(parameter.type_),

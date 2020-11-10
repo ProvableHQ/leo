@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Span};
-use leo_grammar::console::FormattedParameter as AstFormattedParameter;
+use leo_grammar::console::FormattedParameter as GrammarFormattedParameter;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,8 +26,8 @@ pub struct FormattedParameter {
     pub span: Span,
 }
 
-impl<'ast> From<AstFormattedParameter<'ast>> for FormattedParameter {
-    fn from(parameter: AstFormattedParameter<'ast>) -> Self {
+impl<'ast> From<GrammarFormattedParameter<'ast>> for FormattedParameter {
+    fn from(parameter: GrammarFormattedParameter<'ast>) -> Self {
         Self {
             expression: Expression::from(parameter.expression),
             span: Span::from(parameter.span),
