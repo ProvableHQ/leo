@@ -81,7 +81,7 @@ impl ArrayDimensions {
     ///
     pub fn remove_first(&mut self) -> Option<PositiveNumber> {
         // If there are no dimensions in the array, then return None.
-        if self.0.get(0).is_none() {
+        if self.0.first().is_none() {
             return None;
         }
 
@@ -90,6 +90,16 @@ impl ArrayDimensions {
 
         // Return the first dimension.
         Some(removed)
+    }
+
+    ///
+    /// Attempts to remove the last dimension from the array.
+    ///
+    /// If the last dimension exists, then remove and return `Some(PositiveNumber)`.
+    /// If the last dimension does not exist, then return `None`.
+    ///
+    pub fn remove_last(&mut self) -> Option<PositiveNumber> {
+        self.0.pop()
     }
 }
 

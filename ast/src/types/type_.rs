@@ -24,13 +24,10 @@ use leo_input::types::{
 };
 
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     Address,
@@ -47,12 +44,61 @@ pub enum Type {
 }
 
 impl Type {
+    ///
+    /// Returns `true` if the self `Type` is the `SelfType`.
+    ///
     pub fn is_self(&self) -> bool {
         matches!(self, Type::SelfType)
     }
 
+    ///
+    /// Returns `true` if the self `Type` is a `Circuit`.
+    ///
     pub fn is_circuit(&self) -> bool {
         matches!(self, Type::Circuit(_))
+    }
+
+    ///
+    /// Returns `true` if the self `Type` is equal to the other `Type`.
+    ///
+    /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
+    ///
+    pub fn eq_flat(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Type::Address, Type::Address) => true,
+            (Type::Boolean, Type::Boolean) => true,
+            (Type::Field, Type::Field) => true,
+            (Type::Group, Type::Group) => true,
+            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(&right),
+            (Type::Circuit(left), Type::Circuit(right)) => left.eq(&right),
+            (Type::SelfType, Type::SelfType) => true,
+            (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
+                // Convert array dimensions to owned.
+                let mut left_dim_owned = left_dim.to_owned();
+                let mut right_dim_owned = right_dim.to_owned();
+
+                // Remove the first element from both dimensions.
+                let left_first = left_dim_owned.remove_first();
+                let right_first = right_dim_owned.remove_first();
+
+                // Compare the first dimensions.
+                if left_first.ne(&right_first) {
+                    return false;
+                }
+
+                // Create a new array type from the remaining array dimensions.
+                let left_new_type = inner_array_type(*left_type.to_owned(), left_dim_owned);
+                let right_new_type = inner_array_type(*right_type.to_owned(), right_dim_owned);
+
+                // Call eq_flat() on the new left and right types.
+                return left_new_type.eq_flat(&right_new_type);
+            }
+            (Type::Tuple(left), Type::Tuple(right)) => left
+                .iter()
+                .zip(right)
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+            _ => false,
+        }
     }
 }
 
@@ -163,55 +209,6 @@ impl fmt::Display for Type {
                 write!(f, "({})", types)
             }
         }
-    }
-}
-
-/// Compares two types while flattening array types.
-impl PartialEq for Type {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Type::Address, Type::Address) => true,
-            (Type::Boolean, Type::Boolean) => true,
-            (Type::Field, Type::Field) => true,
-            (Type::Group, Type::Group) => true,
-            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(&right),
-            (Type::Circuit(left), Type::Circuit(right)) => left.eq(&right),
-            (Type::SelfType, Type::SelfType) => true,
-            (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
-                let mut left_dim_owned = left_dim.to_owned();
-                let mut right_dim_owned = right_dim.to_owned();
-
-                println!("left_owned {}", left_dim_owned);
-                println!("right_owned {}", right_dim_owned);
-
-                let left_first = left_dim_owned.remove_first();
-                let right_first = right_dim_owned.remove_first();
-
-                if left_first.ne(&right_first) {
-                    return false;
-                }
-
-                let left_new_type = inner_array_type(*left_type.to_owned(), left_dim_owned);
-                let right_new_type = inner_array_type(*right_type.to_owned(), right_dim_owned);
-                println!("left_new {}", left_new_type);
-                println!("right_new {}", right_new_type);
-
-                return left_new_type.eq(&right_new_type);
-            }
-            (Type::Tuple(left), Type::Tuple(right)) => left
-                .iter()
-                .zip(right)
-                .all(|(left_type, right_type)| left_type.eq(right_type)),
-            _ => false,
-        }
-    }
-}
-
-impl Eq for Type {}
-
-impl Hash for Type {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.hash(state)
     }
 }
 

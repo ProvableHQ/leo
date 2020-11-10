@@ -130,7 +130,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     self.enforce_expression(cs, file_scope, function_scope, Some(*type_), element_expression)?;
 
                 // Allocate the array.
-                while let Some(dimension) = actual_dimensions.remove_first() {
+                while let Some(dimension) = actual_dimensions.remove_last() {
                     // Parse the dimension into a `usize`.
                     let dimension_usize = parse_index(&dimension, &span)?;
 
@@ -208,7 +208,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_expression(cs, file_scope, function_scope, expected_type, element_expression)?;
 
             // Allocate the array.
-            while let Some(dimension) = actual_dimensions.remove_first() {
+            while let Some(dimension) = actual_dimensions.remove_last() {
                 // Parse the dimension into a `usize`.
                 let dimension_usize = parse_index(&dimension, &span)?;
 
