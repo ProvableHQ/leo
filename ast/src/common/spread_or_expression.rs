@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_grammar::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as AstExpression};
+use leo_grammar::{common::SpreadOrExpression as AstSpreadOrExpression, expressions::Expression as GrammarExpression};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -38,8 +38,8 @@ impl<'ast> From<AstSpreadOrExpression<'ast>> for SpreadOrExpression {
     }
 }
 
-impl<'ast> From<AstExpression<'ast>> for SpreadOrExpression {
-    fn from(expression: AstExpression<'ast>) -> Self {
+impl<'ast> From<GrammarExpression<'ast>> for SpreadOrExpression {
+    fn from(expression: GrammarExpression<'ast>) -> Self {
         SpreadOrExpression::Expression(Expression::from(expression))
     }
 }

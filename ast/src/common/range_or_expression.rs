@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Expression;
-use leo_grammar::common::RangeOrExpression as AstRangeOrExpression;
+use leo_grammar::common::RangeOrExpression as GrammarRangeOrExpression;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,13 +27,15 @@ pub enum RangeOrExpression {
     Expression(Expression),
 }
 
-impl<'ast> From<AstRangeOrExpression<'ast>> for RangeOrExpression {
-    fn from(range_or_expression: AstRangeOrExpression<'ast>) -> Self {
+impl<'ast> From<GrammarRangeOrExpression<'ast>> for RangeOrExpression {
+    fn from(range_or_expression: GrammarRangeOrExpression<'ast>) -> Self {
         match range_or_expression {
-            AstRangeOrExpression::Range(range) => {
+            GrammarRangeOrExpression::Range(range) => {
                 RangeOrExpression::Range(range.from.map(Expression::from), range.to.map(Expression::from))
             }
-            AstRangeOrExpression::Expression(expression) => RangeOrExpression::Expression(Expression::from(expression)),
+            GrammarRangeOrExpression::Expression(expression) => {
+                RangeOrExpression::Expression(Expression::from(expression))
+            }
         }
     }
 }

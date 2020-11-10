@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::common::{Identifier, Span};
-use leo_grammar::common::VariableName as AstVariableName;
+use leo_grammar::common::VariableName as GrammarVariableName;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ pub struct VariableName {
     pub span: Span,
 }
 
-impl<'ast> From<AstVariableName<'ast>> for VariableName {
-    fn from(name: AstVariableName<'ast>) -> Self {
+impl<'ast> From<GrammarVariableName<'ast>> for VariableName {
+    fn from(name: GrammarVariableName<'ast>) -> Self {
         Self {
             mutable: name.mutable.is_some(),
             identifier: Identifier::from(name.identifier),

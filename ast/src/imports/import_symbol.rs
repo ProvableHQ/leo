@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Span};
-use leo_grammar::imports::ImportSymbol as AstImportSymbol;
+use leo_grammar::imports::ImportSymbol as GrammarImportSymbol;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ pub struct ImportSymbol {
     pub span: Span,
 }
 
-impl<'ast> From<AstImportSymbol<'ast>> for ImportSymbol {
-    fn from(symbol: AstImportSymbol<'ast>) -> Self {
+impl<'ast> From<GrammarImportSymbol<'ast>> for ImportSymbol {
+    fn from(symbol: GrammarImportSymbol<'ast>) -> Self {
         ImportSymbol {
             symbol: Identifier::from(symbol.value),
             alias: symbol.alias.map(Identifier::from),

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Type, VariableName};
-use leo_grammar::common::Variables as AstVariables;
+use leo_grammar::common::Variables as GrammarVariables;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,8 +27,8 @@ pub struct Variables {
     pub type_: Option<Type>,
 }
 
-impl<'ast> From<AstVariables<'ast>> for Variables {
-    fn from(variables: AstVariables<'ast>) -> Self {
+impl<'ast> From<GrammarVariables<'ast>> for Variables {
+    fn from(variables: GrammarVariables<'ast>) -> Self {
         let names = variables.names.into_iter().map(VariableName::from).collect::<Vec<_>>();
 
         let type_ = variables.type_.map(Type::from);

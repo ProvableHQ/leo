@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitMember, Identifier};
-use leo_grammar::circuits::Circuit as AstCircuit;
+use leo_grammar::circuits::Circuit as GrammarCircuit;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,8 +26,8 @@ pub struct Circuit {
     pub members: Vec<CircuitMember>,
 }
 
-impl<'ast> From<AstCircuit<'ast>> for Circuit {
-    fn from(circuit: AstCircuit<'ast>) -> Self {
+impl<'ast> From<GrammarCircuit<'ast>> for Circuit {
+    fn from(circuit: GrammarCircuit<'ast>) -> Self {
         let circuit_name = Identifier::from(circuit.identifier);
         let members = circuit.members.into_iter().map(CircuitMember::from).collect();
 

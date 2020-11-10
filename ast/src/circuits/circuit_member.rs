@@ -16,9 +16,9 @@
 
 use crate::{Function, Identifier, Type};
 use leo_grammar::circuits::{
-    CircuitFunction as AstCircuitFunction,
-    CircuitMember as AstCircuitMember,
-    CircuitVariableDefinition as AstCircuitVariableDefinition,
+    CircuitFunction as GrammarCircuitFunction,
+    CircuitMember as GrammarCircuitMember,
+    CircuitVariableDefinition as GrammarCircuitVariableDefinition,
 };
 
 use serde::{Deserialize, Serialize};
@@ -32,8 +32,8 @@ pub enum CircuitMember {
     CircuitFunction(bool, Function),
 }
 
-impl<'ast> From<AstCircuitVariableDefinition<'ast>> for CircuitMember {
-    fn from(circuit_value: AstCircuitVariableDefinition<'ast>) -> Self {
+impl<'ast> From<GrammarCircuitVariableDefinition<'ast>> for CircuitMember {
+    fn from(circuit_value: GrammarCircuitVariableDefinition<'ast>) -> Self {
         CircuitMember::CircuitVariable(
             circuit_value.mutable.is_some(),
             Identifier::from(circuit_value.identifier),
@@ -42,8 +42,8 @@ impl<'ast> From<AstCircuitVariableDefinition<'ast>> for CircuitMember {
     }
 }
 
-impl<'ast> From<AstCircuitFunction<'ast>> for CircuitMember {
-    fn from(circuit_function: AstCircuitFunction<'ast>) -> Self {
+impl<'ast> From<GrammarCircuitFunction<'ast>> for CircuitMember {
+    fn from(circuit_function: GrammarCircuitFunction<'ast>) -> Self {
         CircuitMember::CircuitFunction(
             circuit_function._static.is_some(),
             Function::from(circuit_function.function),
@@ -51,11 +51,11 @@ impl<'ast> From<AstCircuitFunction<'ast>> for CircuitMember {
     }
 }
 
-impl<'ast> From<AstCircuitMember<'ast>> for CircuitMember {
-    fn from(object: AstCircuitMember<'ast>) -> Self {
+impl<'ast> From<GrammarCircuitMember<'ast>> for CircuitMember {
+    fn from(object: GrammarCircuitMember<'ast>) -> Self {
         match object {
-            AstCircuitMember::CircuitVariableDefinition(circuit_value) => CircuitMember::from(circuit_value),
-            AstCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
+            GrammarCircuitMember::CircuitVariableDefinition(circuit_value) => CircuitMember::from(circuit_value),
+            GrammarCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
         }
     }
 }

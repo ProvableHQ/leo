@@ -17,13 +17,13 @@
 use crate::Span;
 use leo_grammar::{
     annotations::AnnotationArgument,
-    common::{Identifier as AstIdentifier, KeywordOrIdentifier, SelfKeyword, SelfKeywordOrIdentifier},
+    common::{Identifier as GrammarIdentifier, KeywordOrIdentifier, SelfKeyword, SelfKeywordOrIdentifier},
     expressions::CircuitName,
     functions::InputKeyword,
-    imports::PackageName as AstPackageName,
+    imports::PackageName as GrammarPackageName,
     types::SelfType,
 };
-use leo_input::common::Identifier as InputAstIdentifier;
+use leo_input::common::Identifier as InputIdentifier;
 
 use serde::{
     de::{self, Visitor},
@@ -73,8 +73,8 @@ impl Identifier {
     }
 }
 
-impl<'ast> From<AstIdentifier<'ast>> for Identifier {
-    fn from(identifier: AstIdentifier<'ast>) -> Self {
+impl<'ast> From<GrammarIdentifier<'ast>> for Identifier {
+    fn from(identifier: GrammarIdentifier<'ast>) -> Self {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),
@@ -82,8 +82,8 @@ impl<'ast> From<AstIdentifier<'ast>> for Identifier {
     }
 }
 
-impl<'ast> From<AstPackageName<'ast>> for Identifier {
-    fn from(name: AstPackageName<'ast>) -> Self {
+impl<'ast> From<GrammarPackageName<'ast>> for Identifier {
+    fn from(name: GrammarPackageName<'ast>) -> Self {
         Self {
             name: name.value,
             span: Span::from(name.span),
@@ -91,8 +91,8 @@ impl<'ast> From<AstPackageName<'ast>> for Identifier {
     }
 }
 
-impl<'ast> From<InputAstIdentifier<'ast>> for Identifier {
-    fn from(identifier: InputAstIdentifier<'ast>) -> Self {
+impl<'ast> From<InputIdentifier<'ast>> for Identifier {
+    fn from(identifier: InputIdentifier<'ast>) -> Self {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),

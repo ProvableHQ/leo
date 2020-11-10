@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use pest::Span as AstSpan;
+use pest::Span as GrammarSpan;
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 
@@ -46,8 +46,8 @@ impl Hash for Span {
     }
 }
 
-impl<'ast> From<AstSpan<'ast>> for Span {
-    fn from(span: AstSpan<'ast>) -> Self {
+impl<'ast> From<GrammarSpan<'ast>> for Span {
+    fn from(span: GrammarSpan<'ast>) -> Self {
         let mut text = " ".to_string();
         let line_col = span.start_pos().line_col();
         let end = span.end_pos().line_col().1;
