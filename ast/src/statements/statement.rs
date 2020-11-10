@@ -24,7 +24,7 @@ use leo_grammar::{
         ExpressionStatement,
         ForStatement,
         ReturnStatement,
-        Statement as AstStatement,
+        Statement as GrammarStatement,
     },
 };
 
@@ -150,19 +150,19 @@ impl<'ast> From<ExpressionStatement<'ast>> for Statement {
     }
 }
 
-impl<'ast> From<AstStatement<'ast>> for Statement {
-    fn from(statement: AstStatement<'ast>) -> Self {
+impl<'ast> From<GrammarStatement<'ast>> for Statement {
+    fn from(statement: GrammarStatement<'ast>) -> Self {
         match statement {
-            AstStatement::Return(statement) => Statement::from(statement),
-            AstStatement::Definition(statement) => Statement::from(statement),
-            AstStatement::Assign(statement) => Statement::from(statement),
-            AstStatement::Conditional(statement) => {
+            GrammarStatement::Return(statement) => Statement::from(statement),
+            GrammarStatement::Definition(statement) => Statement::from(statement),
+            GrammarStatement::Assign(statement) => Statement::from(statement),
+            GrammarStatement::Conditional(statement) => {
                 let span = Span::from(statement.span.clone());
                 Statement::Conditional(ConditionalStatement::from(statement), span)
             }
-            AstStatement::Iteration(statement) => Statement::from(statement),
-            AstStatement::Console(console) => Statement::from(console),
-            AstStatement::Expression(statement) => Statement::from(statement),
+            GrammarStatement::Iteration(statement) => Statement::from(statement),
+            GrammarStatement::Console(console) => Statement::from(console),
+            GrammarStatement::Expression(statement) => Statement::from(statement),
         }
     }
 }

@@ -15,12 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ArrayDimensions, Identifier, IntegerType};
-use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as AstType};
+use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as GrammarType};
 use leo_input::types::{
     ArrayType as InputArrayType,
     DataType as InputDataType,
     TupleType as InputTupleType,
-    Type as InputAstType,
+    Type as InputType,
 };
 
 use serde::{Deserialize, Serialize};
@@ -139,14 +139,14 @@ impl<'ast> From<CircuitType<'ast>> for Type {
     }
 }
 
-impl<'ast> From<AstType<'ast>> for Type {
-    fn from(type_: AstType<'ast>) -> Self {
+impl<'ast> From<GrammarType<'ast>> for Type {
+    fn from(type_: GrammarType<'ast>) -> Self {
         match type_ {
-            AstType::Basic(type_) => Type::from(type_),
-            AstType::Array(type_) => Type::from(type_),
-            AstType::Tuple(type_) => Type::from(type_),
-            AstType::Circuit(type_) => Type::from(type_),
-            AstType::SelfType(_type) => Type::SelfType,
+            GrammarType::Basic(type_) => Type::from(type_),
+            GrammarType::Array(type_) => Type::from(type_),
+            GrammarType::Tuple(type_) => Type::from(type_),
+            GrammarType::Circuit(type_) => Type::from(type_),
+            GrammarType::SelfType(_type) => Type::SelfType,
         }
     }
 }
@@ -182,12 +182,12 @@ impl<'ast> From<InputTupleType<'ast>> for Type {
     }
 }
 
-impl<'ast> From<InputAstType<'ast>> for Type {
-    fn from(type_: InputAstType<'ast>) -> Self {
+impl<'ast> From<InputType<'ast>> for Type {
+    fn from(type_: InputType<'ast>) -> Self {
         match type_ {
-            InputAstType::Basic(type_) => Type::from(type_),
-            InputAstType::Array(type_) => Type::from(type_),
-            InputAstType::Tuple(type_) => Type::from(type_),
+            InputType::Basic(type_) => Type::from(type_),
+            InputType::Array(type_) => Type::from(type_),
+            InputType::Tuple(type_) => Type::from(type_),
         }
     }
 }
