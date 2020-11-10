@@ -24,10 +24,13 @@ use leo_input::types::{
 };
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Type {
     // Data types
     Address,
@@ -50,53 +53,6 @@ impl Type {
 
     pub fn is_circuit(&self) -> bool {
         matches!(self, Type::Circuit(_))
-    }
-
-    pub fn match_array_types(&self, _other: &Type) -> bool {
-        unimplemented!("deprecated")
-        // // Check that both `self` and `other` are of type array
-        // let (type_1, dimensions_1) = match self {
-        //     Type::Array(type_, dimensions) => (type_, dimensions),
-        //     _ => return false,
-        // };
-        //
-        // let (type_2, dimensions_2) = match other {
-        //     Type::Array(type_, dimensions) => (type_, dimensions),
-        //     _ => return false,
-        // };
-        //
-        // // Expand multidimensional array syntax
-        // let (type_1_expanded, dimensions_1_expanded) = expand_array_type(type_1, dimensions_1);
-        // let (type_2_expanded, dimensions_2_expanded) = expand_array_type(type_2, dimensions_2);
-        //
-        // // Return true if expanded array types and dimensions match
-        // type_1_expanded.eq(&type_2_expanded) && dimensions_1_expanded.eq(&dimensions_2_expanded)
-    }
-
-    pub fn outer_dimension(&self, _dimensions: &[usize]) -> Self {
-        unimplemented!("deprecated")
-        // let type_ = self.clone();
-        //
-        // if dimensions.len() > 1 {
-        //     let next = dimensions[1..].to_vec();
-        //
-        //     return Type::Array(Box::new(type_), next);
-        // }
-        //
-        // type_
-    }
-
-    pub fn inner_dimension(&self, _dimensions: &[usize]) -> Self {
-        unimplemented!("deprecated")
-        // let type_ = self.clone();
-        //
-        // if dimensions.len() > 1 {
-        //     let next = dimensions[..dimensions.len() - 1].to_vec();
-        //
-        //     return Type::Array(Box::new(type_), next);
-        // }
-        //
-        // type_
     }
 }
 
@@ -207,5 +163,74 @@ impl fmt::Display for Type {
                 write!(f, "({})", types)
             }
         }
+    }
+}
+
+/// Compares two types while flattening array types.
+impl PartialEq for Type {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Type::Address, Type::Address) => true,
+            (Type::Boolean, Type::Boolean) => true,
+            (Type::Field, Type::Field) => true,
+            (Type::Group, Type::Group) => true,
+            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(&right),
+            (Type::Circuit(left), Type::Circuit(right)) => left.eq(&right),
+            (Type::SelfType, Type::SelfType) => true,
+            (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
+                let mut left_dim_owned = left_dim.to_owned();
+                let mut right_dim_owned = right_dim.to_owned();
+
+                println!("left_owned {}", left_dim_owned);
+                println!("right_owned {}", right_dim_owned);
+
+                let left_first = left_dim_owned.remove_first();
+                let right_first = right_dim_owned.remove_first();
+
+                if left_first.ne(&right_first) {
+                    return false;
+                }
+
+                let left_new_type = inner_array_type(*left_type.to_owned(), left_dim_owned);
+                let right_new_type = inner_array_type(*right_type.to_owned(), right_dim_owned);
+                println!("left_new {}", left_new_type);
+                println!("right_new {}", right_new_type);
+
+                return left_new_type.eq(&right_new_type);
+            }
+            (Type::Tuple(left), Type::Tuple(right)) => left
+                .iter()
+                .zip(right)
+                .all(|(left_type, right_type)| left_type.eq(right_type)),
+            _ => false,
+        }
+    }
+}
+
+impl Eq for Type {}
+
+impl Hash for Type {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.hash(state)
+    }
+}
+
+///
+/// Returns the type of the inner array given an array element and array dimensions.
+///
+/// If the array has no dimensions, then an inner array does not exist. Simply return the given
+/// element type.
+///
+/// If the array has dimensions, then an inner array exists. Create a new type for the
+/// inner array. The element type of the new array should be the same as the old array. The
+/// dimensions of the new array should be the old array dimensions with the first dimension removed.
+///
+pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type {
+    if dimensions.is_empty() {
+        // The array has one dimension.
+        element_type
+    } else {
+        // The array has multiple dimensions.
+        Type::Array(Box::new(element_type), dimensions)
     }
 }
