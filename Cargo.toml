@@ -37,7 +37,6 @@ members = [
   "package",
   "state",
   "symbol-table",
-  "type-inference",
 ]
 
 [dependencies.leo-ast]

@@ -14,14 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    assert_satisfied,
-    expect_compiler_error,
-    expect_type_inference_error,
-    get_output,
-    parse_program,
-    parse_program_with_input,
-};
+use crate::{assert_satisfied, expect_compiler_error, get_output, parse_program, parse_program_with_input};
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 
 #[test]
@@ -117,13 +110,13 @@ fn test_scope_fail() {
     }
 }
 
-#[test]
-fn test_undefined() {
-    let bytes = include_bytes!("undefined.leo");
-    let error = parse_program(bytes).err().unwrap();
-
-    expect_type_inference_error(error);
-}
+// #[test]
+// fn test_undefined() {
+//     let bytes = include_bytes!("undefined.leo");
+//     let error = parse_program(bytes).err().unwrap();
+//
+//     expect_type_inference_error(error);
+// }
 
 #[test]
 fn test_value_unchanged() {
@@ -133,13 +126,13 @@ fn test_value_unchanged() {
     assert_satisfied(program);
 }
 
-#[test]
-fn test_array_input() {
-    let bytes = include_bytes!("array_input.leo");
-    let error = parse_program(bytes).err().unwrap();
-
-    expect_type_inference_error(error)
-}
+// #[test]
+// fn test_array_input() {
+//     let bytes = include_bytes!("array_input.leo");
+//     let error = parse_program(bytes).err().unwrap();
+//
+//     expect_type_inference_error(error)
+// }
 
 // Test return multidimensional arrays
 
