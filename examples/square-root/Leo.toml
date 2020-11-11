@@ -1,8 +1,0 @@
-[project]
-name = "square-root"
-version = "0.1.0"
-description = "prove knowledge of the square root `a` of a number `b`"
-license = "LICENSE-MIT"
-
-[remote]
-author = "aleo"

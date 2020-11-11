@@ -2,7 +2,7 @@ dependencies = { }
 
 [package]
 name = "leo-linter"
-version = "1.0.3"
+version = "1.0.4"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Linter of the Leo programming language"
 homepage = "https://aleo.org"

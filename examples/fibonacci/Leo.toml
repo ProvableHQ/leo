@@ -1,8 +1,0 @@
-[project]
-name = "fibonacci"
-version = "0.1.0"
-description = "Returns a fibonnaci sequence"
-license = "LICENSE-MIT"
-
-[remote]
-author = "aleo"
