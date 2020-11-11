@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The core abstract syntax tree (ast) for a Leo program.
+//! The abstract syntax tree (ast) for a Leo program.
 //!
 //! This module contains the [`LeoAst`] type, a wrapper around the [`Program`] type.
 //! The [`LeoAst`] type is intended to be parsed and modified by different passes
@@ -61,7 +61,7 @@ pub use self::types::*;
 
 use leo_grammar::Grammar;
 
-/// The core abstract syntax tree (ast) for a Leo program.
+/// The abstract syntax tree (ast) for a Leo program.
 ///
 /// The [`LeoAst`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
@@ -73,7 +73,7 @@ pub struct LeoAst {
 }
 
 impl LeoAst {
-    /// Creates a new core syntax tree from a given program name and abstract syntax tree.
+    /// Creates a new syntax tree from a given program name and abstract syntax tree.
     pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Self {
         Self {
             ast: Program::from(program_name, ast.as_repr()),
@@ -85,14 +85,14 @@ impl LeoAst {
         self.ast
     }
 
-    /// Serializes the core syntax tree into a JSON string.
+    /// Serializes the syntax tree into a JSON string.
     pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
         Ok(serde_json::to_string_pretty(&self.ast)?)
     }
 
-    /// Deserializes the JSON string into a core syntax tree.
+    /// Deserializes the JSON string into a syntax tree.
     pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
-        let typed_ast: Program = serde_json::from_str(json)?;
-        Ok(Self { ast: typed_ast })
+        let ast: Program = serde_json::from_str(json)?;
+        Ok(Self { ast })
     }
 }

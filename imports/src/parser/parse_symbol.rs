@@ -24,9 +24,9 @@ static LIBRARY_FILE: &str = "src/lib.leo";
 static FILE_EXTENSION: &str = "leo";
 
 ///
-/// Returns a typed syntax tree from a given package.
+/// Returns a Leo syntax tree from a given package.
 ///
-/// Builds an abstract syntax tree from the given file and then builds the typed syntax tree.
+/// Builds an abstract syntax tree from the given file and then builds the Leo syntax tree.
 ///
 fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportParserError> {
     // Get the package file type.
@@ -54,7 +54,7 @@ fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportP
     let program_string = &Grammar::load_file(&file_path)?;
     let ast = &Grammar::new(&file_path, &program_string)?;
 
-    // Build the package typed syntax tree from the package abstract syntax tree.
+    // Build the package Leo syntax tree from the package abstract syntax tree.
     Ok(Program::from(&file_name, ast.as_repr()))
 }
 
@@ -93,7 +93,7 @@ impl ImportParser {
     /// Import a symbol from a given package.
     ///
     pub fn parse_import_symbol(&mut self, package: &DirEntry, symbol: &ImportSymbol) -> Result<(), ImportParserError> {
-        // Get the package typed syntax tree.
+        // Get the package Leo syntax tree.
         self.parse_import_package(package, &symbol.span)
     }
 
@@ -101,7 +101,7 @@ impl ImportParser {
     /// Import a symbol from a given package.
     ///
     pub fn parse_import_package(&mut self, package: &DirEntry, span: &Span) -> Result<(), ImportParserError> {
-        // Get the package typed syntax tree.
+        // Get the package Leo syntax tree.
         let program = parse_import_file(package, span)?;
 
         // Insert the package's imports into the import parser.
@@ -118,7 +118,7 @@ impl ImportParser {
             .into_string()
             .unwrap(); // the file exists so these will not fail
 
-        // Attempt to insert the typed syntax tree for the imported package.
+        // Attempt to insert the Leo syntax tree for the imported package.
         self.insert_import(file_name, program);
 
         Ok(())

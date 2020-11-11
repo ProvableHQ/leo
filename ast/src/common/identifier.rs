@@ -215,7 +215,7 @@ impl<'de> Deserialize<'de> for Identifier {
             type Value = Identifier;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a string encoding the typed Identifier struct")
+                formatter.write_str("a string encoding the ast Identifier struct")
             }
 
             /// Implementation for recovering a string that serializes Identifier.

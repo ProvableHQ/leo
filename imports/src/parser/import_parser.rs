@@ -82,8 +82,8 @@ impl ImportParser {
     ///
     /// For every import statement in the program:
     ///     1. Check if the imported package exists.
-    ///     2. Create the typed syntax tree for the imported package.
-    ///     3. Insert the typed syntax tree into the `ImportParser`
+    ///     2. Create the Leo syntax tree for the imported package.
+    ///     3. Insert the Leo syntax tree into the `ImportParser`
     ///
     pub fn parse(program: &Program) -> Result<Self, ImportParserError> {
         let mut imports = Self::default();

@@ -21,74 +21,74 @@ use leo_grammar::Grammar;
 
 use std::path::{Path, PathBuf};
 
-fn to_core_ast(program_filepath: &Path) -> LeoAst {
+fn to_ast(program_filepath: &Path) -> LeoAst {
     // Loads the Leo code as a string from the given file path.
     let program_string = Grammar::load_file(program_filepath).unwrap();
 
-    // Parses the Leo file and constructs a pest ast.
+    // Parses the Leo file and constructs a grammar ast.
     let ast = Grammar::new(&program_filepath, &program_string).unwrap();
 
-    // Parses the pest ast and constructs a core ast.
-    LeoAst::new("leo_core_tree", &ast)
+    // Parses the pest ast and constructs a Leo ast.
+    LeoAst::new("leo_tree", &ast)
 }
 
 #[test]
 #[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
-    // Construct a core ast from the given test file.
-    let core_ast = {
+    // Construct a ast from the given test file.
+    let leo_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_core_ast(&program_filepath)
+        to_ast(&program_filepath)
     };
 
-    // Serializes the core ast into JSON format.
-    let serialized_core_ast: Program =
-        serde_json::from_value(serde_json::to_value(core_ast.into_repr()).unwrap()).unwrap();
+    // Serializes the ast into JSON format.
+    let serialized_leo_ast: Program =
+        serde_json::from_value(serde_json::to_value(leo_ast.into_repr()).unwrap()).unwrap();
 
-    // Load the expected core ast.
-    let expected: Program = serde_json::from_str(include_str!("expected_core_ast.json")).unwrap();
+    // Load the expected ast.
+    let expected: Program = serde_json::from_str(include_str!("expected_leo_ast.json")).unwrap();
 
-    assert_eq!(expected, serialized_core_ast);
+    assert_eq!(expected, serialized_leo_ast);
 }
 
 #[test]
 #[cfg(not(feature = "ci_skip"))]
 fn test_deserialize() {
-    // Load the expected core ast.
-    let expected_core_ast = {
+    // Load the expected ast.
+    let expected_leo_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_core_ast(&program_filepath)
+        to_ast(&program_filepath)
     };
 
-    // Construct a core ast by deserializing a core ast JSON file.
-    let serialized_typed_ast = include_str!("expected_core_ast.json");
-    let core_ast = LeoAst::from_json_string(serialized_typed_ast).unwrap();
+    // Construct an ast by deserializing a ast JSON file.
+    let serialized_ast = include_str!("expected_leo_ast.json");
+    let leo_ast = LeoAst::from_json_string(serialized_ast).unwrap();
 
-    assert_eq!(expected_core_ast, core_ast);
+    assert_eq!(expected_leo_ast, leo_ast);
 }
 
 #[test]
 fn test_serialize_deserialize_serialize() {
-    // Construct a core ast from the given test file.
-    let core_ast = {
+    // Construct a ast from the given test file.
+    let leo_ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_core_ast(&program_filepath)
+        to_ast(&program_filepath)
     };
 
-    // Serializes the core ast into JSON format.
-    let serialized_core_ast = core_ast.to_json_string().unwrap();
+    // Serializes the ast into JSON format.
+    let serialized_leo_ast = leo_ast.to_json_string().unwrap();
 
-    // Deserializes the serialized core ast into a LeoAst.
-    let core_ast = LeoAst::from_json_string(&serialized_core_ast).unwrap();
+    // Deserializes the serialized ast into a LeoAst.
+    let leo_ast = LeoAst::from_json_string(&serialized_leo_ast).unwrap();
 
-    // Reserializes the core ast into JSON format.
-    let reserialized_core_ast = core_ast.to_json_string().unwrap();
+    // Reserializes the ast into JSON format.
+    let reserialized_leo_ast = leo_ast.to_json_string().unwrap();
 
-    assert_eq!(serialized_core_ast, reserialized_core_ast);
+    assert_eq!(serialized_leo_ast, reserialized_leo_ast);
 }

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! A Leo program consists of import, circuit, and function definitions.
-//! Each defined type consists of typed statements and expressions.
+//! Each defined type consists of ast statements and expressions.
 
 use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
 use leo_grammar::{definitions::Definition, files::File};

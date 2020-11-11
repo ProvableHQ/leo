@@ -51,9 +51,9 @@ impl ImportParser {
     }
 
     ///
-    /// Create the typed syntax tree for an imported package.
+    /// Create the Leo syntax tree for an imported package.
     ///
-    /// Inserts the typed syntax tree into the `ImportParser`.
+    /// Inserts the Leo syntax tree into the `ImportParser`.
     ///
     pub fn parse_package(&mut self, mut path: PathBuf, package: &Package) -> Result<(), ImportParserError> {
         let error_path = path.clone();

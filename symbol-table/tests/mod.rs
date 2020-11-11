@@ -27,12 +27,12 @@ const TEST_PROGRAM_PATH: &str = "";
 
 /// A helper struct to test a `SymbolTable`.
 pub struct TestSymbolTable {
-    typed: LeoAst,
+    ast: LeoAst,
 }
 
 impl TestSymbolTable {
     ///
-    /// Returns a typed syntax tree given a Leo program.
+    /// Returns a Leo syntax tree given a Leo program.
     ///
     pub fn new(bytes: &[u8]) -> Self {
         // Get file string from bytes.
@@ -42,22 +42,22 @@ impl TestSymbolTable {
         let file_path = PathBuf::from(TEST_PROGRAM_PATH);
 
         // Get parser syntax tree
-        let ast = Grammar::new(&file_path, &*file_string).unwrap();
+        let grammar = Grammar::new(&file_path, &*file_string).unwrap();
 
-        // Get typed syntax tree
-        let typed = LeoAst::new(TEST_PROGRAM_PATH, &ast);
+        // Get Leo syntax tree
+        let ast = LeoAst::new(TEST_PROGRAM_PATH, &grammar);
 
-        Self { typed }
+        Self { ast }
     }
 
     ///
-    /// Parse the typed syntax tree into a symbol table.
+    /// Parse the Leo syntax tree into a symbol table.
     ///
     /// Expect no errors during parsing.
     ///
     pub fn expect_success(self) {
         // Get program.
-        let program = self.typed.into_repr();
+        let program = self.ast.into_repr();
 
         // Create empty import parser.
         let import_parser = ImportParser::default();
@@ -70,13 +70,13 @@ impl TestSymbolTable {
     }
 
     ///
-    /// Parse the typed syntax tree into a symbol table.
+    /// Parse the Leo syntax tree into a symbol table.
     ///
     /// Expect an error involving entries in the symbol table.
     ///
     pub fn expect_pass_one_error(self) {
         // Get program.
-        let program = self.typed.into_repr();
+        let program = self.ast.into_repr();
 
         // Create new symbol table.
         let static_check = &mut SymbolTable::default();
@@ -94,13 +94,13 @@ impl TestSymbolTable {
     }
 
     ///
-    /// Parse the typed syntax tree into a symbol table.
+    /// Parse the Leo syntax tree into a symbol table.
     ///
     /// Expect an error involving types in the symbol table.
     ///
     pub fn expect_pass_two_error(self) {
         // Get program.
-        let program = self.typed.into_repr();
+        let program = self.ast.into_repr();
 
         // Create a new symbol table.
         let static_check = &mut SymbolTable::default();

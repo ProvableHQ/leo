@@ -18,7 +18,7 @@ use leo_ast::LeoAst;
 use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
-fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
+fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
     let program_string = Grammar::load_file(&program_filepath)?;
@@ -26,13 +26,13 @@ fn to_leo_core_tree(filepath: &Path) -> Result<String, ParserError> {
     // Parses the Leo file and constructs a pest ast.
     let ast = Grammar::new(&program_filepath, &program_string)?;
 
-    // Parse the pest ast and constructs a core ast.
-    let core_ast = LeoAst::new("leo_core_tree", &ast);
+    // Parse the pest ast and constructs a ast.
+    let leo_ast = LeoAst::new("leo_tree", &ast);
 
-    // Serializes the core tree into JSON format.
-    let serialized_core_ast = LeoAst::to_json_string(&core_ast)?;
+    // Serializes the tree into JSON format.
+    let serialized_leo_ast = LeoAst::to_json_string(&leo_ast)?;
 
-    Ok(serialized_core_ast)
+    Ok(serialized_leo_ast)
 }
 
 fn main() -> Result<(), ParserError> {
@@ -51,9 +51,9 @@ fn main() -> Result<(), ParserError> {
     // Construct the input filepath.
     let input_filepath = Path::new(&cli_arguments[1]);
 
-    // Construct the serialized core syntax tree.
-    let serialized_core_tree = to_leo_core_tree(&input_filepath)?;
-    println!("{}", serialized_core_tree);
+    // Construct the serialized syntax tree.
+    let serialized_leo_tree = to_leo_tree(&input_filepath)?;
+    println!("{}", serialized_leo_tree);
 
     // Determine the output directory.
     let output_directory = match cli_arguments.len() == 3 {
@@ -65,8 +65,8 @@ fn main() -> Result<(), ParserError> {
         false => format!("./{}.json", input_filepath.file_stem().unwrap().to_str().unwrap()),
     };
 
-    // Write the serialized core syntax tree to the output directory.
-    fs::write(Path::new(&output_directory), serialized_core_tree)?;
+    // Write the serialized syntax tree to the output directory.
+    fs::write(Path::new(&output_directory), serialized_leo_tree)?;
 
     Ok(())
 }
