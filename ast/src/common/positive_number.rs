@@ -31,6 +31,15 @@ pub struct PositiveNumber {
     pub span: Span,
 }
 
+impl PositiveNumber {
+    ///
+    /// Returns `true` if this number is zero.
+    ///
+    pub fn is_zero(&self) -> bool {
+        self.value.eq("0")
+    }
+}
+
 /// Create a new [`PositiveNumber`] from a [`GrammarPositiveNumber`] in a Leo program file.
 impl<'ast> From<GrammarPositiveNumber<'ast>> for PositiveNumber {
     fn from(array: GrammarPositiveNumber<'ast>) -> Self {

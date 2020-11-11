@@ -16,6 +16,7 @@
 
 use crate::{FrameError, Scope, TypeAssertion};
 use leo_ast::{
+    ArrayDimensions,
     Assignee,
     AssigneeAccess,
     CircuitVariableDefinition,
@@ -550,8 +551,8 @@ impl Frame {
 
             // Arrays
             Expression::ArrayInline(expressions, span) => self.parse_array(expressions, span),
-            Expression::ArrayInitializer(array_w_dimensions, _span) => {
-                self.parse_array_initializer(&array_w_dimensions.0)
+            Expression::ArrayInitializer(array_w_dimensions, span) => {
+                self.parse_array_initializer(&array_w_dimensions.0, &array_w_dimensions.1, span)
             }
             Expression::ArrayAccess(array_w_index, span) => {
                 self.parse_expression_array_access(&array_w_index.0, &array_w_index.1, span)
@@ -807,9 +808,19 @@ impl Frame {
     ///
     /// Returns the type of the array initializer expression.
     ///
-    fn parse_array_initializer(&mut self, array: &Expression) -> Result<Type, FrameError> {
+    fn parse_array_initializer(
+        &mut self,
+        array: &Expression,
+        dimensions: &ArrayDimensions,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
         // Get element type.
         let element_type = self.parse_expression(array)?;
+
+        // Return an error for array initializers of length 0.
+        if dimensions.is_zero() {
+            return Err(FrameError::empty_array(span));
+        }
 
         // Return array type.
         Ok(Type::Array(Box::new(element_type)))

@@ -67,6 +67,13 @@ impl ArrayDimensions {
     }
 
     ///
+    /// Returns `true` if there is an array dimension equal to zero.
+    ///
+    pub fn is_zero(&self) -> bool {
+        self.0.iter().find(|number| number.is_zero()).is_some()
+    }
+
+    ///
     /// Returns the first dimension of the array.
     ///
     pub fn first(&self) -> Option<&PositiveNumber> {
