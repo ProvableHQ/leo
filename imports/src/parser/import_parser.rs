@@ -26,23 +26,13 @@ use std::{
 ///
 /// A program can import one or more packages. A package can be found locally in the source
 /// directory, foreign in the imports directory, or part of the core package list.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ImportParser {
     imports: HashMap<String, Program>,
     core_packages: HashSet<Package>,
 }
 
 impl ImportParser {
-    ///
-    /// Creates a new empty `ImportParser`.
-    ///
-    pub fn new() -> Self {
-        Self {
-            imports: HashMap::new(),
-            core_packages: HashSet::new(),
-        }
-    }
-
     ///
     /// Inserts a (file name -> program) pair into the `ImportParser`.
     ///
@@ -96,10 +86,10 @@ impl ImportParser {
     ///     3. Insert the typed syntax tree into the `ImportParser`
     ///
     pub fn parse(program: &Program) -> Result<Self, ImportParserError> {
-        let mut imports = Self::new();
+        let mut imports = Self::default();
 
         // Find all imports relative to current directory.
-        let path = current_dir().map_err(|error| ImportParserError::current_directory_error(error))?;
+        let path = current_dir().map_err(ImportParserError::current_directory_error)?;
 
         // Parse each import statement.
         for import in &program.imports {

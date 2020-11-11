@@ -58,7 +58,7 @@ impl ImportParserError {
     /// Failed to convert a file path into an os string.
     ///
     pub fn convert_os_string(span: Span) -> Self {
-        let message = format!("Failed to convert file string name, maybe an illegal character?");
+        let message = "Failed to convert file string name, maybe an illegal character?".to_string();
 
         Self::new_from_span(message, span)
     }

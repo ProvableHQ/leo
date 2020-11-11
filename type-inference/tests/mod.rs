@@ -53,7 +53,7 @@ impl TestTypeInference {
         let program = typed.into_repr();
 
         // Create empty import parser.
-        let import_parser = ImportParser::new();
+        let import_parser = ImportParser::default();
 
         // Create empty input.
         let input = Input::new();
@@ -66,11 +66,11 @@ impl TestTypeInference {
     }
 
     pub fn check(self) {
-        TypeInference::new(&self.program, self.symbol_table).unwrap();
+        TypeInference::run(&self.program, self.symbol_table).unwrap();
     }
 
     pub fn expect_error(self) {
-        assert!(TypeInference::new(&self.program, self.symbol_table).is_err());
+        assert!(TypeInference::run(&self.program, self.symbol_table).is_err());
     }
 }
 

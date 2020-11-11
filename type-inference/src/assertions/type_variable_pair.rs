@@ -85,8 +85,14 @@ impl TypeVariablePairs {
     ///
     pub fn push_pairs(&mut self, left: Type, right: Type, span: &Span) -> Result<(), TypeAssertionError> {
         match (left, right) {
-            (Type::TypeVariable(variable), type_) => Ok(self.push(variable, type_)),
-            (type_, Type::TypeVariable(variable)) => Ok(self.push(variable, type_)),
+            (Type::TypeVariable(variable), type_) => {
+                self.push(variable, type_);
+                Ok(())
+            }
+            (type_, Type::TypeVariable(variable)) => {
+                self.push(variable, type_);
+                Ok(())
+            }
             (Type::Array(left_type), Type::Array(right_type)) => self.push_pairs_array(*left_type, *right_type, span),
             (Type::Tuple(left_types), Type::Tuple(right_types)) => {
                 self.push_pairs_tuple(left_types.into_iter(), right_types.into_iter(), span)

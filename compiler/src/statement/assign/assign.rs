@@ -70,7 +70,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             *old_value = selected_value;
 
-            return Ok(());
+            Ok(())
         } else {
             match assignee.accesses[0].clone() {
                 AssigneeAccess::Array(range_or_expression) => self.assign_array(

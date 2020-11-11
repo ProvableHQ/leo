@@ -48,9 +48,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 
     resolved_program.store_definitions(program, imported_programs)?;
 
-    let main = resolved_program
-        .get(&main_function_name)
-        .ok_or_else(|| CompilerError::NoMain)?;
+    let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {

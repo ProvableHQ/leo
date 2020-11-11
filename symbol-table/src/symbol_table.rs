@@ -367,7 +367,7 @@ impl SymbolTable {
             self.check_function_names(&program.functions)
         } else {
             // Check for a symbol alias.
-            let identifier = symbol.alias.to_owned().unwrap_or(symbol.symbol.to_owned());
+            let identifier = symbol.alias.to_owned().unwrap_or_else(|| symbol.symbol.to_owned());
 
             // Check if the imported symbol is a circuit
             match program.circuits.get(&symbol.symbol) {

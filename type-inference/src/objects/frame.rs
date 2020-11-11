@@ -302,7 +302,7 @@ impl Frame {
             };
 
             // Assert that the expected type is equal to the actual type.
-            self.assert_equal(expected_type.clone(), actual_type.clone(), span)
+            self.assert_equal(expected_type, actual_type.clone(), span)
         }
 
         // Check for multiple defined variables.
@@ -1128,7 +1128,7 @@ impl Frame {
         }
 
         // Return the function output type.
-        Ok(function_type.output.type_.clone())
+        Ok(function_type.output.type_)
     }
 
     ///

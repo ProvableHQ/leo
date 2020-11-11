@@ -76,7 +76,7 @@ impl Type {
                 // Lookup the circuit type in the symbol table
                 let circuit_type = table
                     .get_circuit_type(&identifier.name)
-                    .ok_or(TypeError::undefined_circuit(identifier))?;
+                    .ok_or_else(|| TypeError::undefined_circuit(identifier))?;
 
                 Type::Circuit(circuit_type.identifier.clone())
             }

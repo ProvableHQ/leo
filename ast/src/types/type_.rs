@@ -91,7 +91,7 @@ impl Type {
                 let right_new_type = inner_array_type(*right_type.to_owned(), right_dim_owned);
 
                 // Call eq_flat() on the new left and right types.
-                return left_new_type.eq_flat(&right_new_type);
+                left_new_type.eq_flat(&right_new_type)
             }
             (Type::Tuple(left), Type::Tuple(right)) => left
                 .iter()

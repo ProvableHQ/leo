@@ -81,9 +81,7 @@ impl ArrayDimensions {
     ///
     pub fn remove_first(&mut self) -> Option<PositiveNumber> {
         // If there are no dimensions in the array, then return None.
-        if self.0.first().is_none() {
-            return None;
-        }
+        self.0.first()?;
 
         // Remove the first dimension.
         let removed = self.0.remove(0);

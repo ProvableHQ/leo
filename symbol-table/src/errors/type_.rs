@@ -46,7 +46,7 @@ impl TypeError {
     /// The `Self` keyword was used outside of a circuit.
     ///
     pub fn self_not_available(span: Span) -> Self {
-        let message = format!("Type `Self` is only available in circuit definitions and circuit functions.");
+        let message = "Type `Self` is only available in circuit definitions and circuit functions.".to_string();
 
         Self::new_from_span(message, span)
     }

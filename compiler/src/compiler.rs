@@ -70,7 +70,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             output_directory,
             program: Program::new(package_name),
             program_input: Input::new(),
-            imported_programs: ImportParser::new(),
+            imported_programs: ImportParser::default(),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -214,7 +214,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             })?;
 
         // Run type inference check on program.
-        TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
+        TypeInference::run(&self.program, symbol_table).map_err(|mut e| {
             e.set_path(&self.main_file_path);
 
             e
@@ -256,7 +256,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
 
         // Run type inference check on program.
-        TypeInference::new(&self.program, symbol_table)?;
+        TypeInference::run(&self.program, symbol_table)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 

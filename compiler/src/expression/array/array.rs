@@ -107,7 +107,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Ok(ConstrainedValue::Array(result))
     }
 
-    /// Enforce array expressions
+    ///
+    /// Returns an array value from an array initializer expression.
+    ///
+    #[allow(clippy::too_many_arguments)]
     pub fn enforce_array_initializer<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -142,65 +145,63 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 }
 
                 Ok(value)
+            } else if expected_dimensions.first().eq(&actual_dimensions.first()) {
+                // Case 2 - enforce expression with updated array type.
+                let dimension = match expected_dimensions.remove_first() {
+                    Some(number) => {
+                        // Parse the array dimension into a `usize`.
+                        parse_index(&number, &span)?
+                    }
+                    None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
+                };
+
+                // Update the actual array dimensions.
+                let _first_dimension = actual_dimensions.remove_first();
+
+                // Update the expected type to a new array type with the first dimension removed.
+                let expected_expression_type = Some(inner_array_type(*type_, expected_dimensions));
+
+                // If the expression has more dimensions.
+                let element_value = match actual_dimensions.first() {
+                    Some(_dimension) => {
+                        // Get the value of the array element as an initializer.
+                        self.enforce_array_initializer(
+                            cs,
+                            file_scope,
+                            function_scope,
+                            expected_expression_type,
+                            element_expression,
+                            actual_dimensions.clone(),
+                            span,
+                        )?
+                    }
+                    None => {
+                        // Get the value of the array element as an expression.
+                        self.enforce_expression(
+                            cs,
+                            file_scope,
+                            function_scope,
+                            expected_expression_type,
+                            element_expression,
+                        )?
+                    }
+                };
+
+                // Allocate the array of values.
+                let array_values = vec![element_value; dimension];
+
+                // Create a new value with the expected dimension.
+                Ok(ConstrainedValue::Array(array_values))
             } else {
-                if expected_dimensions.first().eq(&actual_dimensions.first()) {
-                    // Case 2 - enforce expression with updated array type.
-                    let dimension = match expected_dimensions.remove_first() {
-                        Some(number) => {
-                            // Parse the array dimension into a `usize`.
-                            parse_index(&number, &span)?
-                        }
-                        None => return Err(ExpressionError::unexpected_array(type_.to_string(), span)),
-                    };
-
-                    // Update the actual array dimensions.
-                    let _first_dimension = actual_dimensions.remove_first();
-
-                    // Update the expected type to a new array type with the first dimension removed.
-                    let expected_expression_type = Some(inner_array_type(*type_, expected_dimensions));
-
-                    // If the expression has more dimensions.
-                    let element_value = match actual_dimensions.first() {
-                        Some(_dimension) => {
-                            // Get the value of the array element as an initializer.
-                            self.enforce_array_initializer(
-                                cs,
-                                file_scope,
-                                function_scope,
-                                expected_expression_type,
-                                element_expression,
-                                actual_dimensions.clone(),
-                                span.clone(),
-                            )?
-                        }
-                        None => {
-                            // Get the value of the array element as an expression.
-                            self.enforce_expression(
-                                cs,
-                                file_scope,
-                                function_scope,
-                                expected_expression_type,
-                                element_expression,
-                            )?
-                        }
-                    };
-
-                    // Allocate the array of values.
-                    let array_values = vec![element_value; dimension];
-
-                    // Create a new value with the expected dimension.
-                    Ok(ConstrainedValue::Array(array_values))
-                } else {
-                    // Case 3 - return mismatched dimensions error.
-                    Err(ExpressionError::invalid_first_dimension(
-                        expected_dimensions
-                            .first()
-                            .ok_or(ExpressionError::undefined_first_dimension(span.clone()))?,
-                        actual_dimensions
-                            .first()
-                            .ok_or(ExpressionError::undefined_first_dimension(span.clone()))?,
-                    ))
-                }
+                // Case 3 - return mismatched dimensions error.
+                Err(ExpressionError::invalid_first_dimension(
+                    expected_dimensions
+                        .first()
+                        .ok_or_else(|| ExpressionError::undefined_first_dimension(span.clone()))?,
+                    actual_dimensions
+                        .first()
+                        .ok_or_else(|| ExpressionError::undefined_first_dimension(span))?,
+                ))
             }
         } else {
             // No explicit type given - evaluate array element expression.

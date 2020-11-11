@@ -60,7 +60,7 @@ impl TestSymbolTable {
         let program = self.typed.into_repr();
 
         // Create empty import parser.
-        let import_parser = ImportParser::new();
+        let import_parser = ImportParser::default();
 
         // Create empty input.
         let input = Input::new();
@@ -82,7 +82,7 @@ impl TestSymbolTable {
         let static_check = &mut SymbolTable::default();
 
         // Create empty import parser.
-        let import_parser = ImportParser::new();
+        let import_parser = ImportParser::default();
 
         // Run pass one and expect an error.
         let error = static_check.check_names(&program, &import_parser).unwrap_err();
@@ -106,7 +106,7 @@ impl TestSymbolTable {
         let static_check = &mut SymbolTable::default();
 
         // Create empty import parser.
-        let import_parser = ImportParser::new();
+        let import_parser = ImportParser::default();
 
         // Run the pass one and expect no errors.
         static_check.check_names(&program, &import_parser).unwrap();

@@ -92,7 +92,7 @@ impl FunctionType {
         // Type check function output.
         let output = FunctionOutputType::new_from_circuit(
             table,
-            circuit_name.clone(),
+            circuit_name,
             unresolved_function.output,
             unresolved_function.span,
         )?;
