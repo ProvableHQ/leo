@@ -34,7 +34,8 @@ impl TypeInference {
     ///
     /// Evaluates all `TypeAssertion` predicates.
     ///
-    pub fn run(program: &Program, symbol_table: SymbolTable) -> Result<(), TypeInferenceError> {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(program: &Program, symbol_table: SymbolTable) -> Result<(), TypeInferenceError> {
         let mut type_inference = Self {
             table: symbol_table,
             frames: Vec::new(),

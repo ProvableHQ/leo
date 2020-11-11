@@ -273,37 +273,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
             // Data type wrappers
             ConstrainedValue::Array(array) => {
-                array
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
+                array.iter_mut().enumerate().try_for_each(|(i, value)| {
+                    let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    value.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::Tuple(tuple) => {
-                tuple
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
+                tuple.iter_mut().enumerate().try_for_each(|(i, value)| {
+                    let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    value.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::CircuitExpression(_id, members) => {
-                members
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, member)| {
-                        let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
+                members.iter_mut().enumerate().try_for_each(|(i, member)| {
+                    let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
-                        member.1.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    member.1.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::Mutable(value) => {
                 value.allocate_value(cs, span)?;

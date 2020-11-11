@@ -66,11 +66,11 @@ impl TestTypeInference {
     }
 
     pub fn check(self) {
-        TypeInference::run(&self.program, self.symbol_table).unwrap();
+        TypeInference::new(&self.program, self.symbol_table).unwrap();
     }
 
     pub fn expect_error(self) {
-        assert!(TypeInference::run(&self.program, self.symbol_table).is_err());
+        assert!(TypeInference::new(&self.program, self.symbol_table).is_err());
     }
 }
 

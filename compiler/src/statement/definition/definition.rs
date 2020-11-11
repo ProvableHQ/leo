@@ -88,13 +88,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Declare::Let => false,
             Declare::Const => true,
         };
-        let expression = self.enforce_expression(
-            cs,
-            file_scope.clone(),
-            function_scope.clone(),
-            variables.type_.clone(),
-            expression,
-        )?;
+        let expression =
+            self.enforce_expression(cs, file_scope, function_scope, variables.type_.clone(), expression)?;
 
         if num_variables == 1 {
             // Define a single variable with a single value

@@ -29,6 +29,7 @@ pub trait CLI {
     const OPTIONS: &'static [OptionType];
     const SUBCOMMANDS: &'static [SubCommandType];
 
+    #[allow(clippy::new_ret_no_self)]
     #[cfg_attr(tarpaulin, skip)]
     fn new<'a, 'b>() -> App<'a, 'b> {
         let arguments = &Self::ARGUMENTS
