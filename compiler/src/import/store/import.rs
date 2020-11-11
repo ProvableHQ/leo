@@ -17,7 +17,7 @@
 use crate::{errors::ImportError, ConstrainedProgram, GroupType};
 use leo_ast::ImportStatement;
 use leo_imports::ImportParser;
-// use leo_symbol_table::imported_symbols::ImportedSymbols;
+use leo_symbol_table::imported_symbols::ImportedSymbols;
 
 use snarkos_models::curves::{Field, PrimeField};
 
@@ -37,21 +37,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             return Ok(());
         }
 
-        // // Fetch dependencies for the current import
-        // let imported_symbols = ImportedSymbols::new(import);
-        //
-        // for (name, symbol) in imported_symbols.symbols {
-        //     // Find imported program
-        //     let program = imported_programs
-        //         .get_import(&name)
-        //         .ok_or_else(|| ImportError::unknown_package(import.package.name.clone()))?;
-        //
-        //     // Parse imported program
-        //     self.store_definitions(program.clone(), imported_programs)?;
-        //
-        //     // Store the imported symbol
-        //     self.store_symbol(scope, &name, &symbol, program)?;
-        // }
+        // Fetch dependencies for the current import
+        let imported_symbols = ImportedSymbols::new(import);
+
+        for (name, symbol) in imported_symbols.symbols {
+            // Find imported program
+            let program = imported_programs
+                .get_import(&name)
+                .ok_or_else(|| ImportError::unknown_package(import.package.name.clone()))?;
+
+            // Parse imported program
+            self.store_definitions(program.clone(), imported_programs)?;
+
+            // Store the imported symbol
+            self.store_symbol(scope, &name, &symbol, program)?;
+        }
 
         Ok(())
     }

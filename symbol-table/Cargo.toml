@@ -1,0 +1,40 @@
+[package]
+name = "leo-symbol-table"
+version = "1.0.4"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Stores user-defined variables during type resolution"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+    "aleo",
+    "cryptography",
+    "leo",
+    "programming-language",
+    "zero-knowledge"
+]
+categories = [ "cryptography::croptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies.leo-ast]
+path = "../ast"
+version = "1.0.4"
+
+[dependencies.leo-core]
+path = "../core"
+version = "1.0.4"
+
+[dependencies.leo-grammar]
+path = "../grammar"
+version = "1.0.4"
+
+[dependencies.leo-imports]
+path = "../imports"
+version = "1.0.4"
+
+[dependencies.serde]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
