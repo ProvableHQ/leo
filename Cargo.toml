@@ -36,7 +36,8 @@ members = [
   "linter",
   "package",
   "state",
-  "symbol-table",
+#  "symbol-table",
+#  "type-inference",
 ]
 
 [dependencies.leo-ast]
@@ -65,10 +66,6 @@ version = "1.0.4"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.0.4"
-
-[dependencies.leo-symbol-table]
-path = "./symbol-table"
 version = "1.0.4"
 
 [dependencies.snarkos-algorithms]

@@ -19,7 +19,7 @@ use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
-use leo_symbol_table::SymbolTableError;
+// use leo_symbol_table::SymbolTableError;
 // use leo_type_inference::TypeInferenceError;
 
 use bincode::Error as SerdeError;
@@ -27,8 +27,6 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
-    // #[error("{}", _0)]
-    // TypeInferenceError(#[from] TypeInferenceError),
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
 
@@ -70,19 +68,21 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
+    // #[error("{}", _0)]
+    // SymbolTableError(#[from] SymbolTableError),
 
-    #[error("{}", _0)]
-    SymbolTableError(#[from] SymbolTableError),
+    // #[error("{}", _0)]
+    // TypeInferenceError(#[from] TypeInferenceError),
 }
 
 impl CompilerError {
     pub fn set_path(&mut self, path: &Path) {
         match self {
-            // CompilerError::TypeInferenceError(error) => error.set_path(path),
             CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),
             CompilerError::OutputStringError(error) => error.set_path(path),
-            CompilerError::SymbolTableError(error) => error.set_path(path),
+            // CompilerError::SymbolTableError(error) => error.set_path(path),
+            // CompilerError::TypeInferenceError(error) => error.set_path(path),
             _ => {}
         }
     }
