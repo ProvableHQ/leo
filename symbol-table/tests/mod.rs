@@ -41,7 +41,7 @@ impl TestSymbolTable {
         // Get test file path.
         let file_path = PathBuf::from(TEST_PROGRAM_PATH);
 
-        // Get parser syntax tree
+        // Get parser syntax tree.
         let grammar = Grammar::new(&file_path, &*file_string).unwrap();
 
         // Get Leo syntax tree
