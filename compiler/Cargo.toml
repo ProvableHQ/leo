@@ -53,9 +53,9 @@ version = "1.0.4"
 path = "../symbol-table"
 version = "1.0.4"
 
-#[dependencies.leo-type-inference]
-#path = "../type-inference"
-#version = "1.0.4"
+[dependencies.leo-type-inference]
+path = "../type-inference"
+version = "1.0.4"
 
 [dependencies.snarkos-curves]
 version = "1.1.3"
