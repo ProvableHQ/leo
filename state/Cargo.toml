@@ -21,8 +21,8 @@ edition = "2018"
 path = "../input"
 version = "1.0.4"
 
-[dependencies.leo-typed]
-path = "../typed"
+[dependencies.leo-ast]
+path = "../ast"
 version = "1.0.4"
 
 [dependencies.snarkos-algorithms]

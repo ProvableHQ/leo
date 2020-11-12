@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportError;
-use leo_typed::{Package, Program};
+use leo_ast::{Package, Program};
 
 use std::{collections::HashMap, env::current_dir};
 

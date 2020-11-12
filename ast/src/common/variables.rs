@@ -14,24 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::VariableName, types::Type, SpanDef};
+use crate::{Type, VariableName};
+use leo_grammar::common::Variables as GrammarVariables;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::variables))]
-pub struct Variables<'ast> {
-    pub names: Vec<VariableName<'ast>>,
-    pub type_: Option<Type<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+/// A variable that is assigned to a value in the constrained program
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Variables {
+    pub names: Vec<VariableName>,
+    pub type_: Option<Type>,
 }
 
-impl<'ast> fmt::Display for Variables<'ast> {
+impl<'ast> From<GrammarVariables<'ast>> for Variables {
+    fn from(variables: GrammarVariables<'ast>) -> Self {
+        let names = variables.names.into_iter().map(VariableName::from).collect::<Vec<_>>();
+
+        let type_ = variables.type_.map(Type::from);
+
+        Self { names, type_ }
+    }
+}
+
+impl fmt::Display for Variables {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.names.len() == 1 {
             // mut a

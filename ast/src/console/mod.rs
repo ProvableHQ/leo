@@ -14,26 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod console_assert;
-pub use console_assert::*;
-
-pub mod console_debug;
-pub use console_debug::*;
-
-pub mod console_error;
-pub use console_error::*;
-
 pub mod console_function;
 pub use console_function::*;
 
 pub mod console_function_call;
 pub use console_function_call::*;
-
-pub mod console_keyword;
-pub use console_keyword::*;
-
-pub mod console_log;
-pub use console_log::*;
 
 pub mod formatted_container;
 pub use formatted_container::*;

@@ -1,4 +1,6 @@
 circuit Foo {
+    a: u8,
+
     function bar() {}
 }
 

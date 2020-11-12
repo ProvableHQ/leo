@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::AddressError, ConstrainedValue, GroupType};
-use leo_typed::{InputValue, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_errors::gadgets::SynthesisError;

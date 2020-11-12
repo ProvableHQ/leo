@@ -14,22 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, SpanDef};
+use crate::Span;
+use leo_grammar::console::FormattedContainer as GrammarFormattedContainer;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::formatted_container))]
-pub struct FormattedContainer<'ast> {
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FormattedContainer {
+    pub span: Span,
 }
 
-impl<'ast> fmt::Display for FormattedContainer<'ast> {
+impl<'ast> From<GrammarFormattedContainer<'ast>> for FormattedContainer {
+    fn from(container: GrammarFormattedContainer<'ast>) -> Self {
+        Self {
+            span: Span::from(container.span),
+        }
+    }
+}
+
+impl fmt::Display for FormattedContainer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{}}")
     }

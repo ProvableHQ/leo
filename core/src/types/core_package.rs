@@ -20,7 +20,7 @@ use crate::{
     CoreCircuitStructList,
     CorePackageError,
 };
-use leo_typed::{Identifier, ImportSymbol, Package, PackageAccess};
+use leo_ast::{Identifier, ImportSymbol, Package, PackageAccess};
 use std::convert::TryFrom;
 
 /// A core package dependency to be imported into a Leo program.

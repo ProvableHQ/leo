@@ -14,24 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    assert_satisfied,
-    expect_compiler_error,
-    get_output,
-    parse_program,
-    parse_program_with_input,
-    EdwardsTestCompiler,
-};
+use crate::{assert_satisfied, expect_compiler_error, get_output, parse_program, parse_program_with_input};
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
-
-fn expect_undefined_identifier(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(_),
-        ))) => {}
-        error => panic!("Expected function undefined, got {}", error),
-    }
-}
 
 #[test]
 fn test_empty() {
@@ -126,13 +110,13 @@ fn test_scope_fail() {
     }
 }
 
-#[test]
-fn test_undefined() {
-    let bytes = include_bytes!("undefined.leo");
-    let program = parse_program(bytes).unwrap();
-
-    expect_undefined_identifier(program);
-}
+// #[test]
+// fn test_undefined() {
+//     let bytes = include_bytes!("undefined.leo");
+//     let error = parse_program(bytes).err().unwrap();
+//
+//     expect_type_inference_error(error);
+// }
 
 #[test]
 fn test_value_unchanged() {
@@ -142,6 +126,14 @@ fn test_value_unchanged() {
     assert_satisfied(program);
 }
 
+// #[test]
+// fn test_array_input() {
+//     let bytes = include_bytes!("array_input.leo");
+//     let error = parse_program(bytes).err().unwrap();
+//
+//     expect_type_inference_error(error)
+// }
+
 // Test return multidimensional arrays
 
 #[test]
@@ -149,7 +141,7 @@ fn test_return_array_nested_fail() {
     let bytes = include_bytes!("return_array_nested_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    expect_compiler_error(program);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]
@@ -165,7 +157,7 @@ fn test_return_array_tuple_fail() {
     let bytes = include_bytes!("return_array_tuple_fail.leo");
     let program = parse_program(bytes).unwrap();
 
-    expect_compiler_error(program);
+    let _err = expect_compiler_error(program);
 }
 
 #[test]

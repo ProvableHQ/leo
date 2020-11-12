@@ -14,47 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod array_dimensions;
+pub use array_dimensions::*;
+
 pub mod assignee;
 pub use assignee::*;
 
 pub mod declare;
 pub use declare::*;
 
-pub mod eoi;
-pub use eoi::*;
-
 pub mod identifier;
 pub use identifier::*;
 
-pub mod keyword_or_identifier;
-pub use keyword_or_identifier::*;
-
-pub mod line_end;
-pub use line_end::*;
-
-pub mod mutable;
-pub use mutable::*;
-
-pub mod range;
-pub use range::*;
+pub mod positive_number;
+pub use positive_number::*;
 
 pub mod range_or_expression;
 pub use range_or_expression::*;
 
-pub mod self_keyword;
-pub use self_keyword::*;
-
-pub mod self_keyword_or_identifier;
-pub use self_keyword_or_identifier::*;
-
-pub mod spread;
-pub use spread::*;
+pub mod span;
+pub use span::*;
 
 pub mod spread_or_expression;
 pub use spread_or_expression::*;
-
-pub mod static_;
-pub use static_::*;
 
 pub mod variables;
 pub use variables::*;

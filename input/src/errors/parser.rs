@@ -77,6 +77,12 @@ impl InputParserError {
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
+    pub fn array_index(actual: String, span: Span) -> Self {
+        let message = format!("Expected constant number for array index, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type, implicit);
 

@@ -14,18 +14,51 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::LineEnd, imports::Package, SpanDef};
+use crate::{Package, Span};
+use leo_grammar::imports::Import as GrammarImport;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::import))]
-pub struct Import<'ast> {
-    pub package: Package<'ast>,
-    pub line_end: LineEnd,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+/// Represents an import statement in a Leo program.
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ImportStatement {
+    pub package: Package,
+    pub span: Span,
+}
+
+impl ImportStatement {
+    ///
+    /// Returns the the package file name of the self import statement.
+    ///
+    pub fn get_file_name(&self) -> &str {
+        &self.package.name.name
+    }
+}
+
+impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
+    fn from(import: GrammarImport<'ast>) -> Self {
+        ImportStatement {
+            package: Package::from(import.package),
+            span: Span::from(import.span),
+        }
+    }
+}
+
+impl ImportStatement {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "import {};", self.package)
+    }
+}
+
+impl fmt::Display for ImportStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Debug for ImportStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

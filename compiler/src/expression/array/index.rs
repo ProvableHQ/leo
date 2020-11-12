@@ -17,7 +17,7 @@
 //! Enforces an array index expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, IntegerType, Span, Type};
+use leo_ast::{Expression, IntegerType, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let expected_type = Some(Type::IntegerType(IntegerType::U32));
         match self.enforce_operand(cs, file_scope, function_scope, expected_type, index, &span)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize(span)?),
-            value => Err(ExpressionError::invalid_index(value.to_string(), span.to_owned())),
+            value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }
     }
 }

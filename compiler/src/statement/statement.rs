@@ -17,7 +17,7 @@
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Statement, Type};
+use leo_ast::{Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -28,11 +28,13 @@ pub type StatementResult<T> = Result<T, StatementError>;
 pub type IndicatorAndConstrainedValue<T, U> = (Option<Boolean>, ConstrainedValue<T, U>);
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
     /// Each evaluated statement may execute of one or more statements that may return early.
     /// To indicate which of these return values to take we conditionally select the value according
     /// to the `indicator` bit that evaluates to true.
+    ///
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
@@ -74,7 +76,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declared_circuit_reference,
                     indicator,
                     variable,
-                    *expression,
+                    expression,
                     &span,
                 )?;
             }

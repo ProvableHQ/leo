@@ -23,7 +23,7 @@ use crate::{
     GroupType,
 };
 
-use leo_typed::{Expression, Function, InputVariable, Span, Type};
+use leo_ast::{Expression, Function, FunctionInput, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -57,13 +57,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
-                InputVariable::InputKeyword(identifier) => {
+                FunctionInput::InputKeyword(identifier) => {
                     let input_value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
                     (&identifier.name, input_value)
                 }
-                InputVariable::FunctionInput(input_model) => {
+                FunctionInput::Variable(input_model) => {
                     // First evaluate input expression
                     let mut input_value = self.enforce_function_input(
                         cs,
@@ -97,7 +97,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 &function_name,
                 None,
                 statement.clone(),
-                function.returns.clone(),
+                function.output.clone(),
                 declared_circuit_reference,
             )?;
 
@@ -110,7 +110,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Self::conditionally_select_result(cs, &mut return_values, results, &function.span)?;
 
         if let ConstrainedValue::Tuple(ref returns) = return_values {
-            let return_types = match function.returns {
+            let return_types = match function.output {
                 Some(Type::Tuple(types)) => types.len(),
                 Some(_) => 1usize,
                 None => 0usize,

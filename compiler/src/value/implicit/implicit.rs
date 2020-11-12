@@ -17,7 +17,7 @@
 //! Enforces constraints on an implicit number in a compiled Leo program.
 
 use crate::{errors::ValueError, value::ConstrainedValue, GroupType};
-use leo_typed::{Span, Type};
+use leo_ast::{Span, Type};
 
 use snarkos_models::curves::{Field, PrimeField};
 

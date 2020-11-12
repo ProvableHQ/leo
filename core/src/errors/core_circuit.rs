@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Value;
-use leo_typed::{Error as FormattedError, Span};
+use leo_ast::{Error as FormattedError, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 

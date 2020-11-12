@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{DPCRecordValues, RecordVerificationError};
-use leo_typed::Record as TypedRecord;
+use leo_ast::Record as RecordAst;
 
 use snarkos_dpc::base_dpc::{
     instantiated::{Components, RecordCommitment},
@@ -28,10 +28,10 @@ use std::convert::TryFrom;
 
 pub fn verify_record_commitment(
     system_parameters: &SystemParameters<Components>,
-    typed_record: &TypedRecord,
+    record_ast: &RecordAst,
 ) -> Result<DPCRecordValues, RecordVerificationError> {
     // generate a dpc record from the typed record
-    let record = DPCRecordValues::try_from(typed_record)?;
+    let record = DPCRecordValues::try_from(record_ast)?;
 
     // verify record commitment
     let record_commitment_input = to_bytes![

@@ -30,23 +30,30 @@ members = [
   "compiler",
   "core",
   "gadgets",
+  "grammar",
+  "imports",
   "input",
   "linter",
   "package",
-  "typed",
-  "state"
+  "state",
+#  "symbol-table",
+#  "type-inference",
 ]
+
+[dependencies.leo-ast]
+path = "./ast"
+version = "1.0.4"
 
 [dependencies.leo-compiler]
 path = "./compiler"
 version = "1.0.4"
 
-[dependencies.leo-core]
-path = "./core"
-version = "1.0.2"
-
 [dependencies.leo-gadgets]
 path = "./gadgets"
+version = "1.0.4"
+
+[dependencies.leo-imports]
+path = "./imports"
 version = "1.0.4"
 
 [dependencies.leo-input]

@@ -16,12 +16,12 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
+use leo_ast::{InputValue, IntegerType, Span, Type};
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
     signed_integer::*,
 };
-use leo_typed::{InputValue, IntegerType, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -67,6 +67,44 @@ impl fmt::Display for Integer {
 }
 
 impl Integer {
+    ///
+    /// Returns a new integer from an expression.
+    ///
+    /// Checks that the expression is equal to the expected type if given.
+    ///
+    pub fn new(
+        expected_type: Option<Type>,
+        actual_integer_type: &IntegerType,
+        string: String,
+        span: &Span,
+    ) -> Result<Self, IntegerError> {
+        // Check expected type if given.
+        if let Some(type_) = expected_type {
+            // Check expected type is an integer.
+            match type_ {
+                Type::IntegerType(expected_integer_type) => {
+                    // Check expected integer type == actual integer type
+                    if expected_integer_type.ne(actual_integer_type) {
+                        return Err(IntegerError::invalid_integer_type(
+                            &expected_integer_type,
+                            actual_integer_type,
+                            span.to_owned(),
+                        ));
+                    }
+                }
+                type_ => return Err(IntegerError::invalid_type(&type_, span.to_owned())),
+            }
+        }
+
+        // Return a new constant integer.
+        Self::new_constant(actual_integer_type, string, span)
+    }
+
+    ///
+    /// Returns a new integer value from an expression.
+    ///
+    /// The returned integer value is "constant" and is not allocated in the constraint system.
+    ///
     pub fn new_constant(integer_type: &IntegerType, string: String, span: &Span) -> Result<Self, IntegerError> {
         match integer_type {
             IntegerType::U8 => {

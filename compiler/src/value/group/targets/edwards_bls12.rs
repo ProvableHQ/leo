@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::GroupError, GroupType};
-use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, Span};
+use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, Span};
 
 use snarkos_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},

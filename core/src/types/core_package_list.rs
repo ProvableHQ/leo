@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CoreCircuitStructList, CorePackage, CorePackageListError, UNSTABLE_CORE_PACKAGE_KEYWORD};
-use leo_typed::PackageAccess;
+use leo_ast::PackageAccess;
 use std::convert::TryFrom;
 
 /// A list of core package dependencies.

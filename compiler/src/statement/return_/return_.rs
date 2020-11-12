@@ -17,7 +17,7 @@
 //! Enforces a return statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -28,7 +28,7 @@ fn check_return_type(expected: Option<Type>, actual: Type, span: &Span) -> Resul
     match expected {
         Some(expected) => {
             if expected.ne(&actual) {
-                if (expected.is_self() && actual.is_circuit()) || expected.match_array_types(&actual) {
+                if (expected.is_self() && actual.is_circuit()) || expected.eq_flat(&actual) {
                     return Ok(());
                 } else {
                     return Err(StatementError::arguments_type(&expected, &actual, span.to_owned()));
@@ -50,10 +50,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         return_type: Option<Type>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
-        // Make sure we return the correct number of values
-
         let result = self.enforce_operand(cs, file_scope, function_scope, return_type.clone(), expression, span)?;
 
+        // Make sure we return the correct type.
         check_return_type(return_type, result.to_type(&span)?, span)?;
 
         Ok(result)

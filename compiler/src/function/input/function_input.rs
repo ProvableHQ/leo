@@ -18,7 +18,7 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_typed::{Expression, Type};
+use leo_ast::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

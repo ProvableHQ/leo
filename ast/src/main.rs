@@ -14,21 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{LeoAst, ParserError};
+use leo_ast::LeoAst;
+use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
-fn to_leo_ast(filepath: &Path) -> Result<String, ParserError> {
+fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
-    let program_string = LeoAst::load_file(&program_filepath)?;
+    let program_string = Grammar::load_file(&program_filepath)?;
 
-    // Parses the Leo file and constructs an abstract syntax tree.
-    let ast = LeoAst::new(&program_filepath, &program_string)?;
+    // Parses the Leo file and constructs a pest ast.
+    let ast = Grammar::new(&program_filepath, &program_string)?;
 
-    // Serializes the abstract syntax tree into JSON format.
-    let serialized_ast = LeoAst::to_json_string(&ast)?;
+    // Parse the pest ast and constructs a ast.
+    let leo_ast = LeoAst::new("leo_tree", &ast);
 
-    Ok(serialized_ast)
+    // Serializes the tree into JSON format.
+    let serialized_leo_ast = LeoAst::to_json_string(&leo_ast)?;
+
+    Ok(serialized_leo_ast)
 }
 
 fn main() -> Result<(), ParserError> {
@@ -47,9 +51,9 @@ fn main() -> Result<(), ParserError> {
     // Construct the input filepath.
     let input_filepath = Path::new(&cli_arguments[1]);
 
-    // Construct the serialized abstract syntax tree.
-    let serialized_ast = to_leo_ast(&input_filepath)?;
-    println!("{}", serialized_ast);
+    // Construct the serialized syntax tree.
+    let serialized_leo_tree = to_leo_tree(&input_filepath)?;
+    println!("{}", serialized_leo_tree);
 
     // Determine the output directory.
     let output_directory = match cli_arguments.len() == 3 {
@@ -61,8 +65,8 @@ fn main() -> Result<(), ParserError> {
         false => format!("./{}.json", input_filepath.file_stem().unwrap().to_str().unwrap()),
     };
 
-    // Write the serialized abstract syntax tree to the output directory.
-    fs::write(Path::new(&output_directory), serialized_ast)?;
+    // Write the serialized syntax tree to the output directory.
+    fs::write(Path::new(&output_directory), serialized_leo_tree)?;
 
     Ok(())
 }

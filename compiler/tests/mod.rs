@@ -35,6 +35,7 @@ pub mod statements;
 pub mod syntax;
 pub mod tuples;
 
+use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
     errors::CompilerError,
@@ -43,7 +44,6 @@ use leo_compiler::{
     OutputBytes,
 };
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
-use leo_typed::{InputValue, MainInput};
 
 use snarkos_curves::edwards_bls12::Fq;
 use snarkos_models::gadgets::r1cs::TestConstraintSystem;
@@ -180,12 +180,13 @@ pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerErr
     let mut cs = TestConstraintSystem::<Fq>::new();
     program.generate_constraints_helper(&mut cs).unwrap_err()
 }
-
-// pub(crate) fn expect_synthesis_error(program: EdwardsTestCompiler) {
-//     let mut cs = TestConstraintSystem::<Fq>::new();
-//     let _output = program.generate_constraints_helper(&mut cs).unwrap();
 //
-//     assert!(!cs.is_satisfied());
+// pub(crate) fn expect_type_inference_error(error: CompilerError) {
+//     assert!(matches!(error, CompilerError::TypeInferenceError(_)))
+// }
+
+// pub(crate) fn expect_symbol_table_error(error: CompilerError) {
+//     assert!(matches!(error, CompilerError::SymbolTableError(_)))
 // }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {

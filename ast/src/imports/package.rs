@@ -14,22 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    imports::{PackageAccess, PackageName},
-    SpanDef,
-};
+use crate::{common::Identifier, PackageAccess, Span};
+use leo_grammar::imports::Package as GrammarPackage;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::package))]
-pub struct Package<'ast> {
-    pub name: PackageName<'ast>,
-    pub access: PackageAccess<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct Package {
+    pub name: Identifier,
+    pub access: PackageAccess,
+    pub span: Span,
+}
+
+impl<'ast> From<GrammarPackage<'ast>> for Package {
+    fn from(package: GrammarPackage<'ast>) -> Self {
+        Package {
+            name: Identifier::from(package.name),
+            access: PackageAccess::from(package.access),
+            span: Span::from(package.span),
+        }
+    }
+}
+
+impl Package {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.name, self.access)
+    }
+}
+
+impl fmt::Display for Package {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Debug for Package {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

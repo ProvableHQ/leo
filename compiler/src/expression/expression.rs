@@ -28,7 +28,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_typed::{Expression, Type};
+use leo_ast::{Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -56,8 +56,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?)),
             Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(*group_element)?)),
             Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, &span)?),
-            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new_constant(
-                &type_, integer, &span,
+            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new(
+                expected_type,
+                &type_,
+                integer,
+                &span,
             )?)),
 
             // Binary operations
@@ -243,9 +246,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ),
 
             // Arrays
-            Expression::Array(array, span) => {
+            Expression::ArrayInline(array, span) => {
                 self.enforce_array(cs, file_scope, function_scope, expected_type, array, span)
             }
+            Expression::ArrayInitializer(array_w_dimensions, span) => self.enforce_array_initializer(
+                cs,
+                file_scope,
+                function_scope,
+                expected_type,
+                array_w_dimensions.0,
+                array_w_dimensions.1,
+                span,
+            ),
             Expression::ArrayAccess(array_w_index, span) => self.enforce_array_access(
                 cs,
                 file_scope,
@@ -260,9 +272,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Tuple(tuple, span) => {
                 self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
             }
-            Expression::TupleAccess(tuple, index, span) => {
-                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, *tuple, index, &span)
-            }
+            Expression::TupleAccess(tuple_w_index, span) => self.enforce_tuple_access(
+                cs,
+                file_scope,
+                function_scope,
+                expected_type,
+                tuple_w_index.0,
+                tuple_w_index.1,
+                &span,
+            ),
 
             // Circuits
             Expression::Circuit(circuit_name, members, span) => {

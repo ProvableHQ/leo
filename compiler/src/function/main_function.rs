@@ -23,7 +23,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_typed::{Expression, Function, Input, InputVariable};
+use leo_ast::{Expression, Function, FunctionInput, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -45,12 +45,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut input_variables = Vec::with_capacity(function.input.len());
         for input_model in function.input.clone().into_iter() {
             let (identifier, value) = match input_model {
-                InputVariable::InputKeyword(identifier) => {
+                FunctionInput::InputKeyword(identifier) => {
                     let value = self.allocate_input_keyword(cs, identifier.clone(), &input)?;
 
                     (identifier, value)
                 }
-                InputVariable::FunctionInput(input_model) => {
+                FunctionInput::Variable(input_model) => {
                     let name = input_model.identifier.name.clone();
                     let input_option = input
                         .get(&name)

@@ -17,7 +17,7 @@
 //! Enforces an assert equals statement in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

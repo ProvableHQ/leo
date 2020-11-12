@@ -14,18 +14,63 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, SpanDef};
+use crate::{Identifier, Span};
+use leo_grammar::imports::ImportSymbol as GrammarImportSymbol;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::import_symbol))]
-pub struct ImportSymbol<'ast> {
-    pub value: Identifier<'ast>,
-    pub alias: Option<Identifier<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct ImportSymbol {
+    pub symbol: Identifier,
+    pub alias: Option<Identifier>,
+    pub span: Span,
+}
+
+impl<'ast> From<GrammarImportSymbol<'ast>> for ImportSymbol {
+    fn from(symbol: GrammarImportSymbol<'ast>) -> Self {
+        ImportSymbol {
+            symbol: Identifier::from(symbol.value),
+            alias: symbol.alias.map(Identifier::from),
+            span: Span::from(symbol.span),
+        }
+    }
+}
+
+impl fmt::Display for ImportSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.alias.is_some() {
+            write!(f, "{} as {}", self.symbol, self.alias.as_ref().unwrap())
+        } else {
+            write!(f, "{}", self.symbol)
+        }
+    }
+}
+
+// TODO (collin): remove this
+impl fmt::Debug for ImportSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.alias.is_some() {
+            write!(f, "{} as {}", self.symbol, self.alias.as_ref().unwrap())
+        } else {
+            write!(f, "{}", self.symbol)
+        }
+    }
+}
+
+impl ImportSymbol {
+    pub fn star(span: &Span) -> Self {
+        Self {
+            symbol: Identifier {
+                name: "*".to_string(),
+                span: span.clone(),
+            },
+            alias: None,
+            span: span.clone(),
+        }
+    }
+
+    pub fn is_star(&self) -> bool {
+        self.symbol.name.eq("*")
+    }
 }

@@ -21,8 +21,8 @@ use crate::{
     integers::{expect_computation_error, expect_parsing_error, IntegerTester},
     parse_program,
 };
+use leo_ast::InputValue;
 use leo_input::types::{I8Type, IntegerType, SignedIntegerType};
-use leo_typed::InputValue;
 
 test_int!(
     TestI8,
