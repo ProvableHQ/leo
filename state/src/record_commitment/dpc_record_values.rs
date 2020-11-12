@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{utilities::*, DPCRecordValuesError};
-use leo_ast::Record as RecordAst;
+use leo_ast::Record as AstRecord;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
@@ -46,11 +46,11 @@ pub struct DPCRecordValues {
     pub commitment_randomness: Vec<u8>,
 }
 
-impl TryFrom<&RecordAst> for DPCRecordValues {
+impl TryFrom<&AstRecord> for DPCRecordValues {
     type Error = DPCRecordValuesError;
 
-    fn try_from(record: &RecordAst) -> Result<Self, Self::Error> {
-        let parameters = record.values();
+    fn try_from(ast_record: &AstRecord) -> Result<Self, Self::Error> {
+        let parameters = ast_record.values();
 
         // Lookup serial number
         let serial_number_value = find_input(SERIAL_NUMBER_PARAMETER_STRING.to_owned(), &parameters)?;
