@@ -23,7 +23,7 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
-use leo_ast::{Input, LeoAst, MainInput, Program};
+use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
@@ -184,7 +184,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         // Construct the core ast from the pest ast.
-        let core_ast = LeoAst::new(&self.package_name, &pest_ast);
+        let core_ast = Ast::new(&self.package_name, &pest_ast);
 
         // Store the main program file.
         self.program = core_ast.into_repr();
@@ -244,7 +244,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = &self.package_name;
 
         // Construct the core ast from the pest ast.
-        let core_ast = LeoAst::new(package_name, &ast);
+        let core_ast = Ast::new(package_name, &ast);
 
         // Store the main program file.
         self.program = core_ast.into_repr();
