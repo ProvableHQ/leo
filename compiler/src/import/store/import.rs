@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 .ok_or_else(|| ImportError::unknown_package(import.package.name.clone()))?;
 
             // Parse imported program
-            self.store_definitions(program.clone(), imported_programs)?;
+            self.store_definitions(program, imported_programs)?;
 
             // Store the imported symbol
             self.store_symbol(scope, &name, &symbol, program)?;
