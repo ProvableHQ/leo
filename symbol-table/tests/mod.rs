@@ -44,7 +44,7 @@ impl TestSymbolTable {
         // Get parser syntax tree.
         let grammar = Grammar::new(&file_path, &*file_string).unwrap();
 
-        // Get Leo syntax tree
+        // Get Leo syntax tree.
         let ast = LeoAst::new(TEST_PROGRAM_PATH, &grammar);
 
         Self { ast }
