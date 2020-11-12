@@ -26,6 +26,8 @@ use snarkos_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
 use std::convert::TryFrom;
 
+/// Returns a serialized [`DPCRecordValues`] type if the record commitment is valid given the
+/// system parameters.
 pub fn verify_record_commitment(
     system_parameters: &SystemParameters<Components>,
     ast_record: &AstRecord,

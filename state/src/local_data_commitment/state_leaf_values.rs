@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{find_input, input_to_integer_string, input_to_u8_vec, StateLeafValuesError};
+use crate::{find_input, input_to_bytes, input_to_integer_string, StateLeafValuesError};
 use leo_ast::StateLeaf as AstStateLeaf;
 
 use std::convert::TryFrom;
@@ -24,6 +24,8 @@ static MEMO_PARAMETER_STRING: &str = "memo";
 static NETWORK_ID_PARAMETER_STRING: &str = "network_id";
 static LEAF_RANDOMNESS_PARAMETER_STRING: &str = "leaf_randomness";
 
+/// The serialized values included in the state leaf.
+/// A new [`StateLeafValues`] type can be constructed from an [`AstStateLeaf`] type.
 pub struct StateLeafValues {
     pub path: Vec<u8>,
     pub memo: Vec<u8>,
@@ -39,11 +41,11 @@ impl TryFrom<&AstStateLeaf> for StateLeafValues {
 
         // Lookup path
         let path_value = find_input(PATH_PARAMETER_STRING.to_owned(), &parameters)?;
-        let path = input_to_u8_vec(path_value)?;
+        let path = input_to_bytes(path_value)?;
 
         // Lookup memo
         let memo_value = find_input(MEMO_PARAMETER_STRING.to_owned(), &parameters)?;
-        let memo = input_to_u8_vec(memo_value)?;
+        let memo = input_to_bytes(memo_value)?;
 
         // Lookup network id
         let network_id_value = find_input(NETWORK_ID_PARAMETER_STRING.to_owned(), &parameters)?;
@@ -51,7 +53,7 @@ impl TryFrom<&AstStateLeaf> for StateLeafValues {
 
         // Lookup leaf randomness
         let leaf_randomness_value = find_input(LEAF_RANDOMNESS_PARAMETER_STRING.to_owned(), &parameters)?;
-        let leaf_randomness = input_to_u8_vec(leaf_randomness_value)?;
+        let leaf_randomness = input_to_bytes(leaf_randomness_value)?;
 
         Ok(Self {
             path,
