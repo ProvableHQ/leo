@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
+use leo_ast::Ast;
 use leo_grammar::Grammar;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, time::Duration};
 
-fn leo_ast<'ast>(ast: &Grammar<'ast>) -> LeoAst {
-    LeoAst::new("leo_tree", &ast)
+fn ast<'ast>(ast: &Grammar<'ast>) -> Ast {
+    Ast::new("leo_tree", &ast)
 }
 
 fn bench_big_if_else(c: &mut Criterion) {
@@ -29,7 +29,7 @@ fn bench_big_if_else(c: &mut Criterion) {
     let program_string = include_str!("./big_if_else.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::big_if_else", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::big_if_else", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_big_ternary(c: &mut Criterion) {
@@ -37,7 +37,7 @@ fn bench_big_ternary(c: &mut Criterion) {
     let program_string = include_str!("./big_ternary.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::big_ternary", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::big_ternary", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_big_circuit(c: &mut Criterion) {
@@ -45,7 +45,7 @@ fn bench_big_circuit(c: &mut Criterion) {
     let program_string = include_str!("./big_circuit.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::big_circuit", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::big_circuit", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_long_expr(c: &mut Criterion) {
@@ -53,7 +53,7 @@ fn bench_long_expr(c: &mut Criterion) {
     let program_string = include_str!("./long_expr.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::long_expr", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::long_expr", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_long_array(c: &mut Criterion) {
@@ -61,7 +61,7 @@ fn bench_long_array(c: &mut Criterion) {
     let program_string = include_str!("./long_array.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::long_array", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::long_array", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_many_foos(c: &mut Criterion) {
@@ -69,7 +69,7 @@ fn bench_many_foos(c: &mut Criterion) {
     let program_string = include_str!("./many_foos.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::many_foos", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::many_foos", |b| b.iter(|| ast(&ast)));
 }
 
 fn bench_many_assigns(c: &mut Criterion) {
@@ -77,7 +77,7 @@ fn bench_many_assigns(c: &mut Criterion) {
     let program_string = include_str!("./many_assigns.leo");
     let ast = Grammar::new(&filepath, program_string).unwrap();
 
-    c.bench_function("LeoAst::many_assigns", |b| b.iter(|| leo_ast(&ast)));
+    c.bench_function("Ast::many_assigns", |b| b.iter(|| ast(&ast)));
 }
 
 criterion_group!(
