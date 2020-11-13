@@ -19,7 +19,7 @@ use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
-// use leo_symbol_table::SymbolTableError;
+use leo_symbol_table::SymbolTableError;
 // use leo_type_inference::TypeInferenceError;
 
 use bincode::Error as SerdeError;
@@ -68,9 +68,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
-    // #[error("{}", _0)]
-    // SymbolTableError(#[from] SymbolTableError),
 
+    #[error("{}", _0)]
+    SymbolTableError(#[from] SymbolTableError),
     // #[error("{}", _0)]
     // TypeInferenceError(#[from] TypeInferenceError),
 }
@@ -81,7 +81,7 @@ impl CompilerError {
             CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),
             CompilerError::OutputStringError(error) => error.set_path(path),
-            // CompilerError::SymbolTableError(error) => error.set_path(path),
+            CompilerError::SymbolTableError(error) => error.set_path(path),
             // CompilerError::TypeInferenceError(error) => error.set_path(path),
             _ => {}
         }

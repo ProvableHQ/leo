@@ -29,7 +29,7 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
-// use leo_symbol_table::SymbolTable;
+use leo_symbol_table::SymbolTable;
 // use leo_type_inference::TypeInference;
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
@@ -205,13 +205,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// catching type mismatch errors.
     ///
     pub(crate) fn check_program(&self) -> Result<(), CompilerError> {
-        // // Create a new symbol table from the program, imported_programs, and program_input.
-        // let _symbol_table =
-        //     SymbolTable::new(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
-        //         e.set_path(&self.main_file_path);
-        //
-        //         e
-        //     })?;
+        // Create a new symbol table from the program, imported_programs, and program_input.
+        let _symbol_table =
+            SymbolTable::new(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
+                e.set_path(&self.main_file_path);
+
+                e
+            })?;
 
         // // Run type inference check on program.
         // TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
@@ -252,8 +252,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Parse and store all programs imported by the main program file.
         self.imported_programs = ImportParser::parse(&self.program)?;
 
-        // // Create a new symbol table from the program, imported programs, and program input.
-        // let _symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
+        // Create a new symbol table from the program, imported programs, and program input.
+        let _symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
 
         // // Run type inference check on program.
         // TypeInference::new(&self.program, symbol_table)?;
