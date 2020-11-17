@@ -23,7 +23,7 @@ pub mod variables;
 use leo_grammar::Grammar;
 use leo_type_inference::TypeInference;
 
-use leo_ast::{Input, LeoAst, Program};
+use leo_ast::{Ast, Input, Program};
 use leo_imports::ImportParser;
 use leo_symbol_table::SymbolTable;
 use std::path::PathBuf;
@@ -49,7 +49,7 @@ impl TestTypeInference {
         let ast = Grammar::new(&file_path, &*file_string).unwrap();
 
         // Get typed syntax tree.
-        let typed = LeoAst::new(TEST_PROGRAM_NAME, &ast);
+        let typed = Ast::new(TEST_PROGRAM_NAME, &ast);
         let program = typed.into_repr();
 
         // Create empty import parser.
