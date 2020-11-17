@@ -70,7 +70,7 @@ impl ArrayDimensions {
     /// Returns `true` if there is an array dimension equal to zero.
     ///
     pub fn is_zero(&self) -> bool {
-        self.0.iter().find(|number| number.is_zero()).is_some()
+        self.0.iter().any(|number| number.is_zero())
     }
 
     ///
