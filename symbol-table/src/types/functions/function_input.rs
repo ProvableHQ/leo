@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInputVariableType, SymbolTable, Type, TypeError};
-use leo_ast::{FunctionInput, Identifier};
+use leo_ast::{FunctionInput, Identifier, Span};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,6 +43,16 @@ impl FunctionInputType {
         match self {
             FunctionInputType::InputKeyword(identifier) => Type::Circuit(identifier.to_owned()),
             FunctionInputType::Variable(variable) => variable.type_.to_owned(),
+        }
+    }
+
+    ///
+    /// Return the `Span` of the current function input.
+    ///
+    pub fn span(&self) -> &Span {
+        match self {
+            FunctionInputType::InputKeyword(identifier) => &identifier.span,
+            FunctionInputType::Variable(variable) => &variable.span,
         }
     }
 

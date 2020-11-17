@@ -50,11 +50,16 @@ impl VariableTable {
     ///
     pub fn insert_function_inputs(&mut self, function_inputs: &[FunctionInputType]) -> Result<(), VariableTableError> {
         for input in function_inputs {
-            let input_name = input.identifier().name.clone();
+            let input_name = &input.identifier().name;
             let input_type = input.type_();
+            let input_span = input.span();
 
-            // TODO (collinc97) throw an error for duplicate function input names.
-            self.insert(input_name, input_type);
+            // Check for duplicate function input names.
+            let duplicate = self.insert(input_name.clone(), input_type);
+
+            if duplicate.is_some() {
+                return Err(VariableTableError::duplicate_function_input(input_name, input_span));
+            }
         }
         Ok(())
     }
