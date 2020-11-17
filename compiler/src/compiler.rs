@@ -23,14 +23,14 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
-use leo_ast::{Input, LeoAst, MainInput, Program};
+use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
-// use leo_symbol_table::SymbolTable;
-// use leo_type_inference::TypeInference;
+use leo_symbol_table::SymbolTable;
+use leo_type_inference::TypeInference;
 
 use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkos_errors::gadgets::SynthesisError;
@@ -184,7 +184,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         // Construct the core ast from the pest ast.
-        let core_ast = LeoAst::new(&self.package_name, &pest_ast);
+        let core_ast = Ast::new(&self.package_name, &pest_ast);
 
         // Store the main program file.
         self.program = core_ast.into_repr();
@@ -205,20 +205,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// catching type mismatch errors.
     ///
     pub(crate) fn check_program(&self) -> Result<(), CompilerError> {
-        // // Create a new symbol table from the program, imported_programs, and program_input.
-        // let _symbol_table =
-        //     SymbolTable::new(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
-        //         e.set_path(&self.main_file_path);
-        //
-        //         e
-        //     })?;
+        // Create a new symbol table from the program, imported_programs, and program_input.
+        let symbol_table =
+            SymbolTable::new(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
+                e.set_path(&self.main_file_path);
 
-        // // Run type inference check on program.
-        // TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
-        //     e.set_path(&self.main_file_path);
-        //
-        //     e
-        // })?;
+                e
+            })?;
+
+        // Run type inference check on program.
+        TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
+            e.set_path(&self.main_file_path);
+
+            e
+        })?;
 
         tracing::debug!("Program checks complete");
 
@@ -244,7 +244,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = &self.package_name;
 
         // Construct the core ast from the pest ast.
-        let core_ast = LeoAst::new(package_name, &ast);
+        let core_ast = Ast::new(package_name, &ast);
 
         // Store the main program file.
         self.program = core_ast.into_repr();
@@ -252,11 +252,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Parse and store all programs imported by the main program file.
         self.imported_programs = ImportParser::parse(&self.program)?;
 
-        // // Create a new symbol table from the program, imported programs, and program input.
-        // let _symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
+        // Create a new symbol table from the program, imported programs, and program input.
+        let symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
 
-        // // Run type inference check on program.
-        // TypeInference::new(&self.program, symbol_table)?;
+        // Run type inference check on program.
+        TypeInference::new(&self.program, symbol_table)?;
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 

@@ -36,8 +36,8 @@ members = [
   "linter",
   "package",
   "state",
-#  "symbol-table",
-#  "type-inference",
+  "symbol-table",
+  "type-inference",
 ]
 
 [dependencies.leo-ast]

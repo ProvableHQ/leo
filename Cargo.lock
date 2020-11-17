@@ -1312,6 +1312,8 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
+ "leo-symbol-table",
+ "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1478,6 +1480,31 @@ dependencies = [
  "snarkos-objects",
  "snarkos-storage",
  "snarkos-utilities",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-symbol-table"
+version = "1.0.4"
+dependencies = [
+ "leo-ast",
+ "leo-core",
+ "leo-grammar",
+ "leo-imports",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "leo-type-inference"
+version = "1.0.4"
+dependencies = [
+ "leo-ast",
+ "leo-grammar",
+ "leo-imports",
+ "leo-symbol-table",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 
