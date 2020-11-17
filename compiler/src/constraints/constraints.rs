@@ -46,7 +46,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     let program_name = program.get_name();
     let main_function_name = new_scope(&program_name, "main");
 
-    resolved_program.store_definitions(program, imported_programs)?;
+    resolved_program.store_definitions(&program, imported_programs)?;
 
     let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
 
@@ -72,7 +72,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     let tests = program.tests.clone();
 
     // Store definitions
-    resolved_program.store_definitions(program, imported_programs)?;
+    resolved_program.store_definitions(&program, imported_programs)?;
 
     // Get default input
     let default = input.pairs.get(&program_name);
