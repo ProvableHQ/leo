@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
-use leo_typed::Input as TypedInput;
+use leo_ast::Input as InputAst;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
 use snarkos_dpc::base_dpc::{
@@ -32,22 +32,22 @@ use std::convert::TryFrom;
 
 pub fn verify_local_data_commitment(
     system_parameters: &SystemParameters<Components>,
-    typed_input: &TypedInput,
+    input_ast: &InputAst,
 ) -> Result<bool, LocalDataVerificationError> {
     // verify record commitment
-    let typed_record = typed_input.get_record();
+    let typed_record = input_ast.get_record();
     let dpc_record_values = verify_record_commitment(system_parameters, typed_record)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
     // parse typed state values
-    let typed_state = typed_input.get_state();
+    let typed_state = input_ast.get_state();
     let state_values = StateValues::try_from(typed_state)?;
     let leaf_index: u32 = state_values.leaf_index;
     let root: Vec<u8> = state_values.root;
 
     // parse typed state leaf values
-    let typed_state_leaf = typed_input.get_state_leaf();
+    let typed_state_leaf = input_ast.get_state_leaf();
     let state_leaf_values = StateLeafValues::try_from(typed_state_leaf)?;
     let path: Vec<u8> = state_leaf_values.path;
     let memo: Vec<u8> = state_leaf_values.memo;

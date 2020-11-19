@@ -14,32 +14,72 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::AssigneeAccess, ast::Rule, common::SelfKeywordOrIdentifier, SpanDef};
+use crate::{Identifier, PositiveNumber, RangeOrExpression, Span};
+use leo_grammar::{access::AssigneeAccess as GrammarAssigneeAccess, common::Assignee as GrammarAssignee};
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::assignee))]
-pub struct Assignee<'ast> {
-    pub name: SelfKeywordOrIdentifier<'ast>,
-    pub accesses: Vec<AssigneeAccess<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AssigneeAccess {
+    Array(RangeOrExpression),
+    Tuple(PositiveNumber, Span),
+    Member(Identifier),
 }
 
-impl<'ast> fmt::Display for Assignee<'ast> {
+impl<'ast> From<GrammarAssigneeAccess<'ast>> for AssigneeAccess {
+    fn from(access: GrammarAssigneeAccess<'ast>) -> Self {
+        match access {
+            GrammarAssigneeAccess::Array(array) => AssigneeAccess::Array(RangeOrExpression::from(array.expression)),
+            GrammarAssigneeAccess::Tuple(tuple) => {
+                AssigneeAccess::Tuple(PositiveNumber::from(tuple.number), Span::from(tuple.span))
+            }
+            GrammarAssigneeAccess::Member(member) => AssigneeAccess::Member(Identifier::from(member.identifier)),
+        }
+    }
+}
+
+/// Definition assignee: v, arr[0..2], Point p.x
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Assignee {
+    pub identifier: Identifier,
+    pub accesses: Vec<AssigneeAccess>,
+    pub span: Span,
+}
+
+impl Assignee {
+    /// Returns the name of the variable being assigned to
+    pub fn identifier(&self) -> &Identifier {
+        &self.identifier
+    }
+}
+
+impl<'ast> From<GrammarAssignee<'ast>> for Assignee {
+    fn from(assignee: GrammarAssignee<'ast>) -> Self {
+        Assignee {
+            identifier: Identifier::from(assignee.name),
+            accesses: assignee
+                .accesses
+                .into_iter()
+                .map(AssigneeAccess::from)
+                .collect::<Vec<_>>(),
+            span: Span::from(assignee.span),
+        }
+    }
+}
+
+impl fmt::Display for Assignee {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)?;
-        for (i, access) in self.accesses.iter().enumerate() {
-            write!(f, "{}", access)?;
-            if i < self.accesses.len() - 1 {
-                write!(f, ", ")?;
+        write!(f, "{}", self.identifier)?;
+
+        for access in &self.accesses {
+            match access {
+                AssigneeAccess::Array(expression) => write!(f, "[{}]", expression)?,
+                AssigneeAccess::Tuple(index, _span) => write!(f, ".{}", index)?,
+                AssigneeAccess::Member(member) => write!(f, ".{}", member)?,
             }
         }
+
         write!(f, "")
     }
 }

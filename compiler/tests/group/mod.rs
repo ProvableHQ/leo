@@ -15,15 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    assert_satisfied,
-    expect_compiler_error,
-    expect_synthesis_error,
-    field::field_to_decimal_string,
-    generate_main_input,
-    parse_program,
-    parse_program_with_input,
+    assert_satisfied, expect_compiler_error, expect_synthesis_error, field::field_to_decimal_string,
+    generate_main_input, parse_program, parse_program_with_input,
 };
-use leo_typed::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
+use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
 use snarkos_curves::edwards_bls12::EdwardsAffine;
 

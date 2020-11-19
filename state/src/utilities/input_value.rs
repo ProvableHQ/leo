@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::InputValueError;
-use leo_typed::{InputValue, Parameter};
+use leo_ast::{InputValue, Parameter};
 
 use std::collections::HashMap;
 

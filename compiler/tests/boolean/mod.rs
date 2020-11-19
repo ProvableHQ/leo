@@ -17,12 +17,12 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
+    expect_type_inference_error,
     get_output,
     parse_program,
     parse_program_with_input,
     EdwardsTestCompiler,
 };
-use leo_compiler::errors::{BooleanError, CompilerError, ExpressionError, FunctionError, StatementError};
 
 pub fn output_true(program: EdwardsTestCompiler) {
     let expected = include_bytes!("output/registers_true.out");
@@ -36,15 +36,6 @@ pub fn output_false(program: EdwardsTestCompiler) {
     let actual = get_output(program);
 
     assert_eq!(expected, actual.bytes().as_slice());
-}
-
-fn fail_boolean_statement(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::BooleanError(BooleanError::Error(_)),
-        ))) => {}
-        e => panic!("Expected boolean error, got {}", e),
-    }
 }
 
 #[test]
@@ -139,9 +130,9 @@ fn test_false_or_false() {
 #[test]
 fn test_true_or_u32() {
     let bytes = include_bytes!("true_or_u32.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    fail_boolean_statement(program);
+    expect_type_inference_error(error);
 }
 
 // Boolean and &&
@@ -173,9 +164,9 @@ fn test_false_and_false() {
 #[test]
 fn test_true_and_u32() {
     let bytes = include_bytes!("true_and_u32.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    fail_boolean_statement(program);
+    expect_type_inference_error(error);
 }
 
 // All

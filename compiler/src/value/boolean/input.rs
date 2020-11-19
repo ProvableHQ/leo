@@ -17,7 +17,7 @@
 //! Methods to enforce constraints on input boolean values in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_typed::{InputValue, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -42,13 +42,11 @@ pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     option: Option<bool>,
     span: &Span,
 ) -> Result<Boolean, BooleanError> {
-    let boolean_name = format!("{}: bool", name);
-    let boolean_name_unique = format!("`{}` {}:{}", boolean_name, span.line, span.start);
-
-    Boolean::alloc(cs.ns(|| boolean_name_unique), || {
-        option.ok_or(SynthesisError::AssignmentMissing)
-    })
-    .map_err(|_| BooleanError::missing_boolean(boolean_name.to_owned(), span.to_owned()))
+    Boolean::alloc(
+        cs.ns(|| format!("`{}: bool` {}:{}", name, span.line, span.start)),
+        || option.ok_or(SynthesisError::AssignmentMissing),
+    )
+    .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span.to_owned()))
 }
 
 pub(crate) fn bool_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

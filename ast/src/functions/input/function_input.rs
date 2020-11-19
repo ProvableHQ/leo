@@ -14,24 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    common::{Identifier, Mutable},
-    types::Type,
-    SpanDef,
-};
+use crate::{Identifier, Span, Type};
+use leo_grammar::functions::FunctionInput as GrammarFunctionInput;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::function_input))]
-pub struct FunctionInput<'ast> {
-    pub mutable: Option<Mutable>,
-    pub identifier: Identifier<'ast>,
-    pub type_: Type<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FunctionInputVariable {
+    pub identifier: Identifier,
+    pub mutable: bool,
+    pub type_: Type,
+    pub span: Span,
+}
+
+impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
+    fn from(parameter: GrammarFunctionInput<'ast>) -> Self {
+        FunctionInputVariable {
+            identifier: Identifier::from(parameter.identifier),
+            mutable: parameter.mutable.is_some(),
+            type_: Type::from(parameter.type_),
+            span: Span::from(parameter.span),
+        }
+    }
+}
+
+impl FunctionInputVariable {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // mut var: bool
+        if self.mutable {
+            write!(f, "mut ")?;
+        }
+        write!(f, "{}: ", self.identifier)?;
+        write!(f, "{}", self.type_)
+    }
+}
+
+impl fmt::Display for FunctionInputVariable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Debug for FunctionInputVariable {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

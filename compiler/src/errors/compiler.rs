@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_ast::ParserError;
+use crate::errors::{FunctionError, ImportError, OutputError, OutputFileError};
+use leo_grammar::ParserError;
+use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
+use leo_symbol_table::SymbolTableError;
+use leo_type_inference::TypeInferenceError;
 
 use bincode::Error as SerdeError;
 use std::path::{Path, PathBuf};
@@ -26,6 +29,9 @@ use std::path::{Path, PathBuf};
 pub enum CompilerError {
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
+
+    #[error("{}", _0)]
+    ImportParserError(#[from] ImportParserError),
 
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
@@ -55,13 +61,18 @@ pub enum CompilerError {
     OutputError(#[from] OutputFileError),
 
     #[error("{}", _0)]
-    OutputStringError(#[from] OutputBytesError),
+    OutputStringError(#[from] OutputError),
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
 
     #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
+
+    #[error("{}", _0)]
+    SymbolTableError(#[from] SymbolTableError),
+    #[error("{}", _0)]
+    TypeInferenceError(#[from] TypeInferenceError),
 }
 
 impl CompilerError {
@@ -70,6 +81,8 @@ impl CompilerError {
             CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),
             CompilerError::OutputStringError(error) => error.set_path(path),
+            CompilerError::SymbolTableError(error) => error.set_path(path),
+            CompilerError::TypeInferenceError(error) => error.set_path(path),
             _ => {}
         }
     }

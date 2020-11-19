@@ -14,17 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, functions::Function, SpanDef};
+use crate::{Function, Identifier};
+use leo_grammar::functions::TestFunction as GrammarTestFunction;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::test_function))]
-pub struct TestFunction<'ast> {
-    pub function: Function<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TestFunction {
+    pub function: Function,
+    pub input_file: Option<Identifier>,
+}
+
+impl<'ast> From<GrammarTestFunction<'ast>> for TestFunction {
+    fn from(test: GrammarTestFunction) -> Self {
+        TestFunction {
+            function: Function::from(test.function),
+            input_file: None, // pass custom input file with `@context` annotation
+        }
+    }
 }

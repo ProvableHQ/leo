@@ -17,17 +17,12 @@
 //! Resolves assignees in a compiled Leo program.
 
 use crate::{errors::StatementError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Assignee, Span};
+use leo_ast::{Assignee, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
 
-pub fn resolve_assignee(scope: &str, assignee: Assignee) -> String {
-    match assignee {
-        Assignee::Identifier(name) => new_scope(scope, &name.to_string()),
-        Assignee::Array(array_w_index) => resolve_assignee(scope, array_w_index.0),
-        Assignee::Tuple(tuple, _index) => resolve_assignee(scope, *tuple),
-        Assignee::CircuitField(circuit_name, _member) => resolve_assignee(scope, *circuit_name),
-    }
+pub fn resolve_assignee(scope: String, assignee: Assignee) -> String {
+    new_scope(&scope, &assignee.identifier().to_string())
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {

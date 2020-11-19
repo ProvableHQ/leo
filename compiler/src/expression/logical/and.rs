@@ -17,7 +17,7 @@
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_typed::Span;
+use leo_ast::Span;
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -33,9 +33,12 @@ pub fn enforce_and<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     let name = format!("{} && {}", left, right);
 
     if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
-        let name_unique = format!("{} {}:{}", name, span.line, span.start);
-        let result = Boolean::and(cs.ns(|| name_unique), &left_bool, &right_bool)
-            .map_err(|e| BooleanError::cannot_enforce("&&".to_string(), e, span.to_owned()))?;
+        let result = Boolean::and(
+            cs.ns(|| format!("{} {}:{}", name, span.line, span.start)),
+            &left_bool,
+            &right_bool,
+        )
+        .map_err(|e| BooleanError::cannot_enforce("&&".to_string(), e, span.to_owned()))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }

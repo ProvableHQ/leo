@@ -32,8 +32,8 @@ pub use self::console::*;
 pub mod output_file;
 pub use self::output_file::*;
 
-pub mod output_bytes;
-pub use self::output_bytes::*;
+pub mod output;
+pub use self::output::*;
 
 pub mod statement;
 pub use self::statement::*;

@@ -17,7 +17,7 @@
 //! Enforces a definition statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_typed::{Declare, Expression, Span, Type, VariableName, Variables};
+use leo_ast::{Declare, Expression, Span, VariableName, Variables};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -46,67 +46,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         self.store_definition(function_scope, variable_name.mutable, variable_name.identifier, value);
 
         Ok(())
-    }
-
-    fn enforce_expressions<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        type_: Option<Type>,
-        expressions: Vec<Expression>,
-        span: &Span,
-    ) -> Result<Vec<ConstrainedValue<F, G>>, StatementError> {
-        let types = match type_ {
-            Some(Type::Tuple(types)) => types,
-            Some(type_) => return Err(StatementError::tuple_type(type_.to_string(), span.to_owned())),
-            None => vec![],
-        };
-
-        let implicit_types = types.is_empty();
-        let mut expected_types = Vec::with_capacity(expressions.len());
-
-        for ty in types.iter().take(expressions.len()) {
-            let expected_type = if implicit_types { None } else { Some(ty.clone()) };
-
-            expected_types.push(expected_type);
-        }
-
-        let mut values = Vec::with_capacity(expressions.len());
-
-        for (expression, expected_type) in expressions.into_iter().zip(expected_types.into_iter()) {
-            let value = self.enforce_expression(cs, file_scope, function_scope, expected_type, expression)?;
-
-            values.push(value);
-        }
-
-        Ok(values)
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn enforce_tuple_definition<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        is_constant: bool,
-        variables: Variables,
-        expressions: Vec<Expression>,
-        span: &Span,
-    ) -> Result<(), StatementError> {
-        let values = self.enforce_expressions(
-            cs,
-            file_scope,
-            function_scope,
-            variables.type_.clone(),
-            expressions,
-            span,
-        )?;
-
-        let tuple = ConstrainedValue::Tuple(values);
-        let variable = variables.names[0].clone();
-
-        self.enforce_single_definition(cs, function_scope, is_constant, variable, tuple, span)
     }
 
     fn enforce_multiple_definition<CS: ConstraintSystem<F>>(
@@ -141,61 +80,29 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: &str,
         declare: Declare,
         variables: Variables,
-        expressions: Vec<Expression>,
+        expression: Expression,
         span: &Span,
     ) -> Result<(), StatementError> {
         let num_variables = variables.names.len();
-        let num_values = expressions.len();
         let is_constant = match declare {
             Declare::Let => false,
             Declare::Const => true,
         };
+        let expression =
+            self.enforce_expression(cs, file_scope, function_scope, variables.type_.clone(), expression)?;
 
-        if num_variables == 1 && num_values == 1 {
+        if num_variables == 1 {
             // Define a single variable with a single value
             let variable = variables.names[0].clone();
-            let expression =
-                self.enforce_expression(cs, file_scope, function_scope, variables.type_, expressions[0].clone())?;
 
             self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, span)
-        } else if num_variables == 1 && num_values > 1 {
-            // Define a tuple (single variable with multiple values)
-
-            self.enforce_tuple_definition(
-                cs,
-                file_scope,
-                function_scope,
-                is_constant,
-                variables,
-                expressions,
-                span,
-            )
-        } else if num_variables > 1 && num_values == 1 {
+        } else {
             // Define multiple variables for an expression that returns multiple results (multiple definition)
-
-            let values = match self.enforce_expression(
-                cs,
-                file_scope,
-                function_scope,
-                variables.type_.clone(),
-                expressions[0].clone(),
-            )? {
+            let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => return Err(StatementError::multiple_definition(value.to_string(), span.to_owned())),
             };
-
-            self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)
-        } else {
-            // Define multiple variables for multiple expressions
-            let values = self.enforce_expressions(
-                cs,
-                file_scope,
-                function_scope,
-                variables.type_.clone(),
-                expressions,
-                span,
-            )?;
 
             self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)
         }

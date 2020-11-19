@@ -31,8 +31,8 @@ use crate::{
     GroupType,
     Integer,
 };
+use leo_ast::{ArrayDimensions, Circuit, Function, GroupValue, Identifier, Span, Type};
 use leo_core::Value;
-use leo_typed::{Circuit, Function, GroupValue, Identifier, Span, Type};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -119,7 +119,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // Data type wrappers
             ConstrainedValue::Array(array) => {
                 let array_type = array[0].to_type(span)?;
-                let mut dimensions = vec![array.len()];
+                let mut dimensions = ArrayDimensions::default();
+                dimensions.push_usize(array.len(), span.to_owned());
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
@@ -277,37 +278,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
             // Data type wrappers
             ConstrainedValue::Array(array) => {
-                array
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
+                array.iter_mut().enumerate().try_for_each(|(i, value)| {
+                    let unique_name = format!("allocate array member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    value.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::Tuple(tuple) => {
-                tuple
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, value)| {
-                        let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
+                tuple.iter_mut().enumerate().try_for_each(|(i, value)| {
+                    let unique_name = format!("allocate tuple member {} {}:{}", i, span.line, span.start);
 
-                        value.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    value.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::CircuitExpression(_id, members) => {
-                members
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(i, member)| {
-                        let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
+                members.iter_mut().enumerate().try_for_each(|(i, member)| {
+                    let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
-                        member.1.allocate_value(cs.ns(|| unique_name), span)
-                    })
-                    .collect::<Result<(), ValueError>>()?;
+                    member.1.allocate_value(cs.ns(|| unique_name), span)
+                })?;
             }
             ConstrainedValue::Mutable(value) => {
                 value.allocate_value(cs, span)?;

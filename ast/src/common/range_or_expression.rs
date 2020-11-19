@@ -14,37 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Range, expressions::Expression};
+use crate::Expression;
+use leo_grammar::common::RangeOrExpression as GrammarRangeOrExpression;
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::range_or_expression))]
-pub enum RangeOrExpression<'ast> {
-    Range(Range<'ast>),
-    Expression(Expression<'ast>),
+/// Range or expression enum
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RangeOrExpression {
+    Range(Option<Expression>, Option<Expression>),
+    Expression(Expression),
 }
 
-impl<'ast> fmt::Display for RangeOrExpression<'ast> {
+impl<'ast> From<GrammarRangeOrExpression<'ast>> for RangeOrExpression {
+    fn from(range_or_expression: GrammarRangeOrExpression<'ast>) -> Self {
+        match range_or_expression {
+            GrammarRangeOrExpression::Range(range) => {
+                RangeOrExpression::Range(range.from.map(Expression::from), range.to.map(Expression::from))
+            }
+            GrammarRangeOrExpression::Expression(expression) => {
+                RangeOrExpression::Expression(Expression::from(expression))
+            }
+        }
+    }
+}
+
+impl fmt::Display for RangeOrExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            RangeOrExpression::Expression(ref expression) => write!(f, "{}", expression),
-            RangeOrExpression::Range(ref range) => write!(
+            RangeOrExpression::Range(ref from, ref to) => write!(
                 f,
                 "{}..{}",
-                range
-                    .from
-                    .as_ref()
-                    .map(|v| v.to_string())
-                    .unwrap_or_else(|| "".to_string()),
-                range
-                    .to
-                    .as_ref()
-                    .map(|v| v.to_string())
-                    .unwrap_or_else(|| "".to_string()),
+                from.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+                to.as_ref().map(|e| e.to_string()).unwrap_or_default()
             ),
+            RangeOrExpression::Expression(ref e) => write!(f, "{}", e),
         }
     }
 }

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{find_input, input_to_integer_string, input_to_u8_vec, StateValuesError};
-use leo_typed::State as TypedState;
+use leo_ast::State as StateAst;
 
 use std::convert::TryFrom;
 
@@ -27,10 +27,10 @@ pub struct StateValues {
     pub root: Vec<u8>,
 }
 
-impl TryFrom<&TypedState> for StateValues {
+impl TryFrom<&StateAst> for StateValues {
     type Error = StateValuesError;
 
-    fn try_from(state: &TypedState) -> Result<Self, Self::Error> {
+    fn try_from(state: &StateAst) -> Result<Self, Self::Error> {
         let parameters = state.values();
 
         // Lookup leaf index

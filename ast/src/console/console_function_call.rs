@@ -14,30 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    common::LineEnd,
-    console::{ConsoleFunction, ConsoleKeyword},
-    SpanDef,
-};
+use crate::{ConsoleFunction, Span};
+use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::console_function_call))]
-pub struct ConsoleFunctionCall<'ast> {
-    pub keyword: ConsoleKeyword<'ast>,
-    pub function: ConsoleFunction<'ast>,
-    pub line_end: LineEnd,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ConsoleFunctionCall {
+    pub function: ConsoleFunction,
+    pub span: Span,
 }
 
-impl<'ast> fmt::Display for ConsoleFunctionCall<'ast> {
+impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleFunctionCall {
+    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
+        ConsoleFunctionCall {
+            function: ConsoleFunction::from(console.function),
+            span: Span::from(console.span),
+        }
+    }
+}
+
+impl fmt::Display for ConsoleFunctionCall {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "console.{};", self.function)
+    }
+}
+
+impl fmt::Debug for ConsoleFunctionCall {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "console.{};", self.function)
     }

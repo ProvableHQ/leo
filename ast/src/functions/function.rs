@@ -14,20 +14,79 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, functions::input::Input, statements::Statement, types::Type, SpanDef};
+use crate::{FunctionInput, Identifier, Span, Statement, Type};
+use leo_grammar::functions::Function as GrammarFunction;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::function))]
-pub struct Function<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub parameters: Vec<Input<'ast>>,
-    pub returns: Option<Type<'ast>>,
-    pub statements: Vec<Statement<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Function {
+    pub identifier: Identifier,
+    pub input: Vec<FunctionInput>,
+    pub output: Option<Type>,
+    pub statements: Vec<Statement>,
+    pub span: Span,
+}
+
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Function {}
+
+impl<'ast> From<GrammarFunction<'ast>> for Function {
+    fn from(function: GrammarFunction<'ast>) -> Self {
+        let function_name = Identifier::from(function.identifier);
+
+        let parameters = function.parameters.into_iter().map(FunctionInput::from).collect();
+        let returns = function.returns.map(Type::from);
+        let statements = function.statements.into_iter().map(Statement::from).collect();
+
+        Function {
+            identifier: function_name,
+            input: parameters,
+            output: returns,
+            statements,
+            span: Span::from(function.span),
+        }
+    }
+}
+
+impl Function {
+    pub fn get_name(&self) -> &str {
+        &self.identifier.name
+    }
+
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "function {}", self.identifier)?;
+
+        let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
+        let returns = self.output.as_ref().map(|type_| type_.to_string());
+        let statements = self
+            .statements
+            .iter()
+            .map(|s| format!("\t{}\n", s))
+            .collect::<Vec<_>>()
+            .join("");
+        if returns.is_none() {
+            write!(f, "({}) {{\n{}}}", parameters, statements,)
+        } else {
+            write!(f, "({}) -> {} {{\n{}}}", parameters, returns.unwrap(), statements,)
+        }
+    }
+}
+
+impl fmt::Display for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Debug for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

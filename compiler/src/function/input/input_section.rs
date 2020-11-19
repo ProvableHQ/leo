@@ -16,7 +16,7 @@
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
 
-use leo_typed::{Identifier, InputValue, Parameter};
+use leo_ast::{Identifier, InputValue, Parameter};
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,

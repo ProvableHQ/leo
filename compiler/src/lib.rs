@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Module containing structs and types that make up a Leo program.
+//! The compiler for Leo programs.
+//!
+//! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
 #![allow(clippy::module_inception)]
 

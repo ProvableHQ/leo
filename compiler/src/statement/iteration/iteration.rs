@@ -25,7 +25,7 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_typed::{Expression, Identifier, Span, Statement, Type};
+use leo_ast::{Expression, Identifier, Span, Statement, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -67,9 +67,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             );
 
             // Evaluate statements and possibly return early
-            let name_unique = format!("for loop iteration {} {}:{}", i, span.line, span.start);
             let mut result = self.evaluate_branch(
-                &mut cs.ns(|| name_unique),
+                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, span.line, span.start)),
                 file_scope,
                 function_scope,
                 indicator,

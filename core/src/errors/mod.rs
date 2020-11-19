@@ -23,5 +23,5 @@ pub use self::core_package::*;
 pub mod core_package_list;
 pub use self::core_package_list::*;
 
-pub mod leo_core;
-pub use self::leo_core::*;
+pub mod leo_core_package;
+pub use self::leo_core_package::*;

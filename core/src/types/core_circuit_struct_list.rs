@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_typed::Circuit;
+use leo_ast::Circuit;
 
 /// List of imported core circuit structs.
 /// This struct is created from a `CorePackageList`

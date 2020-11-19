@@ -17,7 +17,7 @@
 //! Enforce a function call expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -65,15 +65,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let (outer_scope, function_call) = function_value.extract_function(file_scope, &span)?;
 
-        let name_unique = format!(
-            "function call {} {}:{}",
-            function_call.get_name(),
-            span.line,
-            span.start,
-        );
+        let name_unique = || {
+            format!(
+                "function call {} {}:{}",
+                function_call.get_name(),
+                span.line,
+                span.start,
+            )
+        };
 
         self.enforce_function(
-            &mut cs.ns(|| name_unique),
+            &mut cs.ns(name_unique),
             &outer_scope,
             function_scope,
             function_call,

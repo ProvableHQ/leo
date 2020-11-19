@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportError, imported_symbols::ImportedSymbols, ConstrainedProgram, GroupType, ImportParser};
-use leo_typed::Import;
+use crate::{errors::ImportError, ConstrainedProgram, GroupType};
+use leo_ast::ImportStatement;
+use leo_imports::ImportParser;
+use leo_symbol_table::imported_symbols::ImportedSymbols;
 
 use snarkos_models::curves::{Field, PrimeField};
 
@@ -23,35 +25,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_import(
         &mut self,
         scope: &str,
-        import: &Import,
+        import: &ImportStatement,
         imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
-        // Fetch core dependencies
-        let core_dependency = imported_programs
-            .core_packages()
-            .iter()
-            .find(|package| import.package.eq(package));
+        // Fetch core packages.
+        let core_package = imported_programs.get_core_package(&import.package);
 
-        if let Some(package) = core_dependency {
+        if let Some(package) = core_package {
             self.store_core_package(scope, package.clone())?;
 
             return Ok(());
         }
 
         // Fetch dependencies for the current import
-        let imported_symbols = ImportedSymbols::from(import);
+        let imported_symbols = ImportedSymbols::new(import);
 
-        for (package, symbol) in imported_symbols.symbols {
+        for (name, symbol) in imported_symbols.symbols {
             // Find imported program
             let program = imported_programs
-                .get_import(&package)
+                .get_import(&name)
                 .ok_or_else(|| ImportError::unknown_package(import.package.name.clone()))?;
 
             // Parse imported program
-            self.store_definitions(program.clone(), imported_programs)?;
+            self.store_definitions(program, imported_programs)?;
 
             // Store the imported symbol
-            self.store_symbol(scope, &package, &symbol, program)?;
+            self.store_symbol(scope, &name, &symbol, program)?;
         }
 
         Ok(())

@@ -17,7 +17,7 @@
 //! Enforces an array assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{RangeOrExpression, Span};
+use leo_ast::{RangeOrExpression, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -52,9 +52,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     ConstrainedValue::Array(old) => {
                         new_value.resolve_type(Some(old[index].to_type(&span)?), &span)?;
 
-                        let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                         let selected_value = ConstrainedValue::conditionally_select(
-                            cs.ns(|| name_unique),
+                            cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
                             &condition,
                             &new_value,
                             &old[index],
@@ -89,12 +88,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     }
                     _ => return Err(StatementError::array_assign_range(span.to_owned())),
                 };
-                let name_unique = format!("select {} {}:{}", new_array, span.line, span.start);
-                let selected_array =
-                    ConstrainedValue::conditionally_select(cs.ns(|| name_unique), &condition, &new_array, old_array)
-                        .map_err(|_| {
-                            StatementError::select_fail(new_array.to_string(), old_array.to_string(), span.to_owned())
-                        })?;
+                let selected_array = ConstrainedValue::conditionally_select(
+                    cs.ns(|| format!("select {} {}:{}", new_array, span.line, span.start)),
+                    &condition,
+                    &new_array,
+                    old_array,
+                )
+                .map_err(|_| {
+                    StatementError::select_fail(new_array.to_string(), old_array.to_string(), span.to_owned())
+                })?;
 
                 *old_array = selected_array;
             }

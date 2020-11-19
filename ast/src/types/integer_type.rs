@@ -14,17 +14,116 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    types::{SignedIntegerType, UnsignedIntegerType},
+use leo_grammar::types::{
+    IntegerType as GrammarIntegerType,
+    SignedIntegerType as GrammarSignedIntegerType,
+    UnsignedIntegerType as GrammarUnsignedIntegerType,
+};
+use leo_input::types::{
+    IntegerType as InputIntegerType,
+    SignedIntegerType as InputSignedIntegerType,
+    UnsignedIntegerType as InputUnsignedIntegerType,
 };
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::type_integer))]
+/// Explicit integer type
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegerType {
-    Signed(SignedIntegerType),
-    Unsigned(UnsignedIntegerType),
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+}
+
+impl From<GrammarIntegerType> for IntegerType {
+    fn from(integer_type: GrammarIntegerType) -> Self {
+        match integer_type {
+            GrammarIntegerType::Signed(signed) => Self::from(signed),
+            GrammarIntegerType::Unsigned(unsigned) => Self::from(unsigned),
+        }
+    }
+}
+
+impl From<GrammarUnsignedIntegerType> for IntegerType {
+    fn from(integer_type: GrammarUnsignedIntegerType) -> Self {
+        match integer_type {
+            GrammarUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
+            GrammarUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
+            GrammarUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
+            GrammarUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
+            GrammarUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
+        }
+    }
+}
+
+impl From<GrammarSignedIntegerType> for IntegerType {
+    fn from(integer_type: GrammarSignedIntegerType) -> Self {
+        match integer_type {
+            GrammarSignedIntegerType::I8Type(_type) => IntegerType::I8,
+            GrammarSignedIntegerType::I16Type(_type) => IntegerType::I16,
+            GrammarSignedIntegerType::I32Type(_type) => IntegerType::I32,
+            GrammarSignedIntegerType::I64Type(_type) => IntegerType::I64,
+            GrammarSignedIntegerType::I128Type(_type) => IntegerType::I128,
+        }
+    }
+}
+
+impl From<InputIntegerType> for IntegerType {
+    fn from(integer_type: InputIntegerType) -> Self {
+        match integer_type {
+            InputIntegerType::Signed(signed) => Self::from(signed),
+            InputIntegerType::Unsigned(unsigned) => Self::from(unsigned),
+        }
+    }
+}
+
+impl From<InputUnsignedIntegerType> for IntegerType {
+    fn from(integer_type: InputUnsignedIntegerType) -> Self {
+        match integer_type {
+            InputUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
+            InputUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
+            InputUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
+            InputUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
+            InputUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
+        }
+    }
+}
+
+impl From<InputSignedIntegerType> for IntegerType {
+    fn from(integer_type: InputSignedIntegerType) -> Self {
+        match integer_type {
+            InputSignedIntegerType::I8Type(_type) => IntegerType::I8,
+            InputSignedIntegerType::I16Type(_type) => IntegerType::I16,
+            InputSignedIntegerType::I32Type(_type) => IntegerType::I32,
+            InputSignedIntegerType::I64Type(_type) => IntegerType::I64,
+            InputSignedIntegerType::I128Type(_type) => IntegerType::I128,
+        }
+    }
+}
+
+impl fmt::Display for IntegerType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            IntegerType::U8 => write!(f, "u8"),
+            IntegerType::U16 => write!(f, "u16"),
+            IntegerType::U32 => write!(f, "u32"),
+            IntegerType::U64 => write!(f, "u64"),
+            IntegerType::U128 => write!(f, "u128"),
+
+            IntegerType::I8 => write!(f, "i8"),
+            IntegerType::I16 => write!(f, "i16"),
+            IntegerType::I32 => write!(f, "i32"),
+            IntegerType::I64 => write!(f, "i64"),
+            IntegerType::I128 => write!(f, "i128"),
+        }
+    }
 }

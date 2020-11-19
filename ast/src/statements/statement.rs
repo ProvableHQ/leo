@@ -14,34 +14,177 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, console::ConsoleFunctionCall, statements::*};
+use crate::{Assignee, ConditionalStatement, ConsoleFunctionCall, Declare, Expression, Identifier, Span, Variables};
+use leo_grammar::{
+    console::ConsoleFunctionCall as GrammarConsoleFunctionCall,
+    operations::AssignOperation,
+    statements::{
+        AssignStatement,
+        DefinitionStatement,
+        ExpressionStatement,
+        ForStatement,
+        ReturnStatement,
+        Statement as GrammarStatement,
+    },
+};
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::statement))]
-pub enum Statement<'ast> {
-    Return(ReturnStatement<'ast>),
-    Definition(DefinitionStatement<'ast>),
-    Assign(AssignStatement<'ast>),
-    Conditional(ConditionalStatement<'ast>),
-    Iteration(ForStatement<'ast>),
-    Console(ConsoleFunctionCall<'ast>),
-    Expression(ExpressionStatement<'ast>),
+/// Program statement that defines some action (or expression) to be carried out.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Statement {
+    Return(Expression, Span),
+    Definition(Declare, Variables, Expression, Span),
+    Assign(Assignee, Expression, Span),
+    Conditional(ConditionalStatement, Span),
+    Iteration(Identifier, Box<(Expression, Expression)>, Vec<Statement>, Span),
+    Console(ConsoleFunctionCall),
+    Expression(Expression, Span),
 }
 
-impl<'ast> fmt::Display for Statement<'ast> {
+impl<'ast> From<ReturnStatement<'ast>> for Statement {
+    fn from(statement: ReturnStatement<'ast>) -> Self {
+        Statement::Return(Expression::from(statement.expression), Span::from(statement.span))
+    }
+}
+
+impl<'ast> From<DefinitionStatement<'ast>> for Statement {
+    fn from(statement: DefinitionStatement<'ast>) -> Self {
+        let span = Span::from(statement.span);
+
+        Statement::Definition(
+            Declare::from(statement.declare),
+            Variables::from(statement.variables),
+            Expression::from(statement.expression),
+            span,
+        )
+    }
+}
+
+impl<'ast> From<AssignStatement<'ast>> for Statement {
+    fn from(statement: AssignStatement<'ast>) -> Self {
+        match statement.assign {
+            AssignOperation::Assign(ref _assign) => Statement::Assign(
+                Assignee::from(statement.assignee),
+                Expression::from(statement.expression),
+                Span::from(statement.span),
+            ),
+            operation_assign => {
+                // convert assignee into postfix expression
+                let converted = Expression::from(statement.assignee.clone());
+
+                match operation_assign {
+                    AssignOperation::AddAssign(ref _assign) => Statement::Assign(
+                        Assignee::from(statement.assignee),
+                        Expression::Add(
+                            Box::new((converted, Expression::from(statement.expression))),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
+                    ),
+                    AssignOperation::SubAssign(ref _assign) => Statement::Assign(
+                        Assignee::from(statement.assignee),
+                        Expression::Sub(
+                            Box::new((converted, Expression::from(statement.expression))),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
+                    ),
+                    AssignOperation::MulAssign(ref _assign) => Statement::Assign(
+                        Assignee::from(statement.assignee),
+                        Expression::Mul(
+                            Box::new((converted, Expression::from(statement.expression))),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
+                    ),
+                    AssignOperation::DivAssign(ref _assign) => Statement::Assign(
+                        Assignee::from(statement.assignee),
+                        Expression::Div(
+                            Box::new((converted, Expression::from(statement.expression))),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
+                    ),
+                    AssignOperation::PowAssign(ref _assign) => Statement::Assign(
+                        Assignee::from(statement.assignee),
+                        Expression::Pow(
+                            Box::new((converted, Expression::from(statement.expression))),
+                            Span::from(statement.span.clone()),
+                        ),
+                        Span::from(statement.span),
+                    ),
+                    AssignOperation::Assign(ref _assign) => unimplemented!("cannot assign twice to assign statement"),
+                }
+            }
+        }
+    }
+}
+
+impl<'ast> From<ForStatement<'ast>> for Statement {
+    fn from(statement: ForStatement<'ast>) -> Self {
+        Statement::Iteration(
+            Identifier::from(statement.index),
+            Box::new((Expression::from(statement.start), Expression::from(statement.stop))),
+            statement.statements.into_iter().map(Statement::from).collect(),
+            Span::from(statement.span),
+        )
+    }
+}
+
+impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for Statement {
+    fn from(function_call: GrammarConsoleFunctionCall<'ast>) -> Self {
+        Statement::Console(ConsoleFunctionCall::from(function_call))
+    }
+}
+
+impl<'ast> From<ExpressionStatement<'ast>> for Statement {
+    fn from(statement: ExpressionStatement<'ast>) -> Self {
+        let span = Span::from(statement.span);
+        let mut expression = Expression::from(statement.expression);
+
+        expression.set_span(span.clone());
+
+        Statement::Expression(expression, span)
+    }
+}
+
+impl<'ast> From<GrammarStatement<'ast>> for Statement {
+    fn from(statement: GrammarStatement<'ast>) -> Self {
+        match statement {
+            GrammarStatement::Return(statement) => Statement::from(statement),
+            GrammarStatement::Definition(statement) => Statement::from(statement),
+            GrammarStatement::Assign(statement) => Statement::from(statement),
+            GrammarStatement::Conditional(statement) => {
+                let span = Span::from(statement.span.clone());
+                Statement::Conditional(ConditionalStatement::from(statement), span)
+            }
+            GrammarStatement::Iteration(statement) => Statement::from(statement),
+            GrammarStatement::Console(console) => Statement::from(console),
+            GrammarStatement::Expression(statement) => Statement::from(statement),
+        }
+    }
+}
+
+impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Statement::Return(ref statement) => write!(f, "{}", statement),
-            Statement::Definition(ref statement) => write!(f, "{}", statement),
-            Statement::Assign(ref statement) => write!(f, "{}", statement),
-            Statement::Conditional(ref statement) => write!(f, "{}", statement),
-            Statement::Iteration(ref statement) => write!(f, "{}", statement),
-            Statement::Console(ref statement) => write!(f, "{}", statement),
-            Statement::Expression(ref statement) => write!(f, "{}", statement.expression),
+            Statement::Return(ref expression, ref _span) => write!(f, "return {}", expression),
+            Statement::Definition(ref declare, ref variable, ref expression, ref _span) => {
+                write!(f, "{} {} = {};", declare, variable, expression)
+            }
+            Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
+            Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
+            Statement::Iteration(ref var, ref start_stop, ref list, ref _span) => {
+                writeln!(f, "for {} in {}..{} {{", var, start_stop.0, start_stop.1)?;
+                for l in list {
+                    writeln!(f, "\t\t{}", l)?;
+                }
+                write!(f, "\t}}")
+            }
+            Statement::Console(ref console) => write!(f, "{}", console),
+            Statement::Expression(ref expression, ref _span) => write!(f, "{};", expression),
         }
     }
 }

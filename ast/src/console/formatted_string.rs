@@ -14,30 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::{span_into_string, Rule},
-    console::{FormattedContainer, FormattedParameter},
-    SpanDef,
-};
+use crate::{FormattedContainer, FormattedParameter, Span};
+use leo_grammar::console::FormattedString as GrammarFormattedString;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::formatted_string))]
-pub struct FormattedString<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FormattedString {
     pub string: String,
-    pub containers: Vec<FormattedContainer<'ast>>,
-    pub parameters: Vec<FormattedParameter<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+    pub containers: Vec<FormattedContainer>,
+    pub parameters: Vec<FormattedParameter>,
+    pub span: Span,
 }
 
-impl<'ast> fmt::Display for FormattedString<'ast> {
+impl<'ast> From<GrammarFormattedString<'ast>> for FormattedString {
+    fn from(formatted: GrammarFormattedString<'ast>) -> Self {
+        let string = formatted.string;
+        let span = Span::from(formatted.span);
+        let containers = formatted.containers.into_iter().map(FormattedContainer::from).collect();
+        let parameters = formatted.parameters.into_iter().map(FormattedParameter::from).collect();
+
+        Self {
+            string,
+            containers,
+            parameters,
+            span,
+        }
+    }
+}
+
+impl fmt::Display for FormattedString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.string)
     }

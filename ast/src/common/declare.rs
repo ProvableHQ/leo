@@ -14,22 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
+use leo_grammar::common::Declare as GrammarDeclare;
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::declare))]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Declare {
-    Const(Const),
-    Let(Let),
+    Const,
+    Let,
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::const_))]
-pub struct Const {}
+impl<'ast> From<GrammarDeclare> for Declare {
+    fn from(declare: GrammarDeclare) -> Self {
+        match declare {
+            GrammarDeclare::Const(_) => Declare::Const,
+            GrammarDeclare::Let(_) => Declare::Let,
+        }
+    }
+}
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::let_))]
-pub struct Let {}
+impl fmt::Display for Declare {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Declare::Const => write!(f, "const"),
+            Declare::Let => write!(f, "let"),
+        }
+    }
+}

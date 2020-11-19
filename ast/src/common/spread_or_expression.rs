@@ -14,23 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Spread, expressions::Expression};
+use crate::Expression;
+use leo_grammar::{
+    common::SpreadOrExpression as GrammarSpreadOrExpression,
+    expressions::Expression as GrammarExpression,
+};
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::spread_or_expression))]
-pub enum SpreadOrExpression<'ast> {
-    Spread(Spread<'ast>),
-    Expression(Expression<'ast>),
+/// Spread or expression
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SpreadOrExpression {
+    Spread(Expression),
+    Expression(Expression),
 }
 
-impl<'ast> fmt::Display for SpreadOrExpression<'ast> {
+impl<'ast> From<GrammarSpreadOrExpression<'ast>> for SpreadOrExpression {
+    fn from(s_or_e: GrammarSpreadOrExpression<'ast>) -> Self {
+        match s_or_e {
+            GrammarSpreadOrExpression::Spread(spread) => {
+                SpreadOrExpression::Spread(Expression::from(spread.expression))
+            }
+            GrammarSpreadOrExpression::Expression(expression) => {
+                SpreadOrExpression::Expression(Expression::from(expression))
+            }
+        }
+    }
+}
+
+impl<'ast> From<GrammarExpression<'ast>> for SpreadOrExpression {
+    fn from(expression: GrammarExpression<'ast>) -> Self {
+        SpreadOrExpression::Expression(Expression::from(expression))
+    }
+}
+
+impl fmt::Display for SpreadOrExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            SpreadOrExpression::Spread(ref spread) => write!(f, "{}", spread),
+            SpreadOrExpression::Spread(ref spread) => write!(f, "...{}", spread),
             SpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
         }
     }

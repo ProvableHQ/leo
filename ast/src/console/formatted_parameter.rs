@@ -14,23 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, expressions::Expression, SpanDef};
+use crate::{Expression, Span};
+use leo_grammar::console::FormattedParameter as GrammarFormattedParameter;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::formatted_parameter))]
-pub struct FormattedParameter<'ast> {
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FormattedParameter {
+    pub expression: Expression,
+    pub span: Span,
 }
 
-impl<'ast> fmt::Display for FormattedParameter<'ast> {
+impl<'ast> From<GrammarFormattedParameter<'ast>> for FormattedParameter {
+    fn from(parameter: GrammarFormattedParameter<'ast>) -> Self {
+        Self {
+            expression: Expression::from(parameter.expression),
+            span: Span::from(parameter.span),
+        }
+    }
+}
+
+impl fmt::Display for FormattedParameter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.expression)
     }

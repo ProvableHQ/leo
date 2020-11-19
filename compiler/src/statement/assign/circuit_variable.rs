@@ -17,7 +17,7 @@
 //! Enforces a circuit variable assignment statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Identifier, Span};
+use leo_ast::{Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -68,9 +68,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             new_value.resolve_type(Some(value.to_type(span)?), span)?;
 
                             // Conditionally select the value if this branch is executed.
-                            let name_unique = format!("select {} {}:{}", new_value, span.line, span.start);
                             let mut selected_value = ConstrainedValue::conditionally_select(
-                                cs.ns(|| name_unique),
+                                cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
                                 &condition,
                                 &new_value,
                                 &member.1,

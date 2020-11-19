@@ -21,11 +21,11 @@ use crate::errors::{
     FieldError,
     GroupError,
     IntegerError,
-    OutputBytesError,
+    OutputError,
     StatementError,
     ValueError,
 };
-use leo_typed::{Error as FormattedError, Span};
+use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
 
@@ -53,7 +53,7 @@ pub enum FunctionError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    OutputStringError(#[from] OutputBytesError),
+    OutputStringError(#[from] OutputError),
 
     #[error("{}", _0)]
     StatementError(#[from] StatementError),

@@ -17,7 +17,7 @@
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
 use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
-use leo_typed::{InputValue, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{
@@ -31,13 +31,11 @@ pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     option: Option<String>,
     span: &Span,
 ) -> Result<FieldType<F>, FieldError> {
-    let field_name = format!("{}: field", name);
-    let field_name_unique = format!("`{}` {}:{}", field_name, span.line, span.start);
-
-    FieldType::alloc(cs.ns(|| field_name_unique), || {
-        option.ok_or(SynthesisError::AssignmentMissing)
-    })
-    .map_err(|_| FieldError::missing_field(field_name, span.to_owned()))
+    FieldType::alloc(
+        cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+        || option.ok_or(SynthesisError::AssignmentMissing),
+    )
+    .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))
 }
 
 pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

@@ -14,19 +14,61 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    imports::{ImportSymbol, Package, Star},
-};
+use crate::{ImportSymbol, Package, Span};
+use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::package_access))]
-pub enum PackageAccess<'ast> {
-    Star(Star<'ast>),
-    SubPackage(Box<Package<'ast>>),
-    Symbol(ImportSymbol<'ast>),
-    Multiple(Vec<PackageAccess<'ast>>),
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum PackageAccess {
+    Star(Span),
+    SubPackage(Box<Package>),
+    Symbol(ImportSymbol),
+    Multiple(Vec<PackageAccess>),
+}
+
+impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
+    fn from(access: GrammarPackageAccess<'ast>) -> Self {
+        match access {
+            GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
+            GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
+            GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
+            GrammarPackageAccess::Multiple(accesses) => {
+                PackageAccess::Multiple(accesses.into_iter().map(PackageAccess::from).collect())
+            }
+        }
+    }
+}
+
+impl PackageAccess {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            PackageAccess::Star(ref _span) => write!(f, "*"),
+            PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
+            PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
+            PackageAccess::Multiple(ref accesses) => {
+                write!(f, "(")?;
+                for (i, access) in accesses.iter().enumerate() {
+                    write!(f, "{}", access)?;
+                    if i < accesses.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, ")")
+            }
+        }
+    }
+}
+
+impl fmt::Debug for PackageAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Display for PackageAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

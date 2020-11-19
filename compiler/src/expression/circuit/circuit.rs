@@ -22,7 +22,7 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_typed::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
+use leo_ast::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

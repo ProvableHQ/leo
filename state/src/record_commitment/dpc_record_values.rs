@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{utilities::*, DPCRecordValuesError};
-use leo_typed::Record as TypedRecord;
+use leo_ast::Record as RecordAst;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
@@ -46,10 +46,10 @@ pub struct DPCRecordValues {
     pub commitment_randomness: Vec<u8>,
 }
 
-impl TryFrom<&TypedRecord> for DPCRecordValues {
+impl TryFrom<&RecordAst> for DPCRecordValues {
     type Error = DPCRecordValuesError;
 
-    fn try_from(record: &TypedRecord) -> Result<Self, Self::Error> {
+    fn try_from(record: &RecordAst) -> Result<Self, Self::Error> {
         let parameters = record.values();
 
         // Lookup serial number

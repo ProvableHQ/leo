@@ -14,18 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitMember, common::Identifier, SpanDef};
+use crate::{CircuitMember, Identifier};
+use leo_grammar::circuits::Circuit as GrammarCircuit;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit))]
-pub struct Circuit<'ast> {
-    pub identifier: Identifier<'ast>,
-    pub members: Vec<CircuitMember<'ast>>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Circuit {
+    pub circuit_name: Identifier,
+    pub members: Vec<CircuitMember>,
+}
+
+impl<'ast> From<GrammarCircuit<'ast>> for Circuit {
+    fn from(circuit: GrammarCircuit<'ast>) -> Self {
+        let circuit_name = Identifier::from(circuit.identifier);
+        let members = circuit.members.into_iter().map(CircuitMember::from).collect();
+
+        Self { circuit_name, members }
+    }
+}
+
+impl Circuit {
+    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "circuit {} {{ ", self.circuit_name)?;
+        for field in self.members.iter() {
+            writeln!(f, "    {}", field)?;
+        }
+        write!(f, "}}")
+    }
+}
+
+impl fmt::Debug for Circuit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
 }

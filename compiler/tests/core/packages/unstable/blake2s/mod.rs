@@ -16,15 +16,15 @@
 
 use crate::{
     assert_satisfied,
-    expect_compiler_error,
+    expect_type_inference_error,
     generate_main_input,
     get_output,
     parse_program,
     parse_program_with_input,
 };
 
+use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
-use leo_typed::InputValue;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use snarkos_algorithms::prf::blake2s::Blake2s as B2SPRF;
@@ -33,17 +33,17 @@ use snarkos_models::algorithms::PRF;
 #[test]
 fn test_arguments_length_fail() {
     let program_bytes = include_bytes!("arguments_length_fail.leo");
-    let program = parse_program(program_bytes).unwrap();
+    let error = parse_program(program_bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_type_inference_error(error);
 }
 
 #[test]
 fn test_arguments_type_fail() {
     let program_bytes = include_bytes!("arguments_type_fail.leo");
-    let program = parse_program(program_bytes).unwrap();
+    let error = parse_program(program_bytes).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_type_inference_error(error);
 }
 
 #[test]

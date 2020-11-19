@@ -17,7 +17,7 @@
 //! A data type that represents a field value
 
 use crate::errors::FieldError;
-use leo_typed::Span;
+use leo_ast::Span;
 
 use snarkos_errors::gadgets::SynthesisError;
 use snarkos_models::{

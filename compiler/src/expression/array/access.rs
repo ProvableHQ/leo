@@ -17,7 +17,7 @@
 //! Enforces array access in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_typed::{Expression, RangeOrExpression, Span, Type};
+use leo_ast::{Expression, RangeOrExpression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},

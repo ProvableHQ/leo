@@ -14,30 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    common::{Identifier, Mutable},
-    SpanDef,
-};
+use crate::common::{Identifier, Span};
+use leo_grammar::common::VariableName as GrammarVariableName;
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::variable_name))]
-pub struct VariableName<'ast> {
-    pub mutable: Option<Mutable>,
-    pub identifier: Identifier<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct VariableName {
+    pub mutable: bool,
+    pub identifier: Identifier,
+    pub span: Span,
 }
 
-impl<'ast> fmt::Display for VariableName<'ast> {
+impl<'ast> From<GrammarVariableName<'ast>> for VariableName {
+    fn from(name: GrammarVariableName<'ast>) -> Self {
+        Self {
+            mutable: name.mutable.is_some(),
+            identifier: Identifier::from(name.identifier),
+            span: Span::from(name.span),
+        }
+    }
+}
+
+impl fmt::Display for VariableName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(ref _mutable) = self.mutable {
+        if self.mutable {
             write!(f, "mut ")?;
         }
 

@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_core::LeoCoreError;
-use leo_typed::{Error as FormattedError, Identifier, Span};
+use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, PositiveNumber, Span};
+use leo_core::LeoCorePackageError;
 
 use snarkos_errors::gadgets::SynthesisError;
 use std::path::Path;
@@ -45,7 +45,7 @@ pub enum ExpressionError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCoreError),
+    LeoCoreError(#[from] LeoCorePackageError),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
@@ -109,10 +109,28 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_index(actual: String, span: Span) -> Self {
-        let message = format!("index must resolve to an integer, found `{}`", actual);
+    pub fn invalid_dimensions(expected: &ArrayDimensions, actual: &ArrayDimensions, span: Span) -> Self {
+        let message = format!(
+            "expected array dimensions {}, found array dimensions {}",
+            expected, actual
+        );
 
         Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber) -> Self {
+        let message = format!(
+            "expected array dimension {}, found array dimension {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, actual.span.to_owned())
+    }
+
+    pub fn invalid_index(actual: String, span: &Span) -> Self {
+        let message = format!("index must resolve to an integer, found `{}`", actual);
+
+        Self::new_from_span(message, span.to_owned())
     }
 
     pub fn invalid_length(expected: usize, actual: usize, span: Span) -> Self {
@@ -157,6 +175,12 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn undefined_tuple(actual: String, span: Span) -> Self {
+        let message = format!("tuple `{}` must be declared before it is used in an expression", actual);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn undefined_circuit(actual: String, span: Span) -> Self {
         let message = format!(
             "circuit `{}` must be declared before it is used in an expression",
@@ -166,10 +190,10 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_identifier(identifier: Identifier) -> Self {
-        let message = format!("cannot find value `{}` in this scope", identifier.name);
+    pub fn undefined_first_dimension(span: Span) -> Self {
+        let message = "the first dimension of the array must be a number".to_string();
 
-        Self::new_from_span(message, identifier.span)
+        Self::new_from_span(message, span)
     }
 
     pub fn undefined_function(function: String, span: Span) -> Self {
@@ -179,6 +203,12 @@ impl ExpressionError {
         );
 
         Self::new_from_span(message, span)
+    }
+
+    pub fn undefined_identifier(identifier: Identifier) -> Self {
+        let message = format!("cannot find value `{}` in this scope", identifier.name);
+
+        Self::new_from_span(message, identifier.span)
     }
 
     pub fn undefined_member_access(circuit: String, member: String, span: Span) -> Self {

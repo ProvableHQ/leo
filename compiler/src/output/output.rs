@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
-use leo_typed::{Parameter, Registers, Span};
+use crate::{errors::OutputError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use leo_ast::{Parameter, Registers, Span};
 
 use snarkos_models::curves::{Field, PrimeField};
 
@@ -55,7 +55,7 @@ impl Output {
         cs_input_indices: Vec<Index>,
         cs_output_indices: Vec<Index>,
         span: Span,
-    ) -> Result<Self, OutputBytesError> {
+    ) -> Result<Self, OutputError> {
         let return_values = match value {
             ConstrainedValue::Tuple(values) => values,
             value => vec![value],
@@ -72,7 +72,7 @@ impl Output {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers(span));
+            return Err(OutputError::not_enough_registers(span));
         }
 
         // Manually construct result string
