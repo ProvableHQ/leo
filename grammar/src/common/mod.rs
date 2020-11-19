@@ -35,6 +35,9 @@ pub use line_end::*;
 pub mod mutable;
 pub use mutable::*;
 
+pub mod mut_self_keyword;
+pub use mut_self_keyword::*;
+
 pub mod range;
 pub use range::*;
 

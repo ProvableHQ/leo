@@ -23,8 +23,8 @@ pub use circuit_variable::*;
 pub mod circuit_variable_definition;
 pub use circuit_variable_definition::*;
 
-pub mod circuit_function;
-pub use circuit_function::*;
+// pub mod circuit_function;
+// pub use circuit_function::*;
 
 pub mod circuit_member;
 pub use circuit_member::*;
