@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{utilities::*, DPCRecordValuesError};
-use leo_ast::Record as RecordAst;
+use leo_ast::Record as AstRecord;
 
 use snarkos_dpc::base_dpc::instantiated::Components;
 use snarkos_objects::AccountAddress;
@@ -33,6 +33,8 @@ static SERIAL_NUMBER_NONCE_PARAMETER_STRING: &str = "serial_number_nonce";
 static COMMITMENT_PARAMETER_STRING: &str = "commitment";
 static COMMITMENT_RANDOMNESS_PARAMETER_STRING: &str = "commitment_randomness";
 
+/// The serialized values included in the dpc record.
+/// A new [`DPCRecordValues`] type can be constructed from an [`AstRecord`] type.
 pub struct DPCRecordValues {
     pub serial_number: Vec<u8>,
     pub owner: AccountAddress<Components>,
@@ -46,15 +48,15 @@ pub struct DPCRecordValues {
     pub commitment_randomness: Vec<u8>,
 }
 
-impl TryFrom<&RecordAst> for DPCRecordValues {
+impl TryFrom<&AstRecord> for DPCRecordValues {
     type Error = DPCRecordValuesError;
 
-    fn try_from(record: &RecordAst) -> Result<Self, Self::Error> {
-        let parameters = record.values();
+    fn try_from(ast_record: &AstRecord) -> Result<Self, Self::Error> {
+        let parameters = ast_record.values();
 
         // Lookup serial number
         let serial_number_value = find_input(SERIAL_NUMBER_PARAMETER_STRING.to_owned(), &parameters)?;
-        let serial_number = input_to_u8_vec(serial_number_value)?;
+        let serial_number = input_to_bytes(serial_number_value)?;
 
         // Lookup record owner
         let owner_value = find_input(OWNER_PARAMETER_STRING.to_owned(), &parameters)?;
@@ -70,27 +72,27 @@ impl TryFrom<&RecordAst> for DPCRecordValues {
 
         // Lookup record payload
         let payload_value = find_input(PAYLOAD_PARAMETER_STRING.to_owned(), &parameters)?;
-        let payload = input_to_u8_vec(payload_value)?;
+        let payload = input_to_bytes(payload_value)?;
 
         // Lookup record birth program id
         let birth_program_id_value = find_input(BIRTH_PROGRAM_ID_PARAMETER_STRING.to_owned(), &parameters)?;
-        let birth_program_id = input_to_u8_vec(birth_program_id_value)?;
+        let birth_program_id = input_to_bytes(birth_program_id_value)?;
 
         // Lookup record death program id
         let death_program_id_value = find_input(DEATH_PROGRAM_ID_PARAMETER_STRING.to_owned(), &parameters)?;
-        let death_program_id = input_to_u8_vec(death_program_id_value)?;
+        let death_program_id = input_to_bytes(death_program_id_value)?;
 
         // Lookup record serial number nonce
         let serial_number_nonce_value = find_input(SERIAL_NUMBER_NONCE_PARAMETER_STRING.to_owned(), &parameters)?;
-        let serial_number_nonce = input_to_u8_vec(serial_number_nonce_value)?;
+        let serial_number_nonce = input_to_bytes(serial_number_nonce_value)?;
 
         // Lookup record commitment
         let commitment_value = find_input(COMMITMENT_PARAMETER_STRING.to_owned(), &parameters)?;
-        let commitment = input_to_u8_vec(commitment_value)?;
+        let commitment = input_to_bytes(commitment_value)?;
 
         // Lookup record commitment randomness
         let commitment_randomness_value = find_input(COMMITMENT_RANDOMNESS_PARAMETER_STRING.to_owned(), &parameters)?;
-        let commitment_randomness = input_to_u8_vec(commitment_randomness_value)?;
+        let commitment_randomness = input_to_bytes(commitment_randomness_value)?;
 
         Ok(Self {
             serial_number,
