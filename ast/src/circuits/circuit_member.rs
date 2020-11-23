@@ -15,10 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Type};
-use leo_grammar::circuits::{
-    CircuitFunction as GrammarCircuitFunction,
-    CircuitMember as GrammarCircuitMember,
-    CircuitVariableDefinition as GrammarCircuitVariableDefinition,
+use leo_grammar::{
+    circuits::{CircuitMember as GrammarCircuitMember, CircuitVariableDefinition as GrammarCircuitVariableDefinition},
+    functions::Function as GrammarFunction,
 };
 
 use serde::{Deserialize, Serialize};
@@ -28,8 +27,8 @@ use std::fmt;
 pub enum CircuitMember {
     // (is_mutable, variable_name, variable_type)
     CircuitVariable(bool, Identifier, Type),
-    // (is_static, function)
-    CircuitFunction(bool, Function),
+    // (function)
+    CircuitFunction(Function),
 }
 
 impl<'ast> From<GrammarCircuitVariableDefinition<'ast>> for CircuitMember {
@@ -42,12 +41,9 @@ impl<'ast> From<GrammarCircuitVariableDefinition<'ast>> for CircuitMember {
     }
 }
 
-impl<'ast> From<GrammarCircuitFunction<'ast>> for CircuitMember {
-    fn from(circuit_function: GrammarCircuitFunction<'ast>) -> Self {
-        CircuitMember::CircuitFunction(
-            circuit_function._static.is_some(),
-            Function::from(circuit_function.function),
-        )
+impl<'ast> From<GrammarFunction<'ast>> for CircuitMember {
+    fn from(circuit_function: GrammarFunction<'ast>) -> Self {
+        CircuitMember::CircuitFunction(Function::from(circuit_function))
     }
 }
 
@@ -69,10 +65,7 @@ impl fmt::Display for CircuitMember {
                 }
                 write!(f, "{}: {}", identifier, type_)
             }
-            CircuitMember::CircuitFunction(ref static_, ref function) => {
-                if *static_ {
-                    write!(f, "static ")?;
-                }
+            CircuitMember::CircuitFunction(ref function) => {
                 write!(f, "{}", function)
             }
         }

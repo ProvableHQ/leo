@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariable, Identifier, Span};
+use crate::{FunctionInputVariable, Identifier, MutSelfKeyword, SelfKeyword, Span};
 use leo_grammar::functions::input::Input as GrammarInput;
 
 use serde::{Deserialize, Serialize};
@@ -23,6 +23,8 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FunctionInput {
     InputKeyword(Identifier),
+    SelfKeyword(SelfKeyword),
+    MutSelfKeyword(MutSelfKeyword),
     Variable(FunctionInputVariable),
 }
 

@@ -14,41 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array_dimensions;
-pub use array_dimensions::*;
+use crate::Span;
+use leo_grammar::common::SelfKeyword as GrammarSelfKeyword;
 
-pub mod assignee;
-pub use assignee::*;
+use serde::Serialize;
+use std::fmt;
 
-pub mod declare;
-pub use declare::*;
+/// The `self` keyword can view circuit values inside of a circuit function.
+/// Circuit values cannot be modified. To modify values use the `mut self` [MutSelfKeyword].
+#[derive(Clone, Serialize, Deserialize)]
+pub struct SelfKeyword {
+    pub span: Span,
+}
 
-pub mod identifier;
-pub use identifier::*;
+impl<'ast> From<GrammarSelfKeyword<'ast>> for SelfKeyword {
+    fn from(grammar: GrammarSelfKeyword<'ast>) -> Self {
+        Self {
+            span: Span::from(grammar.span),
+        }
+    }
+}
 
-pub mod input_keyword;
-pub use input_keyword::*;
-
-pub mod mut_self_keyword;
-pub use mut_self_keyword::*;
-
-pub mod positive_number;
-pub use positive_number::*;
-
-pub mod range_or_expression;
-pub use range_or_expression::*;
-
-pub mod self_keyword;
-pub use self_keyword::*;
-
-pub mod span;
-pub use span::*;
-
-pub mod spread_or_expression;
-pub use spread_or_expression::*;
-
-pub mod variables;
-pub use variables::*;
-
-pub mod variable_name;
-pub use variable_name::*;
+impl fmt::Display for SelfKeyword {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "self")
+    }
+}
