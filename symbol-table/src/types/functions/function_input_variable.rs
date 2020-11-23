@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Attribute, SymbolTable, Type, TypeError, UserDefinedType};
+use crate::{Attribute, SymbolTable, Type, TypeError};
 use leo_ast::{FunctionInputVariable, Identifier, Span};
 
 use serde::{Deserialize, Serialize};
@@ -89,18 +89,6 @@ impl FunctionInputVariableType {
             attribute,
             span: unresolved_function_input.span,
         })
-    }
-
-    ///
-    /// Insert the current function input variable type into the given symbol table.
-    ///
-    /// If the symbol table did not have this name present, `None` is returned.
-    ///
-    pub fn insert(&self, table: &mut SymbolTable) -> Option<UserDefinedType> {
-        let key = self.identifier.name.clone();
-        let value = UserDefinedType::from(self.clone());
-
-        table.insert_name(key, value)
     }
 }
 

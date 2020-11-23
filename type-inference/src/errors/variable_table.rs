@@ -43,10 +43,10 @@ impl VariableTableError {
     }
 
     ///
-    /// Attempted to lookup a variable name that does not exist in the table.
+    /// Attempted to define two function inputs with the same name.
     ///
-    pub fn undefined_variable_name(name: &str, span: &Span) -> Self {
-        let message = format!("Cannot find variable `{}` in this scope.", name);
+    pub fn duplicate_function_input(name: &str, span: &Span) -> Self {
+        let message = format!("Duplicate function input `{}`found in function signature.", name);
 
         Self::new_from_span(message, span.clone())
     }

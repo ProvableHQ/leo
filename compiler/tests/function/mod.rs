@@ -175,6 +175,17 @@ fn test_return_array_tuple_pass() {
     assert_satisfied(program);
 }
 
+
+// Test return tuples
+
+#[test]
+fn test_return_tuple() {
+    let bytes = include_bytes!("return_tuple.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
 #[test]
 fn test_return_tuple_conditional() {
     let bytes = include_bytes!("return_tuple_conditional.leo");

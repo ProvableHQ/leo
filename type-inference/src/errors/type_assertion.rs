@@ -74,16 +74,4 @@ impl TypeAssertionError {
 
         Self::new_from_span(message, membership.span())
     }
-
-    ///
-    /// Mismatched array type dimensions.
-    ///
-    pub fn array_dimensions(dimensions1: &[usize], dimensions2: &[usize], span: &Span) -> Self {
-        let message = format!(
-            "Expected array with dimensions `{:?}`, found array with dimensions `{:?}`.",
-            dimensions1, dimensions2
-        );
-
-        Self::new_from_span(message, span)
-    }
 }

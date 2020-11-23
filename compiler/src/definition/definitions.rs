@@ -28,7 +28,11 @@ use leo_imports::ImportParser;
 use snarkos_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn store_definitions(&mut self, program: Program, imported_programs: &ImportParser) -> Result<(), ImportError> {
+    pub fn store_definitions(
+        &mut self,
+        program: &Program,
+        imported_programs: &ImportParser,
+    ) -> Result<(), ImportError> {
         let program_name = program.name.trim_end_matches(".leo");
 
         // evaluate all import statements and store imported definitions
@@ -39,15 +43,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
-        program.circuits.into_iter().for_each(|(identifier, circuit)| {
+        program.circuits.iter().for_each(|(identifier, circuit)| {
             let resolved_circuit_name = new_scope(program_name, &identifier.name);
-            self.store(resolved_circuit_name, ConstrainedValue::CircuitDefinition(circuit));
+            self.store(
+                resolved_circuit_name,
+                ConstrainedValue::CircuitDefinition(circuit.clone()),
+            );
         });
 
         // evaluate and store all function definitions
-        program.functions.into_iter().for_each(|(function_name, function)| {
+        program.functions.iter().for_each(|(function_name, function)| {
             let resolved_function_name = new_scope(program_name, &function_name.name);
-            self.store(resolved_function_name, ConstrainedValue::Function(None, function));
+            self.store(
+                resolved_function_name,
+                ConstrainedValue::Function(None, function.clone()),
+            );
         });
 
         Ok(())

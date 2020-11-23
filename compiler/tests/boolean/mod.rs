@@ -94,6 +94,14 @@ fn test_not_false() {
 }
 
 #[test]
+fn test_not_mutable() {
+    let bytes = include_bytes!("not_mutable.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_not_u32() {
     let bytes = include_bytes!("not_u32.leo");
     let program = parse_program(bytes).unwrap();

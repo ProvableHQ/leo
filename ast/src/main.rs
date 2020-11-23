@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::LeoAst;
+use leo_ast::Ast;
 use leo_grammar::{Grammar, ParserError};
 use std::{env, fs, path::Path};
 
@@ -27,10 +27,10 @@ fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
     let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parse the pest ast and constructs a ast.
-    let leo_ast = LeoAst::new("leo_tree", &ast);
+    let leo_ast = Ast::new("leo_tree", &ast);
 
     // Serializes the tree into JSON format.
-    let serialized_leo_ast = LeoAst::to_json_string(&leo_ast)?;
+    let serialized_leo_ast = Ast::to_json_string(&leo_ast)?;
 
     Ok(serialized_leo_ast)
 }
