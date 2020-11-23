@@ -138,7 +138,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             // Boolean operations
             Expression::Not(expression, span) => Ok(evaluate_not(
-                self.enforce_expression(cs, file_scope, function_scope, expected_type, *expression)?,
+                self.enforce_operand(cs, file_scope, function_scope, expected_type, *expression, &span)?,
                 span,
             )?),
             Expression::Or(left_right, span) => {
