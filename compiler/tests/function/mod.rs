@@ -175,7 +175,6 @@ fn test_return_array_tuple_pass() {
     assert_satisfied(program);
 }
 
-
 // Test return tuples
 
 #[test]
