@@ -17,7 +17,7 @@
 use crate::Span;
 use leo_grammar::functions::InputKeyword as GrammarInputKeyword;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `input` keyword can view program register, record, and state values.

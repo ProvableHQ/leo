@@ -17,7 +17,7 @@
 use crate::Span;
 use leo_grammar::common::MutSelfKeyword as GrammarMutSelfKeyword;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `mut self` keyword can view and modify circuit values inside of a circuit function.

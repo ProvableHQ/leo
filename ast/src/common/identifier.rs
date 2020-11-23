@@ -14,12 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
+use crate::{InputKeyword, MutSelfKeyword, SelfKeyword, Span};
 use leo_grammar::{
     annotations::AnnotationArgument,
-    common::{Identifier as GrammarIdentifier, KeywordOrIdentifier, SelfKeyword, SelfKeywordOrIdentifier},
+    common::{
+        Identifier as GrammarIdentifier,
+        KeywordOrIdentifier,
+        MutSelfKeyword as GrammarMutSelfKeyword,
+        SelfKeyword as GrammarSelfKeyword,
+        SelfKeywordOrIdentifier,
+    },
     expressions::CircuitName,
-    functions::InputKeyword,
+    functions::InputKeyword as GrammarInputKeyword,
     imports::PackageName as GrammarPackageName,
     types::SelfType,
 };
@@ -128,20 +134,56 @@ impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Identifier {
     }
 }
 
-impl<'ast> From<SelfKeyword<'ast>> for Identifier {
-    fn from(self_: SelfKeyword<'ast>) -> Self {
+impl<'ast> From<GrammarSelfKeyword<'ast>> for Identifier {
+    fn from(grammar: GrammarSelfKeyword<'ast>) -> Self {
         Self {
-            name: self_.keyword,
-            span: Span::from(self_.span),
+            name: grammar.keyword,
+            span: Span::from(grammar.span),
         }
     }
 }
 
-impl<'ast> From<InputKeyword<'ast>> for Identifier {
-    fn from(input: InputKeyword<'ast>) -> Self {
+impl From<SelfKeyword> for Identifier {
+    fn from(keyword: SelfKeyword) -> Self {
         Self {
-            name: input.keyword,
-            span: Span::from(input.span),
+            name: keyword.to_string(),
+            span: keyword.span,
+        }
+    }
+}
+
+impl<'ast> From<GrammarMutSelfKeyword<'ast>> for Identifier {
+    fn from(grammar: GrammarMutSelfKeyword<'ast>) -> Self {
+        Self {
+            name: grammar.to_string(),
+            span: Span::from(grammar.span),
+        }
+    }
+}
+
+impl From<MutSelfKeyword> for Identifier {
+    fn from(keyword: MutSelfKeyword) -> Self {
+        Self {
+            name: keyword.to_string(),
+            span: keyword.span,
+        }
+    }
+}
+
+impl<'ast> From<GrammarInputKeyword<'ast>> for Identifier {
+    fn from(grammar: GrammarInputKeyword<'ast>) -> Self {
+        Self {
+            name: grammar.keyword,
+            span: Span::from(grammar.span),
+        }
+    }
+}
+
+impl From<InputKeyword> for Identifier {
+    fn from(keyword: InputKeyword) -> Self {
+        Self {
+            name: keyword.to_string(),
+            span: keyword.span,
         }
     }
 }

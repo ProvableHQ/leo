@@ -17,7 +17,7 @@
 use crate::Span;
 use leo_grammar::common::SelfKeyword as GrammarSelfKeyword;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `self` keyword can view circuit values inside of a circuit function.

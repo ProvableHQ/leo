@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariable, Identifier, MutSelfKeyword, SelfKeyword, Span};
+use crate::{FunctionInputVariable, InputKeyword, MutSelfKeyword, SelfKeyword};
 use leo_grammar::functions::input::Input as GrammarInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Enumerates the possible inputs to a function.
+#[derive(Clone, Serialize, Deserialize)]
 pub enum FunctionInput {
-    InputKeyword(Identifier),
+    InputKeyword(InputKeyword),
     SelfKeyword(SelfKeyword),
     MutSelfKeyword(MutSelfKeyword),
     Variable(FunctionInputVariable),
@@ -31,14 +32,9 @@ pub enum FunctionInput {
 impl<'ast> From<GrammarInput<'ast>> for FunctionInput {
     fn from(input: GrammarInput<'ast>) -> Self {
         match input {
-            GrammarInput::InputKeyword(input_keyword) => {
-                let id = Identifier {
-                    name: input_keyword.keyword,
-                    span: Span::from(input_keyword.span),
-                };
-
-                FunctionInput::InputKeyword(id)
-            }
+            GrammarInput::InputKeyword(keyword) => FunctionInput::InputKeyword(InputKeyword::from(keyword)),
+            GrammarInput::SelfKeyword(keyword) => FunctionInput::SelfKeyword(SelfKeyword::from(keyword)),
+            GrammarInput::MutSelfKeyword(keyword) => FunctionInput::MutSelfKeyword(MutSelfKeyword::from(keyword)),
             GrammarInput::FunctionInput(function_input) => {
                 FunctionInput::Variable(FunctionInputVariable::from(function_input))
             }
@@ -49,7 +45,9 @@ impl<'ast> From<GrammarInput<'ast>> for FunctionInput {
 impl FunctionInput {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FunctionInput::InputKeyword(id) => write!(f, "{}", id),
+            FunctionInput::InputKeyword(keyword) => write!(f, "{}", keyword),
+            FunctionInput::SelfKeyword(keyword) => write!(f, "{}", keyword),
+            FunctionInput::MutSelfKeyword(keyword) => write!(f, "{}", keyword),
             FunctionInput::Variable(function_input) => write!(f, "{}", function_input),
         }
     }
@@ -66,3 +64,18 @@ impl fmt::Debug for FunctionInput {
         self.format(f)
     }
 }
+
+impl PartialEq for FunctionInput {
+    /// Returns true if `self == other`. Does not compare spans.
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (FunctionInput::InputKeyword(_), FunctionInput::InputKeyword(_)) => true,
+            (FunctionInput::SelfKeyword(_), FunctionInput::SelfKeyword(_)) => true,
+            (FunctionInput::MutSelfKeyword(_), FunctionInput::MutSelfKeyword(_)) => true,
+            (FunctionInput::Variable(left), FunctionInput::Variable(right)) => left.eq(right),
+            _ => false,
+        }
+    }
+}
+
+impl Eq for FunctionInput {}
