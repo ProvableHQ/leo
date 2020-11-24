@@ -184,3 +184,11 @@ fn test_return_tuple() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_return_tuple_conditional() {
+    let bytes = include_bytes!("return_tuple_conditional.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
