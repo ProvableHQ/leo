@@ -37,6 +37,8 @@ use snarkos_models::{
     },
 };
 
+use std::iter;
+
 macro_rules! mul_int_impl {
     ($($gadget: ident)*) => ($(
         /// Bitwise multiplication of two signed integer objects.
@@ -77,14 +79,16 @@ macro_rules! mul_int_impl {
                 let mut bits = vec![false_bit; size];
 
                 // Compute double and add algorithm
+                let mut to_add = Vec::new();
+                let mut a_shifted = Vec::new();
                 for (i, b_bit) in b.iter().enumerate() {
                     // double
-                    let mut a_shifted = vec![false_bit; i];
-                    a_shifted.append(&mut a.clone());
+                    a_shifted.extend(iter::repeat(false_bit).take(i));
+                    a_shifted.extend(a.iter());
                     a_shifted.truncate(size);
 
                     // conditionally add
-                    let mut to_add = Vec::with_capacity(a_shifted.len());
+                    to_add.reserve(a_shifted.len());
                     for (j, a_bit) in a_shifted.iter().enumerate() {
                         let selected_bit = Boolean::conditionally_select(
                             &mut cs.ns(|| format!("select product bit {} {}", i, j)),
@@ -101,7 +105,11 @@ macro_rules! mul_int_impl {
                         &to_add
                     )?;
                     let _carry = bits.pop();
+                    to_add.clear();
+                    a_shifted.clear();
                 }
+                drop(to_add);
+                drop(a_shifted);
 
                 // Compute the maximum value of the sum
                 let max_bits = <$gadget as Int>::SIZE;
