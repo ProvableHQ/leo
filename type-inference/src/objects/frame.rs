@@ -34,7 +34,7 @@ use leo_ast::{
     Statement,
     Variables,
 };
-use leo_symbol_table::{Attribute, CircuitFunctionType, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
+use leo_symbol_table::{Attribute, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
 
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]
@@ -100,13 +100,13 @@ impl Frame {
         let identifier = &function.identifier;
 
         // Find function name in circuit members.
-        let circuit_function_type = self_type.member_function_type(identifier).unwrap().to_owned();
+        let function_type = self_type.member_function_type(identifier).unwrap().to_owned();
 
         // Create a new scope for the function variables.
         let mut scope = Scope::new(Some(parent_scope));
 
         // Initialize function inputs as variables.
-        scope.insert_function_inputs(&circuit_function_type.function.inputs)?;
+        scope.insert_function_inputs(&function_type.inputs)?;
 
         // Create new list of scopes for frame.
         let scopes = vec![scope];
@@ -114,7 +114,7 @@ impl Frame {
         // Create new frame struct.
         // Update variables when encountering let/const variable definitions.
         let mut frame = Self {
-            function_type: circuit_function_type.function,
+            function_type,
             self_type: Some(self_type),
             scopes,
             statements: function.statements,
@@ -1029,7 +1029,7 @@ impl Frame {
                 self.parse_circuit_function(expression, identifier, span)
             }
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_static_circuit_function(expression, identifier, span)
+                self.parse_circuit_function(expression, identifier, span)
             }
             expression => Err(FrameError::invalid_function(expression, span)),
         }
@@ -1053,7 +1053,7 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> Result<&CircuitFunctionType, FrameError> {
+    ) -> Result<&FunctionType, FrameError> {
         // Parse circuit name.
         let type_ = self.parse_expression(expression)?;
 
@@ -1076,15 +1076,10 @@ impl Frame {
         span: &Span,
     ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
-
-        // Check that the function is non-static.
-        if let Some(Attribute::Static) = circuit_function_type.attribute {
-            return Err(FrameError::invalid_static_access(identifier));
-        }
+        let function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
         // Return the function type.
-        Ok(circuit_function_type.function.to_owned())
+        Ok(function_type.to_owned())
     }
 
     ///
@@ -1097,14 +1092,9 @@ impl Frame {
         span: &Span,
     ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
+        let function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
-        // Check that the function is static.
-        if let Some(Attribute::Static) = circuit_function_type.attribute {
-            Ok(circuit_function_type.function.to_owned())
-        } else {
-            Err(FrameError::invalid_member_access(identifier))
-        }
+        Ok(function_type.to_owned())
     }
 
     ///

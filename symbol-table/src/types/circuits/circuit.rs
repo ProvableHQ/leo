@@ -14,14 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    types::circuits::{CircuitFunctionType, CircuitVariableType},
-    Attribute,
-    FunctionType,
-    SymbolTable,
-    Type,
-    TypeError,
-};
+use crate::{types::circuits::CircuitVariableType, Attribute, FunctionType, SymbolTable, Type, TypeError};
 use leo_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
 use serde::{Deserialize, Serialize};
@@ -43,7 +36,7 @@ pub struct CircuitType {
     pub variables: Vec<CircuitVariableType>,
 
     /// The circuit functions.
-    pub functions: Vec<CircuitFunctionType>,
+    pub functions: Vec<FunctionType>,
 }
 
 impl CircuitType {
@@ -83,21 +76,12 @@ impl CircuitType {
                     // Store the circuit variable type.
                     variables.push(variable);
                 }
-                CircuitMember::CircuitFunction(is_static, function) => {
+                CircuitMember::CircuitFunction(function) => {
                     // Resolve the type of the circuit member function.
                     let function_type = FunctionType::from_circuit(table, circuit_identifier.clone(), function)?;
 
-                    // Check if the circuit member function is static.
-                    let attribute = if is_static { Some(Attribute::Static) } else { None };
-
-                    // Create a new circuit function type.
-                    let function = CircuitFunctionType {
-                        function: function_type,
-                        attribute,
-                    };
-
                     // Store the circuit function type.
-                    functions.push(function);
+                    functions.push(function_type);
                 }
             }
         }
@@ -113,10 +97,10 @@ impl CircuitType {
     ///
     /// Returns the function type of a circuit member given an identifier.
     ///
-    pub fn member_function_type(&self, identifier: &Identifier) -> Option<&CircuitFunctionType> {
+    pub fn member_function_type(&self, identifier: &Identifier) -> Option<&FunctionType> {
         self.functions
             .iter()
-            .find(|function| function.function.identifier.eq(identifier))
+            .find(|function| function.identifier.eq(identifier))
     }
 
     ///
@@ -139,7 +123,7 @@ impl CircuitType {
                 let matched_function = self.member_function_type(identifier);
 
                 match matched_function {
-                    Some(function) => Ok(Type::Function(function.function.identifier.to_owned())),
+                    Some(function) => Ok(Type::Function(function.identifier.to_owned())),
                     None => Err(TypeError::undefined_circuit_member(identifier.clone())),
                 }
             }
