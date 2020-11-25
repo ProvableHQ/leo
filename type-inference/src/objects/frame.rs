@@ -34,7 +34,7 @@ use leo_ast::{
     Statement,
     Variables,
 };
-use leo_symbol_table::{Attribute, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
+use leo_symbol_table::{CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
 
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]
