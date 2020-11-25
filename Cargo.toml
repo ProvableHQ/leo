@@ -132,7 +132,7 @@ version = "0.10.9"
 features = [ "blocking", "json" ]
 
 [dependencies.self_update]
-version = "0.20.0"
+version = "0.21.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]
