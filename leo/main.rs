@@ -22,9 +22,8 @@ use clap::{App, AppSettings, Arg};
 fn main() -> Result<(), CLIError> {
     let app = App::new("leo")
         .version(include_str!("./leo-version"))
-        .before_help("Hello world")
-        // .about("Leo compiler and package manager")
-        // .author("The Aleo Team <hello@aleo.org>")
+        .about("Leo compiler and package manager")
+        .author("The Aleo Team <hello@aleo.org>")
         .settings(&[
             AppSettings::ColoredHelp,
             AppSettings::DisableHelpSubcommand,
