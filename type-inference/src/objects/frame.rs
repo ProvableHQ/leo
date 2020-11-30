@@ -1083,21 +1083,6 @@ impl Frame {
     }
 
     ///
-    /// Returns a `FunctionType` given a circuit expression and static function identifier.
-    ///
-    fn parse_static_circuit_function(
-        &mut self,
-        expression: &Expression,
-        identifier: &Identifier,
-        span: &Span,
-    ) -> Result<FunctionType, FrameError> {
-        // Find circuit function type.
-        let function_type = self.parse_circuit_function_type(expression, identifier, span)?;
-
-        Ok(function_type.to_owned())
-    }
-
-    ///
     /// Returns the type returned by calling the function.
     ///
     /// Does not attempt to evaluate the function call. We are just checking types at this step.

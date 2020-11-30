@@ -84,14 +84,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
                     }
                 }
-                CircuitMember::CircuitFunction(_static, function) => {
+                CircuitMember::CircuitFunction(function) => {
                     let identifier = function.identifier.clone();
-                    let mut constrained_function_value =
+                    let constrained_function_value =
                         ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
 
-                    if _static {
-                        constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
-                    }
+                    // if _static {
+                    //     constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
+                    // }
 
                     resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
                 }

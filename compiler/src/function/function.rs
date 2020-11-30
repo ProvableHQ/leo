@@ -57,11 +57,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
-                FunctionInput::InputKeyword(identifier) => {
+                FunctionInput::InputKeyword(keyword) => {
                     let input_value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
-                    (&identifier.name, input_value)
+                    (keyword.to_string(), input_value)
+                }
+                FunctionInput::SelfKeyword(keyword) => {
+                    let input_value =
+                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+
+                    (keyword.to_string(), input_value)
+                }
+                FunctionInput::MutSelfKeyword(keyword) => {
+                    let input_value =
+                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+
+                    (keyword.to_string(), input_value)
                 }
                 FunctionInput::Variable(input_model) => {
                     // First evaluate input expression
@@ -78,7 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         input_value = ConstrainedValue::Mutable(Box::new(input_value))
                     }
 
-                    (&input_model.identifier.name, input_value)
+                    (input_model.identifier.name.clone(), input_value)
                 }
             };
 
