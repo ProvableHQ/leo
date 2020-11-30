@@ -23,21 +23,12 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Span, Type};
+use leo_ast::{Expression, Function, FunctionInput, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-
-pub fn check_arguments_length(expected: usize, actual: usize, span: &Span) -> Result<(), FunctionError> {
-    // Make sure we are given the correct number of arguments
-    if expected != actual {
-        Err(FunctionError::arguments_length(expected, actual, span.to_owned()))
-    } else {
-        Ok(())
-    }
-}
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
@@ -50,9 +41,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         declared_circuit_reference: &str,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope, function.get_name());
-
-        // Make sure we are given the correct number of input variables
-        check_arguments_length(function.input.len(), input.len(), &function.span)?;
 
         // Store input values as new variables in resolved program
         for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {

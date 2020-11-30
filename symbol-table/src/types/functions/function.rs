@@ -119,6 +119,16 @@ impl FunctionType {
 
         Ok(())
     }
+
+    ///
+    /// Returns the number of input variables to the function.
+    /// The `self` and `mut self` keywords are not counted as input variables.
+    ///
+    pub fn num_inputs(&self) -> usize {
+        self.inputs
+            .iter()
+            .fold(0, |acc, function_input| acc + function_input.count())
+    }
 }
 
 impl PartialEq for FunctionType {

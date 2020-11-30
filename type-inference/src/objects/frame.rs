@@ -1097,8 +1097,8 @@ impl Frame {
         let function_type = self.parse_function_name(expression, span)?;
 
         // Check the length of arguments
-        if function_type.inputs.len() != inputs.len() {
-            return Err(FrameError::num_inputs(function_type.inputs.len(), inputs.len(), span));
+        if function_type.num_inputs() != inputs.len() {
+            return Err(FrameError::num_inputs(function_type.num_inputs(), inputs.len(), span));
         }
 
         // Assert function inputs are correct types.
