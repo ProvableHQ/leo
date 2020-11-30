@@ -60,6 +60,14 @@ impl Function {
         &self.identifier.name
     }
 
+    ///
+    /// Returns `true` if the function has input `self` or `mut self`.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.input.iter().find(|param| param.is_self()).is_some()
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 
