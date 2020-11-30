@@ -31,6 +31,49 @@ jobs:
           command: fmt
           args: --all -- --check
 
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -Dwarnings
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - nightly
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust (${{ matrix.rust }})
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: clippy
+
+      - name: Check examples
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --examples --all
+
+      - name: Check examples with all features on stable
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --examples --all-features --all
+        if: matrix.rust == 'stable'
+
+      - name: Check benchmarks on nightly
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-features --examples --all --benches
+        if: matrix.rust == 'nightly'
+
   test:
     name: Test
     runs-on: ubuntu-latest
