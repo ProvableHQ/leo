@@ -65,17 +65,25 @@ impl FunctionInputType {
     }
 
     ///
-    /// Returns `1` if a variable must be provided in a call to the function.
+    /// Returns `true` if input `self` or `mut self` is present.
+    /// Returns `false` otherwise.
+    ///
+    pub fn is_self(&self) -> bool {
+        match self {
+            FunctionInputType::InputKeyword(_) => false,
+            FunctionInputType::SelfKeyword(_) => true,
+            FunctionInputType::MutSelfKeyword(_) => true,
+            FunctionInputType::Variable(_) => false,
+        }
+    }
+
+    ///
     /// Returns `0` if the function input is a `self` or `mut self` keyword which does not have to
     /// provided in a call to the function.
+    /// Returns `1` if a variable must be provided in a call to the function.
     ///
     pub fn count(&self) -> usize {
-        match self {
-            FunctionInputType::InputKeyword(_) => 1,
-            FunctionInputType::SelfKeyword(_) => 0,
-            FunctionInputType::MutSelfKeyword(_) => 0,
-            FunctionInputType::Variable(_) => 1,
-        }
+        if self.is_self() { 0 } else { 1 }
     }
 
     ///

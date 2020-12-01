@@ -129,6 +129,14 @@ impl FunctionType {
             .iter()
             .fold(0, |acc, function_input| acc + function_input.count())
     }
+
+    ///
+    /// Returns `true` if the input `self` or `mut self` is present.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.inputs.iter().find(|param| param.is_self()).is_some()
+    }
 }
 
 impl PartialEq for FunctionType {

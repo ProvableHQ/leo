@@ -78,7 +78,7 @@ fn test_circuit_mut() {
     let bytes = include_bytes!("circuit_mut.leo");
     let program = parse_program(bytes).unwrap();
 
-    expect_compiler_error(program);
+    assert_satisfied(program);
 }
 
 #[test]

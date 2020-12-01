@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_type_inference_error, parse_program};
+use crate::{
+    assert_satisfied,
+    expect_compiler_error,
+    expect_symbol_table_error,
+    expect_type_inference_error,
+    parse_program,
+};
 
 // Expressions
 

@@ -953,22 +953,6 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed circuit member when called as an expression.
-    ///
-    fn parse_expression_circuit_member_access(
-        &mut self,
-        expression: &Expression,
-        identifier: &Identifier,
-        span: &Span,
-    ) -> Result<Type, FrameError> {
-        // Parse circuit name.
-        let type_ = self.parse_expression(expression)?;
-
-        // Parse the circuit member access.
-        self.parse_circuit_member_access(type_, identifier, span)
-    }
-
-    ///
     /// Returns the type of the accessed circuit member.
     ///
     fn parse_circuit_member_access(
@@ -982,6 +966,22 @@ impl Frame {
 
         // Look for member with matching name.
         Ok(circuit_type.member_type(&identifier)?)
+    }
+
+    ///
+    /// Returns the type of the accessed circuit member when called as an expression.
+    ///
+    fn parse_expression_circuit_member_access(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
+        // Parse circuit name.
+        let type_ = self.parse_expression(expression)?;
+
+        // Parse the circuit member access.
+        self.parse_circuit_member_access(type_, identifier, span)
     }
 
     ///
@@ -1026,10 +1026,10 @@ impl Frame {
         match expression {
             Expression::Identifier(identifier) => self.parse_program_function(identifier, span),
             Expression::CircuitMemberAccess(expression, identifier, span) => {
-                self.parse_circuit_function(expression, identifier, span)
+                self.parse_circuit_function(expression, identifier, span, false)
             }
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_circuit_function(expression, identifier, span)
+                self.parse_circuit_function(expression, identifier, span, true)
             }
             expression => Err(FrameError::invalid_function(expression, span)),
         }
@@ -1074,9 +1074,24 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
+        is_static: bool,
     ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
         let function_type = self.parse_circuit_function_type(expression, identifier, span)?;
+
+        // Case 1: static call + self keyword => Error
+        // Case 2: no static call + no self keywords => Error
+        // Case 3: static call + no self keywords => Ok
+        // Case 4: no static call + self keyword => Ok
+        println!("static {}", is_static);
+        println!("function contains self {}", function_type.contains_self());
+        if is_static && function_type.contains_self() {
+            return Err(FrameError::self_not_available(&identifier.span));
+        } else if !is_static && !function_type.contains_self() {
+            return Err(FrameError::static_call_invalid(&identifier));
+        }
+
+        if is_static && function_type.contains_self() {}
 
         // Return the function type.
         Ok(function_type.to_owned())

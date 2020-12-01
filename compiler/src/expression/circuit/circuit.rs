@@ -66,7 +66,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     match matched_variable {
                         Some(variable) => {
                             // Resolve and enforce circuit variable
-                            let mut variable_value = self.enforce_expression(
+                            let variable_value = self.enforce_expression(
                                 cs,
                                 file_scope,
                                 function_scope,
