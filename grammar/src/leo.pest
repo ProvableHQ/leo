@@ -322,7 +322,7 @@ circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE
 circuit_variable = { identifier ~ ":" ~ expression }
 
 // Declared in circuits/circuit_variable_definition.rs
-circuit_variable_definition = { mutable? ~ identifier ~ ":" ~ type_ ~ ","?}
+circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_member.rs
 circuit_member = { function | circuit_variable_definition ~ NEWLINE*}

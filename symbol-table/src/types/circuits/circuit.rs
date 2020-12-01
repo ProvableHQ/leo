@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{types::circuits::CircuitVariableType, Attribute, FunctionType, SymbolTable, Type, TypeError};
+use crate::{types::circuits::CircuitVariableType, FunctionType, SymbolTable, Type, TypeError};
 use leo_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
 use serde::{Deserialize, Serialize};
@@ -54,7 +54,7 @@ impl CircuitType {
         // Resolve the type of every circuit member.
         for member in unresolved.members {
             match member {
-                CircuitMember::CircuitVariable(is_mutable, variable_identifier, type_) => {
+                CircuitMember::CircuitVariable(variable_identifier, type_) => {
                     // Resolve the type of the circuit member variable.
                     let type_ = Type::new_from_circuit(
                         table,
@@ -63,14 +63,11 @@ impl CircuitType {
                         circuit_identifier.span.clone(),
                     )?;
 
-                    // Check if the circuit member variable is mutable.
-                    let attribute = if is_mutable { Some(Attribute::Mutable) } else { None };
-
                     // Create a new circuit variable type.
                     let variable = CircuitVariableType {
                         identifier: variable_identifier,
                         type_,
-                        attribute,
+                        attribute: None,
                     };
 
                     // Store the circuit variable type.

@@ -28,7 +28,6 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::circuit_variable_definition))]
 pub struct CircuitVariableDefinition<'ast> {
-    pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
     pub type_: Type<'ast>,
     #[pest_ast(outer())]
