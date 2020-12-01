@@ -61,34 +61,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 span.to_owned(),
                             ))
                         }
-                        ConstrainedValue::Mutable(value) => {
-                            // Mutate the circuit variable's value in place
-
-                            // Check that the new value type == old value type
-                            new_value.resolve_type(Some(value.to_type(span)?), span)?;
-
-                            // Conditionally select the value if this branch is executed.
-                            let mut selected_value = ConstrainedValue::conditionally_select(
-                                cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
-                                &condition,
-                                &new_value,
-                                &member.1,
-                            )
-                            .map_err(|_| {
-                                StatementError::select_fail(
-                                    new_value.to_string(),
-                                    member.1.to_string(),
-                                    span.to_owned(),
-                                )
-                            })?;
-
-                            // Make sure the new value is still mutable
-                            selected_value = ConstrainedValue::Mutable(Box::new(selected_value));
-
-                            member.1 = selected_value.to_owned();
-
-                            Ok(selected_value)
-                        }
                         value => {
                             // Check that the new value type == old value type
                             new_value.resolve_type(Some(value.to_type(span)?), span)?;
