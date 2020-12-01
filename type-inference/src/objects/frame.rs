@@ -1083,8 +1083,6 @@ impl Frame {
         // Case 2: no static call + no self keywords => Error
         // Case 3: static call + no self keywords => Ok
         // Case 4: no static call + self keyword => Ok
-        println!("static {}", is_static);
-        println!("function contains self {}", function_type.contains_self());
         if is_static && function_type.contains_self() {
             return Err(FrameError::self_not_available(&identifier.span));
         } else if !is_static && !function_type.contains_self() {
@@ -1112,12 +1110,17 @@ impl Frame {
         let function_type = self.parse_function_name(expression, span)?;
 
         // Check the length of arguments
-        if function_type.num_inputs() != inputs.len() {
-            return Err(FrameError::num_inputs(function_type.num_inputs(), inputs.len(), span));
+        let num_inputs = function_type.num_inputs();
+
+        if num_inputs != inputs.len() {
+            return Err(FrameError::num_inputs(num_inputs, inputs.len(), span));
         }
 
+        // Filter out `self` and `mut self` keywords.
+        let expected_inputs = function_type.filter_self_inputs();
+
         // Assert function inputs are correct types.
-        for (expected_input, actual_input) in function_type.inputs.iter().zip(inputs) {
+        for (expected_input, actual_input) in expected_inputs.iter().zip(inputs) {
             // Parse expected input type.
             let expected_type = expected_input.type_();
 

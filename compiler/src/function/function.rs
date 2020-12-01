@@ -42,8 +42,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope, function.get_name());
 
+        // Store if function contains input `mut self`.
+        let mut_self = function.contains_mut_self();
+
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
+        for (input_model, input_expression) in function.filter_self_inputs().iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {
                     let value =
@@ -86,8 +89,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let input_program_identifier = new_scope(&function_name, &name);
             self.store(input_program_identifier, value);
         }
-
-        let mut_self = function.contains_mut_self();
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];

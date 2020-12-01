@@ -76,6 +76,16 @@ impl Function {
         self.input.iter().find(|param| param.is_mut_self()).is_some()
     }
 
+    ///
+    /// Returns a vector of [&FunctionInput] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> Vec<&FunctionInput> {
+        self.input
+            .iter()
+            .filter(|input| !input.is_self())
+            .collect::<Vec<&FunctionInput>>()
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 

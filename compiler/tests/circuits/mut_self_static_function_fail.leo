@@ -1,9 +1,9 @@
 circuit Foo {
     a: u8,
 
-    static function bar() {}
+    function bar() {}
 
-    function set_a(new: u8) {
+    function set_a(mut self, new: u8) {
         self.bar = new;
     }
 }

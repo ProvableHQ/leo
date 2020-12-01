@@ -137,6 +137,16 @@ impl FunctionType {
     pub fn contains_self(&self) -> bool {
         self.inputs.iter().find(|param| param.is_self()).is_some()
     }
+
+    ///
+    /// Returns a vector of [&FunctionInputType] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> Vec<&FunctionInputType> {
+        self.inputs
+            .iter()
+            .filter(|input| !input.is_self())
+            .collect::<Vec<&FunctionInputType>>()
+    }
 }
 
 impl PartialEq for FunctionType {
