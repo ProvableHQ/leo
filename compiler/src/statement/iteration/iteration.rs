@@ -48,6 +48,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         stop: Expression,
         statements: Vec<Statement>,
         return_type: Option<Type>,
+        mut_self: bool,
         span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
@@ -74,6 +75,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 indicator,
                 statements.clone(),
                 return_type.clone(),
+                mut_self,
             )?;
 
             results.append(&mut result);

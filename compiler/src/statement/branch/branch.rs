@@ -33,6 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statements: Vec<Statement>,
         return_type: Option<Type>,
+        mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = Vec::with_capacity(statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
@@ -45,6 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 statement,
                 return_type.clone(),
                 "",
+                mut_self,
             )?;
 
             results.append(&mut value);

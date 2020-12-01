@@ -46,22 +46,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {
-                    let input_value =
+                    let value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
-                    (keyword.to_string(), input_value)
+                    (keyword.to_string(), value)
                 }
                 FunctionInput::SelfKeyword(keyword) => {
-                    let input_value =
+                    let value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
-                    (keyword.to_string(), input_value)
+                    (keyword.to_string(), value)
                 }
                 FunctionInput::MutSelfKeyword(keyword) => {
-                    let input_value =
+                    let value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
-                    (keyword.to_string(), input_value)
+                    (keyword.to_string(), value)
                 }
                 FunctionInput::Variable(input_model) => {
                     // First evaluate input expression
@@ -87,6 +87,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             self.store(input_program_identifier, value);
         }
 
+        let mut_self = function.contains_mut_self();
+
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
 
@@ -99,6 +101,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 statement.clone(),
                 function.output.clone(),
                 declared_circuit_reference,
+                mut_self,
             )?;
 
             results.append(&mut result);

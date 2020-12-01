@@ -56,6 +56,19 @@ impl FunctionInput {
         }
     }
 
+    ///
+    /// Returns `true` if the function input is the `mut self` keyword.
+    /// Returns `false` otherwise.
+    ///
+    pub fn is_mut_self(&self) -> bool {
+        match self {
+            FunctionInput::InputKeyword(_) => false,
+            FunctionInput::SelfKeyword(_) => false,
+            FunctionInput::MutSelfKeyword(_) => true,
+            FunctionInput::Variable(_) => false,
+        }
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             FunctionInput::InputKeyword(keyword) => write!(f, "{}", keyword),

@@ -89,12 +89,31 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                             Ok(selected_value)
                         }
-                        _ => {
-                            // Throw an error if we try to mutate an immutable circuit variable
-                            Err(StatementError::immutable_circuit_variable(
-                                variable_name.name,
-                                span.to_owned(),
-                            ))
+                        value => {
+                            // Check that the new value type == old value type
+                            new_value.resolve_type(Some(value.to_type(span)?), span)?;
+
+                            // Conditionally select the value if this branch is executed.
+                            let mut selected_value = ConstrainedValue::conditionally_select(
+                                cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
+                                &condition,
+                                &new_value,
+                                &member.1,
+                            )
+                            .map_err(|_| {
+                                StatementError::select_fail(
+                                    new_value.to_string(),
+                                    member.1.to_string(),
+                                    span.to_owned(),
+                                )
+                            })?;
+
+                            // Make sure the new value is still mutable
+                            selected_value = ConstrainedValue::Mutable(Box::new(selected_value));
+
+                            member.1 = selected_value.to_owned();
+
+                            Ok(selected_value)
                         }
                     },
                     None => {
