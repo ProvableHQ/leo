@@ -1,29 +1,29 @@
 [package]
 name = "leo-imports"
-version = "1.0.4"
-authors = [ "The Aleo Team <hello@aleo.org>"]
+version = "1.0.5"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Import parser for Leo program package dependencies"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
-    "aleo",
-    "cryptography",
-    "leo",
-    "programming-language",
-    "zero-knowledge"
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
 ]
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.0.4"
+version = "1.0.5"
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.0.4"
+version = "1.0.5"
 
 [dependencies.thiserror]
 version = "1.0"
