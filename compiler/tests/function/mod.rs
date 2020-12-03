@@ -79,6 +79,14 @@ fn test_multiple_returns_fail() {
 }
 
 #[test]
+fn test_multiple_returns_fail_conditional() {
+    let bytes = include_bytes!("multiple_returns_fail_conditional.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
 fn test_multiple_returns_main() {
     let program_bytes = include_bytes!("multiple_returns_main.leo");
     let input_bytes = include_bytes!("input/registers.in");
