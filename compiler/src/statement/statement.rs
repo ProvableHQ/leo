@@ -25,7 +25,7 @@ use snarkos_models::{
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
-pub type IndicatorAndConstrainedValue<T, U> = (Option<Boolean>, ConstrainedValue<T, U>);
+pub type IndicatorAndConstrainedValue<T, U> = (Boolean, ConstrainedValue<T, U>);
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ///
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         statement: Statement,
         return_type: Option<Type>,
         declared_circuit_reference: &str,
@@ -51,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match statement {
             Statement::Return(expression, span) => {
                 let return_value = (
-                    indicator,
+                    indicator.to_owned(),
                     self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, &span)?,
                 );
 
@@ -126,7 +126,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     _ => return Err(StatementError::unassigned(expression_string, span)),
                 }
 
-                let result = (indicator, value);
+                let result = (indicator.to_owned(), value);
 
                 results.push(result);
             }
@@ -134,4 +134,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         Ok(results)
     }
+}
+
+/// Returns the indicator boolean gadget value.
+/// We can directly compare a boolean constant to the indicator since we are not enforcing any
+/// constraints
+pub fn get_indicator_value(indicator: &Boolean) -> bool {
+    indicator.eq(&Boolean::constant(true))
 }

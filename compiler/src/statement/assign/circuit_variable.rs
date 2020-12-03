@@ -31,14 +31,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn mutate_circuit_variable<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         circuit_name: &str,
         variable_name: Identifier,
         mut new_value: ConstrainedValue<F, G>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-
         // Get the mutable circuit by name
         match self.get_mutable_assignee(circuit_name, span)? {
             ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -70,7 +68,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             // Conditionally select the value if this branch is executed.
                             let mut selected_value = ConstrainedValue::conditionally_select(
                                 cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
-                                &condition,
+                                indicator,
                                 &new_value,
                                 &member.1,
                             )

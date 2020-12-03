@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         index: Identifier,
         start: Expression,
         stop: Expression,

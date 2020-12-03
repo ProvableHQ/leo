@@ -23,11 +23,11 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Span, Type};
+use leo_ast::{Expression, Function, FunctionInput, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 pub fn check_arguments_length(expected: usize, actual: usize, span: &Span) -> Result<(), FunctionError> {
@@ -89,13 +89,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
+        let indicator = Boolean::constant(true);
 
         for statement in function.statements.iter() {
             let mut result = self.enforce_statement(
                 cs,
                 scope,
                 &function_name,
-                None,
+                &indicator,
                 statement.clone(),
                 function.output.clone(),
                 declared_circuit_reference,
@@ -105,26 +106,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Conditionally select a result based on returned indicators
-        let mut return_values = ConstrainedValue::Tuple(vec![]);
-
-        Self::conditionally_select_result(cs, &mut return_values, results, &function.span)?;
-
-        if let ConstrainedValue::Tuple(ref returns) = return_values {
-            let return_types = match function.output {
-                Some(Type::Tuple(types)) => types.len(),
-                Some(_) => 1usize,
-                None => 0usize,
-            };
-
-            if return_types != returns.len() {
-                return Err(FunctionError::return_arguments_length(
-                    return_types,
-                    returns.len(),
-                    function.span.clone(),
-                ));
-            }
-        }
-
-        Ok(return_values)
+        Self::conditionally_select_result(cs, function.output, results, &function.span)
+            .map_err(|err| FunctionError::StatementError(err))
     }
 }

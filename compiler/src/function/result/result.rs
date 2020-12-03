@@ -16,9 +16,15 @@
 
 //! Enforces that one return value is produced in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{
+    errors::StatementError,
+    get_indicator_value,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+};
 
-use leo_ast::Span;
+use leo_ast::{Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -29,49 +35,84 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    /// iterates through a vector of results and selects one based off of indicators
+    ///
+    /// Returns a conditionally selected result from the given possible function returns and
+    /// given function return type.
+    ///
     pub fn conditionally_select_result<CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        return_value: &mut ConstrainedValue<F, G>,
-        results: Vec<(Option<Boolean>, ConstrainedValue<F, G>)>,
+        expected_return: Option<Type>,
+        results: Vec<(Boolean, ConstrainedValue<F, G>)>,
         span: &Span,
-    ) -> Result<(), StatementError> {
-        // if there are no results, continue
-        if results.is_empty() {
-            return Ok(());
+    ) -> Result<ConstrainedValue<F, G>, StatementError> {
+        // Initialize empty return value.
+        let mut return_value = ConstrainedValue::Tuple(vec![]);
+
+        // If the function does not expect a return type, then make sure there are no returned results.
+        let return_type = match expected_return {
+            Some(return_type) => return_type,
+            None => {
+                if results.is_empty() {
+                    // If the function has no returns, then return an empty tuple.
+                    return Ok(return_value);
+                } else {
+                    return Err(StatementError::invalid_number_of_returns(
+                        0,
+                        results.len(),
+                        span.to_owned(),
+                    ));
+                }
+            }
+        };
+
+        // Error if the function or one of its branches does not return.
+        if let None = results.iter().find(|(indicator, _res)| get_indicator_value(indicator)) {
+            return Err(StatementError::no_returns(return_type, span.to_owned()));
         }
 
-        // If all indicators are none, then there are no branch conditions in the function.
-        // We simply return the last result.
-
-        if results.iter().all(|(indicator, _res)| indicator.is_none()) {
-            let result = &results[results.len() - 1].1;
-
-            *return_value = result.clone();
-
-            return Ok(());
-        }
-
-        // If there are branches in the function we need to use the `ConditionalSelectGadget` to parse through and select the correct one.
-        // This can be thought of as de-multiplexing all previous wires that may have returned results into one.
-        for (i, (indicator, result)) in results.into_iter().enumerate() {
-            // Set the first value as the starting point
-            if i == 0 {
-                *return_value = result.clone();
+        // Find the return value
+        let mut ignored = vec![];
+        let mut found_return = false;
+        for (indicator, result) in results.into_iter() {
+            // Error if a statement returned a result with an incorrect type
+            let result_type = result.to_type(span)?;
+            if return_type != result_type {
+                return Err(StatementError::arguments_type(
+                    &return_type,
+                    &result_type,
+                    span.to_owned(),
+                ));
             }
 
-            let condition = indicator.unwrap_or(Boolean::Constant(true));
-            let selected_value = ConstrainedValue::conditionally_select(
-                cs.ns(|| format!("select {} {}:{}", result, span.line, span.start)),
-                &condition,
-                &result,
-                return_value,
-            )
-            .map_err(|_| StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned()))?;
-
-            *return_value = selected_value;
+            if get_indicator_value(&indicator) {
+                // Error if we already have a return value.
+                if found_return {
+                    return Err(StatementError::multiple_returns(span.to_owned()));
+                } else {
+                    // Set the function return value.
+                    return_value = result;
+                    found_return = true;
+                }
+            } else {
+                // Ignore a possible function return value.
+                ignored.push((indicator, result))
+            }
         }
 
-        Ok(())
+        // Conditionally select out the ignored results in the circuit.
+        //
+        // If there are branches in the function we need to use the `ConditionalSelectGadget` to parse through and select the correct one.
+        // This can be thought of as de-multiplexing all previous wires that may have returned results into one.
+        for (i, (indicator, result)) in ignored.into_iter().enumerate() {
+            return_value = ConstrainedValue::conditionally_select(
+                cs.ns(|| format!("select result {} {}:{}", i, span.line, span.start)),
+                &indicator,
+                &result,
+                &return_value,
+            )
+            .map_err(|_| StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned()))?;
+        }
+
+        Ok(return_value)
     }
 }
