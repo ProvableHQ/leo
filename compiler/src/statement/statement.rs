@@ -116,19 +116,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let expression_string = expression.to_string();
                 let value = self.enforce_expression(cs, file_scope, function_scope, None, expression)?;
 
-                // handle empty return value cases
+                // Handle empty return value cases.
                 match &value {
                     ConstrainedValue::Tuple(values) => {
                         if !values.is_empty() {
-                            return Err(StatementError::unassigned(expression_string, span));
+                            results.push((indicator.clone(), value));
                         }
                     }
                     _ => return Err(StatementError::unassigned(expression_string, span)),
                 }
-
-                let result = (indicator.to_owned(), value);
-
-                results.push(result);
             }
         };
 
