@@ -16,11 +16,11 @@
 
 use crate::InputValue;
 use leo_input::{definitions::Definition, InputParserError};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct MainInput {
-    input: HashMap<String, Option<InputValue>>,
+    input: BTreeMap<String, Option<InputValue>>,
 }
 
 #[allow(clippy::len_without_is_empty)]
