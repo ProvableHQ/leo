@@ -13,7 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::config::Config;
+use crate::{config::Config, errors::UpdaterError};
 
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
@@ -27,7 +27,7 @@ impl Updater {
     const LEO_REPO_OWNER: &'static str = "AleoHQ";
 
     /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<(), self_update::errors::Error> {
+    pub fn show_available_releases() -> Result<(), UpdaterError> {
         let releases = github::ReleaseList::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -42,7 +42,7 @@ impl Updater {
     }
 
     /// Update `leo` to the latest release.
-    pub fn update_to_latest_release(show_output: bool) -> Result<Status, self_update::errors::Error> {
+    pub fn update_to_latest_release(show_output: bool) -> Result<Status, UpdaterError> {
         let status = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -58,7 +58,7 @@ impl Updater {
     }
 
     /// Check if there is an available update for `leo` and return the newest release.
-    pub fn update_available() -> Result<Option<String>, self_update::errors::Error> {
+    pub fn update_available() -> Result<String, UpdaterError> {
         let updater = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -70,9 +70,12 @@ impl Updater {
         let latest_release = updater.get_latest_release()?;
 
         if bump_is_greater(&current_version, &latest_release.version)? {
-            Ok(Some(latest_release.version))
+            Ok(latest_release.version)
         } else {
-            Ok(None)
+            Err(UpdaterError::OldReleaseVersion(
+                current_version.to_string(),
+                latest_release.version.to_string(),
+            ))
         }
     }
 
@@ -89,7 +92,7 @@ impl Updater {
             }
         } else {
             // If the auto update configuration is off, notify the user to update leo.
-            if let Some(latest_version) = Self::update_available().unwrap() {
+            if let Ok(latest_version) = Self::update_available() {
                 let mut message = "🟢 A new version is available! Run".bold().green().to_string();
                 message += &" `leo update` ".bold().white();
                 message += &format!("to update to v{}.", latest_version).bold().green();
