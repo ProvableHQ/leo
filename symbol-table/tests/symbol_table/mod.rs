@@ -25,8 +25,8 @@ use crate::TestSymbolTable;
 ///
 #[test]
 fn test_duplicate_circuit() {
-    let program_bytes = include_bytes!("duplicate_circuit.leo");
-    let resolver = TestSymbolTable::new(program_bytes);
+    let program_string = include_str!("duplicate_circuit.leo");
+    let resolver = TestSymbolTable::new(program_string);
 
     resolver.expect_pass_one_error();
 }
@@ -40,8 +40,8 @@ fn test_duplicate_circuit() {
 ///
 #[test]
 fn test_duplicate_function() {
-    let program_bytes = include_bytes!("duplicate_function.leo");
-    let resolver = TestSymbolTable::new(program_bytes);
+    let program_string = include_str!("duplicate_function.leo");
+    let resolver = TestSymbolTable::new(program_string);
 
     resolver.expect_pass_one_error();
 }
@@ -54,8 +54,8 @@ fn test_duplicate_function() {
 ///
 #[test]
 fn test_self_not_available() {
-    let program_bytes = include_bytes!("self_not_available.leo");
-    let resolver = TestSymbolTable::new(program_bytes);
+    let program_string = include_str!("self_not_available.leo");
+    let resolver = TestSymbolTable::new(program_string);
 
     resolver.expect_pass_two_error();
 }
@@ -68,8 +68,8 @@ fn test_self_not_available() {
 ///
 #[test]
 fn test_undefined_circuit() {
-    let program_bytes = include_bytes!("undefined_circuit.leo");
-    let resolver = TestSymbolTable::new(program_bytes);
+    let program_string = include_str!("undefined_circuit.leo");
+    let resolver = TestSymbolTable::new(program_string);
 
     resolver.expect_pass_two_error();
 }
