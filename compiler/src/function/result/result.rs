@@ -17,6 +17,7 @@
 //! Enforces that one return value is produced in a compiled Leo program.
 
 use crate::{
+    check_return_type,
     errors::StatementError,
     get_indicator_value,
     program::ConstrainedProgram,
@@ -76,13 +77,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for (indicator, result) in results.into_iter() {
             // Error if a statement returned a result with an incorrect type
             let result_type = result.to_type(span)?;
-            if return_type != result_type {
-                return Err(StatementError::arguments_type(
-                    &return_type,
-                    &result_type,
-                    span.to_owned(),
-                ));
-            }
+            check_return_type(&return_type, &result_type, span)?;
 
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
