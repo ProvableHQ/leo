@@ -16,7 +16,10 @@
 
 use pest::Span as GrammarSpan;
 use serde::{Deserialize, Serialize};
-use std::hash::{Hash, Hasher};
+use std::{
+    cmp::Ordering,
+    hash::{Hash, Hasher},
+};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Span {
@@ -37,6 +40,18 @@ impl PartialEq for Span {
 }
 
 impl Eq for Span {}
+
+impl Ord for Span {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.line.cmp(&other.line)
+    }
+}
+
+impl PartialOrd for Span {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
 impl Hash for Span {
     fn hash<H: Hasher>(&self, state: &mut H) {

@@ -185,8 +185,19 @@ impl PartialEq for Identifier {
 impl Eq for Identifier {}
 
 impl Ord for Identifier {
+    ///
+    /// Order identifiers by name first, then span.
+    ///
     fn cmp(&self, other: &Self) -> Ordering {
-        self.name.cmp(&other.name)
+        // Order by name string.
+        match self.name.cmp(&other.name) {
+            Ordering::Equal => {
+                // Order by span if names are equal.
+                self.span.cmp(&other.span)
+            }
+            Ordering::Greater => Ordering::Greater,
+            Ordering::Less => Ordering::Less,
+        }
     }
 }
 

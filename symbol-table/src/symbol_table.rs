@@ -19,7 +19,7 @@ use leo_ast::{Circuit, Function, Identifier, ImportStatement, ImportSymbol, Inpu
 use leo_core::CorePackageList;
 use leo_imports::ImportParser;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 pub const INPUT_VARIABLE_NAME: &str = "input";
 pub const RECORD_VARIABLE_NAME: &str = "record";
@@ -35,13 +35,13 @@ pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 #[derive(Clone, Default)]
 pub struct SymbolTable {
     /// Maps name -> parameter type.
-    names: HashMap<String, UserDefinedType>,
+    names: BTreeMap<String, UserDefinedType>,
 
     /// Maps circuit name -> circuit type.
-    circuits: HashMap<String, CircuitType>,
+    circuits: BTreeMap<String, CircuitType>,
 
     /// Maps function name -> function type.
-    functions: HashMap<String, FunctionType>,
+    functions: BTreeMap<String, FunctionType>,
 
     /// The parent of this symbol table.
     parent: Option<Box<SymbolTable>>,
@@ -84,6 +84,7 @@ impl SymbolTable {
     /// variable type is returned.
     ///
     pub fn insert_name(&mut self, name: String, variable_type: UserDefinedType) -> Option<UserDefinedType> {
+        println!("name {}", name);
         self.names.insert(name, variable_type)
     }
 
@@ -214,7 +215,7 @@ impl SymbolTable {
     /// If a circuit name has no duplicates, then it is inserted into the symbol table.
     /// Types defined later in the program cannot have the same name.
     ///
-    pub fn check_circuit_names(&mut self, circuits: &HashMap<Identifier, Circuit>) -> Result<(), SymbolTableError> {
+    pub fn check_circuit_names(&mut self, circuits: &BTreeMap<Identifier, Circuit>) -> Result<(), SymbolTableError> {
         // Iterate over circuit names and definitions.
         for (identifier, circuit) in circuits.iter() {
             // Attempt to insert the circuit name into the symbol table.
@@ -230,7 +231,7 @@ impl SymbolTable {
     /// If a function name has no duplicates, then it is inserted into the symbol table.
     /// Types defined later in the program cannot have the same name.
     ///
-    pub fn check_function_names(&mut self, functions: &HashMap<Identifier, Function>) -> Result<(), SymbolTableError> {
+    pub fn check_function_names(&mut self, functions: &BTreeMap<Identifier, Function>) -> Result<(), SymbolTableError> {
         // Iterate over function names and definitions.
         for (identifier, function) in functions.iter() {
             // Attempt to insert the function name into the symbol table.
@@ -416,7 +417,7 @@ impl SymbolTable {
     /// symbol table. Variables defined later in the program can lookup the definition
     /// and refer to its expected types
     ///
-    pub fn check_types_circuits(&mut self, circuits: &HashMap<Identifier, Circuit>) -> Result<(), SymbolTableError> {
+    pub fn check_types_circuits(&mut self, circuits: &BTreeMap<Identifier, Circuit>) -> Result<(), SymbolTableError> {
         // Iterate over circuit names and definitions.
         for circuit in circuits.values() {
             // Get the identifier of the circuit.
@@ -439,7 +440,10 @@ impl SymbolTable {
     /// symbol table. Variables defined later in the program can lookup the definition
     /// and refer to its expected types
     ///
-    pub fn check_types_functions(&mut self, functions: &HashMap<Identifier, Function>) -> Result<(), SymbolTableError> {
+    pub fn check_types_functions(
+        &mut self,
+        functions: &BTreeMap<Identifier, Function>,
+    ) -> Result<(), SymbolTableError> {
         // Iterate over function names and definitions.
         for function in functions.values() {
             // Get the identifier of the function.
