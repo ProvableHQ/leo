@@ -17,6 +17,8 @@
 use crate::{Identifier, Span, Type};
 use leo_input::parameters::Parameter as GrammarParameter;
 
+use std::cmp::Ordering;
+
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Parameter {
     pub variable: Identifier,
@@ -31,5 +33,17 @@ impl<'ast> From<GrammarParameter<'ast>> for Parameter {
             type_: Type::from(parameter.type_),
             span: Span::from(parameter.span),
         }
+    }
+}
+
+impl Ord for Parameter {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.variable.cmp(&other.variable)
+    }
+}
+
+impl PartialOrd for Parameter {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
