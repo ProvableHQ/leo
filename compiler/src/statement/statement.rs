@@ -45,6 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: Statement,
         return_type: Option<Type>,
         declared_circuit_reference: &str,
+        mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
@@ -75,6 +76,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     function_scope,
                     declared_circuit_reference,
                     indicator,
+                    mut_self,
                     variable,
                     expression,
                     &span,
@@ -88,6 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     statement,
                     return_type,
+                    mut_self,
                     &span,
                 )?;
 
@@ -104,6 +107,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     start_stop.1,
                     statements,
                     return_type,
+                    mut_self,
                     &span,
                 )?;
 

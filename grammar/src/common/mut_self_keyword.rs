@@ -14,18 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Static, functions::Function, SpanDef};
+use crate::{
+    ast::Rule,
+    common::{Mutable, SelfKeyword},
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
+use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_function))]
-pub struct CircuitFunction<'ast> {
-    pub _static: Option<Static>,
-    pub function: Function<'ast>,
+#[pest_ast(rule(Rule::mut_self_keyword))]
+pub struct MutSelfKeyword<'ast> {
+    pub mutable: Mutable,
+    pub self_keyword: SelfKeyword<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for MutSelfKeyword<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "mut {}", self.self_keyword)
+    }
 }

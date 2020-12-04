@@ -60,6 +60,32 @@ impl Function {
         &self.identifier.name
     }
 
+    ///
+    /// Returns `true` if the function has input `self` or `mut self`.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.input.iter().any(|param| param.is_self())
+    }
+
+    ///
+    /// Returns `true` if the function has input `mut self`.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_mut_self(&self) -> bool {
+        self.input.iter().any(|param| param.is_mut_self())
+    }
+
+    ///
+    /// Returns a vector of [&FunctionInput] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> Vec<&FunctionInput> {
+        self.input
+            .iter()
+            .filter(|input| !input.is_self())
+            .collect::<Vec<&FunctionInput>>()
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 

@@ -47,6 +47,9 @@ protected_name = {
 // Declared in common/self_keyword.rs
 self_keyword = { "self" }
 
+// Declared in common/mut_self_keyword.rs
+mut_self_keyword = { mutable ~ self_keyword }
+
 // Declared in common/self_keyword_or_identifier.rs
 self_keyword_or_identifier = {
     self_keyword
@@ -319,13 +322,10 @@ circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE
 circuit_variable = { identifier ~ ":" ~ expression }
 
 // Declared in circuits/circuit_variable_definition.rs
-circuit_variable_definition = { mutable? ~ identifier ~ ":" ~ type_ ~ ","?}
-
-// Declared in circuits/circuit_function.rs
-circuit_function = { static_? ~ function }
+circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_member.rs
-circuit_member = { circuit_function | circuit_variable_definition ~ NEWLINE*}
+circuit_member = { function | circuit_variable_definition ~ NEWLINE*}
 
 /// Conditionals
 
@@ -429,6 +429,8 @@ input_keyword = { "input" }
 // Declared in functions/input/input.rs
 input = {
     input_keyword
+    | self_keyword
+    | mut_self_keyword
     | function_input
 }
 input_tuple = _{ "(" ~ NEWLINE* ~ (input ~ ("," ~ NEWLINE* ~ input)* ~ ","?)? ~ NEWLINE* ~ ")"}

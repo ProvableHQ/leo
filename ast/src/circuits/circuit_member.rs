@@ -15,10 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Type};
-use leo_grammar::circuits::{
-    CircuitFunction as GrammarCircuitFunction,
-    CircuitMember as GrammarCircuitMember,
-    CircuitVariableDefinition as GrammarCircuitVariableDefinition,
+use leo_grammar::{
+    circuits::{CircuitMember as GrammarCircuitMember, CircuitVariableDefinition as GrammarCircuitVariableDefinition},
+    functions::Function as GrammarFunction,
 };
 
 use serde::{Deserialize, Serialize};
@@ -26,28 +25,24 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
-    // (is_mutable, variable_name, variable_type)
-    CircuitVariable(bool, Identifier, Type),
-    // (is_static, function)
-    CircuitFunction(bool, Function),
+    // (variable_name, variable_type)
+    CircuitVariable(Identifier, Type),
+    // (function)
+    CircuitFunction(Function),
 }
 
 impl<'ast> From<GrammarCircuitVariableDefinition<'ast>> for CircuitMember {
     fn from(circuit_value: GrammarCircuitVariableDefinition<'ast>) -> Self {
         CircuitMember::CircuitVariable(
-            circuit_value.mutable.is_some(),
             Identifier::from(circuit_value.identifier),
             Type::from(circuit_value.type_),
         )
     }
 }
 
-impl<'ast> From<GrammarCircuitFunction<'ast>> for CircuitMember {
-    fn from(circuit_function: GrammarCircuitFunction<'ast>) -> Self {
-        CircuitMember::CircuitFunction(
-            circuit_function._static.is_some(),
-            Function::from(circuit_function.function),
-        )
+impl<'ast> From<GrammarFunction<'ast>> for CircuitMember {
+    fn from(circuit_function: GrammarFunction<'ast>) -> Self {
+        CircuitMember::CircuitFunction(Function::from(circuit_function))
     }
 }
 
@@ -63,16 +58,10 @@ impl<'ast> From<GrammarCircuitMember<'ast>> for CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitVariable(ref mutable, ref identifier, ref type_) => {
-                if *mutable {
-                    write!(f, "mut ")?;
-                }
+            CircuitMember::CircuitVariable(ref identifier, ref type_) => {
                 write!(f, "{}: {}", identifier, type_)
             }
-            CircuitMember::CircuitFunction(ref static_, ref function) => {
-                if *static_ {
-                    write!(f, "static ")?;
-                }
+            CircuitMember::CircuitFunction(ref function) => {
                 write!(f, "{}", function)
             }
         }

@@ -59,9 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 span.to_owned(),
                             ))
                         }
-                        ConstrainedValue::Mutable(value) => {
-                            // Mutate the circuit variable's value in place
-
+                        value => {
                             // Check that the new value type == old value type
                             new_value.resolve_type(Some(value.to_type(span)?), span)?;
 
@@ -86,13 +84,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             member.1 = selected_value.to_owned();
 
                             Ok(selected_value)
-                        }
-                        _ => {
-                            // Throw an error if we try to mutate an immutable circuit variable
-                            Err(StatementError::immutable_circuit_variable(
-                                variable_name.name,
-                                span.to_owned(),
-                            ))
                         }
                     },
                     None => {

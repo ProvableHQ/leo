@@ -14,14 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{types::FunctionType, Attribute};
+use crate::Span;
+use leo_grammar::functions::InputKeyword as GrammarInputKeyword;
 
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct CircuitFunctionType {
-    /// The function signature of the circuit function
-    pub function: FunctionType,
-    /// The attributes of the circuit function
-    pub attribute: Option<Attribute>,
+/// The `input` keyword can view program register, record, and state values.
+/// Values cannot be modified. The `input` keyword cannot be made mutable.
+#[derive(Clone, Serialize, Deserialize)]
+pub struct InputKeyword {
+    pub span: Span,
+}
+
+impl<'ast> From<GrammarInputKeyword<'ast>> for InputKeyword {
+    fn from(grammar: GrammarInputKeyword<'ast>) -> Self {
+        Self {
+            span: Span::from(grammar.span),
+        }
+    }
+}
+
+impl fmt::Display for InputKeyword {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "input")
+    }
 }

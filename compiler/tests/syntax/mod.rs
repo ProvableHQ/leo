@@ -53,7 +53,7 @@ fn test_undefined() {
                     "   2 |      return a",
                     "     |             ^",
                     "     |",
-                    "     = cannot find value `a` in this scope",
+                    "     = Cannot find value `a` in this scope",
                 ]
                 .join("\n")
             );

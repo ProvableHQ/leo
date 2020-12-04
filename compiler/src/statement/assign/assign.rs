@@ -43,6 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: &str,
         declared_circuit_reference: &str,
         indicator: &Boolean,
+        mut_self: bool,
         assignee: Assignee,
         expression: Expression,
         span: &Span,
@@ -87,7 +88,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 }
                 AssigneeAccess::Member(identifier) => {
                     // Mutate a circuit variable using the self keyword.
-                    if assignee.identifier.is_self() {
+                    if assignee.identifier.is_self() && mut_self {
                         let self_circuit_variable_name = new_scope(&assignee.identifier.name, &identifier.name);
                         let self_variable_name = new_scope(file_scope, &self_circuit_variable_name);
                         let value = self.mutate_circuit_variable(

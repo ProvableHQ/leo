@@ -3,7 +3,7 @@ circuit Foo {
 }
 
 circuit Bar {
-    static function bar() {
+    function bar() {
         let f = Foo { a: 0u32 };
     }
 }

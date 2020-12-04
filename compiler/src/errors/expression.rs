@@ -206,7 +206,7 @@ impl ExpressionError {
     }
 
     pub fn undefined_identifier(identifier: Identifier) -> Self {
-        let message = format!("cannot find value `{}` in this scope", identifier.name);
+        let message = format!("Cannot find value `{}` in this scope", identifier.name);
 
         Self::new_from_span(message, identifier.span)
     }

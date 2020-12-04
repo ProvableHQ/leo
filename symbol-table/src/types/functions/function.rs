@@ -119,6 +119,34 @@ impl FunctionType {
 
         Ok(())
     }
+
+    ///
+    /// Returns the number of input variables to the function.
+    /// The `self` and `mut self` keywords are not counted as input variables.
+    ///
+    pub fn num_inputs(&self) -> usize {
+        self.inputs
+            .iter()
+            .fold(0, |acc, function_input| acc + function_input.count())
+    }
+
+    ///
+    /// Returns `true` if the input `self` or `mut self` is present.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.inputs.iter().any(|param| param.is_self())
+    }
+
+    ///
+    /// Returns a vector of [&FunctionInputType] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> Vec<&FunctionInputType> {
+        self.inputs
+            .iter()
+            .filter(|input| !input.is_self())
+            .collect::<Vec<&FunctionInputType>>()
+    }
 }
 
 impl PartialEq for FunctionType {
