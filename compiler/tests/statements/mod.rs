@@ -23,7 +23,7 @@ pub mod conditional;
 
 #[test]
 fn test_ternary_basic() {
-    let bytes = include_bytes!("ternary_basic.leo");
+    let bytes = include_str!("ternary_basic.leo");
     let mut program = parse_program(bytes).unwrap();
 
     let main_input = generate_main_input(vec![
@@ -51,7 +51,7 @@ fn test_ternary_basic() {
 
 #[test]
 fn test_iteration_basic() {
-    let bytes = include_bytes!("iteration_basic.leo");
+    let bytes = include_str!("iteration_basic.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -59,7 +59,7 @@ fn test_iteration_basic() {
 
 #[test]
 fn test_num_returns_fail() {
-    let bytes = include_bytes!("num_returns_fail.leo");
+    let bytes = include_str!("num_returns_fail.leo");
     let error = parse_program(bytes).err().unwrap();
 
     expect_type_inference_error(error);

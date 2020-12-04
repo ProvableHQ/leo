@@ -18,7 +18,7 @@ use crate::{assert_satisfied, parse_program};
 
 #[test]
 fn test_tuple_basic() {
-    let program_bytes = include_bytes!("basic.leo");
+    let program_bytes = include_str!("basic.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -27,7 +27,7 @@ fn test_tuple_basic() {
 
 #[test]
 fn test_tuple_access() {
-    let program_bytes = include_bytes!("access.leo");
+    let program_bytes = include_str!("access.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -36,7 +36,7 @@ fn test_tuple_access() {
 
 #[test]
 fn test_tuple_typed() {
-    let program_bytes = include_bytes!("typed.leo");
+    let program_bytes = include_str!("typed.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -45,7 +45,7 @@ fn test_tuple_typed() {
 
 #[test]
 fn test_multiple() {
-    let program_bytes = include_bytes!("multiple.leo");
+    let program_bytes = include_str!("multiple.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -54,7 +54,7 @@ fn test_multiple() {
 
 #[test]
 fn test_multiple_typed() {
-    let program_bytes = include_bytes!("multiple_typed.leo");
+    let program_bytes = include_str!("multiple_typed.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -63,7 +63,7 @@ fn test_multiple_typed() {
 
 #[test]
 fn test_function() {
-    let program_bytes = include_bytes!("function.leo");
+    let program_bytes = include_str!("function.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -72,7 +72,7 @@ fn test_function() {
 
 #[test]
 fn test_function_typed() {
-    let program_bytes = include_bytes!("function_typed.leo");
+    let program_bytes = include_str!("function_typed.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -81,7 +81,7 @@ fn test_function_typed() {
 
 #[test]
 fn test_function_multiple() {
-    let progam_bytes = include_bytes!("function_multiple.leo");
+    let progam_bytes = include_str!("function_multiple.leo");
 
     let program = parse_program(progam_bytes).unwrap();
 
@@ -90,7 +90,7 @@ fn test_function_multiple() {
 
 #[test]
 fn test_nested() {
-    let program_bytes = include_bytes!("nested.leo");
+    let program_bytes = include_str!("nested.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -99,7 +99,7 @@ fn test_nested() {
 
 #[test]
 fn test_nested_access() {
-    let program_bytes = include_bytes!("nested_access.leo");
+    let program_bytes = include_str!("nested_access.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -108,7 +108,7 @@ fn test_nested_access() {
 
 #[test]
 fn test_nested_typed() {
-    let program_bytes = include_bytes!("nested_typed.leo");
+    let program_bytes = include_str!("nested_typed.leo");
 
     let program = parse_program(program_bytes).unwrap();
 
@@ -117,6 +117,6 @@ fn test_nested_typed() {
 
 // #[test]
 // fn test_input() {
-//     let input_bytes = include_bytes!("inputs/input.in");
-//     let program_bytes = include_bytes!("")
+//     let input_bytes = include_str!("inputs/input.in");
+//     let program_bytes = include_str!("")
 // }

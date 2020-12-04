@@ -20,7 +20,7 @@ use crate::{assert_satisfied, expect_symbol_table_error, parse_program};
 
 #[test]
 fn test_core_circuit_invalid() {
-    let program_bytes = include_bytes!("core_package_invalid.leo");
+    let program_bytes = include_str!("core_package_invalid.leo");
     let program = parse_program(program_bytes).err().unwrap();
 
     expect_symbol_table_error(program);
@@ -28,7 +28,7 @@ fn test_core_circuit_invalid() {
 
 #[test]
 fn test_core_circuit_star_fail() {
-    let program_bytes = include_bytes!("core_circuit_star_fail.leo");
+    let program_bytes = include_str!("core_circuit_star_fail.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
     expect_symbol_table_error(error);
@@ -36,7 +36,7 @@ fn test_core_circuit_star_fail() {
 
 #[test]
 fn test_core_package_invalid() {
-    let program_bytes = include_bytes!("core_package_invalid.leo");
+    let program_bytes = include_str!("core_package_invalid.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
     expect_symbol_table_error(error);
@@ -44,7 +44,7 @@ fn test_core_package_invalid() {
 
 #[test]
 fn test_core_unstable_package_invalid() {
-    let program_bytes = include_bytes!("core_unstable_package_invalid.leo");
+    let program_bytes = include_str!("core_unstable_package_invalid.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
     expect_symbol_table_error(error);
@@ -52,7 +52,7 @@ fn test_core_unstable_package_invalid() {
 
 #[test]
 fn test_unstable_blake2s_sanity() {
-    let program_bytes = include_bytes!("unstable_blake2s.leo");
+    let program_bytes = include_str!("unstable_blake2s.leo");
     let program = parse_program(program_bytes).unwrap();
 
     assert_satisfied(program);

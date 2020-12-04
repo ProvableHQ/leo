@@ -15,8 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    assert_satisfied, expect_compiler_error, expect_synthesis_error, field::field_to_decimal_string,
-    generate_main_input, parse_program, parse_program_with_input,
+    assert_satisfied,
+    expect_compiler_error,
+    expect_synthesis_error,
+    field::field_to_decimal_string,
+    generate_main_input,
+    parse_program,
+    parse_program_with_input,
 };
 use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
@@ -47,7 +52,7 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
 
 #[test]
 fn test_one() {
-    let bytes = include_bytes!("one.leo");
+    let bytes = include_str!("one.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -55,7 +60,7 @@ fn test_one() {
 
 #[test]
 fn test_zero() {
-    let bytes = include_bytes!("zero.leo");
+    let bytes = include_str!("zero.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -63,7 +68,7 @@ fn test_zero() {
 
 #[test]
 fn test_point() {
-    let bytes = include_bytes!("point.leo");
+    let bytes = include_str!("point.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -71,7 +76,7 @@ fn test_point() {
 
 #[test]
 fn test_x_sign_high() {
-    let bytes = include_bytes!("x_sign_high.leo");
+    let bytes = include_str!("x_sign_high.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -79,7 +84,7 @@ fn test_x_sign_high() {
 
 #[test]
 fn test_x_sign_low() {
-    let bytes = include_bytes!("x_sign_low.leo");
+    let bytes = include_str!("x_sign_low.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -87,7 +92,7 @@ fn test_x_sign_low() {
 
 #[test]
 fn test_x_sign_inferred() {
-    let bytes = include_bytes!("x_sign_inferred.leo");
+    let bytes = include_str!("x_sign_inferred.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -95,7 +100,7 @@ fn test_x_sign_inferred() {
 
 #[test]
 fn test_y_sign_high() {
-    let bytes = include_bytes!("y_sign_high.leo");
+    let bytes = include_str!("y_sign_high.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -103,7 +108,7 @@ fn test_y_sign_high() {
 
 #[test]
 fn test_y_sign_low() {
-    let bytes = include_bytes!("y_sign_low.leo");
+    let bytes = include_str!("y_sign_low.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -111,7 +116,7 @@ fn test_y_sign_low() {
 
 #[test]
 fn test_y_sign_inferred() {
-    let bytes = include_bytes!("y_sign_inferred.leo");
+    let bytes = include_str!("y_sign_inferred.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -119,7 +124,7 @@ fn test_y_sign_inferred() {
 
 #[test]
 fn test_both_sign_high() {
-    let bytes = include_bytes!("both_sign_high.leo");
+    let bytes = include_str!("both_sign_high.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -128,7 +133,7 @@ fn test_both_sign_high() {
 
 #[test]
 fn test_both_sign_low() {
-    let bytes = include_bytes!("both_sign_low.leo");
+    let bytes = include_str!("both_sign_low.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -137,7 +142,7 @@ fn test_both_sign_low() {
 
 #[test]
 fn test_both_sign_inferred() {
-    let bytes = include_bytes!("both_sign_inferred.leo");
+    let bytes = include_str!("both_sign_inferred.leo");
 
     let program = parse_program(bytes).unwrap();
 
@@ -146,8 +151,8 @@ fn test_both_sign_inferred() {
 
 #[test]
 fn test_point_input() {
-    let program_bytes = include_bytes!("point_input.leo");
-    let input_bytes = include_bytes!("input/point.in");
+    let program_bytes = include_str!("point_input.leo");
+    let input_bytes = include_str!("input/point.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
 
@@ -156,9 +161,9 @@ fn test_point_input() {
 
 #[test]
 fn test_input() {
-    let program_bytes = include_bytes!("input.leo");
-    let input_bytes_pass = include_bytes!("input/valid.in");
-    let input_bytes_fail = include_bytes!("input/invalid.in");
+    let program_bytes = include_str!("input.leo");
+    let input_bytes_pass = include_str!("input/valid.in");
+    let input_bytes_fail = include_str!("input/invalid.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes_pass).unwrap();
 
@@ -182,7 +187,7 @@ fn test_negate() {
         let a_element = group_element_to_input_value(a);
         let b_element = group_element_to_input_value(b);
 
-        let bytes = include_bytes!("negate.leo");
+        let bytes = include_str!("negate.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -210,7 +215,7 @@ fn test_add() {
         let b_element = group_element_to_input_value(b);
         let c_element = group_element_to_input_value(c);
 
-        let bytes = include_bytes!("add.leo");
+        let bytes = include_str!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -239,7 +244,7 @@ fn test_sub() {
         let b_element = group_element_to_input_value(b);
         let c_element = group_element_to_input_value(c);
 
-        let bytes = include_bytes!("sub.leo");
+        let bytes = include_str!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -262,7 +267,7 @@ fn test_console_assert_pass() {
 
         let a_element = group_element_to_input_value(a);
 
-        let bytes = include_bytes!("assert_eq.leo");
+        let bytes = include_str!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -291,7 +296,7 @@ fn test_console_assert_fail() {
         let a_element = group_element_to_input_value(a);
         let b_element = group_element_to_input_value(b);
 
-        let bytes = include_bytes!("assert_eq.leo");
+        let bytes = include_str!("assert_eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -318,7 +323,7 @@ fn test_eq() {
 
         // test equal
 
-        let bytes = include_bytes!("eq.leo");
+        let bytes = include_str!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -359,7 +364,7 @@ fn test_ternary() {
     let a_element = group_element_to_input_value(a);
     let b_element = group_element_to_input_value(b);
 
-    let bytes = include_bytes!("ternary.leo");
+    let bytes = include_str!("ternary.leo");
     let mut program = parse_program(bytes).unwrap();
 
     // true -> field a

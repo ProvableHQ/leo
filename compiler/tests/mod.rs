@@ -64,11 +64,10 @@ fn new_compiler() -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir)
 }
 
-pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let program_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_program_from_string(&program_string)?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }

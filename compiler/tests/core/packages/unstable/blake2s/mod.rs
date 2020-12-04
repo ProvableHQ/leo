@@ -32,7 +32,7 @@ use snarkos_models::algorithms::PRF;
 
 #[test]
 fn test_arguments_length_fail() {
-    let program_bytes = include_bytes!("arguments_length_fail.leo");
+    let program_bytes = include_str!("arguments_length_fail.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
     expect_type_inference_error(error);
@@ -40,7 +40,7 @@ fn test_arguments_length_fail() {
 
 #[test]
 fn test_arguments_type_fail() {
-    let program_bytes = include_bytes!("arguments_type_fail.leo");
+    let program_bytes = include_str!("arguments_type_fail.leo");
     let error = parse_program(program_bytes).err().unwrap();
 
     expect_type_inference_error(error);
@@ -80,7 +80,7 @@ fn test_blake2s_random() {
 
     // The `blake2s_random.leo` program will compute a blake2s hash digest and compare it against
     // the expected value
-    let bytes = include_bytes!("blake2s_random.leo");
+    let bytes = include_str!("blake2s_random.leo");
     let mut program = parse_program(bytes).unwrap();
 
     let main_input = generate_main_input(vec![

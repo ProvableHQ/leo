@@ -79,7 +79,7 @@ fn test_registers() {
 
 #[test]
 fn test_not_true() {
-    let bytes = include_bytes!("not_true.leo");
+    let bytes = include_str!("not_true.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -87,7 +87,7 @@ fn test_not_true() {
 
 #[test]
 fn test_not_false() {
-    let bytes = include_bytes!("not_false.leo");
+    let bytes = include_str!("not_false.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -95,7 +95,7 @@ fn test_not_false() {
 
 #[test]
 fn test_not_mutable() {
-    let bytes = include_bytes!("not_mutable.leo");
+    let bytes = include_str!("not_mutable.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -103,7 +103,7 @@ fn test_not_mutable() {
 
 #[test]
 fn test_not_u32() {
-    let bytes = include_bytes!("not_u32.leo");
+    let bytes = include_str!("not_u32.leo");
     let program = parse_program(bytes).unwrap();
 
     expect_compiler_error(program);
@@ -113,7 +113,7 @@ fn test_not_u32() {
 
 #[test]
 fn test_true_or_true() {
-    let bytes = include_bytes!("true_or_true.leo");
+    let bytes = include_str!("true_or_true.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -121,7 +121,7 @@ fn test_true_or_true() {
 
 #[test]
 fn test_true_or_false() {
-    let bytes = include_bytes!("true_or_false.leo");
+    let bytes = include_str!("true_or_false.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -129,7 +129,7 @@ fn test_true_or_false() {
 
 #[test]
 fn test_false_or_false() {
-    let bytes = include_bytes!("false_or_false.leo");
+    let bytes = include_str!("false_or_false.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -137,7 +137,7 @@ fn test_false_or_false() {
 
 #[test]
 fn test_true_or_u32() {
-    let bytes = include_bytes!("true_or_u32.leo");
+    let bytes = include_str!("true_or_u32.leo");
     let error = parse_program(bytes).err().unwrap();
 
     expect_type_inference_error(error);
@@ -147,7 +147,7 @@ fn test_true_or_u32() {
 
 #[test]
 fn test_true_and_true() {
-    let bytes = include_bytes!("true_and_true.leo");
+    let bytes = include_str!("true_and_true.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -155,7 +155,7 @@ fn test_true_and_true() {
 
 #[test]
 fn test_true_and_false() {
-    let bytes = include_bytes!("true_and_false.leo");
+    let bytes = include_str!("true_and_false.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -163,7 +163,7 @@ fn test_true_and_false() {
 
 #[test]
 fn test_false_and_false() {
-    let bytes = include_bytes!("false_and_false.leo");
+    let bytes = include_str!("false_and_false.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
@@ -171,7 +171,7 @@ fn test_false_and_false() {
 
 #[test]
 fn test_true_and_u32() {
-    let bytes = include_bytes!("true_and_u32.leo");
+    let bytes = include_str!("true_and_u32.leo");
     let error = parse_program(bytes).err().unwrap();
 
     expect_type_inference_error(error);
@@ -181,7 +181,7 @@ fn test_true_and_u32() {
 
 #[test]
 fn test_all() {
-    let bytes = include_bytes!("all.leo");
+    let bytes = include_str!("all.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);

@@ -20,28 +20,28 @@ macro_rules! test_uint {
 
         impl IntegerTester for $name {
             fn test_min() {
-                let bytes = include_bytes!("min.leo");
+                let bytes = include_str!("min.leo");
                 let program = parse_program(bytes).unwrap();
 
                 assert_satisfied(program);
             }
 
             fn test_min_fail() {
-                let bytes = include_bytes!("min_fail.leo");
+                let bytes = include_str!("min_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
                 expect_parsing_error(program);
             }
 
             fn test_max() {
-                let bytes = include_bytes!("max.leo");
+                let bytes = include_str!("max.leo");
                 let program = parse_program(bytes).unwrap();
 
                 assert_satisfied(program);
             }
 
             fn test_max_fail() {
-                let bytes = include_bytes!("max_fail.leo");
+                let bytes = include_str!("max_fail.leo");
                 let program = parse_program(bytes).unwrap();
 
                 expect_parsing_error(program);
@@ -57,7 +57,7 @@ macro_rules! test_uint {
                         None => continue,
                     };
 
-                    let bytes = include_bytes!("add.leo");
+                    let bytes = include_str!("add.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -82,7 +82,7 @@ macro_rules! test_uint {
                         None => continue,
                     };
 
-                    let bytes = include_bytes!("sub.leo");
+                    let bytes = include_str!("sub.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -107,7 +107,7 @@ macro_rules! test_uint {
                         None => continue,
                     };
 
-                    let bytes = include_bytes!("mul.leo");
+                    let bytes = include_str!("mul.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -132,7 +132,7 @@ macro_rules! test_uint {
                         None => continue,
                     };
 
-                    let bytes = include_bytes!("div.leo");
+                    let bytes = include_str!("div.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -158,7 +158,7 @@ macro_rules! test_uint {
                         None => continue,
                     };
 
-                    let bytes = include_bytes!("pow.leo");
+                    let bytes = include_str!("pow.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -180,7 +180,7 @@ macro_rules! test_uint {
 
                     // test equal
 
-                    let bytes = include_bytes!("eq.leo");
+                    let bytes = include_str!("eq.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -218,7 +218,7 @@ macro_rules! test_uint {
 
                     // test a != a == false
 
-                    let bytes = include_bytes!("ne.leo");
+                    let bytes = include_str!("ne.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -256,7 +256,7 @@ macro_rules! test_uint {
 
                     // test equal
 
-                    let bytes = include_bytes!("ge.leo");
+                    let bytes = include_str!("ge.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -294,7 +294,7 @@ macro_rules! test_uint {
 
                     // test equal
 
-                    let bytes = include_bytes!("gt.leo");
+                    let bytes = include_str!("gt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -332,7 +332,7 @@ macro_rules! test_uint {
 
                     // test equal
 
-                    let bytes = include_bytes!("le.leo");
+                    let bytes = include_str!("le.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -370,7 +370,7 @@ macro_rules! test_uint {
 
                     // test equal
 
-                    let bytes = include_bytes!("lt.leo");
+                    let bytes = include_str!("lt.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -406,7 +406,7 @@ macro_rules! test_uint {
                     let a: $type_ = rand::random();
 
                     // test equal
-                    let bytes = include_bytes!("console_assert.leo");
+                    let bytes = include_str!("console_assert.leo");
                     let mut program = parse_program(bytes).unwrap();
 
                     let main_input = generate_main_input(vec![
@@ -442,7 +442,7 @@ macro_rules! test_uint {
                 let a: $type_ = rand::random();
                 let b: $type_ = rand::random();
 
-                let bytes = include_bytes!("ternary.leo");
+                let bytes = include_str!("ternary.leo");
                 let mut program = parse_program(bytes).unwrap();
 
                 // true -> field 1

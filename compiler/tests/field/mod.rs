@@ -52,7 +52,7 @@ fn test_negate() {
         let a_string = field_to_decimal_string(a);
         let b_string = field_to_decimal_string(b);
 
-        let bytes = include_bytes!("negate.leo");
+        let bytes = include_str!("negate.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -81,7 +81,7 @@ fn test_add() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_bytes!("add.leo");
+        let bytes = include_str!("add.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -111,7 +111,7 @@ fn test_sub() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_bytes!("sub.leo");
+        let bytes = include_str!("sub.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -140,7 +140,7 @@ fn test_div() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_bytes!("div.leo");
+        let bytes = include_str!("div.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -169,7 +169,7 @@ fn test_mul() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_bytes!("mul.leo");
+        let bytes = include_str!("mul.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -197,7 +197,7 @@ fn test_eq() {
 
         // test equal
 
-        let bytes = include_bytes!("eq.leo");
+        let bytes = include_str!("eq.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -237,7 +237,7 @@ fn test_console_assert_pass() {
 
         let a_string = field_to_decimal_string(a);
 
-        let bytes = include_bytes!("console_assert.leo");
+        let bytes = include_str!("console_assert.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -266,7 +266,7 @@ fn test_console_assert_fail() {
         let a_string = field_to_decimal_string(a);
         let b_string = field_to_decimal_string(b);
 
-        let bytes = include_bytes!("console_assert.leo");
+        let bytes = include_str!("console_assert.leo");
         let mut program = parse_program(bytes).unwrap();
 
         let main_input = generate_main_input(vec![
@@ -290,7 +290,7 @@ fn test_ternary() {
     let a_string = field_to_decimal_string(a);
     let b_string = field_to_decimal_string(b);
 
-    let bytes = include_bytes!("ternary.leo");
+    let bytes = include_str!("ternary.leo");
     let mut program = parse_program(bytes).unwrap();
 
     // true -> field a
@@ -322,14 +322,14 @@ fn test_ternary() {
 
 //
 // pub fn output_one(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("output_/register_one.out");
+//     let expected = include_str!("output_/register_one.out");
 //     let actual = get_output(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());
 // }
 //
 // pub fn output_zero(program: EdwardsTestCompiler) {
-//     let expected = include_bytes!("output_/register_zero.out");
+//     let expected = include_str!("output_/register_zero.out");
 //     let actual = get_output(program);
 //
 //     assert_eq!(expected, actual.bytes().as_slice());
@@ -337,9 +337,9 @@ fn test_ternary() {
 //
 // #[test]
 // fn test_registers() {
-//     let program_bytes = include_bytes!("output_register.leo");
-//     let one_input_bytes = include_bytes!("input/register_one.in");
-//     let zero_input_bytes = include_bytes!("input/register_zero.in");
+//     let program_bytes = include_str!("output_register.leo");
+//     let one_input_bytes = include_str!("input/register_one.in");
+//     let zero_input_bytes = include_str!("input/register_zero.in");
 //
 //     // test 1field input register => 1field output register
 //     let program = parse_program_with_input(program_bytes, one_input_bytes).unwrap();

@@ -25,7 +25,7 @@ pub mod identifiers;
 #[test]
 #[ignore]
 fn test_semicolon() {
-    let bytes = include_bytes!("semicolon.leo");
+    let bytes = include_str!("semicolon.leo");
     let error = parse_program(bytes).err().unwrap();
 
     match error {
@@ -36,7 +36,7 @@ fn test_semicolon() {
 
 #[test]
 fn test_undefined() {
-    let bytes = include_bytes!("undefined.leo");
+    let bytes = include_str!("undefined.leo");
     let program = parse_program(bytes).unwrap();
 
     let error = expect_compiler_error(program);
@@ -76,7 +76,7 @@ fn input_syntax_error() {
 
 #[test]
 fn test_compare_mismatched_types() {
-    let bytes = include_bytes!("compare_mismatched_types.leo");
+    let bytes = include_str!("compare_mismatched_types.leo");
     let error = parse_program(bytes).err().unwrap();
 
     // Expect a type inference error.
