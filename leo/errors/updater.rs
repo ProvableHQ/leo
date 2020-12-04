@@ -14,11 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod cli;
-pub use self::cli::*;
+#[derive(Debug, Error)]
+pub enum UpdaterError {
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
 
-pub mod commands;
-pub use self::commands::*;
+    #[error("The current version {} is more recent than the release version {}", _0, _1)]
+    OldReleaseVersion(String, String),
+}
 
-pub mod updater;
-pub use self::updater::*;
+impl From<self_update::errors::Error> for UpdaterError {
+    fn from(error: self_update::errors::Error) -> Self {
+        tracing::error!("{}\n", error);
+        UpdaterError::Crate("self_update", error.to_string())
+    }
+}
