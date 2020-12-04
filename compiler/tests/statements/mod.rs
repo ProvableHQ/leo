@@ -23,8 +23,8 @@ pub mod conditional;
 
 #[test]
 fn test_ternary_basic() {
-    let bytes = include_str!("ternary_basic.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("ternary_basic.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Boolean(true))),
@@ -35,7 +35,7 @@ fn test_ternary_basic() {
 
     assert_satisfied(program);
 
-    let mut program = parse_program(bytes).unwrap();
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Boolean(false))),
@@ -51,16 +51,16 @@ fn test_ternary_basic() {
 
 #[test]
 fn test_iteration_basic() {
-    let bytes = include_str!("iteration_basic.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("iteration_basic.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_num_returns_fail() {
-    let bytes = include_str!("num_returns_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("num_returns_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }

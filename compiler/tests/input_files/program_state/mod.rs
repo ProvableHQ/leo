@@ -42,10 +42,10 @@ fn test_access_state() {
 
 #[test]
 fn test_access_all() {
-    let program_bytes = include_str!("access_all.leo");
-    let state_bytes = include_str!("input/token_withdraw.state");
+    let program_string = include_str!("access_all.leo");
+    let state_string = include_str!("input/token_withdraw.state");
 
-    let program = parse_program_with_state(program_bytes, state_bytes).unwrap();
+    let program = parse_program_with_state(program_string, state_string).unwrap();
 
     assert_satisfied(program);
 }

@@ -25,8 +25,8 @@ pub mod identifiers;
 #[test]
 #[ignore]
 fn test_semicolon() {
-    let bytes = include_str!("semicolon.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("semicolon.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     match error {
         CompilerError::ParserError(ParserError::SyntaxError(_)) => {}
@@ -36,8 +36,8 @@ fn test_semicolon() {
 
 #[test]
 fn test_undefined() {
-    let bytes = include_str!("undefined.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("undefined.leo");
+    let program = parse_program(program_string).unwrap();
 
     let error = expect_compiler_error(program);
 
@@ -76,8 +76,8 @@ fn input_syntax_error() {
 
 #[test]
 fn test_compare_mismatched_types() {
-    let bytes = include_str!("compare_mismatched_types.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("compare_mismatched_types.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     // Expect a type inference error.
     match error {

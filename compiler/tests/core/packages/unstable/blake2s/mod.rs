@@ -32,16 +32,16 @@ use snarkos_models::algorithms::PRF;
 
 #[test]
 fn test_arguments_length_fail() {
-    let program_bytes = include_str!("arguments_length_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program_string = include_str!("arguments_length_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_arguments_type_fail() {
-    let program_bytes = include_str!("arguments_type_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program_string = include_str!("arguments_type_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }

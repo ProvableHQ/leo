@@ -52,8 +52,8 @@ fn test_negate() {
         let a_string = field_to_decimal_string(a);
         let b_string = field_to_decimal_string(b);
 
-        let bytes = include_str!("negate.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("negate.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -81,8 +81,8 @@ fn test_add() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_str!("add.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("add.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -111,8 +111,8 @@ fn test_sub() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_str!("sub.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("sub.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -140,8 +140,8 @@ fn test_div() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_str!("div.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("div.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -169,8 +169,8 @@ fn test_mul() {
         let b_string = field_to_decimal_string(b);
         let c_string = field_to_decimal_string(c);
 
-        let bytes = include_str!("mul.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("mul.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -197,8 +197,8 @@ fn test_eq() {
 
         // test equal
 
-        let bytes = include_str!("eq.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("eq.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string.clone()))),
@@ -214,7 +214,7 @@ fn test_eq() {
 
         let c = a.eq(&b);
 
-        let mut program = parse_program(bytes).unwrap();
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -237,8 +237,8 @@ fn test_console_assert_pass() {
 
         let a_string = field_to_decimal_string(a);
 
-        let bytes = include_str!("console_assert.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("console_assert.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string.clone()))),
@@ -266,8 +266,8 @@ fn test_console_assert_fail() {
         let a_string = field_to_decimal_string(a);
         let b_string = field_to_decimal_string(b);
 
-        let bytes = include_str!("console_assert.leo");
-        let mut program = parse_program(bytes).unwrap();
+        let program_string = include_str!("console_assert.leo");
+        let mut program = parse_program(program_string).unwrap();
 
         let main_input = generate_main_input(vec![
             ("a", Some(InputValue::Field(a_string))),
@@ -290,8 +290,8 @@ fn test_ternary() {
     let a_string = field_to_decimal_string(a);
     let b_string = field_to_decimal_string(b);
 
-    let bytes = include_str!("ternary.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("ternary.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     // true -> field a
     let main_input = generate_main_input(vec![
@@ -305,7 +305,7 @@ fn test_ternary() {
 
     assert_satisfied(program);
 
-    let mut program = parse_program(bytes).unwrap();
+    let mut program = parse_program(program_string).unwrap();
 
     // false -> field b
     let main_input = generate_main_input(vec![
@@ -325,14 +325,14 @@ fn test_ternary() {
 //     let expected = include_str!("output_/register_one.out");
 //     let actual = get_output(program);
 //
-//     assert_eq!(expected, actual.bytes().as_slice());
+//     assert_eq!(expected, actual.program_string().as_slice());
 // }
 //
 // pub fn output_zero(program: EdwardsTestCompiler) {
 //     let expected = include_str!("output_/register_zero.out");
 //     let actual = get_output(program);
 //
-//     assert_eq!(expected, actual.bytes().as_slice());
+//     assert_eq!(expected, actual.program_string().as_slice());
 // }
 //
 // #[test]

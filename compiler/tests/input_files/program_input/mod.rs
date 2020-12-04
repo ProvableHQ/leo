@@ -26,10 +26,10 @@ fn expect_fail(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_input_pass() {
-    let program_bytes = include_str!("main.leo");
-    let input_bytes = include_str!("input/main.in");
+    let program_string = include_str!("main.leo");
+    let input_string = include_str!("input/main.in");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
     assert_satisfied(program);
 }
