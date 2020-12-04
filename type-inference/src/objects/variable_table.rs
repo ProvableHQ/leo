@@ -16,11 +16,11 @@
 
 use crate::VariableTableError;
 use leo_symbol_table::{FunctionInputType, Type};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// Mapping of variable names to types
 #[derive(Clone)]
-pub struct VariableTable(pub HashMap<String, Type>);
+pub struct VariableTable(pub BTreeMap<String, Type>);
 
 impl VariableTable {
     ///
@@ -67,6 +67,6 @@ impl VariableTable {
 
 impl Default for VariableTable {
     fn default() -> Self {
-        Self(HashMap::new())
+        Self(BTreeMap::new())
     }
 }
