@@ -20,14 +20,14 @@ use leo_grammar::{
     definitions::{AnnotatedDefinition, Definition},
 };
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub fn load_annotation(
     annotated_definition: AnnotatedDefinition,
     _imports: &mut Vec<ImportStatement>,
-    _circuits: &mut HashMap<Identifier, Circuit>,
-    _functions: &mut HashMap<Identifier, Function>,
-    tests: &mut HashMap<Identifier, TestFunction>,
+    _circuits: &mut BTreeMap<Identifier, Circuit>,
+    _functions: &mut BTreeMap<Identifier, Function>,
+    tests: &mut BTreeMap<Identifier, TestFunction>,
     _expected: &mut Vec<FunctionInput>,
 ) {
     let ast_annotation = annotated_definition.annotation;
@@ -45,7 +45,7 @@ pub fn load_annotation(
     }
 }
 
-pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &mut HashMap<Identifier, TestFunction>) {
+pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &mut BTreeMap<Identifier, TestFunction>) {
     let name = annotation.name;
     let ast_arguments = annotation.arguments;
 
@@ -57,7 +57,7 @@ pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &m
 pub fn load_annotated_test_context(
     mut test: TestFunction,
     ast_arguments: AnnotationArguments,
-    tests: &mut HashMap<Identifier, TestFunction>,
+    tests: &mut BTreeMap<Identifier, TestFunction>,
 ) {
     let arguments = ast_arguments.arguments;
 

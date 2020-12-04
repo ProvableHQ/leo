@@ -33,6 +33,7 @@ use serde::{
     Serializer,
 };
 use std::{
+    cmp::Ordering,
     collections::BTreeMap,
     fmt,
     hash::{Hash, Hasher},
@@ -182,6 +183,18 @@ impl PartialEq for Identifier {
 }
 
 impl Eq for Identifier {}
+
+impl Ord for Identifier {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.name.cmp(&other.name)
+    }
+}
+
+impl PartialOrd for Identifier {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
 impl Hash for Identifier {
     fn hash<H: Hasher>(&self, state: &mut H) {
