@@ -21,14 +21,14 @@ use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
-        section: HashMap<Parameter, Option<InputValue>>,
+        section: BTreeMap<Parameter, Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
 
