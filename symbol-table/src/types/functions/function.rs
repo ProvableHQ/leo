@@ -135,7 +135,7 @@ impl FunctionType {
     /// Returns `false` otherwise.
     ///
     pub fn contains_self(&self) -> bool {
-        self.inputs.iter().find(|param| param.is_self()).is_some()
+        self.inputs.iter().any(|param| param.is_self())
     }
 
     ///

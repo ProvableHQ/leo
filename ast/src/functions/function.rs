@@ -65,7 +65,7 @@ impl Function {
     /// Returns `false` otherwise.
     ///
     pub fn contains_self(&self) -> bool {
-        self.input.iter().find(|param| param.is_self()).is_some()
+        self.input.iter().any(|param| param.is_self())
     }
 
     ///
@@ -73,7 +73,7 @@ impl Function {
     /// Returns `false` otherwise.
     ///
     pub fn contains_mut_self(&self) -> bool {
-        self.input.iter().find(|param| param.is_mut_self()).is_some()
+        self.input.iter().any(|param| param.is_mut_self())
     }
 
     ///

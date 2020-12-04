@@ -25,6 +25,9 @@ use snarkos_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+    /// Evaluates a branch of one or more statements and returns a result in
+    /// the given scope.
+    #[allow(clippy::too_many_arguments)]
     pub fn evaluate_branch<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
