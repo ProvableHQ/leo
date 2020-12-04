@@ -17,13 +17,13 @@
 use crate::InputValueError;
 use leo_ast::{InputValue, Parameter};
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// Returns the input parameter with the given name.
 /// If a parameter with the given name does not exist, then an error is returned.
 pub fn find_input(
     name: String,
-    parameters: &HashMap<Parameter, Option<InputValue>>,
+    parameters: &BTreeMap<Parameter, Option<InputValue>>,
 ) -> Result<InputValue, InputValueError> {
     let matched_parameter = parameters
         .iter()
