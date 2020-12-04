@@ -48,17 +48,16 @@ fn test_arguments_type_fail() {
 
 #[test]
 fn test_blake2s_input() {
-    let input_bytes = include_bytes!("inputs/valid_input.in");
-    let program_bytes = include_bytes!("blake2s_input.leo");
-    let expected_bytes = include_bytes!("outputs/valid_output.out");
+    let input_string = include_str!("inputs/valid_input.in");
+    let program_string = include_str!("blake2s_input.leo");
+    let expected_string = include_str!("outputs/valid_output.out");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual)
+    assert_eq!(expected_string, actual_string)
 }
 
 #[test]

@@ -40,37 +40,37 @@ pub fn output_false(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_input_pass() {
-    let program_bytes = include_bytes!("assert_eq_input.leo");
-    let input_bytes = include_bytes!("input/true_true.in");
+    let program_string = include_str!("assert_eq_input.leo");
+    let input_string = include_str!("input/true_true.in");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_input_fail() {
-    let program_bytes = include_bytes!("assert_eq_input.leo");
-    let input_bytes = include_bytes!("input/true_false.in");
+    let program_string = include_str!("assert_eq_input.leo");
+    let input_string = include_str!("input/true_false.in");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_registers() {
-    let program_bytes = include_bytes!("output_register.leo");
-    let true_input_bytes = include_bytes!("input/registers_true.in");
-    let false_input_bytes = include_bytes!("input/registers_false.in");
+    let program_string = include_str!("output_register.leo");
+    let true_input_string = include_str!("input/registers_true.in");
+    let false_input_string = include_str!("input/registers_false.in");
 
     // test true input register => true output register
-    let program = parse_program_with_input(program_bytes, true_input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, true_input_string).unwrap();
 
     output_true(program);
 
     // test false input register => false output register
-    let program = parse_program_with_input(program_bytes, false_input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, false_input_string).unwrap();
 
     output_false(program);
 }

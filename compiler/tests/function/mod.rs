@@ -50,16 +50,15 @@ fn test_iteration_repeated() {
 
 #[test]
 fn test_newlines() {
-    let input_bytes = include_bytes!("input/newlines.in");
-    let program_bytes = include_bytes!("newlines.leo");
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let input_string = include_str!("input/newlines.in");
+    let program_string = include_str!("newlines.leo");
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected_bytes = include_bytes!("output/newlines.out");
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
+    let expected_string = include_str!("output/newlines.out");
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual);
+    assert_eq!(expected_string, actual_string);
 }
 
 #[test]
@@ -72,17 +71,16 @@ fn test_multiple_returns() {
 
 #[test]
 fn test_multiple_returns_main() {
-    let program_bytes = include_bytes!("multiple_main.leo");
-    let input_bytes = include_bytes!("input/registers.in");
+    let program_string = include_str!("multiple_main.leo");
+    let input_string = include_str!("input/registers.in");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected_bytes = include_bytes!("output/registers.out");
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
+    let expected_string = include_str!("output/registers.out");
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual);
+    assert_eq!(expected_string, actual_string);
 }
 
 #[test]

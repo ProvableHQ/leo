@@ -38,7 +38,7 @@ fn test_access() {
     let input_string = include_str!("input/token_withdraw.in");
     let state_string = include_str!("input/token_withdraw.state");
 
-    let program = parse_program_with_input_and_state(program_strin, input_string, state_string).unwrap();
+    let program = parse_program_with_input_and_state(program_string, input_string, state_string).unwrap();
 
     assert_satisfied(program);
 }

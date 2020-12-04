@@ -205,19 +205,19 @@ fn output_zero(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_multiple_returns() {
-    let program_bytes = include_bytes!("multiple_returns.leo");
+    let program_string = include_str!("multiple_returns.leo");
 
     // Check that an input value of 1 writes 1 to the output registers
 
-    let registers_one_bytes = include_bytes!("input/registers_one.in");
-    let program = parse_program_with_input(program_bytes, registers_one_bytes).unwrap();
+    let registers_one_string = include_str!("input/registers_one.in");
+    let program = parse_program_with_input(program_string, registers_one_string).unwrap();
 
     output_one(program);
 
     // Check that an input value of 0 writes 0 to the output registers
 
-    let registers_zero_bytes = include_bytes!("input/registers_zero.in");
-    let program = parse_program_with_input(program_bytes, registers_zero_bytes).unwrap();
+    let registers_zero_string = include_str!("input/registers_zero.in");
+    let program = parse_program_with_input(program_string, registers_zero_string).unwrap();
 
     output_zero(program);
 }
