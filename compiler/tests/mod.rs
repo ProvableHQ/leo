@@ -83,9 +83,8 @@ pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerE
     Ok(compiler)
 }
 
-pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let state_string = String::from_utf8_lossy(bytes);
     let path = PathBuf::new();
 
     compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
@@ -124,17 +123,17 @@ pub fn parse_program_with_input(
 }
 
 pub fn parse_program_with_state(
-    program_bytes: &[u8],
-    state_bytes: &[u8],
+    program_string: &str,
+    state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
-    let program_string = String::from_utf8_lossy(program_bytes);
-    let state_string = String::from_utf8_lossy(state_bytes);
+    // let program_string = String::from_utf8_lossy(program_bytes);
+    // let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
-    compiler.parse_program_from_string(&program_string)?;
+    compiler.parse_input(EMPTY_FILE, &path, state_string, &path)?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }
