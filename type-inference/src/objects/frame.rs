@@ -310,7 +310,6 @@ impl Frame {
         if variables.names.len() == 1 {
             // Insert variable into symbol table
             let variable = variables.names[0].clone();
-
             self.insert_variable(variable.identifier.name, actual_type, span)?;
         } else {
             // Expect a tuple type.
@@ -867,7 +866,7 @@ impl Frame {
     fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, span: &Span) -> Result<Type, FrameError> {
         // Check the type is an array.
         let element_type = match type_ {
-            Type::Array(type_) => type_,
+            Type::Array(type_) => *type_,
             type_ => return Err(FrameError::array_access(&type_, span)),
         };
 
@@ -890,6 +889,9 @@ impl Frame {
 
                     self.assert_index(&type_, span);
                 }
+
+                // Return a new array type.
+                Ok(Type::Array(Box::new(element_type)))
             }
             RangeOrExpression::Expression(expression) => {
                 // Parse the expression type.
@@ -897,10 +899,11 @@ impl Frame {
 
                 // Assert the type is an index.
                 self.assert_index(&type_, span);
+
+                // Return the element type.
+                Ok(element_type)
             }
         }
-
-        Ok(*element_type)
     }
 
     ///

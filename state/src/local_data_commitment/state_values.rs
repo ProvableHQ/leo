@@ -14,24 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{find_input, input_to_integer_string, input_to_u8_vec, StateValuesError};
-use leo_ast::State as StateAst;
+use crate::{find_input, input_to_bytes, input_to_integer_string, StateValuesError};
+use leo_ast::State as AstState;
 
 use std::convert::TryFrom;
 
 static LEAF_INDEX_PARAMETER_STRING: &str = "leaf_index";
 static ROOT_PARAMETER_STRING: &str = "root";
 
+/// The serialized values included in the state.
+/// A new [`StateValues`] type can be constructed from an [`AstState`] type.
 pub struct StateValues {
     pub leaf_index: u32,
     pub root: Vec<u8>,
 }
 
-impl TryFrom<&StateAst> for StateValues {
+impl TryFrom<&AstState> for StateValues {
     type Error = StateValuesError;
 
-    fn try_from(state: &StateAst) -> Result<Self, Self::Error> {
-        let parameters = state.values();
+    fn try_from(ast_state: &AstState) -> Result<Self, Self::Error> {
+        let parameters = ast_state.values();
 
         // Lookup leaf index
         let leaf_index_value = find_input(LEAF_INDEX_PARAMETER_STRING.to_owned(), &parameters)?;
@@ -39,7 +41,7 @@ impl TryFrom<&StateAst> for StateValues {
 
         // Lookup root
         let root_value = find_input(ROOT_PARAMETER_STRING.to_owned(), &parameters)?;
-        let root = input_to_u8_vec(root_value)?;
+        let root = input_to_bytes(root_value)?;
 
         Ok(Self { leaf_index, root })
     }

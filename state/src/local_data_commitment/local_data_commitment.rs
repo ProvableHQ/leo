@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
-use leo_ast::Input as InputAst;
+use leo_ast::Input as AstInput;
 
 use snarkos_algorithms::commitment_tree::CommitmentMerklePath;
 use snarkos_dpc::base_dpc::{
@@ -30,31 +30,33 @@ use snarkos_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
 use std::convert::TryFrom;
 
+/// Returns `true` if the path to the local data commitment leaf is a valid path in the record
+/// commitment merkle tree.
 pub fn verify_local_data_commitment(
     system_parameters: &SystemParameters<Components>,
-    input_ast: &InputAst,
+    ast_input: &AstInput,
 ) -> Result<bool, LocalDataVerificationError> {
-    // verify record commitment
-    let typed_record = input_ast.get_record();
+    // verify record commitment.
+    let typed_record = ast_input.get_record();
     let dpc_record_values = verify_record_commitment(system_parameters, typed_record)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
-    // parse typed state values
-    let typed_state = input_ast.get_state();
+    // parse typed state values.
+    let typed_state = ast_input.get_state();
     let state_values = StateValues::try_from(typed_state)?;
     let leaf_index: u32 = state_values.leaf_index;
     let root: Vec<u8> = state_values.root;
 
-    // parse typed state leaf values
-    let typed_state_leaf = input_ast.get_state_leaf();
+    // parse typed state leaf values.
+    let typed_state_leaf = ast_input.get_state_leaf();
     let state_leaf_values = StateLeafValues::try_from(typed_state_leaf)?;
     let path: Vec<u8> = state_leaf_values.path;
     let memo: Vec<u8> = state_leaf_values.memo;
     let network_id: u8 = state_leaf_values.network_id;
     let leaf_randomness: Vec<u8> = state_leaf_values.leaf_randomness;
 
-    // Select local data commitment input bytes
+    // Select local data commitment input bytes.
     let is_death = leaf_index < (Components::NUM_INPUT_RECORDS as u32);
     let input_bytes = if is_death {
         to_bytes![record_serial_number, record_commitment, memo, network_id]?
@@ -62,7 +64,7 @@ pub fn verify_local_data_commitment(
         to_bytes![record_commitment, memo, network_id]?
     };
 
-    // Construct local data commitment leaf
+    // Construct local data commitment leaf.
     let local_data_leaf_randomness = <LocalDataCommitment as CommitmentScheme>::Randomness::read(&leaf_randomness[..])?;
     let local_data_commitment_leaf = LocalDataCommitment::commit(
         &system_parameters.local_data_commitment,
@@ -70,10 +72,10 @@ pub fn verify_local_data_commitment(
         &local_data_leaf_randomness,
     )?;
 
-    // Construct record commitment merkle path
+    // Construct record commitment merkle path.
     let local_data_merkle_path = CommitmentMerklePath::<LocalDataCommitment, LocalDataCRH>::read(&path[..])?;
 
-    // Check record commitment merkle path is valid for the given local data commitment root
+    // Check record commitment merkle path is valid for the given local data commitment root.
     let local_data_commitment_root = <LocalDataCRH as CRH>::Output::read(&root[..])?;
     let result = local_data_merkle_path.verify(
         &system_parameters.local_data_crh,

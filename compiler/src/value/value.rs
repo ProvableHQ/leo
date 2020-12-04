@@ -457,7 +457,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
                 ConstrainedValue::Array(array)
             }
-            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
                 let mut array = Vec::with_capacity(tuple_1.len());
 
                 for (i, (first, second)) in tuple_1.iter().zip(tuple_2.iter()).enumerate() {
