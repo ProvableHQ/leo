@@ -124,7 +124,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 match &value {
                     ConstrainedValue::Tuple(values) => {
                         if !values.is_empty() {
-                            results.push((indicator.clone(), value));
+                            results.push((*indicator, value));
                         }
                     }
                     _ => return Err(StatementError::unassigned(expression_string, span)),

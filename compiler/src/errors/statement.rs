@@ -136,8 +136,8 @@ impl StatementError {
     }
 
     pub fn multiple_returns(span: Span) -> Self {
-        let message =
-            format!("This function returns multiple times and produces unreachable circuits with undefined behavior.");
+        let message = "This function returns multiple times and produces unreachable circuits with undefined behavior."
+            .to_string();
 
         Self::new_from_span(message, span)
     }

@@ -111,6 +111,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Conditionally select a result based on returned indicators
         Self::conditionally_select_result(cs, function.output, results, &function.span)
-            .map_err(|err| FunctionError::StatementError(err))
+            .map_err(FunctionError::StatementError)
     }
 }

@@ -67,7 +67,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         // Error if the function or one of its branches does not return.
-        if let None = results.iter().find(|(indicator, _res)| get_indicator_value(indicator)) {
+        if results
+            .iter()
+            .find(|(indicator, _res)| get_indicator_value(indicator))
+            .is_none()
+        {
             return Err(StatementError::no_returns(return_type, span.to_owned()));
         }
 
