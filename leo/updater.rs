@@ -72,10 +72,7 @@ impl Updater {
         if bump_is_greater(&current_version, &latest_release.version)? {
             Ok(latest_release.version)
         } else {
-            Err(UpdaterError::OldReleaseVersion(
-                current_version.to_string(),
-                latest_release.version.to_string(),
-            ))
+            Err(UpdaterError::OldReleaseVersion(current_version, latest_release.version))
         }
     }
 
