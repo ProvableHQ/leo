@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalStatement, Statement};
+use crate::{Block, ConditionalStatement};
 use leo_grammar::statements::ConditionalNestedOrEndStatement as GrammarConditionalNestedOrEndStatement;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConditionalNestedOrEndStatement {
     Nested(Box<ConditionalStatement>),
-    End(Vec<Statement>),
+    End(Block),
 }
 
 impl<'ast> From<GrammarConditionalNestedOrEndStatement<'ast>> for ConditionalNestedOrEndStatement {
@@ -32,8 +32,8 @@ impl<'ast> From<GrammarConditionalNestedOrEndStatement<'ast>> for ConditionalNes
             GrammarConditionalNestedOrEndStatement::Nested(nested) => {
                 ConditionalNestedOrEndStatement::Nested(Box::new(ConditionalStatement::from(*nested)))
             }
-            GrammarConditionalNestedOrEndStatement::End(statements) => {
-                ConditionalNestedOrEndStatement::End(statements.into_iter().map(Statement::from).collect())
+            GrammarConditionalNestedOrEndStatement::End(block) => {
+                ConditionalNestedOrEndStatement::End(Block::from(block))
             }
         }
     }
@@ -43,13 +43,7 @@ impl fmt::Display for ConditionalNestedOrEndStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref statements) => {
-                writeln!(f, "else {{")?;
-                for statement in statements.iter() {
-                    writeln!(f, "\t\t{}", statement)?;
-                }
-                write!(f, "\t}}")
-            }
+            ConditionalNestedOrEndStatement::End(ref block) => write!(f, "else {}", block),
         }
     }
 }

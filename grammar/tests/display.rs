@@ -14,27 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    statements::{Block, ConditionalStatement},
+use from_pest::FromPest;
+use leo_grammar::{
+    ast::{LanguageParser, Rule},
+    statements::ConditionalStatement,
 };
 
-use pest_ast::FromPest;
-use serde::Serialize;
-use std::fmt;
+use pest::*;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::conditional_nested_or_end_statement))]
-pub enum ConditionalNestedOrEndStatement<'ast> {
-    Nested(Box<ConditionalStatement<'ast>>),
-    End(Block<'ast>),
-}
+#[test]
+fn conditional_statement_display() {
+    let input = r#"if (true) {
+	
+} else {
+	
+}"#;
+    let conditional_statement =
+        ConditionalStatement::from_pest(&mut LanguageParser::parse(Rule::statement_conditional, input).unwrap())
+            .unwrap();
+    let displayed = format!("{}", conditional_statement);
 
-impl<'ast> fmt::Display for ConditionalNestedOrEndStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref block) => write!(f, "else {}", block),
-        }
-    }
+    assert_eq!(input, displayed);
 }
