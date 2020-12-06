@@ -396,9 +396,11 @@ statement = {
 // Declared in statements/assign_statement.rs
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
+block = { "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" }
+
 // Declared in statements/conditional_statement.rs
-statement_conditional = {"if " ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}" ~ ("else " ~ conditional_nested_or_end_statement)?}
-conditional_nested_or_end_statement = { statement_conditional | "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_conditional = {"if " ~ expression ~ block ~ ("else " ~ conditional_nested_or_end_statement)?}
+conditional_nested_or_end_statement = { statement_conditional | block }
 
 // Declared in statements/definition_statement.rs
 statement_definition = { declare ~ variables ~ "=" ~ expression ~ LINE_END}
@@ -407,7 +409,7 @@ statement_definition = { declare ~ variables ~ "=" ~ expression ~ LINE_END}
 statement_expression = { expression ~ LINE_END }
 
 // Declared in statements/for_statement.rs
-statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ "{" ~ NEWLINE* ~ statement+ ~ "}"}
+statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ block }
 
 // Declared in statements/return_statement.rs
 statement_return = { "return " ~ expression}
@@ -418,7 +420,7 @@ statement_return = { "return " ~ expression}
 test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
-function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block ~ NEWLINE* }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }

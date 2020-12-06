@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, expressions::Expression, statements::Statement, SpanDef};
+use crate::{ast::Rule, common::Identifier, expressions::Expression, statements::Block, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -27,7 +27,7 @@ pub struct ForStatement<'ast> {
     pub index: Identifier<'ast>,
     pub start: Expression<'ast>,
     pub stop: Expression<'ast>,
-    pub statements: Vec<Statement<'ast>>,
+    pub block: Block<'ast>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
@@ -35,10 +35,6 @@ pub struct ForStatement<'ast> {
 
 impl<'ast> fmt::Display for ForStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "for {} in {}..{} {{ {:#?} }}",
-            self.index, self.start, self.stop, self.statements
-        )
+        write!(f, "for {} in {}..{} {}", self.index, self.start, self.stop, self.block)
     }
 }
