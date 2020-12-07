@@ -17,10 +17,8 @@
 use crate::errors::ImportParserError;
 use leo_ast::{Package, Program};
 
-use std::{
-    collections::{HashMap, HashSet},
-    env::current_dir,
-};
+use indexmap::{IndexMap, IndexSet};
+use std::env::current_dir;
 
 /// Stores imported packages.
 ///
@@ -28,8 +26,8 @@ use std::{
 /// directory, foreign in the imports directory, or part of the core package list.
 #[derive(Clone, Default)]
 pub struct ImportParser {
-    imports: HashMap<String, Program>,
-    core_packages: HashSet<Package>,
+    imports: IndexMap<String, Program>,
+    core_packages: IndexSet<Package>,
 }
 
 impl ImportParser {
