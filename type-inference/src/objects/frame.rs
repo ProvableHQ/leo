@@ -1092,8 +1092,6 @@ impl Frame {
             return Err(FrameError::static_call_invalid(&identifier));
         }
 
-        if is_static && function_type.contains_self() {}
-
         // Return the function type.
         Ok(function_type.to_owned())
     }
