@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    unstable::blake2s::{Blake2sCircuit, CORE_UNSTABLE_BLAKE2S_PACKAGE_NAME},
+    unstable::blake2s::{Blake2sCircuit, CORE_UNSTABLE_BLAKE2S_NAME},
     CoreCircuit,
     CoreCircuitStructList,
     CorePackageError,
@@ -61,6 +61,17 @@ impl CorePackage {
         Ok(())
     }
 
+    fn circuit_name_to_ast_name(circuit_name: &str) -> Option<String> {
+        let first_character = &circuit_name[..1];
+        let remaining_characters = &circuit_name[1..];
+        if first_character.to_uppercase() != first_character
+            || remaining_characters != remaining_characters.to_lowercase()
+        {
+            return None;
+        }
+        Some(format!("#{}", circuit_name.to_lowercase()))
+    }
+
     // Stores all `CoreCircuit` structs that are being accessed in the current `CorePackage`
     pub(crate) fn get_circuit_structs(
         &self,
@@ -76,8 +87,8 @@ impl CorePackage {
 
             let circuit = if self.unstable {
                 // match unstable core circuit
-                match circuit_name {
-                    CORE_UNSTABLE_BLAKE2S_PACKAGE_NAME => Blake2sCircuit::ast(circuit.symbol.clone(), span),
+                match &*Self::circuit_name_to_ast_name(circuit_name).unwrap_or_default() {
+                    CORE_UNSTABLE_BLAKE2S_NAME => Blake2sCircuit::ast(circuit.symbol.clone(), span),
                     name => {
                         return Err(CorePackageError::undefined_unstable_core_circuit(
                             name.to_string(),
