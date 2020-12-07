@@ -59,6 +59,9 @@ pub use self::statements::*;
 pub mod types;
 pub use self::types::*;
 
+mod node;
+pub use node::*;
+
 use leo_grammar::Grammar;
 
 /// The abstract syntax tree (ast) for a Leo program.

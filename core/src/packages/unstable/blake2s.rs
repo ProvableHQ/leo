@@ -19,6 +19,7 @@ use crate::{CoreCircuit, CoreCircuitError, Value};
 use leo_ast::{
     ArrayDimensions,
     Block,
+    CallExpression,
     Circuit,
     CircuitMember,
     Expression,
@@ -42,7 +43,9 @@ use snarkos_models::{
     },
 };
 
-pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "Blake2s";
+// internal identifier
+pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "#blake2s";
+pub const CORE_UNSTABLE_BLAKE2S_PACKAGE_NAME: &str = "Blake2s";
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Blake2sCircuit {}
@@ -108,20 +111,14 @@ impl CoreCircuit for Blake2sCircuit {
                 )),
                 block: Block {
                     statements: vec![Statement::Return(
-                        Expression::CoreFunctionCall(
-                            Self::name(),
-                            vec![
-                                Expression::Identifier(Identifier {
-                                    name: "seed".to_owned(),
-                                    span: span.clone(),
-                                }),
-                                Expression::Identifier(Identifier {
-                                    name: "message".to_owned(),
-                                    span: span.clone(),
-                                }),
+                        Expression::Call(CallExpression {
+                            function: Box::new(Expression::Identifier(Identifier::new_with_span(&Self::name(), &span))),
+                            arguments: vec![
+                                Expression::Identifier(Identifier::new_with_span("seed", &span)),
+                                Expression::Identifier(Identifier::new_with_span("message", &span)),
                             ],
-                            span.clone(),
-                        ),
+                            span: span.clone(),
+                        }),
                         span.clone(),
                     )],
                 },

@@ -16,6 +16,7 @@
 
 use crate::{FrameError, Scope, TypeAssertion};
 use leo_ast::{
+    expression::*,
     ArrayDimensions,
     Assignee,
     AssigneeAccess,
@@ -373,7 +374,12 @@ impl Frame {
         // Iteratively evaluate assignee access types.
         for access in &assignee.accesses {
             let access_type = match access {
-                AssigneeAccess::Array(r_or_e) => self.parse_array_access(type_, r_or_e, span),
+                AssigneeAccess::Array(RangeOrExpression::Expression(index)) => {
+                    self.parse_array_access(type_, index, span)
+                }
+                AssigneeAccess::Array(RangeOrExpression::Range(left, right)) => {
+                    self.parse_array_range_access(type_, left.as_ref(), right.as_ref(), span)
+                }
                 AssigneeAccess::Tuple(index, _) => self.parse_tuple_access(type_, &index, span),
                 AssigneeAccess::Member(identifier) => self.parse_circuit_member_access(type_, identifier, span),
             }?;
@@ -490,92 +496,79 @@ impl Frame {
     /// Returns the type of an expression.
     ///
     fn parse_expression(&mut self, expression: &Expression) -> Result<Type, FrameError> {
+        use Expression::*;
         match expression {
             // Type variables
-            Expression::Identifier(identifier) => self.parse_identifier(identifier),
+            Identifier(identifier) => self.parse_identifier(identifier),
 
             // Explicit types
-            Expression::Boolean(_, _) => Ok(Type::Boolean),
-            Expression::Address(_, _) => Ok(Type::Address),
-            Expression::Field(_, _) => Ok(Type::Field),
-            Expression::Group(_) => Ok(Type::Group),
-            Expression::Implicit(name, span) => Ok(Self::parse_implicit(Identifier::new_with_span(name, span))),
-            Expression::Integer(integer_type, _, _) => Ok(Type::IntegerType(integer_type.clone())),
+            Value(ValueExpression::Boolean(_, _)) => Ok(Type::Boolean),
+            Value(ValueExpression::Address(_, _)) => Ok(Type::Address),
+            Value(ValueExpression::Field(_, _)) => Ok(Type::Field),
+            Value(ValueExpression::Group(_)) => Ok(Type::Group),
+            Value(ValueExpression::Implicit(name, span)) => {
+                Ok(Self::parse_implicit(leo_ast::Identifier::new_with_span(name, span)))
+            }
+            Value(ValueExpression::Integer(integer_type, _, _)) => Ok(Type::IntegerType(integer_type.clone())),
 
-            // Number operations
-            Expression::Add(left_right, span) => {
-                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Sub(left_right, span) => {
-                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Mul(left_right, span) => {
-                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Div(left_right, span) => {
-                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Pow(left_right, span) => {
-                self.parse_integer_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Negate(expression, span) => self.parse_negate_expression(expression, span),
+            Binary(binary) => match binary.op.class() {
+                BinaryOperationClass::Numeric => {
+                    self.parse_integer_binary_expression(&binary.left, &binary.right, &binary.span)
+                }
+                BinaryOperationClass::Boolean => {
+                    self.parse_boolean_binary_expression(&binary.left, &binary.right, &binary.span)
+                }
+            },
+            Unary(unary) => match &unary.op {
+                UnaryOperation::Negate => self.parse_negate_expression(&unary.inner, &unary.span),
+                UnaryOperation::Not => self.parse_boolean_expression(&unary.inner, &unary.span),
+            },
 
-            // Boolean operations
-            Expression::Not(expression, span) => self.parse_boolean_expression(expression, span),
-            Expression::Or(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            Conditional(conditional) => self.parse_conditional_expression(
+                &conditional.condition,
+                &conditional.if_true,
+                &conditional.if_false,
+                &conditional.span,
+            ),
+
+            ArrayInline(array_inline) => self.parse_array(&array_inline.elements, &array_inline.span),
+            ArrayInit(array_init) => {
+                self.parse_array_initializer(&array_init.element, &array_init.dimensions, &array_init.span)
             }
-            Expression::And(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            ArrayAccess(array_access) => {
+                let array_type = self.parse_expression(&array_access.array)?;
+                self.parse_array_access(array_type, &array_access.index, &array_access.span)
             }
-            Expression::Eq(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Ge(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Gt(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Le(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
-            }
-            Expression::Lt(left_right, span) => {
-                self.parse_boolean_binary_expression(&left_right.0, &left_right.1, span)
+            ArrayRangeAccess(array_range_access) => {
+                let array_type = self.parse_expression(&array_range_access.array)?;
+                self.parse_array_range_access(
+                    array_type,
+                    array_range_access.left.as_deref(),
+                    array_range_access.right.as_deref(),
+                    &array_range_access.span,
+                )
             }
 
-            // Conditionals
-            Expression::IfElse(triplet, span) => {
-                self.parse_conditional_expression(&triplet.0, &triplet.1, &triplet.2, span)
+            TupleInit(tuple_init) => self.parse_tuple(&tuple_init.elements, &tuple_init.span),
+            TupleAccess(tuple_access) => {
+                self.parse_expression_tuple_access(&tuple_access.tuple, &tuple_access.index, &tuple_access.span)
             }
 
-            // Arrays
-            Expression::ArrayInline(expressions, span) => self.parse_array(expressions, span),
-            Expression::ArrayInitializer(array_w_dimensions, span) => {
-                self.parse_array_initializer(&array_w_dimensions.0, &array_w_dimensions.1, span)
+            CircuitInit(circuit_init) => {
+                self.parse_circuit(&circuit_init.name, &circuit_init.members, &circuit_init.span)
             }
-            Expression::ArrayAccess(array_w_index, span) => {
-                self.parse_expression_array_access(&array_w_index.0, &array_w_index.1, span)
-            }
+            CircuitMemberAccess(circuit_member_access) => self.parse_expression_circuit_member_access(
+                &circuit_member_access.circuit,
+                &circuit_member_access.name,
+                &circuit_member_access.span,
+            ),
+            CircuitStaticFunctionAccess(circuit_static_function_access) => self.parse_static_circuit_function_access(
+                &circuit_static_function_access.circuit,
+                &circuit_static_function_access.name,
+                &circuit_static_function_access.span,
+            ),
 
-            // Tuples
-            Expression::Tuple(expressions, span) => self.parse_tuple(expressions, span),
-            Expression::TupleAccess(tuple_w_index, span) => {
-                self.parse_expression_tuple_access(&tuple_w_index.0, &tuple_w_index.1, span)
-            }
-
-            // Circuits
-            Expression::Circuit(identifier, members, span) => self.parse_circuit(identifier, members, span),
-            Expression::CircuitMemberAccess(expression, identifier, span) => {
-                self.parse_expression_circuit_member_access(expression, identifier, span)
-            }
-            Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_static_circuit_function_access(expression, identifier, span)
-            }
-
-            // Functions
-            Expression::FunctionCall(name, arguments, span) => self.parse_function_call(name, arguments, span),
-            Expression::CoreFunctionCall(name, arguments, span) => self.parse_core_function_call(name, arguments, span),
+            Call(call) => self.parse_function_call(&call.function, &call.arguments, &call.span),
         }
     }
 
@@ -846,65 +839,57 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed array element when called as an expression.
-    ///
-    fn parse_expression_array_access(
-        &mut self,
-        expression: &Expression,
-        r_or_e: &RangeOrExpression,
-        span: &Span,
-    ) -> Result<Type, FrameError> {
-        // Parse the array expression which could be a variable with type array.
-        let type_ = self.parse_expression(expression)?;
-
-        // Parse the array access.
-        self.parse_array_access(type_, r_or_e, span)
-    }
-
-    ///
     /// Returns the type of the accessed array element.
     ///
-    fn parse_array_access(&mut self, type_: Type, r_or_e: &RangeOrExpression, span: &Span) -> Result<Type, FrameError> {
+    fn parse_array_access(&mut self, array_type: Type, index: &Expression, span: &Span) -> Result<Type, FrameError> {
         // Check the type is an array.
-        let element_type = match type_ {
+        let element_type = match array_type {
             Type::Array(type_) => *type_,
             type_ => return Err(FrameError::array_access(&type_, span)),
         };
 
-        // Get the length of the array.
-        // let length = *dimensions.last().unwrap();
+        // Parse the expression type.
+        let type_ = self.parse_expression(index)?;
 
-        // Evaluate the range as an array type or the expression as the element type.
-        match r_or_e {
-            RangeOrExpression::Range(from, to) => {
-                if let Some(expression) = from {
-                    // Parse the expression type.
-                    let type_ = self.parse_expression(expression)?;
+        // Assert the type is an index.
+        self.assert_index(&type_, span);
 
-                    self.assert_index(&type_, span);
-                }
+        // Return the element type.
+        Ok(element_type)
+    }
 
-                if let Some(expression) = to {
-                    // Parse the expression type.
-                    let type_ = self.parse_expression(expression)?;
+    ///
+    /// Returns the type of the range of accessed array elements.
+    ///
+    fn parse_array_range_access(
+        &mut self,
+        array_type: Type,
+        left: Option<&Expression>,
+        right: Option<&Expression>,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
+        // Check the type is an array.
+        let element_type = match array_type {
+            Type::Array(type_) => *type_,
+            type_ => return Err(FrameError::array_access(&type_, span)),
+        };
 
-                    self.assert_index(&type_, span);
-                }
+        if let Some(expression) = left {
+            // Parse the expression type.
+            let type_ = self.parse_expression(expression)?;
 
-                // Return a new array type.
-                Ok(Type::Array(Box::new(element_type)))
-            }
-            RangeOrExpression::Expression(expression) => {
-                // Parse the expression type.
-                let type_ = self.parse_expression(expression)?;
-
-                // Assert the type is an index.
-                self.assert_index(&type_, span);
-
-                // Return the element type.
-                Ok(element_type)
-            }
+            self.assert_index(&type_, span);
         }
+
+        if let Some(expression) = right {
+            // Parse the expression type.
+            let type_ = self.parse_expression(expression)?;
+
+            self.assert_index(&type_, span);
+        }
+
+        // Return a new array type.
+        Ok(Type::Array(Box::new(element_type)))
     }
 
     ///
@@ -1029,11 +1014,11 @@ impl Frame {
         // Return an Error in any other case.
         match expression {
             Expression::Identifier(identifier) => self.parse_program_function(identifier, span),
-            Expression::CircuitMemberAccess(expression, identifier, span) => {
-                self.parse_circuit_function(expression, identifier, span, false)
+            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
+                self.parse_circuit_function(circuit, name, span, false)
             }
-            Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_circuit_function(expression, identifier, span, true)
+            Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression { circuit, name, span }) => {
+                self.parse_circuit_function(circuit, name, span, true)
             }
             expression => Err(FrameError::invalid_function(expression, span)),
         }
@@ -1110,6 +1095,12 @@ impl Frame {
         inputs: &[Expression],
         span: &Span,
     ) -> Result<Type, FrameError> {
+        if let Expression::Identifier(id) = expression {
+            if id.is_core() {
+                return self.parse_core_function_call(&id.name, inputs, span);
+            }
+        }
+
         // Parse the function name.
         let function_type = self.parse_function_name(expression, span)?;
 

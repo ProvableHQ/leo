@@ -32,6 +32,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: &Span,
     ) -> Result<&mut ConstrainedValue<F, G>, StatementError> {
         // Check that assignee exists and is mutable
+        for key in self.identifiers.keys() {
+            println!("id {}", key);
+        }
         Ok(match self.get_mut(name) {
             Some(value) => match value {
                 ConstrainedValue::Mutable(mutable_value) => mutable_value,

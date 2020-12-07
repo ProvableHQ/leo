@@ -28,7 +28,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_ast::{Expression, Type};
+use leo_ast::{expression::*, Expression, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -51,280 +51,172 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Values
-            Expression::Address(address, span) => Ok(ConstrainedValue::Address(Address::constant(address, &span)?)),
-            Expression::Boolean(boolean, span) => Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, &span)?)),
-            Expression::Field(field, span) => Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?)),
-            Expression::Group(group_element) => Ok(ConstrainedValue::Group(G::constant(*group_element)?)),
-            Expression::Implicit(value, span) => Ok(enforce_number_implicit(expected_type, value, &span)?),
-            Expression::Integer(type_, integer, span) => Ok(ConstrainedValue::Integer(Integer::new(
-                expected_type,
-                &type_,
-                integer,
-                &span,
-            )?)),
+            Expression::Value(ValueExpression::Address(address, span)) => {
+                Ok(ConstrainedValue::Address(Address::constant(address, &span)?))
+            }
+            Expression::Value(ValueExpression::Boolean(boolean, span)) => {
+                Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, &span)?))
+            }
+            Expression::Value(ValueExpression::Field(field, span)) => {
+                Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?))
+            }
+            Expression::Value(ValueExpression::Group(group_element)) => {
+                Ok(ConstrainedValue::Group(G::constant(*group_element)?))
+            }
+            Expression::Value(ValueExpression::Implicit(value, span)) => {
+                Ok(enforce_number_implicit(expected_type, value, &span)?)
+            }
+            Expression::Value(ValueExpression::Integer(type_, integer, span)) => Ok(ConstrainedValue::Integer(
+                Integer::new(expected_type, &type_, integer, &span)?,
+            )),
 
             // Binary operations
-            Expression::Negate(expression, span) => {
-                let resolved_value =
-                    self.enforce_expression(cs, file_scope, function_scope, expected_type, *expression)?;
-
-                enforce_negate(cs, resolved_value, &span)
-            }
-            Expression::Add(left_right, span) => {
+            Expression::Binary(BinaryExpression { left, right, op, span }) => {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(
                     cs,
                     file_scope,
                     function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
+                    if op.class() == BinaryOperationClass::Numeric {
+                        expected_type
+                    } else {
+                        None
+                    },
+                    *left,
+                    *right,
                     &span,
                 )?;
 
-                enforce_add(cs, resolved_left, resolved_right, &span)
-            }
-            Expression::Sub(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                enforce_sub(cs, resolved_left, resolved_right, &span)
-            }
-            Expression::Mul(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                enforce_mul(cs, resolved_left, resolved_right, &span)
-            }
-            Expression::Div(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                enforce_div(cs, resolved_left, resolved_right, &span)
-            }
-            Expression::Pow(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                enforce_pow(cs, resolved_left, resolved_right, &span)
+                match op {
+                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Or => {
+                        enforce_or(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                    }
+                    BinaryOperation::And => {
+                        enforce_and(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                    }
+                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, &span)?, span)
+                        .map_err(ExpressionError::BooleanError),
+                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, &span),
+                }
             }
 
-            // Boolean operations
-            Expression::Not(expression, span) => Ok(evaluate_not(
-                self.enforce_operand(cs, file_scope, function_scope, expected_type, *expression, &span)?,
+            // Unary operations
+            Expression::Unary(UnaryExpression { inner, op, span }) => match op {
+                UnaryOperation::Negate => {
+                    let resolved_inner =
+                        self.enforce_expression(cs, file_scope, function_scope, expected_type, *inner)?;
+                    enforce_negate(cs, resolved_inner, &span)
+                }
+                UnaryOperation::Not => Ok(evaluate_not(
+                    self.enforce_operand(cs, file_scope, function_scope, expected_type, *inner, &span)?,
+                    span,
+                )?),
+            },
+
+            Expression::Conditional(ConditionalExpression {
+                condition,
+                if_true,
+                if_false,
                 span,
-            )?),
-            Expression::Or(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(enforce_or(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::And(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(enforce_and(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::Eq(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(evaluate_eq(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::Ge(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(evaluate_ge(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::Gt(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(evaluate_gt(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::Le(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(evaluate_le(cs, resolved_left, resolved_right, &span)?)
-            }
-            Expression::Lt(left_right, span) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    None,
-                    left_right.0,
-                    left_right.1,
-                    &span,
-                )?;
-
-                Ok(evaluate_lt(cs, resolved_left, resolved_right, &span)?)
-            }
-
-            // Conditionals
-            Expression::IfElse(triplet, span) => self.enforce_conditional_expression(
+            }) => self.enforce_conditional_expression(
                 cs,
                 file_scope,
                 function_scope,
                 expected_type,
-                triplet.0,
-                triplet.1,
-                triplet.2,
+                *condition,
+                *if_true,
+                *if_false,
                 &span,
             ),
 
             // Arrays
-            Expression::ArrayInline(array, span) => {
-                self.enforce_array(cs, file_scope, function_scope, expected_type, array, span)
+            Expression::ArrayInline(ArrayInlineExpression { elements, span }) => {
+                self.enforce_array(cs, file_scope, function_scope, expected_type, elements, span)
             }
-            Expression::ArrayInitializer(array_w_dimensions, span) => self.enforce_array_initializer(
+            Expression::ArrayInit(ArrayInitExpression {
+                element,
+                dimensions,
+                span,
+            }) => self.enforce_array_initializer(
                 cs,
                 file_scope,
                 function_scope,
                 expected_type,
-                array_w_dimensions.0,
-                array_w_dimensions.1,
+                *element,
+                dimensions,
                 span,
             ),
-            Expression::ArrayAccess(array_w_index, span) => self.enforce_array_access(
+            Expression::ArrayAccess(ArrayAccessExpression { array, index, span }) => {
+                self.enforce_array_access(cs, file_scope, function_scope, expected_type, *array, *index, &span)
+            }
+            Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                array,
+                left,
+                right,
+                span,
+            }) => self.enforce_array_range_access(
                 cs,
                 file_scope,
                 function_scope,
                 expected_type,
-                array_w_index.0,
-                array_w_index.1,
+                *array,
+                left.map(|x| *x),
+                right.map(|x| *x),
                 &span,
             ),
 
             // Tuples
-            Expression::Tuple(tuple, span) => {
-                self.enforce_tuple(cs, file_scope, function_scope, expected_type, tuple, span)
+            Expression::TupleInit(TupleInitExpression { elements, span }) => {
+                self.enforce_tuple(cs, file_scope, function_scope, expected_type, elements, span)
             }
-            Expression::TupleAccess(tuple_w_index, span) => self.enforce_tuple_access(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                tuple_w_index.0,
-                tuple_w_index.1,
-                &span,
-            ),
+            Expression::TupleAccess(TupleAccessExpression { tuple, index, span }) => {
+                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, *tuple, index, &span)
+            }
 
             // Circuits
-            Expression::Circuit(circuit_name, members, span) => {
-                self.enforce_circuit(cs, file_scope, function_scope, circuit_name, members, span)
+            Expression::CircuitInit(CircuitInitExpression { name, members, span }) => {
+                self.enforce_circuit(cs, file_scope, function_scope, name, members, span)
             }
-            Expression::CircuitMemberAccess(circuit_variable, circuit_member, span) => self.enforce_circuit_access(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                *circuit_variable,
-                circuit_member,
+            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
+                self.enforce_circuit_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)
+            }
+            Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression { circuit, name, span }) => {
+                self.enforce_circuit_static_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)
+            }
+
+            // Functions
+            Expression::Call(CallExpression {
+                function,
+                arguments,
                 span,
-            ),
-            Expression::CircuitStaticFunctionAccess(circuit_identifier, circuit_member, span) => self
-                .enforce_circuit_static_access(
+            }) => match *function {
+                Expression::Identifier(id) if id.is_core() => self.enforce_core_circuit_call_expression(
                     cs,
                     file_scope,
                     function_scope,
                     expected_type,
-                    *circuit_identifier,
-                    circuit_member,
+                    id.name,
+                    arguments,
                     span,
                 ),
-
-            // Functions
-            Expression::FunctionCall(function, arguments, span) => self.enforce_function_call_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                *function,
-                arguments,
-                span,
-            ),
-            Expression::CoreFunctionCall(function, arguments, span) => self.enforce_core_circuit_call_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                function,
-                arguments,
-                span,
-            ),
+                function => self.enforce_function_call_expression(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    expected_type,
+                    function,
+                    arguments,
+                    span,
+                ),
+            },
         }
     }
 }

@@ -31,6 +31,7 @@ use leo_grammar::{
 };
 use leo_input::common::Identifier as InputIdentifier;
 
+use crate::Node;
 use serde::{
     de::{self, Visitor},
     Deserialize,
@@ -55,6 +56,16 @@ pub struct Identifier {
     pub span: Span,
 }
 
+impl Node for Identifier {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}
+
 impl Identifier {
     pub fn new(name: String) -> Self {
         Self {
@@ -76,6 +87,10 @@ impl Identifier {
 
     pub fn is_self(&self) -> bool {
         self.is_self_type() || self.name == "self"
+    }
+
+    pub fn is_core(&self) -> bool {
+        self.name.starts_with('#')
     }
 }
 

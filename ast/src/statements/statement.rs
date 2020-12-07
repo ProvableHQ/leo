@@ -16,15 +16,19 @@
 
 use crate::{
     Assignee,
+    BinaryExpression,
+    BinaryOperation,
     Block,
     ConditionalStatement,
     ConsoleFunctionCall,
     Declare,
     Expression,
     Identifier,
+    Node,
     Span,
     Variables,
 };
+
 use leo_grammar::{
     console::ConsoleFunctionCall as GrammarConsoleFunctionCall,
     operations::AssignOperation,
@@ -84,49 +88,25 @@ impl<'ast> From<AssignStatement<'ast>> for Statement {
                 // convert assignee into postfix expression
                 let converted = Expression::from(statement.assignee.clone());
 
-                match operation_assign {
-                    AssignOperation::AddAssign(ref _assign) => Statement::Assign(
-                        Assignee::from(statement.assignee),
-                        Expression::Add(
-                            Box::new((converted, Expression::from(statement.expression))),
-                            Span::from(statement.span.clone()),
-                        ),
-                        Span::from(statement.span),
-                    ),
-                    AssignOperation::SubAssign(ref _assign) => Statement::Assign(
-                        Assignee::from(statement.assignee),
-                        Expression::Sub(
-                            Box::new((converted, Expression::from(statement.expression))),
-                            Span::from(statement.span.clone()),
-                        ),
-                        Span::from(statement.span),
-                    ),
-                    AssignOperation::MulAssign(ref _assign) => Statement::Assign(
-                        Assignee::from(statement.assignee),
-                        Expression::Mul(
-                            Box::new((converted, Expression::from(statement.expression))),
-                            Span::from(statement.span.clone()),
-                        ),
-                        Span::from(statement.span),
-                    ),
-                    AssignOperation::DivAssign(ref _assign) => Statement::Assign(
-                        Assignee::from(statement.assignee),
-                        Expression::Div(
-                            Box::new((converted, Expression::from(statement.expression))),
-                            Span::from(statement.span.clone()),
-                        ),
-                        Span::from(statement.span),
-                    ),
-                    AssignOperation::PowAssign(ref _assign) => Statement::Assign(
-                        Assignee::from(statement.assignee),
-                        Expression::Pow(
-                            Box::new((converted, Expression::from(statement.expression))),
-                            Span::from(statement.span.clone()),
-                        ),
-                        Span::from(statement.span),
-                    ),
+                let operator = match operation_assign {
+                    AssignOperation::AddAssign(ref _assign) => BinaryOperation::Add,
+                    AssignOperation::SubAssign(ref _assign) => BinaryOperation::Sub,
+                    AssignOperation::MulAssign(ref _assign) => BinaryOperation::Mul,
+                    AssignOperation::DivAssign(ref _assign) => BinaryOperation::Div,
+                    AssignOperation::PowAssign(ref _assign) => BinaryOperation::Pow,
                     AssignOperation::Assign(ref _assign) => unimplemented!("cannot assign twice to assign statement"),
-                }
+                };
+
+                Statement::Assign(
+                    Assignee::from(statement.assignee),
+                    Expression::Binary(BinaryExpression {
+                        left: Box::new(converted),
+                        right: Box::new(Expression::from(statement.expression)),
+                        op: operator,
+                        span: Span::from(statement.span.clone()),
+                    }),
+                    Span::from(statement.span),
+                )
             }
         }
     }
