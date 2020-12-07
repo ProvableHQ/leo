@@ -127,7 +127,9 @@ impl FunctionType {
     pub fn num_inputs(&self) -> usize {
         self.inputs
             .iter()
-            .fold(0, |acc, function_input| acc + function_input.count())
+            .filter(|function_input| !function_input.is_self())
+            .count()
+        // .fold(0, |acc, function_input| acc + function_input.arguments())
     }
 
     ///
@@ -139,13 +141,10 @@ impl FunctionType {
     }
 
     ///
-    /// Returns a vector of [&FunctionInputType] removing `self` and `mut self` inputs.
+    /// Returns an iterator of [&FunctionInputType] removing `self` and `mut self` inputs.
     ///
-    pub fn filter_self_inputs(&self) -> Vec<&FunctionInputType> {
-        self.inputs
-            .iter()
-            .filter(|input| !input.is_self())
-            .collect::<Vec<&FunctionInputType>>()
+    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInputType> {
+        self.inputs.iter().filter(|input| !input.is_self())
     }
 }
 
