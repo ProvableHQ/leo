@@ -77,13 +77,10 @@ impl Function {
     }
 
     ///
-    /// Returns a vector of [&FunctionInput] removing `self` and `mut self` inputs.
+    /// Returns an iterator of [&FunctionInput] removing `self` and `mut self` inputs.
     ///
-    pub fn filter_self_inputs(&self) -> Vec<&FunctionInput> {
-        self.input
-            .iter()
-            .filter(|input| !input.is_self())
-            .collect::<Vec<&FunctionInput>>()
+    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInput> {
+        self.input.iter().filter(|input| !input.is_self())
     }
 
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {

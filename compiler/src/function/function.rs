@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut_self = function.contains_mut_self();
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.filter_self_inputs().iter().zip(input.into_iter()) {
+        for (input_model, input_expression) in function.filter_self_inputs().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {
                     let value =
