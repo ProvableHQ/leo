@@ -52,6 +52,10 @@ default-features = false
 [dependencies.snarkos-utilities]
 version = "1.1.3"
 
+[dependencies.indexmap]
+version = "1.6.0"
+features = ["serde-1"]
+
 [dependencies.rand]
 version = "0.7"
 
