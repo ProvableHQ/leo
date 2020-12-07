@@ -1153,6 +1153,7 @@ checksum = "55e2e4c765aa53a0424761bf9f41aa7a6ac1efa87238f59560640e27fca028f2"
 dependencies = [
  "autocfg",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -1299,6 +1300,7 @@ name = "leo-ast"
 version = "1.0.6"
 dependencies = [
  "criterion",
+ "indexmap",
  "leo-grammar",
  "leo-input",
  "pest",
@@ -1314,6 +1316,7 @@ version = "1.0.6"
 dependencies = [
  "bincode",
  "hex",
+ "indexmap",
  "leo-ast",
  "leo-core",
  "leo-gadgets",
@@ -1392,6 +1395,7 @@ dependencies = [
 name = "leo-imports"
 version = "1.0.6"
 dependencies = [
+ "indexmap",
  "leo-ast",
  "leo-grammar",
  "thiserror",
@@ -1478,6 +1482,7 @@ dependencies = [
 name = "leo-state"
 version = "1.0.6"
 dependencies = [
+ "indexmap",
  "leo-ast",
  "leo-input",
  "rand",
@@ -1497,6 +1502,7 @@ dependencies = [
 name = "leo-symbol-table"
 version = "1.0.6"
 dependencies = [
+ "indexmap",
  "leo-ast",
  "leo-core",
  "leo-grammar",
@@ -1509,6 +1515,7 @@ dependencies = [
 name = "leo-type-inference"
 version = "1.0.6"
 dependencies = [
+ "indexmap",
  "leo-ast",
  "leo-grammar",
  "leo-imports",

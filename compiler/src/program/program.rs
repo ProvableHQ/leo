@@ -20,16 +20,16 @@ use crate::{value::ConstrainedValue, GroupType};
 
 use snarkos_models::curves::{Field, PrimeField};
 
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
-    pub identifiers: HashMap<String, ConstrainedValue<F, G>>,
+    pub identifiers: IndexMap<String, ConstrainedValue<F, G>>,
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Default for ConstrainedProgram<F, G> {
     fn default() -> Self {
         Self {
-            identifiers: HashMap::new(),
+            identifiers: IndexMap::new(),
         }
     }
 }

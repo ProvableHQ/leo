@@ -24,10 +24,9 @@ use crate::{
 };
 use leo_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
-
-use indexmap::IndexMap;
 
 /// Stores circuit definition details.
 ///
