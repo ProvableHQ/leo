@@ -14,27 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    statements::{Block, ConditionalStatement},
-};
+use crate::Statement;
+use leo_grammar::statements::Block as GrammarBlock;
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::conditional_nested_or_end_statement))]
-pub enum ConditionalNestedOrEndStatement<'ast> {
-    Nested(Box<ConditionalStatement<'ast>>),
-    End(Block<'ast>),
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Block {
+    pub statements: Vec<Statement>,
 }
 
-impl<'ast> fmt::Display for ConditionalNestedOrEndStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref block) => write!(f, "else {}", block),
+impl<'ast> From<GrammarBlock<'ast>> for Block {
+    fn from(block: GrammarBlock<'ast>) -> Self {
+        Block {
+            statements: block.statements.into_iter().map(Statement::from).collect(),
         }
+    }
+}
+
+impl fmt::Display for Block {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{{")?;
+        if self.statements.is_empty() {
+            writeln!(f, "\t")?;
+        } else {
+            self.statements
+                .iter()
+                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
+        }
+        write!(f, "}}")
     }
 }

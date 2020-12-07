@@ -17,7 +17,7 @@
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
 use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
-use leo_ast::{Statement, Type};
+use leo_ast::{Block, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -28,19 +28,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Evaluates a branch of one or more statements and returns a result in
     /// the given scope.
     #[allow(clippy::too_many_arguments)]
-    pub fn evaluate_branch<CS: ConstraintSystem<F>>(
+    pub fn evaluate_block<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
         indicator: Option<Boolean>,
-        statements: Vec<Statement>,
+        block: Block,
         return_type: Option<Type>,
         mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
-        let mut results = Vec::with_capacity(statements.len());
+        let mut results = Vec::with_capacity(block.statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
-        for statement in statements.into_iter() {
+        for statement in block.statements.into_iter() {
             let mut value = self.enforce_statement(
                 cs,
                 file_scope,

@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assignee, ConditionalStatement, ConsoleFunctionCall, Declare, Expression, Identifier, Span, Variables};
+use crate::{
+    Assignee,
+    Block,
+    ConditionalStatement,
+    ConsoleFunctionCall,
+    Declare,
+    Expression,
+    Identifier,
+    Span,
+    Variables,
+};
 use leo_grammar::{
     console::ConsoleFunctionCall as GrammarConsoleFunctionCall,
     operations::AssignOperation,
@@ -38,7 +48,7 @@ pub enum Statement {
     Definition(Declare, Variables, Expression, Span),
     Assign(Assignee, Expression, Span),
     Conditional(ConditionalStatement, Span),
-    Iteration(Identifier, Box<(Expression, Expression)>, Vec<Statement>, Span),
+    Iteration(Identifier, Box<(Expression, Expression)>, Block, Span),
     Console(ConsoleFunctionCall),
     Expression(Expression, Span),
 }
@@ -127,7 +137,7 @@ impl<'ast> From<ForStatement<'ast>> for Statement {
         Statement::Iteration(
             Identifier::from(statement.index),
             Box::new((Expression::from(statement.start), Expression::from(statement.stop))),
-            statement.statements.into_iter().map(Statement::from).collect(),
+            Block::from(statement.block),
             Span::from(statement.span),
         )
     }
@@ -176,12 +186,8 @@ impl fmt::Display for Statement {
             }
             Statement::Assign(ref variable, ref statement, ref _span) => write!(f, "{} = {};", variable, statement),
             Statement::Conditional(ref statement, ref _span) => write!(f, "{}", statement),
-            Statement::Iteration(ref var, ref start_stop, ref list, ref _span) => {
-                writeln!(f, "for {} in {}..{} {{", var, start_stop.0, start_stop.1)?;
-                for l in list {
-                    writeln!(f, "\t\t{}", l)?;
-                }
-                write!(f, "\t}}")
+            Statement::Iteration(ref var, ref start_stop, ref block, ref _span) => {
+                write!(f, "for {} in {}..{} {}", var, start_stop.0, start_stop.1, block)
             }
             Statement::Console(ref console) => write!(f, "{}", console),
             Statement::Expression(ref expression, ref _span) => write!(f, "{};", expression),

@@ -93,7 +93,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
 
-        for statement in function.statements.iter() {
+        for statement in function.block.statements.iter() {
             let mut result = self.enforce_statement(
                 cs,
                 scope,

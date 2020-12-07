@@ -18,6 +18,7 @@ use crate::{CoreCircuit, CoreCircuitError, Value};
 
 use leo_ast::{
     ArrayDimensions,
+    Block,
     Circuit,
     CircuitMember,
     Expression,
@@ -105,23 +106,25 @@ impl CoreCircuit for Blake2sCircuit {
                         span: span.clone(),
                     }]),
                 )),
-                statements: vec![Statement::Return(
-                    Expression::CoreFunctionCall(
-                        Self::name(),
-                        vec![
-                            Expression::Identifier(Identifier {
-                                name: "seed".to_owned(),
-                                span: span.clone(),
-                            }),
-                            Expression::Identifier(Identifier {
-                                name: "message".to_owned(),
-                                span: span.clone(),
-                            }),
-                        ],
+                block: Block {
+                    statements: vec![Statement::Return(
+                        Expression::CoreFunctionCall(
+                            Self::name(),
+                            vec![
+                                Expression::Identifier(Identifier {
+                                    name: "seed".to_owned(),
+                                    span: span.clone(),
+                                }),
+                                Expression::Identifier(Identifier {
+                                    name: "message".to_owned(),
+                                    span: span.clone(),
+                                }),
+                            ],
+                            span.clone(),
+                        ),
                         span.clone(),
-                    ),
-                    span.clone(),
-                )],
+                    )],
+                },
                 span,
             })],
         }

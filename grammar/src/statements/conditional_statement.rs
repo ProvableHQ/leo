@@ -17,7 +17,7 @@
 use crate::{
     ast::Rule,
     expressions::Expression,
-    statements::{ConditionalNestedOrEndStatement, Statement},
+    statements::{Block, ConditionalNestedOrEndStatement},
     SpanDef,
 };
 
@@ -30,7 +30,7 @@ use std::fmt;
 #[pest_ast(rule(Rule::statement_conditional))]
 pub struct ConditionalStatement<'ast> {
     pub condition: Expression<'ast>,
-    pub statements: Vec<Statement<'ast>>,
+    pub block: Block<'ast>,
     pub next: Option<ConditionalNestedOrEndStatement<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
@@ -39,11 +39,10 @@ pub struct ConditionalStatement<'ast> {
 
 impl<'ast> fmt::Display for ConditionalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "if ({}) {{", self.condition)?;
-        writeln!(f, "\t{:#?}", self.statements)?;
+        write!(f, "if ({}) {}", self.condition, self.block)?;
         self.next
             .as_ref()
-            .map(|n_or_e| write!(f, "}} {}", n_or_e))
-            .unwrap_or_else(|| write!(f, "}}"))
+            .map(|n_or_e| write!(f, " {}", n_or_e))
+            .unwrap_or_else(|| write!(f, ""))
     }
 }

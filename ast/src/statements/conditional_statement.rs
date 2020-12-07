@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalNestedOrEndStatement, Expression, Statement};
+use crate::{Block, ConditionalNestedOrEndStatement, Expression};
 use leo_grammar::statements::ConditionalStatement as GrammarConditionalStatement;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConditionalStatement {
     pub condition: Expression,
-    pub statements: Vec<Statement>,
+    pub block: Block,
     pub next: Option<ConditionalNestedOrEndStatement>,
 }
 
@@ -31,7 +31,7 @@ impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
     fn from(statement: GrammarConditionalStatement<'ast>) -> Self {
         ConditionalStatement {
             condition: Expression::from(statement.condition),
-            statements: statement.statements.into_iter().map(Statement::from).collect(),
+            block: Block::from(statement.block),
             next: statement
                 .next
                 .map(|n_or_e| Some(ConditionalNestedOrEndStatement::from(n_or_e)))
@@ -42,13 +42,10 @@ impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
 
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "if ({}) {{", self.condition)?;
-        for statement in self.statements.iter() {
-            writeln!(f, "\t\t{}", statement)?;
-        }
+        write!(f, "if ({}) {}", self.condition, self.block)?;
         match self.next.clone() {
-            Some(n_or_e) => write!(f, "\t}} {}", n_or_e),
-            None => write!(f, "\t}}"),
+            Some(n_or_e) => write!(f, " {}", n_or_e),
+            None => write!(f, ""),
         }
     }
 }
