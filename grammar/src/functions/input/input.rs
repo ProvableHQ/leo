@@ -16,6 +16,7 @@
 
 use crate::{
     ast::Rule,
+    common::{MutSelfKeyword, SelfKeyword},
     functions::{FunctionInput, InputKeyword},
 };
 
@@ -26,5 +27,7 @@ use serde::Serialize;
 #[pest_ast(rule(Rule::input))]
 pub enum Input<'ast> {
     InputKeyword(InputKeyword<'ast>),
+    SelfKeyword(SelfKeyword<'ast>),
+    MutSelfKeyword(MutSelfKeyword<'ast>),
     FunctionInput(FunctionInput<'ast>),
 }

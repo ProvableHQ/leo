@@ -119,9 +119,9 @@ fn test_member_static_function_nested() {
 #[test]
 fn test_member_static_function_invalid() {
     let bytes = include_bytes!("member_static_function_invalid.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program = parse_program(bytes).unwrap();
 
-    expect_type_inference_error(error)
+    assert_satisfied(program)
 }
 
 #[test]
@@ -219,9 +219,9 @@ fn test_self_member_pass() {
 #[test]
 fn test_self_member_invalid() {
     let bytes = include_bytes!("self_member_invalid.leo");
-    let program = parse_program(bytes).unwrap();
+    let error = parse_program(bytes).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_type_inference_error(error);
 }
 
 #[test]

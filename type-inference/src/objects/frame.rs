@@ -35,7 +35,7 @@ use leo_ast::{
     Statement,
     Variables,
 };
-use leo_symbol_table::{Attribute, CircuitFunctionType, CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
+use leo_symbol_table::{CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
 
 /// A vector of `TypeAssertion` predicates created from a function body.
 #[derive(Clone)]
@@ -101,13 +101,13 @@ impl Frame {
         let identifier = &function.identifier;
 
         // Find function name in circuit members.
-        let circuit_function_type = self_type.member_function_type(identifier).unwrap().to_owned();
+        let function_type = self_type.member_function_type(identifier).unwrap().to_owned();
 
         // Create a new scope for the function variables.
         let mut scope = Scope::new(Some(parent_scope));
 
         // Initialize function inputs as variables.
-        scope.insert_function_inputs(&circuit_function_type.function.inputs)?;
+        scope.insert_function_inputs(&function_type.inputs)?;
 
         // Create new list of scopes for frame.
         let scopes = vec![scope];
@@ -115,7 +115,7 @@ impl Frame {
         // Create new frame struct.
         // Update variables when encountering let/const variable definitions.
         let mut frame = Self {
-            function_type: circuit_function_type.function,
+            function_type,
             self_type: Some(self_type),
             scopes,
             block: function.block,
@@ -957,22 +957,6 @@ impl Frame {
     }
 
     ///
-    /// Returns the type of the accessed circuit member when called as an expression.
-    ///
-    fn parse_expression_circuit_member_access(
-        &mut self,
-        expression: &Expression,
-        identifier: &Identifier,
-        span: &Span,
-    ) -> Result<Type, FrameError> {
-        // Parse circuit name.
-        let type_ = self.parse_expression(expression)?;
-
-        // Parse the circuit member access.
-        self.parse_circuit_member_access(type_, identifier, span)
-    }
-
-    ///
     /// Returns the type of the accessed circuit member.
     ///
     fn parse_circuit_member_access(
@@ -986,6 +970,22 @@ impl Frame {
 
         // Look for member with matching name.
         Ok(circuit_type.member_type(&identifier)?)
+    }
+
+    ///
+    /// Returns the type of the accessed circuit member when called as an expression.
+    ///
+    fn parse_expression_circuit_member_access(
+        &mut self,
+        expression: &Expression,
+        identifier: &Identifier,
+        span: &Span,
+    ) -> Result<Type, FrameError> {
+        // Parse circuit name.
+        let type_ = self.parse_expression(expression)?;
+
+        // Parse the circuit member access.
+        self.parse_circuit_member_access(type_, identifier, span)
     }
 
     ///
@@ -1030,10 +1030,10 @@ impl Frame {
         match expression {
             Expression::Identifier(identifier) => self.parse_program_function(identifier, span),
             Expression::CircuitMemberAccess(expression, identifier, span) => {
-                self.parse_circuit_function(expression, identifier, span)
+                self.parse_circuit_function(expression, identifier, span, false)
             }
             Expression::CircuitStaticFunctionAccess(expression, identifier, span) => {
-                self.parse_static_circuit_function(expression, identifier, span)
+                self.parse_circuit_function(expression, identifier, span, true)
             }
             expression => Err(FrameError::invalid_function(expression, span)),
         }
@@ -1057,7 +1057,7 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
-    ) -> Result<&CircuitFunctionType, FrameError> {
+    ) -> Result<&FunctionType, FrameError> {
         // Parse circuit name.
         let type_ = self.parse_expression(expression)?;
 
@@ -1078,37 +1078,25 @@ impl Frame {
         expression: &Expression,
         identifier: &Identifier,
         span: &Span,
+        is_static: bool,
     ) -> Result<FunctionType, FrameError> {
         // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
+        let function_type = self.parse_circuit_function_type(expression, identifier, span)?;
 
-        // Check that the function is non-static.
-        if let Some(Attribute::Static) = circuit_function_type.attribute {
-            return Err(FrameError::invalid_static_access(identifier));
+        // Case 1: static call + self keyword => Error
+        // Case 2: no static call + no self keywords => Error
+        // Case 3: static call + no self keywords => Ok
+        // Case 4: no static call + self keyword => Ok
+        if is_static && function_type.contains_self() {
+            return Err(FrameError::self_not_available(&identifier.span));
+        } else if !is_static && !function_type.contains_self() {
+            return Err(FrameError::static_call_invalid(&identifier));
         }
+
+        if is_static && function_type.contains_self() {}
 
         // Return the function type.
-        Ok(circuit_function_type.function.to_owned())
-    }
-
-    ///
-    /// Returns a `FunctionType` given a circuit expression and static function identifier.
-    ///
-    fn parse_static_circuit_function(
-        &mut self,
-        expression: &Expression,
-        identifier: &Identifier,
-        span: &Span,
-    ) -> Result<FunctionType, FrameError> {
-        // Find circuit function type.
-        let circuit_function_type = self.parse_circuit_function_type(expression, identifier, span)?;
-
-        // Check that the function is static.
-        if let Some(Attribute::Static) = circuit_function_type.attribute {
-            Ok(circuit_function_type.function.to_owned())
-        } else {
-            Err(FrameError::invalid_member_access(identifier))
-        }
+        Ok(function_type.to_owned())
     }
 
     ///
@@ -1126,12 +1114,17 @@ impl Frame {
         let function_type = self.parse_function_name(expression, span)?;
 
         // Check the length of arguments
-        if function_type.inputs.len() != inputs.len() {
-            return Err(FrameError::num_inputs(function_type.inputs.len(), inputs.len(), span));
+        let num_inputs = function_type.num_inputs();
+
+        if num_inputs != inputs.len() {
+            return Err(FrameError::num_inputs(num_inputs, inputs.len(), span));
         }
 
+        // Filter out `self` and `mut self` keywords.
+        let expected_inputs = function_type.filter_self_inputs();
+
         // Assert function inputs are correct types.
-        for (expected_input, actual_input) in function_type.inputs.iter().zip(inputs) {
+        for (expected_input, actual_input) in expected_inputs.iter().zip(inputs) {
             // Parse expected input type.
             let expected_type = expected_input.type_();
 

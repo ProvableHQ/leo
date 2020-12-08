@@ -82,7 +82,7 @@ impl TypeInference {
         // Create a new function for each circuit member function.
         for circuit_member in &circuit.members {
             // ignore circuit member variables
-            if let CircuitMember::CircuitFunction(_, function) = circuit_member {
+            if let CircuitMember::CircuitFunction(function) = circuit_member {
                 // Collect `TypeAssertion` predicates from the function.
                 // Pass down circuit self type and circuit variable types to each function.
                 let frame = Frame::new_circuit_function(
