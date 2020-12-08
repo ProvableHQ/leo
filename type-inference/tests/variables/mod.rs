@@ -18,32 +18,32 @@ use crate::TestTypeInference;
 
 #[test]
 fn test_duplicate_variable() {
-    let bytes = include_bytes!("duplicate_variable.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("duplicate_variable.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
 
 #[test]
 fn test_duplicate_variable_multi() {
-    let bytes = include_bytes!("duplicate_variable_multi.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("duplicate_variable_multi.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
 
 #[test]
 fn test_not_enough_values() {
-    let bytes = include_bytes!("not_enough_values.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("not_enough_values.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
 
 #[test]
 fn test_too_many_values() {
-    let bytes = include_bytes!("too_many_values.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("too_many_values.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }

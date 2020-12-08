@@ -28,8 +28,8 @@ use leo_ast::InputValue;
 
 #[test]
 fn test_assert() {
-    let bytes = include_bytes!("assert.leo");
-    let mut program_1_pass = parse_program(bytes).unwrap();
+    let program_string = include_str!("assert.leo");
+    let mut program_1_pass = parse_program(program_string).unwrap();
     let mut program_0_pass = program_1_pass.clone();
     let mut program_2_fail = program_1_pass.clone();
 
@@ -60,8 +60,8 @@ fn test_assert() {
 
 #[test]
 fn test_mutate() {
-    let bytes = include_bytes!("mutate.leo");
-    let mut program_1_pass = parse_program(bytes).unwrap();
+    let program_string = include_str!("mutate.leo");
+    let mut program_1_pass = parse_program(program_string).unwrap();
     let mut program_0_pass = program_1_pass.clone();
 
     // Check that an input value of 1 satisfies the constraint system
@@ -83,8 +83,8 @@ fn test_mutate() {
 
 #[test]
 fn test_for_loop() {
-    let bytes = include_bytes!("for_loop.leo");
-    let mut program_true_6 = parse_program(bytes).unwrap();
+    let program_string = include_str!("for_loop.leo");
+    let mut program_true_6 = parse_program(program_string).unwrap();
     let mut program_false_0 = program_true_6.clone();
 
     // Check that an input value of true satisfies the constraint system
@@ -106,8 +106,8 @@ fn test_for_loop() {
 
 #[test]
 fn test_chain() {
-    let bytes = include_bytes!("chain.leo");
-    let mut program_1_1 = parse_program(bytes).unwrap();
+    let program_string = include_str!("chain.leo");
+    let mut program_1_1 = parse_program(program_string).unwrap();
     let mut program_2_2 = program_1_1.clone();
     let mut program_4_3 = program_1_1.clone();
 
@@ -147,8 +147,8 @@ fn test_chain() {
 
 #[test]
 fn test_nested() {
-    let bytes = include_bytes!("nested.leo");
-    let mut program_true_true_3 = parse_program(bytes).unwrap();
+    let program_string = include_str!("nested.leo");
+    let mut program_true_true_3 = parse_program(program_string).unwrap();
     let mut program_true_false_1 = program_true_true_3.clone();
     let mut program_false_false_0 = program_true_true_3.clone();
 
@@ -205,19 +205,19 @@ fn output_zero(program: EdwardsTestCompiler) {
 
 #[test]
 fn test_multiple_returns() {
-    let program_bytes = include_bytes!("multiple_returns.leo");
+    let program_string = include_str!("multiple_returns.leo");
 
     // Check that an input value of 1 writes 1 to the output registers
 
-    let registers_one_bytes = include_bytes!("input/registers_one.in");
-    let program = parse_program_with_input(program_bytes, registers_one_bytes).unwrap();
+    let registers_one_string = include_str!("input/registers_one.in");
+    let program = parse_program_with_input(program_string, registers_one_string).unwrap();
 
     output_one(program);
 
     // Check that an input value of 0 writes 0 to the output registers
 
-    let registers_zero_bytes = include_bytes!("input/registers_zero.in");
-    let program = parse_program_with_input(program_bytes, registers_zero_bytes).unwrap();
+    let registers_zero_string = include_str!("input/registers_zero.in");
+    let program = parse_program_with_input(program_string, registers_zero_string).unwrap();
 
     output_zero(program);
 }

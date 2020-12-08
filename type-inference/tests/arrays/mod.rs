@@ -18,27 +18,27 @@ use crate::TestTypeInference;
 
 #[test]
 fn test_empty_array() {
-    let bytes = include_bytes!("empty_array.leo");
+    let program_string = include_str!("empty_array.leo");
 
-    let check = TestTypeInference::new(bytes);
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
 
 #[test]
 fn test_invalid_array_access() {
-    let bytes = include_bytes!("invalid_array_access.leo");
+    let program_string = include_str!("invalid_array_access.leo");
 
-    let check = TestTypeInference::new(bytes);
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
 
 #[test]
 fn test_invalid_spread() {
-    let bytes = include_bytes!("invalid_spread.leo");
+    let program_string = include_str!("invalid_spread.leo");
 
-    let check = TestTypeInference::new(bytes);
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }

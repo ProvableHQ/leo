@@ -18,8 +18,8 @@ use crate::TestTypeInference;
 
 #[test]
 fn test_invalid_tuple_access() {
-    let bytes = include_bytes!("invalid_tuple_access.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("invalid_tuple_access.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }
