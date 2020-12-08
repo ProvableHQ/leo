@@ -42,8 +42,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         declared_circuit_reference: &str,
+        indicator: &Boolean,
         mut_self: bool,
-        indicator: Option<Boolean>,
         assignee: Assignee,
         expression: Expression,
         span: &Span,
@@ -56,14 +56,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Mutate the old value into the new value
         if assignee.accesses.is_empty() {
-            let condition = indicator.unwrap_or(Boolean::Constant(true));
             let old_value = self.get_mutable_assignee(&variable_name, span)?;
 
             new_value.resolve_type(Some(old_value.to_type(&span)?), span)?;
 
             let selected_value = ConstrainedValue::conditionally_select(
                 cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
-                &condition,
+                indicator,
                 &new_value,
                 old_value,
             )

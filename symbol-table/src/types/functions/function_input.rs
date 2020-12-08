@@ -78,15 +78,6 @@ impl FunctionInputType {
     }
 
     ///
-    /// Returns `0` if the function input is a `self` or `mut self` keyword which does not have to
-    /// provided in a call to the function.
-    /// Returns `1` if a variable must be provided in a call to the function.
-    ///
-    pub fn count(&self) -> usize {
-        if self.is_self() { 0 } else { 1 }
-    }
-
-    ///
     /// Return a new `FunctionInputType` from a given `FunctionInput`.
     ///
     /// Performs a lookup in the given symbol table if the function input contains

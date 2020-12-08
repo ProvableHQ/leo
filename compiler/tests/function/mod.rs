@@ -64,15 +64,31 @@ fn test_newlines() {
 
 #[test]
 fn test_multiple_returns() {
-    let bytes = include_bytes!("multiple.leo");
+    let bytes = include_bytes!("multiple_returns.leo");
     let program = parse_program(bytes).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
+fn test_multiple_returns_fail() {
+    let bytes = include_bytes!("multiple_returns_fail.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multiple_returns_fail_conditional() {
+    let bytes = include_bytes!("multiple_returns_fail_conditional.leo");
+    let program = parse_program(bytes).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
 fn test_multiple_returns_main() {
-    let program_bytes = include_bytes!("multiple_main.leo");
+    let program_bytes = include_bytes!("multiple_returns_main.leo");
     let input_bytes = include_bytes!("input/registers.in");
 
     let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
