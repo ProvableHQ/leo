@@ -5,5 +5,5 @@ circuit Foo {
 }
 
 function main() {
-    let err = Foo::echo(1u32); // echo is a non-static function and must be accessed using `.`
+    let err = Foo.echo(1u32); // Invalid, echo is a static function and must be accessed using `::`
 }

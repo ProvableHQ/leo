@@ -18,6 +18,7 @@ use crate::{CoreCircuit, CoreCircuitError, Value};
 
 use leo_ast::{
     ArrayDimensions,
+    Block,
     Circuit,
     CircuitMember,
     Expression,
@@ -61,52 +62,51 @@ impl CoreCircuit for Blake2sCircuit {
     fn ast(circuit_name: Identifier, span: Span) -> Circuit {
         Circuit {
             circuit_name,
-            members: vec![CircuitMember::CircuitFunction(
-                true, // static function
-                Function {
-                    identifier: Identifier {
-                        name: "hash".to_owned(),
+            members: vec![CircuitMember::CircuitFunction(Function {
+                identifier: Identifier {
+                    name: "hash".to_owned(),
+                    span: span.clone(),
+                },
+                input: vec![
+                    FunctionInput::Variable(FunctionInputVariable {
+                        identifier: Identifier {
+                            name: "seed".to_owned(),
+                            span: span.clone(),
+                        },
+                        mutable: false,
+                        type_: Type::Array(
+                            Box::new(Type::IntegerType(IntegerType::U8)),
+                            ArrayDimensions(vec![PositiveNumber {
+                                value: 32usize.to_string(),
+                                span: span.clone(),
+                            }]),
+                        ),
                         span: span.clone(),
-                    },
-                    input: vec![
-                        FunctionInput::Variable(FunctionInputVariable {
-                            identifier: Identifier {
-                                name: "seed".to_owned(),
+                    }),
+                    FunctionInput::Variable(FunctionInputVariable {
+                        identifier: Identifier {
+                            name: "message".to_owned(),
+                            span: span.clone(),
+                        },
+                        mutable: false,
+                        type_: Type::Array(
+                            Box::new(Type::IntegerType(IntegerType::U8)),
+                            ArrayDimensions(vec![PositiveNumber {
+                                value: 32usize.to_string(),
                                 span: span.clone(),
-                            },
-                            mutable: false,
-                            type_: Type::Array(
-                                Box::new(Type::IntegerType(IntegerType::U8)),
-                                ArrayDimensions(vec![PositiveNumber {
-                                    value: 32usize.to_string(),
-                                    span: span.clone(),
-                                }]),
-                            ),
-                            span: span.clone(),
-                        }),
-                        FunctionInput::Variable(FunctionInputVariable {
-                            identifier: Identifier {
-                                name: "message".to_owned(),
-                                span: span.clone(),
-                            },
-                            mutable: false,
-                            type_: Type::Array(
-                                Box::new(Type::IntegerType(IntegerType::U8)),
-                                ArrayDimensions(vec![PositiveNumber {
-                                    value: 32usize.to_string(),
-                                    span: span.clone(),
-                                }]),
-                            ),
-                            span: span.clone(),
-                        }),
-                    ],
-                    output: Some(Type::Array(
-                        Box::new(Type::IntegerType(IntegerType::U8)),
-                        ArrayDimensions(vec![PositiveNumber {
-                            value: 32usize.to_string(),
-                            span: span.clone(),
-                        }]),
-                    )),
+                            }]),
+                        ),
+                        span: span.clone(),
+                    }),
+                ],
+                output: Some(Type::Array(
+                    Box::new(Type::IntegerType(IntegerType::U8)),
+                    ArrayDimensions(vec![PositiveNumber {
+                        value: 32usize.to_string(),
+                        span: span.clone(),
+                    }]),
+                )),
+                block: Block {
                     statements: vec![Statement::Return(
                         Expression::CoreFunctionCall(
                             Self::name(),
@@ -124,9 +124,9 @@ impl CoreCircuit for Blake2sCircuit {
                         ),
                         span.clone(),
                     )],
-                    span,
                 },
-            )],
+                span,
+            })],
         }
     }
 

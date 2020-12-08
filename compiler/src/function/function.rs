@@ -23,21 +23,12 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Span, Type};
+use leo_ast::{Expression, Function, FunctionInput};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
-
-pub fn check_arguments_length(expected: usize, actual: usize, span: &Span) -> Result<(), FunctionError> {
-    // Make sure we are given the correct number of arguments
-    if expected != actual {
-        Err(FunctionError::arguments_length(expected, actual, span.to_owned()))
-    } else {
-        Ok(())
-    }
-}
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
@@ -51,17 +42,29 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope, function.get_name());
 
-        // Make sure we are given the correct number of input variables
-        check_arguments_length(function.input.len(), input.len(), &function.span)?;
+        // Store if function contains input `mut self`.
+        let mut_self = function.contains_mut_self();
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.input.iter().zip(input.into_iter()) {
+        for (input_model, input_expression) in function.filter_self_inputs().zip(input.into_iter()) {
             let (name, value) = match input_model {
-                FunctionInput::InputKeyword(identifier) => {
-                    let input_value =
+                FunctionInput::InputKeyword(keyword) => {
+                    let value =
                         self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
 
-                    (&identifier.name, input_value)
+                    (keyword.to_string(), value)
+                }
+                FunctionInput::SelfKeyword(keyword) => {
+                    let value =
+                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+
+                    (keyword.to_string(), value)
+                }
+                FunctionInput::MutSelfKeyword(keyword) => {
+                    let value =
+                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+
+                    (keyword.to_string(), value)
                 }
                 FunctionInput::Variable(input_model) => {
                     // First evaluate input expression
@@ -78,7 +81,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         input_value = ConstrainedValue::Mutable(Box::new(input_value))
                     }
 
-                    (&input_model.identifier.name, input_value)
+                    (input_model.identifier.name.clone(), input_value)
                 }
             };
 
@@ -89,42 +92,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
+        let indicator = Boolean::constant(true);
 
-        for statement in function.statements.iter() {
+        for statement in function.block.statements.iter() {
             let mut result = self.enforce_statement(
                 cs,
                 scope,
                 &function_name,
-                None,
+                &indicator,
                 statement.clone(),
                 function.output.clone(),
                 declared_circuit_reference,
+                mut_self,
             )?;
 
             results.append(&mut result);
         }
 
         // Conditionally select a result based on returned indicators
-        let mut return_values = ConstrainedValue::Tuple(vec![]);
-
-        Self::conditionally_select_result(cs, &mut return_values, results, &function.span)?;
-
-        if let ConstrainedValue::Tuple(ref returns) = return_values {
-            let return_types = match function.output {
-                Some(Type::Tuple(types)) => types.len(),
-                Some(_) => 1usize,
-                None => 0usize,
-            };
-
-            if return_types != returns.len() {
-                return Err(FunctionError::return_arguments_length(
-                    return_types,
-                    returns.len(),
-                    function.span.clone(),
-                ));
-            }
-        }
-
-        Ok(return_values)
+        Self::conditionally_select_result(cs, function.output, results, &function.span)
+            .map_err(FunctionError::StatementError)
     }
 }

@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    circuits::{CircuitFunction, CircuitVariableDefinition},
-};
+use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
 
 use pest_ast::FromPest;
 use serde::Serialize;
@@ -26,5 +23,5 @@ use serde::Serialize;
 #[pest_ast(rule(Rule::circuit_member))]
 pub enum CircuitMember<'ast> {
     CircuitVariableDefinition(CircuitVariableDefinition<'ast>),
-    CircuitFunction(CircuitFunction<'ast>),
+    CircuitFunction(Function<'ast>),
 }

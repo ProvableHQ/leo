@@ -25,7 +25,7 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_ast::{Expression, Identifier, Span, Statement, Type};
+use leo_ast::{Block, Expression, Identifier, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -42,12 +42,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         index: Identifier,
         start: Expression,
         stop: Expression,
-        statements: Vec<Statement>,
+        block: Block,
         return_type: Option<Type>,
+        mut_self: bool,
         span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
@@ -67,13 +68,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             );
 
             // Evaluate statements and possibly return early
-            let mut result = self.evaluate_branch(
+            let mut result = self.evaluate_block(
                 &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, span.line, span.start)),
                 file_scope,
                 function_scope,
                 indicator,
-                statements.clone(),
+                block.clone(),
                 return_type.clone(),
+                mut_self,
             )?;
 
             results.append(&mut result);

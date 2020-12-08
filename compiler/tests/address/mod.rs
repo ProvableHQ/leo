@@ -22,72 +22,72 @@ static TEST_ADDRESS_2: &str = "aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams
 
 #[test]
 fn test_valid() {
-    let bytes = include_bytes!("valid.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("valid.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program)
 }
 
 #[test]
 fn test_invalid_prefix() {
-    let bytes = include_bytes!("invalid_prefix.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("invalid_prefix.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_invalid_length() {
-    let bytes = include_bytes!("invalid_length.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("invalid_length.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_empty() {
-    let bytes = include_bytes!("empty.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("empty.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_implicit_valid() {
-    let bytes = include_bytes!("implicit_valid.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("implicit_valid.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_implicit_invalid() {
-    let bytes = include_bytes!("implicit_invalid.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("implicit_invalid.leo");
+    let program = parse_program(program_string).unwrap();
 
     let _output = expect_compiler_error(program);
 }
 
 #[test]
 fn test_console_assert_pass() {
-    let bytes = include_bytes!("console_assert_pass.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("console_assert_pass.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_console_assert_fail() {
-    let bytes = include_bytes!("console_assert_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("console_assert_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     let _output = expect_compiler_error(program);
 }
 
 #[test]
 fn test_ternary() {
-    let bytes = include_bytes!("ternary.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("ternary.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(true))),
@@ -98,7 +98,7 @@ fn test_ternary() {
 
     assert_satisfied(program);
 
-    let mut program = parse_program(bytes).unwrap();
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("s", Some(InputValue::Boolean(false))),
@@ -112,8 +112,8 @@ fn test_ternary() {
 
 #[test]
 fn test_equal() {
-    let bytes = include_bytes!("equal.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("equal.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),
@@ -125,7 +125,7 @@ fn test_equal() {
 
     assert_satisfied(program);
 
-    let mut program = parse_program(bytes).unwrap();
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![
         ("a", Some(InputValue::Address(TEST_ADDRESS_1.to_string()))),

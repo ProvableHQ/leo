@@ -31,15 +31,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn assign_tuple<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         name: &str,
         index: PositiveNumber,
         mut new_value: ConstrainedValue<F, G>,
         span: &Span,
     ) -> Result<(), StatementError> {
-        // Get the indicator value.
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-
         // Parse the index.
         let index_usize = parse_index(&index, &span)?;
 
@@ -50,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 let selected_value = ConstrainedValue::conditionally_select(
                     cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
-                    &condition,
+                    indicator,
                     &new_value,
                     &old[index_usize],
                 )

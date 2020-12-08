@@ -49,15 +49,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         statement: ConditionalStatement,
         return_type: Option<Type>,
+        mut_self: bool,
         span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let statement_string = statement.to_string();
 
-        // Inherit the indicator from a previous conditional statement or assume that we are the outer parent
-        let outer_indicator = indicator.unwrap_or(Boolean::Constant(true));
+        // Inherit an indicator from a previous statement.
+        let outer_indicator = indicator;
 
         // Evaluate the conditional boolean as the inner indicator
         let inner_indicator = match self.enforce_expression(
@@ -72,7 +73,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         // If outer_indicator && inner_indicator, then select branch 1
-        let outer_indicator_string = indicator_to_string(&outer_indicator);
+        let outer_indicator_string = indicator_to_string(outer_indicator);
         let inner_indicator_string = indicator_to_string(&inner_indicator);
         let branch_1_name = format!(
             "branch indicator 1 {} && {}",
@@ -80,7 +81,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         );
         let branch_1_indicator = Boolean::and(
             &mut cs.ns(|| format!("branch 1 {} {}:{}", statement_string, span.line, span.start)),
-            &outer_indicator,
+            outer_indicator,
             &inner_indicator,
         )
         .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.to_owned()))?;
@@ -88,13 +89,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
 
         // Evaluate branch 1
-        let mut branch_1_result = self.evaluate_branch(
+        let mut branch_1_result = self.evaluate_block(
             cs,
             file_scope,
             function_scope,
-            Some(branch_1_indicator),
-            statement.statements,
+            &branch_1_indicator,
+            statement.block,
             return_type.clone(),
+            mut_self,
         )?;
 
         results.append(&mut branch_1_result);
@@ -120,18 +122,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope,
                     function_scope,
-                    Some(branch_2_indicator),
+                    &branch_2_indicator,
                     *nested,
                     return_type,
+                    mut_self,
                     span,
                 )?,
-                ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
+                ConditionalNestedOrEndStatement::End(block) => self.evaluate_block(
                     cs,
                     file_scope,
                     function_scope,
-                    Some(branch_2_indicator),
-                    statements,
+                    &branch_2_indicator,
+                    block,
                     return_type,
+                    mut_self,
                 )?,
             },
             None => vec![],

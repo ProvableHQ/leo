@@ -26,85 +26,99 @@ use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, Statem
 
 #[test]
 fn test_empty() {
-    let bytes = include_bytes!("empty.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("empty.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_iteration() {
-    let bytes = include_bytes!("iteration.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("iteration.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_iteration_repeated() {
-    let bytes = include_bytes!("iteration_repeated.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("iteration_repeated.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_newlines() {
-    let input_bytes = include_bytes!("input/newlines.in");
-    let program_bytes = include_bytes!("newlines.leo");
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let input_string = include_str!("input/newlines.in");
+    let program_string = include_str!("newlines.leo");
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected_bytes = include_bytes!("output/newlines.out");
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
+    let expected_string = include_str!("output/newlines.out");
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual);
+    assert_eq!(expected_string, actual_string);
 }
 
 #[test]
 fn test_multiple_returns() {
-    let bytes = include_bytes!("multiple.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("multiple_returns.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
+fn test_multiple_returns_fail() {
+    let program_string = include_str!("multiple_returns_fail.leo");
+    let program = parse_program(program_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_multiple_returns_fail_conditional() {
+    let program_string = include_str!("multiple_returns_fail_conditional.leo");
+    let program = parse_program(program_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
 fn test_multiple_returns_main() {
-    let program_bytes = include_bytes!("multiple_main.leo");
-    let input_bytes = include_bytes!("input/registers.in");
+    let program_string = include_str!("multiple_returns_main.leo");
+    let input_string = include_str!("input/registers.in");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected_bytes = include_bytes!("output/registers.out");
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
+    let expected_string = include_str!("output/registers.out");
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual);
+    assert_eq!(expected_string, actual_string);
 }
 
 #[test]
 fn test_repeated_function_call() {
-    let bytes = include_bytes!("repeated.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("repeated.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_return() {
-    let bytes = include_bytes!("return.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_scope_fail() {
-    let bytes = include_bytes!("scope_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("scope_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     match expect_compiler_error(program) {
         CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
@@ -119,24 +133,24 @@ fn test_scope_fail() {
 
 #[test]
 fn test_undefined() {
-    let bytes = include_bytes!("undefined.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("undefined.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_value_unchanged() {
-    let bytes = include_bytes!("value_unchanged.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("value_unchanged.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_array_input() {
-    let bytes = include_bytes!("array_input.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("array_input.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error)
 }
@@ -145,32 +159,32 @@ fn test_array_input() {
 
 #[test]
 fn test_return_array_nested_fail() {
-    let bytes = include_bytes!("return_array_nested_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_array_nested_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     let _err = expect_compiler_error(program);
 }
 
 #[test]
 fn test_return_array_nested_pass() {
-    let bytes = include_bytes!("return_array_nested_pass.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_array_nested_pass.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_return_array_tuple_fail() {
-    let bytes = include_bytes!("return_array_tuple_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_array_tuple_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     let _err = expect_compiler_error(program);
 }
 
 #[test]
 fn test_return_array_tuple_pass() {
-    let bytes = include_bytes!("return_array_tuple_pass.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_array_tuple_pass.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -179,16 +193,16 @@ fn test_return_array_tuple_pass() {
 
 #[test]
 fn test_return_tuple() {
-    let bytes = include_bytes!("return_tuple.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_tuple.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_return_tuple_conditional() {
-    let bytes = include_bytes!("return_tuple_conditional.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("return_tuple_conditional.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }

@@ -119,6 +119,29 @@ impl FunctionType {
 
         Ok(())
     }
+
+    ///
+    /// Returns `true` if the input `self` or `mut self` is present.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.inputs.iter().any(|param| param.is_self())
+    }
+
+    ///
+    /// Returns an iterator of [&FunctionInputType] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInputType> {
+        self.inputs.iter().filter(|input| !input.is_self())
+    }
+
+    ///
+    /// Returns the number of input variables to the function.
+    /// The `self` and `mut self` keywords are not counted as input variables.
+    ///
+    pub fn num_inputs(&self) -> usize {
+        self.filter_self_inputs().count()
+    }
 }
 
 impl PartialEq for FunctionType {

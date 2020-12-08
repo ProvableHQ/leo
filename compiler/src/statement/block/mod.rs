@@ -14,18 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Static, functions::Function, SpanDef};
+//! Methods to enforce constraints on a branch of a conditional or iteration statement
+//! in a compiled Leo program.
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
-
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_function))]
-pub struct CircuitFunction<'ast> {
-    pub _static: Option<Static>,
-    pub function: Function<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
-}
+pub mod block;
+pub use self::block::*;

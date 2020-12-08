@@ -19,3 +19,6 @@ pub use self::cli::*;
 
 pub mod commands;
 pub use self::commands::*;
+
+pub mod updater;
+pub use self::updater::*;

@@ -1,7 +1,7 @@
 circuit Foo {
     a: u8,
 
-    function set_a(new: u8) {
+    function set_a(self, new: u8) {
         self.a = new;
     }
 }

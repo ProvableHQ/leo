@@ -82,12 +82,6 @@ impl FunctionError {
         FunctionError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn arguments_length(expected: usize, actual: usize, span: Span) -> Self {
-        let message = format!("function expected {} input variables, found {}", expected, actual);
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_array(actual: String, span: Span) -> Self {
         let message = format!("Expected function input array, found `{}`", actual);
 

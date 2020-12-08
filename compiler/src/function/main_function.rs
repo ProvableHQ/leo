@@ -23,7 +23,7 @@ use crate::{
     OutputBytes,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Input};
+use leo_ast::{Expression, Function, FunctionInput, Identifier, Input};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -44,11 +44,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Iterate over main function input variables and allocate new values
         let mut input_variables = Vec::with_capacity(function.input.len());
         for input_model in function.input.clone().into_iter() {
-            let (identifier, value) = match input_model {
-                FunctionInput::InputKeyword(identifier) => {
-                    let value = self.allocate_input_keyword(cs, identifier.clone(), &input)?;
+            let (input_id, value) = match input_model {
+                FunctionInput::InputKeyword(keyword) => {
+                    let input_id = Identifier::new_with_span(&keyword.to_string(), &keyword.span);
+                    let value = self.allocate_input_keyword(cs, keyword, &input)?;
 
-                    (identifier, value)
+                    (input_id, value)
+                }
+                FunctionInput::SelfKeyword(_) => unimplemented!("cannot access self keyword in main function"),
+                FunctionInput::MutSelfKeyword(_) => {
+                    unimplemented!("cannot access mut self keyword in main function")
                 }
                 FunctionInput::Variable(input_model) => {
                     let name = input_model.identifier.name.clone();
@@ -63,12 +68,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             };
 
             // Store input as variable with {function_name}_{identifier_name}
-            let input_name = new_scope(&function_name, &identifier.name);
+            let input_name = new_scope(&function_name, &input_id.to_string());
 
             // Store a new variable for every allocated main function input
             self.store(input_name, value);
 
-            input_variables.push(Expression::Identifier(identifier));
+            input_variables.push(Expression::Identifier(input_id));
         }
 
         let span = function.span.clone();

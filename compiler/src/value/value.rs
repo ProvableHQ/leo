@@ -229,8 +229,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
+    ///
+    /// Modifies the `self` [ConstrainedValue] so there are no `mut` keywords wrapping the `self` value.
+    ///
     pub(crate) fn get_inner_mut(&mut self) {
         if let ConstrainedValue::Mutable(inner) = self {
+            // Recursively remove `mut` keywords.
+            inner.get_inner_mut();
+
+            // Modify the value.
             *self = *inner.clone()
         }
     }

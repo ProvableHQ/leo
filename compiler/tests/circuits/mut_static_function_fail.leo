@@ -1,5 +1,5 @@
 circuit Foo {
-    static function bar() {}
+    function bar() {}
 }
 
 function main() {
