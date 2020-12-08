@@ -34,6 +34,14 @@ fn test_let_mut() {
 }
 
 #[test]
+fn test_let_mut_nested() {
+    let program_string = include_str!("let_mut_nested.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_const_fail() {
     let program_string = include_str!("const.leo");
     let program = parse_program(program_string).unwrap();
@@ -78,7 +86,7 @@ fn test_circuit_mut() {
     let program_string = include_str!("circuit_mut.leo");
     let program = parse_program(program_string).unwrap();
 
-    expect_compiler_error(program);
+    assert_satisfied(program);
 }
 
 #[test]

@@ -14,14 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
+use crate::{ast::Rule, statements::Statement, SpanDef};
 
+use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
+use std::fmt;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_member))]
-pub enum CircuitMember<'ast> {
-    CircuitVariableDefinition(CircuitVariableDefinition<'ast>),
-    CircuitFunction(Function<'ast>),
+#[pest_ast(rule(Rule::block))]
+pub struct Block<'ast> {
+    pub statements: Vec<Statement<'ast>>,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}
+
+impl<'ast> fmt::Display for Block<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{{")?;
+        if self.statements.is_empty() {
+            writeln!(f, "\t")?;
+        } else {
+            self.statements
+                .iter()
+                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
+        }
+        write!(f, "}}")
+    }
 }

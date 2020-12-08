@@ -22,6 +22,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FunctionInputType {
     InputKeyword(Identifier),
+    SelfKeyword(Identifier),
+    MutSelfKeyword(Identifier),
     Variable(FunctionInputVariableType),
 }
 
@@ -32,6 +34,8 @@ impl FunctionInputType {
     pub fn identifier(&self) -> &Identifier {
         match self {
             FunctionInputType::InputKeyword(identifier) => identifier,
+            FunctionInputType::SelfKeyword(identifier) => identifier,
+            FunctionInputType::MutSelfKeyword(identifier) => identifier,
             FunctionInputType::Variable(variable) => &variable.identifier,
         }
     }
@@ -42,6 +46,8 @@ impl FunctionInputType {
     pub fn type_(&self) -> Type {
         match self {
             FunctionInputType::InputKeyword(identifier) => Type::Circuit(identifier.to_owned()),
+            FunctionInputType::SelfKeyword(identifier) => Type::Circuit(identifier.to_owned()),
+            FunctionInputType::MutSelfKeyword(identifier) => Type::Circuit(identifier.to_owned()),
             FunctionInputType::Variable(variable) => variable.type_.to_owned(),
         }
     }
@@ -52,8 +58,32 @@ impl FunctionInputType {
     pub fn span(&self) -> &Span {
         match self {
             FunctionInputType::InputKeyword(identifier) => &identifier.span,
+            FunctionInputType::SelfKeyword(identifier) => &identifier.span,
+            FunctionInputType::MutSelfKeyword(identifier) => &identifier.span,
             FunctionInputType::Variable(variable) => &variable.span,
         }
+    }
+
+    ///
+    /// Returns `true` if input `self` or `mut self` is present.
+    /// Returns `false` otherwise.
+    ///
+    pub fn is_self(&self) -> bool {
+        match self {
+            FunctionInputType::InputKeyword(_) => false,
+            FunctionInputType::SelfKeyword(_) => true,
+            FunctionInputType::MutSelfKeyword(_) => true,
+            FunctionInputType::Variable(_) => false,
+        }
+    }
+
+    ///
+    /// Returns `0` if the function input is a `self` or `mut self` keyword which does not have to
+    /// provided in a call to the function.
+    /// Returns `1` if a variable must be provided in a call to the function.
+    ///
+    pub fn count(&self) -> usize {
+        if self.is_self() { 0 } else { 1 }
     }
 
     ///
@@ -64,7 +94,9 @@ impl FunctionInputType {
     ///
     pub fn new(table: &SymbolTable, unresolved: FunctionInput) -> Result<Self, TypeError> {
         Ok(match unresolved {
-            FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
+            FunctionInput::InputKeyword(keyword) => FunctionInputType::InputKeyword(Identifier::from(keyword)),
+            FunctionInput::SelfKeyword(_) => unimplemented!("cannot call self keyword from non-circuit context"),
+            FunctionInput::MutSelfKeyword(_) => unimplemented!("cannot call mut self keyword from non-circuit context"),
             FunctionInput::Variable(variable) => {
                 let variable_resolved = FunctionInputVariableType::new(table, variable)?;
 
@@ -88,7 +120,13 @@ impl FunctionInputType {
         circuit_name: Identifier,
     ) -> Result<Self, TypeError> {
         Ok(match unresolved {
-            FunctionInput::InputKeyword(identifier) => FunctionInputType::InputKeyword(identifier),
+            FunctionInput::InputKeyword(keyword) => FunctionInputType::InputKeyword(Identifier::from(keyword)),
+            FunctionInput::SelfKeyword(keyword) => {
+                FunctionInputType::SelfKeyword(Identifier::new_with_span(&circuit_name.name, &keyword.span))
+            }
+            FunctionInput::MutSelfKeyword(keyword) => {
+                FunctionInputType::MutSelfKeyword(Identifier::new_with_span(&circuit_name.name, &keyword.span))
+            }
             FunctionInput::Variable(unresolved_function_input) => {
                 let function_input =
                     FunctionInputVariableType::new_from_circuit(table, unresolved_function_input, circuit_name)?;

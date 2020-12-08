@@ -14,14 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
+#[derive(Debug, Error)]
+pub enum UpdaterError {
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
 
-use pest_ast::FromPest;
-use serde::Serialize;
+    #[error("The current version {} is more recent than the release version {}", _0, _1)]
+    OldReleaseVersion(String, String),
+}
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_member))]
-pub enum CircuitMember<'ast> {
-    CircuitVariableDefinition(CircuitVariableDefinition<'ast>),
-    CircuitFunction(Function<'ast>),
+impl From<self_update::errors::Error> for UpdaterError {
+    fn from(error: self_update::errors::Error) -> Self {
+        tracing::error!("{}\n", error);
+        UpdaterError::Crate("self_update", error.to_string())
+    }
 }

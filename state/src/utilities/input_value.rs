@@ -30,11 +30,8 @@ pub fn find_input(
         .find(|(parameter, _value)| parameter.variable.name == name);
 
     match matched_parameter {
-        Some((_parameter, value_option)) => match value_option {
-            Some(value) => Ok(value.clone()),
-            None => Err(InputValueError::MissingParameter(name)),
-        },
-        None => Err(InputValueError::MissingParameter(name)),
+        Some((_parameter, Some(value))) => Ok(value.clone()),
+        _ => Err(InputValueError::MissingParameter(name)),
     }
 }
 

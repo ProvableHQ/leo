@@ -45,6 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: Statement,
         return_type: Option<Type>,
         declared_circuit_reference: &str,
+        mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
@@ -74,6 +75,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     file_scope,
                     function_scope,
                     declared_circuit_reference,
+                    mut_self,
                     indicator,
                     variable,
                     expression,
@@ -88,12 +90,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     statement,
                     return_type,
+                    mut_self,
                     &span,
                 )?;
 
                 results.append(&mut result);
             }
-            Statement::Iteration(index, start_stop, statements, span) => {
+            Statement::Iteration(index, start_stop, block, span) => {
                 let mut result = self.enforce_iteration_statement(
                     cs,
                     file_scope,
@@ -102,8 +105,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     index,
                     start_stop.0,
                     start_stop.1,
-                    statements,
+                    block,
                     return_type,
+                    mut_self,
                     &span,
                 )?;
 

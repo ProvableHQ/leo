@@ -52,6 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: Option<Boolean>,
         statement: ConditionalStatement,
         return_type: Option<Type>,
+        mut_self: bool,
         span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let statement_string = statement.to_string();
@@ -88,13 +89,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
 
         // Evaluate branch 1
-        let mut branch_1_result = self.evaluate_branch(
+        let mut branch_1_result = self.evaluate_block(
             cs,
             file_scope,
             function_scope,
             Some(branch_1_indicator),
-            statement.statements,
+            statement.block,
             return_type.clone(),
+            mut_self,
         )?;
 
         results.append(&mut branch_1_result);
@@ -123,15 +125,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     Some(branch_2_indicator),
                     *nested,
                     return_type,
+                    mut_self,
                     span,
                 )?,
-                ConditionalNestedOrEndStatement::End(statements) => self.evaluate_branch(
+                ConditionalNestedOrEndStatement::End(block) => self.evaluate_block(
                     cs,
                     file_scope,
                     function_scope,
                     Some(branch_2_indicator),
-                    statements,
+                    block,
                     return_type,
+                    mut_self,
                 )?,
             },
             None => vec![],

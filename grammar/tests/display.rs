@@ -14,14 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
+use from_pest::FromPest;
+use leo_grammar::{
+    ast::{LanguageParser, Rule},
+    statements::ConditionalStatement,
+};
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use pest::*;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_member))]
-pub enum CircuitMember<'ast> {
-    CircuitVariableDefinition(CircuitVariableDefinition<'ast>),
-    CircuitFunction(Function<'ast>),
+#[test]
+fn conditional_statement_display() {
+    let input = r#"if (true) {
+	
+} else {
+	
+}"#;
+    let conditional_statement =
+        ConditionalStatement::from_pest(&mut LanguageParser::parse(Rule::statement_conditional, input).unwrap())
+            .unwrap();
+    let displayed = format!("{}", conditional_statement);
+
+    assert_eq!(input, displayed);
 }

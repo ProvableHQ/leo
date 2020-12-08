@@ -1,6 +1,6 @@
 // Adding the `mut` keyword makes a circuit variable mutable.
 circuit Foo {
-    static function bar() {}
+    function bar() {}
 }
 
 function main() {

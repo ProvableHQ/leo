@@ -173,6 +173,27 @@ impl FrameError {
     }
 
     ///
+    /// The `self` keyword was used in a static circuit function signature.
+    ///
+    pub fn self_not_available(span: &Span) -> Self {
+        let message = "keyword `self` is only available in static circuit functions.".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    ///
+    /// A static function was accessed using dot `.` syntax instead of double colon `::` syntax.
+    ///
+    pub fn static_call_invalid(identifier: &Identifier) -> Self {
+        let message = format!(
+            "Static function `{}` must be called using double colon `::` syntax.",
+            identifier.name
+        );
+
+        Self::new_from_span(message, &identifier.span)
+    }
+
+    ///
     /// Attempted to access the index of a non-tuple type.
     ///
     pub fn tuple_access(actual: &Type, span: &Span) -> Self {

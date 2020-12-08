@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInput, Identifier, Span, Statement, Type};
+use crate::{Block, FunctionInput, Identifier, Span, Type};
 use leo_grammar::functions::Function as GrammarFunction;
 
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub struct Function {
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
     pub output: Option<Type>,
-    pub statements: Vec<Statement>,
+    pub block: Block,
     pub span: Span,
 }
 
@@ -43,13 +43,13 @@ impl<'ast> From<GrammarFunction<'ast>> for Function {
 
         let parameters = function.parameters.into_iter().map(FunctionInput::from).collect();
         let returns = function.returns.map(Type::from);
-        let statements = function.statements.into_iter().map(Statement::from).collect();
+        let block = Block::from(function.block);
 
         Function {
             identifier: function_name,
             input: parameters,
             output: returns,
-            statements,
+            block,
             span: Span::from(function.span),
         }
     }
@@ -60,21 +60,41 @@ impl Function {
         &self.identifier.name
     }
 
+    ///
+    /// Returns `true` if the function has input `self` or `mut self`.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_self(&self) -> bool {
+        self.input.iter().any(|param| param.is_self())
+    }
+
+    ///
+    /// Returns `true` if the function has input `mut self`.
+    /// Returns `false` otherwise.
+    ///
+    pub fn contains_mut_self(&self) -> bool {
+        self.input.iter().any(|param| param.is_mut_self())
+    }
+
+    ///
+    /// Returns a vector of [&FunctionInput] removing `self` and `mut self` inputs.
+    ///
+    pub fn filter_self_inputs(&self) -> Vec<&FunctionInput> {
+        self.input
+            .iter()
+            .filter(|input| !input.is_self())
+            .collect::<Vec<&FunctionInput>>()
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
         let returns = self.output.as_ref().map(|type_| type_.to_string());
-        let statements = self
-            .statements
-            .iter()
-            .map(|s| format!("\t{}\n", s))
-            .collect::<Vec<_>>()
-            .join("");
         if returns.is_none() {
-            write!(f, "({}) {{\n{}}}", parameters, statements,)
+            write!(f, "({}) {}", parameters, self.block)
         } else {
-            write!(f, "({}) -> {} {{\n{}}}", parameters, returns.unwrap(), statements,)
+            write!(f, "({}) -> {} {}", parameters, returns.unwrap(), self.block)
         }
     }
 }

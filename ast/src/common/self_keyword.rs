@@ -14,14 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
+use crate::Span;
+use leo_grammar::common::SelfKeyword as GrammarSelfKeyword;
 
-use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::circuit_member))]
-pub enum CircuitMember<'ast> {
-    CircuitVariableDefinition(CircuitVariableDefinition<'ast>),
-    CircuitFunction(Function<'ast>),
+/// The `self` keyword can view circuit values inside of a circuit function.
+/// Circuit values cannot be modified. To modify values use the `mut self` [MutSelfKeyword].
+#[derive(Clone, Serialize, Deserialize)]
+pub struct SelfKeyword {
+    pub span: Span,
+}
+
+impl<'ast> From<GrammarSelfKeyword<'ast>> for SelfKeyword {
+    fn from(grammar: GrammarSelfKeyword<'ast>) -> Self {
+        Self {
+            span: Span::from(grammar.span),
+        }
+    }
+}
+
+impl fmt::Display for SelfKeyword {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "self")
+    }
 }

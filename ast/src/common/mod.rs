@@ -26,11 +26,20 @@ pub use declare::*;
 pub mod identifier;
 pub use identifier::*;
 
+pub mod input_keyword;
+pub use input_keyword::*;
+
+pub mod mut_self_keyword;
+pub use mut_self_keyword::*;
+
 pub mod positive_number;
 pub use positive_number::*;
 
 pub mod range_or_expression;
 pub use range_or_expression::*;
+
+pub mod self_keyword;
+pub use self_keyword::*;
 
 pub mod span;
 pub use span::*;

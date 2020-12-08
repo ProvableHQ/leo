@@ -219,9 +219,9 @@ fn test_self_member_pass() {
 #[test]
 fn test_self_member_invalid() {
     let program_string = include_str!("self_member_invalid.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_type_inference_error(error);
 }
 
 #[test]
