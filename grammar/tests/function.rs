@@ -75,7 +75,7 @@ fn empty_def() {
         input:  "function x() {}",
         rule:   Rule::function,
         tokens: [
-            function(0, 15, [identifier(9, 10, [])])
+            function(0, 15, [identifier(9, 10, []), block(13, 15, [])])
         ]
     }
 }
@@ -87,7 +87,7 @@ fn returning_unit_type() {
         input:  "function x() -> () {}",
         rule:   Rule::function,
         tokens: [
-            function(0, 21, [identifier(9, 10, []), type_(16, 18, [type_tuple(16, 18, [])])])
+            function(0, 21, [identifier(9, 10, []), type_(16, 18, [type_tuple(16, 18, [])]), block(19, 21, [])])
         ]
     }
 }
@@ -99,8 +99,10 @@ fn returning_unit_value() {
         input:  "function x() { return () }",
         rule:   Rule::function,
         tokens: [
-            function(0, 26, [identifier(9, 10, []), statement(15, 25, [
-                statement_return(15, 25, [expression(22, 25, [expression_term(22, 24, [expression_tuple(22, 24, [])])])])
+            function(0, 26, [identifier(9, 10, []), block(13, 26, [
+                statement(15, 25, [
+                    statement_return(15, 25, [expression(22, 25, [expression_term(22, 24, [expression_tuple(22, 24, [])])])])
+                ])
             ])])
         ]
     }
@@ -122,9 +124,11 @@ fn id_def() {
                     ])
                 ]),
                 type_(22, 24, [type_data(22, 24, [type_integer(22, 24, [type_integer_unsigned(22, 24, [type_u8(22, 24, [])])])])]),
-                statement(27, 36, [statement_return(27, 36, [
-                    expression(34, 36, [expression_term(34, 35, [identifier(34, 35, [])])])
-                ])])
+                block(25, 37, [
+                    statement(27, 36, [statement_return(27, 36, [
+                        expression(34, 36, [expression_term(34, 35, [identifier(34, 35, [])])])
+                    ])])
+                ]),
             ])
         ]
     }

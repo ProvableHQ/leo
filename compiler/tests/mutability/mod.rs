@@ -34,6 +34,14 @@ fn test_let_mut() {
 }
 
 #[test]
+fn test_let_mut_nested() {
+    let bytes = include_bytes!("let_mut_nested.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_const_fail() {
     let bytes = include_bytes!("const.leo");
     let program = parse_program(bytes).unwrap();

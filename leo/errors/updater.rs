@@ -14,27 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    statements::{Block, ConditionalStatement},
-};
+#[derive(Debug, Error)]
+pub enum UpdaterError {
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
 
-use pest_ast::FromPest;
-use serde::Serialize;
-use std::fmt;
-
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::conditional_nested_or_end_statement))]
-pub enum ConditionalNestedOrEndStatement<'ast> {
-    Nested(Box<ConditionalStatement<'ast>>),
-    End(Block<'ast>),
+    #[error("The current version {} is more recent than the release version {}", _0, _1)]
+    OldReleaseVersion(String, String),
 }
 
-impl<'ast> fmt::Display for ConditionalNestedOrEndStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ConditionalNestedOrEndStatement::Nested(ref nested) => write!(f, "else {}", nested),
-            ConditionalNestedOrEndStatement::End(ref block) => write!(f, "else {}", block),
-        }
+impl From<self_update::errors::Error> for UpdaterError {
+    fn from(error: self_update::errors::Error) -> Self {
+        tracing::error!("{}\n", error);
+        UpdaterError::Crate("self_update", error.to_string())
     }
 }

@@ -94,7 +94,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        for statement in function.statements.iter() {
+        for statement in function.block.statements.iter() {
             let mut result = self.enforce_statement(
                 cs,
                 scope,

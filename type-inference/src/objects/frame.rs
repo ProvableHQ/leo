@@ -19,6 +19,7 @@ use leo_ast::{
     ArrayDimensions,
     Assignee,
     AssigneeAccess,
+    Block,
     CircuitVariableDefinition,
     ConditionalNestedOrEndStatement,
     ConditionalStatement,
@@ -42,7 +43,7 @@ pub struct Frame {
     pub function_type: FunctionType,
     pub self_type: Option<CircuitType>,
     pub scopes: Vec<Scope>,
-    pub statements: Vec<Statement>,
+    pub block: Block,
     pub type_assertions: Vec<TypeAssertion>,
     pub user_defined_types: SymbolTable,
 }
@@ -77,7 +78,7 @@ impl Frame {
             function_type,
             self_type,
             scopes,
-            statements: function.statements,
+            block: function.block,
             type_assertions: vec![],
             user_defined_types,
         };
@@ -117,7 +118,7 @@ impl Frame {
             function_type,
             self_type: Some(self_type),
             scopes,
-            statements: function.statements,
+            block: function.block,
             type_assertions: Vec::new(),
             user_defined_types,
         };
@@ -230,7 +231,7 @@ impl Frame {
     /// Collects a vector of `TypeAssertion` predicates from a vector of statements.
     ///
     fn parse_statements(&mut self) -> Result<(), FrameError> {
-        for statement in self.statements.clone() {
+        for statement in self.block.statements.clone() {
             self.parse_statement(&statement)?;
         }
 
@@ -248,8 +249,8 @@ impl Frame {
             }
             Statement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
             Statement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
-            Statement::Iteration(identifier, from_to, statements, span) => {
-                self.parse_iteration(identifier, from_to, statements, span)
+            Statement::Iteration(identifier, from_to, block, span) => {
+                self.parse_iteration(identifier, from_to, block, span)
             }
             Statement::Expression(expression, span) => self.parse_statement_expression(expression, span),
             Statement::Console(_console_call) => Ok(()), // Console function calls do not generate type assertions.
@@ -386,13 +387,13 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, statements: &[Statement], _span: &Span) -> Result<(), FrameError> {
+    fn parse_block(&mut self, block: &Block, _span: &Span) -> Result<(), FrameError> {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().cloned());
         self.push_scope(scope);
 
         // Parse all statements.
-        for statement in statements {
+        for statement in &block.statements {
             self.parse_statement(&statement)?;
         }
 
@@ -420,7 +421,7 @@ impl Frame {
         self.assert_equal(boolean_type, condition, span);
 
         // Parse conditional statements.
-        self.parse_block(&conditional.statements, span)?;
+        self.parse_block(&conditional.block, span)?;
 
         // Parse conditional or end.
         if let Some(cond_or_end) = &conditional.next {
@@ -451,7 +452,7 @@ impl Frame {
         &mut self,
         identifier: &Identifier,
         from_to: &(Expression, Expression),
-        statements: &[Statement],
+        statements: &Block,
         span: &Span,
     ) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
