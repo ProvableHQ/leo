@@ -23,11 +23,11 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Type};
+use leo_ast::{Expression, Function, FunctionInput};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -46,7 +46,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut_self = function.contains_mut_self();
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.filter_self_inputs().iter().zip(input.into_iter()) {
+        for (input_model, input_expression) in function.filter_self_inputs().zip(input.into_iter()) {
             let (name, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {
                     let value =
@@ -92,13 +92,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
+        let indicator = Boolean::constant(true);
 
         for statement in function.block.statements.iter() {
             let mut result = self.enforce_statement(
                 cs,
                 scope,
                 &function_name,
-                None,
+                &indicator,
                 statement.clone(),
                 function.output.clone(),
                 declared_circuit_reference,
@@ -109,26 +110,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Conditionally select a result based on returned indicators
-        let mut return_values = ConstrainedValue::Tuple(vec![]);
-
-        Self::conditionally_select_result(cs, &mut return_values, results, &function.span)?;
-
-        if let ConstrainedValue::Tuple(ref returns) = return_values {
-            let return_types = match function.output {
-                Some(Type::Tuple(types)) => types.len(),
-                Some(_) => 1usize,
-                None => 0usize,
-            };
-
-            if return_types != returns.len() {
-                return Err(FunctionError::return_arguments_length(
-                    return_types,
-                    returns.len(),
-                    function.span.clone(),
-                ));
-            }
-        }
-
-        Ok(return_values)
+        Self::conditionally_select_result(cs, function.output, results, &function.span)
+            .map_err(FunctionError::StatementError)
     }
 }

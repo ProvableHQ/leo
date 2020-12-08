@@ -1093,8 +1093,6 @@ impl Frame {
             return Err(FrameError::static_call_invalid(&identifier));
         }
 
-        if is_static && function_type.contains_self() {}
-
         // Return the function type.
         Ok(function_type.to_owned())
     }
@@ -1121,10 +1119,8 @@ impl Frame {
         }
 
         // Filter out `self` and `mut self` keywords.
-        let expected_inputs = function_type.filter_self_inputs();
-
         // Assert function inputs are correct types.
-        for (expected_input, actual_input) in expected_inputs.iter().zip(inputs) {
+        for (expected_input, actual_input) in function_type.filter_self_inputs().zip(inputs) {
             // Parse expected input type.
             let expected_type = expected_input.type_();
 

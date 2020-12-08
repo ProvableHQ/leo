@@ -25,7 +25,7 @@ use snarkos_models::{
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
-pub type IndicatorAndConstrainedValue<T, U> = (Option<Boolean>, ConstrainedValue<T, U>);
+pub type IndicatorAndConstrainedValue<T, U> = (Boolean, ConstrainedValue<T, U>);
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ///
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         statement: Statement,
         return_type: Option<Type>,
         declared_circuit_reference: &str,
@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match statement {
             Statement::Return(expression, span) => {
                 let return_value = (
-                    indicator,
+                    indicator.to_owned(),
                     self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, &span)?,
                 );
 
@@ -75,8 +75,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     file_scope,
                     function_scope,
                     declared_circuit_reference,
-                    mut_self,
                     indicator,
+                    mut_self,
                     variable,
                     expression,
                     &span,
@@ -120,22 +120,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let expression_string = expression.to_string();
                 let value = self.enforce_expression(cs, file_scope, function_scope, None, expression)?;
 
-                // handle empty return value cases
+                // Handle empty return value cases.
                 match &value {
                     ConstrainedValue::Tuple(values) => {
                         if !values.is_empty() {
-                            return Err(StatementError::unassigned(expression_string, span));
+                            results.push((*indicator, value));
                         }
                     }
                     _ => return Err(StatementError::unassigned(expression_string, span)),
                 }
-
-                let result = (indicator, value);
-
-                results.push(result);
             }
         };
 
         Ok(results)
     }
+}
+
+/// Returns the indicator boolean gadget value.
+/// We can directly compare a boolean constant to the indicator since we are not enforcing any
+/// constraints
+pub fn get_indicator_value(indicator: &Boolean) -> bool {
+    indicator.eq(&Boolean::constant(true))
 }

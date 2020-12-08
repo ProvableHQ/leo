@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         block: Block,
         return_type: Option<Type>,
         mut_self: bool,

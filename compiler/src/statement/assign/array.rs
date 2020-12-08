@@ -34,14 +34,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         name: &str,
         range_or_expression: RangeOrExpression,
         mut new_value: ConstrainedValue<F, G>,
         span: &Span,
     ) -> Result<(), StatementError> {
-        let condition = indicator.unwrap_or(Boolean::Constant(true));
-
         // Resolve index so we know if we are assigning to a single value or a range of values
         match range_or_expression {
             RangeOrExpression::Expression(index) => {
@@ -54,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                         let selected_value = ConstrainedValue::conditionally_select(
                             cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
-                            &condition,
+                            indicator,
                             &new_value,
                             &old[index],
                         )
@@ -90,7 +88,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 };
                 let selected_array = ConstrainedValue::conditionally_select(
                     cs.ns(|| format!("select {} {}:{}", new_array, span.line, span.start)),
-                    &condition,
+                    indicator,
                     &new_array,
                     old_array,
                 )
