@@ -15,20 +15,21 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-
 use leo_ast::{Identifier, InputValue, Parameter};
+
 use snarkos_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-use std::collections::HashMap;
+
+use indexmap::IndexMap;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
-        section: HashMap<Parameter, Option<InputValue>>,
+        section: IndexMap<Parameter, Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
 
