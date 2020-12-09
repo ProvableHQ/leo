@@ -443,8 +443,8 @@ input_tuple = _{ "(" ~ NEWLINE* ~ (input ~ ("," ~ NEWLINE* ~ input)* ~ ","?)? ~ 
 // Declared in imports/import.rs
 import = { "import " ~ package ~ LINE_END}
 
-
-package_name = @{ ((ASCII_ALPHA_LOWER | ASCII_DIGIT) ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT))*)+ }
+// Declared in imports/package_name.rs
+package_name = @{ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+ ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+)* }
 
 // Declared in imports/package.rs
 package = { package_name ~ "." ~ package_access }
