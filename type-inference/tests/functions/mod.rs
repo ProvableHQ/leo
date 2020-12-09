@@ -18,8 +18,8 @@ use crate::TestTypeInference;
 
 #[test]
 fn test_invalid_function() {
-    let bytes = include_bytes!("invalid_function.leo");
-    let check = TestTypeInference::new(bytes);
+    let program_string = include_str!("invalid_function.leo");
+    let check = TestTypeInference::new(program_string);
 
     check.expect_error();
 }

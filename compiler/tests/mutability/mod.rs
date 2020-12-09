@@ -19,104 +19,104 @@ use leo_ast::InputValue;
 
 #[test]
 fn test_let() {
-    let bytes = include_bytes!("let.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("let.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_let_mut() {
-    let bytes = include_bytes!("let_mut.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("let_mut.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_let_mut_nested() {
-    let bytes = include_bytes!("let_mut_nested.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("let_mut_nested.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_const_fail() {
-    let bytes = include_bytes!("const.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("const.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_const_mut_fail() {
-    let bytes = include_bytes!("const_mut.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("const_mut.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_array() {
-    let bytes = include_bytes!("array.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("array.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_array_mut() {
-    let bytes = include_bytes!("array_mut.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("array_mut.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_circuit() {
-    let bytes = include_bytes!("circuit.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("circuit.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_circuit_mut() {
-    let bytes = include_bytes!("circuit_mut.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("circuit_mut.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_circuit_variable_mut() {
-    let bytes = include_bytes!("circuit_variable_mut.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("circuit_variable_mut.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_circuit_function_mut() {
-    let bytes = include_bytes!("circuit_function_mut.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("circuit_function_mut.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_circuit_static_function_mut() {
-    let bytes = include_bytes!("circuit_static_function_mut.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("circuit_static_function_mut.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_function_input() {
-    let bytes = include_bytes!("function_input.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("function_input.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
@@ -127,8 +127,8 @@ fn test_function_input() {
 
 #[test]
 fn test_function_input_mut() {
-    let bytes = include_bytes!("function_input_mut.leo");
-    let mut program = parse_program(bytes).unwrap();
+    let program_string = include_str!("function_input_mut.leo");
+    let mut program = parse_program(program_string).unwrap();
 
     let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
