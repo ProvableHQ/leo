@@ -70,7 +70,8 @@ LINE_END = { ";" ~ NEWLINE* }
 mutable = { "mut " }
 
 // Declared in common/range.rs
-range = { expression? ~ ".." ~ expression? }
+range_operator = { ".." }
+range = { expression? ~ range_operator ~ expression? }
 
 // Declared in common/range_or_expression.rs
 range_or_expression = { range | expression }
