@@ -139,8 +139,8 @@ fn test_function_input_mut() {
 
 #[test]
 fn test_swap() {
-    let bytes = include_bytes!("swap.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("swap.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
