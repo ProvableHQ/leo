@@ -34,7 +34,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Check that assignee exists and is mutable
         Ok(match self.get_mut(name) {
             Some(value) => match value {
-                ConstrainedValue::Mutable(mutable_value) => mutable_value,
+                ConstrainedValue::Mutable(mutable_value) => {
+                    // Get the mutable value.
+                    mutable_value.get_inner_mut();
+
+                    // Return the mutable value.
+                    mutable_value
+                }
                 _ => return Err(StatementError::immutable_assign(name.to_owned(), span.to_owned())),
             },
             None => return Err(StatementError::undefined_variable(name.to_owned(), span.to_owned())),
