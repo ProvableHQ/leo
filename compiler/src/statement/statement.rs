@@ -90,6 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     indicator,
                     statement,
                     return_type,
+                    declared_circuit_reference,
                     mut_self,
                     &span,
                 )?;
@@ -107,6 +108,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     start_stop.1,
                     block,
                     return_type,
+                    declared_circuit_reference,
                     mut_self,
                     &span,
                 )?;
