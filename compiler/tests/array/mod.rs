@@ -229,6 +229,14 @@ fn test_slice() {
     assert_satisfied(program);
 }
 
+#[test]
+fn test_slice_lower() {
+    let program_string = include_str!("slice_lower.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
 // Array type tests
 
 #[test]
