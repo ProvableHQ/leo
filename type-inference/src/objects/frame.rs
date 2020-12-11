@@ -837,7 +837,7 @@ impl Frame {
 
                 // Check that the type is an array.
                 match array_type {
-                    Type::Array(element_type) => Ok(Type::Array(element_type)),
+                    Type::Array(element_type) => Ok(*element_type),
                     type_ => Err(FrameError::invalid_spread(type_, span)),
                 }
             }
