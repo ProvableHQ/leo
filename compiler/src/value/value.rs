@@ -62,7 +62,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Functions
-    Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
+    Function(Option<Identifier>, Box<Function>), // (optional circuit identifier, function definition)
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -214,7 +214,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     }
                 }
 
-                Ok((outer_scope, function))
+                Ok((outer_scope, *function))
             }
             ConstrainedValue::Import(import_scope, function) => function.extract_function(&import_scope, span),
             value => Err(ExpressionError::undefined_function(value.to_string(), span.to_owned())),

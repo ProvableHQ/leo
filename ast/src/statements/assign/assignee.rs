@@ -14,15 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, PositiveNumber, RangeOrExpression, Span};
-use leo_grammar::{access::AssigneeAccess as GrammarAssigneeAccess, common::Assignee as GrammarAssignee};
+use crate::{Expression, Identifier, PositiveNumber, Span};
+use leo_grammar::{
+    access::{ArrayAccess, AssigneeAccess as GrammarAssigneeAccess},
+    common::{Assignee as GrammarAssignee, Range, RangeOrExpression},
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AssigneeAccess {
-    Array(RangeOrExpression),
+    ArrayRange(Option<Expression>, Option<Expression>),
+    ArrayIndex(Expression),
     Tuple(PositiveNumber, Span),
     Member(Identifier),
 }
@@ -30,7 +34,14 @@ pub enum AssigneeAccess {
 impl<'ast> From<GrammarAssigneeAccess<'ast>> for AssigneeAccess {
     fn from(access: GrammarAssigneeAccess<'ast>) -> Self {
         match access {
-            GrammarAssigneeAccess::Array(array) => AssigneeAccess::Array(RangeOrExpression::from(array.expression)),
+            GrammarAssigneeAccess::Array(ArrayAccess {
+                expression: RangeOrExpression::Range(Range { from, to, .. }),
+                ..
+            }) => AssigneeAccess::ArrayRange(from.map(Expression::from), to.map(Expression::from)),
+            GrammarAssigneeAccess::Array(ArrayAccess {
+                expression: RangeOrExpression::Expression(index),
+                ..
+            }) => AssigneeAccess::ArrayIndex(Expression::from(index)),
             GrammarAssigneeAccess::Tuple(tuple) => {
                 AssigneeAccess::Tuple(PositiveNumber::from(tuple.number), Span::from(tuple.span))
             }
@@ -74,7 +85,11 @@ impl fmt::Display for Assignee {
 
         for access in &self.accesses {
             match access {
-                AssigneeAccess::Array(expression) => write!(f, "[{}]", expression)?,
+                AssigneeAccess::ArrayRange(Some(left), Some(right)) => write!(f, "[{}..{}]", left, right)?,
+                AssigneeAccess::ArrayRange(None, Some(right)) => write!(f, "[..{}]", right)?,
+                AssigneeAccess::ArrayRange(Some(left), None) => write!(f, "[{}..]", left)?,
+                AssigneeAccess::ArrayRange(None, None) => write!(f, "[..]")?,
+                AssigneeAccess::ArrayIndex(index) => write!(f, "[{}]", index)?,
                 AssigneeAccess::Tuple(index, _span) => write!(f, ".{}", index)?,
                 AssigneeAccess::Member(member) => write!(f, ".{}", member)?,
             }

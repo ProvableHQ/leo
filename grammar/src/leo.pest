@@ -390,6 +390,7 @@ statement = {
     | statement_definition
     | statement_assign
     | statement_expression
+    | block
     ) ~ NEWLINE*
 }
 
@@ -504,14 +505,11 @@ formatted_string = {
     "\""
     ~ (!"\"" ~ (formatted_container | ANY))*
     ~ "\""
-    ~ ("," ~ formatted_parameter)*
+    ~ ("," ~ expression)*
 }
 
 // Declared in console/formatted_container.rs
 formatted_container = { "{" ~ "}"}
-
-// Declared in console/formatted_parameter.rs
-formatted_parameter = { expression }
 
 /// Annotations
 

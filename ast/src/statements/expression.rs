@@ -14,42 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Span, Statement};
-use leo_grammar::statements::Block as GrammarBlock;
+use crate::{Expression, Node, Span};
 
+use leo_grammar::statements::ExpressionStatement as GrammarExpressionStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Block {
-    pub statements: Vec<Statement>,
+pub struct ExpressionStatement {
+    pub expression: Expression,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarBlock<'ast>> for Block {
-    fn from(block: GrammarBlock<'ast>) -> Self {
-        Block {
-            statements: block.statements.into_iter().map(Statement::from).collect(),
-            span: Span::from(block.span),
-        }
-    }
-}
-
-impl fmt::Display for Block {
+impl fmt::Display for ExpressionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{{")?;
-        if self.statements.is_empty() {
-            writeln!(f, "\t")?;
-        } else {
-            self.statements
-                .iter()
-                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
-        }
-        write!(f, "}}")
+        write!(f, "{};", self.expression)
     }
 }
 
-impl Node for Block {
+impl<'ast> From<GrammarExpressionStatement<'ast>> for ExpressionStatement {
+    fn from(statement: GrammarExpressionStatement<'ast>) -> Self {
+        // why do we have this span-setting logic?
+        let span = Span::from(statement.span);
+        let mut expression = Expression::from(statement.expression);
+        expression.set_span(span.clone());
+        ExpressionStatement { expression, span }
+    }
+}
+
+impl Node for ExpressionStatement {
     fn span(&self) -> &Span {
         &self.span
     }

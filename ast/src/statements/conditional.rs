@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, ConditionalNestedOrEndStatement, Expression};
-use leo_grammar::statements::ConditionalStatement as GrammarConditionalStatement;
+use crate::{Block, Expression, Node, Span, Statement};
+use leo_grammar::statements::{ConditionalNestedOrEndStatement, ConditionalStatement as GrammarConditionalStatement};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConditionalStatement {
     pub condition: Expression,
     pub block: Block,
-    pub next: Option<ConditionalNestedOrEndStatement>,
+    pub next: Option<Box<Statement>>,
+    pub span: Span,
 }
 
 impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
@@ -34,8 +35,14 @@ impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
             block: Block::from(statement.block),
             next: statement
                 .next
-                .map(|n_or_e| Some(ConditionalNestedOrEndStatement::from(n_or_e)))
-                .unwrap_or(None),
+                .map(|nested_statement| match nested_statement {
+                    ConditionalNestedOrEndStatement::Nested(conditional_statement) => {
+                        Statement::Conditional(ConditionalStatement::from(*conditional_statement))
+                    }
+                    ConditionalNestedOrEndStatement::End(block) => Statement::Block(Block::from(block)),
+                })
+                .map(Box::new),
+            span: Span::from(statement.span),
         }
     }
 }
@@ -47,5 +54,15 @@ impl fmt::Display for ConditionalStatement {
             Some(n_or_e) => write!(f, " {}", n_or_e),
             None => write!(f, ""),
         }
+    }
+}
+
+impl Node for ConditionalStatement {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

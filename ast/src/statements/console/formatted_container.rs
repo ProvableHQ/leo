@@ -14,35 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConsoleFunction, Span};
-use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
+use crate::{Node, Span};
+use leo_grammar::console::FormattedContainer as GrammarFormattedContainer;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ConsoleFunctionCall {
-    pub function: ConsoleFunction,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct FormattedContainer {
     pub span: Span,
 }
 
-impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleFunctionCall {
-    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
-        ConsoleFunctionCall {
-            function: ConsoleFunction::from(console.function),
-            span: Span::from(console.span),
+impl<'ast> From<GrammarFormattedContainer<'ast>> for FormattedContainer {
+    fn from(container: GrammarFormattedContainer<'ast>) -> Self {
+        Self {
+            span: Span::from(container.span),
         }
     }
 }
 
-impl fmt::Display for ConsoleFunctionCall {
+impl fmt::Display for FormattedContainer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "console.{};", self.function)
+        write!(f, "{{}}")
     }
 }
 
-impl fmt::Debug for ConsoleFunctionCall {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "console.{};", self.function)
+impl Node for FormattedContainer {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

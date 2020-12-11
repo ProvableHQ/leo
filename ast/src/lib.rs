@@ -29,9 +29,6 @@ pub use self::circuits::*;
 pub mod common;
 pub use self::common::*;
 
-pub mod console;
-pub use self::console::*;
-
 pub mod errors;
 pub use self::errors::*;
 

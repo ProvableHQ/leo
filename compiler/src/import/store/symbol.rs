@@ -45,7 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 let name = new_scope(scope, &identifier.name);
                 let value = ConstrainedValue::Import(
                     program_name.to_owned(),
-                    Box::new(ConstrainedValue::Function(None, function.clone())),
+                    Box::new(ConstrainedValue::Function(None, Box::new(function.clone()))),
                 );
 
                 self.store(name, value);
@@ -72,7 +72,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     match matched_function {
                         Some((_function_name, function)) => ConstrainedValue::Import(
                             program_name.to_owned(),
-                            Box::new(ConstrainedValue::Function(None, function.clone())),
+                            Box::new(ConstrainedValue::Function(None, Box::new(function.clone()))),
                         ),
                         None => return Err(ImportError::unknown_symbol(symbol.to_owned(), program_name.to_owned())),
                     }

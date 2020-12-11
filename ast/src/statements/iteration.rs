@@ -14,42 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Span, Statement};
-use leo_grammar::statements::Block as GrammarBlock;
+use crate::{Block, Expression, Identifier, Node, Span};
 
+use leo_grammar::statements::ForStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Block {
-    pub statements: Vec<Statement>,
+pub struct IterationStatement {
+    pub variable: Identifier,
+    pub start: Expression,
+    pub stop: Expression,
+    pub block: Block,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarBlock<'ast>> for Block {
-    fn from(block: GrammarBlock<'ast>) -> Self {
-        Block {
-            statements: block.statements.into_iter().map(Statement::from).collect(),
-            span: Span::from(block.span),
-        }
-    }
-}
-
-impl fmt::Display for Block {
+impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{{")?;
-        if self.statements.is_empty() {
-            writeln!(f, "\t")?;
-        } else {
-            self.statements
-                .iter()
-                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
-        }
-        write!(f, "}}")
+        write!(
+            f,
+            "for {} in {}..{} {}",
+            self.variable, self.start, self.stop, self.block
+        )
     }
 }
 
-impl Node for Block {
+impl<'ast> From<ForStatement<'ast>> for IterationStatement {
+    fn from(statement: ForStatement<'ast>) -> Self {
+        IterationStatement {
+            variable: Identifier::from(statement.index),
+            start: Expression::from(statement.start),
+            stop: Expression::from(statement.stop),
+            block: Block::from(statement.block),
+            span: Span::from(statement.span),
+        }
+    }
+}
+
+impl Node for IterationStatement {
     fn span(&self) -> &Span {
         &self.span
     }

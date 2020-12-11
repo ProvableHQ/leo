@@ -64,3 +64,11 @@ fn test_num_returns_fail() {
 
     expect_type_inference_error(error);
 }
+
+#[test]
+fn test_block() {
+    let bytes = include_str!("block.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}

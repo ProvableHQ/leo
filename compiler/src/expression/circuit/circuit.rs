@@ -82,7 +82,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 CircuitMember::CircuitFunction(function) => {
                     let identifier = function.identifier.clone();
                     let constrained_function_value =
-                        ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
+                        ConstrainedValue::Function(Some(circuit_identifier.clone()), Box::new(function));
 
                     resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
                 }

@@ -42,7 +42,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = Vec::with_capacity(block.statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
         for statement in block.statements.into_iter() {
-            let mut value = self.enforce_statement(
+            let value = self.enforce_statement(
                 cs,
                 file_scope,
                 function_scope,
@@ -53,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 mut_self,
             )?;
 
-            results.append(&mut value);
+            results.extend(value);
         }
 
         Ok(results)

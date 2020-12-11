@@ -17,7 +17,7 @@
 //! Enforces a definition statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Declare, Expression, Span, VariableName, Variables};
+use leo_ast::{Declare, DefinitionStatement, Span, VariableName};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -53,19 +53,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         function_scope: &str,
         is_constant: bool,
-        variables: Variables,
+        variable_names: Vec<VariableName>,
         values: Vec<ConstrainedValue<F, G>>,
         span: &Span,
     ) -> Result<(), StatementError> {
-        if values.len() != variables.names.len() {
+        if values.len() != variable_names.len() {
             return Err(StatementError::invalid_number_of_definitions(
                 values.len(),
-                variables.names.len(),
+                variable_names.len(),
                 span.to_owned(),
             ));
         }
 
-        for (variable, value) in variables.names.into_iter().zip(values.into_iter()) {
+        for (variable, value) in variable_names.into_iter().zip(values.into_iter()) {
             self.enforce_single_definition(cs, function_scope, is_constant, variable, value, span)?;
         }
 
@@ -78,33 +78,37 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        declare: Declare,
-        variables: Variables,
-        expression: Expression,
-        span: &Span,
+        statement: DefinitionStatement,
     ) -> Result<(), StatementError> {
-        let num_variables = variables.names.len();
-        let is_constant = match declare {
+        let num_variables = statement.variable_names.len();
+        let is_constant = match statement.declaration_type {
             Declare::Let => false,
             Declare::Const => true,
         };
         let expression =
-            self.enforce_expression(cs, file_scope, function_scope, variables.type_.clone(), expression)?;
+            self.enforce_expression(cs, file_scope, function_scope, statement.type_.clone(), statement.value)?;
 
         if num_variables == 1 {
             // Define a single variable with a single value
-            let variable = variables.names[0].clone();
+            let variable = statement.variable_names[0].clone();
 
-            self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, span)
+            self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, &statement.span)
         } else {
             // Define multiple variables for an expression that returns multiple results (multiple definition)
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span.to_owned())),
+                value => return Err(StatementError::multiple_definition(value.to_string(), statement.span)),
             };
 
-            self.enforce_multiple_definition(cs, function_scope, is_constant, variables, values, span)
+            self.enforce_multiple_definition(
+                cs,
+                function_scope,
+                is_constant,
+                statement.variable_names,
+                values,
+                &statement.span,
+            )
         }
     }
 }

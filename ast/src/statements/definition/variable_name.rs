@@ -14,27 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
-use leo_grammar::console::FormattedContainer as GrammarFormattedContainer;
+use crate::{Identifier, Node, Span};
+use leo_grammar::common::VariableName as GrammarVariableName;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FormattedContainer {
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct VariableName {
+    pub mutable: bool,
+    pub identifier: Identifier,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarFormattedContainer<'ast>> for FormattedContainer {
-    fn from(container: GrammarFormattedContainer<'ast>) -> Self {
+impl<'ast> From<GrammarVariableName<'ast>> for VariableName {
+    fn from(name: GrammarVariableName<'ast>) -> Self {
         Self {
-            span: Span::from(container.span),
+            mutable: name.mutable.is_some(),
+            identifier: Identifier::from(name.identifier),
+            span: Span::from(name.span),
         }
     }
 }
 
-impl fmt::Display for FormattedContainer {
+impl fmt::Display for VariableName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{{}}")
+        if self.mutable {
+            write!(f, "mut ")?;
+        }
+
+        write!(f, "{}", self.identifier)
+    }
+}
+
+impl Node for VariableName {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

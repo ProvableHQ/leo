@@ -14,42 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Span, Statement};
-use leo_grammar::statements::Block as GrammarBlock;
+use crate::{Expression, FormattedContainer, Node, Span};
+use leo_grammar::console::FormattedString as GrammarFormattedString;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Block {
-    pub statements: Vec<Statement>,
+pub struct FormattedString {
+    pub string: String,
+    pub containers: Vec<FormattedContainer>,
+    pub parameters: Vec<Expression>,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarBlock<'ast>> for Block {
-    fn from(block: GrammarBlock<'ast>) -> Self {
-        Block {
-            statements: block.statements.into_iter().map(Statement::from).collect(),
-            span: Span::from(block.span),
+impl<'ast> From<GrammarFormattedString<'ast>> for FormattedString {
+    fn from(formatted: GrammarFormattedString<'ast>) -> Self {
+        let string = formatted.string;
+        let span = Span::from(formatted.span);
+        let containers = formatted.containers.into_iter().map(FormattedContainer::from).collect();
+        let parameters = formatted.parameters.into_iter().map(Expression::from).collect();
+
+        Self {
+            string,
+            containers,
+            parameters,
+            span,
         }
     }
 }
 
-impl fmt::Display for Block {
+impl fmt::Display for FormattedString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{{")?;
-        if self.statements.is_empty() {
-            writeln!(f, "\t")?;
-        } else {
-            self.statements
-                .iter()
-                .try_for_each(|statement| writeln!(f, "\t{}", statement))?;
-        }
-        write!(f, "}}")
+        write!(f, "{}", self.string)
     }
 }
 
-impl Node for Block {
+impl Node for FormattedString {
     fn span(&self) -> &Span {
         &self.span
     }
