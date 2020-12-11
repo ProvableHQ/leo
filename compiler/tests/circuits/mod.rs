@@ -151,6 +151,14 @@ fn test_mutate_self_variable() {
 }
 
 #[test]
+fn test_mutate_self_variable_conditional() {
+    let program_string = include_str!("mut_self_variable_conditional.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_mutate_self_variable_fail() {
     let program_string = include_str!("mut_self_variable_fail.leo");
     let program = parse_program(program_string).unwrap();

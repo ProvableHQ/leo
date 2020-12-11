@@ -52,6 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: &Boolean,
         statement: ConditionalStatement,
         return_type: Option<Type>,
+        declared_circuit_reference: &str,
         mut_self: bool,
         span: &Span,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
@@ -96,6 +97,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             &branch_1_indicator,
             statement.block,
             return_type.clone(),
+            declared_circuit_reference,
             mut_self,
         )?;
 
@@ -125,6 +127,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &branch_2_indicator,
                     *nested,
                     return_type,
+                    declared_circuit_reference,
                     mut_self,
                     span,
                 )?,
@@ -135,6 +138,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     &branch_2_indicator,
                     block,
                     return_type,
+                    declared_circuit_reference,
                     mut_self,
                 )?,
             },

@@ -36,6 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         indicator: &Boolean,
         block: Block,
         return_type: Option<Type>,
+        declared_circuit_reference: &str,
         mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = Vec::with_capacity(block.statements.len());
@@ -48,7 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 indicator,
                 statement,
                 return_type.clone(),
-                "",
+                declared_circuit_reference,
                 mut_self,
             )?;
 
