@@ -21,6 +21,7 @@ pub mod address;
 pub mod array;
 pub mod boolean;
 pub mod circuits;
+pub mod compiler;
 pub mod console;
 pub mod core;
 pub mod definition;
