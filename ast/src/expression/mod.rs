@@ -21,13 +21,12 @@ use crate::{
     Identifier,
     IntegerType,
     PositiveNumber,
-    RangeOrExpression,
     Span,
     SpreadOrExpression,
 };
 use leo_grammar::{
     access::{Access, AssigneeAccess},
-    common::{Assignee, Identifier as GrammarIdentifier},
+    common::{Assignee, Identifier as GrammarIdentifier, RangeOrExpression as GrammarRangeOrExpression},
     expressions::{
         ArrayInitializerExpression,
         ArrayInlineExpression as GrammarArrayInlineExpression,
@@ -206,18 +205,22 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
             .into_iter()
             .fold(variable, |acc, access| match access {
                 // Handle array accesses
-                Access::Array(array) => match RangeOrExpression::from(array.expression) {
-                    RangeOrExpression::Expression(expression) => Expression::ArrayAccess(ArrayAccessExpression {
-                        array: Box::new(acc),
-                        index: Box::new(expression),
-                        span: Span::from(array.span),
-                    }),
-                    RangeOrExpression::Range(left, right) => Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                        array: Box::new(acc),
-                        left: left.map(Box::new),
-                        right: right.map(Box::new),
-                        span: Span::from(array.span),
-                    }),
+                Access::Array(array) => match array.expression {
+                    GrammarRangeOrExpression::Expression(expression) => {
+                        Expression::ArrayAccess(ArrayAccessExpression {
+                            array: Box::new(acc),
+                            index: Box::new(Expression::from(expression)),
+                            span: Span::from(array.span),
+                        })
+                    }
+                    GrammarRangeOrExpression::Range(range) => {
+                        Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                            array: Box::new(acc),
+                            left: range.from.map(Expression::from).map(Box::new),
+                            right: range.to.map(Expression::from).map(Box::new),
+                            span: Span::from(array.span),
+                        })
+                    }
                 },
 
                 // Handle tuple access
@@ -285,18 +288,22 @@ impl<'ast> From<Assignee<'ast>> for Expression {
                         span: Span::from(circuit_member.span),
                     })
                 }
-                AssigneeAccess::Array(array) => match RangeOrExpression::from(array.expression) {
-                    RangeOrExpression::Expression(expression) => Expression::ArrayAccess(ArrayAccessExpression {
-                        array: Box::new(acc),
-                        index: Box::new(expression),
-                        span: Span::from(array.span),
-                    }),
-                    RangeOrExpression::Range(left, right) => Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                        array: Box::new(acc),
-                        left: left.map(Box::new),
-                        right: right.map(Box::new),
-                        span: Span::from(array.span),
-                    }),
+                AssigneeAccess::Array(array) => match array.expression {
+                    GrammarRangeOrExpression::Expression(expression) => {
+                        Expression::ArrayAccess(ArrayAccessExpression {
+                            array: Box::new(acc),
+                            index: Box::new(Expression::from(expression)),
+                            span: Span::from(array.span),
+                        })
+                    }
+                    GrammarRangeOrExpression::Range(range) => {
+                        Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                            array: Box::new(acc),
+                            left: range.from.map(Expression::from).map(Box::new),
+                            right: range.to.map(Expression::from).map(Box::new),
+                            span: Span::from(array.span),
+                        })
+                    }
                 },
                 AssigneeAccess::Tuple(tuple) => Expression::TupleAccess(TupleAccessExpression {
                     tuple: Box::new(acc),

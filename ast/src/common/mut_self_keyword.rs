@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
+use crate::{Node, Span};
 use leo_grammar::common::MutSelfKeyword as GrammarMutSelfKeyword;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `mut self` keyword can view and modify circuit values inside of a circuit function.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct MutSelfKeyword {
     pub span: Span,
 }
@@ -37,5 +37,15 @@ impl<'ast> From<GrammarMutSelfKeyword<'ast>> for MutSelfKeyword {
 impl fmt::Display for MutSelfKeyword {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "mut self")
+    }
+}
+
+impl Node for MutSelfKeyword {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

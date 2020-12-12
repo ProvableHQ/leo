@@ -127,7 +127,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Case 3: expected first dimension != actual first dimension => return mismatched dimensions error
 
         if let Some(Type::Array(type_, mut expected_dimensions)) = expected_type {
-            if expected_dimensions.eq(&actual_dimensions) {
+            if expected_dimensions == actual_dimensions {
                 // Case 1 - enforce expression with array element type
                 let mut value =
                     self.enforce_expression(cs, file_scope, function_scope, Some(*type_), element_expression)?;
@@ -145,7 +145,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 }
 
                 Ok(value)
-            } else if expected_dimensions.first().eq(&actual_dimensions.first()) {
+            } else if expected_dimensions.first() == actual_dimensions.first() {
                 // Case 2 - enforce expression with updated array type.
                 let dimension = match expected_dimensions.remove_first() {
                     Some(number) => {
@@ -200,7 +200,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         .ok_or_else(|| ExpressionError::undefined_first_dimension(span.clone()))?,
                     actual_dimensions
                         .first()
-                        .ok_or_else(|| ExpressionError::undefined_first_dimension(span))?,
+                        .ok_or_else(|| ExpressionError::undefined_first_dimension(span.clone()))?,
+                    span,
                 ))
             }
         } else {

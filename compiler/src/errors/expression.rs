@@ -118,13 +118,13 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber) -> Self {
+    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber, span: Span) -> Self {
         let message = format!(
             "expected array dimension {}, found array dimension {}",
             expected, actual
         );
 
-        Self::new_from_span(message, actual.span.to_owned())
+        Self::new_from_span(message, span)
     }
 
     pub fn invalid_index(actual: String, span: &Span) -> Self {

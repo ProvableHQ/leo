@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Span, Type};
+use crate::{Identifier, Node, Span, Type};
 use leo_grammar::functions::FunctionInput as GrammarFunctionInput;
 
 use serde::{Deserialize, Serialize};
@@ -59,5 +59,15 @@ impl fmt::Display for FunctionInputVariable {
 impl fmt::Debug for FunctionInputVariable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
+    }
+}
+
+impl Node for FunctionInputVariable {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

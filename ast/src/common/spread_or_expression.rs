@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Expression;
+use crate::{Expression, Node, Span};
 use leo_grammar::{
     common::SpreadOrExpression as GrammarSpreadOrExpression,
     expressions::Expression as GrammarExpression,
@@ -54,6 +54,22 @@ impl fmt::Display for SpreadOrExpression {
         match *self {
             SpreadOrExpression::Spread(ref spread) => write!(f, "...{}", spread),
             SpreadOrExpression::Expression(ref expression) => write!(f, "{}", expression),
+        }
+    }
+}
+
+impl Node for SpreadOrExpression {
+    fn span(&self) -> &Span {
+        use SpreadOrExpression::*;
+        match self {
+            Spread(expression) | Expression(expression) => expression.span(),
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        use SpreadOrExpression::*;
+        match self {
+            Spread(expression) | Expression(expression) => expression.set_span(span),
         }
     }
 }
