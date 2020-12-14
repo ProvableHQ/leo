@@ -58,12 +58,8 @@ impl<'ast> From<GrammarCircuitMember<'ast>> for CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CircuitMember::CircuitVariable(ref identifier, ref type_) => {
-                write!(f, "{}: {}", identifier, type_)
-            }
-            CircuitMember::CircuitFunction(ref function) => {
-                write!(f, "{}", function)
-            }
+            CircuitMember::CircuitVariable(ref identifier, ref type_) => write!(f, "{}: {}", identifier, type_),
+            CircuitMember::CircuitFunction(ref function) => write!(f, "{}", function),
         }
     }
 }

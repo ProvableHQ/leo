@@ -52,9 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     (input_id, value)
                 }
                 FunctionInput::SelfKeyword(_) => unimplemented!("cannot access self keyword in main function"),
-                FunctionInput::MutSelfKeyword(_) => {
-                    unimplemented!("cannot access mut self keyword in main function")
-                }
+                FunctionInput::MutSelfKeyword(_) => unimplemented!("cannot access mut self keyword in main function"),
                 FunctionInput::Variable(input_model) => {
                     let name = input_model.identifier.name.clone();
                     let input_option = input
