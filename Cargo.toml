@@ -128,7 +128,7 @@ version = "0.7"
 version = "0.5.1"
 
 [dependencies.reqwest]
-version = "0.10.9"
+version = "0.10.10"
 features = [ "blocking", "json" ]
 
 [dependencies.self_update]
