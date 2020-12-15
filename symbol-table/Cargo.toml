@@ -34,7 +34,7 @@ path = "../imports"
 version = "1.0.7"
 
 [dependencies.indexmap]
-version = "1.6.0"
+version = "1.6.1"
 features = [ "serde-1" ]
 
 [dependencies.serde]
