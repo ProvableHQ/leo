@@ -229,9 +229,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Equivalent to parse_and_check_program but uses the given program_string instead of a main
     /// file path.
     ///
-    /// Used for testing only.
-    ///
-    #[deprecated(note = "Please use the 'parse_program' method instead.")]
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
         let ast = Grammar::new(&self.main_file_path, &program_string).map_err(|mut e| {

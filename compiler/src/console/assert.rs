@@ -16,7 +16,13 @@
 
 //! Enforces an assert equals statement in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{
+    errors::ConsoleError,
+    get_indicator_value,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+};
 use leo_ast::{Expression, Span, Type};
 
 use snarkos_models::{
@@ -30,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
+        indicator: &Boolean,
         expression: Expression,
         span: &Span,
     ) -> Result<(), ConsoleError> {
@@ -42,12 +48,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // If the indicator bit is false, do not evaluate the assertion
         // This is okay since we are not enforcing any constraints
-        let false_boolean = Boolean::Constant(false);
-
-        if let Some(indicator_bool) = indicator {
-            if indicator_bool.eq(&false_boolean) {
-                return Ok(()); // continue execution
-            }
+        if !get_indicator_value(indicator) {
+            return Ok(()); // Continue execution.
         }
 
         // Unwrap assertion value and handle errors

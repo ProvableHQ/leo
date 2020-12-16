@@ -22,7 +22,7 @@ macro_rules! input_section_impl {
         #[derive(Clone, PartialEq, Eq, Default)]
         pub struct $name {
             is_present: bool,
-            values: HashMap<Parameter, Option<InputValue>>,
+            values: IndexMap<Parameter, Option<InputValue>>,
         }
 
         impl $name {
@@ -63,8 +63,8 @@ macro_rules! input_section_impl {
                 Ok(())
             }
 
-            /// Returns this section's hashmap of values
-            pub fn values(&self) -> HashMap<Parameter, Option<InputValue>> {
+            /// Returns this section's [IndexMap] of values
+            pub fn values(&self) -> IndexMap<Parameter, Option<InputValue>> {
                 self.values.clone()
             }
         }

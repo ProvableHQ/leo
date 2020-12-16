@@ -20,18 +20,17 @@
 use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
 use leo_grammar::{definitions::Definition, files::File};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
 /// Stores the Leo program abstract syntax tree.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub name: String,
     pub expected_input: Vec<FunctionInput>,
     pub imports: Vec<ImportStatement>,
-    pub circuits: HashMap<Identifier, Circuit>,
-    pub functions: HashMap<Identifier, Function>,
-    pub tests: HashMap<Identifier, TestFunction>,
+    pub circuits: IndexMap<Identifier, Circuit>,
+    pub functions: IndexMap<Identifier, Function>,
+    pub tests: IndexMap<Identifier, TestFunction>,
 }
 
 const MAIN_FUNCTION_NAME: &str = "main";
@@ -40,9 +39,9 @@ impl<'ast> Program {
     //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
     pub fn from(program_name: &str, program_ast: &File<'ast>) -> Self {
         let mut imports = vec![];
-        let mut circuits = HashMap::new();
-        let mut functions = HashMap::new();
-        let mut tests = HashMap::new();
+        let mut circuits = IndexMap::new();
+        let mut functions = IndexMap::new();
+        let mut tests = IndexMap::new();
         let mut expected_input = vec![];
 
         program_ast
@@ -94,9 +93,9 @@ impl Program {
             name,
             expected_input: vec![],
             imports: vec![],
-            circuits: HashMap::new(),
-            functions: HashMap::new(),
-            tests: HashMap::new(),
+            circuits: IndexMap::new(),
+            functions: IndexMap::new(),
+            tests: IndexMap::new(),
         }
     }
 

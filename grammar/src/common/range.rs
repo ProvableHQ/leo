@@ -21,9 +21,14 @@ use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::range_operator))]
+pub struct RangeOperator {}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::range))]
 pub struct Range<'ast> {
     pub from: Option<Expression<'ast>>,
+    pub operator: RangeOperator,
     pub to: Option<Expression<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]

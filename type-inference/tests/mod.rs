@@ -38,15 +38,12 @@ pub struct TestTypeInference {
 }
 
 impl TestTypeInference {
-    pub fn new(bytes: &[u8]) -> Self {
-        // Get file string from bytes.
-        let file_string = String::from_utf8_lossy(bytes);
-
+    pub fn new(program_string: &str) -> Self {
         // Get test file path.
         let file_path = PathBuf::from(TEST_PROGRAM_PATH);
 
         // Get parser syntax tree.
-        let ast = Grammar::new(&file_path, &*file_string).unwrap();
+        let ast = Grammar::new(&file_path, program_string).unwrap();
 
         // Get typed syntax tree.
         let typed = Ast::new(TEST_PROGRAM_NAME, &ast);
@@ -76,9 +73,9 @@ impl TestTypeInference {
 
 #[test]
 fn test_new() {
-    let bytes = include_bytes!("empty.leo");
+    let program_string = include_str!("empty.leo");
 
-    let type_inference = TestTypeInference::new(bytes);
+    let type_inference = TestTypeInference::new(program_string);
 
     type_inference.check()
 }

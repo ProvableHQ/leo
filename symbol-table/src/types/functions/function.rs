@@ -121,16 +121,6 @@ impl FunctionType {
     }
 
     ///
-    /// Returns the number of input variables to the function.
-    /// The `self` and `mut self` keywords are not counted as input variables.
-    ///
-    pub fn num_inputs(&self) -> usize {
-        self.inputs
-            .iter()
-            .fold(0, |acc, function_input| acc + function_input.count())
-    }
-
-    ///
     /// Returns `true` if the input `self` or `mut self` is present.
     /// Returns `false` otherwise.
     ///
@@ -139,13 +129,18 @@ impl FunctionType {
     }
 
     ///
-    /// Returns a vector of [&FunctionInputType] removing `self` and `mut self` inputs.
+    /// Returns an iterator of [&FunctionInputType] removing `self` and `mut self` inputs.
     ///
-    pub fn filter_self_inputs(&self) -> Vec<&FunctionInputType> {
-        self.inputs
-            .iter()
-            .filter(|input| !input.is_self())
-            .collect::<Vec<&FunctionInputType>>()
+    pub fn filter_self_inputs(&self) -> impl Iterator<Item = &FunctionInputType> {
+        self.inputs.iter().filter(|input| !input.is_self())
+    }
+
+    ///
+    /// Returns the number of input variables to the function.
+    /// The `self` and `mut self` keywords are not counted as input variables.
+    ///
+    pub fn num_inputs(&self) -> usize {
+        self.filter_self_inputs().count()
     }
 }
 

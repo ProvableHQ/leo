@@ -17,11 +17,9 @@
 use crate::{types::circuits::CircuitVariableType, FunctionType, SymbolTable, Type, TypeError};
 use leo_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashMap,
-    hash::{Hash, Hasher},
-};
+use std::hash::{Hash, Hasher};
 
 /// Stores circuit definition details.
 ///
@@ -133,7 +131,7 @@ impl CircuitType {
     pub fn from_input_section(
         table: &SymbolTable,
         name: String,
-        section: HashMap<Parameter, Option<InputValue>>,
+        section: IndexMap<Parameter, Option<InputValue>>,
     ) -> Result<Self, TypeError> {
         // Create a new `CircuitVariableType` for each section pair.
         let mut variables = Vec::new();

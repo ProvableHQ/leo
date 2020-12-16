@@ -1,6 +1,6 @@
 [package]
 name = "leo-symbol-table"
-version = "1.0.6"
+version = "1.0.7"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Stores user-defined variables during type resolution"
 homepage = "https://aleo.org"
@@ -12,26 +12,30 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [ "cryptography::croptocurrencies", "web-programming" ]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.0.6"
+version = "1.0.7"
 
 [dependencies.leo-core]
 path = "../core"
-version = "1.0.6"
+version = "1.0.7"
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.0.6"
+version = "1.0.7"
 
 [dependencies.leo-imports]
 path = "../imports"
-version = "1.0.6"
+version = "1.0.7"
+
+[dependencies.indexmap]
+version = "1.6.1"
+features = [ "serde-1" ]
 
 [dependencies.serde]
 version = "1.0"
