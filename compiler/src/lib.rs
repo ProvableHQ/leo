@@ -41,9 +41,6 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
-pub mod import;
-pub use self::import::*;
-
 pub mod output;
 pub use self::output::*;
 
@@ -53,5 +50,11 @@ pub use self::program::*;
 pub mod statement;
 pub use self::statement::*;
 
+pub mod prelude;
+pub use self::prelude::*;
+
 pub mod value;
 pub use self::value::*;
+
+pub mod stage;
+pub use self::stage::*;

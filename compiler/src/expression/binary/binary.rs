@@ -17,7 +17,8 @@
 //! Enforces a binary expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::Expression;
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -31,19 +32,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        left: Expression,
-        right: Expression,
-        span: &Span,
+        left: &Arc<Expression>,
+        right: &Arc<Expression>,
     ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
-        let mut resolved_left =
-            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), left, span)?;
-        let mut resolved_right =
-            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), right, span)?;
-
-        resolved_left.resolve_types(&mut resolved_right, expected_type, span)?;
+        let resolved_left = self.enforce_operand(cs, left)?;
+        let resolved_right = self.enforce_operand(cs, right)?;
 
         Ok((resolved_left, resolved_right))
     }

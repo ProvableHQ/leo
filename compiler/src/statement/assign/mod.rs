@@ -20,4 +20,4 @@ pub mod assign;
 pub use self::assign::*;
 
 pub mod assignee;
-pub use self::assignee::*;
+pub(crate) use self::assignee::*;

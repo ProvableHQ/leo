@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_type_inference_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_asg_error, generate_main_input, parse_program};
 use leo_ast::InputValue;
 
 #[test]
 fn test_let() {
     let program_string = include_str!("let.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -44,25 +44,25 @@ fn test_let_mut_nested() {
 #[test]
 fn test_const_fail() {
     let program_string = include_str!("const.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_const_mut_fail() {
     let program_string = include_str!("const_mut.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_array() {
     let program_string = include_str!("array.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -92,9 +92,9 @@ fn test_array_splice_mut() {
 #[test]
 fn test_circuit() {
     let program_string = include_str!("circuit.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -118,7 +118,7 @@ fn test_circuit_function_mut() {
     let program_string = include_str!("circuit_function_mut.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -126,19 +126,14 @@ fn test_circuit_static_function_mut() {
     let program_string = include_str!("circuit_static_function_mut.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_function_input() {
     let program_string = include_str!("function_input.leo");
-    let mut program = parse_program(program_string).unwrap();
-
-    let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
-
-    program.set_main_input(main_input);
-
-    expect_compiler_error(program);
+    let error = parse_program(program_string).err().unwrap();
+    expect_asg_error(error);
 }
 
 #[test]

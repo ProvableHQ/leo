@@ -17,7 +17,7 @@
 //! Enforces a relational `>=` operator in a resolved Leo program.
 
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 use leo_gadgets::bits::ComparatorGadget;
 
 use snarkvm_models::{
@@ -31,18 +31,10 @@ pub fn evaluate_ge<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
     right: ConstrainedValue<F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-    let mut unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line, span.start));
+    let unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line, span.start));
     let constraint_result = match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             num_1.greater_than_or_equal(unique_namespace, &num_2)
-        }
-        (ConstrainedValue::Unresolved(string), val_2) => {
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
-            return evaluate_ge(&mut unique_namespace, val_1, val_2, span);
-        }
-        (val_1, ConstrainedValue::Unresolved(string)) => {
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
-            return evaluate_ge(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(

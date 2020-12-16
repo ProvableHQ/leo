@@ -15,13 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_ast::AstError;
+use leo_asg::AsgConvertError;
 use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_state::LocalDataVerificationError;
-use leo_symbol_table::SymbolTableError;
-use leo_type_inference::TypeInferenceError;
 
 use bincode::Error as SerdeError;
 use std::path::{Path, PathBuf};
@@ -74,9 +72,7 @@ pub enum CompilerError {
     SerdeError(#[from] SerdeError),
 
     #[error("{}", _0)]
-    SymbolTableError(#[from] SymbolTableError),
-    #[error("{}", _0)]
-    TypeInferenceError(#[from] TypeInferenceError),
+    AsgConvertError(#[from] AsgConvertError),
 }
 
 impl CompilerError {
@@ -85,8 +81,6 @@ impl CompilerError {
             CompilerError::InputParserError(error) => error.set_path(path),
             CompilerError::FunctionError(error) => error.set_path(path),
             CompilerError::OutputStringError(error) => error.set_path(path),
-            CompilerError::SymbolTableError(error) => error.set_path(path),
-            CompilerError::TypeInferenceError(error) => error.set_path(path),
             _ => {}
         }
     }

@@ -16,8 +16,9 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, parse_index, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, PositiveNumber, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -29,27 +30,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_tuple_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        tuple: Expression,
-        index: PositiveNumber,
+        tuple: &Arc<Expression>,
+        index: usize,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the tuple values.
-        let tuple = match self.enforce_operand(cs, file_scope, function_scope, expected_type, tuple, &span)? {
+        let tuple = match self.enforce_operand(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
-        // Parse the tuple index.
-        let index_usize = parse_index(&index, &span)?;
-
         // Check for out of bounds access.
-        if index_usize > tuple.len() - 1 {
-            return Err(ExpressionError::index_out_of_bounds(index_usize, span.to_owned()));
+        if index > tuple.len() - 1 {
+            // probably safe to be a panic here
+            return Err(ExpressionError::index_out_of_bounds(index, span.to_owned()));
         }
 
-        Ok(tuple[index_usize].to_owned())
+        Ok(tuple[index].to_owned())
     }
 }
