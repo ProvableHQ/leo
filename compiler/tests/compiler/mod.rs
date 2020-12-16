@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, get_output, parse_program, EdwardsTestCompiler};
+use crate::{get_output, EdwardsTestCompiler};
 
 use std::{env::current_dir, path::PathBuf};
 

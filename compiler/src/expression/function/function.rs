@@ -17,7 +17,7 @@
 //! Enforce a function call expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_ast::{expression::CircuitMemberAccessExpression, Expression, Span, Type};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -37,24 +37,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let (declared_circuit_reference, function_value) = match function {
-            Expression::CircuitMemberAccess(circuit_identifier, circuit_member, span) => {
+            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
                 // Call a circuit function that can mutate self.
 
                 // Save a reference to the circuit we are mutating.
-                let circuit_id_string = circuit_identifier.to_string();
+                let circuit_id_string = circuit.to_string();
                 let declared_circuit_reference = new_scope(function_scope, &circuit_id_string);
 
                 (
                     declared_circuit_reference,
-                    self.enforce_circuit_access(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        expected_type,
-                        *circuit_identifier,
-                        circuit_member,
-                        span,
-                    )?,
+                    self.enforce_circuit_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)?,
                 )
             }
             function => (
