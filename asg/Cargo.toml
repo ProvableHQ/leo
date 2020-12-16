@@ -1,0 +1,48 @@
+[package]
+name = "leo-asg"
+version = "1.0.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "ASG of the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies.serde]
+version = "1.0"
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dev-dependencies.criterion]
+version = "0.3"
+
+[dependencies.indexmap]
+version = "1.6"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.leo-ast]
+version = "1.0"
+path = "../ast"
+
+[dependencies.leo-grammar]
+version = "1.0"
+path = "../grammar"
+
+[dependencies.uuid]
+version = "0.8"
+features = ["v4", "serde"]
+
+[dependencies.num-bigint]
+version = "0.3"

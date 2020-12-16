@@ -522,3 +522,11 @@ fn test_input_type_tuple_value_tuple_4x3x2_fail() {
 
     assert!(syntax_error);
 }
+
+#[test]
+fn test_variable_slice_fail() {
+    let program_string = include_str!("variable_slice_fail.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
