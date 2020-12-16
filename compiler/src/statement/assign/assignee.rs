@@ -118,6 +118,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
     }
 
+    // discards unnecessary mutable wrappers
+    fn unwrap_mutable(input: &mut ConstrainedValue<F, G>) -> &mut ConstrainedValue<F, G> {
+        match input {
+            ConstrainedValue::Mutable(x) => &mut **x,
+            x => x,
+        }
+    }
+
     fn resolve_assignee_access<'a>(
         access: ResolvedAssigneeAccess,
         span: &Span,
@@ -128,7 +136,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if value.len() != 1 {
                     return Err(StatementError::array_assign_interior_index(span.clone()));
                 }
-                match value.remove(0) {
+                match Self::unwrap_mutable(value.remove(0)) {
                     ConstrainedValue::Array(old) => {
                         if index > old.len() {
                             Err(StatementError::array_assign_index_bounds(
@@ -148,7 +156,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                 if value.len() == 1 {
                     // not a range of a range
-                    match value.remove(0) {
+                    match Self::unwrap_mutable(value.remove(0)) {
                         ConstrainedValue::Array(old) => {
                             let stop_index = stop_index.unwrap_or(old.len());
                             Self::check_range_index(start_index, stop_index, old.len(), &span)?;
@@ -162,7 +170,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let stop_index = stop_index.unwrap_or(value.len());
                     Self::check_range_index(start_index, stop_index, value.len(), &span)?;
 
-                    Ok(value.drain(start_index..stop_index).collect())
+                    Ok(value.drain(start_index..stop_index).map(Self::unwrap_mutable).collect())
                 }
             }
             ResolvedAssigneeAccess::Tuple(index, span) => {
@@ -171,7 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if value.len() != 1 {
                     return Err(StatementError::array_assign_interior_index(span));
                 }
-                match value.remove(0) {
+                match Self::unwrap_mutable(value.remove(0)) {
                     ConstrainedValue::Tuple(old) => {
                         if index > old.len() {
                             Err(StatementError::tuple_assign_index_bounds(index, old.len(), span))
@@ -186,7 +194,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if value.len() != 1 {
                     return Err(StatementError::array_assign_interior_index(span.clone()));
                 }
-                match value.remove(0) {
+                match Self::unwrap_mutable(value.remove(0)) {
                     ConstrainedValue::CircuitExpression(_variable, members) => {
                         // Modify the circuit variable in place
                         let matched_variable = members.iter_mut().find(|member| member.0 == name);
