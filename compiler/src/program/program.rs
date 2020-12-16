@@ -18,44 +18,34 @@
 
 use crate::{value::ConstrainedValue, GroupType};
 
+use leo_asg::Program;
 use snarkvm_models::curves::{Field, PrimeField};
 
 use indexmap::IndexMap;
+use uuid::Uuid;
 
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
-    pub identifiers: IndexMap<String, ConstrainedValue<F, G>>,
-}
-
-impl<F: Field + PrimeField, G: GroupType<F>> Default for ConstrainedProgram<F, G> {
-    fn default() -> Self {
-        Self {
-            identifiers: IndexMap::new(),
-        }
-    }
-}
-
-pub fn new_scope(outer: &str, inner: &str) -> String {
-    format!("{}_{}", outer, inner)
-}
-
-pub fn is_in_scope(current_scope: &str, desired_scope: &str) -> bool {
-    current_scope.ends_with(desired_scope)
+    pub asg: Program,
+    identifiers: IndexMap<Uuid, ConstrainedValue<F, G>>,
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(asg: Program) -> Self {
+        Self {
+            asg,
+            identifiers: IndexMap::new(),
+        }
     }
 
-    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<F, G>) {
+    pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<F, G>) {
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &str) -> Option<&ConstrainedValue<F, G>> {
+    pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<F, G>> {
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &str) -> Option<&mut ConstrainedValue<F, G>> {
+    pub(crate) fn get_mut(&mut self, name: &Uuid) -> Option<&mut ConstrainedValue<F, G>> {
         self.identifiers.get_mut(name)
     }
 }

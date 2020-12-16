@@ -17,7 +17,6 @@
 //! Enforces an iteration statement in a compiled Leo program.
 
 use crate::{
-    new_scope,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
@@ -25,7 +24,7 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_ast::{IterationStatement, Type};
+use leo_asg::IterationStatement;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -40,41 +39,32 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
         indicator: &Boolean,
-        return_type: Option<Type>,
-        declared_circuit_reference: &str,
-        mut_self: bool,
-        statement: IterationStatement,
+        statement: &IterationStatement,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
-        let from = self.enforce_index(cs, file_scope, function_scope, statement.start, &statement.span)?;
-        let to = self.enforce_index(cs, file_scope, function_scope, statement.stop, &statement.span)?;
+        let span = statement.span.clone().unwrap_or_default();
 
-        let span = statement.span.clone();
+        let from = self.enforce_index(cs, &statement.start, &span)?;
+        let to = self.enforce_index(cs, &statement.stop, &span)?;
+
         for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
+            let variable = statement.variable.borrow();
 
-            let index_name = new_scope(function_scope, &statement.variable.name);
-
+            // todo: replace definition with var typed
             self.store(
-                index_name,
+                variable.id,
                 ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
             );
 
             // Evaluate statements and possibly return early
-            let result = self.evaluate_block(
+            let result = self.enforce_statement(
                 &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line, &span.start)),
-                file_scope,
-                function_scope,
                 indicator,
-                statement.block.clone(),
-                return_type.clone(),
-                declared_circuit_reference,
-                mut_self,
+                &statement.body,
             )?;
 
             results.extend(result);

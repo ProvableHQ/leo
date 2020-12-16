@@ -21,10 +21,6 @@ edition = "2018"
 path = "../ast"
 version = "1.0.8"
 
-[dependencies.leo-core]
-path = "../core"
-version = "1.0.8"
-
 [dependencies.leo-gadgets]
 path = "../gadgets"
 version = "1.0.8"
@@ -49,13 +45,9 @@ version = "1.0.8"
 path = "../state"
 version = "1.0.8"
 
-[dependencies.leo-symbol-table]
-path = "../symbol-table"
-version = "1.0.8"
-
-[dependencies.leo-type-inference]
-path = "../type-inference"
-version = "1.0.8"
+[dependencies.leo-asg]
+path = "../asg"
+version = "1.0.7"
 
 [dependencies.snarkvm-curves]
 version = "0.0.2"
@@ -115,6 +107,10 @@ version = "1.0"
 
 [dependencies.tracing]
 version = "0.1"
+
+[dependencies.uuid]
+version = "0.8"
+features = ["v4", "serde"]
 
 [dev-dependencies.num-bigint]
 version = "0.3"

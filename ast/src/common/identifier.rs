@@ -88,10 +88,6 @@ impl Identifier {
     pub fn is_self(&self) -> bool {
         self.is_self_type() || self.name == "self"
     }
-
-    pub fn is_core(&self) -> bool {
-        self.name.starts_with('#')
-    }
 }
 
 impl<'ast> From<GrammarIdentifier<'ast>> for Identifier {

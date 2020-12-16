@@ -28,14 +28,6 @@ use snarkvm_models::{
     },
 };
 
-pub(crate) fn new_bool_constant(string: String, span: &Span) -> Result<Boolean, BooleanError> {
-    let boolean = string
-        .parse::<bool>()
-        .map_err(|_| BooleanError::invalid_boolean(string, span.to_owned()))?;
-
-    Ok(Boolean::constant(boolean))
-}
-
 pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,

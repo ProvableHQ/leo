@@ -30,8 +30,8 @@ use crate::{
     Integer,
 };
 
-use leo_ast::{InputValue, Span, Type};
-
+use leo_asg::Type;
+use leo_ast::{InputValue, Span};
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -41,7 +41,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        type_: Type,
+        type_: &Type,
         name: &str,
         input_option: Option<InputValue>,
         span: &Span,
@@ -51,14 +51,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Type::Boolean => Ok(bool_from_input(cs, name, input_option, span)?),
             Type::Field => Ok(field_from_input(cs, name, input_option, span)?),
             Type::Group => Ok(group_from_input(cs, name, input_option, span)?),
-            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(
+            Type::Integer(integer_type) => Ok(ConstrainedValue::Integer(Integer::from_input(
                 cs,
                 integer_type,
                 name,
                 input_option,
                 span,
             )?)),
-            Type::Array(type_, dimensions) => self.allocate_array(cs, name, *type_, dimensions, input_option, span),
+            Type::Array(type_, len) => self.allocate_array(cs, name, &*type_, *len, input_option, span),
             Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
             _ => unimplemented!("main function input not implemented for type"),
         }

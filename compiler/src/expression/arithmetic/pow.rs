@@ -34,14 +34,6 @@ pub fn enforce_pow<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
         }
-        (ConstrainedValue::Unresolved(string), val_2) => {
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
-            enforce_pow(cs, val_1, val_2, span)
-        }
-        (val_1, ConstrainedValue::Unresolved(string)) => {
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
-            enforce_pow(cs, val_1, val_2, span)
-        }
         (val_1, val_2) => Err(ExpressionError::incompatible_types(
             format!("{} ** {}", val_1, val_2,),
             span.to_owned(),

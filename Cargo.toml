@@ -28,7 +28,6 @@ path = "leo/main.rs"
 members = [
   "ast",
   "compiler",
-  "core",
   "gadgets",
   "grammar",
   "imports",
@@ -37,8 +36,6 @@ members = [
   "package",
   "state",
   "asg",
-  "symbol-table",
-  "type-inference"
 ]
 
 [dependencies.leo-ast]

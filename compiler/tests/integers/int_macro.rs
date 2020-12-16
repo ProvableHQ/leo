@@ -66,9 +66,9 @@ macro_rules! test_int {
 
             fn test_min_fail() {
                 let program_string = include_str!("min_fail.leo");
-                let program = parse_program(program_string).unwrap();
+                let error = parse_program(program_string).err().unwrap();
 
-                expect_parsing_error(program);
+                expect_asg_error(error);
             }
 
             fn test_max() {
@@ -80,9 +80,9 @@ macro_rules! test_int {
 
             fn test_max_fail() {
                 let program_string = include_str!("max_fail.leo");
-                let program = parse_program(program_string).unwrap();
+                let error = parse_program(program_string).err().unwrap();
 
-                expect_parsing_error(program);
+                expect_asg_error(error);
             }
 
             fn test_add() {

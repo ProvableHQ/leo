@@ -17,7 +17,7 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_ast::FormattedString;
+use leo_asg::FormattedString;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -28,16 +28,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        formatted: FormattedString,
+        formatted: &FormattedString,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
         if formatted.containers.len() != formatted.parameters.len() {
             return Err(ConsoleError::length(
                 formatted.containers.len(),
                 formatted.parameters.len(),
-                formatted.span,
+                formatted.span.clone(),
             ));
         }
 
@@ -51,8 +49,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Insert the parameter for each container `{}`
         let mut result = string.to_string();
 
-        for parameter in formatted.parameters.into_iter() {
-            let parameter_value = self.enforce_expression(cs, file_scope, function_scope, None, parameter)?;
+        for parameter in formatted.parameters.iter() {
+            let parameter_value = self.enforce_expression(cs, parameter)?;
 
             result = result.replacen("{}", &parameter_value.to_string(), 1);
         }

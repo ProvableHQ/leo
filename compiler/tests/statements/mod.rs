@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_type_inference_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_asg_error, generate_main_input, parse_program};
 use leo_ast::InputValue;
 
 pub mod conditional;
@@ -62,7 +62,7 @@ fn test_num_returns_fail() {
     let program_string = include_str!("num_returns_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]

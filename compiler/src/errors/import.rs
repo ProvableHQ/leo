@@ -15,15 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Error as FormattedError, Identifier, ImportSymbol, Span};
-use leo_core::LeoCorePackageError;
 
 #[derive(Debug, Error)]
 pub enum ImportError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCorePackageError),
 }
 
 impl ImportError {

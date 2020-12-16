@@ -19,9 +19,6 @@
 pub mod array;
 pub use self::array::*;
 
-pub mod function_input;
-pub use self::function_input::*;
-
 pub mod main_function_input;
 pub use self::main_function_input::*;
 

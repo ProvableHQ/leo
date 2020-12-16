@@ -17,7 +17,8 @@
 //! Enforces a conditional expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -30,23 +31,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        conditional: Expression,
-        first: Expression,
-        second: Expression,
+        conditional: &Arc<Expression>,
+        first: &Arc<Expression>,
+        second: &Arc<Expression>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let conditional_value =
-            match self.enforce_expression(cs, file_scope, function_scope, Some(Type::Boolean), conditional)? {
-                ConstrainedValue::Boolean(resolved) => resolved,
-                value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
-            };
+        let conditional_value = match self.enforce_expression(cs, conditional)? {
+            ConstrainedValue::Boolean(resolved) => resolved,
+            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
+        };
 
-        let first_value = self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), first, span)?;
+        let first_value = self.enforce_operand(cs, first)?;
 
-        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span)?;
+        let second_value = self.enforce_operand(cs, second)?;
 
         let unique_namespace = cs.ns(|| {
             format!(

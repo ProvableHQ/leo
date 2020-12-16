@@ -17,7 +17,7 @@
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},

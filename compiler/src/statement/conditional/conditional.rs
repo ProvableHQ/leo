@@ -24,7 +24,7 @@ use crate::{
     IndicatorAndConstrainedValue,
     StatementResult,
 };
-use leo_ast::{ConditionalStatement, Type};
+use leo_asg::ConditionalStatement;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -47,33 +47,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
         indicator: &Boolean,
-        return_type: Option<Type>,
-        declared_circuit_reference: &str,
-        mut_self: bool,
-        statement: ConditionalStatement,
+        statement: &ConditionalStatement,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
-        let statement_string = statement.to_string();
-
+        let span = statement.span.clone().unwrap_or_default();
         // Inherit an indicator from a previous statement.
         let outer_indicator = indicator;
 
         // Evaluate the conditional boolean as the inner indicator
-        let inner_indicator = match self.enforce_expression(
-            cs,
-            file_scope,
-            function_scope,
-            Some(Type::Boolean),
-            statement.condition.clone(),
-        )? {
+        let inner_indicator = match self.enforce_expression(cs, &statement.condition)? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
-                return Err(StatementError::conditional_boolean(
-                    value.to_string(),
-                    statement.span.clone(),
-                ));
+                return Err(StatementError::conditional_boolean(value.to_string(), span));
             }
         };
 
@@ -85,30 +70,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             outer_indicator_string, inner_indicator_string
         );
         let branch_1_indicator = Boolean::and(
-            &mut cs.ns(|| {
-                format!(
-                    "branch 1 {} {}:{}",
-                    statement_string, &statement.span.line, &statement.span.start
-                )
-            }),
+            &mut cs.ns(|| format!("branch 1 {} {}:{}", span.text, &span.line, &span.start)),
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_1_name, statement.span.clone()))?;
+        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
 
         let mut results = vec![];
 
         // Evaluate branch 1
-        let mut branch_1_result = self.evaluate_block(
-            cs,
-            file_scope,
-            function_scope,
-            &branch_1_indicator,
-            statement.block,
-            return_type.clone(),
-            declared_circuit_reference,
-            mut_self,
-        )?;
+        let mut branch_1_result = self.enforce_statement(cs, &branch_1_indicator, &statement.result)?;
 
         results.append(&mut branch_1_result);
 
@@ -119,26 +90,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             "branch indicator 2 {} && {}",
             outer_indicator_string, inner_indicator_string
         );
-        let span = statement.span.clone();
         let branch_2_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch 2 {} {}:{}", statement_string, &span.line, &span.start)),
+            &mut cs.ns(|| format!("branch 2 {} {}:{}", span.text, &span.line, &span.start)),
             &outer_indicator,
             &inner_indicator,
         )
         .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
 
         // Evaluate branch 2
-        let mut branch_2_result = match statement.next {
-            Some(next) => self.enforce_statement(
-                cs,
-                file_scope,
-                function_scope,
-                &branch_2_indicator,
-                *next,
-                return_type,
-                declared_circuit_reference,
-                mut_self,
-            )?,
+        let mut branch_2_result = match &statement.next {
+            Some(next) => self.enforce_statement(cs, &branch_2_indicator, next)?,
             None => vec![],
         };
 

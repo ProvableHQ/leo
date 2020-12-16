@@ -1256,16 +1256,14 @@ dependencies = [
  "bincode",
  "hex",
  "indexmap",
+ "leo-asg",
  "leo-ast",
- "leo-core",
  "leo-gadgets",
  "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-symbol-table",
- "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1282,22 +1280,7 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "leo-core"
-version = "1.0.8"
-dependencies = [
- "leo-ast",
- "leo-gadgets",
- "rand",
- "rand_xorshift",
- "snarkvm-curves",
- "snarkvm-errors",
- "snarkvm-gadgets",
- "snarkvm-models",
- "snarkvm-utilities",
- "thiserror",
+ "uuid",
 ]
 
 [[package]]
@@ -1334,6 +1317,7 @@ name = "leo-imports"
 version = "1.0.8"
 dependencies = [
  "indexmap",
+ "leo-asg",
  "leo-ast",
  "leo-grammar",
  "thiserror",
@@ -1425,33 +1409,6 @@ dependencies = [
  "snarkvm-objects",
  "snarkvm-storage",
  "snarkvm-utilities",
- "thiserror",
-]
-
-[[package]]
-name = "leo-symbol-table"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-core",
- "leo-grammar",
- "leo-imports",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "leo-type-inference"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-grammar",
- "leo-imports",
- "leo-symbol-table",
- "serde",
- "serde_json",
  "thiserror",
 ]
 
@@ -3108,11 +3065,19 @@ dependencies = [
 
 [[package]]
 name = "uuid"
+<<<<<<< HEAD
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom 0.2.2",
+=======
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fde2f6a4bea1d6e007c4ad38c6839fa71cbb63b6dbf5b595aa38dc9b1093c11"
+dependencies = [
+ "rand",
+>>>>>>> 0cd92c7c... asg
  "serde",
 ]
 

@@ -13,61 +13,48 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
 
-use crate::errors::{ExpressionError, FunctionError};
-use leo_ast::{Expression, Span, Type};
-use leo_core::call_core_circuit;
+use crate::errors::ExpressionError;
+use leo_asg::{Expression, Function, Span};
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
+use std::sync::Arc;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Call a default core circuit function with arguments
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>, C: CoreCircuit<F, G>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        core_circuit: String,
-        arguments: Vec<Expression>,
-        span: Span,
+        core_circuit: &C,
+        function: &Arc<Function>,
+        target: Option<&Arc<Expression>>,
+        arguments: &[Arc<Expression>],
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Get the value of each core function argument
-        let mut argument_values = Vec::with_capacity(arguments.len());
-        for argument in arguments.into_iter() {
-            let argument_value = self.enforce_expression(cs, file_scope, function_scope, None, argument)?;
-            let core_function_argument = argument_value.to_value();
+        let function = function
+            .body
+            .borrow()
+            .upgrade()
+            .expect("stale function in call expression");
 
-            argument_values.push(core_function_argument);
-        }
-
-        // Call the core function in `leo-core`
-        let res = call_core_circuit(cs, core_circuit, argument_values, span.clone())?;
-
-        // Convert the core function returns into constrained values
-        let returns = res.into_iter().map(ConstrainedValue::from).collect::<Vec<_>>();
-
-        let return_value = if returns.len() == 1 {
-            // The function has a single return
-            returns[0].clone()
+        let target_value = if let Some(target) = target {
+            Some(self.enforce_expression(cs, target)?)
         } else {
-            // The function has multiple returns
-            ConstrainedValue::Tuple(returns)
+            None
         };
 
-        // Check that function returns expected type
-        if let Some(expected) = expected_type {
-            let actual = return_value.to_type(&span)?;
-            if expected.ne(&actual) {
-                return Err(ExpressionError::FunctionError(Box::new(
-                    FunctionError::return_argument_type(expected.to_string(), actual.to_string(), span),
-                )));
-            }
-        }
+        // Get the value of each core function argument
+        let arguments = arguments
+            .iter()
+            .map(|argument| self.enforce_expression(cs, argument))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        // Call the core function
+        let return_value = core_circuit.call_function(cs, function, span, target_value, arguments)?;
 
         Ok(return_value)
     }
