@@ -1,9 +1,12 @@
-name: Leo Release Tests
+name: Leo Binary Tests
 on:
   pull_request:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - 'documentation/**'
 env:
   RUST_BACKTRACE: 1
 
