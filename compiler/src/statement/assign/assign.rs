@@ -17,14 +17,14 @@
 //! Enforces an assign statement in a compiled Leo program.
 
 use crate::{
-    assignee::resolve_assignee,
+    arithmetic::*,
     errors::StatementError,
     new_scope,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
 };
-use leo_ast::{Assignee, AssigneeAccess, Expression, Span};
+use leo_ast::{AssignOperation, AssignStatement, AssigneeAccess, Span};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -44,71 +44,109 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         declared_circuit_reference: &str,
         indicator: &Boolean,
         mut_self: bool,
-        assignee: Assignee,
-        expression: Expression,
-        span: &Span,
+        statement: AssignStatement,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
-        let variable_name = resolve_assignee(function_scope.to_string(), assignee.clone());
+        let mut new_value = self.enforce_expression(cs, file_scope, function_scope, None, statement.value)?;
+        let mut resolved_assignee = self.resolve_assignee(
+            cs,
+            file_scope,
+            function_scope,
+            declared_circuit_reference,
+            mut_self,
+            statement.assignee.clone(),
+        )?;
 
-        // Evaluate new value
-        let mut new_value = self.enforce_expression(cs, file_scope, function_scope, None, expression)?;
+        if resolved_assignee.len() == 1 {
+            new_value.resolve_type(Some(resolved_assignee[0].to_type(&statement.span)?), &statement.span)?;
 
-        // Mutate the old value into the new value
-        if assignee.accesses.is_empty() {
-            let old_value = self.get_mutable_assignee(&variable_name, span)?;
+            let span = statement.span.clone();
 
-            new_value.resolve_type(Some(old_value.to_type(&span)?), span)?;
-
-            let selected_value = ConstrainedValue::conditionally_select(
-                cs.ns(|| format!("select {} {}:{}", new_value, span.line, span.start)),
+            Self::enforce_assign_operation(
+                cs,
                 indicator,
-                &new_value,
-                old_value,
-            )
-            .map_err(|_| StatementError::select_fail(new_value.to_string(), old_value.to_string(), span.to_owned()))?;
-
-            *old_value = selected_value;
-
-            Ok(())
+                format!("select {} {}:{}", new_value, &span.line, &span.start),
+                &statement.operation,
+                resolved_assignee[0],
+                new_value,
+                &span,
+            )?;
         } else {
-            match assignee.accesses[0].clone() {
-                AssigneeAccess::Array(range_or_expression) => self.assign_array(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    &variable_name,
-                    range_or_expression,
-                    new_value,
-                    span,
-                ),
-                AssigneeAccess::Tuple(index, span) => {
-                    self.assign_tuple(cs, indicator, &variable_name, index, new_value, &span)
-                }
-                AssigneeAccess::Member(identifier) => {
-                    // Mutate a circuit variable using the self keyword.
-                    if assignee.identifier.is_self() && mut_self {
-                        let self_circuit_variable_name = new_scope(&assignee.identifier.name, &identifier.name);
-                        let self_variable_name = new_scope(file_scope, &self_circuit_variable_name);
-                        let value = self.mutate_circuit_variable(
+            match new_value {
+                ConstrainedValue::Array(new_values) => {
+                    let span = statement.span.clone();
+
+                    for (i, (old_ref, new_value)) in
+                        resolved_assignee.into_iter().zip(new_values.into_iter()).enumerate()
+                    {
+                        Self::enforce_assign_operation(
                             cs,
                             indicator,
-                            declared_circuit_reference,
-                            identifier,
+                            format!("select-splice {} {} {}:{}", i, new_value, &span.line, &span.start),
+                            &statement.operation,
+                            old_ref,
                             new_value,
-                            span,
+                            &span,
                         )?;
-
-                        self.store(self_variable_name, value);
-                    } else {
-                        let _value =
-                            self.mutate_circuit_variable(cs, indicator, &variable_name, identifier, new_value, span)?;
                     }
-
-                    Ok(())
                 }
+                _ => return Err(StatementError::array_assign_range(statement.span)),
+            };
+        }
+
+        // self re-store logic -- structure is already checked by enforce_assign_operation
+        if statement.assignee.identifier.is_self() && mut_self {
+            if let Some(AssigneeAccess::Member(member_name)) = statement.assignee.accesses.get(0) {
+                let self_circuit_variable_name = new_scope(&statement.assignee.identifier.name, &member_name.name);
+                let self_variable_name = new_scope(file_scope, &self_circuit_variable_name);
+                // get circuit ref
+                let target = match self.get(declared_circuit_reference) {
+                    Some(ConstrainedValue::Mutable(value)) => &**value,
+                    _ => unimplemented!(),
+                };
+                // get freshly assigned member ref, and clone it
+                let source = match target {
+                    ConstrainedValue::CircuitExpression(_circuit_name, members) => {
+                        let matched_variable = members.iter().find(|member| &member.0 == member_name);
+
+                        match matched_variable {
+                            Some(member) => &member.1,
+                            None => unimplemented!(),
+                        }
+                    }
+                    _ => unimplemented!(),
+                }
+                .clone();
+                self.store(self_variable_name, source);
             }
         }
+
+        Ok(())
+    }
+
+    fn enforce_assign_operation<CS: ConstraintSystem<F>>(
+        cs: &mut CS,
+        condition: &Boolean,
+        scope: String,
+        operation: &AssignOperation,
+        target: &mut ConstrainedValue<F, G>,
+        mut new_value: ConstrainedValue<F, G>,
+        span: &Span,
+    ) -> Result<(), StatementError> {
+        new_value.resolve_type(Some(target.to_type(span)?), span)?;
+
+        let new_value = match operation {
+            AssignOperation::Assign => new_value,
+            AssignOperation::Add => enforce_add(cs, target.clone(), new_value, span)?,
+            AssignOperation::Sub => enforce_sub(cs, target.clone(), new_value, span)?,
+            AssignOperation::Mul => enforce_mul(cs, target.clone(), new_value, span)?,
+            AssignOperation::Div => enforce_div(cs, target.clone(), new_value, span)?,
+            AssignOperation::Pow => enforce_pow(cs, target.clone(), new_value, span)?,
+        };
+        let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
+            .map_err(|_| StatementError::select_fail(new_value.to_string(), target.to_string(), span.clone()))?;
+
+        *target = selected_value;
+        Ok(())
     }
 }

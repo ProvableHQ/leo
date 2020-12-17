@@ -14,14 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod conditional_nested_or_end_statement;
-pub use conditional_nested_or_end_statement::*;
-
-pub mod conditional_statement;
-pub use conditional_statement::*;
-
 pub mod statement;
 pub use statement::*;
 
+pub mod conditional;
+pub use conditional::*;
+
 pub mod block;
 pub use block::*;
+
+pub mod return_statement;
+pub use return_statement::*;
+
+pub mod iteration;
+pub use iteration::*;
+
+pub mod expression;
+pub use expression::*;
+
+pub mod definition;
+pub use definition::*;
+
+pub mod console;
+pub use console::*;
+
+pub mod assign;
+pub use assign::*;

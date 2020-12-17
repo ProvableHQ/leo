@@ -11,8 +11,8 @@
       "block" : {
         "statements": [
           {
-            "Return": [
-              {
+            "Return": {
+              "expression": {
                 "Binary": {
                   "left": {
                     "Value": {
@@ -49,15 +49,21 @@
                   }
                 }
               },
-              {
+              "span" : {
                 "text": "     return 1 + 1",
                 "line": 2,
                 "start": 5,
                 "end": 17
               }
-            ]
+            }
           }
-        ]
+        ],
+        "span" : {
+          "text": "     return 1 + 1",
+          "line": 2,
+          "start": 5,
+          "end": 17
+        }
       },
       "span": {
         "text": " function main() {",

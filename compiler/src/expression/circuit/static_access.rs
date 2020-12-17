@@ -72,6 +72,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         };
 
-        Ok(ConstrainedValue::Function(Some(circuit.circuit_name), function))
+        Ok(ConstrainedValue::Function(
+            Some(circuit.circuit_name),
+            Box::new(function),
+        ))
     }
 }

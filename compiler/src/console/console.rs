@@ -17,7 +17,7 @@
 //! Evaluates a macro in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_indicator_value, GroupType};
-use leo_ast::{ConsoleFunction, ConsoleFunctionCall};
+use leo_ast::{ConsoleFunction, ConsoleStatement};
 
 use snarkos_models::{
     curves::{Field, PrimeField},
@@ -31,7 +31,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         indicator: &Boolean,
-        console: ConsoleFunctionCall,
+        console: ConsoleStatement,
     ) -> Result<(), ConsoleError> {
         match console.function {
             ConsoleFunction::Assert(expression) => {

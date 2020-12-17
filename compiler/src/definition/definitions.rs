@@ -56,7 +56,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let resolved_function_name = new_scope(program_name, &function_name.name);
             self.store(
                 resolved_function_name,
-                ConstrainedValue::Function(None, function.clone()),
+                ConstrainedValue::Function(None, Box::new(function.clone())),
             );
         });
 

@@ -74,6 +74,22 @@ fn test_array_mut() {
 }
 
 #[test]
+fn test_array_tuple_mut() {
+    let bytes = include_str!("array_tuple_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_splice_mut() {
+    let bytes = include_str!("array_splice_mut.leo");
+    let program = parse_program(bytes).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_circuit() {
     let program_string = include_str!("circuit.leo");
     let program = parse_program(program_string).unwrap();

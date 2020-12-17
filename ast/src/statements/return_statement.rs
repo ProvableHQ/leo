@@ -14,35 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::common::{Identifier, Span};
-use leo_grammar::common::VariableName as GrammarVariableName;
+use crate::{Expression, Node, Span};
 
+use leo_grammar::statements::ReturnStatement as GrammarReturnStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct VariableName {
-    pub mutable: bool,
-    pub identifier: Identifier,
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct ReturnStatement {
+    pub expression: Expression,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarVariableName<'ast>> for VariableName {
-    fn from(name: GrammarVariableName<'ast>) -> Self {
-        Self {
-            mutable: name.mutable.is_some(),
-            identifier: Identifier::from(name.identifier),
-            span: Span::from(name.span),
+impl fmt::Display for ReturnStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "return {}", self.expression)
+    }
+}
+
+impl<'ast> From<GrammarReturnStatement<'ast>> for ReturnStatement {
+    fn from(statement: GrammarReturnStatement<'ast>) -> Self {
+        ReturnStatement {
+            expression: Expression::from(statement.expression),
+            span: Span::from(statement.span),
         }
     }
 }
 
-impl fmt::Display for VariableName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.mutable {
-            write!(f, "mut ")?;
-        }
+impl Node for ReturnStatement {
+    fn span(&self) -> &Span {
+        &self.span
+    }
 
-        write!(f, "{}", self.identifier)
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

@@ -14,38 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FormattedContainer, FormattedParameter, Span};
-use leo_grammar::console::FormattedString as GrammarFormattedString;
+use crate::{ConsoleFunction, Node, Span};
+use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FormattedString {
-    pub string: String,
-    pub containers: Vec<FormattedContainer>,
-    pub parameters: Vec<FormattedParameter>,
+pub struct ConsoleStatement {
+    pub function: ConsoleFunction,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarFormattedString<'ast>> for FormattedString {
-    fn from(formatted: GrammarFormattedString<'ast>) -> Self {
-        let string = formatted.string;
-        let span = Span::from(formatted.span);
-        let containers = formatted.containers.into_iter().map(FormattedContainer::from).collect();
-        let parameters = formatted.parameters.into_iter().map(FormattedParameter::from).collect();
-
-        Self {
-            string,
-            containers,
-            parameters,
-            span,
+impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleStatement {
+    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
+        ConsoleStatement {
+            function: ConsoleFunction::from(console.function),
+            span: Span::from(console.span),
         }
     }
 }
 
-impl fmt::Display for FormattedString {
+impl fmt::Display for ConsoleStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.string)
+        write!(f, "console.{};", self.function)
+    }
+}
+
+impl fmt::Debug for ConsoleStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "console.{};", self.function)
+    }
+}
+
+impl Node for ConsoleStatement {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

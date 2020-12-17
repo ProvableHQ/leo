@@ -16,7 +16,8 @@
 
 use crate::{
     ast::{span_into_string, Rule},
-    console::{FormattedContainer, FormattedParameter},
+    console::FormattedContainer,
+    expressions::Expression,
     SpanDef,
 };
 
@@ -31,7 +32,7 @@ pub struct FormattedString<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
     pub string: String,
     pub containers: Vec<FormattedContainer<'ast>>,
-    pub parameters: Vec<FormattedParameter<'ast>>,
+    pub parameters: Vec<Expression<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

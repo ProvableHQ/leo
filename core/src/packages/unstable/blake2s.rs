@@ -29,6 +29,7 @@ use leo_ast::{
     Identifier,
     IntegerType,
     PositiveNumber,
+    ReturnStatement,
     Span,
     Statement,
     Type,
@@ -110,8 +111,8 @@ impl CoreCircuit for Blake2sCircuit {
                     }]),
                 )),
                 block: Block {
-                    statements: vec![Statement::Return(
-                        Expression::Call(CallExpression {
+                    statements: vec![Statement::Return(ReturnStatement {
+                        expression: Expression::Call(CallExpression {
                             function: Box::new(Expression::Identifier(Identifier::new_with_span(&Self::name(), &span))),
                             arguments: vec![
                                 Expression::Identifier(Identifier::new_with_span("seed", &span)),
@@ -119,8 +120,9 @@ impl CoreCircuit for Blake2sCircuit {
                             ],
                             span: span.clone(),
                         }),
-                        span.clone(),
-                    )],
+                        span: span.clone(),
+                    })],
+                    span: span.clone(),
                 },
                 span,
             })],

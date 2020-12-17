@@ -50,26 +50,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
 
         match statement {
-            Statement::Return(expression, span) => {
+            Statement::Return(statement) => {
                 let return_value = (
-                    indicator.to_owned(),
-                    self.enforce_return_statement(cs, file_scope, function_scope, expression, return_type, &span)?,
+                    *indicator,
+                    self.enforce_return_statement(cs, file_scope, function_scope, return_type, statement)?,
                 );
 
                 results.push(return_value);
             }
-            Statement::Definition(declare, variables, expressions, span) => {
-                self.enforce_definition_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    declare,
-                    variables,
-                    expressions,
-                    &span,
-                )?;
+            Statement::Definition(statement) => {
+                self.enforce_definition_statement(cs, file_scope, function_scope, statement)?;
             }
-            Statement::Assign(variable, expression, span) => {
+            Statement::Assign(statement) => {
                 self.enforce_assign_statement(
                     cs,
                     file_scope,
@@ -77,14 +69,57 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     declared_circuit_reference,
                     indicator,
                     mut_self,
-                    variable,
-                    expression,
-                    &span,
+                    statement,
                 )?;
             }
-            Statement::Conditional(statement, span) => {
-                let mut result = self.enforce_conditional_statement(
+            Statement::Conditional(statement) => {
+                let result = self.enforce_conditional_statement(
                     cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    return_type,
+                    declared_circuit_reference,
+                    mut_self,
+                    statement,
+                )?;
+
+                results.extend(result);
+            }
+            Statement::Iteration(statement) => {
+                let result = self.enforce_iteration_statement(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    return_type,
+                    declared_circuit_reference,
+                    mut_self,
+                    statement,
+                )?;
+
+                results.extend(result);
+            }
+            Statement::Console(statement) => {
+                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, statement)?;
+            }
+            Statement::Expression(statement) => {
+                let expression_string = statement.expression.to_string();
+                let value = self.enforce_expression(cs, file_scope, function_scope, None, statement.expression)?;
+                // handle empty return value cases
+                match &value {
+                    ConstrainedValue::Tuple(values) => {
+                        if !values.is_empty() {
+                            results.push((*indicator, value));
+                        }
+                    }
+                    _ => return Err(StatementError::unassigned(expression_string, statement.span)),
+                }
+            }
+            Statement::Block(statement) => {
+                let span = statement.span.clone();
+                let result = self.evaluate_block(
+                    &mut cs.ns(|| format!("block {}:{}", &span.line, &span.start)),
                     file_scope,
                     function_scope,
                     indicator,
@@ -92,45 +127,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     return_type,
                     declared_circuit_reference,
                     mut_self,
-                    &span,
                 )?;
 
-                results.append(&mut result);
-            }
-            Statement::Iteration(index, start_stop, block, span) => {
-                let mut result = self.enforce_iteration_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    index,
-                    start_stop.0,
-                    start_stop.1,
-                    block,
-                    return_type,
-                    declared_circuit_reference,
-                    mut_self,
-                    &span,
-                )?;
-
-                results.append(&mut result);
-            }
-            Statement::Console(console) => {
-                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, console)?;
-            }
-            Statement::Expression(expression, span) => {
-                let expression_string = expression.to_string();
-                let value = self.enforce_expression(cs, file_scope, function_scope, None, expression)?;
-
-                // Handle empty return value cases.
-                match &value {
-                    ConstrainedValue::Tuple(values) => {
-                        if !values.is_empty() {
-                            results.push((*indicator, value));
-                        }
-                    }
-                    _ => return Err(StatementError::unassigned(expression_string, span)),
-                }
+                results.extend(result);
             }
         };
 

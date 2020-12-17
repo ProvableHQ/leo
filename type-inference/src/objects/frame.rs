@@ -17,24 +17,19 @@
 use crate::{FrameError, Scope, TypeAssertion};
 use leo_ast::{
     expression::*,
+    statements::*,
     ArrayDimensions,
     Assignee,
     AssigneeAccess,
     Block,
     CircuitVariableDefinition,
-    ConditionalNestedOrEndStatement,
-    ConditionalStatement,
-    Declare,
     Expression,
     Function,
     Identifier,
     IntegerType,
     PositiveNumber,
-    RangeOrExpression,
     Span,
     SpreadOrExpression,
-    Statement,
-    Variables,
 };
 use leo_symbol_table::{CircuitType, FunctionType, SymbolTable, Type, TypeVariable};
 
@@ -244,24 +239,21 @@ impl Frame {
     ///
     fn parse_statement(&mut self, statement: &Statement) -> Result<(), FrameError> {
         match statement {
-            Statement::Return(expression, span) => self.parse_return(expression, span),
-            Statement::Definition(declare, variables, expression, span) => {
-                self.parse_definition(declare, variables, expression, span)
-            }
-            Statement::Assign(assignee, expression, span) => self.parse_assign(assignee, expression, span),
-            Statement::Conditional(conditional, span) => self.parse_statement_conditional(conditional, span),
-            Statement::Iteration(identifier, from_to, block, span) => {
-                self.parse_iteration(identifier, from_to, block, span)
-            }
-            Statement::Expression(expression, span) => self.parse_statement_expression(expression, span),
+            Statement::Return(statement) => self.parse_return(statement),
+            Statement::Definition(statement) => self.parse_definition(statement),
+            Statement::Assign(statement) => self.parse_assign(statement),
+            Statement::Conditional(statement) => self.parse_statement_conditional(statement),
+            Statement::Iteration(statement) => self.parse_iteration(statement),
+            Statement::Expression(statement) => self.parse_statement_expression(statement),
             Statement::Console(_console_call) => Ok(()), // Console function calls do not generate type assertions.
+            Statement::Block(statement) => self.parse_block(statement),
         }
     }
 
     ///
     /// Collects `TypeAssertion` predicates from a return statement.
     ///
-    fn parse_return(&mut self, expression: &Expression, span: &Span) -> Result<(), FrameError> {
+    fn parse_return(&mut self, statement: &ReturnStatement) -> Result<(), FrameError> {
         // Get the function output type.
         let output_type = &self.function_type.output.type_;
 
@@ -269,10 +261,10 @@ impl Frame {
         let left = output_type.clone();
 
         // Create the right hand side from the statement return expression.
-        let right = self.parse_expression(expression)?;
+        let right = self.parse_expression(&statement.expression)?;
 
         // Create a new type assertion for the statement return.
-        self.assert_equal(left, right, span);
+        self.assert_equal(left, right, &statement.span);
 
         Ok(())
     }
@@ -280,58 +272,52 @@ impl Frame {
     ///
     /// Collects `Type Assertion` predicates from a definition statement.
     ///
-    fn parse_definition(
-        &mut self,
-        _declare: &Declare,
-        variables: &Variables,
-        expression: &Expression,
-        span: &Span,
-    ) -> Result<(), FrameError> {
+    fn parse_definition(&mut self, statement: &DefinitionStatement) -> Result<(), FrameError> {
         // Parse the definition expression.
-        let actual_type = self.parse_expression(expression)?;
+        let actual_type = self.parse_expression(&statement.value)?;
 
         // Check if an explicit type is given.
-        if let Some(type_) = variables.type_.clone() {
+        if let Some(type_) = statement.type_.clone() {
             // Check the expected type.
             let expected_type = match self.self_type {
                 Some(ref circuit_type) => Type::new_from_circuit(
                     &self.user_defined_types,
                     type_,
                     circuit_type.identifier.clone(),
-                    span.clone(),
+                    statement.span.clone(),
                 )
                 .unwrap(),
-                None => Type::new(&self.user_defined_types, type_, span.clone()).unwrap(),
+                None => Type::new(&self.user_defined_types, type_, statement.span.clone()).unwrap(),
             };
 
             // Assert that the expected type is equal to the actual type.
-            self.assert_equal(expected_type, actual_type.clone(), span)
+            self.assert_equal(expected_type, actual_type.clone(), &statement.span)
         }
 
         // Check for multiple defined variables.
-        if variables.names.len() == 1 {
+        if statement.variable_names.len() == 1 {
             // Insert variable into symbol table
-            let variable = variables.names[0].clone();
-            self.insert_variable(variable.identifier.name, actual_type, span)?;
+            let variable = statement.variable_names[0].clone();
+            self.insert_variable(variable.identifier.name, actual_type, &statement.span)?;
         } else {
             // Expect a tuple type.
             let types = match actual_type {
                 Type::Tuple(types) => types,
-                _ => return Err(FrameError::not_enough_values(span)),
+                _ => return Err(FrameError::not_enough_values(&statement.span)),
             };
 
             // Check number of variables == number of types.
-            if types.len() != variables.names.len() {
+            if types.len() != statement.variable_names.len() {
                 return Err(FrameError::invalid_number_of_values(
                     types.len(),
-                    variables.names.len(),
-                    span,
+                    statement.variable_names.len(),
+                    &statement.span,
                 ));
             }
 
             // Insert variables into symbol table
-            for (variable, type_) in variables.names.iter().zip(types) {
-                self.insert_variable(variable.identifier.name.clone(), type_, span)?;
+            for (variable, type_) in statement.variable_names.iter().zip(types) {
+                self.insert_variable(variable.identifier.name.clone(), type_, &statement.span)?;
             }
         }
 
@@ -341,15 +327,15 @@ impl Frame {
     ///
     /// Asserts that the assignee's type is equal to the `Expression` type.
     ///
-    fn parse_assign(&mut self, assignee: &Assignee, expression: &Expression, span: &Span) -> Result<(), FrameError> {
+    fn parse_assign(&mut self, statement: &AssignStatement) -> Result<(), FrameError> {
         // Parse assignee type.
-        let assignee_type = self.parse_assignee(assignee, span)?;
+        let assignee_type = self.parse_assignee(&statement.assignee, &statement.span)?;
 
         // Parse expression type.
-        let expression_type = self.parse_expression(expression)?;
+        let expression_type = self.parse_expression(&statement.value)?;
 
         // Assert that the assignee_type == expression_type.
-        self.assert_equal(assignee_type, expression_type, span);
+        self.assert_equal(assignee_type, expression_type, &statement.span);
 
         Ok(())
     }
@@ -374,10 +360,8 @@ impl Frame {
         // Iteratively evaluate assignee access types.
         for access in &assignee.accesses {
             let access_type = match access {
-                AssigneeAccess::Array(RangeOrExpression::Expression(index)) => {
-                    self.parse_array_access(type_, index, span)
-                }
-                AssigneeAccess::Array(RangeOrExpression::Range(left, right)) => {
+                AssigneeAccess::ArrayIndex(index) => self.parse_array_access(type_, index, span),
+                AssigneeAccess::ArrayRange(left, right) => {
                     self.parse_array_range_access(type_, left.as_ref(), right.as_ref(), span)
                 }
                 AssigneeAccess::Tuple(index, _) => self.parse_tuple_access(type_, &index, span),
@@ -393,7 +377,7 @@ impl Frame {
     ///
     /// Collects `TypeAssertion` predicates from a block of statements.
     ///
-    fn parse_block(&mut self, block: &Block, _span: &Span) -> Result<(), FrameError> {
+    fn parse_block(&mut self, block: &Block) -> Result<(), FrameError> {
         // Push new scope.
         let scope = Scope::new(self.scopes.last().cloned());
         self.push_scope(scope);
@@ -414,80 +398,56 @@ impl Frame {
     ///
     /// Creates a new scope for each code block in the conditional.
     ///
-    fn parse_statement_conditional(
-        &mut self,
-        conditional: &ConditionalStatement,
-        span: &Span,
-    ) -> Result<(), FrameError> {
+    fn parse_statement_conditional(&mut self, conditional: &ConditionalStatement) -> Result<(), FrameError> {
         // Parse the condition expression.
         let condition = self.parse_expression(&conditional.condition)?;
 
         // Assert that the condition is a boolean type.
         let boolean_type = Type::Boolean;
-        self.assert_equal(boolean_type, condition, span);
+        self.assert_equal(boolean_type, condition, &conditional.span);
 
         // Parse conditional statements.
-        self.parse_block(&conditional.block, span)?;
+        self.parse_block(&conditional.block)?;
 
         // Parse conditional or end.
         if let Some(cond_or_end) = &conditional.next {
-            self.parse_conditional_nested_or_end(cond_or_end, span)?;
+            self.parse_statement(cond_or_end)?;
         }
 
         Ok(())
     }
 
     ///
-    /// Collects `TypeAssertion` predicates from a conditional statement.
-    ///
-    fn parse_conditional_nested_or_end(
-        &mut self,
-        cond_or_end: &ConditionalNestedOrEndStatement,
-        span: &Span,
-    ) -> Result<(), FrameError> {
-        match cond_or_end {
-            ConditionalNestedOrEndStatement::Nested(nested) => self.parse_statement_conditional(nested, span),
-            ConditionalNestedOrEndStatement::End(statements) => self.parse_block(statements, span),
-        }
-    }
-
-    ///
     /// Collects `TypeAssertion` predicates from an iteration statement.
     ///
-    fn parse_iteration(
-        &mut self,
-        identifier: &Identifier,
-        from_to: &(Expression, Expression),
-        statements: &Block,
-        span: &Span,
-    ) -> Result<(), FrameError> {
+    fn parse_iteration(&mut self, statement: &IterationStatement) -> Result<(), FrameError> {
         // Insert variable into symbol table with u32 type.
         let u32_type = Type::IntegerType(IntegerType::U32);
-        let _expect_none = self.insert_variable(identifier.name.to_owned(), u32_type.clone(), span);
+        let _expect_none = self.insert_variable(statement.variable.name.to_owned(), u32_type.clone(), &statement.span);
 
         // Parse `from` and `to` expressions.
-        let from_type = self.parse_expression(&from_to.0)?;
-        let to_type = self.parse_expression(&from_to.1)?;
+        let from_type = self.parse_expression(&statement.start)?;
+        let to_type = self.parse_expression(&statement.stop)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
-        self.assert_equal(u32_type.clone(), from_type, span);
-        self.assert_equal(u32_type, to_type, span);
+        self.assert_equal(u32_type.clone(), from_type, &statement.span);
+        self.assert_equal(u32_type, to_type, &statement.span);
 
         // Parse block of statements.
-        self.parse_block(statements, span)
+        self.parse_block(&statement.block)
     }
 
     ///
     /// Asserts that the statement `UnresolvedExpression` returns an empty tuple.
     ///
-    fn parse_statement_expression(&mut self, expression: &Expression, span: &Span) -> Result<(), FrameError> {
+    fn parse_statement_expression(&mut self, statement: &ExpressionStatement) -> Result<(), FrameError> {
         // Create empty tuple type.
         let expected_type = Type::Tuple(Vec::new());
 
         // Parse the actual type of the expression.
-        let actual_type = self.parse_expression(expression)?;
+        let actual_type = self.parse_expression(&statement.expression)?;
 
-        self.assert_equal(expected_type, actual_type, span);
+        self.assert_equal(expected_type, actual_type, &statement.span);
 
         Ok(())
     }
