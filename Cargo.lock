@@ -1403,7 +1403,6 @@ version = "1.0.7"
 dependencies = [
  "lazy_static",
  "serde",
- "serde_json",
  "thiserror",
  "toml",
  "tracing",
