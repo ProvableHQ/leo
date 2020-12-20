@@ -103,9 +103,6 @@ version = "3.0.1"
 [dependencies.console]
 version = "0.13.0"
 
-[dependencies.env_logger]
-version = "0.8"
-
 [dependencies.from-pest]
 version = "0.3.1"
 
