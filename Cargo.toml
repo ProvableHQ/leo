@@ -103,9 +103,6 @@ version = "3.0.1"
 [dependencies.console]
 version = "0.13.0"
 
-[dependencies.dotenv]
-version = "0.15.0"
-
 [dependencies.env_logger]
 version = "0.8"
 
