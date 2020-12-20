@@ -1304,7 +1304,6 @@ dependencies = [
  "snarkos-utilities",
  "thiserror",
  "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
