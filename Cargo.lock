@@ -1345,7 +1345,6 @@ dependencies = [
  "pest",
  "pest-ast",
  "pest_derive",
- "snarkos-gadgets",
  "thiserror",
  "tracing",
 ]
