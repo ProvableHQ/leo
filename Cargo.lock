@@ -1269,7 +1269,6 @@ dependencies = [
  "pest",
  "serde",
  "serde_json",
- "snarkos-errors",
  "snarkos-models",
 ]
 
