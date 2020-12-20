@@ -1346,7 +1346,6 @@ dependencies = [
  "pest-ast",
  "pest_derive",
  "snarkos-curves",
- "snarkos-errors",
  "snarkos-gadgets",
  "snarkos-models",
  "thiserror",
