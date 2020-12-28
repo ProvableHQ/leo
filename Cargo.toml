@@ -101,7 +101,7 @@ version = "2.0"
 version = "3.0.1"
 
 [dependencies.console]
-version = "0.13.0"
+version = "0.14.0"
 
 [dependencies.dotenv]
 version = "0.15.0"
