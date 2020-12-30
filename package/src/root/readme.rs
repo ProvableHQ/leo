@@ -58,6 +58,29 @@ impl README {
     }
 
     fn template(&self) -> String {
-        format!("# {}\n", self.package_name)
+        format!(
+            r"# {}
+
+## Build Guide
+
+To compile this Leo program, run:
+```
+leo build
+```
+
+To test this Leo program, run:
+```
+leo test
+```
+
+## Development
+
+To output the number of constraints, run:
+```
+leo build -d
+```
+",
+            self.package_name
+        )
     }
 }
