@@ -27,37 +27,44 @@ version = "1.0.7"
 
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-dpc]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-errors]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-models]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-objects]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
 
 [dependencies.indexmap]
 version = "1.6.1"
@@ -74,4 +81,5 @@ version = "1.0"
 
 [dev-dependencies.snarkvm-storage]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "1.1.4"
+rev = "0e2f38f"
+version = "0.0.1"
