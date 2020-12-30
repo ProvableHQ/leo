@@ -27,9 +27,9 @@ use leo_package::{
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkos_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_models::algorithms::snark::SNARK;
+use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
+use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_models::algorithms::snark::SNARK;
 
 use clap::ArgMatches;
 use rand::thread_rng;

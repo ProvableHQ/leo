@@ -17,13 +17,13 @@
 use crate::{errors::GroupError, GroupType};
 use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, Span};
 
-use snarkos_curves::{
+use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
     templates::twisted_edwards_extended::GroupAffine,
 };
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
+use snarkvm_models::{
     curves::{AffineCurve, Fp256, One, TEModelParameters, Zero},
     gadgets::{
         curves::{FieldGadget, FpGadget, GroupGadget},

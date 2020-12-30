@@ -32,9 +32,9 @@ use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
 use leo_type_inference::TypeInference;
 
-use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };

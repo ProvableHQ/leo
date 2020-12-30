@@ -27,7 +27,7 @@ use leo_package::{
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkos_curves::edwards_bls12::Fq;
+use snarkvm_curves::edwards_bls12::Fq;
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir, time::Instant};

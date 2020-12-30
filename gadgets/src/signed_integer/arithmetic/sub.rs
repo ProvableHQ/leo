@@ -23,7 +23,7 @@ use crate::{
     Int64,
     Int8,
 };
-use snarkos_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 macro_rules! sub_int_impl {
     ($($gadget: ident)*) => ($(

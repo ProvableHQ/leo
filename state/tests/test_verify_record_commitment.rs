@@ -18,7 +18,7 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_record_commitment;
 
-use snarkos_dpc::base_dpc::instantiated::*;
+use snarkvm_dpc::base_dpc::instantiated::*;
 
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;

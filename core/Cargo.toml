@@ -25,23 +25,23 @@ version = "1.0.7"
 path = "../gadgets"
 version = "1.0.7"
 
-[dependencies.snarkos-errors]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dependencies.snarkvm-errors]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 default-features = false
 
-[dependencies.snarkos-gadgets]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dependencies.snarkvm-gadgets]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 default-features = false
 
-[dependencies.snarkos-models]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dependencies.snarkvm-models]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 default-features = false
 
-[dependencies.snarkos-utilities]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dependencies.snarkvm-utilities]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 
 [dependencies.rand]
@@ -55,11 +55,11 @@ default-features = false
 [dependencies.thiserror]
 version = "1.0"
 
-[dev-dependencies.snarkos-utilities]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dev-dependencies.snarkvm-utilities]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 
-[dev-dependencies.snarkos-curves]
-git = "https://github.com/AleoHQ/snarkOS.git"
+[dev-dependencies.snarkvm-curves]
+git = "https://github.com/AleoHQ/snarkVM.git"
 version = "1.1.4"
 default-features = false

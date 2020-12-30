@@ -16,7 +16,7 @@
 
 use leo_gadgets::signed_integer::*;
 
-use snarkos_models::gadgets::utilities::{
+use snarkvm_models::gadgets::utilities::{
     boolean::Boolean,
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };

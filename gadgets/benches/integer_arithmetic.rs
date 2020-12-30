@@ -16,7 +16,7 @@
 
 use leo_gadgets::{arithmetic::*, Int128, Int16, Int32, Int64, Int8};
 
-use snarkos_models::gadgets::{
+use snarkvm_models::gadgets::{
     r1cs::{ConstraintSystem, Fr, TestConstraintSystem},
     utilities::alloc::AllocGadget,
 };

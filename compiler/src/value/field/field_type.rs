@@ -19,8 +19,8 @@
 use crate::errors::FieldError;
 use leo_ast::Span;
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         curves::{FieldGadget, FpGadget},

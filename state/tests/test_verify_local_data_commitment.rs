@@ -18,19 +18,19 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_local_data_commitment;
 
-use snarkos_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
-use snarkos_models::{
+use snarkvm_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
+use snarkvm_models::{
     algorithms::{CommitmentScheme, CRH},
     dpc::Record,
     objects::AccountScheme,
 };
-use snarkos_objects::Account;
-use snarkos_utilities::{bytes::ToBytes, to_bytes};
+use snarkvm_objects::Account;
+use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use snarkos_models::dpc::DPCScheme;
-use snarkos_storage::Ledger;
+use snarkvm_models::dpc::DPCScheme;
+use snarkvm_storage::Ledger;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
 #[test]

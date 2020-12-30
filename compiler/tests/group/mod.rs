@@ -25,7 +25,7 @@ use crate::{
 };
 use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
-use snarkos_curves::edwards_bls12::EdwardsAffine;
+use snarkvm_curves::edwards_bls12::EdwardsAffine;
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;

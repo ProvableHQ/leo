@@ -16,7 +16,7 @@
 
 use crate::DPCRecordValuesError;
 
-use snarkos_errors::algorithms::CommitmentError;
+use snarkvm_errors::algorithms::CommitmentError;
 
 use std::io::Error as IOError;
 

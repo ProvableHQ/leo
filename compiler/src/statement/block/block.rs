@@ -19,7 +19,7 @@
 use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
 use leo_ast::{Block, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };

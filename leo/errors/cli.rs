@@ -93,7 +93,7 @@ pub enum CLIError {
     RunError(RunError),
 
     #[error("{}", _0)]
-    SNARKError(snarkos_errors::algorithms::snark::SNARKError),
+    SNARKError(snarkvm_errors::algorithms::snark::SNARKError),
 
     #[error("{}", _0)]
     SourceDirectoryError(SourceDirectoryError),
@@ -184,17 +184,17 @@ impl From<reqwest::Error> for CLIError {
     }
 }
 
-impl From<snarkos_errors::algorithms::snark::SNARKError> for CLIError {
-    fn from(error: snarkos_errors::algorithms::snark::SNARKError) -> Self {
+impl From<snarkvm_errors::algorithms::snark::SNARKError> for CLIError {
+    fn from(error: snarkvm_errors::algorithms::snark::SNARKError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("snarkos_errors", error.to_string())
+        CLIError::Crate("snarkvm_errors", error.to_string())
     }
 }
 
-impl From<snarkos_errors::gadgets::SynthesisError> for CLIError {
-    fn from(error: snarkos_errors::gadgets::SynthesisError) -> Self {
+impl From<snarkvm_errors::gadgets::SynthesisError> for CLIError {
+    fn from(error: snarkvm_errors::gadgets::SynthesisError) -> Self {
         tracing::error!("{}\n", error);
-        CLIError::Crate("snarkos_errors", error.to_string())
+        CLIError::Crate("snarkvm_errors", error.to_string())
     }
 }
 

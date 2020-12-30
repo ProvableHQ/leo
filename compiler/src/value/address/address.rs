@@ -17,9 +17,9 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkos_dpc::base_dpc::instantiated::Components;
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_dpc::base_dpc::instantiated::Components;
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::{Assignment, ConstraintSystem},
@@ -32,8 +32,8 @@ use snarkos_models::{
         },
     },
 };
-use snarkos_objects::account::AccountAddress;
-use snarkos_utilities::ToBytes;
+use snarkvm_objects::account::AccountAddress;
+use snarkvm_utilities::ToBytes;
 use std::{borrow::Borrow, str::FromStr};
 
 /// A public address

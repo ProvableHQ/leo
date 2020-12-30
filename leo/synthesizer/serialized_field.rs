@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkos_errors::curves::FieldError;
-use snarkos_models::curves::{Field, Fp256, Fp256Parameters};
+use snarkvm_errors::curves::FieldError;
+use snarkvm_models::curves::{Field, Fp256, Fp256Parameters};
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};

@@ -19,7 +19,7 @@
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
 use leo_ast::FormattedString;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

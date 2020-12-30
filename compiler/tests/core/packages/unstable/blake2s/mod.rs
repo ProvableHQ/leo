@@ -27,8 +27,8 @@ use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use snarkos_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkos_models::algorithms::PRF;
+use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
+use snarkvm_models::algorithms::PRF;
 
 #[test]
 fn test_arguments_length_fail() {
@@ -70,7 +70,7 @@ fn test_blake2s_random() {
     let mut message = [0u8; 32];
     rng.fill(&mut message);
 
-    // Use snarkos-algorithms blake2s evaluate to get expected value
+    // Use snarkvm-algorithms blake2s evaluate to get expected value
     let expected = B2SPRF::evaluate(&seed, &message).unwrap().to_vec();
 
     // Create program input values for seed, message, and expected values
