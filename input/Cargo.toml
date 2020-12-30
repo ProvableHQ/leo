@@ -17,31 +17,6 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies.snarkos-algorithms]
-git = "https://github.com/AleoHQ/snarkOS.git"
-version = "1.1.4"
-default-features = false
-
-[dependencies.snarkos-curves]
-git = "https://github.com/AleoHQ/snarkOS.git"
-version = "1.1.4"
-default-features = false
-
-[dependencies.snarkos-errors]
-git = "https://github.com/AleoHQ/snarkOS.git"
-version = "1.1.4"
-default-features = false
-
-[dependencies.snarkos-gadgets]
-git = "https://github.com/AleoHQ/snarkOS.git"
-version = "1.1.4"
-default-features = false
-
-[dependencies.snarkos-models]
-git = "https://github.com/AleoHQ/snarkOS.git"
-version = "1.1.4"
-default-features = false
-
 [dependencies.from-pest]
 version = "0.3.1"
 

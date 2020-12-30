@@ -123,9 +123,6 @@ version = "1.0"
 [dependencies.tracing]
 version = "0.1"
 
-[dependencies.tracing-subscriber]
-version = "0.2"
-
 [dev-dependencies.num-bigint]
 version = "0.3"
 

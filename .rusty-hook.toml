@@ -2,4 +2,4 @@
 pre-commit = "cargo +nightly clippy && cargo +nightly fmt --all -- --check"
 
 [logging]
-verbose = false
+verbose = true
