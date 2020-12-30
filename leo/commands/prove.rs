@@ -62,7 +62,7 @@ impl CLI for ProveCommand {
         let start = Instant::now();
 
         let rng = &mut thread_rng();
-        let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, program, rng)?;
+        let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng)?;
 
         // Finish the timer
         let end = start.elapsed().as_millis();

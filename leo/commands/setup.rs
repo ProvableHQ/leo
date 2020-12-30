@@ -85,7 +85,7 @@ impl CLI for SetupCommand {
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
-                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
+                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
 
                     // End the timer
                     let end = setup_start.elapsed().as_millis();

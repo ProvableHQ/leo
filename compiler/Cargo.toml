@@ -58,31 +58,38 @@ path = "../type-inference"
 version = "1.0.7"
 
 [dependencies.snarkos-curves]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-dpc]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-errors]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-gadgets]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-models]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-objects]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [dependencies.snarkos-utilities]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 
 [dependencies.bincode]
 version = "1.0"
@@ -123,7 +130,8 @@ version = "0.2"
 version = "0.3"
 
 [dev-dependencies.snarkos-algorithms]
-version = "1.1.3"
+git = "https://github.com/AleoHQ/snarkOS.git"
+version = "1.1.4"
 default-features = false
 
 [features]

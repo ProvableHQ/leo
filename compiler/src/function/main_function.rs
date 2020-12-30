@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: &str,
         function: Function,
-        input: Input,
+        input: &Input,
     ) -> Result<OutputBytes, FunctionError> {
         let function_name = new_scope(scope, function.get_name());
         let registers = input.get_registers();
@@ -47,7 +47,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let (input_id, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {
                     let input_id = Identifier::new_with_span(&keyword.to_string(), &keyword.span);
-                    let value = self.allocate_input_keyword(cs, keyword, &input)?;
+                    let value = self.allocate_input_keyword(cs, keyword, input)?;
 
                     (input_id, value)
                 }
