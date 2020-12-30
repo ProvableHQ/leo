@@ -70,37 +70,37 @@ version = "1.0.7"
 
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-curves]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-errors]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-models]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "0e2f38f"
+rev = "ce04949"
 version = "0.0.1"
 
 [dependencies.clap]
