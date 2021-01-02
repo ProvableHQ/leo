@@ -19,19 +19,19 @@ edition = "2018"
 
 [dependencies.snarkvm-errors]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "ce04949"
+rev = "14d1f50"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-models]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "ce04949"
+rev = "14d1f50"
 version = "0.0.1"
 default-features = false
 
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "ce04949"
+rev = "14d1f50"
 version = "0.0.1"
 
 [dependencies.rand]
