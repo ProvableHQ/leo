@@ -29,8 +29,8 @@ use crate::{
 use leo_ast::{ArrayDimensions, Circuit, Function, GroupValue, Identifier, Span, Type};
 use leo_core::Value;
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,

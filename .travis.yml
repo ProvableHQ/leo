@@ -12,7 +12,7 @@ before_install:
   - export RUSTC_WRAPPER="sccache"
   - |
     declare -r SSH_FILE="$(mktemp -u $HOME/.ssh/XXXXX)"
-    openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in .travis/travis-snarkos.enc -out $SSH_FILE -d
+    openssl aes-256-cbc -K $encrypted_beefc4a47cdc_key -iv $encrypted_beefc4a47cdc_iv -in .travis/travis-snarkvm.enc -out $SSH_FILE -d
     chmod 600 "$SSH_FILE" \
            && printf "%s\n" \
                 "Host github.com" \

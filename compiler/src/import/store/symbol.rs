@@ -17,7 +17,7 @@
 use crate::{errors::ImportError, new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_ast::{ImportSymbol, Program};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_symbol(

@@ -25,7 +25,7 @@ use crate::{
 
 use leo_ast::{InputValue, Span, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

@@ -17,7 +17,7 @@
 use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_ast::{Parameter, Registers, Span};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 use serde::{Deserialize, Serialize};
 

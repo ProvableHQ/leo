@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PairingEngine},
     gadgets::r1cs::{ConstraintSystem, Index, LinearCombination, Variable},
 };
@@ -39,7 +39,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     where
         F: FnOnce() -> Result<E::Fr, SynthesisError>,
         A: FnOnce() -> AR,
-        AR: Into<String>,
+        AR: AsRef<str>,
     {
         let index = self.aux_assignment.len();
         self.aux_assignment.push(f()?);
@@ -51,7 +51,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     where
         F: FnOnce() -> Result<E::Fr, SynthesisError>,
         A: FnOnce() -> AR,
-        AR: Into<String>,
+        AR: AsRef<str>,
     {
         let index = self.input_assignment.len();
         self.input_assignment.push(f()?);
@@ -62,7 +62,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     fn enforce<A, AR, LA, LB, LC>(&mut self, _: A, a: LA, b: LB, c: LC)
     where
         A: FnOnce() -> AR,
-        AR: Into<String>,
+        AR: AsRef<str>,
         LA: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
         LB: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
         LC: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
@@ -82,7 +82,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
 
     fn push_namespace<NR, N>(&mut self, _: N)
     where
-        NR: Into<String>,
+        NR: AsRef<str>,
         N: FnOnce() -> NR,
     {
         // Do nothing; we don't care about namespaces in this context.

@@ -25,7 +25,7 @@ use crate::{
     Int8,
 };
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,

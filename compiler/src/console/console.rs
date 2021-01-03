@@ -19,7 +19,7 @@
 use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_indicator_value, GroupType};
 use leo_ast::{ConsoleFunction, ConsoleStatement};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };

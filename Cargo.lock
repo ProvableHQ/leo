@@ -49,6 +49,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee67c11feeac938fae061b232e38e0b6d94f97a9df10e6271319325ac4c56a86"
+
+[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -865,6 +871,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fxhash"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
 name = "generator"
 version = "0.6.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1268,14 +1283,14 @@ dependencies = [
  "rand_xorshift",
  "serde",
  "sha2",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-dpc",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
- "snarkos-objects",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-dpc",
+ "snarkvm-errors",
+ "snarkvm-gadgets",
+ "snarkvm-models",
+ "snarkvm-objects",
+ "snarkvm-utilities",
  "thiserror",
  "tracing",
 ]
@@ -1288,11 +1303,11 @@ dependencies = [
  "leo-gadgets",
  "rand",
  "rand_xorshift",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-gadgets",
+ "snarkvm-models",
+ "snarkvm-utilities",
  "thiserror",
 ]
 
@@ -1303,9 +1318,9 @@ dependencies = [
  "criterion",
  "rand",
  "rand_xorshift",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-utilities",
  "thiserror",
 ]
 
@@ -1374,12 +1389,12 @@ dependencies = [
  "self_update",
  "serde",
  "serde_json",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-gadgets",
+ "snarkvm-models",
+ "snarkvm-utilities",
  "thiserror",
  "toml",
  "tracing",
@@ -1413,14 +1428,14 @@ dependencies = [
  "leo-input",
  "rand",
  "rand_xorshift",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-dpc",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-objects",
- "snarkos-storage",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-dpc",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-objects",
+ "snarkvm-storage",
+ "snarkvm-utilities",
  "thiserror",
 ]
 
@@ -2213,9 +2228,9 @@ dependencies = [
 
 [[package]]
 name = "rocksdb"
-version = "0.13.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12069b106981c6103d3eab7dd1c86751482d0779a520b7c14954c8b586c1e643"
+checksum = "23d83c02c429044d58474eaf5ae31e062d0de894e21125b47437ec0edc1397e6"
 dependencies = [
  "libc",
  "librocksdb-sys",
@@ -2499,10 +2514,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae524f056d7d770e174287294f562e95044c68e88dec909a00d2094805db9d75"
 
 [[package]]
-name = "snarkos-algorithms"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb07037b1575665f3a727ef444c513b4727dda85378c5eba26b4c881bc3046e8"
+name = "snarkvm-algorithms"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "blake2",
  "derivative",
@@ -2513,33 +2527,31 @@ dependencies = [
  "rayon",
  "sha2",
  "smallvec",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-profiler",
- "snarkos-utilities",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-profiler",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-curves"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3aee88d337863483d07cd91e5dbc1c12de1375c1a133c49fe18f771924a80d6e"
+name = "snarkvm-curves"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "derivative",
  "rand",
  "rand_xorshift",
  "rustc_version",
  "serde",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-derives"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8f6ce35f9f73c13e5381c6938747935ca105e22717998489c3e5ddb8c13120d"
+name = "snarkvm-derives"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.7",
@@ -2547,32 +2559,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "snarkos-dpc"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51ecd7bcea91bbae1e636949b32908df2c674b7381387beadde364d6a3af6ad0"
+name = "snarkvm-dpc"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
+ "anyhow",
  "blake2",
  "derivative",
  "hex",
  "itertools 0.9.0",
  "rand",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-gadgets",
- "snarkos-models",
- "snarkos-objects",
- "snarkos-parameters",
- "snarkos-profiler",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-gadgets",
+ "snarkvm-models",
+ "snarkvm-objects",
+ "snarkvm-parameters",
+ "snarkvm-profiler",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-errors"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df927c3b41badf8a8479dd6b23340e4799bec44abb7a479cb253d912e888a1ca"
+name = "snarkvm-errors"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "base58",
  "bech32",
@@ -2586,43 +2597,43 @@ dependencies = [
 ]
 
 [[package]]
-name = "snarkos-gadgets"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f4bded425072f394dacf206323bcd3d2e199d6ec5f7ced3c36fb77f7d22300b"
+name = "snarkvm-gadgets"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "derivative",
  "digest 0.8.1",
  "itertools 0.9.0",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-models"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38d90d4fd9030e69dcbca1f7eaea3f14c08653f0f06600f42c2022e8cf72f82d"
+name = "snarkvm-models"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
+ "anyhow",
  "bincode",
+ "cfg-if 0.1.10",
  "derivative",
+ "fxhash",
+ "indexmap",
  "itertools 0.9.0",
  "rand",
  "rand_xorshift",
  "serde",
- "smallvec",
- "snarkos-errors",
- "snarkos-utilities",
+ "snarkvm-errors",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-objects"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5ec3bdfbe179a157d1484e11ec65fdd3d2bf377ad1a7695753c5f613a57a790"
+name = "snarkvm-objects"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "base58",
  "bech32",
@@ -2633,63 +2644,61 @@ dependencies = [
  "rand",
  "serde",
  "sha2",
- "snarkos-algorithms",
- "snarkos-curves",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-parameters"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8d7634a5cd35a680b81d58dbd842ee38413e81cd9ad6b8317cd93f84c9513c3"
+name = "snarkvm-parameters"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "curl",
  "hex",
- "snarkos-algorithms",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-utilities",
 ]
 
 [[package]]
-name = "snarkos-profiler"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0519c9371650425e332e3971ecfc691fbd1c67e03be15c20aba89ac8242ea2b"
+name = "snarkvm-profiler"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 
 [[package]]
-name = "snarkos-storage"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c31a1de407b5d19365e0463ecf4536725055f7b3c52dbe350e153386303eeea"
+name = "snarkvm-storage"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
+ "anyhow",
  "bincode",
  "hex",
  "parking_lot",
  "rand",
  "rocksdb",
  "serde",
- "snarkos-algorithms",
- "snarkos-errors",
- "snarkos-models",
- "snarkos-objects",
- "snarkos-parameters",
- "snarkos-utilities",
+ "snarkvm-algorithms",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-objects",
+ "snarkvm-parameters",
+ "snarkvm-utilities",
+ "thiserror",
 ]
 
 [[package]]
-name = "snarkos-utilities"
-version = "1.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f6e1ccf791ace8d28266d3067d0bf93e3a0c1beafa472f186f55866fe8a7d73"
+name = "snarkvm-utilities"
+version = "0.0.1"
+source = "git+https://github.com/AleoHQ/snarkVM.git?rev=f99f13d#f99f13dca012293f192eead5ba01e417a14b2a8e"
 dependencies = [
  "bincode",
  "rand",
- "snarkos-derives",
- "snarkos-errors",
+ "snarkvm-derives",
+ "snarkvm-errors",
 ]
 
 [[package]]

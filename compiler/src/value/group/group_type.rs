@@ -19,7 +19,7 @@
 use crate::errors::GroupError;
 use leo_ast::{GroupValue, Span};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, One},
     gadgets::{
         r1cs::ConstraintSystem,

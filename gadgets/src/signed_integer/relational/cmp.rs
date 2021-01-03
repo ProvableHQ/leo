@@ -23,8 +23,8 @@ use crate::{
     Int8,
 };
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,

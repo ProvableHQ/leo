@@ -25,7 +25,7 @@ use crate::{
 };
 use leo_ast::{Identifier, Type};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value

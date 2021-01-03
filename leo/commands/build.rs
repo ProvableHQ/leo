@@ -28,8 +28,8 @@ use leo_package::{
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkos_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkos_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 use clap::ArgMatches;
 use std::{convert::TryFrom, env::current_dir, time::Instant};

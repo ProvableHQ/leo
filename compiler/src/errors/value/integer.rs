@@ -17,7 +17,7 @@
 use leo_ast::{error::Error as FormattedError, IntegerType, Span, Type};
 use leo_gadgets::errors::SignedIntegerError;
 
-use snarkos_errors::gadgets::SynthesisError;
+use snarkvm_errors::gadgets::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

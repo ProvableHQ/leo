@@ -34,8 +34,8 @@ use leo_ast::{
     Statement,
     Type,
 };
-use snarkos_gadgets::algorithms::prf::Blake2sGadget;
-use snarkos_models::{
+use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         algorithms::PRFGadget,
@@ -194,8 +194,8 @@ fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use snarkos_curves::bls12_377::Fr;
-    use snarkos_models::gadgets::{
+    use snarkvm_curves::bls12_377::Fr;
+    use snarkvm_models::gadgets::{
         r1cs::TestConstraintSystem,
         utilities::{boolean::Boolean, uint::UInt8},
     };

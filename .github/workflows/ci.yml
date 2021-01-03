@@ -124,7 +124,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --all --features ci_skip --no-fail-fast
+          args: --all --features ci_skip --no-fail-fast
 
   test-package:
     name: Test Package

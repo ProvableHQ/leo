@@ -18,7 +18,7 @@ use crate::{new_scope, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_ast::Package;
 
 use leo_core::{CorePackageList, LeoCorePackageError};
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_core_package(&mut self, scope: &str, package: Package) -> Result<(), LeoCorePackageError> {

@@ -18,7 +18,7 @@
 
 use crate::{value::ConstrainedValue, GroupType};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 use indexmap::IndexMap;
 

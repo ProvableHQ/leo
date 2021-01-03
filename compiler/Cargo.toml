@@ -57,32 +57,46 @@ version = "1.0.7"
 path = "../type-inference"
 version = "1.0.7"
 
-[dependencies.snarkos-curves]
-version = "1.1.3"
+[dependencies.snarkvm-curves]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-dpc]
-version = "1.1.3"
+[dependencies.snarkvm-dpc]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-errors]
-version = "1.1.3"
+[dependencies.snarkvm-errors]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-gadgets]
-version = "1.1.3"
+[dependencies.snarkvm-gadgets]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-models]
-version = "1.1.3"
+[dependencies.snarkvm-models]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-objects]
-version = "1.1.3"
+[dependencies.snarkvm-objects]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
-[dependencies.snarkos-utilities]
-version = "1.1.3"
+[dependencies.snarkvm-utilities]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 
 [dependencies.bincode]
 version = "1.0"
@@ -119,8 +133,10 @@ version = "0.1"
 [dev-dependencies.num-bigint]
 version = "0.3"
 
-[dev-dependencies.snarkos-algorithms]
-version = "1.1.3"
+[dev-dependencies.snarkvm-algorithms]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "f99f13d"
+version = "0.0.1"
 default-features = false
 
 [features]

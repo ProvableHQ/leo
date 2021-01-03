@@ -16,9 +16,9 @@
 
 use crate::synthesizer::{CircuitSynthesizer, SerializedField, SerializedIndex};
 
-use snarkos_curves::bls12_377::Bls12_377;
-use snarkos_errors::curves::FieldError;
-use snarkos_models::{
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_errors::curves::FieldError;
+use snarkvm_models::{
     curves::PairingEngine,
     gadgets::r1cs::{ConstraintSystem, Index},
 };

@@ -19,8 +19,8 @@
 use crate::{errors::GroupError, ConstrainedValue, GroupType};
 use leo_ast::{GroupValue, InputValue, Span};
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

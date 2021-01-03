@@ -25,7 +25,7 @@ use crate::{
 use leo_ast::Program;
 use leo_imports::ImportParser;
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn store_definitions(

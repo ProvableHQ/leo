@@ -19,7 +19,7 @@
 use crate::{errors::ExpressionError, parse_index, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_ast::{Expression, PositiveNumber, Span, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

@@ -16,8 +16,8 @@
 
 use crate::signed_integer::*;
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::PrimeField,
     gadgets::{
         r1cs::{Assignment, ConstraintSystem},
