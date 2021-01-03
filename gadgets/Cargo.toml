@@ -35,7 +35,7 @@ rev = "f99f13d"
 version = "0.0.1"
 
 [dependencies.rand]
-version = "0.7"
+version = "0.8"
 default-features = false
 
 [dependencies.rand_xorshift]
