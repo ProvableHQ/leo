@@ -137,9 +137,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     }
 }
 
-/// Returns the indicator boolean gadget value.
-/// We can directly compare a boolean constant to the indicator since we are not enforcing any
-/// constraints
+/// Unwraps the indicator boolean gadget value or `false` if `None`.
+/// This method is used by logging methods only.
+/// We can directly get the boolean value of the indicator since we are not enforcing any
+/// constraints.
 pub fn get_indicator_value(indicator: &Boolean) -> bool {
-    indicator.eq(&Boolean::constant(true))
+    indicator.get_value().unwrap_or(false)
 }

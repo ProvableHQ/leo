@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program, parse_program_with_input};
 use leo_ast::InputValue;
 
 #[test]
@@ -80,6 +80,22 @@ fn test_log_input() {
     let main_input = generate_main_input(vec![("a", Some(InputValue::Boolean(true)))]);
 
     program.set_main_input(main_input);
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_log_conditional() {
+    let program_string = include_str!("log_conditional.leo");
+    let input_equal_string = include_str!("input/input_equal.in");
+
+    let program = parse_program_with_input(program_string.clone(), input_equal_string).unwrap();
+
+    assert_satisfied(program);
+
+    let input_unequal_string = include_str!("input/input_unequal.in");
+
+    let program = parse_program_with_input(program_string, input_unequal_string).unwrap();
 
     assert_satisfied(program);
 }
