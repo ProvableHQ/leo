@@ -26,27 +26,19 @@ path = "../gadgets"
 version = "1.0.7"
 
 [dependencies.snarkvm-errors]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-models]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 
 [dependencies.rand]
 version = "0.7"
@@ -60,12 +52,8 @@ default-features = false
 version = "1.0"
 
 [dev-dependencies.snarkvm-utilities]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 
 [dev-dependencies.snarkvm-curves]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false

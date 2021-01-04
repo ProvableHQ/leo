@@ -69,39 +69,27 @@ path = "./state"
 version = "1.0.7"
 
 [dependencies.snarkvm-algorithms]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-curves]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-errors]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-models]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 
 [dependencies.clap]
 version = "2.33.3"
