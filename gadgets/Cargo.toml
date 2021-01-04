@@ -18,21 +18,15 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.snarkvm-errors]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-models]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "f99f13d"
-version = "0.0.1"
+version = "0.0.2"
 
 [dependencies.rand]
 version = "0.7"
