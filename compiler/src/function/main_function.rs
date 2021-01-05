@@ -23,9 +23,9 @@ use crate::{
     Output,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Input};
+use leo_ast::{Expression, Function, FunctionInput, Identifier, Input};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, Index},
 };
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: &str,
         function: Function,
-        input: Input,
+        input: &Input,
     ) -> Result<Output, FunctionError> {
         let function_name = new_scope(scope, function.get_name());
         let registers = input.get_registers();
@@ -45,12 +45,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut input_variables = Vec::with_capacity(function.input.len());
         let mut cs_input_indices: Vec<Index> = Vec::with_capacity(0);
         for (i, input_model) in function.input.clone().into_iter().enumerate() {
-            let (identifier, value) = match input_model {
-                FunctionInput::InputKeyword(identifier) => {
-                    let value = self.allocate_input_keyword(cs, identifier.clone(), &input)?;
+            let (input_id, value) = match input_model {
+                FunctionInput::InputKeyword(keyword) => {
+                    let input_id = Identifier::new_with_span(&keyword.to_string(), &keyword.span);
+                    let value = self.allocate_input_keyword(cs, keyword, input)?;
 
-                    (identifier, value)
+                    (input_id, value)
                 }
+                FunctionInput::SelfKeyword(_) => unimplemented!("cannot access self keyword in main function"),
+                FunctionInput::MutSelfKeyword(_) => unimplemented!("cannot access mut self keyword in main function"),
                 FunctionInput::Variable(input_model) => {
                     let name = input_model.identifier.name.clone();
                     let input_option = input
@@ -64,7 +67,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             };
 
             // Store input as variable with {function_name}_{identifier_name}
-            let input_name = new_scope(&function_name, &identifier.name);
+            let input_name = new_scope(&function_name, &input_id.to_string());
 
             // Store constraint system input variable indices for serialization.
             let mut indices = value.get_constraint_system_indices(cs.ns(|| format!("input index {}", i)));
@@ -73,7 +76,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Store a new variable for every allocated main function input
             self.store(input_name, value);
 
-            input_variables.push(Expression::Identifier(identifier));
+            input_variables.push(Expression::Identifier(input_id));
         }
 
         let span = function.span.clone();

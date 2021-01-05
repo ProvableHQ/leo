@@ -20,24 +20,24 @@ use crate::{assert_satisfied, expect_compiler_error, expect_type_inference_error
 
 #[test]
 fn test_inline() {
-    let bytes = include_bytes!("inline.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("inline.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_inline_fail() {
-    let bytes = include_bytes!("inline_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("inline_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_inline_undefined() {
-    let bytes = include_bytes!("inline_undefined.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("inline_undefined.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
@@ -46,88 +46,88 @@ fn test_inline_undefined() {
 
 #[test]
 fn test_member_variable() {
-    let bytes = include_bytes!("member_variable.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_variable.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_variable_fail() {
-    let bytes = include_bytes!("member_variable_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("member_variable_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_member_variable_and_function() {
-    let bytes = include_bytes!("member_variable_and_function.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_variable_and_function.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_function() {
-    let bytes = include_bytes!("member_function.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_function.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_function_fail() {
-    let bytes = include_bytes!("member_function_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("member_function_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_member_function_invalid() {
-    let bytes = include_bytes!("member_function_invalid.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("member_function_invalid.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_member_function_nested() {
-    let bytes = include_bytes!("member_function_nested.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_function_nested.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_static_function() {
-    let bytes = include_bytes!("member_static_function.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_static_function.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_static_function_nested() {
-    let bytes = include_bytes!("member_static_function_nested.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("member_static_function_nested.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_member_static_function_invalid() {
-    let bytes = include_bytes!("member_static_function_invalid.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("member_static_function_invalid.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error)
 }
 
 #[test]
 fn test_member_static_function_undefined() {
-    let bytes = include_bytes!("member_static_function_undefined.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("member_static_function_undefined.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error)
 }
@@ -136,64 +136,72 @@ fn test_member_static_function_undefined() {
 
 #[test]
 fn test_mutate_function_fail() {
-    let bytes = include_bytes!("mut_function_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("mut_function_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_mutate_self_variable() {
-    let bytes = include_bytes!("mut_self_variable.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("mut_self_variable.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_mutate_self_variable_conditional() {
+    let program_string = include_str!("mut_self_variable_conditional.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_mutate_self_variable_fail() {
-    let bytes = include_bytes!("mut_self_variable_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("mut_self_variable_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
 
 #[test]
 fn test_mutate_self_function_fail() {
-    let bytes = include_bytes!("mut_self_function_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("mut_self_function_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_mutate_self_static_function_fail() {
-    let bytes = include_bytes!("mut_self_static_function_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("mut_self_static_function_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_mutate_static_function_fail() {
-    let bytes = include_bytes!("mut_static_function_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("mut_static_function_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_mutate_variable() {
-    let bytes = include_bytes!("mut_variable.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("mut_variable.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_mutate_variable_fail() {
-    let bytes = include_bytes!("mut_variable_fail.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("mut_variable_fail.leo");
+    let program = parse_program(program_string).unwrap();
 
     expect_compiler_error(program);
 }
@@ -202,32 +210,32 @@ fn test_mutate_variable_fail() {
 
 #[test]
 fn test_self_fail() {
-    let bytes = include_bytes!("self_fail.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("self_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_self_member_pass() {
-    let bytes = include_bytes!("self_member.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("self_member.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_self_member_invalid() {
-    let bytes = include_bytes!("self_member_invalid.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("self_member_invalid.leo");
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_type_inference_error(error);
 }
 
 #[test]
 fn test_self_member_undefined() {
-    let bytes = include_bytes!("self_member_undefined.leo");
-    let error = parse_program(bytes).err().unwrap();
+    let program_string = include_str!("self_member_undefined.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
@@ -236,16 +244,16 @@ fn test_self_member_undefined() {
 
 #[test]
 fn test_pedersen_mock() {
-    let bytes = include_bytes!("pedersen_mock.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("pedersen_mock.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
 
 #[test]
 fn test_define_circuit_inside_circuit_function() {
-    let bytes = include_bytes!("define_circuit_inside_circuit_function.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("define_circuit_inside_circuit_function.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }

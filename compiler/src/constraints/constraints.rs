@@ -22,7 +22,7 @@ use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
 };
@@ -30,21 +30,21 @@ use std::path::Path;
 
 pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: Program,
-    input: Input,
+    program: &Program,
+    input: &Input,
     imported_programs: &ImportParser,
 ) -> Result<Output, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.get_name();
     let main_function_name = new_scope(&program_name, "main");
 
-    resolved_program.store_definitions(&program, imported_programs)?;
+    resolved_program.store_definitions(program, imported_programs)?;
 
     let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, &program_name, function, input)?;
+            let result = resolved_program.enforce_main_function(cs, &program_name, *function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -112,7 +112,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             cs,
             &program_name,
             test.function,
-            input, // pass program input into every test
+            &input, // pass program input into every test
         );
 
         match (result.is_ok(), cs.is_satisfied()) {

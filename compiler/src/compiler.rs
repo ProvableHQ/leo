@@ -32,9 +32,9 @@ use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
 use leo_type_inference::TypeInference;
 
-use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
@@ -229,9 +229,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Equivalent to parse_and_check_program but uses the given program_string instead of a main
     /// file path.
     ///
-    /// Used for testing only.
-    ///
-    #[deprecated(note = "Please use the 'parse_program' method instead.")]
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the given bytes to construct the abstract syntax tree.
         let ast = Grammar::new(&self.main_file_path, &program_string).map_err(|mut e| {
@@ -306,7 +303,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<Output, CompilerError> {
         let path = self.main_file_path;
 
-        generate_constraints::<F, G, CS>(cs, self.program, self.program_input, &self.imported_programs).map_err(
+        generate_constraints::<F, G, CS>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(&path);
 
@@ -331,9 +328,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     /// Calls the internal generate_constraints method with arguments.
     ///
-    pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<Output, CompilerError> {
-        let path = self.main_file_path;
-        generate_constraints::<_, G, _>(cs, self.program, self.program_input, &self.imported_programs).map_err(
+    pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, CompilerError> {
+        let path = &self.main_file_path;
+        generate_constraints::<_, G, _>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(&path);
                 error
@@ -346,7 +343,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
     ///
     /// Synthesizes the circuit with program input.
     ///
-    fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), SynthesisError> {
         let output_directory = self.output_directory.clone();
         let package_name = self.package_name.clone();
         let result = self.generate_constraints_helper(cs).map_err(|e| {

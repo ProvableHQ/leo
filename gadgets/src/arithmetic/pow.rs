@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkos_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
 
 /// Returns exponentiation of `self` ** `other` in the constraint system.
 pub trait Pow<F: Field, Rhs = Self>

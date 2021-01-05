@@ -18,27 +18,27 @@ use crate::{assert_satisfied, parse_input_and_state, parse_program_with_input_an
 
 #[test]
 fn test_basic() {
-    let input_bytes = include_bytes!("input/basic.in");
-    let state_bytes = include_bytes!("input/basic.state");
+    let input_string = include_str!("input/basic.in");
+    let state_string = include_str!("input/basic.state");
 
-    parse_input_and_state(input_bytes, state_bytes).unwrap();
+    parse_input_and_state(input_string, state_string).unwrap();
 }
 
 #[test]
 fn test_full() {
-    let input_bytes = include_bytes!("input/token_withdraw.in");
-    let state_bytes = include_bytes!("input/token_withdraw.state");
+    let input_string = include_str!("input/token_withdraw.in");
+    let state_string = include_str!("input/token_withdraw.state");
 
-    parse_input_and_state(input_bytes, state_bytes).unwrap();
+    parse_input_and_state(input_string, state_string).unwrap();
 }
 
 #[test]
 fn test_access() {
-    let program_bytes = include_bytes!("access.leo");
-    let input_bytes = include_bytes!("input/token_withdraw.in");
-    let state_bytes = include_bytes!("input/token_withdraw.state");
+    let program_string = include_str!("access.leo");
+    let input_string = include_str!("input/token_withdraw.in");
+    let state_string = include_str!("input/token_withdraw.state");
 
-    let program = parse_program_with_input_and_state(program_bytes, input_bytes, state_bytes).unwrap();
+    let program = parse_program_with_input_and_state(program_string, input_string, state_string).unwrap();
 
     assert_satisfied(program);
 }

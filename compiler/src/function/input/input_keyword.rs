@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Identifier, Input};
+use leo_ast::{Identifier, Input, InputKeyword};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -31,26 +31,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        identifier: Identifier,
+        keyword: InputKeyword,
         input: &Input,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
             name: REGISTERS_VARIABLE_NAME.to_string(),
-            span: identifier.span.clone(),
+            span: keyword.span.clone(),
         };
         let record_name = Identifier {
             name: RECORD_VARIABLE_NAME.to_string(),
-            span: identifier.span.clone(),
+            span: keyword.span.clone(),
         };
         let state_name = Identifier {
             name: STATE_VARIABLE_NAME.to_string(),
-            span: identifier.span.clone(),
+            span: keyword.span.clone(),
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span: identifier.span.clone(),
+            span: keyword.span.clone(),
         };
 
         // Fetch each input variable's definitions
@@ -82,6 +82,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return input variable keyword as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(identifier, members))
+        Ok(ConstrainedValue::CircuitExpression(Identifier::from(keyword), members))
     }
 }

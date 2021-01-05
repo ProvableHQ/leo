@@ -20,7 +20,7 @@ use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 use leo_gadgets::bits::ComparatorGadget;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

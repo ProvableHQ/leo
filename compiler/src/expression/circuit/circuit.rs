@@ -24,7 +24,7 @@ use crate::{
 };
 use leo_ast::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -58,7 +58,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for member in circuit.members.into_iter() {
             match member {
-                CircuitMember::CircuitVariable(is_mutable, identifier, type_) => {
+                CircuitMember::CircuitVariable(identifier, type_) => {
                     let matched_variable = members
                         .clone()
                         .into_iter()
@@ -66,7 +66,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     match matched_variable {
                         Some(variable) => {
                             // Resolve and enforce circuit variable
-                            let mut variable_value = self.enforce_expression(
+                            let variable_value = self.enforce_expression(
                                 cs,
                                 file_scope,
                                 function_scope,
@@ -74,24 +74,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                                 variable.expression,
                             )?;
 
-                            // Add mutability to circuit variable
-                            if is_mutable {
-                                variable_value = ConstrainedValue::Mutable(Box::new(variable_value))
-                            }
-
                             resolved_members.push(ConstrainedCircuitMember(identifier, variable_value))
                         }
                         None => return Err(ExpressionError::expected_circuit_member(identifier.to_string(), span)),
                     }
                 }
-                CircuitMember::CircuitFunction(_static, function) => {
+                CircuitMember::CircuitFunction(function) => {
                     let identifier = function.identifier.clone();
-                    let mut constrained_function_value =
-                        ConstrainedValue::Function(Some(circuit_identifier.clone()), function);
-
-                    if _static {
-                        constrained_function_value = ConstrainedValue::Static(Box::new(constrained_function_value));
-                    }
+                    let constrained_function_value =
+                        ConstrainedValue::Function(Some(circuit_identifier.clone()), Box::new(function));
 
                     resolved_members.push(ConstrainedCircuitMember(identifier, constrained_function_value));
                 }

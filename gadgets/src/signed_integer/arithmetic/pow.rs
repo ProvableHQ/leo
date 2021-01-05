@@ -25,7 +25,7 @@ use crate::{
     Int8,
 };
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
@@ -71,7 +71,7 @@ macro_rules! pow_int_impl {
 
                     result = Self::conditionally_select(
                         &mut cs.ns(|| format!("mul_by_self_or_result_{}", i)),
-                        &bit,
+                        bit,
                         &mul_by_self?,
                         &result,
                     )?;

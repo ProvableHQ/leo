@@ -8,50 +8,63 @@
       "identifier": "{\"name\":\"main\",\"span\":\"{\\\"text\\\":\\\" function main() {\\\",\\\"line\\\":1,\\\"start\\\":10,\\\"end\\\":14}\"}",
       "input": [],
       "output": null,
-      "statements": [
-        {
-          "Return": [
-            {
-              "Add": [[
-                {
-                  "Implicit": [
-                    "1",
-                    {
-                      "text": "     return 1 + 1",
-                      "line": 2,
-                      "start": 12,
-                      "end": 13
+      "block" : {
+        "statements": [
+          {
+            "Return": {
+              "expression": {
+                "Binary": {
+                  "left": {
+                    "Value": {
+                      "Implicit": [
+                        "1",
+                        {
+                          "text": "     return 1 + 1",
+                          "line": 2,
+                          "start": 12,
+                          "end": 13
+                        }
+                      ]
                     }
-                  ]
-                },
-                {
-                  "Implicit": [
-                    "1",
-                    {
-                      "text": "     return 1 + 1",
-                      "line": 2,
-                      "start": 16,
-                      "end": 17
+                  },
+                  "op": "Add",
+                  "right": {
+                    "Value": {
+                      "Implicit": [
+                        "1",
+                        {
+                          "text": "     return 1 + 1",
+                          "line": 2,
+                          "start": 16,
+                          "end": 17
+                        }
+                      ]
                     }
-                  ]
-                }],
-                {
-                  "text": "     return 1 + 1",
-                  "line": 2,
-                  "start": 12,
-                  "end": 17
+                  },
+                  "span": {
+                    "text": "     return 1 + 1",
+                    "line": 2,
+                    "start": 12,
+                    "end": 17
+                  }
                 }
-              ]
-            },
-            {
-              "text": "     return 1 + 1",
-              "line": 2,
-              "start": 5,
-              "end": 17
+              },
+              "span" : {
+                "text": "     return 1 + 1",
+                "line": 2,
+                "start": 5,
+                "end": 17
+              }
             }
-          ]
+          }
+        ],
+        "span" : {
+          "text": "     return 1 + 1",
+          "line": 2,
+          "start": 5,
+          "end": 17
         }
-      ],
+      },
       "span": {
         "text": " function main() {",
         "line": 1,

@@ -17,10 +17,10 @@
 use crate::{errors::OutputError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_ast::{Parameter, Registers, Span};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 use serde::{Deserialize, Serialize};
-use snarkos_models::gadgets::r1cs::Index;
+use snarkvm_models::gadgets::r1cs::Index;
 
 /// Serialized program return output.
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]

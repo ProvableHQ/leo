@@ -18,7 +18,7 @@ use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, Group
 use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, PositiveNumber, Span};
 use leo_core::LeoCorePackageError;
 
-use snarkos_errors::gadgets::SynthesisError;
+use snarkvm_errors::gadgets::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]
@@ -118,13 +118,13 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber) -> Self {
+    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber, span: Span) -> Self {
         let message = format!(
             "expected array dimension {}, found array dimension {}",
             expected, actual
         );
 
-        Self::new_from_span(message, actual.span.to_owned())
+        Self::new_from_span(message, span)
     }
 
     pub fn invalid_index(actual: String, span: &Span) -> Self {
@@ -206,7 +206,7 @@ impl ExpressionError {
     }
 
     pub fn undefined_identifier(identifier: Identifier) -> Self {
-        let message = format!("cannot find value `{}` in this scope", identifier.name);
+        let message = format!("Cannot find value `{}` in this scope", identifier.name);
 
         Self::new_from_span(message, identifier.span)
     }

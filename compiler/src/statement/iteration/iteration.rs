@@ -25,9 +25,9 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_ast::{Expression, Identifier, Span, Statement, Type};
+use leo_ast::{IterationStatement, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,
@@ -42,24 +42,23 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
-        index: Identifier,
-        start: Expression,
-        stop: Expression,
-        statements: Vec<Statement>,
+        indicator: &Boolean,
         return_type: Option<Type>,
-        span: &Span,
+        declared_circuit_reference: &str,
+        mut_self: bool,
+        statement: IterationStatement,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
-        let from = self.enforce_index(cs, file_scope, function_scope, start, span)?;
-        let to = self.enforce_index(cs, file_scope, function_scope, stop, span)?;
+        let from = self.enforce_index(cs, file_scope, function_scope, statement.start, &statement.span)?;
+        let to = self.enforce_index(cs, file_scope, function_scope, statement.stop, &statement.span)?;
 
+        let span = statement.span.clone();
         for i in from..to {
             // Store index in current function scope.
             // For loop scope is not implemented.
 
-            let index_name = new_scope(function_scope, &index.name);
+            let index_name = new_scope(function_scope, &statement.variable.name);
 
             self.store(
                 index_name,
@@ -67,16 +66,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             );
 
             // Evaluate statements and possibly return early
-            let mut result = self.evaluate_branch(
-                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, span.line, span.start)),
+            let result = self.evaluate_block(
+                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line, &span.start)),
                 file_scope,
                 function_scope,
                 indicator,
-                statements.clone(),
+                statement.block.clone(),
                 return_type.clone(),
+                declared_circuit_reference,
+                mut_self,
             )?;
 
-            results.append(&mut result);
+            results.extend(result);
         }
 
         Ok(results)

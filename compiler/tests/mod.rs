@@ -21,6 +21,7 @@ pub mod address;
 pub mod array;
 pub mod boolean;
 pub mod circuits;
+pub mod compiler;
 pub mod console;
 pub mod core;
 pub mod definition;
@@ -45,8 +46,8 @@ use leo_compiler::{
 };
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_models::gadgets::r1cs::TestConstraintSystem;
+use snarkvm_curves::edwards_bls12::Fq;
+use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 
@@ -64,94 +65,79 @@ fn new_compiler() -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir)
 }
 
-pub(crate) fn parse_program(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let program_string = String::from_utf8_lossy(bytes);
 
-    compiler.parse_program_from_string(&program_string)?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }
 
-pub(crate) fn parse_input(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let input_string = String::from_utf8_lossy(bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &path, EMPTY_FILE, &path)?;
+    compiler.parse_input(input_string, &path, EMPTY_FILE, &path)?;
 
     Ok(compiler)
 }
 
-pub(crate) fn parse_state(bytes: &[u8]) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let state_string = String::from_utf8_lossy(bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
+    compiler.parse_input(EMPTY_FILE, &path, state_string, &path)?;
 
     Ok(compiler)
 }
 
 pub(crate) fn parse_input_and_state(
-    input_bytes: &[u8],
-    state_bytes: &[u8],
+    input_string: &str,
+    state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-    let input_string = String::from_utf8_lossy(input_bytes);
-    let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &path, &state_string, &path)?;
+    compiler.parse_input(input_string, &path, state_string, &path)?;
 
     Ok(compiler)
 }
 
 pub fn parse_program_with_input(
-    program_bytes: &[u8],
-    input_bytes: &[u8],
+    program_string: &str,
+    input_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-
-    let program_string = String::from_utf8_lossy(program_bytes);
-    let input_string = String::from_utf8_lossy(input_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &path, EMPTY_FILE, &path)?;
-    compiler.parse_program_from_string(&program_string)?;
+    compiler.parse_input(input_string, &path, EMPTY_FILE, &path)?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }
 
 pub fn parse_program_with_state(
-    program_bytes: &[u8],
-    state_bytes: &[u8],
+    program_string: &str,
+    state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-
-    let program_string = String::from_utf8_lossy(program_bytes);
-    let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(EMPTY_FILE, &path, &state_string, &path)?;
-    compiler.parse_program_from_string(&program_string)?;
+    compiler.parse_input(EMPTY_FILE, &path, state_string, &path)?;
+    compiler.parse_program_from_string(program_string)?;
 
     Ok(compiler)
 }
 
 pub fn parse_program_with_input_and_state(
-    program_bytes: &[u8],
-    input_bytes: &[u8],
-    state_bytes: &[u8],
+    program_string: &str,
+    input_string: &str,
+    state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
-
-    let program_string = String::from_utf8_lossy(program_bytes);
-    let input_string = String::from_utf8_lossy(input_bytes);
-    let state_string = String::from_utf8_lossy(state_bytes);
     let path = PathBuf::new();
 
-    compiler.parse_input(&input_string, &path, &state_string, &path)?;
+    compiler.parse_input(input_string, &path, state_string, &path)?;
     compiler.parse_program_from_string(&program_string)?;
 
     Ok(compiler)

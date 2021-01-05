@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "1.0.4"
+version = "1.0.7"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Package parser of the Leo programming language"
 homepage = "https://aleo.org"
@@ -20,9 +20,6 @@ edition = "2018"
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]
-
-[dependencies.serde_json]
-version = "1.0"
 
 [dependencies.thiserror]
 version = "1.0"

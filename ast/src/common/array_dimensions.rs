@@ -14,19 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{PositiveNumber, Span};
+use crate::PositiveNumber;
 use leo_grammar::types::ArrayDimensions as GrammarArrayDimensions;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use std::fmt;
 
 /// A vector of positive numbers that represent array dimensions.
 /// Can be used in an array [`Type`] or an array initializer [`Expression`].
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Default, Hash)]
 pub struct ArrayDimensions(pub Vec<PositiveNumber>);
 
 impl ArrayDimensions {
@@ -34,10 +31,9 @@ impl ArrayDimensions {
     /// Creates a new `PositiveNumber` from the given `usize` and `Span`.
     /// Appends the new `PositiveNumber` to the array dimensions.
     ///
-    pub fn push_usize(&mut self, number: usize, span: Span) {
+    pub fn push_usize(&mut self, number: usize) {
         let positive_number = PositiveNumber {
             value: number.to_string(),
-            span,
         };
 
         self.0.push(positive_number)
@@ -143,26 +139,5 @@ impl fmt::Display for ArrayDimensions {
 
             write!(f, "({})", dimensions)
         }
-    }
-}
-
-/// Compares two array dimensions and ignores `Span`s.
-impl PartialEq for ArrayDimensions {
-    fn eq(&self, other: &Self) -> bool {
-        // If the number of dimensions differs return false.
-        if self.0.len() != other.0.len() {
-            return false;
-        }
-
-        // Compare all dimensions and ignore `Span`s.
-        self.0.eq(&other.0)
-    }
-}
-
-impl Eq for ArrayDimensions {}
-
-impl Hash for ArrayDimensions {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.0.hash(state)
     }
 }

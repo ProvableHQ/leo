@@ -1,11 +1,11 @@
 circuit Foo {
-    static function qux() {}
+    function qux() {}
 
-    static function bar() {
+    function bar() {
         Self::qux();
     }
 
-    static function baz() {
+    function baz() {
         Self::bar();
     }
 }

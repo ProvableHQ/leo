@@ -16,7 +16,7 @@
 
 use leo_gadgets::{arithmetic::*, Int32};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{One, Zero},
     gadgets::{
         r1cs::{ConstraintSystem, Fr, TestConstraintSystem},

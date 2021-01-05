@@ -16,7 +16,7 @@
 
 use crate::{Address, FieldType, GroupType, Integer};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::{ConstraintSystem, Index},

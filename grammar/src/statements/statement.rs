@@ -30,6 +30,7 @@ pub enum Statement<'ast> {
     Iteration(ForStatement<'ast>),
     Console(ConsoleFunctionCall<'ast>),
     Expression(ExpressionStatement<'ast>),
+    Block(Block<'ast>),
 }
 
 impl<'ast> fmt::Display for Statement<'ast> {
@@ -42,6 +43,7 @@ impl<'ast> fmt::Display for Statement<'ast> {
             Statement::Iteration(ref statement) => write!(f, "{}", statement),
             Statement::Console(ref statement) => write!(f, "{}", statement),
             Statement::Expression(ref statement) => write!(f, "{}", statement.expression),
+            Statement::Block(ref block) => write!(f, "{}", block),
         }
     }
 }

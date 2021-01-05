@@ -27,9 +27,9 @@ use leo_package::{
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use snarkos_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_models::algorithms::snark::SNARK;
+use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
+use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_models::algorithms::snark::SNARK;
 
 use clap::ArgMatches;
 use rand::thread_rng;
@@ -85,7 +85,7 @@ impl CLI for SetupCommand {
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
-                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(program.clone(), rng).unwrap();
+                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
 
                     // End the timer
                     let end = setup_start.elapsed().as_millis();

@@ -34,8 +34,8 @@ pub fn set_local_dir() {
 fn test_basic() {
     set_local_dir();
 
-    let bytes = include_bytes!("basic.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("basic.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -45,8 +45,8 @@ fn test_basic() {
 fn test_multiple() {
     set_local_dir();
 
-    let bytes = include_bytes!("multiple.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("multiple.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -56,8 +56,8 @@ fn test_multiple() {
 fn test_star() {
     set_local_dir();
 
-    let bytes = include_bytes!("star.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("star.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -67,8 +67,8 @@ fn test_star() {
 fn test_star_fail() {
     set_local_dir();
 
-    let bytes = include_bytes!("star_fail.leo");
-    assert!(parse_program(bytes).is_err());
+    let program_string = include_str!("star_fail.leo");
+    assert!(parse_program(program_string).is_err());
 }
 
 #[test]
@@ -76,8 +76,8 @@ fn test_star_fail() {
 fn test_alias() {
     set_local_dir();
 
-    let bytes = include_bytes!("alias.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("alias.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -88,8 +88,8 @@ fn test_alias() {
 fn test_names_pass() {
     set_local_dir();
 
-    let bytes = include_bytes!("names.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("names.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -99,8 +99,8 @@ fn test_names_pass() {
 fn test_names_fail_1() {
     set_local_dir();
 
-    let bytes = include_bytes!("names_dash_a.leo");
-    assert!(parse_program(bytes).is_err());
+    let program_string = include_str!("names_dash_a.leo");
+    assert!(parse_program(program_string).is_err());
 }
 
 #[test]
@@ -108,8 +108,8 @@ fn test_names_fail_1() {
 fn test_names_fail_2() {
     set_local_dir();
 
-    let bytes = include_bytes!("names_a_dash.leo");
-    assert!(parse_program(bytes).is_err());
+    let program_string = include_str!("names_a_dash.leo");
+    assert!(parse_program(program_string).is_err());
 }
 
 #[test]
@@ -117,8 +117,8 @@ fn test_names_fail_2() {
 fn test_names_fail_3() {
     set_local_dir();
 
-    let bytes = include_bytes!("names_underscore.leo");
-    assert!(parse_program(bytes).is_err());
+    let program_string = include_str!("names_underscore.leo");
+    assert!(parse_program(program_string).is_err());
 }
 
 #[test]
@@ -126,8 +126,8 @@ fn test_names_fail_3() {
 fn test_names_fail_4() {
     set_local_dir();
 
-    let bytes = include_bytes!("names_dollar.leo");
-    assert!(parse_program(bytes).is_err());
+    let program_string = include_str!("names_dollar.leo");
+    assert!(parse_program(program_string).is_err());
 }
 
 // more complex tests
@@ -136,8 +136,8 @@ fn test_names_fail_4() {
 fn test_many_import() {
     set_local_dir();
 
-    let bytes = include_bytes!("many_import.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("many_import.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -147,8 +147,8 @@ fn test_many_import() {
 fn test_many_import_star() {
     set_local_dir();
 
-    let bytes = include_bytes!("many_import_star.leo");
-    let program = parse_program(bytes).unwrap();
+    let program_string = include_str!("many_import_star.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }

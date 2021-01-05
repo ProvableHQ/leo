@@ -16,10 +16,10 @@
 
 //! Evaluates a macro in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_ast::{ConsoleFunction, ConsoleFunctionCall};
+use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_indicator_value, GroupType};
+use leo_ast::{ConsoleFunction, ConsoleStatement};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
@@ -30,8 +30,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        indicator: Option<Boolean>,
-        console: ConsoleFunctionCall,
+        indicator: &Boolean,
+        console: ConsoleStatement,
     ) -> Result<(), ConsoleError> {
         match console.function {
             ConsoleFunction::Assert(expression) => {
@@ -40,21 +40,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ConsoleFunction::Debug(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
-                if unwrap_indicator_value(indicator) {
+                if get_indicator_value(indicator) {
                     tracing::debug!("{}", string);
                 }
             }
             ConsoleFunction::Error(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
-                if unwrap_indicator_value(indicator) {
+                if get_indicator_value(indicator) {
                     tracing::error!("{}", string);
                 }
             }
             ConsoleFunction::Log(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;
 
-                if unwrap_indicator_value(indicator) {
+                if get_indicator_value(indicator) {
                     tracing::info!("{}", string);
                 }
             }
@@ -62,17 +62,4 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         Ok(())
     }
-}
-
-// Return the indicator boolean gadget value or true if it is None
-// This is okay since we are not enforcing any constraints
-fn unwrap_indicator_value(indicator: Option<Boolean>) -> bool {
-    let false_boolean = Boolean::constant(false);
-
-    if let Some(indicator_bool) = indicator {
-        if indicator_bool.eq(&false_boolean) {
-            return false;
-        }
-    }
-    true
 }

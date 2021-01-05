@@ -34,8 +34,8 @@ use crate::{
 use leo_ast::{ArrayDimensions, Circuit, Function, GroupValue, Identifier, Span, Type};
 use leo_core::Value;
 
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::{ConstraintSystem, Index},
@@ -67,7 +67,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Functions
-    Function(Option<Identifier>, Function), // (optional circuit identifier, function definition)
+    Function(Option<Identifier>, Box<Function>), // (optional circuit identifier, function definition)
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -120,7 +120,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Array(array) => {
                 let array_type = array[0].to_type(span)?;
                 let mut dimensions = ArrayDimensions::default();
-                dimensions.push_usize(array.len(), span.to_owned());
+                dimensions.push_usize(array.len());
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {
@@ -219,7 +219,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     }
                 }
 
-                Ok((outer_scope, function))
+                Ok((outer_scope, *function))
             }
             ConstrainedValue::Import(import_scope, function) => function.extract_function(&import_scope, span),
             value => Err(ExpressionError::undefined_function(value.to_string(), span.to_owned())),
@@ -234,8 +234,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
+    ///
+    /// Modifies the `self` [ConstrainedValue] so there are no `mut` keywords wrapping the `self` value.
+    ///
     pub(crate) fn get_inner_mut(&mut self) {
         if let ConstrainedValue::Mutable(inner) = self {
+            // Recursively remove `mut` keywords.
+            inner.get_inner_mut();
+
+            // Modify the value.
             *self = *inner.clone()
         }
     }
@@ -501,7 +508,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
                 ConstrainedValue::Array(array)
             }
-            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Array(tuple_2)) => {
+            (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
                 let mut array = Vec::with_capacity(tuple_1.len());
 
                 for (i, (first, second)) in tuple_1.iter().zip(tuple_2.iter()).enumerate() {

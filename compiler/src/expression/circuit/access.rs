@@ -24,7 +24,7 @@ use crate::{
 };
 use leo_ast::{Expression, Identifier, Span, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -67,14 +67,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match matched_member {
             Some(member) => {
                 match &member.1 {
-                    ConstrainedValue::Function(ref _circuit_identifier, ref _function) => {
-                        // Pass circuit members into function call by value
-                        for stored_member in members {
-                            let circuit_scope = new_scope(&file_scope, &circuit_name.name);
-                            let self_keyword = new_scope(&circuit_scope, SELF_KEYWORD);
-                            let variable = new_scope(&self_keyword, &stored_member.0.name);
+                    ConstrainedValue::Function(ref _circuit_identifier, ref function) => {
+                        // Check for function input `self` or `mut self`.
+                        if function.contains_self() {
+                            // Pass circuit members into function call by value
+                            for stored_member in members {
+                                let circuit_scope = new_scope(&file_scope, &circuit_name.name);
+                                let self_keyword = new_scope(&circuit_scope, SELF_KEYWORD);
+                                let variable = new_scope(&self_keyword, &stored_member.0.name);
 
-                            self.store(variable, stored_member.1.clone());
+                                self.store(variable, stored_member.1.clone());
+                            }
                         }
                     }
                     ConstrainedValue::Static(value) => {

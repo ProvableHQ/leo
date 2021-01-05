@@ -1,3 +1,7 @@
+<p align="center">
+    <img width="1412" src="./.resources/leo.png">
+</p>
+
 <h1 align="center">The Leo Programming Language</h1>
 
 <p align="center">

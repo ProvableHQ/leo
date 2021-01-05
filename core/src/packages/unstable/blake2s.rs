@@ -18,6 +18,8 @@ use crate::{CoreCircuit, CoreCircuitError, Value};
 
 use leo_ast::{
     ArrayDimensions,
+    Block,
+    CallExpression,
     Circuit,
     CircuitMember,
     Expression,
@@ -27,12 +29,13 @@ use leo_ast::{
     Identifier,
     IntegerType,
     PositiveNumber,
+    ReturnStatement,
     Span,
     Statement,
     Type,
 };
-use snarkos_gadgets::algorithms::prf::Blake2sGadget;
-use snarkos_models::{
+use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         algorithms::PRFGadget,
@@ -41,7 +44,9 @@ use snarkos_models::{
     },
 };
 
-pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "Blake2s";
+// internal identifier
+pub const CORE_UNSTABLE_BLAKE2S_NAME: &str = "#blake2s";
+pub const CORE_UNSTABLE_BLAKE2S_PACKAGE_NAME: &str = "Blake2s";
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Blake2sCircuit {}
@@ -61,72 +66,63 @@ impl CoreCircuit for Blake2sCircuit {
     fn ast(circuit_name: Identifier, span: Span) -> Circuit {
         Circuit {
             circuit_name,
-            members: vec![CircuitMember::CircuitFunction(
-                true, // static function
-                Function {
-                    identifier: Identifier {
-                        name: "hash".to_owned(),
-                        span: span.clone(),
-                    },
-                    input: vec![
-                        FunctionInput::Variable(FunctionInputVariable {
-                            identifier: Identifier {
-                                name: "seed".to_owned(),
-                                span: span.clone(),
-                            },
-                            mutable: false,
-                            type_: Type::Array(
-                                Box::new(Type::IntegerType(IntegerType::U8)),
-                                ArrayDimensions(vec![PositiveNumber {
-                                    value: 32usize.to_string(),
-                                    span: span.clone(),
-                                }]),
-                            ),
-                            span: span.clone(),
-                        }),
-                        FunctionInput::Variable(FunctionInputVariable {
-                            identifier: Identifier {
-                                name: "message".to_owned(),
-                                span: span.clone(),
-                            },
-                            mutable: false,
-                            type_: Type::Array(
-                                Box::new(Type::IntegerType(IntegerType::U8)),
-                                ArrayDimensions(vec![PositiveNumber {
-                                    value: 32usize.to_string(),
-                                    span: span.clone(),
-                                }]),
-                            ),
-                            span: span.clone(),
-                        }),
-                    ],
-                    output: Some(Type::Array(
-                        Box::new(Type::IntegerType(IntegerType::U8)),
-                        ArrayDimensions(vec![PositiveNumber {
-                            value: 32usize.to_string(),
-                            span: span.clone(),
-                        }]),
-                    )),
-                    statements: vec![Statement::Return(
-                        Expression::CoreFunctionCall(
-                            Self::name(),
-                            vec![
-                                Expression::Identifier(Identifier {
-                                    name: "seed".to_owned(),
-                                    span: span.clone(),
-                                }),
-                                Expression::Identifier(Identifier {
-                                    name: "message".to_owned(),
-                                    span: span.clone(),
-                                }),
-                            ],
-                            span.clone(),
-                        ),
-                        span.clone(),
-                    )],
-                    span,
+            members: vec![CircuitMember::CircuitFunction(Function {
+                identifier: Identifier {
+                    name: "hash".to_owned(),
+                    span: span.clone(),
                 },
-            )],
+                input: vec![
+                    FunctionInput::Variable(FunctionInputVariable {
+                        identifier: Identifier {
+                            name: "seed".to_owned(),
+                            span: span.clone(),
+                        },
+                        mutable: false,
+                        type_: Type::Array(
+                            Box::new(Type::IntegerType(IntegerType::U8)),
+                            ArrayDimensions(vec![PositiveNumber {
+                                value: 32usize.to_string(),
+                            }]),
+                        ),
+                        span: span.clone(),
+                    }),
+                    FunctionInput::Variable(FunctionInputVariable {
+                        identifier: Identifier {
+                            name: "message".to_owned(),
+                            span: span.clone(),
+                        },
+                        mutable: false,
+                        type_: Type::Array(
+                            Box::new(Type::IntegerType(IntegerType::U8)),
+                            ArrayDimensions(vec![PositiveNumber {
+                                value: 32usize.to_string(),
+                            }]),
+                        ),
+                        span: span.clone(),
+                    }),
+                ],
+                output: Some(Type::Array(
+                    Box::new(Type::IntegerType(IntegerType::U8)),
+                    ArrayDimensions(vec![PositiveNumber {
+                        value: 32usize.to_string(),
+                    }]),
+                )),
+                block: Block {
+                    statements: vec![Statement::Return(ReturnStatement {
+                        expression: Expression::Call(CallExpression {
+                            function: Box::new(Expression::Identifier(Identifier::new_with_span(&Self::name(), &span))),
+                            arguments: vec![
+                                Expression::Identifier(Identifier::new_with_span("seed", &span)),
+                                Expression::Identifier(Identifier::new_with_span("message", &span)),
+                            ],
+                            span: span.clone(),
+                        }),
+                        span: span.clone(),
+                    })],
+                    span: span.clone(),
+                },
+                span,
+            })],
         }
     }
 
@@ -195,8 +191,8 @@ fn check_array_bytes(value: Value, size: usize, span: Span) -> Result<Vec<UInt8>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use snarkos_curves::bls12_377::Fr;
-    use snarkos_models::gadgets::{
+    use snarkvm_curves::bls12_377::Fr;
+    use snarkvm_models::gadgets::{
         r1cs::TestConstraintSystem,
         utilities::{boolean::Boolean, uint::UInt8},
     };

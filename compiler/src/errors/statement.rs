@@ -72,8 +72,32 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn array_assign_interior_index(span: Span) -> Self {
+        let message = "Cannot assign single index to interior of array of values".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn array_assign_range(span: Span) -> Self {
         let message = "Cannot assign range of array values to single value".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_assign_index_bounds(index: usize, length: usize, span: Span) -> Self {
+        let message = format!(
+            "Array assign index `{}` out of range for array of length `{}`",
+            index, length
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_assign_range_order(start: usize, stop: usize, length: usize, span: Span) -> Self {
+        let message = format!(
+            "Array assign range `{}`..`{}` out of range for array of length `{}`",
+            start, stop, length
+        );
 
         Self::new_from_span(message, span)
     }
@@ -135,6 +159,22 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn multiple_returns(span: Span) -> Self {
+        let message = "This function returns multiple times and produces unreachable circuits with undefined behavior."
+            .to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn no_returns(expected: Type, span: Span) -> Self {
+        let message = format!(
+            "function expected `{}` return type but no valid branches returned a result",
+            expected
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn select_fail(first: String, second: String, span: Span) -> Self {
         let message = format!(
             "Conditional select gadget failed to select between `{}` or `{}`",
@@ -146,6 +186,15 @@ impl StatementError {
 
     pub fn tuple_assign_index(span: Span) -> Self {
         let message = "Cannot assign single index to tuple of values".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn tuple_assign_index_bounds(index: usize, length: usize, span: Span) -> Self {
+        let message = format!(
+            "Tuple assign index `{}` out of range for tuple of length `{}`",
+            index, length
+        );
 
         Self::new_from_span(message, span)
     }

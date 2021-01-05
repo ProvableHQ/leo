@@ -17,9 +17,9 @@
 //! Enforces array access in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, RangeOrExpression, Span, Type};
+use leo_ast::{Expression, Span, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: &str,
         expected_type: Option<Type>,
         array: Expression,
-        index: RangeOrExpression,
+        index: Expression,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let array = match self.enforce_operand(cs, file_scope, function_scope, expected_type, array, span)? {
@@ -41,22 +41,35 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
-        match index {
-            RangeOrExpression::Range(from, to) => {
-                let from_resolved = match from {
-                    Some(from_index) => self.enforce_index(cs, file_scope, function_scope, from_index, span)?,
-                    None => 0usize, // Array slice starts at index 0
-                };
-                let to_resolved = match to {
-                    Some(to_index) => self.enforce_index(cs, file_scope, function_scope, to_index, span)?,
-                    None => array.len(), // Array slice ends at array length
-                };
-                Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
-            }
-            RangeOrExpression::Expression(index) => {
-                let index_resolved = self.enforce_index(cs, file_scope, function_scope, index, span)?;
-                Ok(array[index_resolved].to_owned())
-            }
-        }
+        let index_resolved = self.enforce_index(cs, file_scope, function_scope, index, span)?;
+        Ok(array[index_resolved].to_owned())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn enforce_array_range_access<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        file_scope: &str,
+        function_scope: &str,
+        expected_type: Option<Type>,
+        array: Expression,
+        left: Option<Expression>,
+        right: Option<Expression>,
+        span: &Span,
+    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        let array = match self.enforce_operand(cs, file_scope, function_scope, expected_type, array, span)? {
+            ConstrainedValue::Array(array) => array,
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+        };
+
+        let from_resolved = match left {
+            Some(from_index) => self.enforce_index(cs, file_scope, function_scope, from_index, span)?,
+            None => 0usize, // Array slice starts at index 0
+        };
+        let to_resolved = match right {
+            Some(to_index) => self.enforce_index(cs, file_scope, function_scope, to_index, span)?,
+            None => array.len(), // Array slice ends at array length
+        };
+        Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))
     }
 }

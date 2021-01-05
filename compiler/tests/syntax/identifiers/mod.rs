@@ -18,80 +18,80 @@ use crate::parse_program;
 
 #[test]
 fn test_address_name_fail() {
-    let bytes = include_bytes!("address_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("address_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_console_name_fail() {
-    let bytes = include_bytes!("console_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("console_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_field_name_fail() {
-    let bytes = include_bytes!("field_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("field_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_group_name_fail() {
-    let bytes = include_bytes!("group_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("group_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_i8_name_fail() {
-    let bytes = include_bytes!("i8_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("i8_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_input_name_fail() {
-    let bytes = include_bytes!("input_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("input_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_self_type_name_fail() {
-    let bytes = include_bytes!("self_type_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("self_type_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_self_keyword_name_fail() {
-    let bytes = include_bytes!("self_keyword_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("self_keyword_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_true_name_fail() {
-    let bytes = include_bytes!("true_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("true_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }
 
 #[test]
 fn test_u8_name_fail() {
-    let bytes = include_bytes!("u8_fail.leo");
-    let syntax_error = parse_program(bytes).is_err();
+    let program_string = include_str!("u8_fail.leo");
+    let syntax_error = parse_program(program_string).is_err();
 
     assert!(syntax_error);
 }

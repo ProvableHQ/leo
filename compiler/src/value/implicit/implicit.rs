@@ -19,7 +19,7 @@
 use crate::{errors::ValueError, value::ConstrainedValue, GroupType};
 use leo_ast::{Span, Type};
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 pub fn enforce_number_implicit<F: Field + PrimeField, G: GroupType<F>>(
     expected_type: Option<Type>,

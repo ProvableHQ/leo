@@ -17,8 +17,8 @@
 use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
 use core::{borrow::Borrow, iter};
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::Field,
     gadgets::{
         r1cs::ConstraintSystem,

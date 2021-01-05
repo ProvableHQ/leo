@@ -29,9 +29,6 @@ pub use self::circuits::*;
 pub mod common;
 pub use self::common::*;
 
-pub mod console;
-pub use self::console::*;
-
 pub mod errors;
 pub use self::errors::*;
 
@@ -58,6 +55,9 @@ pub use self::statements::*;
 
 pub mod types;
 pub use self::types::*;
+
+mod node;
+pub use node::*;
 
 use leo_grammar::Grammar;
 

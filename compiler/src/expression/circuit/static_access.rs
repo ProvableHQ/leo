@@ -19,7 +19,7 @@
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_ast::{CircuitMember, Expression, Identifier, Span, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -56,22 +56,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Find static circuit function
         let matched_function = circuit.members.into_iter().find(|member| match member {
-            CircuitMember::CircuitFunction(_static, function) => function.identifier == circuit_member,
+            CircuitMember::CircuitFunction(function) => function.identifier == circuit_member,
             _ => false,
         });
 
         // Return errors if no static function exists
         let function = match matched_function {
-            Some(CircuitMember::CircuitFunction(_static, function)) => {
-                if _static {
-                    function
-                } else {
-                    return Err(ExpressionError::invalid_member_access(
-                        function.identifier.to_string(),
-                        span,
-                    ));
-                }
-            }
+            Some(CircuitMember::CircuitFunction(function)) => function,
             _ => {
                 return Err(ExpressionError::undefined_member_access(
                     circuit.circuit_name.to_string(),
@@ -81,6 +72,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         };
 
-        Ok(ConstrainedValue::Function(Some(circuit.circuit_name), function))
+        Ok(ConstrainedValue::Function(
+            Some(circuit.circuit_name),
+            Box::new(function),
+        ))
     }
 }

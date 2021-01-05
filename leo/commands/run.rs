@@ -17,9 +17,9 @@
 use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
-use snarkos_algorithms::snark::groth16::Groth16;
-use snarkos_curves::bls12_377::{Bls12_377, Fr};
-use snarkos_models::algorithms::SNARK;
+use snarkvm_algorithms::snark::groth16::Groth16;
+use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_models::algorithms::SNARK;
 
 use clap::ArgMatches;
 use std::time::Instant;

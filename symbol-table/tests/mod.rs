@@ -34,15 +34,12 @@ impl TestSymbolTable {
     ///
     /// Returns a Leo syntax tree given a Leo program.
     ///
-    pub fn new(bytes: &[u8]) -> Self {
-        // Get file string from bytes.
-        let file_string = String::from_utf8_lossy(bytes);
-
+    pub fn new(program_string: &str) -> Self {
         // Get test file path.
         let file_path = PathBuf::from(TEST_PROGRAM_PATH);
 
         // Get parser syntax tree.
-        let grammar = Grammar::new(&file_path, &*file_string).unwrap();
+        let grammar = Grammar::new(&file_path, program_string).unwrap();
 
         // Get Leo syntax tree.
         let ast = Ast::new(TEST_PROGRAM_PATH, &grammar);

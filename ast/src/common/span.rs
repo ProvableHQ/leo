@@ -46,6 +46,17 @@ impl Hash for Span {
     }
 }
 
+impl Span {
+    pub fn from_internal_string(value: &str) -> Span {
+        Span {
+            text: value.to_string(),
+            line: 0,
+            start: 0,
+            end: 0,
+        }
+    }
+}
+
 impl<'ast> From<GrammarSpan<'ast>> for Span {
     fn from(span: GrammarSpan<'ast>) -> Self {
         let mut text = " ".to_string();

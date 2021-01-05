@@ -17,7 +17,7 @@
 use crate::Value;
 use leo_ast::{Error as FormattedError, Span};
 
-use snarkos_errors::gadgets::SynthesisError;
+use snarkvm_errors::gadgets::SynthesisError;
 
 use std::path::Path;
 

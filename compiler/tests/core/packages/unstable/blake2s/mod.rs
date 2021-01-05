@@ -27,38 +27,37 @@ use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use snarkos_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkos_models::algorithms::PRF;
+use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
+use snarkvm_models::algorithms::PRF;
 
 #[test]
 fn test_arguments_length_fail() {
-    let program_bytes = include_bytes!("arguments_length_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program_string = include_str!("arguments_length_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_arguments_type_fail() {
-    let program_bytes = include_bytes!("arguments_type_fail.leo");
-    let error = parse_program(program_bytes).err().unwrap();
+    let program_string = include_str!("arguments_type_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
 
     expect_type_inference_error(error);
 }
 
 #[test]
 fn test_blake2s_input() {
-    let input_bytes = include_bytes!("inputs/valid_input.in");
-    let program_bytes = include_bytes!("blake2s_input.leo");
-    let expected_bytes = include_bytes!("outputs/valid_output.out");
+    let input_string = include_str!("inputs/valid_input.in");
+    let program_string = include_str!("blake2s_input.leo");
+    let expected_string = include_str!("outputs/valid_output.out");
 
-    let program = parse_program_with_input(program_bytes, input_bytes).unwrap();
+    let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    let expected = std::str::from_utf8(expected_bytes).unwrap();
     let actual_bytes = get_output(program);
-    let actual = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
 
-    assert_eq!(expected, actual)
+    assert_eq!(expected_string, actual_string)
 }
 
 #[test]
@@ -71,7 +70,7 @@ fn test_blake2s_random() {
     let mut message = [0u8; 32];
     rng.fill(&mut message);
 
-    // Use snarkos-algorithms blake2s evaluate to get expected value
+    // Use snarkvm-algorithms blake2s evaluate to get expected value
     let expected = B2SPRF::evaluate(&seed, &message).unwrap().to_vec();
 
     // Create program input values for seed, message, and expected values
@@ -81,7 +80,7 @@ fn test_blake2s_random() {
 
     // The `blake2s_random.leo` program will compute a blake2s hash digest and compare it against
     // the expected value
-    let bytes = include_bytes!("blake2s_random.leo");
+    let bytes = include_str!("blake2s_random.leo");
     let mut program = parse_program(bytes).unwrap();
 
     let main_input = generate_main_input(vec![

@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    types::circuits::{CircuitFunctionType, CircuitVariableType},
-    Attribute,
-    FunctionType,
-    SymbolTable,
-    Type,
-    TypeError,
-};
+use crate::{types::circuits::CircuitVariableType, FunctionType, SymbolTable, Type, TypeError};
 use leo_ast::{Circuit, CircuitMember, Identifier, InputValue, Parameter, Span};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashMap,
-    hash::{Hash, Hasher},
-};
+use std::hash::{Hash, Hasher};
 
 /// Stores circuit definition details.
 ///
@@ -43,7 +34,7 @@ pub struct CircuitType {
     pub variables: Vec<CircuitVariableType>,
 
     /// The circuit functions.
-    pub functions: Vec<CircuitFunctionType>,
+    pub functions: Vec<FunctionType>,
 }
 
 impl CircuitType {
@@ -61,7 +52,7 @@ impl CircuitType {
         // Resolve the type of every circuit member.
         for member in unresolved.members {
             match member {
-                CircuitMember::CircuitVariable(is_mutable, variable_identifier, type_) => {
+                CircuitMember::CircuitVariable(variable_identifier, type_) => {
                     // Resolve the type of the circuit member variable.
                     let type_ = Type::new_from_circuit(
                         table,
@@ -70,34 +61,22 @@ impl CircuitType {
                         circuit_identifier.span.clone(),
                     )?;
 
-                    // Check if the circuit member variable is mutable.
-                    let attribute = if is_mutable { Some(Attribute::Mutable) } else { None };
-
                     // Create a new circuit variable type.
                     let variable = CircuitVariableType {
                         identifier: variable_identifier,
                         type_,
-                        attribute,
+                        attribute: None,
                     };
 
                     // Store the circuit variable type.
                     variables.push(variable);
                 }
-                CircuitMember::CircuitFunction(is_static, function) => {
+                CircuitMember::CircuitFunction(function) => {
                     // Resolve the type of the circuit member function.
                     let function_type = FunctionType::from_circuit(table, circuit_identifier.clone(), function)?;
 
-                    // Check if the circuit member function is static.
-                    let attribute = if is_static { Some(Attribute::Static) } else { None };
-
-                    // Create a new circuit function type.
-                    let function = CircuitFunctionType {
-                        function: function_type,
-                        attribute,
-                    };
-
                     // Store the circuit function type.
-                    functions.push(function);
+                    functions.push(function_type);
                 }
             }
         }
@@ -113,10 +92,10 @@ impl CircuitType {
     ///
     /// Returns the function type of a circuit member given an identifier.
     ///
-    pub fn member_function_type(&self, identifier: &Identifier) -> Option<&CircuitFunctionType> {
+    pub fn member_function_type(&self, identifier: &Identifier) -> Option<&FunctionType> {
         self.functions
             .iter()
-            .find(|function| function.function.identifier.eq(identifier))
+            .find(|function| function.identifier.eq(identifier))
     }
 
     ///
@@ -139,7 +118,7 @@ impl CircuitType {
                 let matched_function = self.member_function_type(identifier);
 
                 match matched_function {
-                    Some(function) => Ok(Type::Function(function.function.identifier.to_owned())),
+                    Some(function) => Ok(Type::Function(function.identifier.to_owned())),
                     None => Err(TypeError::undefined_circuit_member(identifier.clone())),
                 }
             }
@@ -152,7 +131,7 @@ impl CircuitType {
     pub fn from_input_section(
         table: &SymbolTable,
         name: String,
-        section: HashMap<Parameter, Option<InputValue>>,
+        section: IndexMap<Parameter, Option<InputValue>>,
     ) -> Result<Self, TypeError> {
         // Create a new `CircuitVariableType` for each section pair.
         let mut variables = Vec::new();

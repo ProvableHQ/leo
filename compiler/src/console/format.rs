@@ -19,7 +19,7 @@
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
 use leo_ast::FormattedString;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
@@ -52,8 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut result = string.to_string();
 
         for parameter in formatted.parameters.into_iter() {
-            let parameter_value =
-                self.enforce_expression(cs, file_scope, function_scope, None, parameter.expression)?;
+            let parameter_value = self.enforce_expression(cs, file_scope, function_scope, None, parameter)?;
 
             result = result.replacen("{}", &parameter_value.to_string(), 1);
         }

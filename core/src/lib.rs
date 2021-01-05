@@ -29,7 +29,7 @@ pub use self::types::*;
 use crate::CoreCircuit;
 use leo_ast::Span;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
