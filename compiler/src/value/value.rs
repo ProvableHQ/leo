@@ -115,7 +115,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Array(array) => {
                 let array_type = array[0].to_type(span)?;
                 let mut dimensions = ArrayDimensions::default();
-                dimensions.push_usize(array.len(), span.to_owned());
+                dimensions.push_usize(array.len());
 
                 // Nested array type
                 if let Type::Array(inner_type, inner_dimensions) = &array_type {

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FunctionInput, Identifier, Span, Type};
+use crate::{Block, FunctionInput, Identifier, Node, Span, Type};
 use leo_grammar::functions::Function as GrammarFunction;
 
 use serde::{Deserialize, Serialize};
@@ -105,5 +105,15 @@ impl fmt::Display for Function {
 impl fmt::Debug for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
+    }
+}
+
+impl Node for Function {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

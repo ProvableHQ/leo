@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FunctionInputVariable, InputKeyword, MutSelfKeyword, SelfKeyword};
+use crate::{FunctionInputVariable, InputKeyword, MutSelfKeyword, Node, SelfKeyword, Span};
 use leo_grammar::functions::input::Input as GrammarInput;
 
 use serde::{Deserialize, Serialize};
@@ -105,3 +105,25 @@ impl PartialEq for FunctionInput {
 }
 
 impl Eq for FunctionInput {}
+
+impl Node for FunctionInput {
+    fn span(&self) -> &Span {
+        use FunctionInput::*;
+        match self {
+            InputKeyword(keyword) => &keyword.span,
+            SelfKeyword(keyword) => &keyword.span,
+            MutSelfKeyword(keyword) => &keyword.span,
+            Variable(variable) => &variable.span,
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        use FunctionInput::*;
+        match self {
+            InputKeyword(keyword) => keyword.span = span,
+            SelfKeyword(keyword) => keyword.span = span,
+            MutSelfKeyword(keyword) => keyword.span = span,
+            Variable(variable) => variable.span = span,
+        }
+    }
+}

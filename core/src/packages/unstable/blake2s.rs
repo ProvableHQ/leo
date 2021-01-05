@@ -82,7 +82,6 @@ impl CoreCircuit for Blake2sCircuit {
                             Box::new(Type::IntegerType(IntegerType::U8)),
                             ArrayDimensions(vec![PositiveNumber {
                                 value: 32usize.to_string(),
-                                span: span.clone(),
                             }]),
                         ),
                         span: span.clone(),
@@ -97,7 +96,6 @@ impl CoreCircuit for Blake2sCircuit {
                             Box::new(Type::IntegerType(IntegerType::U8)),
                             ArrayDimensions(vec![PositiveNumber {
                                 value: 32usize.to_string(),
-                                span: span.clone(),
                             }]),
                         ),
                         span: span.clone(),
@@ -107,7 +105,6 @@ impl CoreCircuit for Blake2sCircuit {
                     Box::new(Type::IntegerType(IntegerType::U8)),
                     ArrayDimensions(vec![PositiveNumber {
                         value: 32usize.to_string(),
-                        span: span.clone(),
                     }]),
                 )),
                 block: Block {
