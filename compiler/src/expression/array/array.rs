@@ -24,7 +24,7 @@ use crate::{
 };
 use leo_ast::{ArrayDimensions, Expression, PositiveNumber, Span, SpreadOrExpression, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

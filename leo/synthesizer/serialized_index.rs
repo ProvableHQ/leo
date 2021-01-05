@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkos_models::gadgets::r1cs::Index;
+use snarkvm_models::gadgets::r1cs::Index;
 
 use serde::{Deserialize, Serialize};
 

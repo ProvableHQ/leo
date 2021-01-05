@@ -19,7 +19,7 @@
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 pub fn evaluate_not<F: Field + PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<F, G>,

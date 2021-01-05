@@ -25,7 +25,7 @@ use crate::{
 
 use leo_ast::{Expression, Function, FunctionInput};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };

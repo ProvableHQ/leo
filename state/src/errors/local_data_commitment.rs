@@ -16,7 +16,7 @@
 
 use crate::{RecordVerificationError, StateLeafValuesError, StateValuesError};
 
-use snarkos_errors::algorithms::{CommitmentError, MerkleError};
+use snarkvm_errors::algorithms::{CommitmentError, MerkleError};
 
 use std::io::Error as IOError;
 

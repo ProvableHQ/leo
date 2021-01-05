@@ -18,19 +18,19 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_local_data_commitment;
 
-use snarkos_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
-use snarkos_models::{
+use snarkvm_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
+use snarkvm_models::{
     algorithms::{CommitmentScheme, CRH},
     dpc::Record,
     objects::AccountScheme,
 };
-use snarkos_objects::Account;
-use snarkos_utilities::{bytes::ToBytes, to_bytes};
+use snarkvm_objects::Account;
+use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use snarkos_models::dpc::DPCScheme;
-use snarkos_storage::Ledger;
+use snarkvm_models::dpc::DPCScheme;
+use snarkvm_storage::Ledger;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
 #[test]
@@ -98,14 +98,14 @@ fn test_generate_values_from_dpc() {
     let payload: [u8; 32] = rng.gen();
 
     let old_record = DPC::generate_record(
-        &system_parameters,
-        &sn_nonce,
-        &dummy_account.address,
+        system_parameters.clone(),
+        sn_nonce,
+        dummy_account.address,
         false,
         value,
-        &RecordPayload::from_bytes(&payload),
-        &noop_program_id,
-        &noop_program_id,
+        RecordPayload::from_bytes(&payload),
+        noop_program_id.clone(),
+        noop_program_id.clone(),
         &mut rng,
     )
     .unwrap();
@@ -137,16 +137,16 @@ fn test_generate_values_from_dpc() {
     let memo = [0u8; 32];
 
     let context = <InstantiatedDPC as DPCScheme<L>>::execute_offline(
-        &system_parameters,
-        &old_records,
-        &old_account_private_keys,
-        &new_record_owners,
+        system_parameters.clone(),
+        old_records,
+        old_account_private_keys,
+        new_record_owners,
         &new_is_dummy_flags,
         &new_values,
-        &new_payloads,
-        &new_birth_program_ids,
-        &new_death_program_ids,
-        &memo,
+        new_payloads,
+        new_birth_program_ids,
+        new_death_program_ids,
+        memo,
         network_id,
         &mut rng,
     )

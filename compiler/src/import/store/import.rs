@@ -19,7 +19,7 @@ use leo_ast::ImportStatement;
 use leo_imports::ImportParser;
 use leo_symbol_table::imported_symbols::ImportedSymbols;
 
-use snarkos_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn store_import(

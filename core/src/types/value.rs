@@ -16,7 +16,7 @@
 
 use leo_gadgets::signed_integer::*;
 
-use snarkos_models::gadgets::utilities::{boolean::Boolean, uint::*};
+use snarkvm_models::gadgets::utilities::{boolean::Boolean, uint::*};
 use std::fmt;
 
 /// An intermediate value format that can be converted into a `ConstrainedValue` for the compiler

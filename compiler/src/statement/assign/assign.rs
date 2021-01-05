@@ -26,7 +26,7 @@ use crate::{
 };
 use leo_ast::{AssignOperation, AssignStatement, AssigneeAccess, Span};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{
         r1cs::ConstraintSystem,

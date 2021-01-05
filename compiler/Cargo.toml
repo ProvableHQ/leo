@@ -57,32 +57,32 @@ version = "1.0.7"
 path = "../type-inference"
 version = "1.0.7"
 
-[dependencies.snarkos-curves]
-version = "1.1.3"
+[dependencies.snarkvm-curves]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-dpc]
-version = "1.1.3"
+[dependencies.snarkvm-dpc]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-errors]
-version = "1.1.3"
+[dependencies.snarkvm-errors]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-gadgets]
-version = "1.1.3"
+[dependencies.snarkvm-gadgets]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-models]
-version = "1.1.3"
+[dependencies.snarkvm-models]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-objects]
-version = "1.1.3"
+[dependencies.snarkvm-objects]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-utilities]
-version = "1.1.3"
+[dependencies.snarkvm-utilities]
+version = "0.0.2"
 
 [dependencies.bincode]
 version = "1.0"
@@ -116,14 +116,11 @@ version = "1.0"
 [dependencies.tracing]
 version = "0.1"
 
-[dependencies.tracing-subscriber]
-version = "0.2"
-
 [dev-dependencies.num-bigint]
 version = "0.3"
 
-[dev-dependencies.snarkos-algorithms]
-version = "1.1.3"
+[dev-dependencies.snarkvm-algorithms]
+version = "0.0.2"
 default-features = false
 
 [features]

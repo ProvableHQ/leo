@@ -17,7 +17,7 @@
 use crate::{CoreCircuitError, Value};
 use leo_ast::{Circuit, Identifier, Span};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

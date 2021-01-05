@@ -25,7 +25,7 @@ use crate::{
     Int64,
     Int8,
 };
-use snarkos_models::{
+use snarkvm_models::{
     curves::{FpParameters, PrimeField},
     gadgets::{
         r1cs::{Assignment, ConstraintSystem, LinearCombination},

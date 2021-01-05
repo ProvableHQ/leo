@@ -25,20 +25,20 @@ version = "1.0.7"
 path = "../gadgets"
 version = "1.0.7"
 
-[dependencies.snarkos-errors]
-version = "1.1.3"
+[dependencies.snarkvm-errors]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-gadgets]
-version = "1.1.3"
+[dependencies.snarkvm-gadgets]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-models]
-version = "1.1.3"
+[dependencies.snarkvm-models]
+version = "0.0.2"
 default-features = false
 
-[dependencies.snarkos-utilities]
-version = "1.1.3"
+[dependencies.snarkvm-utilities]
+version = "0.0.2"
 
 [dependencies.rand]
 version = "0.7"
@@ -51,9 +51,9 @@ default-features = false
 [dependencies.thiserror]
 version = "1.0"
 
-[dev-dependencies.snarkos-utilities]
-version = "1.1.3"
+[dev-dependencies.snarkvm-utilities]
+version = "0.0.2"
 
-[dev-dependencies.snarkos-curves]
-version = "1.1.3"
+[dev-dependencies.snarkvm-curves]
+version = "0.0.2"
 default-features = false

@@ -19,7 +19,7 @@
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };

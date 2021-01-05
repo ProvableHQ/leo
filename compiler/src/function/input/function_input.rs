@@ -20,7 +20,7 @@ use crate::{errors::FunctionError, program::ConstrainedProgram, value::Constrain
 
 use leo_ast::{Expression, Type};
 
-use snarkos_models::{
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };

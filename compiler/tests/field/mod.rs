@@ -17,8 +17,8 @@
 use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
 use leo_ast::InputValue;
 
-use snarkos_curves::edwards_bls12::Fq;
-use snarkos_utilities::bytes::ToBytes;
+use snarkvm_curves::edwards_bls12::Fq;
+use snarkvm_utilities::bytes::ToBytes;
 
 use num_bigint::BigUint;
 use rand::{Rng, SeedableRng};

@@ -32,9 +32,9 @@ use leo_state::verify_local_data_commitment;
 use leo_symbol_table::SymbolTable;
 use leo_type_inference::TypeInference;
 
-use snarkos_dpc::{base_dpc::instantiated::Components, SystemParameters};
-use snarkos_errors::gadgets::SynthesisError;
-use snarkos_models::{
+use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
@@ -303,7 +303,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
 
-        generate_constraints::<F, G, CS>(cs, self.program, self.program_input, &self.imported_programs).map_err(
+        generate_constraints::<F, G, CS>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(&path);
 
@@ -329,11 +329,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Calls the internal generate_constraints method with arguments.
     ///
     pub fn generate_constraints_helper<CS: ConstraintSystem<F>>(
-        self,
+        &self,
         cs: &mut CS,
     ) -> Result<OutputBytes, CompilerError> {
-        let path = self.main_file_path;
-        generate_constraints::<_, G, _>(cs, self.program, self.program_input, &self.imported_programs).map_err(
+        let path = &self.main_file_path;
+        generate_constraints::<_, G, _>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
             |mut error| {
                 error.set_path(&path);
                 error
@@ -346,7 +346,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compil
     ///
     /// Synthesizes the circuit with program input.
     ///
-    fn generate_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<(), SynthesisError> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), SynthesisError> {
         let output_directory = self.output_directory.clone();
         let package_name = self.package_name.clone();
         let result = self.generate_constraints_helper(cs).map_err(|e| {
