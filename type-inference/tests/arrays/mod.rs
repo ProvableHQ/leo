@@ -42,3 +42,21 @@ fn test_invalid_spread() {
 
     check.expect_error();
 }
+
+#[test]
+fn test_index_implicit() {
+    let program_string = include_str!("index_implicit.leo");
+
+    let check = TestTypeInference::new(program_string);
+
+    check.check()
+}
+
+#[test]
+fn test_slice_implicit() {
+    let program_string = include_str!("slice_implicit.leo");
+
+    let check = TestTypeInference::new(program_string);
+
+    check.check();
+}

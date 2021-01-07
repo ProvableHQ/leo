@@ -799,6 +799,18 @@ impl Frame {
     }
 
     ///
+    /// Returns `Type::U32` if the given index has `Type::TypeVariable`.
+    /// Hard codes all implicitly typed indices to u32.
+    /// Ex: `arr[0]` => `arr[0u32]`
+    ///
+    fn parse_index(&mut self, index: &Expression) -> Result<Type, FrameError> {
+        Ok(match self.parse_expression(index)? {
+            Type::TypeVariable(_) => Type::IntegerType(IntegerType::U32),
+            type_ => type_,
+        })
+    }
+
+    ///
     /// Returns the type of the accessed array element.
     ///
     fn parse_array_access(&mut self, array_type: Type, index: &Expression, span: &Span) -> Result<Type, FrameError> {
@@ -809,7 +821,7 @@ impl Frame {
         };
 
         // Parse the expression type.
-        let type_ = self.parse_expression(index)?;
+        let type_ = self.parse_index(index)?;
 
         // Assert the type is an index.
         self.assert_index(&type_, span);
@@ -836,14 +848,14 @@ impl Frame {
 
         if let Some(expression) = left {
             // Parse the expression type.
-            let type_ = self.parse_expression(expression)?;
+            let type_ = self.parse_index(expression)?;
 
             self.assert_index(&type_, span);
         }
 
         if let Some(expression) = right {
             // Parse the expression type.
-            let type_ = self.parse_expression(expression)?;
+            let type_ = self.parse_index(expression)?;
 
             self.assert_index(&type_, span);
         }
