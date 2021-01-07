@@ -37,7 +37,7 @@ impl ImportParser {
     /// It is okay if the imported program is already present since importing multiple symbols from
     /// the same file is allowed.
     ///
-    pub(crate) fn insert_import(&mut self, file_name: String, program: Program) {
+    pub fn insert_import(&mut self, file_name: String, program: Program) {
         // Insert the imported program.
         let _program = self.imports.insert(file_name, program);
     }
@@ -49,7 +49,7 @@ impl ImportParser {
     ///
     /// If the vector did have this file_name present, a duplicate import error is thrown.
     ///
-    pub(crate) fn insert_core_package(&mut self, package: &Package) -> Result<(), ImportParserError> {
+    pub fn insert_core_package(&mut self, package: &Package) -> Result<(), ImportParserError> {
         // Check for duplicate core package name.
         if self.core_packages.contains(package) {
             return Err(ImportParserError::duplicate_core_package(package.name.clone()));

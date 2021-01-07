@@ -16,6 +16,8 @@
 
 use crate::TestSymbolTable;
 
+use leo_imports::ImportParser;
+
 ///
 /// Defines a circuit `Foo {}`.
 /// Attempts to define a second circuit `Foo {}`.
@@ -72,4 +74,20 @@ fn test_undefined_circuit() {
     let resolver = TestSymbolTable::new(program_string);
 
     resolver.expect_pass_two_error();
+}
+
+#[test]
+fn test_import_alias() {
+    let program_string = include_str!("import_alias.leo");
+    let import_string = include_str!("imports/bar.leo");
+
+    let program_table = TestSymbolTable::new(program_string);
+    let import_table = TestSymbolTable::new(import_string);
+
+    let import_program = import_table.ast.into_repr();
+
+    let mut imports = ImportParser::default();
+    imports.insert_import("bar".to_owned(), import_program);
+
+    program_table.expect_success(imports);
 }
