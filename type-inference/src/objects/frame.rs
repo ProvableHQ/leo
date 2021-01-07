@@ -426,8 +426,8 @@ impl Frame {
         let _expect_none = self.insert_variable(statement.variable.name.to_owned(), u32_type.clone(), &statement.span);
 
         // Parse `from` and `to` expressions.
-        let from_type = self.parse_expression(&statement.start)?;
-        let to_type = self.parse_expression(&statement.stop)?;
+        let from_type = self.parse_index(&statement.start)?;
+        let to_type = self.parse_index(&statement.stop)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
         self.assert_equal(u32_type.clone(), from_type, &statement.span);
