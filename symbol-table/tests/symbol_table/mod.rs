@@ -16,7 +16,9 @@
 
 use crate::TestSymbolTable;
 
+use leo_ast::Input;
 use leo_imports::ImportParser;
+use leo_symbol_table::{SymbolTable, SymbolTableError};
 
 ///
 /// Defines a circuit `Foo {}`.
@@ -76,9 +78,72 @@ fn test_undefined_circuit() {
     resolver.expect_pass_two_error();
 }
 
+///
+/// Imports an undefined function `boo` from file foo.leo.
+///
+/// Expected output: SymbolTableError
+/// Message: Cannot find imported symbol `boo` in imported file ``
+///
 #[test]
-fn test_import_alias() {
-    let program_string = include_str!("import_alias.leo");
+fn test_import_undefined() {
+    let program_string = include_str!("import_undefined.leo");
+    let import_string = include_str!("imports/foo.leo");
+
+    let program_table = TestSymbolTable::new(program_string);
+    let import_table = TestSymbolTable::new(import_string);
+
+    let import_program = import_table.ast.into_repr();
+
+    let mut imports = ImportParser::default();
+    imports.insert_import("foo".to_owned(), import_program);
+
+    // Create new symbol table.
+    let static_check = &mut SymbolTable::default();
+
+    // Run pass one and expect an error.
+    let error = static_check
+        .check_names(&program_table.ast.into_repr(), &imports, &Input::new())
+        .unwrap_err();
+
+    match error {
+        SymbolTableError::Error(_) => {} // Ok
+        error => panic!("Expected a symbol table error found `{}`", error),
+    }
+}
+
+///
+/// Imports all functions from file foo.leo.
+/// Calls function `foo` defined in foo.leo.
+///
+/// Expected output: Test Pass
+///
+#[test]
+fn test_import_star() {
+    let program_string = include_str!("import_star.leo");
+    let import_string = include_str!("imports/foo.leo");
+
+    let program_table = TestSymbolTable::new(program_string);
+    let import_table = TestSymbolTable::new(import_string);
+
+    let import_program = import_table.ast.into_repr();
+
+    let mut imports = ImportParser::default();
+    imports.insert_import("foo".to_owned(), import_program);
+
+    program_table.expect_success(imports);
+}
+
+///
+/// Imports a circuit named `Bar` from file bar.leo.
+/// Renames `Bar` => `Baz`.
+/// Defines a circuit named `Bar` in main.leo.
+/// Instantiates circuits `Bar` and `Baz`.
+///
+/// Expected output: Test Pass
+///
+#[test]
+fn test_import_circuit_alias() {
+    let program_string = include_str!("import_circuit_alias.leo");
     let import_string = include_str!("imports/bar.leo");
 
     let program_table = TestSymbolTable::new(program_string);
@@ -88,6 +153,30 @@ fn test_import_alias() {
 
     let mut imports = ImportParser::default();
     imports.insert_import("bar".to_owned(), import_program);
+
+    program_table.expect_success(imports);
+}
+
+///
+/// Imports a function named `foo` from file foo.leo.
+/// Renames `foo` => `boo`.
+/// Defines a function named `foo` in main.leo.
+/// Calls functions `foo` and `boo`.
+///
+/// Expected output: Test Pass
+///
+#[test]
+fn test_import_function_alias() {
+    let program_string = include_str!("import_function_alias.leo");
+    let import_string = include_str!("imports/foo.leo");
+
+    let program_table = TestSymbolTable::new(program_string);
+    let import_table = TestSymbolTable::new(import_string);
+
+    let import_program = import_table.ast.into_repr();
+
+    let mut imports = ImportParser::default();
+    imports.insert_import("foo".to_owned(), import_program);
 
     program_table.expect_success(imports);
 }
