@@ -52,12 +52,9 @@ impl TestSymbolTable {
     ///
     /// Expect no errors during parsing.
     ///
-    pub fn expect_success(self) {
+    pub fn expect_success(self, import_parser: ImportParser) {
         // Get program.
         let program = self.ast.into_repr();
-
-        // Create empty import parser.
-        let import_parser = ImportParser::default();
 
         // Create empty input.
         let input = Input::new();
@@ -82,7 +79,9 @@ impl TestSymbolTable {
         let import_parser = ImportParser::default();
 
         // Run pass one and expect an error.
-        let error = static_check.check_names(&program, &import_parser).unwrap_err();
+        let error = static_check
+            .check_names(&program, &import_parser, &Input::new())
+            .unwrap_err();
 
         match error {
             SymbolTableError::Error(_) => {} // Ok
@@ -106,7 +105,9 @@ impl TestSymbolTable {
         let import_parser = ImportParser::default();
 
         // Run the pass one and expect no errors.
-        static_check.check_names(&program, &import_parser).unwrap();
+        static_check
+            .check_names(&program, &import_parser, &Input::new())
+            .unwrap();
 
         // Run the pass two and expect and error.
         let error = static_check.check_types(&program).unwrap_err();

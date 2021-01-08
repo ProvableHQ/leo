@@ -92,7 +92,7 @@ impl SymbolTableError {
     pub fn unknown_symbol(symbol: &ImportSymbol, program: &Program) -> Self {
         let message = format!(
             "Cannot find imported symbol `{}` in imported file `{}`",
-            symbol, program.name
+            symbol.symbol, program.name
         );
 
         Self::new_from_span(message, symbol.span.to_owned())
