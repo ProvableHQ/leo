@@ -119,7 +119,7 @@ version = "0.3"
 version = "0.7"
 
 [dependencies.rand_core]
-version = "0.6.0"
+version = "0.6.1"
 
 [dependencies.reqwest]
 version = "0.10.10"

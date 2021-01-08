@@ -1383,7 +1383,7 @@ dependencies = [
  "notify",
  "num-bigint",
  "rand",
- "rand_core 0.6.0",
+ "rand_core 0.6.1",
  "reqwest",
  "rusty-hook",
  "self_update",
@@ -2089,9 +2089,9 @@ dependencies = [
 
 [[package]]
 name = "rand_core"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8b34ba8cfb21243bd8df91854c830ff0d785fff2e82ebd4434c2644cb9ada18"
+checksum = "c026d7df8b298d90ccbbc5190bd04d85e159eaf5576caeacf8741da93ccbd2e5"
 
 [[package]]
 name = "rand_hc"
