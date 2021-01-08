@@ -4,7 +4,7 @@
 assignee = { self_keyword_or_identifier ~ access_assignee* }
 
 // Declared in files/file.rs
-file = { SOI ~ NEWLINE* ~ definition* ~ NEWLINE* ~ EOI }
+file = { SOI ~ definition* ~ EOI }
 
 // Declared in definitions/definition.rs
 definition = {
@@ -16,7 +16,7 @@ definition = {
 }
 
 // Declared in definitions/annotated_definition.rs
-definition_annotated = { annotation ~ NEWLINE* ~ definition}
+definition_annotated = { annotation ~ definition}
 
 // Declared in common/identifier.rs
 identifier = @{ ((!protected_name ~ ASCII_ALPHA) | (protected_name ~ (ASCII_ALPHANUMERIC | "_"))) ~ (ASCII_ALPHANUMERIC | "_")* }
@@ -64,7 +64,7 @@ keyword_or_identifier = {
 }
 
 // Declared in common/line_end.rs
-LINE_END = { ";" ~ NEWLINE* }
+LINE_END = { ";" }
 
 // Declared in common/mutable.rs
 mutable = { "mut " }
@@ -230,7 +230,7 @@ dimension_single = {
 // Declared in types/array_dimensions.rs
 dimension_multiple = { "(" ~ number_positive ~ ("," ~ number_positive)* ~ ")"}
 
-type_tuple = { "(" ~ NEWLINE* ~ (type_ ~ ("," ~ NEWLINE* ~ type_)+ ~ ","?)? ~ NEWLINE* ~ ")" }
+type_tuple = { "(" ~ (type_ ~ ("," ~ type_)+ ~ ","?)? ~ ")" }
 
 /// Values
 
@@ -317,7 +317,7 @@ access_static_member = ${ "::" ~ identifier }
 /// Circuits
 
 // Declared in circuits/circuit_definition.rs
-circuit = { "circuit " ~ identifier ~ "{" ~ NEWLINE* ~ circuit_member* ~ NEWLINE* ~ "}" ~ NEWLINE* }
+circuit = { "circuit " ~ identifier ~ "{" ~ circuit_member* ~ "}" }
 
 // Declared in circuits/circuit_variable.rs
 circuit_variable = { identifier ~ ":" ~ expression }
@@ -326,7 +326,7 @@ circuit_variable = { identifier ~ ":" ~ expression }
 circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
 // Declared in circuits/circuit_member.rs
-circuit_member = { function | circuit_variable_definition ~ NEWLINE*}
+circuit_member = { function | circuit_variable_definition}
 
 /// Conditionals
 
@@ -358,11 +358,11 @@ expression_tuple = { "(" ~ (expression ~ ("," ~ expression)+)? ~ ")" }
 expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]" }
 
 // Declared in expressions/array_inline_expression.rs
-expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
-inline_array_inner = _{(spread_or_expression ~ ("," ~ NEWLINE* ~ spread_or_expression)*)?}
+expression_array_inline = { "[" ~ inline_array_inner ~ "]"}
+inline_array_inner = _{(spread_or_expression ~ ("," ~ spread_or_expression)*)?}
 
 // Declared in expressions/circuit_inline_expression.rs
-expression_circuit_inline = { circuit_name ~ "{" ~ NEWLINE* ~ circuit_variable_list ~ NEWLINE* ~ "}" }
+expression_circuit_inline = { circuit_name ~ "{" ~ circuit_variable_list ~ "}" }
 
 // Declared in expressions/circuit_inline_expression.rs
 circuit_name = {
@@ -371,7 +371,7 @@ circuit_name = {
 }
 
 // Declared in expressions/circuit_inline_expression.rs
-circuit_variable_list = _{ (circuit_variable ~ ("," ~ NEWLINE* ~ circuit_variable)*)? ~ ","? }
+circuit_variable_list = _{ (circuit_variable ~ ("," ~ circuit_variable)*)? ~ ","? }
 
 // Declared in expressions/unary_expression.rs
 expression_unary = { operation_unary ~ expression_term }
@@ -391,14 +391,14 @@ statement = {
     | statement_assign
     | statement_expression
     | block
-    ) ~ NEWLINE*
+    )
 }
 
 
 // Declared in statements/assign_statement.rs
 statement_assign = { assignee ~ operation_assign ~ expression ~ LINE_END }
 
-block = { "{" ~ NEWLINE* ~ statement* ~ NEWLINE* ~ "}" }
+block = { "{" ~ statement* ~ "}" }
 
 // Declared in statements/conditional_statement.rs
 statement_conditional = {"if " ~ expression ~ block ~ ("else " ~ conditional_nested_or_end_statement)?}
@@ -422,7 +422,7 @@ statement_return = { "return " ~ expression}
 test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
-function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block ~ NEWLINE* }
+function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block }
 
 // Declared in functions/input/function_input.rs
 function_input = { mutable? ~ identifier ~ ":" ~ type_ }
@@ -437,7 +437,7 @@ input = {
     | mut_self_keyword
     | function_input
 }
-input_tuple = _{ "(" ~ NEWLINE* ~ (input ~ ("," ~ NEWLINE* ~ input)* ~ ","?)? ~ NEWLINE* ~ ")"}
+input_tuple = _{ "(" ~ (input ~ ("," ~ input)* ~ ","?)? ~ ")"}
 
 
 /// Imports
@@ -459,7 +459,7 @@ package_access = {
     | import_symbol
 }
 
-multiple_package_access = _{ "(" ~ NEWLINE* ~ package_access ~ ("," ~ NEWLINE* ~ package_access)* ~ ","? ~ NEWLINE* ~ ")"}
+multiple_package_access = _{ "(" ~ package_access ~ ("," ~ package_access)* ~ ","? ~ ")"}
 
 // Declared in imports/star.rs
 star = {"*"}
@@ -470,7 +470,7 @@ import_symbol = { identifier ~ ("as " ~ identifier)? }
 /// Utilities
 
 COMMENT = _{ ("/*" ~ (!"*/" ~ ANY)* ~ "*/") | ("//" ~ (!NEWLINE ~ ANY)*) }
-WHITESPACE = _{ " " | "\t" ~ (NEWLINE)* } // pest implicit whitespace keyword
+WHITESPACE = _{ (" " | "\t" | NEWLINE) ~ (NEWLINE)* } // pest implicit whitespace keyword
 
 /// Console Functions
 
@@ -528,6 +528,6 @@ annotation_name = {
 context = {"context"}
 
 // Declared in annotations/annotation_argument.rs
-annotation_arguments = !{"(" ~ NEWLINE* ~ annotation_argument ~ ("," ~ NEWLINE* ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
+annotation_arguments = !{"(" ~ annotation_argument ~ ("," ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
 
 annotation_argument = @{ (ASCII_ALPHANUMERIC | "_")+ }
