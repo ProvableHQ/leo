@@ -17,44 +17,17 @@
 use crate::TestTypeInference;
 
 #[test]
-fn test_empty_array() {
-    let program_string = include_str!("empty_array.leo");
+fn test_loop_implicit() {
+    let program_string = include_str!("loop_implicit.leo");
 
     let check = TestTypeInference::new(program_string);
 
-    check.expect_error();
+    check.check();
 }
 
 #[test]
-fn test_invalid_array_access() {
-    let program_string = include_str!("invalid_array_access.leo");
-
-    let check = TestTypeInference::new(program_string);
-
-    check.expect_error();
-}
-
-#[test]
-fn test_invalid_spread() {
-    let program_string = include_str!("invalid_spread.leo");
-
-    let check = TestTypeInference::new(program_string);
-
-    check.expect_error();
-}
-
-#[test]
-fn test_index_implicit() {
-    let program_string = include_str!("index_implicit.leo");
-
-    let check = TestTypeInference::new(program_string);
-
-    check.check()
-}
-
-#[test]
-fn test_slice_implicit() {
-    let program_string = include_str!("slice_implicit.leo");
+fn test_array_loop_implicit() {
+    let program_string = include_str!("array_loop_implicit.leo");
 
     let check = TestTypeInference::new(program_string);
 

@@ -17,6 +17,7 @@
 pub mod arrays;
 pub mod circuits;
 pub mod functions;
+pub mod statements;
 pub mod tuples;
 pub mod variables;
 

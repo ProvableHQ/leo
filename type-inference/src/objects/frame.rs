@@ -426,8 +426,8 @@ impl Frame {
         let _expect_none = self.insert_variable(statement.variable.name.to_owned(), u32_type.clone(), &statement.span);
 
         // Parse `from` and `to` expressions.
-        let from_type = self.parse_expression(&statement.start)?;
-        let to_type = self.parse_expression(&statement.stop)?;
+        let from_type = self.parse_index(&statement.start)?;
+        let to_type = self.parse_index(&statement.stop)?;
 
         // Assert `from` and `to` types are a u32 or implicit.
         self.assert_equal(u32_type.clone(), from_type, &statement.span);
@@ -799,6 +799,18 @@ impl Frame {
     }
 
     ///
+    /// Returns `Type::U32` if the given index has `Type::TypeVariable`.
+    /// Hard codes all implicitly typed indices to u32.
+    /// Ex: `arr[0]` => `arr[0u32]`
+    ///
+    fn parse_index(&mut self, index: &Expression) -> Result<Type, FrameError> {
+        Ok(match self.parse_expression(index)? {
+            Type::TypeVariable(_) => Type::IntegerType(IntegerType::U32),
+            type_ => type_,
+        })
+    }
+
+    ///
     /// Returns the type of the accessed array element.
     ///
     fn parse_array_access(&mut self, array_type: Type, index: &Expression, span: &Span) -> Result<Type, FrameError> {
@@ -809,7 +821,7 @@ impl Frame {
         };
 
         // Parse the expression type.
-        let type_ = self.parse_expression(index)?;
+        let type_ = self.parse_index(index)?;
 
         // Assert the type is an index.
         self.assert_index(&type_, span);
@@ -836,14 +848,14 @@ impl Frame {
 
         if let Some(expression) = left {
             // Parse the expression type.
-            let type_ = self.parse_expression(expression)?;
+            let type_ = self.parse_index(expression)?;
 
             self.assert_index(&type_, span);
         }
 
         if let Some(expression) = right {
             // Parse the expression type.
-            let type_ = self.parse_expression(expression)?;
+            let type_ = self.parse_index(expression)?;
 
             self.assert_index(&type_, span);
         }
