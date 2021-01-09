@@ -69,9 +69,9 @@
           }
         },
         "span": {
-          "input": "function main() {\n    return 1 + 1\n}\n",
+          "input": "function main() {\n    return 1 + 1\n}",
           "start": 0,
-          "end": 37
+          "end": 36
         }
       }
     }
