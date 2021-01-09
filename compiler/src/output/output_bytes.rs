@@ -51,7 +51,7 @@ impl OutputBytes {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers(span));
+            return Err(OutputBytesError::not_enough_registers(span.clone()));
         }
 
         // Manually construct result string
@@ -63,10 +63,22 @@ impl OutputBytes {
         // format: "token_id: u64 = 1u64;"
         for (parameter, value) in register_values.into_iter().zip(return_values.into_iter()) {
             let name = parameter.variable.name;
-            let type_ = parameter.type_;
+
+            // Check register type == return value type.
+            let register_type = parameter.type_;
+            let return_value_type = value.to_type(&span)?;
+
+            if register_type != return_value_type {
+                return Err(OutputBytesError::mismatched_output_types(
+                    register_type,
+                    return_value_type,
+                    span,
+                ));
+            }
+
             let value = value.to_string();
 
-            let format = format!("{}: {} = {};\n", name, type_, value,);
+            let format = format!("{}: {} = {};\n", name, register_type, value,);
 
             string.push_str(&format);
         }
