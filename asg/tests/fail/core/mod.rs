@@ -14,46 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod packages;
-
-use crate::{assert_satisfied, expect_symbol_table_error, parse_program};
+use crate::load_asg;
 
 #[test]
 fn test_core_circuit_invalid() {
     let program_string = include_str!("core_package_invalid.leo");
-    let error = parse_program(program_string).err().unwrap();
-
-    expect_symbol_table_error(error);
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_core_circuit_star_fail() {
     let program_string = include_str!("core_circuit_star_fail.leo");
-    let error = parse_program(program_string).err().unwrap();
-
-    expect_symbol_table_error(error);
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_core_package_invalid() {
     let program_string = include_str!("core_package_invalid.leo");
-    let error = parse_program(program_string).err().unwrap();
-
-    expect_symbol_table_error(error);
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_core_unstable_package_invalid() {
     let program_string = include_str!("core_unstable_package_invalid.leo");
-    let error = parse_program(program_string).err().unwrap();
-
-    expect_symbol_table_error(error);
-}
-
-#[test]
-fn test_unstable_blake2s_sanity() {
-    let program_string = include_str!("unstable_blake2s.leo");
-    let program = parse_program(program_string).unwrap();
-
-    assert_satisfied(program);
+    load_asg(program_string).err().unwrap();
 }

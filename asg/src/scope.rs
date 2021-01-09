@@ -1,5 +1,5 @@
 use std::sync::{ Arc };
-use crate::{ Variable, Circuit, Function, Type, AsgConvertError };
+use crate::{ Variable, Circuit, Function, Type, AsgConvertError, Input };
 use std::cell::RefCell;
 use indexmap::IndexMap;
 use uuid::Uuid;
@@ -12,6 +12,7 @@ pub struct InnerScope {
     pub variables: IndexMap<String, Variable>,
     pub functions: IndexMap<String, Arc<Function>>,
     pub circuits: IndexMap<String, Arc<Circuit>>,
+    pub input: Option<Input>,
 }
 
 pub type Scope = Arc<RefCell<InnerScope>>;
@@ -37,6 +38,20 @@ impl InnerScope {
         } else if let Some(resolved) = self.parent_scope.as_ref() {
             if let Some(resolved) = resolved.borrow().resolve_current_function() {
                 Some(resolved)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn resolve_input(&self) -> Option<Input> {
+        if let Some(input) = self.input.as_ref() {
+            Some(input.clone())
+        } else if let Some(resolved) = self.parent_scope.as_ref() {
+            if let Some(resolved) = resolved.borrow().resolve_input() {
+                Some(resolved.clone())
             } else {
                 None
             }
@@ -98,6 +113,7 @@ impl InnerScope {
             functions: IndexMap::new(),
             circuits: IndexMap::new(),
             function: None,
+            input: None,
         }))
     }
 

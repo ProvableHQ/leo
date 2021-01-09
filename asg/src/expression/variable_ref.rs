@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Variable, Node, Type, PartialType, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Variable, Node, Type, PartialType, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, Constant };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -31,6 +31,10 @@ impl ExpressionNode for VariableRef {
         Some(self.variable.borrow().type_.clone())
     }
 
+    fn is_mut_ref(&self) -> bool {
+        self.variable.borrow().mutable
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         self.variable.borrow().const_value.clone()
     }
@@ -38,7 +42,35 @@ impl ExpressionNode for VariableRef {
 
 impl FromAst<leo_ast::Identifier> for Arc<Expression> {
     fn from_ast(scope: &Scope, value: &leo_ast::Identifier, expected_type: Option<PartialType>) -> Result<Arc<Expression>, AsgConvertError> {
-        let variable = scope.borrow().resolve_variable(&value.name).ok_or_else(|| AsgConvertError::unresolved_reference(&value.name, &value.span))?;
+        let variable = if value.name == "input" {
+            if let Some(function) = scope.borrow().resolve_current_function() {
+                if !function.has_input {
+                    return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
+                }
+            } else {
+                return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
+            }
+            if let Some(input) = scope.borrow().resolve_input() {
+                input.container
+            } else {
+                return Err(AsgConvertError::InternalError("attempted to reference input when none is in scope".to_string()))
+            }
+        } else {
+            match scope.borrow().resolve_variable(&value.name) {
+                Some(v) => v,
+                None => {
+                    if value.name.starts_with("aleo1") {
+                        return Ok(Arc::new(Expression::Constant(Constant {
+                            parent: RefCell::new(None),
+                            span: Some(value.span.clone()),
+                            value: ConstValue::Address(value.name.clone()),
+                        })));
+                    }
+                    return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
+                }
+            }
+        };
+
         let variable_ref = VariableRef {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),

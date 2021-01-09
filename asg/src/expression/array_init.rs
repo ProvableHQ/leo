@@ -33,6 +33,10 @@ impl ExpressionNode for ArrayInitExpression {
         Some(Type::Array(Box::new(self.element.get_type()?), self.len))
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         // not implemented due to performance concerns
         None

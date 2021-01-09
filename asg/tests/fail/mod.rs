@@ -19,13 +19,12 @@ pub mod array;
 pub mod boolean;
 pub mod circuits;
 pub mod console;
-// pub mod core;
+pub mod core;
 pub mod definition;
 pub mod field;
 pub mod function;
-pub mod group;
+// pub mod group; // we dont do context-specific type checking for groups
 pub mod import;
-// pub mod input_files;
 pub mod integers;
 pub mod mutability;
 pub mod statements;

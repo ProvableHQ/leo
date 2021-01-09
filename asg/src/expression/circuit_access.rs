@@ -45,6 +45,14 @@ impl ExpressionNode for CircuitAccessExpression {
         }
     }
 
+    fn is_mut_ref(&self) -> bool {
+        if let Some(target) = self.target.as_ref() {
+            target.is_mut_ref()
+        } else {
+            false
+        }
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         None
     }
@@ -58,14 +66,36 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
             x => return Err(AsgConvertError::unexpected_type("circuit", x.map(|x| x.to_string()).as_deref(), &value.span)),
         };
 
-        if let Some(member) = circuit.members.borrow().get(&value.name.name) {
-            if let Some(expected_type) = expected_type {
-                if let CircuitMember::Variable(type_) = &member {
-                    let type_: Type = type_.clone().into();
-                    if !expected_type.matches(&type_) {
-                        return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&type_.to_string()), &value.span));
-                    }
-                } // used by call expression
+        
+        // scoping refcell reference
+        let found_member = {
+            if let Some(member) = circuit.members.borrow().get(&value.name.name) {
+                if let Some(expected_type) = &expected_type {
+                    if let CircuitMember::Variable(type_) = &member {
+                        let type_: Type = type_.clone().into();
+                        if !expected_type.matches(&type_) {
+                            return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&type_.to_string()), &value.span));
+                        }
+                    } // used by call expression
+                }
+                true
+            } else {
+                false
+            }
+        };
+
+        if found_member {
+            // skip
+        } else if circuit.is_input_psuedo_circuit() { // add new member to implicit input
+            if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
+                circuit.members.borrow_mut().insert(
+                    value.name.name.clone(),
+                    CircuitMember::Variable(
+                        expected_type.into()
+                    )
+                );
+            } else {
+                return Err(AsgConvertError::input_ref_needs_type(&circuit.name.name, &value.name.name, &value.span));
             }
         } else {
             return Err(AsgConvertError::unresolved_circuit_member(&circuit.name.name, &value.name.name, &value.span));

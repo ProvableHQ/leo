@@ -39,6 +39,10 @@ impl ExpressionNode for BinaryExpression {
         }
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         use BinaryOperation::*;
         let left = self.left.const_value()?;
@@ -61,17 +65,17 @@ impl ExpressionNode for BinaryExpression {
                     _ => return None,
                 })
             },
-            (ConstValue::Field(left), ConstValue::Field(right)) => {
-                Some(match self.operation {
-                    Add => ConstValue::Field(left.checked_add(&right)?),
-                    Sub => ConstValue::Field(left.checked_sub(&right)?),
-                    Mul => ConstValue::Field(left.checked_mul(&right)?),
-                    Div => ConstValue::Field(left.checked_div(&right)?),
-                    Eq => ConstValue::Boolean(left == right),
-                    Ne => ConstValue::Boolean(left != right),
-                    _ => return None,
-                })
-            },
+            // (ConstValue::Field(left), ConstValue::Field(right)) => {
+            //     Some(match self.operation {
+            //         Add => ConstValue::Field(left.checked_add(&right)?),
+            //         Sub => ConstValue::Field(left.checked_sub(&right)?),
+            //         Mul => ConstValue::Field(left.checked_mul(&right)?),
+            //         Div => ConstValue::Field(left.checked_div(&right)?),
+            //         Eq => ConstValue::Boolean(left == right),
+            //         Ne => ConstValue::Boolean(left != right),
+            //         _ => return None,
+            //     })
+            // },
             (ConstValue::Boolean(left), ConstValue::Boolean(right)) => {
                 Some(match self.operation {
                     Eq => ConstValue::Boolean(left == right),
@@ -110,9 +114,33 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                     None => None,
                 }
             },
+        }.map(Type::partial);
+
+        // left
+        let (left, right) = match Arc::<Expression>::from_ast(scope, &*value.left, expected_type.clone()) {
+            Ok(left) => {
+                if let Some(left_type) = left.get_type() {
+                    let right = Arc::<Expression>::from_ast(scope, &*value.right, Some(left_type.partial()))?;
+                    (left, right)
+                } else {
+                    let right = Arc::<Expression>::from_ast(scope, &*value.right, expected_type.clone())?;
+                    if let Some(right_type) = right.get_type() {
+                        (Arc::<Expression>::from_ast(scope, &*value.left, Some(right_type.partial()))?, right)
+                    } else {
+                        (left, right)
+                    }
+                }
+            },
+            Err(e) => {
+                let right = Arc::<Expression>::from_ast(scope, &*value.right, expected_type.clone())?;
+                if let Some(right_type) = right.get_type() {
+                    (Arc::<Expression>::from_ast(scope, &*value.left, Some(right_type.partial()))?, right)
+                } else {
+                    return Err(e);
+                }
+            }
         };
-        //todo: would be nice to have bidirectional type drilldown here
-        let left = Arc::<Expression>::from_ast(scope, &*value.left, expected_type.map(Type::partial))?;
+
         let left_type = left.get_type();
         match class {
             BinaryOperationClass::Numeric => match left_type {
@@ -137,7 +165,6 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                 }
         }
 
-        let right = Arc::<Expression>::from_ast(scope, &*value.right, left_type.clone().map(Type::partial))?;
         let right_type = right.get_type();
 
         match (left_type, right_type) {

@@ -36,6 +36,10 @@ impl ExpressionNode for ConditionalExpression {
         self.if_true.get_type()
     }
 
+    fn is_mut_ref(&self) -> bool {
+        self.if_true.is_mut_ref() && self.if_false.is_mut_ref()
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         if let Some(ConstValue::Boolean(switch)) = self.condition.const_value() {
             if switch {

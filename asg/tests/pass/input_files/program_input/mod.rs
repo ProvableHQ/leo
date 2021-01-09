@@ -14,52 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, parse_program_with_input, EdwardsTestCompiler};
-use leo_compiler::errors::CompilerError;
-
-fn expect_fail(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(_) => {}
-        err => panic!("expected input parser error, got {:?}", err),
-    }
-}
+use crate::{load_asg};
 
 #[test]
 fn test_input_pass() {
     let program_string = include_str!("main.leo");
-    let input_string = include_str!("input/main.in");
-
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-
-    assert_satisfied(program);
-}
-
-#[test]
-fn test_input_fail_name() {
-    let program_string = include_str!("main.leo");
-    let input_string = include_str!("input/main_fail_name.in");
-
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-
-    expect_fail(program);
-}
-
-#[test]
-fn test_input_fail_type() {
-    let program_string = include_str!("main.leo");
-    let input_string = include_str!("input/main_fail_type.in");
-
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-
-    expect_fail(program);
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_input_multiple() {
     let program_string = include_str!("main_multiple.leo");
-    let input_string = include_str!("input/main_multiple.in");
-
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-
-    assert_satisfied(program);
+    load_asg(program_string).unwrap();
 }

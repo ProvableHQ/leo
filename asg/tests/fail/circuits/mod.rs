@@ -51,6 +51,23 @@ fn test_member_function_invalid() {
 }
 
 #[test]
+fn test_mut_member_function_fail() {
+    let program_string = r#"
+        circuit Foo {
+            function echo(mut self, x: u32) -> u32 {
+                return x
+            }
+        }
+        
+        function main() {
+            let a = Foo { };
+        
+            console.assert(a.echo(1u32) == 1u32);
+        }"#;
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
 fn test_member_static_function_invalid() {
     let program_string = include_str!("member_static_function_invalid.leo");
     load_asg(program_string).err().unwrap();

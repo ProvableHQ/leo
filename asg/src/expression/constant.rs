@@ -30,6 +30,10 @@ impl ExpressionNode for Constant {
         self.value.get_type()
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         Some(self.value.clone())
     }

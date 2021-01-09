@@ -48,6 +48,10 @@ impl ExpressionNode for ArrayInlineExpression {
         Some(Type::Array(Box::new(self.elements.first()?.0.get_type()?), self.len()))
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         let mut const_values = vec![];
         for (expr, spread) in self.elements.iter() {

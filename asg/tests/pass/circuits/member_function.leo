@@ -1,5 +1,5 @@
 circuit Foo {
-    function echo(x: u32) -> u32 {
+    function echo(self, x: u32) -> u32 {
         return x
     }
 }

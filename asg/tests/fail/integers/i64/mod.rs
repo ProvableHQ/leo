@@ -30,7 +30,7 @@ fn test_i64_max_fail() {
     TestI64::test_max_fail();
 }
 
-#[test]
-fn test_i64_neg_max_fail() {
-    TestI64::test_negate_min_fail();
-}
+// #[test]
+// fn test_i64_neg_max_fail() {
+//     TestI64::test_negate_min_fail();
+// }

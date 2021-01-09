@@ -81,6 +81,7 @@ pub trait ExpressionNode: Node {
     fn enforce_parents(&self, expr: &Arc<Expression>);
 
     fn get_type(&self) -> Option<Type>;
+    fn is_mut_ref(&self) -> bool;
     fn const_value(&self) -> Option<ConstValue>; // todo: memoize
 }
 
@@ -162,6 +163,26 @@ impl ExpressionNode for Expression {
             CircuitInit(x) => x.get_type(),
             CircuitAccess(x) => x.get_type(),
             Call(x) => x.get_type(),
+        }
+    }
+
+    fn is_mut_ref(&self) -> bool {
+        use Expression::*;
+        match self {
+            VariableRef(x) => x.is_mut_ref(),
+            Constant(x) => x.is_mut_ref(),
+            Binary(x) => x.is_mut_ref(),
+            Unary(x) => x.is_mut_ref(),
+            Conditional(x) => x.is_mut_ref(),
+            ArrayInline(x) => x.is_mut_ref(),
+            ArrayInit(x) => x.is_mut_ref(),
+            ArrayAccess(x) => x.is_mut_ref(),
+            ArrayRangeAccess(x) => x.is_mut_ref(),
+            TupleInit(x) => x.is_mut_ref(),
+            TupleAccess(x) => x.is_mut_ref(),
+            CircuitInit(x) => x.is_mut_ref(),
+            CircuitAccess(x) => x.is_mut_ref(),
+            Call(x) => x.is_mut_ref(),
         }
     }
 

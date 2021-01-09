@@ -42,6 +42,18 @@ impl AsgConvertError {
         Self::new_from_span(format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name), span)
     }
 
+    pub fn circuit_static_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("cannot call static function '{}' of circuit '{}' from target", name, circuit_name), span)
+    }
+
+    pub fn circuit_member_mut_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("cannot call mutable member function '{}' of circuit '{}' from immutable context", name, circuit_name), span)
+    }
+
+    pub fn circuit_member_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("cannot call member function '{}' of circuit '{}' from static context", name, circuit_name), span)
+    }
+
     pub fn circuit_function_ref(circuit_name: &str, name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("cannot reference function member '{}' of circuit '{}' as value", name, circuit_name), span)
     }
@@ -89,6 +101,18 @@ impl AsgConvertError {
 
     pub fn immutable_assignment(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("illegal assignment to immutable variable '{}'", name), span)
+    }
+
+    pub fn function_missing_return(name: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("function '{}' missing return for all paths", name), span)
+    }
+
+    pub fn function_return_validation(name: &str, description: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("function '{}' failed to validate return path: '{}'", name, description), span)
+    }
+
+    pub fn input_ref_needs_type(category: &str, name: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("could not infer type for input in '{}': '{}'", category, name), span)
     }
 
     pub fn invalid_self_in_global(span: &Span) -> Self {

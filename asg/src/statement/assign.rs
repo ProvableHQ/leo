@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, Variable, Identifier, FromAst, Scope, AsgConvertError, Type, Node, PartialType, CircuitMember, IntegerType };
+use crate::{ Statement, Expression, Variable, Identifier, FromAst, Scope, AsgConvertError, Type, PartialType, CircuitMember, IntegerType, ExpressionNode, ConstValue, ConstInt, Node };
 use std::sync::{ Weak, Arc };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
@@ -20,28 +20,67 @@ pub struct AssignStatement {
     pub value: Arc<Expression>,
 }
 
-impl FromAst<leo_ast::AssignStatement> for AssignStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::AssignStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
-        let variable = scope.borrow().resolve_variable(&statement.assignee.identifier.name).ok_or_else(|| AsgConvertError::unresolved_reference(&statement.assignee.identifier.name, &statement.assignee.identifier.span))?;
+impl Node for AssignStatement {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+}
+
+impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::AssignStatement, _expected_type: Option<PartialType>) -> Result<Arc<Statement>, AsgConvertError> {
+        let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
+
+        let variable = if name == "input" {
+            if let Some(function) = scope.borrow().resolve_current_function() {
+                if !function.has_input {
+                    return Err(AsgConvertError::unresolved_reference(name, span));
+                }
+            } else {
+                return Err(AsgConvertError::unresolved_reference(name, span));
+            }
+            if let Some(input) = scope.borrow().resolve_input() {
+                input.container
+            } else {
+                return Err(AsgConvertError::InternalError("attempted to reference input when none is in scope".to_string()))
+            }
+        } else {
+            scope.borrow().resolve_variable(&name).ok_or_else(|| AsgConvertError::unresolved_reference(name, span))?
+        };
         
         if !variable.borrow().mutable {
-            return Err(AsgConvertError::immutable_assignment(&statement.assignee.identifier.name, &statement.span));
+            return Err(AsgConvertError::immutable_assignment(&name, &statement.span));
         }
-        let mut target_type = variable.borrow().type_.clone();
+        let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
 
         let mut target_accesses = vec![];
         for access in statement.assignee.accesses.iter() {
             target_accesses.push(match access {
                 AstAssigneeAccess::ArrayRange(left, right) => {
-                    match &target_type {
-                        Type::Array(_item, _) => {
-                            //target_type doesnt change here
-                        },
-                        _ => return Err(AsgConvertError::index_into_non_array(&statement.assignee.identifier.name, &statement.span)),
-                    }
                     let index_type = Some(Type::Integer(IntegerType::U32).into());
                     let left = left.as_ref().map(|left: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, left, index_type.clone())?) }).transpose()?;
                     let right = right.as_ref().map(|right: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, right, index_type)?) }).transpose()?;
+
+                    match &target_type {
+                        Some(PartialType::Array(item, len)) => {
+                            if let (Some(left), Some(right)) = (
+                                left.as_ref().map(|x| x.const_value()).unwrap_or_else(|| Some(ConstValue::Int(ConstInt::U32(0)))),
+                                right.as_ref().map(|x| x.const_value()).unwrap_or_else(|| Some(ConstValue::Int(ConstInt::U32(len.map(|x| x as u32)?)))),
+                            ) {
+                                let left = match left {
+                                    ConstValue::Int(ConstInt::U32(x)) => x,
+                                    _ => unimplemented!(),
+                                };
+                                let right = match right {
+                                    ConstValue::Int(ConstInt::U32(x)) => x,
+                                    _ => unimplemented!(),
+                                };
+                                if right > left {
+                                    target_type = Some(PartialType::Array(item.clone(), Some((right - left) as usize)))
+                                }
+                            }
+                        },
+                        _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
+                    }
                     
                     AssignAccess::ArrayRange(
                         left,
@@ -50,10 +89,10 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                 },
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
-                        Type::Array(item, _) => {
-                            *item
+                        Some(PartialType::Array(item, _)) => {
+                            item.map(|x| *x)
                         },
-                        _ => return Err(AsgConvertError::index_into_non_array(&statement.assignee.identifier.name, &statement.span)),
+                        _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
                     };
                     AssignAccess::ArrayIndex(
                         Arc::<Expression>::from_ast(scope, index, Some(Type::Integer(IntegerType::U32).into()))?
@@ -62,16 +101,16 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                 AstAssigneeAccess::Tuple(index, _) => {
                     let index = index.value.parse::<usize>().map_err(|_| AsgConvertError::parse_index_error())?;
                     target_type = match target_type {
-                        Type::Tuple(types) => {
+                        Some(PartialType::Tuple(types)) => {
                             types.get(index).cloned().ok_or_else(|| AsgConvertError::tuple_index_out_of_bounds(index, &statement.span))?
                         },
-                        _ => return Err(AsgConvertError::index_into_non_tuple(&statement.assignee.identifier.name, &statement.span)),
+                        _ => return Err(AsgConvertError::index_into_non_tuple(&name, &statement.span)),
                     };
                     AssignAccess::Tuple(index)
                 },
                 AstAssigneeAccess::Member(name) => {
                     target_type = match target_type {
-                        Type::Circuit(circuit) => {
+                        Some(PartialType::Type(Type::Circuit(circuit))) => {
                             let circuit = circuit;
 
                             let members = circuit.members.borrow();
@@ -81,7 +120,7 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => return Err(AsgConvertError::illegal_function_assign(&name.name, &statement.span)),
                             };
-                            x.into()
+                            Some(x.strong().partial())
                         },
                         _ => return Err(AsgConvertError::index_into_non_tuple(&statement.assignee.identifier.name, &statement.span)),
                     };
@@ -90,16 +129,23 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                 
             });
         }
-        let value = Arc::<Expression>::from_ast(scope, &statement.value, Some(target_type.into()))?;
+        let value = Arc::<Expression>::from_ast(scope, &statement.value, target_type)?;
 
-        Ok(AssignStatement {
+        let statement = Arc::new(Statement::Assign(AssignStatement {
             parent: None,
             span: Some(statement.span.clone()),
             operation: statement.operation.clone(),
-            target_variable: variable,
+            target_variable: variable.clone(),
             target_accesses,
             value,
-        })
+        }));
+
+        {
+            let mut variable = variable.borrow_mut();
+            variable.assignments.push(Arc::downgrade(&statement));
+        }
+
+        Ok(statement)
     }
 }
 

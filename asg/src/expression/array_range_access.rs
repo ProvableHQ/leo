@@ -60,6 +60,10 @@ impl ExpressionNode for ArrayRangeAccessExpression {
         Some(Type::Array(element, (const_right - const_left) as usize))
     }
 
+    fn is_mut_ref(&self) -> bool {
+        self.array.is_mut_ref()
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         let mut array = match self.array.const_value()? {
             ConstValue::Array(values) => values,
@@ -86,7 +90,7 @@ impl ExpressionNode for ArrayRangeAccessExpression {
 impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression {
     fn from_ast(scope: &Scope, value: &leo_ast::ArrayRangeAccessExpression, expected_type: Option<PartialType>) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
         let expected_array = match expected_type {
-            Some(PartialType::Array(element, len)) => {
+            Some(PartialType::Array(element, _len)) => {
                 Some(PartialType::Array(element, None))
             },
             None => None,

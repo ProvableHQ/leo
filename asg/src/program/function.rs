@@ -1,4 +1,4 @@
-use crate::{ Identifier, Type, WeakType, Statement, Span, AsgConvertError, BlockStatement, FromAst, Scope, InnerScope, Circuit, Variable };
+use crate::{ Identifier, Type, WeakType, Statement, Span, AsgConvertError, BlockStatement, FromAst, Scope, InnerScope, Circuit, Variable, ReturnPathReducer, MonoidalDirector };
 
 use std::sync::{ Arc, Weak };
 use std::cell::RefCell;
@@ -14,6 +14,7 @@ pub enum FunctionQualifier {
 pub struct Function {
     pub name: Identifier,
     pub output: WeakType,
+    pub has_input: bool,
     pub argument_types: Vec<WeakType>,
     pub circuit: RefCell<Option<Weak<Circuit>>>,
     pub body: RefCell<Weak<FunctionBody>>,
@@ -33,13 +34,14 @@ impl Function {
         let output: Type = value.output.as_ref().map(|t| scope.borrow().resolve_ast_type(t)).transpose()?
             .unwrap_or_else(|| Type::Tuple(vec![]));
         let mut qualifier = FunctionQualifier::Static;
+        let mut has_input = false;
 
         let mut argument_types = vec![];
         {
             for input in value.input.iter() {
                 match input {
                     FunctionInput::InputKeyword(_) => {
-                        //todo
+                        has_input = true;
                     },
                     FunctionInput::SelfKeyword(_) => {
                         qualifier = FunctionQualifier::SelfRef;
@@ -59,6 +61,7 @@ impl Function {
         Ok(Function {
             name: value.identifier.clone(),
             output: output.into(),
+            has_input,
             argument_types,
             circuit: RefCell::new(None),
             body: RefCell::new(Weak::new()),
@@ -84,18 +87,17 @@ impl FunctionBody {
                     declaration: crate::VariableDeclaration::Parameter,
                     const_value: None,
                     references: vec![],
+                    assignments: vec![],
                 }));
                 scope_borrow.variables.insert("self".to_string(), self_variable.clone());
             }
             scope_borrow.function = Some(function.clone());
             for input in value.input.iter() {
                 match input {
-                    FunctionInput::InputKeyword(_) => {
-                        //todo
-                    },
+                    FunctionInput::InputKeyword(_) => {},
                     FunctionInput::SelfKeyword(_) => {},
                     FunctionInput::MutSelfKeyword(_) => {},
-                    FunctionInput::Variable(leo_ast::FunctionInputVariable { identifier, mutable, type_, span }) => {
+                    FunctionInput::Variable(leo_ast::FunctionInputVariable { identifier, mutable, type_, span: _span }) => {
                         let variable = Arc::new(RefCell::new(crate::InnerVariable {
                             name: identifier.clone(),
                             type_: scope_borrow.resolve_ast_type(&type_)?,
@@ -103,6 +105,7 @@ impl FunctionBody {
                             declaration: crate::VariableDeclaration::Parameter,
                             const_value: None,
                             references: vec![],
+                            assignments: vec![],
                         }));
                         arguments.push(variable.clone());
                         scope_borrow.variables.insert(identifier.name.clone(), variable);
@@ -111,6 +114,13 @@ impl FunctionBody {
             }
         }
         let main_block = BlockStatement::from_ast(&new_scope, &value.block, None)?;
+        let mut director = MonoidalDirector::new(ReturnPathReducer::new());
+        if !director.reduce_block(&main_block).0 && !function.output.is_unit() {
+            return Err(AsgConvertError::function_missing_return(&function.name.name, &value.span));
+        }
+        for (span, error) in director.reducer().errors {
+            return Err(AsgConvertError::function_return_validation(&function.name.name, &error, &span));
+        }
 
         Ok(FunctionBody {
             span: Some(value.span.clone()),

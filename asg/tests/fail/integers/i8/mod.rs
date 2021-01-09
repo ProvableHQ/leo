@@ -30,7 +30,7 @@ fn test_i8_max_fail() {
     TestI8::test_max_fail();
 }
 
-#[test]
-fn test_i8_neg_max_fail() {
-    TestI8::test_negate_min_fail();
-}
+// #[test]
+// fn test_i8_neg_max_fail() {
+//     TestI8::test_negate_min_fail();
+// }

@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Variable, InnerVariable, Expression, FromAst, AsgConvertError, Scope, ExpressionNode, Type, ConstValue, PartialType };
+use crate::{ Statement, Variable, InnerVariable, Expression, FromAst, AsgConvertError, Scope, ExpressionNode, Type, ConstValue, PartialType, Node };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -8,6 +8,12 @@ pub struct DefinitionStatement {
     pub span: Option<Span>,
     pub variables: Vec<Variable>,
     pub value: Arc<Expression>,
+}
+
+impl Node for DefinitionStatement {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 }
 
 impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
@@ -62,6 +68,7 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
                     const_values.as_ref().map(|x| x.get(i).cloned()).flatten()
                 } else { None },
                 references: vec![],
+                assignments: vec![],
             })));
         }
 

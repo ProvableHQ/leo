@@ -8,20 +8,17 @@ pub use function::*;
 use indexmap::{ IndexMap, IndexSet };
 
 use std::sync::{ Arc };
-use crate::{ AsgConvertError, InnerScope, Scope };
+use crate::{ AsgConvertError, InnerScope, Scope, ImportResolver, Input };
 use std::cell::RefCell;
 use leo_ast::{Package, PackageAccess, Span};
-use crate::ImportResolver;
-pub use leo_ast::FunctionInput;
 
 #[derive(Clone)]
 pub struct Program {
     pub name: String,
-    pub expected_input: Vec<FunctionInput>,
+    pub imported_modules: Vec<Program>, // these should generally not be accessed directly, but through scoped imports
     pub test_functions: IndexMap<String, (Arc<FunctionBody>, Option<leo_ast::Identifier>)>, // identifier = test input file
     pub functions: IndexMap<String, Arc<FunctionBody>>,
     pub circuits: IndexMap<String, Arc<CircuitBody>>,
-    pub imported_modules: Vec<Program>, // these should generally not be accessed directly, but through scoped imports
     pub scope: Scope,
 }
 
@@ -72,7 +69,7 @@ impl Program {
     3. finalize declared functions
     4. resolve all asg nodes
     */
-    pub fn new<T: ImportResolver>(value: &leo_ast::Program, import_resolver: &T) -> Result<Program, AsgConvertError> {
+    pub fn new<'a, T: ImportResolver + 'static>(value: &leo_ast::Program, import_resolver: &'a T) -> Result<Program, AsgConvertError> {
         // TODO: right now if some program A is imported from programs B and C, it will be copied to both, which is not optimal -- needs fixed
 
         // recursively extract our imported symbols
@@ -87,12 +84,13 @@ impl Program {
             deduplicated_imports.insert(package.clone());
         }
 
+        let wrapped_resolver = crate::CoreImportResolver(import_resolver);
         // load imported programs
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new(); 
         for package in deduplicated_imports.iter() {
             let pretty_package = package.join(".");
 
-            let resolved_package = match import_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..]) {
+            let resolved_package = match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..])? {
                 Some(x) => x,
                 None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())), // todo: better span
             };
@@ -142,7 +140,8 @@ impl Program {
             variables: IndexMap::new(),
             functions: imported_functions.iter().map(|(name, func)| (name.clone(), func.function.clone())).collect(),
             circuits: imported_circuits.iter().map(|(name, circuit)| (name.clone(), circuit.circuit.clone())).collect(),
-            function: None
+            function: None,
+            input: None,
         }));
 
         // prepare header-like scope entries
@@ -162,6 +161,7 @@ impl Program {
             functions: IndexMap::new(),
             circuits: proto_circuits.iter().map(|(name, circuit)| (name.clone(), circuit.clone())).collect(),
             function: None,
+            input: Some(Input::new()),
         }));
 
         for (name, circuit) in value.circuits.iter() {
@@ -220,7 +220,6 @@ impl Program {
 
         Ok(Program {
             name: value.name.clone(),
-            expected_input: value.expected_input.clone(),
             test_functions,
             functions,
             circuits,
@@ -234,8 +233,8 @@ impl Into<leo_ast::Program> for &Program {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),
-            expected_input: self.expected_input.clone(),
             imports: vec![],
+            expected_input: vec![],
             circuits: self.circuits.iter().map(|(_, circuit)| (circuit.circuit.name.clone(), circuit.circuit.as_ref().into())).collect(),
             functions: self.functions.iter().map(|(_, function)| (function.function.name.clone(), function.function.as_ref().into())).collect(),
             tests: self.test_functions.iter().map(|(_, function)| (function.0.function.name.clone(), leo_ast::TestFunction {

@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type, PartialType };
+use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type, PartialType, Node };
 use std::sync::{ Weak, Arc };
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 
@@ -24,8 +24,18 @@ pub struct ConsoleStatement {
     pub function: ConsoleFunction,
 }
 
+impl Node for ConsoleStatement {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+}
+
 impl FromAst<leo_ast::FormattedString> for FormattedString {
     fn from_ast(scope: &Scope, value: &leo_ast::FormattedString, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
+        if value.parameters.len() != value.containers.len() {
+            // + 1 for formatting string as to not confuse user
+            return Err(AsgConvertError::unexpected_call_argument_count(value.containers.len() + 1, value.parameters.len() + 1, &value.span));
+        }
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
             parameters.push(Arc::<Expression>::from_ast(scope, parameter, None)?);

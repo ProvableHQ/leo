@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, Variable, InnerVariable, Scope, AsgConvertError, FromAst, ExpressionNode, Type, PartialType };
+use crate::{ Statement, Expression, Variable, InnerVariable, Scope, AsgConvertError, FromAst, ExpressionNode, Type, PartialType, Node };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -10,6 +10,12 @@ pub struct IterationStatement {
     pub start: Arc<Expression>,
     pub stop: Arc<Expression>,
     pub body: Arc<Statement>,
+}
+
+impl Node for IterationStatement {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 }
 
 impl FromAst<leo_ast::IterationStatement> for IterationStatement {
@@ -25,6 +31,7 @@ impl FromAst<leo_ast::IterationStatement> for IterationStatement {
             declaration: crate::VariableDeclaration::IterationDefinition,
             const_value: None,
             references: vec![],
+            assignments: vec![],
         }));
         scope.borrow_mut().variables.insert(statement.variable.name.clone(), variable.clone());
 

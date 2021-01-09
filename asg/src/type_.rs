@@ -46,6 +46,13 @@ impl WeakType {
     pub fn strong(self) -> Type {
         self.into()
     }
+
+    pub fn is_unit(&self) -> bool {
+        match self {
+            WeakType::Type(Type::Tuple(t)) if t.len() == 0 => true,
+            _ => false,
+        }
+    }
 }
 
 impl Into<WeakType> for Type {
@@ -122,6 +129,13 @@ impl Type {
 
     pub fn partial(self) -> PartialType {
         self.into()
+    }
+
+    pub fn is_unit(&self) -> bool {
+        match self {
+            Type::Tuple(t) if t.len() == 0 => true,
+            _ => false,
+        }
     }
 }
 

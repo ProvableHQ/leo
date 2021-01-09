@@ -18,12 +18,13 @@ macro_rules! test_int {
     ($name: ident) => {
         pub struct $name {}
 
-        impl $name {
-            fn test_negate_min_fail() {
-                let program_string = include_str!("negate_min.leo");
-                crate::load_asg(program_string).err().unwrap();
-            }
-        }
+        // we are not doing constant folding here, so asg doesnt catch this
+        // impl $name {
+        //     fn test_negate_min_fail() {
+        //         let program_string = include_str!("negate_min.leo");
+        //         crate::load_asg(program_string).err().unwrap();
+        //     }
+        // }
 
         impl super::IntegerTester for $name {
             fn test_min_fail() {

@@ -105,6 +105,12 @@ fn test_type_tuple_value_nested_3x2_fail() {
 }
 
 #[test]
+fn test_type_tuple_value_nested_3x2_swap_fail() {
+    let program_string = include_str!("type_tuple_value_nested_3x2_swap_fail.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
 fn test_type_tuple_value_nested_4x3x2_fail() {
     let program_string = include_str!("type_tuple_value_nested_4x3x2_fail.leo");
     load_asg(program_string).err().unwrap();
@@ -113,6 +119,12 @@ fn test_type_tuple_value_nested_4x3x2_fail() {
 #[test]
 fn test_type_tuple_value_tuple_3x2_fail() {
     let program_string = include_str!("type_tuple_value_tuple_3x2_fail.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
+fn test_type_tuple_value_tuple_3x2_swap_fail() {
+    let program_string = include_str!("type_tuple_value_tuple_3x2_swap_fail.leo");
     load_asg(program_string).err().unwrap();
 }
 

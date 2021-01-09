@@ -34,6 +34,10 @@ impl ExpressionNode for UnaryExpression {
         self.inner.get_type()
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         if let Some(inner) = self.inner.const_value() {
             match self.operation {
@@ -47,7 +51,7 @@ impl ExpressionNode for UnaryExpression {
                     match inner {
                         ConstValue::Int(value) => Some(ConstValue::Int(value.value_negate()?)),
                         // ConstValue::Group(value) => Some(ConstValue::Group(value)), TODO: groups
-                        ConstValue::Field(value) => Some(ConstValue::Field(-value)),
+                        // ConstValue::Field(value) => Some(ConstValue::Field(-value)),
                         _ => None,
                     }
                 },

@@ -37,6 +37,10 @@ impl ExpressionNode for TupleAccessExpression {
         }
     }
 
+    fn is_mut_ref(&self) -> bool {
+        self.tuple_ref.is_mut_ref()
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         let tuple_const = self.tuple_ref.const_value()?;
         match tuple_const {

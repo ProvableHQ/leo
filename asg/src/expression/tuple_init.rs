@@ -38,6 +38,10 @@ impl ExpressionNode for TupleInitExpression {
         Some(Type::Tuple(output))
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         let mut consts = vec![];
         for element in self.elements.iter() {

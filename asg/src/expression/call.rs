@@ -1,6 +1,6 @@
 pub use leo_ast::BinaryOperation;
 use crate::Span;
-use crate::{ Expression, Function, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue, PartialType };
+use crate::{ Expression, Function, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue, PartialType, FunctionQualifier };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -40,6 +40,10 @@ impl ExpressionNode for CallExpression {
         Some(self.function.output.clone().into())
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         // static function const evaluation
         None
@@ -60,7 +64,16 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                 let member = circuit.members.borrow();
                 let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.name, &name.name, &span))?;
                 match member {
-                    CircuitMember::Function(body) => (Some(target), body.clone()),
+                    CircuitMember::Function(body) => {
+                        if body.qualifier == FunctionQualifier::Static {
+                            return Err(AsgConvertError::circuit_static_call_invalid(&circuit.name.name, &name.name, &span));
+                        } else if body.qualifier == FunctionQualifier::MutSelfRef {
+                            if !target.is_mut_ref() {
+                                return Err(AsgConvertError::circuit_member_mut_call_invalid(&circuit.name.name, &name.name, &span));
+                            }
+                        }
+                        (Some(target), body.clone())
+                    },
                     CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit.name.name, &name.name, &span))?,
                 }
             },
@@ -73,7 +86,12 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                 let member = circuit.members.borrow();
                 let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.name, &name.name, &span))?;
                 match member {
-                    CircuitMember::Function(body) => (None, body.clone()),
+                    CircuitMember::Function(body) => {
+                        if body.qualifier != FunctionQualifier::Static {
+                            return Err(AsgConvertError::circuit_member_call_invalid(&circuit.name.name, &name.name, &span));
+                        }
+                        (None, body.clone())
+                    },
                     CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit.name.name, &name.name, &span))?,
                 }
             },

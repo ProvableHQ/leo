@@ -1,11 +1,17 @@
 use crate::Span;
-use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type, PartialType };
+use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, PartialType, Node };
 use std::sync::{ Weak, Arc };
 
 pub struct ExpressionStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,
     pub expression: Arc<Expression>,
+}
+
+impl Node for ExpressionStatement {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 }
 
 impl FromAst<leo_ast::ExpressionStatement> for ExpressionStatement {

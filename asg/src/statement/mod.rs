@@ -15,7 +15,8 @@ pub use expression::*;
 mod block;
 pub use block::*;
 
-use crate::{ AsgConvertError, Scope, FromAst, PartialType };
+use std::sync::Arc;
+use crate::{ AsgConvertError, Scope, FromAst, PartialType, Node, Span };
 
 pub enum Statement {
     Return(ReturnStatement),
@@ -28,33 +29,49 @@ pub enum Statement {
     Block(BlockStatement),
 }
 
-impl FromAst<leo_ast::Statement> for Statement {
-    fn from_ast(scope: &Scope, value: &leo_ast::Statement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
+impl Node for Statement {
+    fn span(&self) -> Option<&Span> {
+        use Statement::*;
+        match self {
+            Return(s) => s.span(),
+            Definition(s) => s.span(),
+            Assign(s) => s.span(),
+            Conditional(s) => s.span(),
+            Iteration(s) => s.span(),
+            Console(s) => s.span(),
+            Expression(s) => s.span(),
+            Block(s) => s.span(),
+        }
+    }
+}
+
+impl FromAst<leo_ast::Statement> for Arc<Statement> {
+    fn from_ast(scope: &Scope, value: &leo_ast::Statement, _expected_type: Option<PartialType>) -> Result<Arc<Statement>, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
             Return(statement) => {
-                Statement::Return(ReturnStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?))
             },
             Definition(statement) => {
-                Statement::Definition(DefinitionStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Definition(DefinitionStatement::from_ast(scope, statement, None)?))
             },
             Assign(statement) => {
-                Statement::Assign(AssignStatement::from_ast(scope, statement, None)?)
+                Arc::<Statement>::from_ast(scope, statement, None)?
             },
             Conditional(statement) => {
-                Statement::Conditional(ConditionalStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Conditional(ConditionalStatement::from_ast(scope, statement, None)?))
             },
             Iteration(statement) => {
-                Statement::Iteration(IterationStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Iteration(IterationStatement::from_ast(scope, statement, None)?))
             },
             Console(statement) => {
-                Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?))
             },
             Expression(statement) => {
-                Statement::Expression(ExpressionStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Expression(ExpressionStatement::from_ast(scope, statement, None)?))
             },
             Block(statement) => {
-                Statement::Block(BlockStatement::from_ast(scope, statement, None)?)
+                Arc::new(Statement::Block(BlockStatement::from_ast(scope, statement, None)?))
             },
         })
     }

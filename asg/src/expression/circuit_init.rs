@@ -36,6 +36,10 @@ impl ExpressionNode for CircuitInitExpression {
         Some(Type::Circuit(self.circuit.clone()))
     }
 
+    fn is_mut_ref(&self) -> bool {
+        false
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         None
     }

@@ -30,7 +30,7 @@ fn test_i16_max_fail() {
     TestI16::test_max_fail();
 }
 
-#[test]
-fn test_i16_neg_max_fail() {
-    TestI16::test_negate_min_fail();
-}
+// #[test]
+// fn test_i16_neg_max_fail() {
+//     TestI16::test_negate_min_fail();
+// }

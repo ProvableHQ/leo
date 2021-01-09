@@ -23,6 +23,18 @@ fn test_multiple_returns_fail() {
 }
 
 #[test]
+fn test_multiple_returns_input_ambiguous() {
+    let program_string = include_str!("multiple_returns_input_ambiguous.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
+fn test_multiple_returns_fail_conditional() {
+    let program_string = include_str!("multiple_returns_fail_conditional.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
 fn test_scope_fail() {
     let program_string = include_str!("scope_fail.leo");
     load_asg(program_string).err().unwrap();

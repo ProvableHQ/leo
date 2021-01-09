@@ -45,6 +45,23 @@ fn test_member_function() {
 }
 
 #[test]
+fn test_mut_member_function() {
+    let program_string = r#"
+        circuit Foo {
+            function echo(mut self, x: u32) -> u32 {
+                return x
+            }
+        }
+        
+        function main() {
+            let mut a = Foo { };
+        
+            console.assert(a.echo(1u32) == 1u32);
+        }"#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_member_function_nested() {
     let program_string = include_str!("member_function_nested.leo");
     load_asg(program_string).unwrap();

@@ -37,6 +37,10 @@ impl ExpressionNode for ArrayAccessExpression {
         }
     }
 
+    fn is_mut_ref(&self) -> bool {
+        self.array.is_mut_ref()
+    }
+
     fn const_value(&self) -> Option<ConstValue> {
         let mut array = match self.array.const_value()? {
             ConstValue::Array(values) => values,
