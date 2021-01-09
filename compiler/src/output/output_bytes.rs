@@ -51,7 +51,7 @@ impl OutputBytes {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers(span.clone()));
+            return Err(OutputBytesError::not_enough_registers(span));
         }
 
         // Manually construct result string
