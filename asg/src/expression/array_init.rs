@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -40,11 +40,11 @@ impl ExpressionNode for ArrayInitExpression {
 }
 
 impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayInitExpression, expected_type: Option<Type>) -> Result<ArrayInitExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::ArrayInitExpression, expected_type: Option<PartialType>) -> Result<ArrayInitExpression, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
-            Some(Type::Array(item, len)) => (Some(*item), Some(len)),
+            Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
-            Some(type_) => return Err(AsgConvertError::unexpected_type("array", Some(&type_.to_string()), &value.span)),
+            Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some("array"), &value.span)),
         };
         let dimensions = value.dimensions.0.iter().map(|x| x.value.parse::<usize>().map_err(|_| AsgConvertError::parse_dimension_error())).collect::<Result<Vec<_>, AsgConvertError>>()?;
 
@@ -58,12 +58,14 @@ impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
 
         for dimension in (&dimensions[1..]).iter().copied() {
             expected_item = match expected_item {
-                Some(Type::Array(item, len)) => {
-                    if len != dimension {
-                        return Err(AsgConvertError::unexpected_type(&*format!("array of length {}", dimension), Some(&*format!("array of length {}", len)), &value.span));
+                Some(PartialType::Array(item, len)) => {
+                    if let Some(len) = len {
+                        if len != dimension {
+                            return Err(AsgConvertError::unexpected_type(&*format!("array of length {}", dimension), Some(&*format!("array of length {}", len)), &value.span));
+                        }    
                     }
                     
-                    Some(*item)
+                    item.map(|x| *x)
                 },
                 None => None,
                 Some(type_) => return Err(AsgConvertError::unexpected_type("array", Some(&type_.to_string()), &value.span)),

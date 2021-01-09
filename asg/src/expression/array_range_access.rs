@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, ConstInt };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, ConstInt, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 use leo_ast::IntegerType;
@@ -84,28 +84,27 @@ impl ExpressionNode for ArrayRangeAccessExpression {
 }
 
 impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayRangeAccessExpression, expected_type: Option<Type>) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
-        let array = Arc::<Expression>::from_ast(scope, &*value.array, None)?; // todo: partial type expectations here
-        let array_type = array.get_type();
-        match (expected_type, array_type) {
-            (Some(Type::Array(expected_item_type, len)), Some(Type::Array(item_type, current_len))) => {
-                if !expected_item_type.is_assignable_from(&*item_type) {
-                    return Err(AsgConvertError::unexpected_type(&expected_item_type.to_string(), Some(&*item_type.to_string()), &value.span));
-                }
-                //todo: how to resolve slicing dimensions at compile time??
+    fn from_ast(scope: &Scope, value: &leo_ast::ArrayRangeAccessExpression, expected_type: Option<PartialType>) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
+        let expected_array = match expected_type {
+            Some(PartialType::Array(element, len)) => {
+                Some(PartialType::Array(element, None))
             },
-            (Some(expected), type_) =>
-                return Err(AsgConvertError::unexpected_type(&expected.to_string(), type_.map(|x| x.to_string()).as_deref(), &value.span)),
-            (None, Some(Type::Array(_, _))) => (),
-            (None, type_) =>
+            None => None,
+            Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("array"), &value.span)),
+        };
+        let array = Arc::<Expression>::from_ast(scope, &*value.array, expected_array)?;
+        let array_type = array.get_type();
+        match array_type {
+            Some(Type::Array(_, _)) => (),
+            type_ =>
                 return Err(AsgConvertError::unexpected_type("array", type_.map(|x| x.to_string()).as_deref(), &value.span)),
         }
         Ok(ArrayRangeAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            left: value.left.as_deref().map(|left| Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32)))).transpose()?,
-            right: value.right.as_deref().map(|right| Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32)))).transpose()?,
+            left: value.left.as_deref().map(|left| Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32).partial()))).transpose()?,
+            right: value.right.as_deref().map(|right| Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32).partial()))).transpose()?,
         })
     }
 }

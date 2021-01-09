@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, Circuit, CircuitMember, ConstValue };
+use crate::{ Expression, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, Circuit, CircuitMember, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -51,7 +51,7 @@ impl ExpressionNode for CircuitAccessExpression {
 }
 
 impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::CircuitMemberAccessExpression, expected_type: Option<Type>) -> Result<CircuitAccessExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::CircuitMemberAccessExpression, expected_type: Option<PartialType>) -> Result<CircuitAccessExpression, AsgConvertError> {
         let target = Arc::<Expression>::from_ast(scope, &*value.circuit, None)?;
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
@@ -62,7 +62,7 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
             if let Some(expected_type) = expected_type {
                 if let CircuitMember::Variable(type_) = &member {
                     let type_: Type = type_.clone().into();
-                    if !expected_type.is_assignable_from(&type_) {
+                    if !expected_type.matches(&type_) {
                         return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&type_.to_string()), &value.span));
                     }
                 } // used by call expression
@@ -82,7 +82,7 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
 }
 
 impl FromAst<leo_ast::CircuitStaticFunctionAccessExpression> for CircuitAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::CircuitStaticFunctionAccessExpression, expected_type: Option<Type>) -> Result<CircuitAccessExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::CircuitStaticFunctionAccessExpression, expected_type: Option<PartialType>) -> Result<CircuitAccessExpression, AsgConvertError> {
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => {
                 scope.borrow().resolve_circuit(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?

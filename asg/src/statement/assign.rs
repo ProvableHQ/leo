@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, Variable, Identifier, FromAst, Scope, AsgConvertError, Type, Node, CircuitMember, IntegerType };
+use crate::{ Statement, Expression, Variable, Identifier, FromAst, Scope, AsgConvertError, Type, Node, PartialType, CircuitMember, IntegerType };
 use std::sync::{ Weak, Arc };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
@@ -21,7 +21,7 @@ pub struct AssignStatement {
 }
 
 impl FromAst<leo_ast::AssignStatement> for AssignStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::AssignStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::AssignStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let variable = scope.borrow().resolve_variable(&statement.assignee.identifier.name).ok_or_else(|| AsgConvertError::unresolved_reference(&statement.assignee.identifier.name, &statement.assignee.identifier.span))?;
         
         if !variable.borrow().mutable {
@@ -39,8 +39,9 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                         },
                         _ => return Err(AsgConvertError::index_into_non_array(&statement.assignee.identifier.name, &statement.span)),
                     }
-                    let left = left.as_ref().map(|left: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32)))?) }).transpose()?;
-                    let right = right.as_ref().map(|right: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32)))?) }).transpose()?;
+                    let index_type = Some(Type::Integer(IntegerType::U32).into());
+                    let left = left.as_ref().map(|left: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, left, index_type.clone())?) }).transpose()?;
+                    let right = right.as_ref().map(|right: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> { Ok(Arc::<Expression>::from_ast(scope, right, index_type)?) }).transpose()?;
                     
                     AssignAccess::ArrayRange(
                         left,
@@ -55,7 +56,7 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                         _ => return Err(AsgConvertError::index_into_non_array(&statement.assignee.identifier.name, &statement.span)),
                     };
                     AssignAccess::ArrayIndex(
-                        Arc::<Expression>::from_ast(scope, index, Some(Type::Integer(IntegerType::U32)))?
+                        Arc::<Expression>::from_ast(scope, index, Some(Type::Integer(IntegerType::U32).into()))?
                     )
                 },
                 AstAssigneeAccess::Tuple(index, _) => {
@@ -89,7 +90,7 @@ impl FromAst<leo_ast::AssignStatement> for AssignStatement {
                 
             });
         }
-        let value = Arc::<Expression>::from_ast(scope, &statement.value, Some(target_type))?;
+        let value = Arc::<Expression>::from_ast(scope, &statement.value, Some(target_type.into()))?;
 
         Ok(AssignStatement {
             parent: None,

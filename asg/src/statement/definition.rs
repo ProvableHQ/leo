@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Variable, InnerVariable, Expression, FromAst, AsgConvertError, Scope, ExpressionNode, Type, ConstValue };
+use crate::{ Statement, Variable, InnerVariable, Expression, FromAst, AsgConvertError, Scope, ExpressionNode, Type, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -11,11 +11,11 @@ pub struct DefinitionStatement {
 }
 
 impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::DefinitionStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::DefinitionStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let type_ = statement.type_.as_ref().map(|x| scope.borrow().resolve_ast_type(&x)).transpose()?;
         
         //todo: tuple partially expected types
-        let value = Arc::<Expression>::from_ast(scope, &statement.value, type_.clone())?;
+        let value = Arc::<Expression>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
 
         let type_ = type_.or_else(|| value.get_type());
 

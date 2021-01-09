@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Circuit, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue };
+use crate::{ Expression, Circuit, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 use indexmap::IndexMap;
@@ -42,10 +42,10 @@ impl ExpressionNode for CircuitInitExpression {
 }
 
 impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::CircuitInitExpression, expected_type: Option<Type>) -> Result<CircuitInitExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::CircuitInitExpression, expected_type: Option<PartialType>) -> Result<CircuitInitExpression, AsgConvertError> {
         let circuit = scope.borrow().resolve_circuit(&value.name.name).ok_or_else(|| AsgConvertError::unresolved_circuit(&value.name.name, &value.name.span))?;
         match expected_type {
-            Some(Type::Circuit(expected_circuit)) if expected_circuit == circuit => (),
+            Some(PartialType::Type(Type::Circuit(expected_circuit))) if expected_circuit == circuit => (),
             None => (),
             Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&circuit.name.name), &value.span)),
         }
@@ -56,13 +56,13 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
         {
             let circuit_members = circuit.members.borrow();
             for (name, member) in circuit_members.iter() {
-                let type_ = if let CircuitMember::Variable(type_) = &member {
+                let type_: Type = if let CircuitMember::Variable(type_) = &member {
                     type_.clone().into()
                 } else {
                     continue;
                 };
                 if let Some((identifier, receiver)) = members.get(&name) {
-                    let received = Arc::<Expression>::from_ast(scope, *receiver, Some(type_))?;
+                    let received = Arc::<Expression>::from_ast(scope, *receiver, Some(type_.partial()))?;
                     values.push(((*identifier).clone(), received));
                 } else {
                     return Err(AsgConvertError::missing_circuit_member(&circuit.name.name, name, &value.span));

@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type };
+use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type, PartialType };
 use std::sync::{ Weak, Arc };
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 
@@ -25,7 +25,7 @@ pub struct ConsoleStatement {
 }
 
 impl FromAst<leo_ast::FormattedString> for FormattedString {
-    fn from_ast(scope: &Scope, value: &leo_ast::FormattedString, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::FormattedString, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
             parameters.push(Arc::<Expression>::from_ast(scope, parameter, None)?);
@@ -53,12 +53,12 @@ impl Into<leo_ast::FormattedString> for &FormattedString {
 }
 
 impl FromAst<leo_ast::ConsoleStatement> for ConsoleStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::ConsoleStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {        
+    fn from_ast(scope: &Scope, statement: &leo_ast::ConsoleStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {        
         Ok(ConsoleStatement {
             parent: None,
             span: Some(statement.span.clone()),
             function: match &statement.function {
-                AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Arc::<Expression>::from_ast(scope, expression, Some(Type::Boolean))?),
+                AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Arc::<Expression>::from_ast(scope, expression, Some(Type::Boolean.into()))?),
                 AstConsoleFunction::Debug(formatted_string) => ConsoleFunction::Debug(FormattedString::from_ast(scope, formatted_string, None)?),
                 AstConsoleFunction::Error(formatted_string) => ConsoleFunction::Error(FormattedString::from_ast(scope, formatted_string, None)?),
                 AstConsoleFunction::Log(formatted_string) => ConsoleFunction::Log(FormattedString::from_ast(scope, formatted_string, None)?),

@@ -29,7 +29,7 @@ mod call;
 pub use call::*;
 
 use std::sync::{ Arc, Weak };
-use crate::{ Node, Type, Span, FromAst, AsgConvertError, Scope, ConstValue };
+use crate::{ Node, Type, PartialType, Span, FromAst, AsgConvertError, Scope, ConstValue };
 
 pub enum Expression {
     VariableRef(VariableRef),
@@ -187,7 +187,7 @@ impl ExpressionNode for Expression {
 }
 
 impl FromAst<leo_ast::Expression> for Arc<Expression> {
-    fn from_ast(scope: &Scope, value: &leo_ast::Expression, expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::Expression, expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type)?,

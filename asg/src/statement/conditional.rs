@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, BlockStatement, FromAst, Scope, AsgConvertError, Type };
+use crate::{ Statement, Expression, BlockStatement, FromAst, Scope, AsgConvertError, Type, PartialType };
 use std::sync::{ Weak, Arc };
 
 pub struct ConditionalStatement {
@@ -11,8 +11,8 @@ pub struct ConditionalStatement {
 }
 
 impl FromAst<leo_ast::ConditionalStatement> for ConditionalStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::ConditionalStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
-        let condition = Arc::<Expression>::from_ast(scope, &statement.condition, Some(Type::Boolean))?;
+    fn from_ast(scope: &Scope, statement: &leo_ast::ConditionalStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
+        let condition = Arc::<Expression>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
         let result = Arc::new(Statement::Block(BlockStatement::from_ast(scope, &statement.block, None)?));
         let next = statement.next.as_deref().map(|next| -> Result<Arc<Statement>, AsgConvertError> { Ok(Arc::new(Statement::from_ast(scope, next, None)?)) }).transpose()?;
         

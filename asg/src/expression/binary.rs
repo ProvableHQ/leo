@@ -1,6 +1,6 @@
 pub use leo_ast::{ BinaryOperation, BinaryOperationClass };
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -94,25 +94,25 @@ impl ExpressionNode for BinaryExpression {
 }
 
 impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::BinaryExpression, expected_type: Option<Type>) -> Result<BinaryExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::BinaryExpression, expected_type: Option<PartialType>) -> Result<BinaryExpression, AsgConvertError> {
         let class = value.op.class();
         let expected_type = match class {
             BinaryOperationClass::Boolean => {
                 match expected_type {
-                    Some(Type::Boolean) | None => None,
+                    Some(PartialType::Type(Type::Boolean)) | None => None,
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*Type::Boolean.to_string()), &value.span)),
                 }
             },
             BinaryOperationClass::Numeric => {
                 match expected_type {
-                    Some(x @ Type::Integer(_)) => Some(x),
+                    Some(PartialType::Type(x @ Type::Integer(_))) => Some(x),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("integer"), &value.span)),
                     None => None,
                 }
             },
         };
         //todo: would be nice to have bidirectional type drilldown here
-        let left = Arc::<Expression>::from_ast(scope, &*value.left, expected_type)?;
+        let left = Arc::<Expression>::from_ast(scope, &*value.left, expected_type.map(Type::partial))?;
         let left_type = left.get_type();
         match class {
             BinaryOperationClass::Numeric => match left_type {
@@ -137,7 +137,7 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                 }
         }
 
-        let right = Arc::<Expression>::from_ast(scope, &*value.right, left_type.clone())?;
+        let right = Arc::<Expression>::from_ast(scope, &*value.right, left_type.clone().map(Type::partial))?;
         let right_type = right.get_type();
 
         match (left_type, right_type) {

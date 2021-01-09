@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use leo_ast::SpreadOrExpression;
 use std::cell::RefCell;
@@ -14,7 +14,7 @@ impl ArrayInlineExpression {
     pub fn len(&self) -> usize {
         self.elements.iter().map(|(expr, is_spread)| if *is_spread {
             match expr.get_type() {
-                Some(Type::Array(item, len)) => len,
+                Some(Type::Array(_item, len)) => len,
                 _ => 0,
             }
         } else {
@@ -65,9 +65,9 @@ impl ExpressionNode for ArrayInlineExpression {
 }
 
 impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayInlineExpression, expected_type: Option<Type>) -> Result<ArrayInlineExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::ArrayInlineExpression, expected_type: Option<PartialType>) -> Result<ArrayInlineExpression, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
-            Some(Type::Array(item, dims)) => (Some(*item), Some(dims)),
+            Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some("array"), &value.span)),
         };
@@ -82,23 +82,20 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
                 SpreadOrExpression::Expression(e) => {
                     let expr = Arc::<Expression>::from_ast(scope, e, expected_item.clone())?;
                     if expected_item.is_none() {
-                        expected_item = expr.get_type();
+                        expected_item = expr.get_type().map(Type::partial);
                     }
                     len += 1;
                     Ok((expr, false))
                 },
                 SpreadOrExpression::Spread(e) => {
-                    let expr = Arc::<Expression>::from_ast(scope, e, None)?;
-                    match expr.get_type() { // todo: partially expected types here
+                    let expr = Arc::<Expression>::from_ast(scope, e, Some(PartialType::Array(expected_item.clone().map(Box::new), None)))?;
+
+                    match expr.get_type() {
                         Some(Type::Array(item, spread_len)) => {
                             if expected_item.is_none() {
-                                expected_item = expr.get_type();
+                                expected_item = Some((*item).partial());
                             }
-                            if let Some(expected_item) = expected_item.as_ref() {
-                                if !expected_item.is_assignable_from(&*item) {
-                                    return Err(AsgConvertError::unexpected_type(&expected_item.to_string(), Some(&*item.to_string()), &value.span));
-                                }
-                            }
+        
                             len += spread_len;
                         },
                         type_ => return Err(AsgConvertError::unexpected_type(expected_item.as_ref().map(|x| x.to_string()).as_deref().unwrap_or("unknown"), type_.map(|x| x.to_string()).as_deref(), &value.span)),

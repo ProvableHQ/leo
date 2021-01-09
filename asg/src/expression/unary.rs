@@ -1,6 +1,6 @@
 pub use leo_ast::UnaryOperation;
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, Scope, AsgConvertError, FromAst, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, Scope, AsgConvertError, FromAst, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -59,13 +59,13 @@ impl ExpressionNode for UnaryExpression {
 }
 
 impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::UnaryExpression, expected_type: Option<Type>) -> Result<UnaryExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::UnaryExpression, expected_type: Option<PartialType>) -> Result<UnaryExpression, AsgConvertError> {
         let expected_type = match value.op {
-            UnaryOperation::Not => match expected_type {
+            UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),
                 Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some(&*Type::Boolean.to_string()), &value.span)),
             },
-            UnaryOperation::Negate => match expected_type {
+            UnaryOperation::Negate => match expected_type.map(|x| x.full()).flatten() {
                 Some(type_ @ Type::Integer(_)) => Some(type_),
                 Some(Type::Group) => Some(Type::Group),
                 Some(Type::Field) => Some(Type::Field),
@@ -77,7 +77,7 @@ impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),
-            inner: Arc::<Expression>::from_ast(scope, &*value.inner, expected_type)?,
+            inner: Arc::<Expression>::from_ast(scope, &*value.inner, expected_type.map(Into::into))?,
         })
     }
 }

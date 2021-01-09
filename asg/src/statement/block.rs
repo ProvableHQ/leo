@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, FromAst, Scope, AsgConvertError, InnerScope, Type };
+use crate::{ Statement, FromAst, Scope, AsgConvertError, InnerScope, Type, PartialType };
 use std::sync::{ Weak, Arc };
 
 pub struct BlockStatement {
@@ -10,7 +10,7 @@ pub struct BlockStatement {
 }
 
 impl FromAst<leo_ast::Block> for BlockStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::Block, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::Block, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let new_scope = InnerScope::make_subscope(scope);
 
         let mut output = vec![];

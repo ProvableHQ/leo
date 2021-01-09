@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, AsgConvertError, FromAst, Scope, ConstValue, ConstInt };
+use crate::{ Expression, Node, Type, ExpressionNode, AsgConvertError, FromAst, Scope, ConstValue, ConstInt, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -54,23 +54,18 @@ impl ExpressionNode for ArrayAccessExpression {
 }
 
 impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayAccessExpression, expected_type: Option<Type>) -> Result<ArrayAccessExpression, AsgConvertError> {
-        let array = Arc::<Expression>::from_ast(scope, &*value.array, None)?; // todo: partial expected types
-        if let Some(expected_type) = expected_type {
-            match array.get_type() {
-                Some(Type::Array(item, _dims)) => {
-                    if !expected_type.is_assignable_from(&*item) {
-                        return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&*item.to_string()), &value.span));
-                    }
-                },
-                type_ => return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), type_.map(|x| x.to_string()).as_deref(), &value.span))
-            }    
+    fn from_ast(scope: &Scope, value: &leo_ast::ArrayAccessExpression, expected_type: Option<PartialType>) -> Result<ArrayAccessExpression, AsgConvertError> {
+        let array = Arc::<Expression>::from_ast(scope, &*value.array, Some(PartialType::Array(expected_type.clone().map(Box::new), None)))?;
+        match array.get_type() {
+            Some(Type::Array(..)) => (),
+            type_ => return Err(AsgConvertError::unexpected_type("array", type_.map(|x| x.to_string()).as_deref(), &value.span)),
         }
+
         Ok(ArrayAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            index: Arc::<Expression>::from_ast(scope, &*value.index, Some(Type::Integer(leo_ast::IntegerType::U32)))?,
+            index: Arc::<Expression>::from_ast(scope, &*value.index, Some(Type::Integer(leo_ast::IntegerType::U32).partial()))?,
         })
     }
 }

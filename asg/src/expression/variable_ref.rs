@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Variable, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Variable, Node, Type, PartialType, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -37,7 +37,7 @@ impl ExpressionNode for VariableRef {
 }
 
 impl FromAst<leo_ast::Identifier> for Arc<Expression> {
-    fn from_ast(scope: &Scope, value: &leo_ast::Identifier, expected_type: Option<Type>) -> Result<Arc<Expression>, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::Identifier, expected_type: Option<PartialType>) -> Result<Arc<Expression>, AsgConvertError> {
         let variable = scope.borrow().resolve_variable(&value.name).ok_or_else(|| AsgConvertError::unresolved_reference(&value.name, &value.span))?;
         let variable_ref = VariableRef {
             parent: RefCell::new(None),
@@ -48,7 +48,7 @@ impl FromAst<leo_ast::Identifier> for Arc<Expression> {
 
         if let Some(expected_type) = expected_type {
             let type_ = expression.get_type().ok_or_else(|| AsgConvertError::unresolved_reference(&value.name, &value.span))?;
-            if !expected_type.is_assignable_from(&type_) {
+            if !expected_type.matches(&type_) {
                 return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&*type_.to_string()), &value.span));
             }
         }

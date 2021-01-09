@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, Variable, InnerVariable, Scope, AsgConvertError, FromAst, ExpressionNode, Type };
+use crate::{ Statement, Expression, Variable, InnerVariable, Scope, AsgConvertError, FromAst, ExpressionNode, Type, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -13,10 +13,11 @@ pub struct IterationStatement {
 }
 
 impl FromAst<leo_ast::IterationStatement> for IterationStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::IterationStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::IterationStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         // todo: is u32 the right type to enforce
-        let start = Arc::<Expression>::from_ast(scope, &statement.start, Some(Type::Integer(leo_ast::IntegerType::U32)))?;
-        let stop = Arc::<Expression>::from_ast(scope, &statement.stop, start.get_type())?;
+        let expected_index_type = Some(Type::Integer(leo_ast::IntegerType::U32).into());
+        let start = Arc::<Expression>::from_ast(scope, &statement.start, expected_index_type.clone())?;
+        let stop = Arc::<Expression>::from_ast(scope, &statement.stop, expected_index_type)?;
         let variable = Arc::new(RefCell::new(InnerVariable {
             name: statement.variable.clone(),
             type_: start.get_type().ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,

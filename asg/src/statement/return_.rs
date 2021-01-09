@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, Scope, AsgConvertError, FromAst, Type };
+use crate::{ Statement, Expression, Scope, AsgConvertError, FromAst, Type, PartialType };
 use std::sync::{ Weak, Arc };
 
 pub struct ReturnStatement {
@@ -10,12 +10,12 @@ pub struct ReturnStatement {
 
 
 impl FromAst<leo_ast::ReturnStatement> for ReturnStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::ReturnStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::ReturnStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let return_type: Option<Type> = scope.borrow().resolve_current_function().map(|x| x.output.clone()).map(Into::into);
         Ok(ReturnStatement {
             parent: None,
             span: Some(statement.span.clone()),
-            expression: Arc::<Expression>::from_ast(scope, &statement.expression, return_type)?,
+            expression: Arc::<Expression>::from_ast(scope, &statement.expression, return_type.map(Into::into))?,
         })
     }
 }

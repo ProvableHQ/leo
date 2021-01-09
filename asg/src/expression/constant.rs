@@ -1,4 +1,4 @@
-use crate::{ Node, Type, Span, Expression, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, GroupValue, ConstInt };
+use crate::{ Node, Type, Span, Expression, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, GroupValue, ConstInt, PartialType };
 use std::sync::{ Arc, Weak };
 use std::cell::RefCell;
 
@@ -36,11 +36,11 @@ impl ExpressionNode for Constant {
 }
 
 impl FromAst<leo_ast::ValueExpression> for Constant {
-    fn from_ast(_scope: &Scope, value: &leo_ast::ValueExpression, expected_type: Option<Type>) -> Result<Constant, AsgConvertError> {
+    fn from_ast(_scope: &Scope, value: &leo_ast::ValueExpression, expected_type: Option<PartialType>) -> Result<Constant, AsgConvertError> {
         use leo_ast::ValueExpression::*;
         Ok(match value {
             Address(value, span) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Address) | None => (),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*Type::Address.to_string()), span)),
                 }
@@ -51,7 +51,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             },
             Boolean(value, span) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Boolean) | None => (),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*Type::Boolean.to_string()), span)),
                 }
@@ -62,7 +62,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             },
             Field(value, span) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Field) | None => (),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*Type::Field.to_string()), span)),
                 }
@@ -73,7 +73,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             },
             Group(value) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Group) | None => (),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*Type::Group.to_string()), value.span())),
                 }
@@ -90,7 +90,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             },
             Implicit(value, span) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     None => return Err(AsgConvertError::unresolved_type("unknown", span)),
                     Some(Type::Integer(int_type)) => {
                         Constant {
@@ -117,7 +117,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             },
             Integer(int_type, value, span) => {
-                match expected_type {
+                match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Integer(sub_type)) if &sub_type == int_type => (),
                     None => (),
                     Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&*int_type.to_string()), span)),

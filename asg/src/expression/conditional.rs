@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -50,11 +50,11 @@ impl ExpressionNode for ConditionalExpression {
 }
 
 impl FromAst<leo_ast::ConditionalExpression> for ConditionalExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ConditionalExpression, expected_type: Option<Type>) -> Result<ConditionalExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::ConditionalExpression, expected_type: Option<PartialType>) -> Result<ConditionalExpression, AsgConvertError> {
         Ok(ConditionalExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
-            condition: Arc::<Expression>::from_ast(scope, &*value.condition, Some(Type::Boolean))?,
+            condition: Arc::<Expression>::from_ast(scope, &*value.condition, Some(Type::Boolean.partial()))?,
             if_true: Arc::<Expression>::from_ast(scope, &*value.if_true, expected_type.clone())?,
             if_false: Arc::<Expression>::from_ast(scope, &*value.if_false, expected_type)?,
         })

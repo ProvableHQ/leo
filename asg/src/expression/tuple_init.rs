@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -52,33 +52,27 @@ impl ExpressionNode for TupleInitExpression {
 }
 
 impl FromAst<leo_ast::TupleInitExpression> for TupleInitExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::TupleInitExpression, expected_type: Option<Type>) -> Result<TupleInitExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::TupleInitExpression, expected_type: Option<PartialType>) -> Result<TupleInitExpression, AsgConvertError> {
         let tuple_types = match expected_type {
-            Some(Type::Tuple(sub_types)) => Some(sub_types),
+            Some(PartialType::Tuple(sub_types)) => Some(sub_types),
             None => None,
             x => return Err(AsgConvertError::unexpected_type("tuple", x.map(|x| x.to_string()).as_deref(), &value.span)),
         };
 
-        let elements = value.elements.iter().enumerate()
-            .map(|(i, e)| Arc::<Expression>::from_ast(scope, e, tuple_types.as_ref().map(|x| x.get(i)).flatten().cloned()))
-            .collect::<Result<Vec<_>, AsgConvertError>>()?;
-        
         if let Some(tuple_types) = tuple_types.as_ref() {
-            if tuple_types.len() != elements.len() {
-                return Err(AsgConvertError::unexpected_type(&*format!("tuple of length {}", tuple_types.len()), Some(&*format!("tuple of length {}", elements.len())), &value.span));
-            }
-            for (expected_type, element) in tuple_types.iter().zip(elements.iter()) {
-                let concrete_type = element.get_type();
-                if Some(expected_type) != concrete_type.as_ref() {
-                    return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), concrete_type.map(|x| x.to_string()).as_deref(), &value.span));
-                }
+            if tuple_types.len() != value.elements.len() {
+                return Err(AsgConvertError::unexpected_type(&*format!("tuple of length {}", tuple_types.len()), Some(&*format!("tuple of length {}", value.elements.len())), &value.span));
             }
         }
 
+        let elements = value.elements.iter().enumerate()
+            .map(|(i, e)| Arc::<Expression>::from_ast(scope, e, tuple_types.as_ref().map(|x| x.get(i)).flatten().cloned().flatten()))
+            .collect::<Result<Vec<_>, AsgConvertError>>()?;
+        
         Ok(TupleInitExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
-            elements: value.elements.iter().enumerate().map(|(i, e)| Arc::<Expression>::from_ast(scope, e, tuple_types.as_ref().map(|x| x.get(i)).flatten().cloned())).collect::<Result<Vec<_>, AsgConvertError>>()?,
+            elements,
         })
     }
 }

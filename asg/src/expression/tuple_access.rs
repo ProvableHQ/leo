@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue };
+use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -47,22 +47,15 @@ impl ExpressionNode for TupleAccessExpression {
 }
 
 impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::TupleAccessExpression, expected_type: Option<Type>) -> Result<TupleAccessExpression, AsgConvertError> {
-        //todo: partial expected types
+    fn from_ast(scope: &Scope, value: &leo_ast::TupleAccessExpression, expected_type: Option<PartialType>) -> Result<TupleAccessExpression, AsgConvertError> {
         let index = value.index.value.parse::<usize>().map_err(|_| AsgConvertError::parse_index_error())?;
 
-        let tuple = Arc::<Expression>::from_ast(scope, &*value.tuple, None)?;
+        let mut expected_tuple = vec![None; index + 1];
+        expected_tuple[index] = expected_type.clone();
+
+        let tuple = Arc::<Expression>::from_ast(scope, &*value.tuple, Some(PartialType::Tuple(expected_tuple)))?;
         let tuple_type = tuple.get_type();
-        if let Some(Type::Tuple(items)) = tuple_type {
-            if items.len() <= index {
-                return Err(AsgConvertError::tuple_index_out_of_bounds(index, &value.span));
-            }
-            if let Some(expected_type) = expected_type {
-                let item = items.get(index).unwrap();
-                if &expected_type != item {
-                    return Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&*item.to_string()), &value.span));
-                }
-            }
+        if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
             return Err(AsgConvertError::unexpected_type("a tuple", tuple_type.map(|x| x.to_string()).as_deref(), &value.span));
         }

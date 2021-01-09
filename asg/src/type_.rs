@@ -26,12 +26,25 @@ pub enum WeakType {
     Circuit(Weak<Circuit>),
 }
 
+#[derive(Clone, PartialEq)]
+pub enum PartialType {
+    Type(Type), // non-array or tuple
+    Array(Option<Box<PartialType>>, Option<usize>),
+    Tuple(Vec<Option<PartialType>>),
+}
+
 impl Into<Type> for WeakType {
     fn into(self) -> Type {
         match self {
             WeakType::Type(t) => t,
             WeakType::Circuit(circuit) => Type::Circuit(circuit.upgrade().unwrap()),
         }
+    }
+}
+
+impl WeakType {
+    pub fn strong(self) -> Type {
+        self.into()
     }
 }
 
@@ -44,9 +57,71 @@ impl Into<WeakType> for Type {
     }
 }
 
+impl Into<Option<Type>> for PartialType {
+    fn into(self) -> Option<Type> {
+        match self {
+            PartialType::Type(t) => Some(t),
+            PartialType::Array(element, len) => Some(Type::Array(Box::new((*element?).full()?), len?)),
+            PartialType::Tuple(sub_types) => Some(Type::Tuple(sub_types.into_iter().map(|x| x.map(|x| x.full()).flatten()).collect::<Option<Vec<Type>>>()?)),
+        }
+    }
+}
+
+impl PartialType {
+    pub fn full(self) -> Option<Type> {
+        self.into()
+    }
+
+    pub fn matches(&self, other: &Type) -> bool {
+        match (self, other) {
+            (PartialType::Type(t), other) => t.is_assignable_from(other),
+            (PartialType::Array(element, len), Type::Array(other_element, other_len)) => {
+                if let Some(element) = element {
+                    if !element.matches(&*other_element) {
+                        return false;
+                    }
+                }
+                if let Some(len) = len {
+                    return len == other_len;
+                }
+                true
+            },
+            (PartialType::Tuple(sub_types), Type::Tuple(other_sub_types)) => {
+                // we dont enforce exact length for tuples here (relying on prior type checking) to allow for full-context-free tuple indexing
+                if sub_types.len() > other_sub_types.len() {
+                    return false;
+                }
+                for (sub_type, other_sub_type) in sub_types.iter().zip(other_sub_types.iter()) {
+                    if let Some(sub_type) = sub_type {
+                        if !sub_type.matches(other_sub_type) {
+                            return false;
+                        }
+                    }
+                }
+                true
+            },
+            _ => false,
+        } 
+    }
+}
+
+impl Into<PartialType> for Type {
+    fn into(self) -> PartialType {
+        match self {
+            Type::Array(element, len) => PartialType::Array(Some(Box::new((*element).into())), Some(len)),
+            Type::Tuple(sub_types) => PartialType::Tuple(sub_types.into_iter().map(Into::into).map(Some).collect()),
+            x => PartialType::Type(x),
+        }
+    }
+}
+
 impl Type {
     pub fn is_assignable_from(&self, from: &Type) -> bool {
         self == from
+    }
+
+    pub fn partial(self) -> PartialType {
+        self.into()
     }
 }
 
@@ -70,6 +145,42 @@ impl fmt::Display for Type {
                 write!(f, ")")
             },
             Type::Circuit(circuit) => write!(f, "{}", &circuit.name.name),
+        }
+    }
+}
+
+impl fmt::Display for PartialType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PartialType::Type(t) => t.fmt(f),
+            PartialType::Array(sub_type, len) => {
+                if let Some(sub_type) = sub_type {
+                    write!(f, "{}", *sub_type)?;
+                } else {
+                    write!(f, "?")?;
+                }
+                write!(f, "[")?;
+                if let Some(len) = len {
+                    write!(f, "{}", len)?;
+                } else {
+                    write!(f, "?")?;
+                }
+                write!(f, "]")
+            },
+            PartialType::Tuple(sub_types) => {
+                write!(f, "(")?;
+                for (i, sub_type) in sub_types.iter().enumerate() {
+                    if let Some(sub_type) = sub_type {
+                        write!(f, "{}", *sub_type)?;
+                    } else {
+                        write!(f, "?")?;
+                    }
+                    if i < sub_types.len() - 1 {
+                        write!(f, ", ")?;
+                    }
+                }
+                write!(f, ")")
+            },
         }
     }
 }

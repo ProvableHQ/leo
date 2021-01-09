@@ -15,7 +15,7 @@ pub use expression::*;
 mod block;
 pub use block::*;
 
-use crate::{ AsgConvertError, Scope, FromAst, Type };
+use crate::{ AsgConvertError, Scope, FromAst, PartialType };
 
 pub enum Statement {
     Return(ReturnStatement),
@@ -29,7 +29,7 @@ pub enum Statement {
 }
 
 impl FromAst<leo_ast::Statement> for Statement {
-    fn from_ast(scope: &Scope, value: &leo_ast::Statement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::Statement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
             Return(statement) => {

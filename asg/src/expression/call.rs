@@ -1,6 +1,6 @@
 pub use leo_ast::BinaryOperation;
 use crate::Span;
-use crate::{ Expression, Function, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue };
+use crate::{ Expression, Function, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue, PartialType };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -47,7 +47,7 @@ impl ExpressionNode for CallExpression {
 }
 
 impl FromAst<leo_ast::CallExpression> for CallExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::CallExpression, expected_type: Option<Type>) -> Result<CallExpression, AsgConvertError> {
+    fn from_ast(scope: &Scope, value: &leo_ast::CallExpression, expected_type: Option<PartialType>) -> Result<CallExpression, AsgConvertError> {
         
         let (target, function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (None, scope.borrow().resolve_function(&name.name).ok_or_else(|| AsgConvertError::unresolved_function(&name.name, &name.span))?),
@@ -82,7 +82,7 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
         match expected_type {
             Some(expected) => {
                 let output: Type = function.output.clone().into();
-                if !expected.is_assignable_from(&output) {
+                if !expected.matches(&output) {
                     return Err(AsgConvertError::unexpected_type(&expected.to_string(), Some(&*output.to_string()), &value.span));
                 }
             },
@@ -96,7 +96,7 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             arguments: value.arguments.iter().zip(function.argument_types.iter())
-                .map(|(expr, argument)| Arc::<Expression>::from_ast(scope, expr, Some(argument.clone().into())))
+                .map(|(expr, argument)| Arc::<Expression>::from_ast(scope, expr, Some(argument.clone().strong().partial())))
                 .collect::<Result<Vec<_>, AsgConvertError>>()?,
             function,
             target,

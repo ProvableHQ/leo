@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type };
+use crate::{ Statement, Expression, FromAst, Scope, AsgConvertError, Type, PartialType };
 use std::sync::{ Weak, Arc };
 
 pub struct ExpressionStatement {
@@ -9,7 +9,7 @@ pub struct ExpressionStatement {
 }
 
 impl FromAst<leo_ast::ExpressionStatement> for ExpressionStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::ExpressionStatement, _expected_type: Option<Type>) -> Result<Self, AsgConvertError> {
+    fn from_ast(scope: &Scope, statement: &leo_ast::ExpressionStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
         let expression = Arc::<Expression>::from_ast(scope, &statement.expression, None)?;
         
         Ok(ExpressionStatement {
