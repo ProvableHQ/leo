@@ -68,7 +68,7 @@ impl OutputBytes {
             let register_type = parameter.type_;
             let return_value_type = value.to_type(&span)?;
 
-            if register_type != return_value_type {
+            if !register_type.eq_flat(&return_value_type) {
                 return Err(OutputBytesError::mismatched_output_types(
                     register_type,
                     return_value_type,
