@@ -49,7 +49,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         } else if let Some(value) = self.get(&unresolved_identifier.name) {
             // Check imported file scope
             value.clone()
-        } else if expected_type.is_some() && expected_type.unwrap() == Type::Address {
+        } else if expected_type == Some(Type::Address) {
             // If we expect an address type, try to return an address
             let address = Address::constant(unresolved_identifier.name, &unresolved_identifier.span)?;
 

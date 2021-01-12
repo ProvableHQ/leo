@@ -61,8 +61,7 @@ impl CLI for RunCommand {
             &prepared_verifying_key,
             &vec![],
             &proof,
-        )
-        .unwrap();
+        )?;
 
         // End the timer
         let end = start.elapsed().as_millis();
