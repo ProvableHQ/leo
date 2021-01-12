@@ -1,6 +1,6 @@
 [package]
 name = "leo-state"
-version = "1.0.7"
+version = "1.0.8"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "State parser of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,11 +19,11 @@ edition = "2018"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.snarkvm-algorithms]
 version = "0.0.2"
