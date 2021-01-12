@@ -38,3 +38,16 @@ fn test_registers_fail() {
 
     expect_compiler_error(program);
 }
+
+#[test]
+fn test_registers_array() {
+    let program_string = include_str!("registers_array.leo");
+    let input_string = include_str!("input/array.in");
+    let expected = include_bytes!("output/registers_array.out");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    let actual = get_output(program);
+
+    assert!(expected.eq(actual.bytes().as_slice()));
+}
