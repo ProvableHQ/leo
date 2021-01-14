@@ -3,6 +3,7 @@ use crate::{ Identifier, Type, WeakType, Statement, Span, AsgConvertError, Block
 use std::sync::{ Arc, Weak };
 use std::cell::RefCell;
 use leo_ast::FunctionInput;
+use uuid::Uuid;
 
 #[derive(PartialEq)]
 pub enum FunctionQualifier {
@@ -12,7 +13,8 @@ pub enum FunctionQualifier {
 }
 
 pub struct Function {
-    pub name: Identifier,
+    pub id: Uuid,
+    pub name: RefCell<Identifier>,
     pub output: WeakType,
     pub has_input: bool,
     pub argument_types: Vec<WeakType>,
@@ -21,6 +23,16 @@ pub struct Function {
     pub qualifier: FunctionQualifier,
 }
 
+impl PartialEq for Function {
+    fn eq(&self, other: &Function) -> bool {
+        if self.name.borrow().name != other.name.borrow().name {
+            return false;
+        }
+        self.id == other.id
+    }
+}
+impl Eq for Function {}
+
 pub struct FunctionBody {
     pub span: Option<Span>,
     pub function: Arc<Function>,
@@ -28,6 +40,13 @@ pub struct FunctionBody {
     pub body: Arc<Statement>,
     pub scope: Scope,
 }
+
+impl PartialEq for FunctionBody {
+    fn eq(&self, other: &FunctionBody) -> bool {
+        self.function == other.function
+    }
+}
+impl Eq for FunctionBody {}
 
 impl Function {
     pub(crate) fn from_ast(scope: &Scope, value: &leo_ast::Function) -> Result<Function, AsgConvertError> {
@@ -59,7 +78,8 @@ impl Function {
             return Err(AsgConvertError::invalid_self_in_global(&value.span));
         }
         Ok(Function {
-            name: value.identifier.clone(),
+            id: Uuid::new_v4(),
+            name: RefCell::new(value.identifier.clone()),
             output: output.into(),
             has_input,
             argument_types,
@@ -116,10 +136,10 @@ impl FunctionBody {
         let main_block = BlockStatement::from_ast(&new_scope, &value.block, None)?;
         let mut director = MonoidalDirector::new(ReturnPathReducer::new());
         if !director.reduce_block(&main_block).0 && !function.output.is_unit() {
-            return Err(AsgConvertError::function_missing_return(&function.name.name, &value.span));
+            return Err(AsgConvertError::function_missing_return(&function.name.borrow().name, &value.span));
         }
         for (span, error) in director.reducer().errors {
-            return Err(AsgConvertError::function_return_validation(&function.name.name, &error, &span));
+            return Err(AsgConvertError::function_return_validation(&function.name.borrow().name, &error, &span));
         }
 
         Ok(FunctionBody {
@@ -166,7 +186,7 @@ impl Into<leo_ast::Function> for &Function {
         };
         let output: Type = self.output.clone().into();
         leo_ast::Function {
-            identifier: self.name.clone(),
+            identifier: self.name.borrow().clone(),
             input,
             block: body,
             output: Some((&output).into()),

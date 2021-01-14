@@ -26,7 +26,7 @@ use crate::{
     GroupType,
     Integer,
 };
-use leo_ast::{ArrayDimensions, Circuit, Function, GroupValue, Identifier, Span, Type};
+use leo_asg::{CircuitBody, FunctionBody, GroupValue, Identifier, Span, Type};
 use leo_core::Value;
 
 use snarkvm_errors::gadgets::SynthesisError;
@@ -38,6 +38,7 @@ use snarkvm_models::{
     },
 };
 use std::fmt;
+use std::sync::Arc;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<F, G>);
@@ -58,19 +59,16 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Tuple(Vec<ConstrainedValue<F, G>>),
 
     // Circuits
-    CircuitDefinition(Circuit),
-    CircuitExpression(Identifier, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitDefinition(Arc<CircuitBody>),
+    CircuitExpression(Arc<CircuitBody>, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Functions
-    Function(Option<Identifier>, Box<Function>), // (optional circuit identifier, function definition)
+    Function(Option<Identifier>, Arc<FunctionBody>), // (optional circuit identifier, function definition)
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
     Static(Box<ConstrainedValue<F, G>>),
     Unresolved(String),
-
-    // Imports
-    Import(String, Box<ConstrainedValue<F, G>>),
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
@@ -88,9 +86,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(
                 value,
-                span.to_owned(),
             ))?)),
-            Type::IntegerType(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
+            Type::Integer(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
                 integer_type,
                 value,
                 span,
@@ -109,21 +106,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
-            ConstrainedValue::Integer(integer) => Type::IntegerType(integer.get_type()),
+            ConstrainedValue::Integer(integer) => Type::Integer(integer.get_type()),
 
             // Data type wrappers
             ConstrainedValue::Array(array) => {
                 let array_type = array[0].to_type(span)?;
-                let mut dimensions = ArrayDimensions::default();
-                dimensions.push_usize(array.len());
 
-                // Nested array type
-                if let Type::Array(inner_type, inner_dimensions) = &array_type {
-                    dimensions.append(&mut inner_dimensions.clone());
-                    return Ok(Type::Array(inner_type.clone(), dimensions));
-                }
-
-                Type::Array(Box::new(array_type), dimensions)
+                Type::Array(Box::new(array_type), array.len())
             }
             ConstrainedValue::Tuple(tuple) => {
                 let mut types = Vec::with_capacity(tuple.len());
@@ -135,7 +124,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
                 Type::Tuple(types)
             }
-            ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.clone()),
+            ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.circuit.clone()),
             ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span.to_owned())),
         })
@@ -202,7 +191,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
         }
     }
 
-    pub(crate) fn extract_function(self, scope: &str, span: &Span) -> Result<(String, Function), ExpressionError> {
+    pub(crate) fn extract_function(&self, scope: &str, span: &Span) -> Result<(String, Arc<FunctionBody>), ExpressionError> {
         match self {
             ConstrainedValue::Function(circuit_identifier, function) => {
                 let mut outer_scope = scope.to_string();
@@ -214,17 +203,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     }
                 }
 
-                Ok((outer_scope, *function))
+                Ok((outer_scope, function.clone()))
             }
-            ConstrainedValue::Import(import_scope, function) => function.extract_function(&import_scope, span),
             value => Err(ExpressionError::undefined_function(value.to_string(), span.to_owned())),
         }
     }
 
-    pub(crate) fn extract_circuit(self, span: &Span) -> Result<Circuit, ExpressionError> {
+    pub(crate) fn extract_circuit(&self, span: &Span) -> Result<Arc<CircuitBody>, ExpressionError> {
         match self {
-            ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit),
-            ConstrainedValue::Import(_import_scope, circuit) => circuit.extract_circuit(span),
+            ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit.clone()),
             value => Err(ExpressionError::undefined_circuit(value.to_string(), span.to_owned())),
         }
     }
@@ -310,7 +297,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             // Empty wrappers that are unreachable
             ConstrainedValue::CircuitDefinition(_) => {}
             ConstrainedValue::Function(_, _) => {}
-            ConstrainedValue::Import(_, _) => {}
 
             // Cannot allocate an unresolved value
             ConstrainedValue::Unresolved(value) => {
@@ -355,8 +341,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
 
                 write!(f, "({})", values)
             }
-            ConstrainedValue::CircuitExpression(ref identifier, ref members) => {
-                write!(f, "{} {{", identifier)?;
+            ConstrainedValue::CircuitExpression(ref circuit, ref members) => {
+                write!(f, "{} {{", circuit.circuit.name.borrow())?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
                     if i < members.len() - 1 {
@@ -365,11 +351,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "}}")
             }
-            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit_name),
+            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit.name.borrow().name),
             ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "function {{ {}() }}", function.identifier)
+                write!(f, "function {{ {}() }}", function.function.name.borrow().name)
             }
-            ConstrainedValue::Import(_, ref value) => write!(f, "{}", value),
             ConstrainedValue::Mutable(ref value) => write!(f, "{}", value),
             ConstrainedValue::Static(ref value) => write!(f, "{}", value),
             ConstrainedValue::Unresolved(ref value) => write!(f, "{}", value),

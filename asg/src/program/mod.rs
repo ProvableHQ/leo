@@ -10,17 +10,21 @@ use indexmap::{ IndexMap, IndexSet };
 use std::sync::{ Arc };
 use crate::{ AsgConvertError, InnerScope, Scope, ImportResolver, Input };
 use std::cell::RefCell;
-use leo_ast::{Package, PackageAccess, Span};
+use leo_ast::{Package, PackageAccess, Span, Identifier};
+use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct Program {
+pub struct InnerProgram {
+    pub id: Uuid,
     pub name: String,
-    pub imported_modules: Vec<Program>, // these should generally not be accessed directly, but through scoped imports
+    pub imported_modules: IndexMap<String, Program>, // these should generally not be accessed directly, but through scoped imports
     pub test_functions: IndexMap<String, (Arc<FunctionBody>, Option<leo_ast::Identifier>)>, // identifier = test input file
     pub functions: IndexMap<String, Arc<FunctionBody>>,
     pub circuits: IndexMap<String, Arc<CircuitBody>>,
     pub scope: Scope,
 }
+
+pub type Program = Arc<RefCell<InnerProgram>>;
 
 enum ImportSymbol {
     Direct(String),
@@ -60,7 +64,7 @@ fn resolve_import_package_access(output: &mut Vec<(Vec<String>, ImportSymbol, Sp
     }
 }
 
-impl Program {
+impl InnerProgram {
 
     /*
     stages:
@@ -106,7 +110,7 @@ impl Program {
             let pretty_package = package.join(".");
 
             let resolved_package = resolved_packages.get(&package).expect("could not find preloaded package");
-
+            let resolved_package = resolved_package.borrow();
             match symbol {
                 ImportSymbol::All => {
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
@@ -218,26 +222,111 @@ impl Program {
             circuits.insert(name.name.clone(), body);
         }
 
-        Ok(Program {
+        Ok(Arc::new(RefCell::new(InnerProgram {
+            id: Uuid::new_v4(),
             name: value.name.clone(),
             test_functions,
             functions,
             circuits,
-            imported_modules: resolved_packages.into_iter().map(|(_, program)| program).collect(),
+            imported_modules: resolved_packages.into_iter().map(|(package, program)| (package.join("."), program)).collect(),
             scope,
-        })
+        })))
     }
 }
 
-impl Into<leo_ast::Program> for &Program {
+struct InternalIdentifierGenerator {
+    next: usize,
+}
+
+impl Iterator for InternalIdentifierGenerator {
+    type Item = String;
+
+    fn next(&mut self) -> Option<String> {
+        let out = format!("$_{}_", self.next);
+        self.next += 1;
+        Some(out)
+    }
+}
+
+pub fn reform_ast(program: &Program) -> leo_ast::Program {
+    let mut all_programs: IndexMap<String, Program> = IndexMap::new();
+    let mut program_stack = program.borrow().imported_modules.clone();
+    while let Some((module, program)) = program_stack.pop() {
+        if all_programs.contains_key(&module) {
+            continue;
+        }
+        all_programs.insert(module, program.clone());
+        program_stack.extend(program.borrow().imported_modules.clone());
+    }
+    all_programs.insert("".to_string(), program.clone());
+    let core_programs: Vec<_> = all_programs.iter().filter(|(module, _)| module.starts_with("core.")).map(|x| x.clone()).collect();
+    all_programs.retain(|module, _| !module.starts_with("core."));
+
+    let mut all_circuits: IndexMap<String, Arc<CircuitBody>> = IndexMap::new();
+    let mut all_functions: IndexMap<String, Arc<FunctionBody>> = IndexMap::new();
+    let mut all_test_functions: IndexMap<String, (Arc<FunctionBody>, Option<Identifier>)> = IndexMap::new();
+    let mut identifiers = InternalIdentifierGenerator { next: 0 };
+    for (module, program) in all_programs.into_iter() {
+        let program = program.borrow();
+        for (name, circuit) in program.circuits.iter() {
+            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+            circuit.circuit.name.borrow_mut().name = identifier.clone();
+            all_circuits.insert(identifier, circuit.clone());
+        }
+        for (name, function) in program.functions.iter() {
+            let identifier = if name == "main" {
+                "main".to_string()   
+            } else {
+                format!("{}{}", identifiers.next().unwrap(), name)
+            };
+            function.function.name.borrow_mut().name = identifier.clone();
+            all_functions.insert(identifier, function.clone());
+        }
+        for (name, function) in program.test_functions.iter() {
+            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+            function.0.function.name.borrow_mut().name = identifier.clone();
+            all_test_functions.insert(identifier, function.clone());
+        }
+    }
+    
+    //todo: core imports
+    leo_ast::Program {
+        name: "ast_aggregate".to_string(),
+        imports: vec![],
+        expected_input: vec![],
+        tests: all_test_functions.into_iter().map(|(name, (function, ident))| {
+            (
+                function.function.name.borrow().clone(),
+                leo_ast::TestFunction {
+                    function: function.function.as_ref().into(),
+                    input_file: ident,
+                }
+            )
+        }).collect(),
+        functions: all_functions.into_iter().map(|(name, function)| {
+            (
+                function.function.name.borrow().clone(),
+                function.function.as_ref().into(),
+            )
+        }).collect(),
+        circuits: all_circuits.into_iter().map(|(name, circuit)| {
+            (
+                circuit.circuit.name.borrow().clone(),
+                circuit.circuit.as_ref().into(),
+            )
+        }).collect(),
+    }
+}
+
+impl Into<leo_ast::Program> for &InnerProgram {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),
             imports: vec![],
             expected_input: vec![],
-            circuits: self.circuits.iter().map(|(_, circuit)| (circuit.circuit.name.clone(), circuit.circuit.as_ref().into())).collect(),
-            functions: self.functions.iter().map(|(_, function)| (function.function.name.clone(), function.function.as_ref().into())).collect(),
-            tests: self.test_functions.iter().map(|(_, function)| (function.0.function.name.clone(), leo_ast::TestFunction {
+            circuits: self.circuits.iter().map(|(_, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into())).collect(),
+            functions: self.functions.iter().map(|(_, function)| (function.function.name.borrow().clone(), function.function.as_ref().into())).collect(),
+            tests: self.test_functions.iter().map(|(_, function)| (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
                 function: function.0.function.as_ref().into(),
                 input_file: function.1.clone(),
             })).collect(),

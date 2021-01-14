@@ -57,9 +57,9 @@ pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<le
 }
 
 pub fn load_asg_from_ast<T: ImportResolver + 'static>(content: leo_ast::Program, resolver: &T) -> Result<Program, AsgConvertError> {
-    Program::new(&content, resolver)
+    InnerProgram::new(&content, resolver)
 }
 
 pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &T) -> Result<Program, AsgConvertError> {
-    Program::new(&load_ast("input.leo", content)?, resolver)
+    InnerProgram::new(&load_ast("input.leo", content)?, resolver)
 }

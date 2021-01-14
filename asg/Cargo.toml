@@ -1,6 +1,6 @@
 [package]
 name = "leo-asg"
-version = "1.0.0"
+version = "1.0.7"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "ASG of the Leo programming language"
 homepage = "https://aleo.org"

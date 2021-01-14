@@ -38,6 +38,7 @@ use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
+use leo_asg::Program as AsgProgram;
 
 use sha2::{Digest, Sha256};
 use std::{
@@ -54,6 +55,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     output_directory: PathBuf,
     program: Program,
     program_input: Input,
+    asg: Option<AsgProgram>,
     imported_programs: ImportParser,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -70,6 +72,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             output_directory,
             program: Program::new(package_name),
             program_input: Input::new(),
+            asg: None,
             imported_programs: ImportParser::default(),
             _engine: PhantomData,
             _group: PhantomData,
@@ -164,7 +167,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub(crate) fn parse_and_check_program(&mut self) -> Result<(), CompilerError> {
         self.parse_program()?;
 
-        self.check_program()
+        self.check_program()?;
+
+        self.program_asg_generate()
     }
 
     ///
@@ -221,6 +226,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         tracing::debug!("Program checks complete");
+
+        Ok(())
+    }
+
+    pub(crate) fn program_asg_generate(&mut self) -> Result<(), CompilerError> {
+        // Create a new symbol table from the program, imported_programs, and program_input.
+        let asg = leo_asg::InnerProgram::new(&self.program, &leo_asg::NullImportResolver)?;
+
+        tracing::debug!("ASG generation complete");
+
+        self.asg = Some(asg);
 
         Ok(())
     }
@@ -303,7 +319,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
 
-        generate_constraints::<F, G, CS>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
+        generate_constraints::<F, G, CS>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(
             |mut error| {
                 error.set_path(&path);
 
@@ -317,9 +333,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         generate_test_constraints::<F, G>(
-            self.program,
+            self.asg.as_ref().unwrap(),
             input_pairs,
-            &self.imported_programs,
             &self.main_file_path,
             &self.output_directory,
         )
@@ -333,7 +348,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         cs: &mut CS,
     ) -> Result<OutputBytes, CompilerError> {
         let path = &self.main_file_path;
-        generate_constraints::<_, G, _>(cs, &self.program, &self.program_input, &self.imported_programs).map_err(
+        generate_constraints::<_, G, _>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(
             |mut error| {
                 error.set_path(&path);
                 error

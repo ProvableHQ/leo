@@ -51,7 +51,7 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
         match expected_type {
             Some(PartialType::Type(Type::Circuit(expected_circuit))) if expected_circuit == circuit => (),
             None => (),
-            Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&circuit.name.name), &value.span)),
+            Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&circuit.name.borrow().name), &value.span)),
         }
         let members: IndexMap<&String, (&Identifier, &leo_ast::Expression)> = value.members.iter().map(|x| (&x.identifier.name, (&x.identifier, &x.expression))).collect();
 
@@ -69,13 +69,13 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
                     let received = Arc::<Expression>::from_ast(scope, *receiver, Some(type_.partial()))?;
                     values.push(((*identifier).clone(), received));
                 } else {
-                    return Err(AsgConvertError::missing_circuit_member(&circuit.name.name, name, &value.span));
+                    return Err(AsgConvertError::missing_circuit_member(&circuit.name.borrow().name, name, &value.span));
                 }
             }
 
             for (name, (identifier, _expression)) in members.iter() {
                 if circuit_members.get(*name).is_none() {
-                    return Err(AsgConvertError::extra_circuit_member(&circuit.name.name, *name, &identifier.span));
+                    return Err(AsgConvertError::extra_circuit_member(&circuit.name.borrow().name, *name, &identifier.span));
                 }
             }
         }
@@ -92,7 +92,7 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
 impl Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression {
     fn into(self) -> leo_ast::CircuitInitExpression {
         leo_ast::CircuitInitExpression {
-            name: self.circuit.name.clone(),
+            name: self.circuit.name.borrow().clone(),
             members: self.values.iter().map(|(name, value)| {
                 leo_ast::CircuitVariableDefinition {
                     identifier: name.clone(),

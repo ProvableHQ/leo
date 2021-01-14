@@ -61,20 +61,21 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                     Some(Type::Circuit(circuit)) => circuit,
                     type_ => return Err(AsgConvertError::unexpected_type("circuit", type_.map(|x| x.to_string()).as_deref(), &span)),
                 };
+                let circuit_name = circuit.name.borrow().name.clone();
                 let member = circuit.members.borrow();
-                let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.name, &name.name, &span))?;
+                let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, &span))?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier == FunctionQualifier::Static {
-                            return Err(AsgConvertError::circuit_static_call_invalid(&circuit.name.name, &name.name, &span));
+                            return Err(AsgConvertError::circuit_static_call_invalid(&circuit_name, &name.name, &span));
                         } else if body.qualifier == FunctionQualifier::MutSelfRef {
                             if !target.is_mut_ref() {
-                                return Err(AsgConvertError::circuit_member_mut_call_invalid(&circuit.name.name, &name.name, &span));
+                                return Err(AsgConvertError::circuit_member_mut_call_invalid(&circuit_name, &name.name, &span));
                             }
                         }
                         (Some(target), body.clone())
                     },
-                    CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit.name.name, &name.name, &span))?,
+                    CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, &span))?,
                 }
             },
             leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression { circuit: ast_circuit, name, span }) => {
@@ -83,16 +84,18 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                 } else {
                     return Err(AsgConvertError::unexpected_type("circuit", None, &span));
                 };
+                let circuit_name = circuit.name.borrow().name.clone();
+
                 let member = circuit.members.borrow();
-                let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.name, &name.name, &span))?;
+                let member = member.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, &span))?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier != FunctionQualifier::Static {
-                            return Err(AsgConvertError::circuit_member_call_invalid(&circuit.name.name, &name.name, &span));
+                            return Err(AsgConvertError::circuit_member_call_invalid(&circuit_name, &name.name, &span));
                         }
                         (None, body.clone())
                     },
-                    CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit.name.name, &name.name, &span))?,
+                    CircuitMember::Variable(_) => return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, &span))?,
                 }
             },
             _ => return Err(AsgConvertError::illegal_ast_structure("non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target")),
@@ -130,12 +133,12 @@ impl Into<leo_ast::CallExpression> for &CallExpression {
             let circuit = self.function.circuit.borrow().as_ref().map(|x| x.upgrade()).flatten();
             if let Some(circuit) = circuit {
                 leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
-                    circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.clone())),
-                    name: self.function.name.clone(),
+                    circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
+                    name: self.function.name.borrow().clone(),
                     span: self.span.clone().unwrap_or_default(),
                 })
             } else {
-                leo_ast::Expression::Identifier(self.function.name.clone())
+                leo_ast::Expression::Identifier(self.function.name.borrow().clone())
             }
         };
         leo_ast::CallExpression {

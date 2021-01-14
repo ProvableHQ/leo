@@ -15,9 +15,10 @@ pub enum CircuitMember {
     Function(Arc<Function>),
 }
 
+
 pub struct Circuit {
     pub id: Uuid,
-    pub name: Identifier,
+    pub name: RefCell<Identifier>,
     pub body: RefCell<Weak<CircuitBody>>,
     pub members: RefCell<IndexMap<String, CircuitMember>>,
 }
@@ -30,6 +31,7 @@ impl PartialEq for Circuit {
         self.id == other.id
     }
 }
+impl Eq for Circuit {}
 
 pub struct CircuitBody {
     pub scope: Scope,
@@ -37,6 +39,13 @@ pub struct CircuitBody {
     pub circuit: Arc<Circuit>,
     pub members: RefCell<IndexMap<String, CircuitMemberBody>>,
 }
+
+impl PartialEq for CircuitBody {
+    fn eq(&self, other: &CircuitBody) -> bool {
+        self.circuit == other.circuit
+    }
+}
+impl Eq for CircuitBody {}
 
 impl Node for CircuitMemberBody {
 
@@ -51,7 +60,7 @@ impl Circuit {
 
         let circuit = Arc::new(Circuit {
             id: Uuid::new_v4(),
-            name: value.circuit_name.clone(),
+            name: RefCell::new(value.circuit_name.clone()),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(IndexMap::new()),
         });
@@ -140,7 +149,7 @@ impl Into<leo_ast::Circuit> for &Circuit {
             None => vec![],
         };
         leo_ast::Circuit {
-            circuit_name: self.name.clone(),
+            circuit_name: self.name.borrow().clone(),
             members,
         }
     }

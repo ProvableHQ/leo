@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
+use leo_asg::AsgConvertError;
 use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
@@ -71,8 +72,12 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     SymbolTableError(#[from] SymbolTableError),
+
     #[error("{}", _0)]
     TypeInferenceError(#[from] TypeInferenceError),
+
+    #[error("{}", _0)]
+    AsgConvertError(#[from] AsgConvertError),
 }
 
 impl CompilerError {

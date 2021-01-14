@@ -250,11 +250,12 @@ impl<T: Monoid, R: MonoidalReducerProgram<T>> MonoidalDirector<T, R> {
     }
 
     fn reduce_program(&mut self, input: &Program) -> T {
-        let imported_modules = input.imported_modules.iter().map(|import| self.reduce_program(import)).collect();
+        let input = input.borrow();
+        let imported_modules = input.imported_modules.iter().map(|(_, import)| self.reduce_program(import)).collect();
         let test_functions = input.test_functions.iter().map(|(_, (f, _))| self.reduce_function(f)).collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
-        self.reducer.reduce_program(input, imported_modules, test_functions, functions, circuits)
+        self.reducer.reduce_program(&input, imported_modules, test_functions, functions, circuits)
     }
 }

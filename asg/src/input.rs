@@ -23,25 +23,25 @@ impl Input {
     pub fn new() -> Self {
         let registers = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: Identifier::new(REGISTERS_PSUEDO_CIRCUIT.to_string()),
+            name: RefCell::new(Identifier::new(REGISTERS_PSUEDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(IndexMap::new()),
         });
         let record = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: Identifier::new(RECORD_PSUEDO_CIRCUIT.to_string()),
+            name: RefCell::new(Identifier::new(RECORD_PSUEDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(IndexMap::new()),
         });
         let state = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: Identifier::new(STATE_PSUEDO_CIRCUIT.to_string()),
+            name: RefCell::new(Identifier::new(STATE_PSUEDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(IndexMap::new()),
         });
         let state_leaf = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: Identifier::new(STATE_LEAF_PSUEDO_CIRCUIT.to_string()),
+            name: RefCell::new(Identifier::new(STATE_LEAF_PSUEDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(IndexMap::new()),
         });
@@ -54,7 +54,7 @@ impl Input {
 
         let container_circuit = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: Identifier::new(CONTAINER_PSUEDO_CIRCUIT.to_string()),
+            name: RefCell::new(Identifier::new(CONTAINER_PSUEDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(container_members),
         });
@@ -80,7 +80,7 @@ impl Input {
 
 impl Circuit {
     pub fn is_input_psuedo_circuit(&self) -> bool {
-        match &*self.name.name {
+        match &*self.name.borrow().name {
             REGISTERS_PSUEDO_CIRCUIT |
             RECORD_PSUEDO_CIRCUIT |
             STATE_PSUEDO_CIRCUIT |

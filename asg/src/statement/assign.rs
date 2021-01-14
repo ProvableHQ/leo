@@ -114,7 +114,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                             let circuit = circuit;
 
                             let members = circuit.members.borrow();
-                            let member = members.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.name, &name.name, &statement.span))?;
+                            let member = members.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit.name.borrow().name, &name.name, &statement.span))?;
 
                             let x = match &member {
                                 CircuitMember::Variable(type_) => type_.clone(),

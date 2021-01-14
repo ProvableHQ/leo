@@ -23,7 +23,8 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Expression, Function, FunctionInput};
+use leo_asg::{Expression, FunctionBody, FunctionQualifier};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -36,81 +37,90 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         scope: &str,
         caller_scope: &str,
-        function: Function,
-        input: Vec<Expression>,
+        function: &Arc<FunctionBody>,
+        input: Option<&Expression>,
+        self_: Option<&Expression>,
+        arguments: Vec<&Expression>,
         declared_circuit_reference: &str,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let function_name = new_scope(scope, function.get_name());
+        let function_name = new_scope(scope, &function.function.name.borrow().name.clone());
 
         // Store if function contains input `mut self`.
-        let mut_self = function.contains_mut_self();
+        let mut_self = function.function.qualifier == FunctionQualifier::MutSelfRef;
+
+        if function.function.has_input {
+            if let Some(input) = input {
+                // todo: enforce self & input
+                let value =
+                    self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input)?;
+
+                self.store(new_scope(&function_name, "input"), value);
+            } else {
+                return Err(FunctionError::input_not_found("input".to_string(), function.span.unwrap_or_default()));
+            }
+        }
+
+        match function.function.qualifier {
+            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
+                if let Some(input) = input {
+                    // todo: enforce self & input
+                    let value =
+                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, self_)?;
+    
+                    self.store(new_scope(&function_name, "self"), value);
+                } else {
+                    return Err(FunctionError::input_not_found("self".to_string(), function.span.unwrap_or_default()));
+                }
+            },
+            FunctionQualifier::Static => (),
+        }
+        if function.arguments.len() != arguments.len() {
+            return Err(FunctionError::input_not_found("arguments length invalid".to_string(), function.span.unwrap_or_default()));
+        }
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.filter_self_inputs().zip(input.into_iter()) {
-            let (name, value) = match input_model {
-                FunctionInput::InputKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+        for (variable, input_expression) in function.arguments.iter().zip(arguments.into_iter()) {
+            let variable = variable.borrow();
 
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::SelfKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+            let mut input_value = self.enforce_function_input(
+                cs,
+                scope,
+                caller_scope,
+                &function_name,
+                Some(variable.type_.clone()),
+                input_expression,
+            )?;
 
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::MutSelfKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
-
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::Variable(input_model) => {
-                    // First evaluate input expression
-                    let mut input_value = self.enforce_function_input(
-                        cs,
-                        scope,
-                        caller_scope,
-                        &function_name,
-                        Some(input_model.type_.clone()),
-                        input_expression,
-                    )?;
-
-                    if input_model.mutable {
-                        input_value = ConstrainedValue::Mutable(Box::new(input_value))
-                    }
-
-                    (input_model.identifier.name.clone(), input_value)
-                }
-            };
+            if variable.mutable {
+                input_value = ConstrainedValue::Mutable(Box::new(input_value))
+            }
 
             // Store input as variable with {function_name}_{input_name}
-            let input_program_identifier = new_scope(&function_name, &name);
-            self.store(input_program_identifier, value);
+            let input_program_identifier = new_scope(&function_name, &variable.name.name);
+            self.store(input_program_identifier, input_value);
         }
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        for statement in function.block.statements.iter() {
-            let mut result = self.enforce_statement(
-                cs,
-                scope,
-                &function_name,
-                &indicator,
-                statement.clone(),
-                function.output.clone(),
-                declared_circuit_reference,
-                mut_self,
-            )?;
+        let output = function.function.output.clone().strong();
 
-            results.append(&mut result);
-        }
+        let mut result = self.enforce_statement(
+            cs,
+            scope,
+            &function_name,
+            &indicator,
+            &function.body,
+            &output,
+            declared_circuit_reference,
+            mut_self,
+        )?;
+
+        results.append(&mut result);
 
         // Conditionally select a result based on returned indicators
-        Self::conditionally_select_result(cs, function.output, results, &function.span)
+        Self::conditionally_select_result(cs, &output, results, &function.span.unwrap_or_default())
             .map_err(FunctionError::StatementError)
     }
 }

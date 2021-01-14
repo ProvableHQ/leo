@@ -25,8 +25,8 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
-use leo_ast::{Input, Program};
-use leo_imports::ImportParser;
+use leo_ast::{Input};
+use leo_asg::Program;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
@@ -40,19 +40,18 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     cs: &mut CS,
     program: &Program,
     input: &Input,
-    imported_programs: &ImportParser,
 ) -> Result<OutputBytes, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
-    let program_name = program.get_name();
+    let program_name = program.borrow().name.clone();
     let main_function_name = new_scope(&program_name, "main");
 
-    resolved_program.store_definitions(program, imported_programs)?;
+    resolved_program.store_definitions(program)?;
 
     let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
 
     match main.clone() {
         ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, &program_name, *function, input)?;
+            let result = resolved_program.enforce_main_function(cs, &program_name, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -60,36 +59,35 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 }
 
 pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
-    program: Program,
+    program: &Program,
     input: InputPairs,
-    imported_programs: &ImportParser,
     main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
-    let program_name = program.get_name();
-
-    let tests = program.tests.clone();
+    let program_name = program.borrow().name.clone();
 
     // Store definitions
-    resolved_program.store_definitions(&program, imported_programs)?;
+    resolved_program.store_definitions(&program)?;
 
     // Get default input
     let default = input.pairs.get(&program_name);
 
+    let program = program.borrow();
+    let tests = &program.test_functions;
     tracing::info!("Running {} tests", tests.len());
 
     // Count passed and failed tests
     let mut passed = 0;
     let mut failed = 0;
 
-    for (test_name, test) in tests.into_iter() {
+    for (test_name, (function, input_file)) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
         // get input file name from annotation or use test_name
-        let input_pair = match test.input_file {
+        let input_pair = match input_file {
             Some(file_id) => {
                 let file_name = file_id.name;
 
@@ -119,7 +117,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
         let result = resolved_program.enforce_main_function(
             cs,
             &program_name,
-            test.function,
+            function,
             &input, // pass program input into every test
         );
 

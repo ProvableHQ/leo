@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Identifier, Input, InputKeyword};
+use leo_ast::{Identifier, Input, Span};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -31,26 +31,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        keyword: InputKeyword,
+        span: Span,
         input: &Input,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
             name: REGISTERS_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span,
         };
         let record_name = Identifier {
             name: RECORD_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span,
         };
         let state_name = Identifier {
             name: STATE_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span,
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span,
         };
 
         // Fetch each input variable's definitions

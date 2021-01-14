@@ -95,10 +95,10 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
                     )
                 );
             } else {
-                return Err(AsgConvertError::input_ref_needs_type(&circuit.name.name, &value.name.name, &value.span));
+                return Err(AsgConvertError::input_ref_needs_type(&circuit.name.borrow().name, &value.name.name, &value.span));
             }
         } else {
-            return Err(AsgConvertError::unresolved_circuit_member(&circuit.name.name, &value.name.name, &value.span));
+            return Err(AsgConvertError::unresolved_circuit_member(&circuit.name.borrow().name, &value.name.name, &value.span));
         }
 
         Ok(CircuitAccessExpression {
@@ -127,7 +127,7 @@ impl FromAst<leo_ast::CircuitStaticFunctionAccessExpression> for CircuitAccessEx
         if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(&value.name.name) {
             // okay
         } else {
-            return Err(AsgConvertError::unresolved_circuit_member(&circuit.name.name, &value.name.name, &value.span));
+            return Err(AsgConvertError::unresolved_circuit_member(&circuit.name.borrow().name, &value.name.name, &value.span));
         }
 
         Ok(CircuitAccessExpression {
@@ -150,7 +150,7 @@ impl Into<leo_ast::Expression> for &CircuitAccessExpression {
             })
         } else {
             leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
-                circuit: Box::new(leo_ast::Expression::Identifier(self.circuit.name.clone())),
+                circuit: Box::new(leo_ast::Expression::Identifier(self.circuit.name.borrow().clone())),
                 name: self.member.clone(),
                 span: self.span.clone().unwrap_or_default(),
             })

@@ -27,9 +27,6 @@ pub use self::field::*;
 pub mod group;
 pub use self::group::*;
 
-pub mod implicit;
-pub use self::implicit::*;
-
 pub mod integer;
 pub use self::integer::*;
 

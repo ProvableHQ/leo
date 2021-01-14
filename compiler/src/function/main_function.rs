@@ -23,7 +23,9 @@ use crate::{
     OutputBytes,
 };
 
-use leo_ast::{Expression, Function, FunctionInput, Identifier, Input};
+use leo_asg::{Expression, FunctionBody};
+use leo_ast::Input;
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -35,14 +37,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         scope: &str,
-        function: Function,
+        function: &Arc<FunctionBody>,
         input: &Input,
     ) -> Result<OutputBytes, FunctionError> {
-        let function_name = new_scope(scope, function.get_name());
+        let function_name = new_scope(scope, &function.function.name.borrow().name.clone());
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
         let mut input_variables = Vec::with_capacity(function.input.len());
+        if function.function.has_input {
+            let value = self.allocate_input_keyword(cs, keyword, input)?;
+
+            self.store(new_scope(&function_name, "input"), value);
+        }
+
+
         for input_model in function.input.clone().into_iter() {
             let (input_id, value) = match input_model {
                 FunctionInput::InputKeyword(keyword) => {

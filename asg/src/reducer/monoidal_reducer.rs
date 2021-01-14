@@ -130,7 +130,7 @@ pub trait MonoidalReducerProgram<T: Monoid>: MonoidalReducerStatement<T> {
         T::default().append_all(members.into_iter())
     }
 
-    fn reduce_program(&mut self, input: &Program, imported_modules: Vec<T>, test_functions: Vec<T>, functions: Vec<T>, circuits: Vec<T>) -> T {
+    fn reduce_program(&mut self, input: &InnerProgram, imported_modules: Vec<T>, test_functions: Vec<T>, functions: Vec<T>, circuits: Vec<T>) -> T {
         T::default()
             .append_all(imported_modules.into_iter())
             .append_all(test_functions.into_iter())

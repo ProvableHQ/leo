@@ -22,8 +22,7 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_ast::Program;
-use leo_imports::ImportParser;
+use leo_asg::Program;
 
 use snarkvm_models::curves::{Field, PrimeField};
 
@@ -31,20 +30,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn store_definitions(
         &mut self,
         program: &Program,
-        imported_programs: &ImportParser,
     ) -> Result<(), ImportError> {
+        let program = program.borrow();
         let program_name = program.name.trim_end_matches(".leo");
-
-        // evaluate all import statements and store imported definitions
-        program
-            .imports
-            .iter()
-            .map(|import| self.store_import(&program_name, import, imported_programs))
-            .collect::<Result<Vec<_>, ImportError>>()?;
 
         // evaluate and store all circuit definitions
         program.circuits.iter().for_each(|(identifier, circuit)| {
-            let resolved_circuit_name = new_scope(program_name, &identifier.name);
+            let resolved_circuit_name = new_scope(program_name, &identifier);
             self.store(
                 resolved_circuit_name,
                 ConstrainedValue::CircuitDefinition(circuit.clone()),
@@ -53,10 +45,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // evaluate and store all function definitions
         program.functions.iter().for_each(|(function_name, function)| {
-            let resolved_function_name = new_scope(program_name, &function_name.name);
+            let resolved_function_name = new_scope(program_name, &function_name);
             self.store(
                 resolved_function_name,
-                ConstrainedValue::Function(None, Box::new(function.clone())),
+                ConstrainedValue::Function(None, function.clone()),
             );
         });
 

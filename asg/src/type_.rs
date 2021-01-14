@@ -158,7 +158,7 @@ impl fmt::Display for Type {
                 }
                 write!(f, ")")
             },
-            Type::Circuit(circuit) => write!(f, "{}", &circuit.name.name),
+            Type::Circuit(circuit) => write!(f, "{}", &circuit.name.borrow().name),
         }
     }
 }
@@ -210,7 +210,7 @@ impl Into<leo_ast::Type> for &Type {
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
             Array(type_, len) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber { value: len.to_string() }])),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
-            Circuit(circuit) => leo_ast::Type::Circuit(circuit.name.clone()),
+            Circuit(circuit) => leo_ast::Type::Circuit(circuit.name.borrow().clone()),
         }
     }
 }
