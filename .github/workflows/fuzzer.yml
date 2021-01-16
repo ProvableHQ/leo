@@ -1,0 +1,34 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'documentation/**'
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Load the 'leo-fuzzer' deploy key
+        run: |
+          mkdir ~/.ssh
+          echo "${{ secrets.LEO_FUZZER_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add -k ~/.ssh/id_rsa
+
+      - name: Install 'leo-fuzzer'
+        run: |
+          cd .. && git clone ssh://git@github.com/AleoHQ/leo-fuzzer.git --depth=1
+          cd leo-fuzzer && cargo install --path .
+
+      - name: Run 'leo-fuzzer'
+        run: |
+          leo-fuzzer run --random 50 -m random --r-times 10 --loop 1 --no-load --cover
