@@ -1,4 +1,4 @@
-name: leo-new
+name: leo-clean
 on:
   pull_request:
   push:
