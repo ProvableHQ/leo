@@ -42,5 +42,6 @@ jobs:
 
       - name: 'leo clean'
         run: |
+          ls -la
           leo clean
           cd outputs && ls -la
