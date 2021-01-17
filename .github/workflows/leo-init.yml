@@ -1,0 +1,40 @@
+name: leo-init
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'documentation/**'
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  init:
+    name: Hello Leo ('leo init')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt
+
+      - name: Install Leo
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --release --path .
+
+      - name: 'leo init'
+        run: |
+          cd .. && mkdir hello-world && cd hello-world
+          leo init
+          ls -la
+          leo run
