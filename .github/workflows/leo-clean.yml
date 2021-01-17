@@ -50,6 +50,6 @@ jobs:
 
       - name: 'leo clean'
         run: |
-          ls -la
+          cd ../hello-world
           leo clean
           cd outputs && ls -la
