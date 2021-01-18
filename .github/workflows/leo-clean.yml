@@ -50,6 +50,7 @@ jobs:
 
       - name: Assert that the 'outputs' folder is not empty
         run: |
+          cd ../hello-world/outputs
           if [ "$(ls -A $DIR)" ]; then
               echo "$DIR is not empty"
           else
@@ -65,6 +66,7 @@ jobs:
 
       - name: Assert that the 'outputs' folder is empty
         run: |
+          cd ../hello-world/outputs
           if [ "$(ls -A $DIR)" ]; then
               echo "$DIR is not empty"
               exit 1
