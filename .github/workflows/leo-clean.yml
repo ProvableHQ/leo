@@ -48,8 +48,27 @@ jobs:
           cd hello-world && ls -la
           leo run
 
+      - name: Assert that the 'outputs' folder is not empty
+        run: |
+          if [ "$(ls -A $DIR)" ]; then
+              echo "$DIR is not empty"
+          else
+              echo "$DIR is empty"
+              exit 1
+          fi
+
       - name: 'leo clean'
         run: |
           cd ../hello-world
           leo clean
           cd outputs && ls -la
+
+      - name: Assert that the 'outputs' folder is empty
+        run: |
+          if [ "$(ls -A $DIR)" ]; then
+              echo "$DIR is not empty"
+              exit 1
+          else
+              echo "$DIR is empty"
+              exit 0
+          fi
