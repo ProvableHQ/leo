@@ -89,7 +89,7 @@ impl Ast {
 
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        Ok(serde_json::to_string_pretty(&self.ast)?)
+        serde_json::to_string_pretty(&self.ast)
     }
 
     /// Deserializes the JSON string into a ast.

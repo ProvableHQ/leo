@@ -49,7 +49,7 @@ impl ChecksumFile {
     pub fn read_from(&self, path: &Path) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.into_owned()))?)
+        fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given checksum to a file.

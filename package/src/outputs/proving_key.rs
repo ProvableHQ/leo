@@ -53,7 +53,7 @@ impl ProvingKeyFile {
     pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))?)
+        fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given proving key to a file.
