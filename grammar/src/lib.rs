@@ -86,7 +86,7 @@ impl<'ast> Grammar<'ast> {
     //  and maintain a global cache of program strings during the compilation process.
     /// Loads the Leo code as a string from the given file path.
     pub fn load_file(file_path: &'ast Path) -> Result<String, ParserError> {
-        Ok(fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.to_owned()))?)
+        fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.to_owned()))
     }
 
     /// Returns a reference to the inner abstract syntax tree representation.
