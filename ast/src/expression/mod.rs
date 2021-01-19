@@ -34,7 +34,7 @@ use leo_grammar::{
         CircuitInlineExpression,
         Expression as GrammarExpression,
         PostfixExpression,
-        TernaryExpression,
+        TernaryExpression as GrammarTernaryExpression,
         UnaryExpression as GrammarUnaryExpression,
     },
     operations::{BinaryOperation as GrammarBinaryOperation, UnaryOperation as GrammarUnaryOperation},
@@ -59,8 +59,8 @@ mod binary;
 pub use binary::*;
 mod unary;
 pub use unary::*;
-mod conditional;
-pub use conditional::*;
+mod ternary;
+pub use ternary::*;
 mod array_access;
 pub use array_access::*;
 mod array_range_access;
@@ -91,7 +91,7 @@ pub enum Expression {
     Value(ValueExpression),
     Binary(BinaryExpression),
     Unary(UnaryExpression),
-    Conditional(ConditionalExpression),
+    Ternary(TernaryExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
@@ -116,7 +116,7 @@ impl Node for Expression {
             Value(n) => n.span(),
             Binary(n) => n.span(),
             Unary(n) => n.span(),
-            Conditional(n) => n.span(),
+            Ternary(n) => n.span(),
             ArrayInline(n) => n.span(),
             ArrayInit(n) => n.span(),
             ArrayAccess(n) => n.span(),
@@ -137,7 +137,7 @@ impl Node for Expression {
             Value(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
-            Conditional(n) => n.set_span(span),
+            Ternary(n) => n.set_span(span),
             ArrayInline(n) => n.set_span(span),
             ArrayInit(n) => n.set_span(span),
             ArrayAccess(n) => n.set_span(span),
@@ -160,7 +160,7 @@ impl<'ast> fmt::Display for Expression {
             Value(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
-            Conditional(n) => n.fmt(f),
+            Ternary(n) => n.fmt(f),
             ArrayInline(n) => n.fmt(f),
             ArrayInit(n) => n.fmt(f),
             ArrayAccess(n) => n.fmt(f),
@@ -341,9 +341,9 @@ impl<'ast> From<GrammarBinaryExpression<'ast>> for Expression {
     }
 }
 
-impl<'ast> From<TernaryExpression<'ast>> for Expression {
-    fn from(expression: TernaryExpression<'ast>) -> Self {
-        Expression::Conditional(ConditionalExpression {
+impl<'ast> From<GrammarTernaryExpression<'ast>> for Expression {
+    fn from(expression: GrammarTernaryExpression<'ast>) -> Self {
+        Expression::Ternary(TernaryExpression {
             condition: Box::new(Expression::from(expression.first)),
             if_true: Box::new(Expression::from(expression.second)),
             if_false: Box::new(Expression::from(expression.third)),

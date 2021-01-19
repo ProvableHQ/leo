@@ -484,7 +484,7 @@ impl Frame {
                 UnaryOperation::Not => self.parse_boolean_expression(&unary.inner, &unary.span),
             },
 
-            Conditional(conditional) => self.parse_conditional_expression(
+            Ternary(conditional) => self.parse_conditional_expression(
                 &conditional.condition,
                 &conditional.if_true,
                 &conditional.if_false,
