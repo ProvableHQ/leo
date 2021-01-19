@@ -17,20 +17,20 @@
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ConditionalExpression {
+pub struct TernaryExpression {
     pub condition: Box<Expression>,
     pub if_true: Box<Expression>,
     pub if_false: Box<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for ConditionalExpression {
+impl fmt::Display for TernaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if {} ? {} : {}", self.condition, self.if_true, self.if_false)
     }
 }
 
-impl Node for ConditionalExpression {
+impl Node for TernaryExpression {
     fn span(&self) -> &Span {
         &self.span
     }

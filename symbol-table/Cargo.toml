@@ -1,6 +1,6 @@
 [package]
 name = "leo-symbol-table"
-version = "1.0.7"
+version = "1.0.8"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Stores user-defined variables during type resolution"
 homepage = "https://aleo.org"
@@ -19,19 +19,19 @@ edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.leo-core]
 path = "../core"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.leo-imports]
 path = "../imports"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.indexmap]
 version = "1.6.1"

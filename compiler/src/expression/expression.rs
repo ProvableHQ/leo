@@ -121,7 +121,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 )?),
             },
 
-            Expression::Conditional(ConditionalExpression {
+            Expression::Ternary(TernaryExpression {
                 condition,
                 if_true,
                 if_false,

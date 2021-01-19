@@ -1,4 +1,4 @@
-name: Leo Binary Tests
+name: leo-new
 on:
   pull_request:
   push:
@@ -26,10 +26,16 @@ jobs:
           override: true
           components: rustfmt
 
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install Leo
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
           command: install
           args: --path .
@@ -40,34 +46,4 @@ jobs:
           leo new hello-world
           ls -la
           cd hello-world && ls -la
-          leo run
-
-  init:
-    name: Hello Leo ('leo init')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - name: Install Leo
-        uses: actions-rs/cargo@v1
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
-        with:
-          command: install
-          args: --path .
-
-      - name: 'leo init'
-        run: |
-          cd .. && mkdir hello-world && cd hello-world
-          leo init
-          ls -la
           leo run

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Error as FormattedError, Span};
+use crate::errors::ValueError;
+use leo_ast::{Error as FormattedError, Span, Type};
 
 use std::path::Path;
 
@@ -22,12 +23,16 @@ use std::path::Path;
 pub enum OutputBytesError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
+
+    #[error("{}", _0)]
+    ValueError(#[from] ValueError),
 }
 
 impl OutputBytesError {
     pub fn set_path(&mut self, path: &Path) {
         match self {
             OutputBytesError::Error(error) => error.set_path(path),
+            OutputBytesError::ValueError(error) => error.set_path(path),
         }
     }
 
@@ -37,6 +42,15 @@ impl OutputBytesError {
 
     pub fn not_enough_registers(span: Span) -> Self {
         let message = "number of input registers must be greater than or equal to output registers".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn mismatched_output_types(left: Type, right: Type, span: Span) -> Self {
+        let message = format!(
+            "Mismatched types. Expected register output type `{}`, found type `{}`.",
+            left, right
+        );
 
         Self::new_from_span(message, span)
     }
