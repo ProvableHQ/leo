@@ -27,6 +27,7 @@ pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
+#[allow(clippy::vec_init_then_push)]
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,

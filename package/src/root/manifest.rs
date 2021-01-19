@@ -214,6 +214,6 @@ author = "{author}"
         }
 
         // Read the toml file
-        Ok(toml::from_str(&final_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))?)
+        toml::from_str(&final_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))
     }
 }
