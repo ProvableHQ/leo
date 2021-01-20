@@ -30,7 +30,7 @@ impl CLI for WatchCommand {
     type Options = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Watch the changes of the leo's source files";
+    const ABOUT: AboutType = "Watch for changes of Leo source files";
     const ARGUMENTS: &'static [ArgumentType] = &[];
     const FLAGS: &'static [FlagType] = &[];
     const NAME: NameType = "watch";
