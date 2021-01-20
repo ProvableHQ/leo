@@ -16,5 +16,5 @@
 
 //! Methods to enforce identifier expressions in a compiled Leo program.
 
-pub mod identifier;
-pub use self::identifier::*;
+pub mod variable_ref;
+pub use self::variable_ref::*;

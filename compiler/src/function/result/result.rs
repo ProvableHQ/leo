@@ -17,7 +17,6 @@
 //! Enforces that one return value is produced in a compiled Leo program.
 
 use crate::{
-    check_return_type,
     errors::StatementError,
     get_indicator_value,
     program::ConstrainedProgram,
@@ -25,7 +24,7 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{Span, Type};
+use leo_asg::{Span, Type};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -42,29 +41,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ///
     pub fn conditionally_select_result<CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        expected_return: Option<Type>,
+        expected_return: &Type,
         results: Vec<(Boolean, ConstrainedValue<F, G>)>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Initialize empty return value.
         let mut return_value = ConstrainedValue::Tuple(vec![]);
-
-        // If the function does not expect a return type, then make sure there are no returned results.
-        let return_type = match expected_return {
-            Some(return_type) => return_type,
-            None => {
-                if results.is_empty() {
-                    // If the function has no returns, then return an empty tuple.
-                    return Ok(return_value);
-                } else {
-                    return Err(StatementError::invalid_number_of_returns(
-                        0,
-                        results.len(),
-                        span.to_owned(),
-                    ));
-                }
-            }
-        };
 
         // Error if the function or one of its branches does not return.
         if results
@@ -72,7 +54,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .find(|(indicator, _res)| get_indicator_value(indicator))
             .is_none()
         {
-            return Err(StatementError::no_returns(return_type, span.to_owned()));
+            return Err(StatementError::no_returns(&expected_return, span.to_owned()));
         }
 
         // Find the return value
@@ -81,7 +63,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         for (indicator, result) in results.into_iter() {
             // Error if a statement returned a result with an incorrect type
             let result_type = result.to_type(span)?;
-            check_return_type(&return_type, &result_type, span)?;
+            if !expected_return.is_assignable_from(&result_type) {
+                panic!("failed type resolution for function return: expected '{}', got '{}'", expected_return.to_string(), result_type.to_string());
+            }
 
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.

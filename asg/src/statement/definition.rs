@@ -59,6 +59,7 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
                 return Err(AsgConvertError::illegal_ast_structure("cannot have const mut"));
             }
             variables.push(Arc::new(RefCell::new(InnerVariable {
+                id: uuid::Uuid::new_v4(),
                 name: variable.identifier.clone(),
                 type_: type_
                     .ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?,

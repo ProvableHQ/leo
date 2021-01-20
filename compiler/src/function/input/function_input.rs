@@ -18,7 +18,7 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_ast::{Expression, Type};
+use leo_asg::{Expression, Type};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         caller_scope: &str,
         function_name: &str,
         expected_type: Option<Type>,
-        input: Expression,
+        input: &Expression,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Evaluate the function input value as pass by value from the caller or
         // evaluate as an expression in the current function scope

@@ -120,6 +120,10 @@ version = "1.0"
 [dependencies.tracing]
 version = "0.1"
 
+[dependencies.uuid]
+version = "0.8"
+features = ["v4", "serde"]
+
 [dev-dependencies.num-bigint]
 version = "0.3"
 

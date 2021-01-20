@@ -1,6 +1,7 @@
 use crate::{ Type, IntegerType, AsgConvertError, Span };
 use std::convert::TryInto;
 use num_bigint::BigInt;
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ConstInt {
@@ -22,6 +23,17 @@ pub enum GroupCoordinate {
     SignHigh,
     SignLow,
     Inferred,
+}
+
+impl fmt::Display for GroupCoordinate {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            GroupCoordinate::Number(number) => write!(f, "{}", number),
+            GroupCoordinate::SignHigh => write!(f, "+"),
+            GroupCoordinate::SignLow => write!(f, "-"),
+            GroupCoordinate::Inferred => write!(f, "_"),
+        }
+    }
 }
 
 impl From<&leo_ast::GroupCoordinate> for GroupCoordinate {

@@ -2,6 +2,7 @@ use leo_ast::Identifier;
 use crate::{ Type, Expression, ConstValue, Statement };
 use std::sync::{ Arc, Weak };
 use std::cell::RefCell;
+use uuid::Uuid;
 
 //todo: fill out
 pub enum VariableDeclaration {
@@ -13,6 +14,7 @@ pub enum VariableDeclaration {
 }
 
 pub struct InnerVariable {
+    pub id: Uuid,
     pub name: Identifier,
     pub type_: Type,
     pub mutable: bool,

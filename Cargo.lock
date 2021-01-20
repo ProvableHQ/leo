@@ -1309,6 +1309,7 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
+ "uuid",
 ]
 
 [[package]]

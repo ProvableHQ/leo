@@ -37,8 +37,8 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
-pub mod identifier;
-pub use self::identifier::*;
+pub mod variable_ref;
+pub use self::variable_ref::*;
 
 pub mod logical;
 pub use self::logical::*;

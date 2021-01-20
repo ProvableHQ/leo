@@ -66,6 +66,7 @@ impl Input {
             state_leaf,
             container_circuit: container_circuit.clone(),
             container: Arc::new(RefCell::new(crate::InnerVariable {
+                id: uuid::Uuid::new_v4(),
                 name: Identifier::new("input".to_string()),
                 type_: Type::Circuit(container_circuit),
                 mutable: false,

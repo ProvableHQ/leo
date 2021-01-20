@@ -16,8 +16,9 @@
 
 //! Enforce a function call expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{expression::CircuitMemberAccessExpression, Expression, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Span, Function};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -31,49 +32,52 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        expected_type: Option<Type>,
-        function: Expression,
-        arguments: Vec<Expression>,
-        span: Span,
+        function: &Arc<Function>,
+        target: Option<&Arc<Expression>>,
+        arguments: &Vec<Arc<Expression>>,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (declared_circuit_reference, function_value) = match function {
-            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
-                // Call a circuit function that can mutate self.
-
-                // Save a reference to the circuit we are mutating.
-                let circuit_id_string = circuit.to_string();
-                let declared_circuit_reference = new_scope(function_scope, &circuit_id_string);
-
-                (
-                    declared_circuit_reference,
-                    self.enforce_circuit_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)?,
-                )
-            }
-            function => (
-                function_scope.to_string(),
-                self.enforce_expression(cs, file_scope, function_scope, expected_type, function)?,
-            ),
-        };
-
-        let (outer_scope, function_call) = function_value.extract_function(file_scope, &span)?;
 
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
-                function_call.get_name(),
+                function.name.borrow().clone(),
                 span.line,
                 span.start,
             )
         };
+        let function = function.body.borrow().upgrade().expect("stale function in call expression");
 
-        self.enforce_function(
+        let target = if let Some(target) = target {
+            Some(self.enforce_expression(cs, file_scope, function_scope, target)?)
+        } else {
+            None
+        };
+
+        let old_self_alias = self.self_alias.take();
+        self.self_alias = if let Some(target) = &target {
+            let self_var = function.scope.borrow().resolve_variable("self").expect("attempted to call static function from non-static context");
+            match target {
+                ConstrainedValue::CircuitExpression(circuit, id, values) => {
+                    assert!(Some(&circuit.circuit) == function.function.circuit.borrow().map(|x| x.upgrade()).flatten().as_ref());
+                    Some((self_var.borrow().id.clone(), id.clone()))
+                },
+                _ => panic!("attempted to pass non-circuit as target"),
+            }
+        } else {
+            None
+        };
+        
+        let return_value = self.enforce_function(
             &mut cs.ns(name_unique),
-            &outer_scope,
+            file_scope,
             function_scope,
-            function_call,
+            &function,
+            target,
             arguments,
-            &declared_circuit_reference,
         )
-        .map_err(|error| ExpressionError::from(Box::new(error)))
+        .map_err(|error| ExpressionError::from(Box::new(error)))?;
+
+        Ok(return_value)
     }
 }

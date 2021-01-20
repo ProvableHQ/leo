@@ -46,6 +46,9 @@ impl MonoidalReducerStatement<BoolAnd> for ReturnPathReducer {
     }
 
     fn reduce_conditional_statement(&mut self, input: &ConditionalStatement, condition: BoolAnd, if_true: BoolAnd, if_false: Option<BoolAnd>) -> BoolAnd {
+        if if_false.as_ref().map(|x| x.0).unwrap_or(false) != if_true.0 {
+            self.record_error(input.span(), "cannot have asymmetrical return in if statement".to_string());
+        }
         if_true.append(if_false.unwrap_or_else(|| BoolAnd(false)))
     }
 

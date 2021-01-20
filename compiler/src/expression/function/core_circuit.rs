@@ -15,13 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use crate::errors::{ExpressionError, FunctionError};
-use leo_ast::{Expression, Span, Type};
+use crate::errors::{ExpressionError};
+use leo_asg::{Expression, Span};
 use leo_core::call_core_circuit;
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
+use std::sync::Arc;
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Call a default core circuit function with arguments
@@ -31,15 +32,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        expected_type: Option<Type>,
         core_circuit: String,
-        arguments: Vec<Expression>,
-        span: Span,
+        arguments: &Vec<Arc<Expression>>,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the value of each core function argument
         let mut argument_values = Vec::with_capacity(arguments.len());
         for argument in arguments.into_iter() {
-            let argument_value = self.enforce_expression(cs, file_scope, function_scope, None, argument)?;
+            let argument_value = self.enforce_expression(cs, file_scope, function_scope, argument)?;
             let core_function_argument = argument_value.to_value();
 
             argument_values.push(core_function_argument);
@@ -53,21 +53,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let return_value = if returns.len() == 1 {
             // The function has a single return
-            returns[0].clone()
+            returns.into_iter().next().unwrap()
         } else {
             // The function has multiple returns
             ConstrainedValue::Tuple(returns)
         };
-
-        // Check that function returns expected type
-        if let Some(expected) = expected_type {
-            let actual = return_value.to_type(&span)?;
-            if expected.ne(&actual) {
-                return Err(ExpressionError::FunctionError(Box::new(
-                    FunctionError::return_argument_type(expected.to_string(), actual.to_string(), span),
-                )));
-            }
-        }
 
         Ok(return_value)
     }

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::GroupError, GroupType};
-use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, Span};
+use leo_asg::{GroupCoordinate, GroupValue, Span};
 
 use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -52,8 +52,8 @@ pub enum EdwardsGroupType {
 }
 
 impl GroupType<Fq> for EdwardsGroupType {
-    fn constant(group: GroupValue) -> Result<Self, GroupError> {
-        let value = Self::edwards_affine_from_value(group)?;
+    fn constant(group: &GroupValue, span: &Span) -> Result<Self, GroupError> {
+        let value = Self::edwards_affine_from_value(group, span)?;
 
         Ok(EdwardsGroupType::Constant(value))
     }
@@ -134,58 +134,58 @@ impl GroupType<Fq> for EdwardsGroupType {
 }
 
 impl EdwardsGroupType {
-    pub fn edwards_affine_from_value(value: GroupValue) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_value(value: &GroupValue, span: &Span) -> Result<EdwardsAffine, GroupError> {
         match value {
-            GroupValue::Single(number, span) => Self::edwards_affine_from_single(number, span),
-            GroupValue::Tuple(tuple) => Self::edwards_affine_from_tuple(tuple),
+            GroupValue::Single(number, ..) => Self::edwards_affine_from_single(number, span),
+            GroupValue::Tuple(x, y) => Self::edwards_affine_from_tuple(x, y, span),
         }
     }
 
-    pub fn edwards_affine_from_single(number: String, span: Span) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_single(number: &String, span: &Span) -> Result<EdwardsAffine, GroupError> {
         if number.eq("0") {
             Ok(EdwardsAffine::zero())
         } else {
             let one = edwards_affine_one();
-            let number_value = Fp256::from_str(&number).map_err(|_| GroupError::n_group(number, span))?;
+            let number_value = Fp256::from_str(&number).map_err(|_| GroupError::n_group(number.clone(), span.clone()))?;
             let result: EdwardsAffine = one.mul(&number_value);
 
             Ok(result)
         }
     }
 
-    pub fn edwards_affine_from_tuple(group: GroupTuple) -> Result<EdwardsAffine, GroupError> {
-        let span = group.span;
-        let x = group.x;
-        let y = group.y;
+    pub fn edwards_affine_from_tuple(x: &GroupCoordinate, y: &GroupCoordinate, span: &Span) -> Result<EdwardsAffine, GroupError> {
+        let x = x.clone();
+        let y = y.clone();
+        let span = span.clone();
 
         match (x, y) {
             // (x, y)
-            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::Number(y_string, y_span)) => {
-                Self::edwards_affine_from_pair(x_string, y_string, x_span, y_span, span)
+            (GroupCoordinate::Number(x_string), GroupCoordinate::Number(y_string)) => {
+                Self::edwards_affine_from_pair(x_string, y_string, span, span, span)
             }
             // (x, +)
-            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::SignHigh) => {
-                Self::edwards_affine_from_x_str(x_string, x_span, Some(true), span)
+            (GroupCoordinate::Number(x_string), GroupCoordinate::SignHigh) => {
+                Self::edwards_affine_from_x_str(x_string, span, Some(true), span)
             }
             // (x, -)
-            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::SignLow) => {
-                Self::edwards_affine_from_x_str(x_string, x_span, Some(false), span)
+            (GroupCoordinate::Number(x_string), GroupCoordinate::SignLow) => {
+                Self::edwards_affine_from_x_str(x_string, span, Some(false), span)
             }
             // (x, _)
-            (GroupCoordinate::Number(x_string, x_span), GroupCoordinate::Inferred) => {
-                Self::edwards_affine_from_x_str(x_string, x_span, None, span)
+            (GroupCoordinate::Number(x_string), GroupCoordinate::Inferred) => {
+                Self::edwards_affine_from_x_str(x_string, span, None, span)
             }
             // (+, y)
-            (GroupCoordinate::SignHigh, GroupCoordinate::Number(y_string, y_span)) => {
-                Self::edwards_affine_from_y_str(y_string, y_span, Some(true), span)
+            (GroupCoordinate::SignHigh, GroupCoordinate::Number(y_string)) => {
+                Self::edwards_affine_from_y_str(y_string, span, Some(true), span)
             }
             // (-, y)
-            (GroupCoordinate::SignLow, GroupCoordinate::Number(y_string, y_span)) => {
-                Self::edwards_affine_from_y_str(y_string, y_span, Some(false), span)
+            (GroupCoordinate::SignLow, GroupCoordinate::Number(y_string)) => {
+                Self::edwards_affine_from_y_str(y_string, span, Some(false), span)
             }
             // (_, y)
-            (GroupCoordinate::Inferred, GroupCoordinate::Number(y_string, y_span)) => {
-                Self::edwards_affine_from_y_str(y_string, y_span, None, span)
+            (GroupCoordinate::Inferred, GroupCoordinate::Number(y_string)) => {
+                Self::edwards_affine_from_y_str(y_string, span, None, span)
             }
             // Invalid
             (x, y) => Err(GroupError::invalid_group(format!("({}, {})", x, y), span)),
@@ -283,7 +283,7 @@ impl EdwardsGroupType {
             _ => Err(SynthesisError::AssignmentMissing),
         }?;
 
-        Self::edwards_affine_from_value(group_value).map_err(|_| SynthesisError::AssignmentMissing)
+        Self::edwards_affine_from_value(&group_value, &Span::default()).map_err(|_| SynthesisError::AssignmentMissing)
     }
 
     pub fn allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS) -> Result<EdwardsBlsGadget, SynthesisError> {

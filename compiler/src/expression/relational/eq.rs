@@ -17,7 +17,7 @@
 //! Enforces a relational `==` operator in a resolved Leo program.
 
 use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -73,16 +73,6 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
                 current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
             }
             return Ok(current);
-        }
-        (ConstrainedValue::Unresolved(string), val_2) => {
-            let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
-            return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
-        }
-        (val_1, ConstrainedValue::Unresolved(string)) => {
-            let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
-            return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(

@@ -21,15 +21,18 @@ use crate::{value::ConstrainedValue, GroupType};
 use snarkvm_models::curves::{Field, PrimeField};
 
 use indexmap::IndexMap;
+use uuid::Uuid;
 
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
-    pub identifiers: IndexMap<String, ConstrainedValue<F, G>>,
+    identifiers: IndexMap<Uuid, ConstrainedValue<F, G>>,
+    pub self_alias: Option<(Uuid, Uuid)>, // current self id -> id that self resolves to
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> Default for ConstrainedProgram<F, G> {
     fn default() -> Self {
         Self {
             identifiers: IndexMap::new(),
+            self_alias: None,
         }
     }
 }
@@ -47,15 +50,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         Self::default()
     }
 
-    pub(crate) fn store(&mut self, name: String, value: ConstrainedValue<F, G>) {
+    pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<F, G>) {
+        if let Some((from, _)) = &self.self_alias {
+            if &name == from {
+                panic!("attempted to assign to self alias");
+            }
+        }
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &str) -> Option<&ConstrainedValue<F, G>> {
+    pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<F, G>> {
+        if let Some((from, to)) = &self.self_alias {
+            if name == from {
+                return self.identifiers.get(to)
+            }
+        }
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &str) -> Option<&mut ConstrainedValue<F, G>> {
+    pub(crate) fn get_mut(&mut self, name: &Uuid) -> Option<&mut ConstrainedValue<F, G>> {
+        if let Some((from, to)) = &self.self_alias {
+            if name == from {
+                return self.identifiers.get_mut(to);
+            }
+        }
         self.identifiers.get_mut(name)
     }
 }

@@ -17,16 +17,14 @@
 //! The in memory stored value for a defined name in a compiled Leo program.
 
 use crate::{
-    boolean::input::{allocate_bool, new_bool_constant},
-    errors::{ExpressionError, FieldError, ValueError},
-    is_in_scope,
-    new_scope,
+    boolean::input::{allocate_bool},
+    errors::{FieldError, ValueError},
     Address,
     FieldType,
     GroupType,
     Integer,
 };
-use leo_asg::{CircuitBody, FunctionBody, GroupValue, Identifier, Span, Type};
+use leo_asg::{CircuitBody, Identifier, Span, Type};
 use leo_core::Value;
 
 use snarkvm_errors::gadgets::SynthesisError;
@@ -39,6 +37,7 @@ use snarkvm_models::{
 };
 use std::fmt;
 use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<F, G>);
@@ -59,45 +58,13 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Tuple(Vec<ConstrainedValue<F, G>>),
 
     // Circuits
-    CircuitDefinition(Arc<CircuitBody>),
-    CircuitExpression(Arc<CircuitBody>, Vec<ConstrainedCircuitMember<F, G>>),
-
-    // Functions
-    Function(Option<Identifier>, Arc<FunctionBody>), // (optional circuit identifier, function definition)
+    CircuitExpression(Arc<CircuitBody>, Uuid, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
-    Static(Box<ConstrainedValue<F, G>>),
-    Unresolved(String),
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
-    pub(crate) fn from_other(value: String, other: &ConstrainedValue<F, G>, span: &Span) -> Result<Self, ValueError> {
-        let other_type = other.to_type(span)?;
-
-        ConstrainedValue::from_type(value, &other_type, span)
-    }
-
-    pub(crate) fn from_type(value: String, type_: &Type, span: &Span) -> Result<Self, ValueError> {
-        match type_ {
-            // Data types
-            Type::Address => Ok(ConstrainedValue::Address(Address::constant(value, span)?)),
-            Type::Boolean => Ok(ConstrainedValue::Boolean(new_bool_constant(value, span)?)),
-            Type::Field => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-            Type::Group => Ok(ConstrainedValue::Group(G::constant(GroupValue::Single(
-                value,
-            ))?)),
-            Type::Integer(integer_type) => Ok(ConstrainedValue::Integer(Integer::new_constant(
-                integer_type,
-                value,
-                span,
-            )?)),
-
-            // Data type wrappers
-            Type::Array(ref type_, _dimensions) => ConstrainedValue::from_type(value, type_, span),
-            _ => Ok(ConstrainedValue::Unresolved(value)),
-        }
-    }
 
     pub(crate) fn to_type(&self, span: &Span) -> Result<Type, ValueError> {
         Ok(match self {
@@ -124,7 +91,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
                 Type::Tuple(types)
             }
-            ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.circuit.clone()),
+            ConstrainedValue::CircuitExpression(id, _, _members) => Type::Circuit(id.circuit.clone()),
             ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span.to_owned())),
         })
@@ -158,61 +125,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 Value::Tuple(tuple_value)
             }
             _ => unimplemented!(),
-        }
-    }
-
-    pub(crate) fn resolve_type(&mut self, type_: Option<Type>, span: &Span) -> Result<(), ValueError> {
-        if let ConstrainedValue::Unresolved(ref string) = self {
-            if type_.is_some() {
-                *self = ConstrainedValue::from_type(string.clone(), &type_.unwrap(), span)?
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Expect both `self` and `other` to resolve to the same type
-    pub(crate) fn resolve_types(
-        &mut self,
-        other: &mut Self,
-        type_: Option<Type>,
-        span: &Span,
-    ) -> Result<(), ValueError> {
-        if type_.is_some() {
-            self.resolve_type(type_.clone(), span)?;
-            return other.resolve_type(type_, span);
-        }
-
-        match (&self, &other) {
-            (ConstrainedValue::Unresolved(_), ConstrainedValue::Unresolved(_)) => Ok(()),
-            (ConstrainedValue::Unresolved(_), _) => self.resolve_type(Some(other.to_type(span)?), span),
-            (_, ConstrainedValue::Unresolved(_)) => other.resolve_type(Some(self.to_type(span)?), span),
-            _ => Ok(()),
-        }
-    }
-
-    pub(crate) fn extract_function(&self, scope: &str, span: &Span) -> Result<(String, Arc<FunctionBody>), ExpressionError> {
-        match self {
-            ConstrainedValue::Function(circuit_identifier, function) => {
-                let mut outer_scope = scope.to_string();
-                // If this is a circuit function, evaluate inside the circuit scope
-                if let Some(identifier) = circuit_identifier {
-                    // avoid creating recursive scope
-                    if !is_in_scope(&scope, &identifier.name) {
-                        outer_scope = new_scope(scope, &identifier.name);
-                    }
-                }
-
-                Ok((outer_scope, function.clone()))
-            }
-            value => Err(ExpressionError::undefined_function(value.to_string(), span.to_owned())),
-        }
-    }
-
-    pub(crate) fn extract_circuit(&self, span: &Span) -> Result<Arc<CircuitBody>, ExpressionError> {
-        match self {
-            ConstrainedValue::CircuitDefinition(circuit) => Ok(circuit.clone()),
-            value => Err(ExpressionError::undefined_circuit(value.to_string(), span.to_owned())),
         }
     }
 
@@ -280,7 +192,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     value.allocate_value(cs.ns(|| unique_name), span)
                 })?;
             }
-            ConstrainedValue::CircuitExpression(_id, members) => {
+            ConstrainedValue::CircuitExpression(_id, _, members) => {
                 members.iter_mut().enumerate().try_for_each(|(i, member)| {
                     let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
@@ -289,18 +201,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
             }
             ConstrainedValue::Mutable(value) => {
                 value.allocate_value(cs, span)?;
-            }
-            ConstrainedValue::Static(value) => {
-                value.allocate_value(cs, span)?;
-            }
-
-            // Empty wrappers that are unreachable
-            ConstrainedValue::CircuitDefinition(_) => {}
-            ConstrainedValue::Function(_, _) => {}
-
-            // Cannot allocate an unresolved value
-            ConstrainedValue::Unresolved(value) => {
-                return Err(ValueError::implicit(value.to_string(), span.to_owned()));
             }
         }
 
@@ -341,7 +241,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
 
                 write!(f, "({})", values)
             }
-            ConstrainedValue::CircuitExpression(ref circuit, ref members) => {
+            ConstrainedValue::CircuitExpression(ref circuit, _, ref members) => {
                 write!(f, "{} {{", circuit.circuit.name.borrow())?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
@@ -351,13 +251,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "}}")
             }
-            ConstrainedValue::CircuitDefinition(ref circuit) => write!(f, "circuit {{ {} }}", circuit.circuit.name.borrow().name),
-            ConstrainedValue::Function(ref _circuit_option, ref function) => {
-                write!(f, "function {{ {}() }}", function.function.name.borrow().name)
-            }
             ConstrainedValue::Mutable(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Static(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Unresolved(ref value) => write!(f, "{}", value),
         }
     }
 }
@@ -463,14 +357,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
                 ConstrainedValue::Tuple(array)
             }
-            (ConstrainedValue::Function(identifier_1, function_1), ConstrainedValue::Function(_, _)) => {
-                // This is a no-op. functions cannot hold circuit values
-                // However, we must return a result here
-                ConstrainedValue::Function(identifier_1.clone(), function_1.clone())
-            }
             (
-                ConstrainedValue::CircuitExpression(identifier, members_1),
-                ConstrainedValue::CircuitExpression(_identifier, members_2),
+                ConstrainedValue::CircuitExpression(identifier, _, members_1),
+                ConstrainedValue::CircuitExpression(_identifier, _, members_2),
             ) => {
                 let mut members = Vec::with_capacity(members_1.len());
 
@@ -483,12 +372,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                     )?);
                 }
 
-                ConstrainedValue::CircuitExpression(identifier.clone(), members)
-            }
-            (ConstrainedValue::Static(first), ConstrainedValue::Static(second)) => {
-                let value = Self::conditionally_select(cs, cond, first, second)?;
-
-                ConstrainedValue::Static(Box::new(value))
+                ConstrainedValue::CircuitExpression(identifier.clone(), Uuid::new_v4(), members)
             }
             (ConstrainedValue::Mutable(first), _) => Self::conditionally_select(cs, cond, first, second)?,
             (_, ConstrainedValue::Mutable(second)) => Self::conditionally_select(cs, cond, first, second)?,

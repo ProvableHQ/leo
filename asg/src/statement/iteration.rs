@@ -25,6 +25,7 @@ impl FromAst<leo_ast::IterationStatement> for IterationStatement {
         let start = Arc::<Expression>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = Arc::<Expression>::from_ast(scope, &statement.stop, expected_index_type)?;
         let variable = Arc::new(RefCell::new(InnerVariable {
+            id: uuid::Uuid::new_v4(),
             name: statement.variable.clone(),
             type_: start.get_type().ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
             mutable: false,

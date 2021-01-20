@@ -1,46 +1,46 @@
 #[macro_use]
 extern crate thiserror;
 
-mod node;
+pub mod node;
 pub use node::*;
 
-mod type_;
+pub mod type_;
 pub use type_::*;
 
-mod program;
+pub mod program;
 pub use program::*;
 
-mod expression;
+pub mod expression;
 pub use expression::*;
 
-mod statement;
+pub mod statement;
 pub use statement::*;
 
-mod variable;
+pub mod variable;
 pub use variable::*;
 
-mod scope;
+pub mod scope;
 pub use scope::*;
 
-mod error;
+pub mod error;
 pub use error::*;
 
-mod import;
+pub mod import;
 pub use import::*;
 
-mod const_value;
+pub mod const_value;
 pub use const_value::*;
 
 mod input;
 pub use input::*;
 
-mod prelude;
+pub mod prelude;
 pub use prelude::*;
 
-mod reducer;
+pub mod reducer;
 pub use reducer::*;
 
-mod checks;
+pub mod checks;
 pub use checks::*;
 
 pub use leo_ast::{ Span, Identifier };

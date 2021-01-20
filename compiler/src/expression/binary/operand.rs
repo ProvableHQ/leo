@@ -17,7 +17,8 @@
 //! Enforces one operand in a binary expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -33,14 +34,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        expected_type: Option<Type>,
-        expression: Expression,
-        span: &Span,
+        expression: &Arc<Expression>,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expected_type.clone(), expression)?;
+        let mut branch = self.enforce_expression(cs, file_scope, function_scope, expression)?;
 
         branch.get_inner_mut();
-        branch.resolve_type(expected_type, span)?;
 
         Ok(branch)
     }

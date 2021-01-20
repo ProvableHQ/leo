@@ -18,9 +18,7 @@
 
 use crate::{
     errors::CompilerError,
-    new_scope,
     ConstrainedProgram,
-    ConstrainedValue,
     GroupType,
     OutputBytes,
     OutputFile,
@@ -43,15 +41,15 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
 ) -> Result<OutputBytes, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.borrow().name.clone();
-    let main_function_name = new_scope(&program_name, "main");
 
-    resolved_program.store_definitions(program)?;
-
-    let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
+    let main = {
+        let program = program.borrow();
+        program.functions.get("main").cloned()
+    };
 
     match main.clone() {
-        ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, &program_name, function, input)?;
+        Some(function) => {
+            let result = resolved_program.enforce_main_function(cs, &program_name, &function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
@@ -66,9 +64,6 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 ) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new();
     let program_name = program.borrow().name.clone();
-
-    // Store definitions
-    resolved_program.store_definitions(&program)?;
 
     // Get default input
     let default = input.pairs.get(&program_name);

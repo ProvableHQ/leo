@@ -17,7 +17,8 @@
 //! Enforces an tuple expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -31,36 +32,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        expected_type: Option<Type>,
-        tuple: Vec<Expression>,
-        span: Span,
+        tuple: &Vec<Arc<Expression>>,
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Check explicit tuple type dimension if given
-        let mut expected_types = vec![];
-
-        match expected_type {
-            Some(Type::Tuple(ref types)) => {
-                expected_types = types.clone();
-            }
-            Some(ref type_) => {
-                return Err(ExpressionError::unexpected_tuple(
-                    type_.to_string(),
-                    format!("{:?}", tuple),
-                    span,
-                ));
-            }
-            None => {}
-        }
-
         let mut result = Vec::with_capacity(tuple.len());
-        for (i, expression) in tuple.into_iter().enumerate() {
-            let type_ = if expected_types.is_empty() {
-                None
-            } else {
-                Some(expected_types[i].clone())
-            };
+        for (i, expression) in tuple.iter().enumerate() {
 
-            result.push(self.enforce_expression(cs, file_scope, function_scope, type_, expression)?);
+            result.push(self.enforce_expression(cs, file_scope, function_scope, expression)?);
         }
 
         Ok(ConstrainedValue::Tuple(result))

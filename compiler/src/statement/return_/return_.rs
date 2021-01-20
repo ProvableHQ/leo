@@ -17,25 +17,12 @@
 //! Enforces a return statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{ReturnStatement, Span, Type};
+use leo_asg::{ReturnStatement};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
-
-/// Returns `Ok` if the expected type == actual type, returns `Err` otherwise.
-pub fn check_return_type(expected: &Type, actual: &Type, span: &Span) -> Result<(), StatementError> {
-    if expected.ne(&actual) {
-        // If the return type is `SelfType` returning the circuit type is okay.
-        return if (expected.is_self() && actual.is_circuit()) || expected.eq_flat(&actual) {
-            Ok(())
-        } else {
-            Err(StatementError::arguments_type(&expected, &actual, span.to_owned()))
-        };
-    }
-    Ok(())
-}
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_return_statement<CS: ConstraintSystem<F>>(
@@ -43,23 +30,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         file_scope: &str,
         function_scope: &str,
-        return_type: Option<Type>,
-        statement: ReturnStatement,
+        statement: &ReturnStatement,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         let result = self.enforce_operand(
             cs,
             file_scope,
             function_scope,
-            return_type.clone(),
-            statement.expression,
-            &statement.span,
+            &statement.expression,
         )?;
-
-        // Make sure we return the correct type.
-        if let Some(expected) = return_type {
-            check_return_type(&expected, &result.to_type(&statement.span)?, &statement.span)?;
-        }
-
         Ok(result)
     }
 }

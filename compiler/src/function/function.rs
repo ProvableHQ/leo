@@ -38,42 +38,40 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: &str,
         caller_scope: &str,
         function: &Arc<FunctionBody>,
-        input: Option<&Expression>,
-        self_: Option<&Expression>,
-        arguments: Vec<&Expression>,
-        declared_circuit_reference: &str,
+        self_: Option<ConstrainedValue<F, G>>,
+        arguments: &Vec<Arc<Expression>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let function_name = new_scope(scope, &function.function.name.borrow().name.clone());
 
         // Store if function contains input `mut self`.
         let mut_self = function.function.qualifier == FunctionQualifier::MutSelfRef;
 
-        if function.function.has_input {
-            if let Some(input) = input {
-                // todo: enforce self & input
-                let value =
-                    self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input)?;
+        // if function.function.has_input {
+        //     // let input_var = function.scope.
+        //     if let Some(input) = input {
+        //         let variable = function.scope.borrow().resolve_variable("input").expect("no input variable in scope when function is qualified");
 
-                self.store(new_scope(&function_name, "input"), value);
-            } else {
-                return Err(FunctionError::input_not_found("input".to_string(), function.span.unwrap_or_default()));
-            }
-        }
+        //         let value =
+        //             self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input)?;
 
-        match function.function.qualifier {
-            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
-                if let Some(input) = input {
-                    // todo: enforce self & input
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, self_)?;
-    
-                    self.store(new_scope(&function_name, "self"), value);
-                } else {
-                    return Err(FunctionError::input_not_found("self".to_string(), function.span.unwrap_or_default()));
-                }
-            },
-            FunctionQualifier::Static => (),
-        }
+        //         self.store(variable.borrow().id.clone(), value);
+        //     } else {
+        //         return Err(FunctionError::input_not_found("input".to_string(), function.span.unwrap_or_default()));
+        //     }
+        // }
+
+        // match function.function.qualifier {
+        //     FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
+        //         if let Some(value) = self_ {
+        //             // todo: enforce self & input
+        //             let variable = function.scope.borrow().resolve_variable("self").expect("no self variable in scope when function is qualified");
+        //             self.store(variable.borrow().id.clone(), value);
+        //         } else {
+        //             return Err(FunctionError::input_not_found("self".to_string(), function.span.unwrap_or_default()));
+        //         }
+        //     },
+        //     FunctionQualifier::Static => (),
+        // }
         if function.arguments.len() != arguments.len() {
             return Err(FunctionError::input_not_found("arguments length invalid".to_string(), function.span.unwrap_or_default()));
         }
@@ -95,9 +93,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 input_value = ConstrainedValue::Mutable(Box::new(input_value))
             }
 
-            // Store input as variable with {function_name}_{input_name}
-            let input_program_identifier = new_scope(&function_name, &variable.name.name);
-            self.store(input_program_identifier, input_value);
+            self.store(variable.id.clone(), input_value);
         }
 
         // Evaluate every statement in the function and save all potential results
@@ -112,8 +108,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             &function_name,
             &indicator,
             &function.body,
-            &output,
-            declared_circuit_reference,
             mut_self,
         )?;
 

@@ -101,6 +101,7 @@ impl FunctionBody {
             if function.qualifier != FunctionQualifier::Static {
                 let circuit = function.circuit.borrow();
                 let self_variable = Arc::new(RefCell::new(crate::InnerVariable {
+                    id: Uuid::new_v4(),
                     name: Identifier::new("self".to_string()),
                     type_: Type::Circuit(circuit.as_ref().unwrap().upgrade().clone().unwrap()),
                     mutable: function.qualifier == FunctionQualifier::MutSelfRef,
@@ -119,6 +120,7 @@ impl FunctionBody {
                     FunctionInput::MutSelfKeyword(_) => {},
                     FunctionInput::Variable(leo_ast::FunctionInputVariable { identifier, mutable, type_, span: _span }) => {
                         let variable = Arc::new(RefCell::new(crate::InnerVariable {
+                            id: Uuid::new_v4(),
                             name: identifier.clone(),
                             type_: scope_borrow.resolve_ast_type(&type_)?,
                             mutable: *mutable,

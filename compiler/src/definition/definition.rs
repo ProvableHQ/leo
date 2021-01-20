@@ -17,11 +17,11 @@
 //! Stores all defined names in a compiled Leo program.
 
 use crate::{
-    program::{new_scope, ConstrainedProgram},
+    program::{ConstrainedProgram},
     value::ConstrainedValue,
     GroupType,
 };
-use leo_ast::Identifier;
+use leo_asg::Variable;
 
 use snarkvm_models::curves::{Field, PrimeField};
 
@@ -29,17 +29,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn store_definition(
         &mut self,
         function_scope: &str,
-        mutable: bool,
-        identifier: Identifier,
+        variable: &Variable,
         mut value: ConstrainedValue<F, G>,
     ) {
+        let variable = variable.borrow();
         // Store with given mutability
-        if mutable {
+        if variable.mutable {
             value = ConstrainedValue::Mutable(Box::new(value));
         }
 
-        let variable_program_identifier = new_scope(function_scope, &identifier.name);
-
-        self.store(variable_program_identifier, value);
+        self.store(variable.id.clone(), value);
     }
 }

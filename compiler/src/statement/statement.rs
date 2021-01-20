@@ -17,7 +17,8 @@
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Statement, Type};
+use leo_asg::{Statement};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -42,18 +43,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         indicator: &Boolean,
-        statement: Statement,
-        return_type: Option<Type>,
-        declared_circuit_reference: &str,
+        statement: &Arc<Statement>,
         mut_self: bool,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
         let mut results = vec![];
 
-        match statement {
+        match &**statement {
             Statement::Return(statement) => {
                 let return_value = (
                     *indicator,
-                    self.enforce_return_statement(cs, file_scope, function_scope, return_type, statement)?,
+                    self.enforce_return_statement(cs, file_scope, function_scope, statement)?,
                 );
 
                 results.push(return_value);
@@ -66,7 +65,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     cs,
                     file_scope,
                     function_scope,
-                    declared_circuit_reference,
                     indicator,
                     mut_self,
                     statement,
@@ -78,8 +76,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     file_scope,
                     function_scope,
                     indicator,
-                    return_type,
-                    declared_circuit_reference,
                     mut_self,
                     statement,
                 )?;
@@ -92,8 +88,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     file_scope,
                     function_scope,
                     indicator,
-                    return_type,
-                    declared_circuit_reference,
                     mut_self,
                     statement,
                 )?;
@@ -104,8 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, statement)?;
             }
             Statement::Expression(statement) => {
-                let expression_string = statement.expression.to_string();
-                let value = self.enforce_expression(cs, file_scope, function_scope, None, statement.expression)?;
+                let value = self.enforce_expression(cs, file_scope, function_scope, &statement.expression)?;
                 // handle empty return value cases
                 match &value {
                     ConstrainedValue::Tuple(values) => {
@@ -113,19 +106,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             results.push((*indicator, value));
                         }
                     }
-                    _ => return Err(StatementError::unassigned(expression_string, statement.span)),
+                    _ => return Err(StatementError::unassigned(statement.span.map(|x| x.text.clone()).unwrap_or_default(), statement.span.clone().unwrap_or_default())),
                 }
             }
             Statement::Block(statement) => {
-                let span = statement.span.clone();
+                let span = statement.span.clone().unwrap_or_default();
                 let result = self.evaluate_block(
                     &mut cs.ns(|| format!("block {}:{}", &span.line, &span.start)),
                     file_scope,
                     function_scope,
                     indicator,
                     statement,
-                    return_type,
-                    declared_circuit_reference,
                     mut_self,
                 )?;
 

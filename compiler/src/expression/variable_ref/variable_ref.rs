@@ -18,47 +18,29 @@
 
 use crate::{
     errors::ExpressionError,
-    program::{new_scope, ConstrainedProgram},
+    program::{ConstrainedProgram},
     value::ConstrainedValue,
-    Address,
     GroupType,
 };
-use leo_ast::{Identifier, Type};
+use leo_asg::{VariableRef};
 
 use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
-    pub fn evaluate_identifier(
+    pub fn evaluate_ref(
         &mut self,
         file_scope: &str,
         function_scope: &str,
-        expected_type: Option<Type>,
-        unresolved_identifier: Identifier,
+        variable_ref: &VariableRef,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
-        let variable_name = new_scope(function_scope, &unresolved_identifier.name);
-        let identifier_name = new_scope(file_scope, &unresolved_identifier.name);
-
-        let mut result_value = if let Some(value) = self.get(&variable_name) {
-            // Reassigning variable to another variable
+        let variable = variable_ref.variable.borrow();
+        let result_value = if let Some(value) = self.get(&variable.id) {
             value.clone()
-        } else if let Some(value) = self.get(&identifier_name) {
-            // Check global scope (function and circuit names)
-            value.clone()
-        } else if let Some(value) = self.get(&unresolved_identifier.name) {
-            // Check imported file scope
-            value.clone()
-        } else if expected_type.is_some() && expected_type.unwrap() == Type::Address {
-            // If we expect an address type, try to return an address
-            let address = Address::constant(unresolved_identifier.name, &unresolved_identifier.span)?;
-
-            return Ok(ConstrainedValue::Address(address));
         } else {
-            return Err(ExpressionError::undefined_identifier(unresolved_identifier));
+            return Err(ExpressionError::undefined_identifier(variable.name.clone())); // todo: probably can be a panic here instead
         };
-
-        result_value.resolve_type(expected_type, &unresolved_identifier.span)?;
 
         Ok(result_value)
     }
