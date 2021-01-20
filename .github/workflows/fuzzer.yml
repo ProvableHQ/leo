@@ -31,4 +31,4 @@ jobs:
 
       - name: Run 'leo-fuzzer'
         run: |
-          leo-fuzzer run --random 50 -m random --r-times 10 --loop 1 --no-load --cover
+          leo-fuzzer run --random 50 -m random --r-times 10 --loop 1 --no-update --no-load --cover
