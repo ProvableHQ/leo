@@ -53,7 +53,7 @@ impl VerificationKeyFile {
     pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, VerificationKeyFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| VerificationKeyFileError::FileReadError(path.into_owned()))?)
+        fs::read(&path).map_err(|_| VerificationKeyFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given verification key to a file.

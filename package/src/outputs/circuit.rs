@@ -49,7 +49,7 @@ impl CircuitFile {
     pub fn read_from(&self, path: &Path) -> Result<String, CircuitFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.into_owned()))?)
+        fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given serialized circuit to a file.

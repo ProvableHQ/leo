@@ -42,7 +42,7 @@ pub struct SerializedCircuit {
 
 impl SerializedCircuit {
     pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        Ok(serde_json::to_string_pretty(&self)?)
+        serde_json::to_string_pretty(&self)
     }
 
     pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {

@@ -41,7 +41,7 @@ pub struct LeoInputParser;
 impl LeoInputParser {
     /// Reads in the given file path into a string.
     pub fn load_file(file_path: &Path) -> Result<String, InputParserError> {
-        Ok(fs::read_to_string(file_path).map_err(|_| InputParserError::FileReadError(file_path.to_owned()))?)
+        fs::read_to_string(file_path).map_err(|_| InputParserError::FileReadError(file_path.to_owned()))
     }
 
     /// Parses the input file and constructs a syntax tree.
