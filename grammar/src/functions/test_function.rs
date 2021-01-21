@@ -28,3 +28,10 @@ pub struct TestFunction<'ast> {
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }
+
+impl<'ast> From<Function<'ast>> for TestFunction<'ast> {
+    fn from(function: Function<'ast>) -> Self {
+        let span = function.span.clone();
+        TestFunction { function, span }
+    }
+}

@@ -36,7 +36,21 @@ pub fn load_annotation(
     match ast_definition {
         Definition::Import(_) => unimplemented!("annotated imports are not supported yet"),
         Definition::Circuit(_) => unimplemented!("annotated circuits are not supported yet"),
-        Definition::Function(_) => unimplemented!("annotated functions are not supported yet"),
+        // TODO need someone to take functions annotated with @test to be moved from function to tests.
+        Definition::Function(function) => match ast_annotation.name {
+            AnnotationName::Test(_) | AnnotationName::TestWithContext(_) => {
+                println!("here?");
+                let ident = Identifier::from(function.identifier.clone());
+                _functions.remove(&ident.clone());
+
+                let test_function = leo_grammar::functions::TestFunction::from(function);
+                let test = TestFunction::from(test_function);
+                tests.insert(ident, test.clone());
+
+                load_annotated_test(test, ast_annotation, tests);
+            }
+            _ => unimplemented!("annotated functions are not supported yet"),
+        },
         Definition::TestFunction(ast_test) => {
             let test = TestFunction::from(ast_test);
             load_annotated_test(test, ast_annotation, tests)
@@ -50,6 +64,8 @@ pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &m
     let ast_arguments = annotation.arguments;
 
     match name {
+        AnnotationName::Test(_) => (),
+        AnnotationName::TestWithContext(_) => load_annotated_test_context(test, ast_arguments, tests),
         AnnotationName::Context(_) => load_annotated_test_context(test, ast_arguments, tests),
     }
 }

@@ -20,10 +20,30 @@ use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
+// TODO rename this to test for consistency?
+
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::annotation_name))]
 pub enum AnnotationName<'ast> {
     Context(Context<'ast>),
+    Test(Test<'ast>),
+    TestWithContext(TestWithContext<'ast>),
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::test))]
+pub struct Test<'ast> {
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::test))]
+pub struct TestWithContext<'ast> {
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]

@@ -514,7 +514,7 @@ formatted_container = { "{" ~ "}"}
 /// Annotations
 
 // Declared in annotations/annotation.rs
-annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments}
+annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments? }
 
 // Declared in annotations/annotation_symbol.rs
 annotation_symbol = ${"@"}
@@ -522,10 +522,12 @@ annotation_symbol = ${"@"}
 // Declared in annotations/annotation_name.rs
 annotation_name = {
     context
+    | test
 }
 
 // Declared in annotations/context.rs
 context = {"context"}
+test = {"test"}
 
 // Declared in annotations/annotation_argument.rs
 annotation_arguments = !{"(" ~ annotation_argument ~ ("," ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
