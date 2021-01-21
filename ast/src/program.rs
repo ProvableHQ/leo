@@ -60,10 +60,6 @@ impl<'ast> Program {
                     }
                     functions.insert(function.identifier.clone(), function);
                 }
-                Definition::TestFunction(test_def) => {
-                    let test = TestFunction::from(test_def);
-                    tests.insert(test.function.identifier.clone(), test);
-                }
                 Definition::Annotated(annotated_definition) => {
                     load_annotation(
                         annotated_definition,

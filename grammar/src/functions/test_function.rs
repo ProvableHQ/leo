@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, functions::Function, SpanDef};
+use crate::{functions::Function, SpanDef};
 
 use pest::Span;
-use pest_ast::FromPest;
 use serde::Serialize;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::test_function))]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct TestFunction<'ast> {
     pub function: Function<'ast>,
-    #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
 }

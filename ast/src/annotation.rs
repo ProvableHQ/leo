@@ -39,7 +39,6 @@ pub fn load_annotation(
         // TODO need someone to take functions annotated with @test to be moved from function to tests.
         Definition::Function(function) => match ast_annotation.name {
             AnnotationName::Test(_) | AnnotationName::TestWithContext(_) => {
-                println!("here?");
                 let ident = Identifier::from(function.identifier.clone());
                 _functions.remove(&ident.clone());
 
@@ -51,10 +50,6 @@ pub fn load_annotation(
             }
             _ => unimplemented!("annotated functions are not supported yet"),
         },
-        Definition::TestFunction(ast_test) => {
-            let test = TestFunction::from(ast_test);
-            load_annotated_test(test, ast_annotation, tests)
-        }
         Definition::Annotated(_) => unimplemented!("nested annotations are not supported yet"),
     }
 }
@@ -65,8 +60,16 @@ pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &m
 
     match name {
         AnnotationName::Test(_) => (),
-        AnnotationName::TestWithContext(_) => load_annotated_test_context(test, ast_arguments, tests),
-        AnnotationName::Context(_) => load_annotated_test_context(test, ast_arguments, tests),
+        AnnotationName::TestWithContext(_) if ast_arguments.is_some() => {
+            load_annotated_test_context(test, ast_arguments.unwrap(), tests)
+        }
+        AnnotationName::TestWithContext(_) if ast_arguments.is_some() => {
+            load_annotated_test_context(test, ast_arguments.unwrap(), tests)
+        }
+        AnnotationName::Context(_) if ast_arguments.is_some() => {
+            load_annotated_test_context(test, ast_arguments.unwrap(), tests)
+        }
+        _ => (),
     }
 }
 

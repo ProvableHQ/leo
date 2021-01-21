@@ -12,7 +12,6 @@ definition = {
     | import
     | circuit
     | function
-    | test_function
 }
 
 // Declared in definitions/annotated_definition.rs
@@ -417,9 +416,6 @@ statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~
 statement_return = { "return " ~ expression}
 
 /// Functions
-
-// Declared in functions/test_function.rs
-test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
 function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block }

@@ -20,8 +20,6 @@ use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
-// TODO rename this to test for consistency?
-
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::annotation_name))]
 pub enum AnnotationName<'ast> {
