@@ -18,7 +18,7 @@
 
 use crate::{
     errors::ExpressionError,
-    program::{ConstrainedProgram},
+    program::ConstrainedProgram,
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
@@ -41,7 +41,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Circuit definitions are located at the minimum file scope
         let minimum_scope = file_scope.split('_').next().unwrap();
 
-        let circuit = expr.circuit.body.borrow().upgrade().expect("circuit init stale circuit ref");
+        let circuit = expr
+            .circuit
+            .body
+            .borrow()
+            .upgrade()
+            .expect("circuit init stale circuit ref");
         let members = circuit.members.borrow();
         let circuit_identifier = expr.circuit.name.borrow().clone();
 
@@ -49,25 +54,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // type checking is already done in asg
         for (name, inner) in expr.values.iter() {
-            let target = members.get(&name.name).expect("illegal name in asg circuit init expression");
+            let target = members
+                .get(&name.name)
+                .expect("illegal name in asg circuit init expression");
             match target {
                 CircuitMemberBody::Variable(_type_) => {
-                    let variable_value = self.enforce_expression(
-                        cs,
-                        file_scope,
-                        function_scope,
-                        inner,
-                    )?;
+                    let variable_value = self.enforce_expression(cs, file_scope, function_scope, inner)?;
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
-                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span.clone()))
+                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span.clone())),
             }
         }
 
-        let value = ConstrainedValue::CircuitExpression(
-            circuit.clone(),
-            resolved_members,
-        );
+        let value = ConstrainedValue::CircuitExpression(circuit.clone(), resolved_members);
         Ok(value)
     }
 }

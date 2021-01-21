@@ -43,7 +43,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         // Check for out of bounds access.
-        if index > tuple.len() - 1 { // probably safe to be a panic here
+        if index > tuple.len() - 1 {
+            // probably safe to be a panic here
             return Err(ExpressionError::index_out_of_bounds(index, span.to_owned()));
         }
 

@@ -29,13 +29,13 @@ use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 
+use leo_asg::Program as AsgProgram;
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
-use leo_asg::Program as AsgProgram;
 
 use sha2::{Digest, Sha256};
 use std::{
@@ -274,13 +274,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     pub fn compile_constraints<CS: ConstraintSystem<F>>(self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         let path = self.main_file_path;
 
-        generate_constraints::<F, G, CS>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(
-            |mut error| {
-                error.set_path(&path);
+        generate_constraints::<F, G, CS>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
+            error.set_path(&path);
 
-                error
-            },
-        )
+            error
+        })
     }
 
     ///
@@ -303,12 +301,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         cs: &mut CS,
     ) -> Result<OutputBytes, CompilerError> {
         let path = &self.main_file_path;
-        generate_constraints::<_, G, _>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(
-            |mut error| {
-                error.set_path(&path);
-                error
-            },
-        )
+        generate_constraints::<_, G, _>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
+            error.set_path(&path);
+            error
+        })
     }
 }
 

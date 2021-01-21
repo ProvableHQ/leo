@@ -1,8 +1,25 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 pub use leo_ast::UnaryOperation;
-use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, Scope, AsgConvertError, FromAst, ConstValue, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct UnaryExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -41,11 +58,9 @@ impl ExpressionNode for UnaryExpression {
     fn const_value(&self) -> Option<ConstValue> {
         if let Some(inner) = self.inner.const_value() {
             match self.operation {
-                UnaryOperation::Not => {
-                    match inner {
-                        ConstValue::Boolean(value) => Some(ConstValue::Boolean(!value)),
-                        _ => None,
-                    }
+                UnaryOperation::Not => match inner {
+                    ConstValue::Boolean(value) => Some(ConstValue::Boolean(!value)),
+                    _ => None,
                 },
                 UnaryOperation::Negate => {
                     match inner {
@@ -54,7 +69,7 @@ impl ExpressionNode for UnaryExpression {
                         // ConstValue::Field(value) => Some(ConstValue::Field(-value)),
                         _ => None,
                     }
-                },
+                }
             }
         } else {
             None
@@ -63,18 +78,34 @@ impl ExpressionNode for UnaryExpression {
 }
 
 impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::UnaryExpression, expected_type: Option<PartialType>) -> Result<UnaryExpression, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::UnaryExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<UnaryExpression, AsgConvertError> {
         let expected_type = match value.op {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),
-                Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some(&*Type::Boolean.to_string()), &value.span)),
+                Some(type_) => {
+                    return Err(AsgConvertError::unexpected_type(
+                        &type_.to_string(),
+                        Some(&*Type::Boolean.to_string()),
+                        &value.span,
+                    ));
+                }
             },
             UnaryOperation::Negate => match expected_type.map(|x| x.full()).flatten() {
                 Some(type_ @ Type::Integer(_)) => Some(type_),
                 Some(Type::Group) => Some(Type::Group),
                 Some(Type::Field) => Some(Type::Field),
                 None => None,
-                Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some("integer, group, field"), &value.span)),
+                Some(type_) => {
+                    return Err(AsgConvertError::unexpected_type(
+                        &type_.to_string(),
+                        Some("integer, group, field"),
+                        &value.span,
+                    ));
+                }
             },
         };
         Ok(UnaryExpression {

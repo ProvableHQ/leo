@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::Span;
 use leo_ast::Error as FormattedError;
 use leo_grammar::ParserError;
@@ -28,39 +44,84 @@ impl AsgConvertError {
     }
 
     pub fn unresolved_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("illegal reference to non-existant member '{}' of circuit '{}'", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "illegal reference to non-existant member '{}' of circuit '{}'",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn missing_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("missing circuit member '{}' for initialization of circuit '{}'", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "missing circuit member '{}' for initialization of circuit '{}'",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn extra_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("extra circuit member '{}' for initialization of circuit '{}' is not allowed", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "extra circuit member '{}' for initialization of circuit '{}' is not allowed",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
-    pub fn illegal_function_assign( name: &str, span: &Span) -> Self {
+    pub fn illegal_function_assign(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("attempt to assign to function '{}'", name), span)
     }
 
     pub fn circuit_variable_call(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name), span)
+        Self::new_from_span(
+            format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name),
+            span,
+        )
     }
 
     pub fn circuit_static_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("cannot call static function '{}' of circuit '{}' from target", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "cannot call static function '{}' of circuit '{}' from target",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn circuit_member_mut_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("cannot call mutable member function '{}' of circuit '{}' from immutable context", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "cannot call mutable member function '{}' of circuit '{}' from immutable context",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn circuit_member_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("cannot call member function '{}' of circuit '{}' from static context", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "cannot call member function '{}' of circuit '{}' from static context",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn circuit_function_ref(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("cannot reference function member '{}' of circuit '{}' as value", name, circuit_name), span)
+        Self::new_from_span(
+            format!(
+                "cannot reference function member '{}' of circuit '{}' as value",
+                name, circuit_name
+            ),
+            span,
+        )
     }
 
     pub fn index_into_non_array(name: &str, span: &Span) -> Self {
@@ -76,7 +137,10 @@ impl AsgConvertError {
     }
 
     pub fn unexpected_call_argument_count(expected: usize, got: usize, span: &Span) -> Self {
-        Self::new_from_span(format!("function call expected {} arguments, got {}", expected, got), span)
+        Self::new_from_span(
+            format!("function call expected {} arguments, got {}", expected, got),
+            span,
+        )
     }
 
     pub fn unresolved_function(name: &str, span: &Span) -> Self {
@@ -84,12 +148,22 @@ impl AsgConvertError {
     }
 
     pub fn unresolved_type(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to resolve type for variable definition '{}'", name), span)
+        Self::new_from_span(
+            format!("failed to resolve type for variable definition '{}'", name),
+            span,
+        )
     }
 
     pub fn unexpected_type(expected: &str, received: Option<&str>, span: &Span) -> Self {
         // panic!(format!("unexpected type, expected: '{}', received: '{}'", expected, received.unwrap_or("unknown")));
-        Self::new_from_span(format!("unexpected type, expected: '{}', received: '{}'", expected, received.unwrap_or("unknown")), span)
+        Self::new_from_span(
+            format!(
+                "unexpected type, expected: '{}', received: '{}'",
+                expected,
+                received.unwrap_or("unknown")
+            ),
+            span,
+        )
     }
 
     pub fn unresolved_reference(name: &str, span: &Span) -> Self {
@@ -113,15 +187,24 @@ impl AsgConvertError {
     }
 
     pub fn function_return_validation(name: &str, description: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("function '{}' failed to validate return path: '{}'", name, description), span)
+        Self::new_from_span(
+            format!("function '{}' failed to validate return path: '{}'", name, description),
+            span,
+        )
     }
 
     pub fn input_ref_needs_type(category: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("could not infer type for input in '{}': '{}'", category, name), span)
+        Self::new_from_span(
+            format!("could not infer type for input in '{}': '{}'", category, name),
+            span,
+        )
     }
 
     pub fn invalid_self_in_global(span: &Span) -> Self {
-        Self::new_from_span("cannot have `mut self` or `self` arguments in global functions".to_string(), span)
+        Self::new_from_span(
+            "cannot have `mut self` or `self` arguments in global functions".to_string(),
+            span,
+        )
     }
 
     pub fn parse_index_error() -> Self {

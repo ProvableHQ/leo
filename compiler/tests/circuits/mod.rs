@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_asg_error, parse_program};
+use crate::{assert_satisfied, expect_asg_error, expect_compiler_error, parse_program};
 
 // Expressions
 
@@ -29,9 +29,9 @@ fn test_inline() {
 #[test]
 fn test_inline_fail() {
     let program_string = include_str!("inline_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -161,9 +161,9 @@ fn test_mutate_self_variable_conditional() {
 #[test]
 fn test_mutate_self_variable_fail() {
     let program_string = include_str!("mut_self_variable_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -201,9 +201,9 @@ fn test_mutate_variable() {
 #[test]
 fn test_mutate_variable_fail() {
     let program_string = include_str!("mut_variable_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 // Self

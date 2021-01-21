@@ -146,14 +146,19 @@ impl EdwardsGroupType {
             Ok(EdwardsAffine::zero())
         } else {
             let one = edwards_affine_one();
-            let number_value = Fp256::from_str(&number).map_err(|_| GroupError::n_group(number.clone(), span.clone()))?;
+            let number_value =
+                Fp256::from_str(&number).map_err(|_| GroupError::n_group(number.clone(), span.clone()))?;
             let result: EdwardsAffine = one.mul(&number_value);
 
             Ok(result)
         }
     }
 
-    pub fn edwards_affine_from_tuple(x: &GroupCoordinate, y: &GroupCoordinate, span: &Span) -> Result<EdwardsAffine, GroupError> {
+    pub fn edwards_affine_from_tuple(
+        x: &GroupCoordinate,
+        y: &GroupCoordinate,
+        span: &Span,
+    ) -> Result<EdwardsAffine, GroupError> {
         let x = x.clone();
         let y = y.clone();
 

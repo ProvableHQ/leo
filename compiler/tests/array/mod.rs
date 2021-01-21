@@ -16,6 +16,7 @@
 
 use crate::{
     assert_satisfied,
+    expect_asg_error,
     expect_compiler_error,
     get_output,
     parse_program,
@@ -150,17 +151,17 @@ fn test_input_tuple_3x2_fail() {
 #[test]
 fn test_multi_fail_initializer() {
     let program_string = include_str!("multi_fail_initializer.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_multi_inline_fail() {
     let program_string = include_str!("multi_fail_inline.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -174,9 +175,9 @@ fn test_multi_initializer() {
 #[test]
 fn test_multi_initializer_fail() {
     let program_string = include_str!("multi_initializer_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -190,9 +191,9 @@ fn test_nested_3x2_value() {
 #[test]
 fn test_nested_3x2_value_fail() {
     let program_string = include_str!("nested_3x2_value_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -206,9 +207,9 @@ fn test_tuple_3x2_value() {
 #[test]
 fn test_tuple_3x2_value_fail() {
     let program_string = include_str!("tuple_3x2_value_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -258,9 +259,9 @@ fn test_type_nested_value_nested_3x2() {
 #[test]
 fn test_type_nested_value_nested_3x2_fail() {
     let program_string = include_str!("type_nested_value_nested_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -274,9 +275,9 @@ fn test_type_nested_value_nested_4x3x2() {
 #[test]
 fn test_type_nested_value_nested_4x3x2_fail() {
     let program_string = include_str!("type_nested_value_nested_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -290,9 +291,9 @@ fn test_type_nested_value_tuple_3x2() {
 #[test]
 fn test_type_nested_value_tuple_3x2_fail() {
     let program_string = include_str!("type_nested_value_tuple_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -306,9 +307,9 @@ fn test_type_nested_value_tuple_4x3x2() {
 #[test]
 fn test_type_nested_value_tuple_4x3x2_fail() {
     let program_string = include_str!("type_nested_value_tuple_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -322,9 +323,9 @@ fn test_type_tuple_value_nested_3x2() {
 #[test]
 fn test_type_tuple_value_nested_3x2_fail() {
     let program_string = include_str!("type_tuple_value_nested_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -338,9 +339,9 @@ fn test_type_tuple_value_nested_4x3x2() {
 #[test]
 fn test_type_tuple_value_nested_4x3x2_fail() {
     let program_string = include_str!("type_tuple_value_nested_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -354,9 +355,9 @@ fn test_type_tuple_value_tuple_3x2() {
 #[test]
 fn test_type_tuple_value_tuple_3x2_fail() {
     let program_string = include_str!("type_tuple_value_tuple_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -370,9 +371,9 @@ fn test_type_tuple_value_tuple_4x3x2() {
 #[test]
 fn test_type_tuple_value_tuple_4x3x2_fail() {
     let program_string = include_str!("type_tuple_value_tuple_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 // Tests for nested multi-dimensional arrays as input to the program
@@ -526,7 +527,7 @@ fn test_input_type_tuple_value_tuple_4x3x2_fail() {
 #[test]
 fn test_variable_slice_fail() {
     let program_string = include_str!("variable_slice_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    assert_satisfied(program);
+    expect_asg_error(error);
 }

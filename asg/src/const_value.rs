@@ -1,7 +1,22 @@
-use crate::{ Type, IntegerType, AsgConvertError, Span };
-use std::convert::TryInto;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{AsgConvertError, IntegerType, Span, Type};
 use num_bigint::BigInt;
-use std::fmt;
+use std::{convert::TryInto, fmt};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ConstInt {
@@ -137,7 +152,6 @@ macro_rules! const_int_map {
     };
 }
 
-
 macro_rules! const_int_bimap {
     ($name: ident, $x: ident, $y: ident, $transform: expr) => {
         pub fn $name(&self, other: &ConstInt) -> Option<ConstInt> {
@@ -159,6 +173,29 @@ macro_rules! const_int_bimap {
 }
 
 impl ConstInt {
+    const_int_op!(raw_value, String, x, format!("{}", x));
+
+    const_int_map!(value_negate, x, x.checked_neg()?);
+
+    const_int_bimap!(value_add, x, y, x.checked_add(*y)?);
+
+    const_int_bimap!(value_sub, x, y, x.checked_sub(*y)?);
+
+    const_int_bimap!(value_mul, x, y, x.checked_mul(*y)?);
+
+    const_int_bimap!(value_div, x, y, x.checked_div(*y)?);
+
+    const_int_bimap!(value_pow, x, y, x.checked_pow((*y).try_into().ok()?)?);
+
+    // TODO: limited to 32 bit exponents
+    const_int_biop!(value_lt, bool, x, y, Some(x < y));
+
+    const_int_biop!(value_le, bool, x, y, Some(x <= y));
+
+    const_int_biop!(value_gt, bool, x, y, Some(x > y));
+
+    const_int_biop!(value_ge, bool, x, y, Some(x >= y));
+
     pub fn get_int_type(&self) -> IntegerType {
         match self {
             ConstInt::I8(_) => IntegerType::I8,
@@ -177,18 +214,6 @@ impl ConstInt {
     pub fn get_type(&self) -> Type {
         Type::Integer(self.get_int_type())
     }
-
-    const_int_op!(raw_value, String, x, format!("{}", x));
-    const_int_map!(value_negate, x, x.checked_neg()?);
-    const_int_bimap!(value_add, x, y, x.checked_add(*y)?);
-    const_int_bimap!(value_sub, x, y, x.checked_sub(*y)?);
-    const_int_bimap!(value_mul, x, y, x.checked_mul(*y)?);
-    const_int_bimap!(value_div, x, y, x.checked_div(*y)?);
-    const_int_bimap!(value_pow, x, y, x.checked_pow((*y).try_into().ok()?)?); // TODO: limited to 32 bit exponents
-    const_int_biop!(value_lt, bool, x, y, Some(x < y));
-    const_int_biop!(value_le, bool, x, y, Some(x <= y));
-    const_int_biop!(value_gt, bool, x, y, Some(x > y));
-    const_int_biop!(value_ge, bool, x, y, Some(x >= y));
 
     pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt, AsgConvertError> {
         Ok(match int_type {
@@ -214,7 +239,9 @@ impl ConstValue {
             ConstValue::Field(_) => Type::Field,
             ConstValue::Address(_) => Type::Address,
             ConstValue::Boolean(_) => Type::Boolean,
-            ConstValue::Tuple(sub_consts) => Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?),
+            ConstValue::Tuple(sub_consts) => {
+                Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?)
+            }
             ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len()),
         })
     }

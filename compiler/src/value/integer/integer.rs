@@ -16,8 +16,8 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
-use leo_ast::{InputValue};
 use leo_asg::{ConstInt, IntegerType, Span};
+use leo_ast::InputValue;
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
@@ -73,10 +73,7 @@ impl Integer {
     ///
     /// Checks that the expression is equal to the expected type if given.
     ///
-    pub fn new(
-        value: &ConstInt,
-        span: &Span,
-    ) -> Self {
+    pub fn new(value: &ConstInt, span: &Span) -> Self {
         match value {
             ConstInt::U8(i) => Integer::U8(UInt8::constant(*i)),
             ConstInt::U16(i) => Integer::U16(UInt16::constant(*i)),

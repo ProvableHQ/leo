@@ -18,8 +18,8 @@
 
 use crate::{value::ConstrainedValue, GroupType};
 
-use snarkvm_models::curves::{Field, PrimeField};
 use leo_asg::Program;
+use snarkvm_models::curves::{Field, PrimeField};
 
 use indexmap::IndexMap;
 use uuid::Uuid;
@@ -59,7 +59,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<F, G>> {
         if let Some((from, to)) = &self.self_alias {
             if name == from {
-                return self.identifiers.get(to)
+                return self.identifiers.get(to);
             }
         }
         self.identifiers.get(name)

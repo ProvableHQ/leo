@@ -17,7 +17,7 @@
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
 use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
-use leo_asg::{BlockStatement};
+use leo_asg::BlockStatement;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -40,14 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = Vec::with_capacity(block.statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
         for statement in block.statements.iter() {
-            let value = self.enforce_statement(
-                cs,
-                file_scope,
-                function_scope,
-                indicator,
-                statement,
-                mut_self,
-            )?;
+            let value = self.enforce_statement(cs, file_scope, function_scope, indicator, statement, mut_self)?;
 
             results.extend(value);
         }

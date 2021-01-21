@@ -16,15 +16,9 @@
 
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{
-    errors::CompilerError,
-    ConstrainedProgram,
-    GroupType,
-    OutputBytes,
-    OutputFile,
-};
-use leo_ast::{Input};
+use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
 use leo_asg::Program;
+use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 

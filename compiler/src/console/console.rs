@@ -35,7 +35,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<(), ConsoleError> {
         match &console.function {
             ConsoleFunction::Assert(expression) => {
-                self.evaluate_console_assert(cs, file_scope, function_scope, indicator, expression, &console.span.clone().unwrap_or_default())?;
+                self.evaluate_console_assert(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    indicator,
+                    expression,
+                    &console.span.clone().unwrap_or_default(),
+                )?;
             }
             ConsoleFunction::Debug(string) => {
                 let string = self.format(cs, file_scope, function_scope, string)?;

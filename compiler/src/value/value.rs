@@ -17,7 +17,7 @@
 //! The in memory stored value for a defined name in a compiled Leo program.
 
 use crate::{
-    boolean::input::{allocate_bool},
+    boolean::input::allocate_bool,
     errors::{FieldError, ValueError},
     Address,
     FieldType,
@@ -35,8 +35,7 @@ use snarkvm_models::{
         utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
     },
 };
-use std::fmt;
-use std::sync::Arc;
+use std::{fmt, sync::Arc};
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<F, G>);
@@ -64,7 +63,6 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
-
     pub(crate) fn to_type(&self, span: &Span) -> Result<Type, ValueError> {
         Ok(match self {
             // Data types

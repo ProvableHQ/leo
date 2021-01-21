@@ -1,7 +1,22 @@
-use std::sync::{ Arc };
-use crate::{ Variable, Circuit, Function, Type, AsgConvertError, Input };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{AsgConvertError, Circuit, Function, Input, Type, Variable};
 use indexmap::IndexMap;
+use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
 pub struct InnerScope {
@@ -128,16 +143,38 @@ impl InnerScope {
             Array(sub_type, dimensions) => {
                 let mut item = Box::new(self.resolve_ast_type(&*sub_type)?);
                 for dimension in dimensions.0.iter().rev() {
-                    let dimension = dimension.value.parse::<usize>().map_err(|_| AsgConvertError::parse_index_error())?;
+                    let dimension = dimension
+                        .value
+                        .parse::<usize>()
+                        .map_err(|_| AsgConvertError::parse_index_error())?;
                     item = Box::new(Type::Array(item, dimension));
                 }
                 *item
                 //Type::Array(item, dimensions.0.get(0).map(|x| x.value.parse::<usize>().ok()).flatten().ok_or_else(|| AsgConvertError::parse_index_error())?)
-            },
-            Tuple(sub_types) => Type::Tuple(sub_types.iter().map(|x| self.resolve_ast_type(x)).collect::<Result<Vec<_>, AsgConvertError>>()?),
-            Circuit(name) if name.name == "Self" => Type::Circuit(self.circuit_self.clone().ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?.clone()),
-            Circuit(name) => Type::Circuit(self.circuits.get(&name.name).ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?.clone()),
-            SelfType => Type::Circuit(self.circuit_self.clone().ok_or_else(|| AsgConvertError::reference_self_outside_circuit())?),
+            }
+            Tuple(sub_types) => Type::Tuple(
+                sub_types
+                    .iter()
+                    .map(|x| self.resolve_ast_type(x))
+                    .collect::<Result<Vec<_>, AsgConvertError>>()?,
+            ),
+            Circuit(name) if name.name == "Self" => Type::Circuit(
+                self.circuit_self
+                    .clone()
+                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?
+                    .clone(),
+            ),
+            Circuit(name) => Type::Circuit(
+                self.circuits
+                    .get(&name.name)
+                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?
+                    .clone(),
+            ),
+            SelfType => Type::Circuit(
+                self.circuit_self
+                    .clone()
+                    .ok_or_else(|| AsgConvertError::reference_self_outside_circuit())?,
+            ),
         })
     }
 }

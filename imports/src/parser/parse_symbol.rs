@@ -18,7 +18,7 @@ use crate::{errors::ImportParserError, ImportParser};
 use leo_ast::{Program, Span};
 use leo_grammar::Grammar;
 
-use std::{fs::DirEntry};
+use std::fs::DirEntry;
 
 static LIBRARY_FILE: &str = "src/lib.leo";
 
@@ -37,11 +37,11 @@ impl ImportParser {
             .file_name()
             .into_string()
             .map_err(|_| ImportParserError::convert_os_string(span.clone()))?;
-    
+
         let mut file_path = package.path();
         if file_type.is_dir() {
             file_path.push(LIBRARY_FILE);
-    
+
             if !file_path.exists() {
                 return Err(ImportParserError::expected_lib_file(
                     format!("{:?}", file_path.as_path()),
@@ -49,11 +49,11 @@ impl ImportParser {
                 ));
             }
         }
-    
+
         // Build the package abstract syntax tree.
         let program_string = &Grammar::load_file(&file_path)?;
         let ast = &Grammar::new(&file_path, &program_string)?;
-    
+
         // Build the package Leo syntax tree from the package abstract syntax tree.
         Ok(Program::from(&file_name, ast.as_repr()))
     }

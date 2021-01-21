@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 mod return_;
 pub use return_::*;
 mod definition;
@@ -15,8 +31,8 @@ pub use expression::*;
 mod block;
 pub use block::*;
 
+use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
 use std::sync::Arc;
-use crate::{ AsgConvertError, Scope, FromAst, PartialType, Node, Span };
 
 pub enum Statement {
     Return(ReturnStatement),
@@ -46,33 +62,29 @@ impl Node for Statement {
 }
 
 impl FromAst<leo_ast::Statement> for Arc<Statement> {
-    fn from_ast(scope: &Scope, value: &leo_ast::Statement, _expected_type: Option<PartialType>) -> Result<Arc<Statement>, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::Statement,
+        _expected_type: Option<PartialType>,
+    ) -> Result<Arc<Statement>, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
-            Return(statement) => {
-                Arc::new(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?))
-            },
-            Definition(statement) => {
-                Arc::new(Statement::Definition(DefinitionStatement::from_ast(scope, statement, None)?))
-            },
-            Assign(statement) => {
-                Arc::<Statement>::from_ast(scope, statement, None)?
-            },
-            Conditional(statement) => {
-                Arc::new(Statement::Conditional(ConditionalStatement::from_ast(scope, statement, None)?))
-            },
-            Iteration(statement) => {
-                Arc::new(Statement::Iteration(IterationStatement::from_ast(scope, statement, None)?))
-            },
-            Console(statement) => {
-                Arc::new(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?))
-            },
-            Expression(statement) => {
-                Arc::new(Statement::Expression(ExpressionStatement::from_ast(scope, statement, None)?))
-            },
-            Block(statement) => {
-                Arc::new(Statement::Block(BlockStatement::from_ast(scope, statement, None)?))
-            },
+            Return(statement) => Arc::new(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?)),
+            Definition(statement) => Arc::new(Statement::Definition(DefinitionStatement::from_ast(
+                scope, statement, None,
+            )?)),
+            Assign(statement) => Arc::<Statement>::from_ast(scope, statement, None)?,
+            Conditional(statement) => Arc::new(Statement::Conditional(ConditionalStatement::from_ast(
+                scope, statement, None,
+            )?)),
+            Iteration(statement) => Arc::new(Statement::Iteration(IterationStatement::from_ast(
+                scope, statement, None,
+            )?)),
+            Console(statement) => Arc::new(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?)),
+            Expression(statement) => Arc::new(Statement::Expression(ExpressionStatement::from_ast(
+                scope, statement, None,
+            )?)),
+            Block(statement) => Arc::new(Statement::Block(BlockStatement::from_ast(scope, statement, None)?)),
         })
     }
 }

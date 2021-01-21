@@ -17,7 +17,7 @@
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Statement};
+use leo_asg::Statement;
 use std::sync::Arc;
 
 use snarkvm_models::{
@@ -61,36 +61,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.enforce_definition_statement(cs, file_scope, function_scope, statement)?;
             }
             Statement::Assign(statement) => {
-                self.enforce_assign_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    mut_self,
-                    statement,
-                )?;
+                self.enforce_assign_statement(cs, file_scope, function_scope, indicator, mut_self, statement)?;
             }
             Statement::Conditional(statement) => {
-                let result = self.enforce_conditional_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    mut_self,
-                    statement,
-                )?;
+                let result =
+                    self.enforce_conditional_statement(cs, file_scope, function_scope, indicator, mut_self, statement)?;
 
                 results.extend(result);
             }
             Statement::Iteration(statement) => {
-                let result = self.enforce_iteration_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    mut_self,
-                    statement,
-                )?;
+                let result =
+                    self.enforce_iteration_statement(cs, file_scope, function_scope, indicator, mut_self, statement)?;
 
                 results.extend(result);
             }
@@ -106,7 +87,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             results.push((*indicator, value));
                         }
                     }
-                    _ => return Err(StatementError::unassigned(statement.span.as_ref().map(|x| x.text.clone()).unwrap_or_default(), statement.span.clone().unwrap_or_default())),
+                    _ => {
+                        return Err(StatementError::unassigned(
+                            statement.span.as_ref().map(|x| x.text.clone()).unwrap_or_default(),
+                            statement.span.clone().unwrap_or_default(),
+                        ));
+                    }
                 }
             }
             Statement::Block(statement) => {

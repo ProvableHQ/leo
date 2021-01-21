@@ -30,8 +30,8 @@ use crate::{
     Integer,
 };
 
-use leo_ast::{InputValue, Span};
 use leo_asg::Type;
+use leo_ast::{InputValue, Span};
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,

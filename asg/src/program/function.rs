@@ -1,8 +1,41 @@
-use crate::{ Identifier, Type, WeakType, Statement, Span, AsgConvertError, BlockStatement, FromAst, Scope, InnerScope, Circuit, Variable, ReturnPathReducer, MonoidalDirector };
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-use std::sync::{ Arc, Weak };
-use std::cell::RefCell;
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    BlockStatement,
+    Circuit,
+    FromAst,
+    Identifier,
+    InnerScope,
+    MonoidalDirector,
+    ReturnPathReducer,
+    Scope,
+    Span,
+    Statement,
+    Type,
+    Variable,
+    WeakType,
+};
+
 use leo_ast::FunctionInput;
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 use uuid::Uuid;
 
 #[derive(PartialEq)]
@@ -50,7 +83,11 @@ impl Eq for FunctionBody {}
 
 impl Function {
     pub(crate) fn from_ast(scope: &Scope, value: &leo_ast::Function) -> Result<Function, AsgConvertError> {
-        let output: Type = value.output.as_ref().map(|t| scope.borrow().resolve_ast_type(t)).transpose()?
+        let output: Type = value
+            .output
+            .as_ref()
+            .map(|t| scope.borrow().resolve_ast_type(t))
+            .transpose()?
             .unwrap_or_else(|| Type::Tuple(vec![]));
         let mut qualifier = FunctionQualifier::Static;
         let mut has_input = false;
@@ -61,16 +98,16 @@ impl Function {
                 match input {
                     FunctionInput::InputKeyword(_) => {
                         has_input = true;
-                    },
+                    }
                     FunctionInput::SelfKeyword(_) => {
                         qualifier = FunctionQualifier::SelfRef;
-                    },
+                    }
                     FunctionInput::MutSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
-                    },
+                    }
                     FunctionInput::Variable(leo_ast::FunctionInputVariable { type_, .. }) => {
                         argument_types.push(scope.borrow().resolve_ast_type(&type_)?.into());
-                    },
+                    }
                 }
             }
         }
@@ -88,12 +125,14 @@ impl Function {
             qualifier,
         })
     }
-
 }
 
-
 impl FunctionBody {
-    pub(super) fn from_ast(scope: &Scope, value: &leo_ast::Function, function: Arc<Function>) -> Result<FunctionBody, AsgConvertError> {
+    pub(super) fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::Function,
+        function: Arc<Function>,
+    ) -> Result<FunctionBody, AsgConvertError> {
         let new_scope = InnerScope::make_subscope(scope);
         let mut arguments = vec![];
         {
@@ -115,10 +154,15 @@ impl FunctionBody {
             scope_borrow.function = Some(function.clone());
             for input in value.input.iter() {
                 match input {
-                    FunctionInput::InputKeyword(_) => {},
-                    FunctionInput::SelfKeyword(_) => {},
-                    FunctionInput::MutSelfKeyword(_) => {},
-                    FunctionInput::Variable(leo_ast::FunctionInputVariable { identifier, mutable, type_, span: _span }) => {
+                    FunctionInput::InputKeyword(_) => {}
+                    FunctionInput::SelfKeyword(_) => {}
+                    FunctionInput::MutSelfKeyword(_) => {}
+                    FunctionInput::Variable(leo_ast::FunctionInputVariable {
+                        identifier,
+                        mutable,
+                        type_,
+                        span: _span,
+                    }) => {
                         let variable = Arc::new(RefCell::new(crate::InnerVariable {
                             id: Uuid::new_v4(),
                             name: identifier.clone(),
@@ -131,17 +175,26 @@ impl FunctionBody {
                         }));
                         arguments.push(variable.clone());
                         scope_borrow.variables.insert(identifier.name.clone(), variable);
-                    },
+                    }
                 }
             }
         }
         let main_block = BlockStatement::from_ast(&new_scope, &value.block, None)?;
         let mut director = MonoidalDirector::new(ReturnPathReducer::new());
         if !director.reduce_block(&main_block).0 && !function.output.is_unit() {
-            return Err(AsgConvertError::function_missing_return(&function.name.borrow().name, &value.span));
+            return Err(AsgConvertError::function_missing_return(
+                &function.name.borrow().name,
+                &value.span,
+            ));
         }
+
+        #[allow(clippy::never_loop)] // TODO @Protryon: How should we return multiple errors?
         for (span, error) in director.reducer().errors {
-            return Err(AsgConvertError::function_return_validation(&function.name.borrow().name, &error, &span));
+            return Err(AsgConvertError::function_return_validation(
+                &function.name.borrow().name,
+                &error,
+                &span,
+            ));
         }
 
         Ok(FunctionBody {
@@ -157,9 +210,10 @@ impl FunctionBody {
 impl Into<leo_ast::Function> for &Function {
     fn into(self) -> leo_ast::Function {
         let (input, body, span) = match self.body.borrow().upgrade() {
-            Some(body) => {
-                (
-                    body.arguments.iter().map(|variable| {
+            Some(body) => (
+                body.arguments
+                    .iter()
+                    .map(|variable| {
                         let variable = variable.borrow();
                         leo_ast::FunctionInput::Variable(leo_ast::FunctionInputVariable {
                             identifier: variable.name.clone(),
@@ -167,24 +221,22 @@ impl Into<leo_ast::Function> for &Function {
                             type_: (&variable.type_).into(),
                             span: Span::default(),
                         })
-                    }).collect(),
-                    match body.body.as_ref() {
-                        Statement::Block(block) => block.into(),
-                        _ => unimplemented!(),
-                    },
-                    body.span.clone().unwrap_or_default(),
-                )
-            },
-            None => {
-                (
-                    vec![],
-                    leo_ast::Block {
-                        statements: vec![],
-                        span: Default::default(),
-                    },
-                    Default::default(),
-                )
-            },
+                    })
+                    .collect(),
+                match body.body.as_ref() {
+                    Statement::Block(block) => block.into(),
+                    _ => unimplemented!(),
+                },
+                body.span.clone().unwrap_or_default(),
+            ),
+            None => (
+                vec![],
+                leo_ast::Block {
+                    statements: vec![],
+                    span: Default::default(),
+                },
+                Default::default(),
+            ),
         };
         let output: Type = self.output.clone().into();
         leo_ast::Function {

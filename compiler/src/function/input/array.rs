@@ -23,8 +23,8 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{InputValue, Span};
 use leo_asg::Type;
+use leo_ast::{InputValue, Span};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -41,7 +41,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         input_value: Option<InputValue>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-
         // Build the array value using the expected types.
         let mut array_value = vec![];
 
@@ -65,13 +64,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 for i in 0..array_len {
                     let value_name = new_scope(&name, &i.to_string());
 
-                    array_value.push(self.allocate_main_function_input(
-                        cs,
-                        array_type,
-                        &value_name,
-                        None,
-                        span,
-                    )?);
+                    array_value.push(self.allocate_main_function_input(cs, array_type, &value_name, None, span)?);
                 }
             }
             _ => {

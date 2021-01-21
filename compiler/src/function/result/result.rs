@@ -66,7 +66,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Error if a statement returned a result with an incorrect type
             let result_type = result.to_type(span)?;
             if !expected_return.is_assignable_from(&result_type) {
-                panic!("failed type resolution for function return: expected '{}', got '{}'", expected_return.to_string(), result_type.to_string());
+                panic!(
+                    "failed type resolution for function return: expected '{}', got '{}'",
+                    expected_return.to_string(),
+                    result_type.to_string()
+                );
             }
 
             if get_indicator_value(&indicator) {

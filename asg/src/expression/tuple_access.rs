@@ -1,7 +1,24 @@
-use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct TupleAccessExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -11,7 +28,6 @@ pub struct TupleAccessExpression {
 }
 
 impl Node for TupleAccessExpression {
-
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
@@ -51,8 +67,16 @@ impl ExpressionNode for TupleAccessExpression {
 }
 
 impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::TupleAccessExpression, expected_type: Option<PartialType>) -> Result<TupleAccessExpression, AsgConvertError> {
-        let index = value.index.value.parse::<usize>().map_err(|_| AsgConvertError::parse_index_error())?;
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::TupleAccessExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<TupleAccessExpression, AsgConvertError> {
+        let index = value
+            .index
+            .value
+            .parse::<usize>()
+            .map_err(|_| AsgConvertError::parse_index_error())?;
 
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type.clone();
@@ -61,7 +85,11 @@ impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
         let tuple_type = tuple.get_type();
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
-            return Err(AsgConvertError::unexpected_type("a tuple", tuple_type.map(|x| x.to_string()).as_deref(), &value.span));
+            return Err(AsgConvertError::unexpected_type(
+                "a tuple",
+                tuple_type.map(|x| x.to_string()).as_deref(),
+                &value.span,
+            ));
         }
 
         Ok(TupleAccessExpression {
@@ -77,7 +105,9 @@ impl Into<leo_ast::TupleAccessExpression> for &TupleAccessExpression {
     fn into(self) -> leo_ast::TupleAccessExpression {
         leo_ast::TupleAccessExpression {
             tuple: Box::new(self.tuple_ref.as_ref().into()),
-            index: leo_ast::PositiveNumber { value: self.index.to_string() },
+            index: leo_ast::PositiveNumber {
+                value: self.index.to_string(),
+            },
             span: self.span.clone().unwrap_or_default(),
         }
     }

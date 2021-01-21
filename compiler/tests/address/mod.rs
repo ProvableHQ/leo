@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program};
+use crate::{assert_satisfied, expect_asg_error, expect_compiler_error, generate_main_input, parse_program};
 use leo_ast::InputValue;
 
 static TEST_ADDRESS_1: &str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";
@@ -63,9 +63,9 @@ fn test_implicit_valid() {
 #[test]
 fn test_implicit_invalid() {
     let program_string = include_str!("implicit_invalid.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _output = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]

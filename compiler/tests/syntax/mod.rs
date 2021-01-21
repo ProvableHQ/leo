@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expect_compiler_error, parse_input, parse_program};
+use crate::{expect_asg_error, expect_compiler_error, parse_input, parse_program};
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_grammar::ParserError;
 use leo_input::InputParserError;
@@ -36,29 +36,9 @@ fn test_semicolon() {
 #[test]
 fn test_undefined() {
     let program_string = include_str!("undefined.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let error = expect_compiler_error(program);
-
-    match error {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(error),
-        ))) => {
-            assert_eq!(
-                error.to_string(),
-                vec![
-                    "    --> \"/test/src/main.leo\": 2:12",
-                    "     |",
-                    "   2 |      return a",
-                    "     |             ^",
-                    "     |",
-                    "     = Cannot find value `a` in this scope",
-                ]
-                .join("\n")
-            );
-        }
-        _ => panic!("expected an undefined identifier error"),
-    }
+    expect_asg_error(error);
 }
 
 #[test]

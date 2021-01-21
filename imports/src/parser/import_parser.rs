@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportParserError;
-use leo_asg::{Program, ImportResolver, AsgConvertError, Span};
+use leo_asg::{AsgConvertError, ImportResolver, Program, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::env::current_dir;
@@ -35,16 +35,19 @@ impl ImportResolver for ImportParser {
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, AsgConvertError> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
-            return Err(ImportParserError::recursive_imports(&full_path, span).into())
+            return Err(ImportParserError::recursive_imports(&full_path, span).into());
         }
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));
         }
         let mut imports = Self::default();
-        let path = current_dir().map_err(|x| -> AsgConvertError { ImportParserError::current_directory_error(x).into() })?;
+        let path =
+            current_dir().map_err(|x| -> AsgConvertError { ImportParserError::current_directory_error(x).into() })?;
 
         self.partial_imports.insert(full_path.clone());
-        let program = imports.parse_package(path.clone(), package_segments, span).map_err(|x| -> AsgConvertError { x.into() })?;
+        let program = imports
+            .parse_package(path.clone(), package_segments, span)
+            .map_err(|x| -> AsgConvertError { x.into() })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());
         Ok(Some(program))

@@ -16,13 +16,8 @@
 
 //! Enforces an identifier expression in a compiled Leo program.
 
-use crate::{
-    errors::ExpressionError,
-    program::{ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_asg::{VariableRef};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::VariableRef;
 
 use snarkvm_models::curves::{Field, PrimeField};
 

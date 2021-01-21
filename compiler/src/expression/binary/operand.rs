@@ -17,7 +17,7 @@
 //! Enforces one operand in a binary expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression};
+use leo_asg::Expression;
 use std::sync::Arc;
 
 use snarkvm_models::{

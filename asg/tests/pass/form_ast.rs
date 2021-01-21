@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::load_asg;
 
 #[test]
@@ -34,7 +50,6 @@ fn test_function_rename() {
     panic!();
 }
 
-
 #[test]
 fn test_imports() {
     let mut imports = crate::mocked_resolver();
@@ -48,7 +63,9 @@ fn test_imports() {
       return 1u32
     }
   "#;
-    imports.packages.insert("test-import".to_string(), load_asg(test_import).unwrap());
+    imports
+        .packages
+        .insert("test-import".to_string(), load_asg(test_import).unwrap());
     let program_string = r#"
         import test-import.foo;
 
@@ -56,11 +73,16 @@ fn test_imports() {
             console.assert(foo() == 1u32);
         }
     "#;
-    println!("{}", serde_json::to_string(&crate::load_ast("test-import.leo", test_import).unwrap()).unwrap());
-    println!("{}", serde_json::to_string(&crate::load_ast("test.leo", program_string).unwrap()).unwrap());
+    println!(
+        "{}",
+        serde_json::to_string(&crate::load_ast("test-import.leo", test_import).unwrap()).unwrap()
+    );
+    println!(
+        "{}",
+        serde_json::to_string(&crate::load_ast("test.leo", program_string).unwrap()).unwrap()
+    );
     let asg = crate::load_asg_imports(program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", serde_json::to_string(&reformed_ast).unwrap());
     panic!();
-
 }

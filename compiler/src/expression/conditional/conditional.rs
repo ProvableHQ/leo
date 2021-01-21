@@ -38,11 +38,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         second: &Arc<Expression>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let conditional_value =
-            match self.enforce_expression(cs, file_scope, function_scope, conditional)? {
-                ConstrainedValue::Boolean(resolved) => resolved,
-                value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
-            };
+        let conditional_value = match self.enforce_expression(cs, file_scope, function_scope, conditional)? {
+            ConstrainedValue::Boolean(resolved) => resolved,
+            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
+        };
 
         let first_value = self.enforce_operand(cs, file_scope, function_scope, first)?;
 

@@ -1,7 +1,24 @@
-use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct ArrayInitExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -44,35 +61,69 @@ impl ExpressionNode for ArrayInitExpression {
 }
 
 impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayInitExpression, expected_type: Option<PartialType>) -> Result<ArrayInitExpression, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::ArrayInitExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<ArrayInitExpression, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
-            Some(type_) => return Err(AsgConvertError::unexpected_type(&type_.to_string(), Some("array"), &value.span)),
+            Some(type_) => {
+                return Err(AsgConvertError::unexpected_type(
+                    &type_.to_string(),
+                    Some("array"),
+                    &value.span,
+                ));
+            }
         };
-        let dimensions = value.dimensions.0.iter().map(|x| x.value.parse::<usize>().map_err(|_| AsgConvertError::parse_dimension_error())).collect::<Result<Vec<_>, AsgConvertError>>()?;
+        let dimensions = value
+            .dimensions
+            .0
+            .iter()
+            .map(|x| {
+                x.value
+                    .parse::<usize>()
+                    .map_err(|_| AsgConvertError::parse_dimension_error())
+            })
+            .collect::<Result<Vec<_>, AsgConvertError>>()?;
 
-        let len = *dimensions.get(0).ok_or_else(|| AsgConvertError::parse_dimension_error())?;
+        let len = *dimensions
+            .get(0)
+            .ok_or_else(|| AsgConvertError::parse_dimension_error())?;
         if let Some(expected_len) = expected_len {
             if expected_len != len {
-                return Err(AsgConvertError::unexpected_type(&*format!("array of length {}", expected_len), Some(&*format!("array of length {}", len)), &value.span));
+                return Err(AsgConvertError::unexpected_type(
+                    &*format!("array of length {}", expected_len),
+                    Some(&*format!("array of length {}", len)),
+                    &value.span,
+                ));
             }
         }
-
 
         for dimension in (&dimensions[1..]).iter().copied() {
             expected_item = match expected_item {
                 Some(PartialType::Array(item, len)) => {
                     if let Some(len) = len {
                         if len != dimension {
-                            return Err(AsgConvertError::unexpected_type(&*format!("array of length {}", dimension), Some(&*format!("array of length {}", len)), &value.span));
-                        }    
+                            return Err(AsgConvertError::unexpected_type(
+                                &*format!("array of length {}", dimension),
+                                Some(&*format!("array of length {}", len)),
+                                &value.span,
+                            ));
+                        }
                     }
-                    
+
                     item.map(|x| *x)
-                },
+                }
                 None => None,
-                Some(type_) => return Err(AsgConvertError::unexpected_type("array", Some(&type_.to_string()), &value.span)),
+                Some(type_) => {
+                    return Err(AsgConvertError::unexpected_type(
+                        "array",
+                        Some(&type_.to_string()),
+                        &value.span,
+                    ));
+                }
             }
         }
         let mut element = Some(Arc::<Expression>::from_ast(scope, &*value.element, expected_item)?);
@@ -82,7 +133,10 @@ impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
             output = Some(ArrayInitExpression {
                 parent: RefCell::new(None),
                 span: Some(value.span.clone()),
-                element: output.map(Expression::ArrayInit).map(Arc::new).unwrap_or_else(|| element.take().unwrap()),
+                element: output
+                    .map(Expression::ArrayInit)
+                    .map(Arc::new)
+                    .unwrap_or_else(|| element.take().unwrap()),
                 len: dimension,
             });
         }
@@ -94,7 +148,9 @@ impl Into<leo_ast::ArrayInitExpression> for &ArrayInitExpression {
     fn into(self) -> leo_ast::ArrayInitExpression {
         leo_ast::ArrayInitExpression {
             element: Box::new(self.element.as_ref().into()),
-            dimensions: leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber { value: self.len.to_string() }]),
+            dimensions: leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
+                value: self.len.to_string(),
+            }]),
             span: self.span.clone().unwrap_or_default(),
         }
     }

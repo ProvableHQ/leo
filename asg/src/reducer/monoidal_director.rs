@@ -1,7 +1,22 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use super::*;
-use crate::{ expression::*, statement::*, program::* };
-use std::sync::Arc;
-use std::marker::PhantomData;
+use crate::{expression::*, program::*, statement::*};
+use std::{marker::PhantomData, sync::Arc};
 
 pub struct MonoidalDirector<T: Monoid, R: MonoidalReducerExpression<T>> {
     reducer: R,
@@ -97,11 +112,11 @@ impl<T: Monoid, R: MonoidalReducerExpression<T>> MonoidalDirector<T, R> {
         let if_true = self.reduce_expression(&input.if_true);
         let if_false = self.reduce_expression(&input.if_false);
 
-        self.reducer.reduce_conditional_expression(input, condition, if_true, if_false)
+        self.reducer
+            .reduce_conditional_expression(input, condition, if_true, if_false)
     }
 
     pub fn reduce_constant(&mut self, input: &Constant) -> T {
-
         self.reducer.reduce_constant(input)
     }
 
@@ -124,14 +139,11 @@ impl<T: Monoid, R: MonoidalReducerExpression<T>> MonoidalDirector<T, R> {
     }
 
     pub fn reduce_variable_ref(&mut self, input: &VariableRef) -> T {
-
         self.reducer.reduce_variable_ref(input)
     }
 }
 
-
 impl<T: Monoid, R: MonoidalReducerStatement<T>> MonoidalDirector<T, R> {
-
     pub fn reduce_statement(&mut self, input: &Arc<Statement>) -> T {
         match &**input {
             Statement::Assign(s) => self.reduce_assign(s),
@@ -147,12 +159,10 @@ impl<T: Monoid, R: MonoidalReducerStatement<T>> MonoidalDirector<T, R> {
 
     pub fn reduce_assign_access(&mut self, input: &AssignAccess) -> T {
         let (left, right) = match input {
-            AssignAccess::ArrayRange(left, right) => {
-                (
-                    left.as_ref().map(|e| self.reduce_expression(e)),
-                    right.as_ref().map(|e| self.reduce_expression(e)),
-                )
-            },
+            AssignAccess::ArrayRange(left, right) => (
+                left.as_ref().map(|e| self.reduce_expression(e)),
+                right.as_ref().map(|e| self.reduce_expression(e)),
+            ),
             AssignAccess::ArrayIndex(index) => (Some(self.reduce_expression(index)), None),
             _ => (None, None),
         };
@@ -161,7 +171,11 @@ impl<T: Monoid, R: MonoidalReducerStatement<T>> MonoidalDirector<T, R> {
     }
 
     pub fn reduce_assign(&mut self, input: &AssignStatement) -> T {
-        let accesses = input.target_accesses.iter().map(|x| self.reduce_assign_access(x)).collect();
+        let accesses = input
+            .target_accesses
+            .iter()
+            .map(|x| self.reduce_assign_access(x))
+            .collect();
         let value = self.reduce_expression(&input.value);
 
         self.reducer.reduce_assign(input, accesses, value)
@@ -178,7 +192,8 @@ impl<T: Monoid, R: MonoidalReducerStatement<T>> MonoidalDirector<T, R> {
         let if_true = self.reduce_statement(&input.result);
         let if_false = input.next.as_ref().map(|s| self.reduce_statement(s));
 
-        self.reducer.reduce_conditional_statement(input, condition, if_true, if_false)
+        self.reducer
+            .reduce_conditional_statement(input, condition, if_true, if_false)
     }
 
     pub fn reduce_formatted_string(&mut self, input: &FormattedString) -> T {
@@ -190,10 +205,9 @@ impl<T: Monoid, R: MonoidalReducerStatement<T>> MonoidalDirector<T, R> {
     pub fn reduce_console(&mut self, input: &ConsoleStatement) -> T {
         let argument = match &input.function {
             ConsoleFunction::Assert(e) => self.reduce_expression(e),
-            ConsoleFunction::Debug(f) |
-            ConsoleFunction::Error(f) |
-            ConsoleFunction::Log(f) =>
+            ConsoleFunction::Debug(f) | ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => {
                 self.reduce_formatted_string(f)
+            }
         };
 
         self.reducer.reduce_console(input, argument)
@@ -244,18 +258,32 @@ impl<T: Monoid, R: MonoidalReducerProgram<T>> MonoidalDirector<T, R> {
     }
 
     fn reduce_circuit(&mut self, input: &Arc<CircuitBody>) -> T {
-        let members = input.members.borrow().iter().map(|(_, member)| self.reduce_circuit_member(member)).collect();
+        let members = input
+            .members
+            .borrow()
+            .iter()
+            .map(|(_, member)| self.reduce_circuit_member(member))
+            .collect();
 
         self.reducer.reduce_circuit(input, members)
     }
 
     fn reduce_program(&mut self, input: &Program) -> T {
         let input = input.borrow();
-        let imported_modules = input.imported_modules.iter().map(|(_, import)| self.reduce_program(import)).collect();
-        let test_functions = input.test_functions.iter().map(|(_, (f, _))| self.reduce_function(f)).collect();
+        let imported_modules = input
+            .imported_modules
+            .iter()
+            .map(|(_, import)| self.reduce_program(import))
+            .collect();
+        let test_functions = input
+            .test_functions
+            .iter()
+            .map(|(_, (f, _))| self.reduce_function(f))
+            .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
-        self.reducer.reduce_program(&input, imported_modules, test_functions, functions, circuits)
+        self.reducer
+            .reduce_program(&input, imported_modules, test_functions, functions, circuits)
     }
 }

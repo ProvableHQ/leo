@@ -16,12 +16,7 @@
 
 //! Enforces an array expression in a compiled Leo program.
 
-use crate::{
-    errors::ExpressionError,
-    program::{ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
 use std::sync::Arc;
 
@@ -44,12 +39,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let mut result = vec![];
         for (element, is_spread) in array.into_iter() {
-            let element_value = self.enforce_expression(
-                cs,
-                file_scope,
-                function_scope,
-                element,
-            )?;
+            let element_value = self.enforce_expression(cs, file_scope, function_scope, element)?;
             if *is_spread {
                 match element_value {
                     ConstrainedValue::Array(array) => result.extend(array),
@@ -84,8 +74,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         actual_size: usize,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let mut value =
-            self.enforce_expression(cs, file_scope, function_scope, element_expression)?;
+        let mut value = self.enforce_expression(cs, file_scope, function_scope, element_expression)?;
 
         // Allocate the array.
         let array = vec![value; actual_size];

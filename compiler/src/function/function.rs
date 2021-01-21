@@ -73,19 +73,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         //     FunctionQualifier::Static => (),
         // }
         if function.arguments.len() != arguments.len() {
-            return Err(FunctionError::input_not_found("arguments length invalid".to_string(), function.span.clone().unwrap_or_default()));
+            return Err(FunctionError::input_not_found(
+                "arguments length invalid".to_string(),
+                function.span.clone().unwrap_or_default(),
+            ));
         }
 
         // Store input values as new variables in resolved program
         for (variable, input_expression) in function.arguments.iter().zip(arguments.into_iter()) {
-
-            let mut input_value = self.enforce_function_input(
-                cs,
-                scope,
-                caller_scope,
-                &function_name,
-                input_expression,
-            )?;
+            let mut input_value =
+                self.enforce_function_input(cs, scope, caller_scope, &function_name, input_expression)?;
             let variable = variable.borrow();
 
             if variable.mutable {
@@ -101,14 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let output = function.function.output.clone().strong();
 
-        let mut result = self.enforce_statement(
-            cs,
-            scope,
-            &function_name,
-            &indicator,
-            &function.body,
-            mut_self,
-        )?;
+        let mut result = self.enforce_statement(cs, scope, &function_name, &indicator, &function.body, mut_self)?;
 
         results.append(&mut result);
 

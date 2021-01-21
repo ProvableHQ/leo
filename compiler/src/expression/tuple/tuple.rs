@@ -37,7 +37,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         let mut result = Vec::with_capacity(tuple.len());
         for (i, expression) in tuple.iter().enumerate() {
-
             result.push(self.enforce_expression(cs, file_scope, function_scope, expression)?);
         }
 

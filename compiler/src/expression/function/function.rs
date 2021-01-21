@@ -17,7 +17,7 @@
 //! Enforce a function call expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Span, Function};
+use leo_asg::{Expression, Function, Span};
 use std::sync::Arc;
 
 use snarkvm_models::{
@@ -37,7 +37,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         arguments: &Vec<Arc<Expression>>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
@@ -46,7 +45,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 span.start,
             )
         };
-        let function = function.body.borrow().upgrade().expect("stale function in call expression");
+        let function = function
+            .body
+            .borrow()
+            .upgrade()
+            .expect("stale function in call expression");
 
         let target = if let Some(target) = target {
             Some(self.enforce_expression(cs, file_scope, function_scope, target)?)
@@ -55,9 +58,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let old_self_alias = self.self_alias.take();
-        // self.self_alias = 
+        // self.self_alias =
         if let Some(target) = &target {
-            let self_var = function.scope.borrow().resolve_variable("self").expect("attempted to call static function from non-static context");
+            let self_var = function
+                .scope
+                .borrow()
+                .resolve_variable("self")
+                .expect("attempted to call static function from non-static context");
             self.store(self_var.borrow().id.clone(), target.clone());
             // match target {
             //     ConstrainedValue::CircuitExpression(circuit, values) => {
@@ -70,19 +77,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // } else {
         //     None
         // };
-        
+
         //todo: mut self
 
-
-        let return_value = self.enforce_function(
-            &mut cs.ns(name_unique),
-            file_scope,
-            function_scope,
-            &function,
-            target,
-            arguments,
-        )
-        .map_err(|error| ExpressionError::from(Box::new(error)))?;
+        let return_value = self
+            .enforce_function(
+                &mut cs.ns(name_unique),
+                file_scope,
+                function_scope,
+                &function,
+                target,
+                arguments,
+            )
+            .map_err(|error| ExpressionError::from(Box::new(error)))?;
 
         self.self_alias = old_self_alias;
         Ok(return_value)

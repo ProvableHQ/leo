@@ -39,10 +39,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: &Span,
     ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
         //todo: what are these expected typeS???
-        let mut resolved_left =
-            self.enforce_operand(cs, file_scope, function_scope, left)?;
-        let mut resolved_right =
-            self.enforce_operand(cs, file_scope, function_scope, right)?;
+        let mut resolved_left = self.enforce_operand(cs, file_scope, function_scope, left)?;
+        let mut resolved_right = self.enforce_operand(cs, file_scope, function_scope, right)?;
 
         Ok((resolved_left, resolved_right))
     }

@@ -1,8 +1,37 @@
-use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, FromAst, Scope, AsgConvertError, ConstValue, ConstInt, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    ConstInt,
+    ConstValue,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Type,
+};
 use leo_ast::IntegerType;
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct ArrayRangeAccessExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -83,32 +112,55 @@ impl ExpressionNode for ArrayRangeAccessExpression {
             return None;
         }
 
-        Some(ConstValue::Array(array.drain(const_left as usize..const_right as usize).collect()))
+        Some(ConstValue::Array(
+            array.drain(const_left as usize..const_right as usize).collect(),
+        ))
     }
 }
 
 impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayRangeAccessExpression, expected_type: Option<PartialType>) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::ArrayRangeAccessExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
         let expected_array = match expected_type {
-            Some(PartialType::Array(element, _len)) => {
-                Some(PartialType::Array(element, None))
-            },
+            Some(PartialType::Array(element, _len)) => Some(PartialType::Array(element, None)),
             None => None,
-            Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("array"), &value.span)),
+            Some(x) => {
+                return Err(AsgConvertError::unexpected_type(
+                    &x.to_string(),
+                    Some("array"),
+                    &value.span,
+                ));
+            }
         };
         let array = Arc::<Expression>::from_ast(scope, &*value.array, expected_array)?;
         let array_type = array.get_type();
         match array_type {
             Some(Type::Array(_, _)) => (),
-            type_ =>
-                return Err(AsgConvertError::unexpected_type("array", type_.map(|x| x.to_string()).as_deref(), &value.span)),
+            type_ => {
+                return Err(AsgConvertError::unexpected_type(
+                    "array",
+                    type_.map(|x| x.to_string()).as_deref(),
+                    &value.span,
+                ));
+            }
         }
         Ok(ArrayRangeAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            left: value.left.as_deref().map(|left| Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32).partial()))).transpose()?,
-            right: value.right.as_deref().map(|right| Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32).partial()))).transpose()?,
+            left: value
+                .left
+                .as_deref()
+                .map(|left| Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32).partial())))
+                .transpose()?,
+            right: value
+                .right
+                .as_deref()
+                .map(|right| Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32).partial())))
+                .transpose()?,
         })
     }
 }

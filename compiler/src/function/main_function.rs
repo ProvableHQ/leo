@@ -46,30 +46,45 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Iterate over main function input variables and allocate new values
         if function.function.has_input {
             // let input_var = function.scope.
-            let asg_input = function.scope.borrow().resolve_input().expect("no input variable in scope when function is qualified");
+            let asg_input = function
+                .scope
+                .borrow()
+                .resolve_input()
+                .expect("no input variable in scope when function is qualified");
 
-            let value = self.allocate_input_keyword(cs, function.function.name.borrow().span.clone(), &asg_input.container_circuit, input)?;
+            let value = self.allocate_input_keyword(
+                cs,
+                function.function.name.borrow().span.clone(),
+                &asg_input.container_circuit,
+                input,
+            )?;
 
             self.store(asg_input.container.borrow().id.clone(), value);
         }
 
-
         match function.function.qualifier {
-            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => unimplemented!("cannot access self variable in main function"),
+            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
+                unimplemented!("cannot access self variable in main function")
+            }
             FunctionQualifier::Static => (),
         }
 
         let mut arguments = vec![];
-        
+
         for input_variable in function.arguments.iter() {
             {
                 let input_variable = input_variable.borrow();
                 let name = input_variable.name.name.clone();
-                let input_option = input
-                    .get(&name)
-                    .ok_or_else(|| FunctionError::input_not_found(name.clone(), function.span.clone().unwrap_or_default()))?;
-                let input_value =
-                    self.allocate_main_function_input(cs, &input_variable.type_, &name, input_option, &function.span.clone().unwrap_or_default())?;
+                let input_option = input.get(&name).ok_or_else(|| {
+                    FunctionError::input_not_found(name.clone(), function.span.clone().unwrap_or_default())
+                })?;
+                let input_value = self.allocate_main_function_input(
+                    cs,
+                    &input_variable.type_,
+                    &name,
+                    input_option,
+                    &function.span.clone().unwrap_or_default(),
+                )?;
 
                 // Store a new variable for every allocated main function input
                 self.store(input_variable.id.clone(), input_value);

@@ -1,8 +1,39 @@
-use crate::Span;
-use crate::{ Expression, Circuit, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, CircuitMember, ConstValue, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    Circuit,
+    CircuitMember,
+    ConstValue,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    Identifier,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Type,
+};
 use indexmap::IndexMap;
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct CircuitInitExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -46,14 +77,31 @@ impl ExpressionNode for CircuitInitExpression {
 }
 
 impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::CircuitInitExpression, expected_type: Option<PartialType>) -> Result<CircuitInitExpression, AsgConvertError> {
-        let circuit = scope.borrow().resolve_circuit(&value.name.name).ok_or_else(|| AsgConvertError::unresolved_circuit(&value.name.name, &value.name.span))?;
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::CircuitInitExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<CircuitInitExpression, AsgConvertError> {
+        let circuit = scope
+            .borrow()
+            .resolve_circuit(&value.name.name)
+            .ok_or_else(|| AsgConvertError::unresolved_circuit(&value.name.name, &value.name.span))?;
         match expected_type {
             Some(PartialType::Type(Type::Circuit(expected_circuit))) if expected_circuit == circuit => (),
             None => (),
-            Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some(&circuit.name.borrow().name), &value.span)),
+            Some(x) => {
+                return Err(AsgConvertError::unexpected_type(
+                    &x.to_string(),
+                    Some(&circuit.name.borrow().name),
+                    &value.span,
+                ));
+            }
         }
-        let members: IndexMap<&String, (&Identifier, &leo_ast::Expression)> = value.members.iter().map(|x| (&x.identifier.name, (&x.identifier, &x.expression))).collect();
+        let members: IndexMap<&String, (&Identifier, &leo_ast::Expression)> = value
+            .members
+            .iter()
+            .map(|x| (&x.identifier.name, (&x.identifier, &x.expression)))
+            .collect();
 
         let mut values: Vec<(Identifier, Arc<Expression>)> = vec![];
 
@@ -69,13 +117,21 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
                     let received = Arc::<Expression>::from_ast(scope, *receiver, Some(type_.partial()))?;
                     values.push(((*identifier).clone(), received));
                 } else {
-                    return Err(AsgConvertError::missing_circuit_member(&circuit.name.borrow().name, name, &value.span));
+                    return Err(AsgConvertError::missing_circuit_member(
+                        &circuit.name.borrow().name,
+                        name,
+                        &value.span,
+                    ));
                 }
             }
 
             for (name, (identifier, _expression)) in members.iter() {
                 if circuit_members.get(*name).is_none() {
-                    return Err(AsgConvertError::extra_circuit_member(&circuit.name.borrow().name, *name, &identifier.span));
+                    return Err(AsgConvertError::extra_circuit_member(
+                        &circuit.name.borrow().name,
+                        *name,
+                        &identifier.span,
+                    ));
                 }
             }
         }
@@ -93,12 +149,14 @@ impl Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression {
     fn into(self) -> leo_ast::CircuitInitExpression {
         leo_ast::CircuitInitExpression {
             name: self.circuit.name.borrow().clone(),
-            members: self.values.iter().map(|(name, value)| {
-                leo_ast::CircuitVariableDefinition {
+            members: self
+                .values
+                .iter()
+                .map(|(name, value)| leo_ast::CircuitVariableDefinition {
                     identifier: name.clone(),
                     expression: value.as_ref().into(),
-                }
-            }).collect(),
+                })
+                .collect(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

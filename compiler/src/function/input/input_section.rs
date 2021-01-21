@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType, errors::{FunctionError}};
-use leo_asg::{CircuitBody, CircuitMemberBody, AsgConvertError};
+use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
+use leo_asg::{AsgConvertError, CircuitBody, CircuitMemberBody};
 use leo_ast::{Identifier, InputValue, Parameter};
 use std::sync::Arc;
 
@@ -46,7 +46,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             };
             let declared_type = self.asg.borrow().scope.borrow().resolve_ast_type(&parameter.type_)?;
             if !expected_type.is_assignable_from(&declared_type) {
-                Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&declared_type.to_string()), &identifier.span))?;
+                Err(AsgConvertError::unexpected_type(
+                    &expected_type.to_string(),
+                    Some(&declared_type.to_string()),
+                    &identifier.span,
+                ))?;
             }
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(

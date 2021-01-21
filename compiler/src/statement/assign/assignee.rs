@@ -16,12 +16,7 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignAccess, AssignStatement, Identifier, Span};
 
 use snarkvm_models::{
@@ -45,7 +40,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         mut_self: bool,
         assignee: &AssignStatement,
     ) -> Result<Vec<&mut ConstrainedValue<F, G>>, StatementError> {
-
         let span = assignee.span.clone().unwrap_or_default();
 
         let resolved_accesses = assignee
@@ -167,7 +161,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 }
             }
             ResolvedAssigneeAccess::Tuple(index, span) => {
-
                 if value.len() != 1 {
                     return Err(StatementError::array_assign_interior_index(span));
                 }

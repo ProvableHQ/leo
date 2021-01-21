@@ -16,22 +16,13 @@
 
 //! Stores all defined names in a compiled Leo program.
 
-use crate::{
-    program::{ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Variable;
 
 use snarkvm_models::curves::{Field, PrimeField};
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn store_definition(
-        &mut self,
-        function_scope: &str,
-        variable: &Variable,
-        mut value: ConstrainedValue<F, G>,
-    ) {
+    pub fn store_definition(&mut self, function_scope: &str, variable: &Variable, mut value: ConstrainedValue<F, G>) {
         let variable = variable.borrow();
         // Store with given mutability
         if variable.mutable {

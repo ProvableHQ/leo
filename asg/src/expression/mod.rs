@@ -1,3 +1,18 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod variable_ref;
 pub use variable_ref::*;
@@ -28,8 +43,8 @@ pub use circuit_access::*;
 mod call;
 pub use call::*;
 
-use std::sync::{ Arc, Weak };
-use crate::{ Node, Type, PartialType, Span, FromAst, AsgConvertError, Scope, ConstValue };
+use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
+use std::sync::{Arc, Weak};
 
 pub enum Expression {
     VariableRef(VariableRef),
@@ -53,7 +68,6 @@ pub enum Expression {
 }
 
 impl Node for Expression {
-
     fn span(&self) -> Option<&Span> {
         use Expression::*;
         match self {
@@ -208,27 +222,56 @@ impl ExpressionNode for Expression {
 }
 
 impl FromAst<leo_ast::Expression> for Arc<Expression> {
-    fn from_ast(scope: &Scope, value: &leo_ast::Expression, expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::Expression,
+        expected_type: Option<PartialType>,
+    ) -> Result<Self, AsgConvertError> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type)?,
             Value(value) => Arc::new(Constant::from_ast(scope, value, expected_type).map(Expression::Constant)?),
-            Binary(binary) => Arc::new(BinaryExpression::from_ast(scope, binary, expected_type).map(Expression::Binary)?),
+            Binary(binary) => {
+                Arc::new(BinaryExpression::from_ast(scope, binary, expected_type).map(Expression::Binary)?)
+            }
             Unary(unary) => Arc::new(UnaryExpression::from_ast(scope, unary, expected_type).map(Expression::Unary)?),
-            Conditional(conditional) => Arc::new(ConditionalExpression::from_ast(scope, conditional, expected_type).map(Expression::Conditional)?),
-        
-            ArrayInline(array_inline) => Arc::new(ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?),
-            ArrayInit(array_init) => Arc::new(ArrayInitExpression::from_ast(scope, array_init, expected_type).map(Expression::ArrayInit)?),
-            ArrayAccess(array_access) => Arc::new(ArrayAccessExpression::from_ast(scope, array_access, expected_type).map(Expression::ArrayAccess)?),
-            ArrayRangeAccess(array_range_access) => Arc::new(ArrayRangeAccessExpression::from_ast(scope, array_range_access, expected_type).map(Expression::ArrayRangeAccess)?),
-        
-            TupleInit(tuple_init) => Arc::new(TupleInitExpression::from_ast(scope, tuple_init, expected_type).map(Expression::TupleInit)?),
-            TupleAccess(tuple_access) => Arc::new(TupleAccessExpression::from_ast(scope, tuple_access, expected_type).map(Expression::TupleAccess)?),
-        
-            CircuitInit(circuit_init) => Arc::new(CircuitInitExpression::from_ast(scope, circuit_init, expected_type).map(Expression::CircuitInit)?),
-            CircuitMemberAccess(circuit_member) => Arc::new(CircuitAccessExpression::from_ast(scope, circuit_member, expected_type).map(Expression::CircuitAccess)?),
-            CircuitStaticFunctionAccess(circuit_member) => Arc::new(CircuitAccessExpression::from_ast(scope, circuit_member, expected_type).map(Expression::CircuitAccess)?),
-        
+            Conditional(conditional) => Arc::new(
+                ConditionalExpression::from_ast(scope, conditional, expected_type).map(Expression::Conditional)?,
+            ),
+
+            ArrayInline(array_inline) => Arc::new(
+                ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
+            ),
+            ArrayInit(array_init) => {
+                Arc::new(ArrayInitExpression::from_ast(scope, array_init, expected_type).map(Expression::ArrayInit)?)
+            }
+            ArrayAccess(array_access) => Arc::new(
+                ArrayAccessExpression::from_ast(scope, array_access, expected_type).map(Expression::ArrayAccess)?,
+            ),
+            ArrayRangeAccess(array_range_access) => Arc::new(
+                ArrayRangeAccessExpression::from_ast(scope, array_range_access, expected_type)
+                    .map(Expression::ArrayRangeAccess)?,
+            ),
+
+            TupleInit(tuple_init) => {
+                Arc::new(TupleInitExpression::from_ast(scope, tuple_init, expected_type).map(Expression::TupleInit)?)
+            }
+            TupleAccess(tuple_access) => Arc::new(
+                TupleAccessExpression::from_ast(scope, tuple_access, expected_type).map(Expression::TupleAccess)?,
+            ),
+
+            CircuitInit(circuit_init) => Arc::new(
+                CircuitInitExpression::from_ast(scope, circuit_init, expected_type).map(Expression::CircuitInit)?,
+            ),
+            CircuitMemberAccess(circuit_member) => Arc::new(
+                CircuitAccessExpression::from_ast(scope, circuit_member, expected_type)
+                    .map(Expression::CircuitAccess)?,
+            ),
+            CircuitStaticFunctionAccess(circuit_member) => Arc::new(
+                CircuitAccessExpression::from_ast(scope, circuit_member, expected_type)
+                    .map(Expression::CircuitAccess)?,
+            ),
+
             Call(call) => Arc::new(CallExpression::from_ast(scope, call, expected_type).map(Expression::Call)?),
         };
         expression.enforce_parents(&expression);

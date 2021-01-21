@@ -16,13 +16,7 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::{
-    arithmetic::*,
-    errors::StatementError,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignOperation, AssignStatement, Span};
 
 use snarkvm_models::{
@@ -46,13 +40,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
         let mut new_value = self.enforce_expression(cs, file_scope, function_scope, &statement.value)?;
-        let mut resolved_assignee = self.resolve_assign(
-            cs,
-            file_scope,
-            function_scope,
-            mut_self,
-            statement,
-        )?;
+        let mut resolved_assignee = self.resolve_assign(cs, file_scope, function_scope, mut_self, statement)?;
 
         if resolved_assignee.len() == 1 {
             let span = statement.span.clone().unwrap_or_default();
@@ -85,7 +73,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         )?;
                     }
                 }
-                _ => return Err(StatementError::array_assign_range(statement.span.clone().unwrap_or_default())),
+                _ => {
+                    return Err(StatementError::array_assign_range(
+                        statement.span.clone().unwrap_or_default(),
+                    ));
+                }
             };
         }
 

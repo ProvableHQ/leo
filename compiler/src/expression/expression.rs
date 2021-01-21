@@ -22,17 +22,16 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
+    value::{Address, ConstrainedValue, Integer},
     FieldType,
-    value::{ConstrainedValue, Address, Integer},
     GroupType,
 };
-use leo_asg::{expression::*, Expression, ConstValue, Node};
+use leo_asg::{expression::*, ConstValue, Expression, Node};
 use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-    gadgets::utilities::boolean::Boolean,
+    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
@@ -46,9 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let span = expression.span().cloned().unwrap_or_default();
         match &**expression {
             // Variables
-            Expression::VariableRef(variable_ref) => {
-                self.evaluate_ref(file_scope, function_scope, variable_ref)
-            }
+            Expression::VariableRef(variable_ref) => self.evaluate_ref(file_scope, function_scope, variable_ref),
 
             // Values
             Expression::Constant(Constant { value, .. }) => {
@@ -63,15 +60,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Binary operations
-            Expression::Binary(BinaryExpression { left, right, operation, .. }) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    left,
-                    right,
-                    &span,
-                )?;
+            Expression::Binary(BinaryExpression {
+                left, right, operation, ..
+            }) => {
+                let (resolved_left, resolved_right) =
+                    self.enforce_binary_expression(cs, file_scope, function_scope, left, right, &span)?;
 
                 match operation {
                     BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, &span),
@@ -98,8 +91,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Unary operations
             Expression::Unary(UnaryExpression { inner, operation, .. }) => match operation {
                 UnaryOperation::Negate => {
-                    let resolved_inner =
-                        self.enforce_expression(cs, file_scope, function_scope, inner)?;
+                    let resolved_inner = self.enforce_expression(cs, file_scope, function_scope, inner)?;
                     enforce_negate(cs, resolved_inner, &span)
                 }
                 UnaryOperation::Not => Ok(evaluate_not(
@@ -113,49 +105,30 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if_true,
                 if_false,
                 ..
-            }) => self.enforce_conditional_expression(
-                cs,
-                file_scope,
-                function_scope,
-                condition,
-                if_true,
-                if_false,
-                &span,
-            ),
+            }) => {
+                self.enforce_conditional_expression(cs, file_scope, function_scope, condition, if_true, if_false, &span)
+            }
 
             // Arrays
             Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => {
                 self.enforce_array(cs, file_scope, function_scope, elements, span)
             }
-            Expression::ArrayInit(ArrayInitExpression {
-                element,
-                len,
-                ..
-            }) => self.enforce_array_initializer(
-                cs,
-                file_scope,
-                function_scope,
-                element,
-                *len,
-                span,
-            ),
+            Expression::ArrayInit(ArrayInitExpression { element, len, .. }) => {
+                self.enforce_array_initializer(cs, file_scope, function_scope, element, *len, span)
+            }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
                 self.enforce_array_access(cs, file_scope, function_scope, array, index, &span)
             }
-            Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                array,
-                left,
-                right,
-                ..
-            }) => self.enforce_array_range_access(
-                cs,
-                file_scope,
-                function_scope,
-                array,
-                left.as_ref(),
-                right.as_ref(),
-                &span,
-            ),
+            Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => self
+                .enforce_array_range_access(
+                    cs,
+                    file_scope,
+                    function_scope,
+                    array,
+                    left.as_ref(),
+                    right.as_ref(),
+                    &span,
+                ),
 
             // Tuples
             Expression::TupleInit(TupleInitExpression { elements, .. }) => {
@@ -166,12 +139,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
 
             // Circuits
-            Expression::CircuitInit(expr) => {
-                self.enforce_circuit(cs, file_scope, function_scope, expr, &span)
-            }
-            Expression::CircuitAccess(expr) => {
-                self.enforce_circuit_access(cs, file_scope, function_scope, expr, &span)
-            }
+            Expression::CircuitInit(expr) => self.enforce_circuit(cs, file_scope, function_scope, expr, &span),
+            Expression::CircuitAccess(expr) => self.enforce_circuit_access(cs, file_scope, function_scope, expr, &span),
 
             // Functions
             Expression::Call(CallExpression {

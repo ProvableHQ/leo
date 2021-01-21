@@ -13,9 +13,9 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+use leo_asg::AsgConvertError;
 use leo_ast::{Error as FormattedError, Identifier, Span};
 use leo_grammar::ParserError;
-use leo_asg::AsgConvertError;
 
 use std::{io, path::Path};
 

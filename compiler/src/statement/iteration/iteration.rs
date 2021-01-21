@@ -24,7 +24,7 @@ use crate::{
     Integer,
     StatementResult,
 };
-use leo_asg::{IterationStatement};
+use leo_asg::IterationStatement;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},

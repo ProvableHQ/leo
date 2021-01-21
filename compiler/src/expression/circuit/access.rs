@@ -16,13 +16,8 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::{
-    errors::ExpressionError,
-    program::{ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_asg::{CircuitAccessExpression, Span, Node};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{CircuitAccessExpression, Node, Span};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -54,11 +49,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             expr.member.span.clone(),
                         ))
                     }
-                },
-                value => Err(ExpressionError::undefined_circuit(value.to_string(), target.span().cloned().unwrap_or_default())),
+                }
+                value => Err(ExpressionError::undefined_circuit(
+                    value.to_string(),
+                    target.span().cloned().unwrap_or_default(),
+                )),
             }
         } else {
-            Err(ExpressionError::invalid_static_access(expr.member.to_string(), expr.member.span.clone()))
+            Err(ExpressionError::invalid_static_access(
+                expr.member.to_string(),
+                expr.member.span.clone(),
+            ))
         }
     }
 }

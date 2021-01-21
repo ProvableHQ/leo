@@ -16,10 +16,10 @@
 
 use crate::{
     assert_satisfied,
+    expect_asg_error,
     expect_compiler_error,
     generate_main_input,
     integers::{expect_computation_error, IntegerTester},
-    expect_asg_error,
     parse_program,
 };
 use leo_ast::InputValue;

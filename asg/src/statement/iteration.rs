@@ -1,7 +1,37 @@
-use crate::Span;
-use crate::{ Statement, Expression, Variable, InnerVariable, Scope, AsgConvertError, FromAst, ExpressionNode, Type, PartialType, Node };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    InnerVariable,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Type,
+    Variable,
+};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct IterationStatement {
     pub parent: Option<Weak<Statement>>,
@@ -19,7 +49,11 @@ impl Node for IterationStatement {
 }
 
 impl FromAst<leo_ast::IterationStatement> for IterationStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::IterationStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
+    fn from_ast(
+        scope: &Scope,
+        statement: &leo_ast::IterationStatement,
+        _expected_type: Option<PartialType>,
+    ) -> Result<Self, AsgConvertError> {
         // todo: is u32 the right type to enforce
         let expected_index_type = Some(Type::Integer(leo_ast::IntegerType::U32).into());
         let start = Arc::<Expression>::from_ast(scope, &statement.start, expected_index_type.clone())?;
@@ -27,14 +61,19 @@ impl FromAst<leo_ast::IterationStatement> for IterationStatement {
         let variable = Arc::new(RefCell::new(InnerVariable {
             id: uuid::Uuid::new_v4(),
             name: statement.variable.clone(),
-            type_: start.get_type().ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
+            type_: start
+                .get_type()
+                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
             mutable: false,
             declaration: crate::VariableDeclaration::IterationDefinition,
             const_value: None,
             references: vec![],
             assignments: vec![],
         }));
-        scope.borrow_mut().variables.insert(statement.variable.name.clone(), variable.clone());
+        scope
+            .borrow_mut()
+            .variables
+            .insert(statement.variable.name.clone(), variable.clone());
 
         Ok(IterationStatement {
             parent: None,
@@ -42,7 +81,11 @@ impl FromAst<leo_ast::IterationStatement> for IterationStatement {
             variable,
             stop,
             start,
-            body: Arc::new(Statement::Block(crate::BlockStatement::from_ast(scope, &statement.block, None)?)),
+            body: Arc::new(Statement::Block(crate::BlockStatement::from_ast(
+                scope,
+                &statement.block,
+                None,
+            )?)),
         })
     }
 }

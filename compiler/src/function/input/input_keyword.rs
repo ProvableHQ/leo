@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Identifier, Input, Span};
 use leo_asg::{CircuitBody, CircuitMemberBody, Type};
+use leo_ast::{Identifier, Input, Span};
 use std::sync::Arc;
 
 use snarkvm_models::{
@@ -76,12 +76,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for (name, values) in sections {
             let sub_circuit = match expected_type.members.borrow().get(&name.name) {
-                Some(CircuitMemberBody::Variable(Type::Circuit(circuit))) =>  {
-                    circuit.body.borrow().upgrade().expect("stale circuit body for input subtype")
-                },
+                Some(CircuitMemberBody::Variable(Type::Circuit(circuit))) => circuit
+                    .body
+                    .borrow()
+                    .upgrade()
+                    .expect("stale circuit body for input subtype"),
                 _ => panic!("illegal input type definition from asg"),
             };
-                
+
             let member_name = name.clone();
             let member_value = self.allocate_input_section(cs, name, sub_circuit, values)?;
 

@@ -1,7 +1,36 @@
-use crate::Span;
-use crate::{ Expression, Node, Type, ExpressionNode, AsgConvertError, FromAst, Scope, ConstValue, ConstInt, PartialType };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    ConstInt,
+    ConstValue,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Type,
+};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct ArrayAccessExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
@@ -58,18 +87,36 @@ impl ExpressionNode for ArrayAccessExpression {
 }
 
 impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
-    fn from_ast(scope: &Scope, value: &leo_ast::ArrayAccessExpression, expected_type: Option<PartialType>) -> Result<ArrayAccessExpression, AsgConvertError> {
-        let array = Arc::<Expression>::from_ast(scope, &*value.array, Some(PartialType::Array(expected_type.clone().map(Box::new), None)))?;
+    fn from_ast(
+        scope: &Scope,
+        value: &leo_ast::ArrayAccessExpression,
+        expected_type: Option<PartialType>,
+    ) -> Result<ArrayAccessExpression, AsgConvertError> {
+        let array = Arc::<Expression>::from_ast(
+            scope,
+            &*value.array,
+            Some(PartialType::Array(expected_type.clone().map(Box::new), None)),
+        )?;
         match array.get_type() {
             Some(Type::Array(..)) => (),
-            type_ => return Err(AsgConvertError::unexpected_type("array", type_.map(|x| x.to_string()).as_deref(), &value.span)),
+            type_ => {
+                return Err(AsgConvertError::unexpected_type(
+                    "array",
+                    type_.map(|x| x.to_string()).as_deref(),
+                    &value.span,
+                ));
+            }
         }
 
         Ok(ArrayAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            index: Arc::<Expression>::from_ast(scope, &*value.index, Some(Type::Integer(leo_ast::IntegerType::U32).partial()))?,
+            index: Arc::<Expression>::from_ast(
+                scope,
+                &*value.index,
+                Some(Type::Integer(leo_ast::IntegerType::U32).partial()),
+            )?,
         })
     }
 }

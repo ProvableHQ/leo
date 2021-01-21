@@ -18,7 +18,7 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_asg::{Expression};
+use leo_asg::Expression;
 use std::sync::Arc;
 
 use snarkvm_models::{

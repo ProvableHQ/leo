@@ -16,8 +16,8 @@
 
 use crate::{
     assert_satisfied,
-    expect_compiler_error,
     expect_asg_error,
+    expect_compiler_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -104,9 +104,9 @@ fn test_not_mutable() {
 #[test]
 fn test_not_u32() {
     let program_string = include_str!("not_u32.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 // Boolean or ||

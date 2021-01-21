@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use crate::errors::{ExpressionError};
+use crate::errors::ExpressionError;
 use leo_asg::{Expression, Span};
 use leo_core::call_core_circuit;
 use snarkvm_models::{

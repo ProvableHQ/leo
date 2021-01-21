@@ -17,7 +17,7 @@
 //! Enforces a return statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{ReturnStatement};
+use leo_asg::ReturnStatement;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -32,12 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         function_scope: &str,
         statement: &ReturnStatement,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
-        let result = self.enforce_operand(
-            cs,
-            file_scope,
-            function_scope,
-            &statement.expression,
-        )?;
+        let result = self.enforce_operand(cs, file_scope, function_scope, &statement.expression)?;
         Ok(result)
     }
 }

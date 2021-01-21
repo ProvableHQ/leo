@@ -16,8 +16,8 @@
 
 use crate::{
     assert_satisfied,
-    expect_compiler_error,
     expect_asg_error,
+    expect_compiler_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -71,17 +71,17 @@ fn test_multiple_returns() {
 #[test]
 fn test_multiple_returns_fail() {
     let program_string = include_str!("multiple_returns_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_multiple_returns_fail_conditional() {
     let program_string = include_str!("multiple_returns_fail_conditional.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -151,9 +151,9 @@ fn test_array_input() {
 #[test]
 fn test_return_array_nested_fail() {
     let program_string = include_str!("return_array_nested_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -167,9 +167,9 @@ fn test_return_array_nested_pass() {
 #[test]
 fn test_return_array_tuple_fail() {
     let program_string = include_str!("return_array_tuple_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]

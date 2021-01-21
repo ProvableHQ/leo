@@ -33,7 +33,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         mut value: ConstrainedValue<F, G>,
         span: &Span,
     ) -> Result<(), StatementError> {
-
         self.store_definition(function_scope, variable, value);
 
         Ok(())
@@ -71,13 +70,18 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         statement: &DefinitionStatement,
     ) -> Result<(), StatementError> {
         let num_variables = statement.variables.len();
-        let expression =
-            self.enforce_expression(cs, file_scope, function_scope, &statement.value)?;
+        let expression = self.enforce_expression(cs, file_scope, function_scope, &statement.value)?;
 
         let span = statement.span.clone().unwrap_or_default();
         if num_variables == 1 {
             // Define a single variable with a single value
-            self.enforce_single_definition(cs, function_scope, statement.variables.get(0).unwrap(), expression, &span)
+            self.enforce_single_definition(
+                cs,
+                function_scope,
+                statement.variables.get(0).unwrap(),
+                expression,
+                &span,
+            )
         } else {
             // Define multiple variables for an expression that returns multiple results (multiple definition)
             let values = match expression {
@@ -86,13 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 value => return Err(StatementError::multiple_definition(value.to_string(), span.clone())),
             };
 
-            self.enforce_multiple_definition(
-                cs,
-                function_scope,
-                &statement.variables,
-                values,
-                &span,
-            )
+            self.enforce_multiple_definition(cs, function_scope, &statement.variables, values, &span)
         }
     }
 }

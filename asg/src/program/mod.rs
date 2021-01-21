@@ -1,3 +1,18 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod circuit;
 pub use circuit::*;
@@ -5,12 +20,11 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use indexmap::{ IndexMap, IndexSet };
+use indexmap::{IndexMap, IndexSet};
 
-use std::sync::{ Arc };
-use crate::{ AsgConvertError, InnerScope, Scope, ImportResolver, Input };
-use std::cell::RefCell;
-use leo_ast::{Package, PackageAccess, Span, Identifier};
+use crate::{AsgConvertError, ImportResolver, InnerScope, Input, Scope};
+use leo_ast::{Identifier, Package, PackageAccess, Span};
+use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -32,20 +46,28 @@ enum ImportSymbol {
     All,
 }
 
-fn resolve_import_package(output: &mut Vec<(Vec<String>, ImportSymbol, Span)>, mut package_segments: Vec<String>, package: &Package) {
+fn resolve_import_package(
+    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
+    mut package_segments: Vec<String>,
+    package: &Package,
+) {
     package_segments.push(package.name.name.clone());
 
     resolve_import_package_access(output, &package_segments, &package.access);
 }
 
-fn resolve_import_package_access(output: &mut Vec<(Vec<String>, ImportSymbol, Span)>, package_segments: &Vec<String>, package: &PackageAccess) {
+fn resolve_import_package_access(
+    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
+    package_segments: &Vec<String>,
+    package: &PackageAccess,
+) {
     match package {
         PackageAccess::Star(span) => {
             output.push((package_segments.clone(), ImportSymbol::All, span.clone()));
-        },
+        }
         PackageAccess::SubPackage(subpackage) => {
             resolve_import_package(output, package_segments.clone(), &*subpackage);
-        },
+        }
         PackageAccess::Symbol(symbol) => {
             let span = symbol.symbol.span.clone();
             let symbol = if let Some(alias) = symbol.alias.as_ref() {
@@ -54,18 +76,16 @@ fn resolve_import_package_access(output: &mut Vec<(Vec<String>, ImportSymbol, Sp
                 ImportSymbol::Direct(symbol.symbol.name.clone())
             };
             output.push((package_segments.clone(), symbol, span));
-        },
+        }
         PackageAccess::Multiple(subaccesses) => {
             for subaccess in subaccesses.iter() {
                 resolve_import_package_access(output, &package_segments, &subaccess);
             }
-        },
-        
+        }
     }
 }
 
 impl InnerProgram {
-
     /*
     stages:
     1. resolve imports into super scope
@@ -73,7 +93,10 @@ impl InnerProgram {
     3. finalize declared functions
     4. resolve all asg nodes
     */
-    pub fn new<'a, T: ImportResolver + 'static>(value: &leo_ast::Program, import_resolver: &'a mut T) -> Result<Program, AsgConvertError> {
+    pub fn new<'a, T: ImportResolver + 'static>(
+        value: &leo_ast::Program,
+        import_resolver: &'a mut T,
+    ) -> Result<Program, AsgConvertError> {
         // TODO: right now if some program A is imported from programs B and C, it will be copied to both, which is not optimal -- needs fixed
 
         // recursively extract our imported symbols
@@ -90,14 +113,15 @@ impl InnerProgram {
 
         let mut wrapped_resolver = crate::CoreImportResolver(import_resolver);
         // load imported programs
-        let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new(); 
+        let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, span) in deduplicated_imports.iter() {
             let pretty_package = package.join(".");
 
-            let resolved_package = match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], span)? {
-                Some(x) => x,
-                None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())), // todo: better span
-            };
+            let resolved_package =
+                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], span)? {
+                    Some(x) => x,
+                    None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())), // todo: better span
+                };
 
             resolved_packages.insert(package.clone(), resolved_package);
         }
@@ -109,31 +133,39 @@ impl InnerProgram {
         for (package, symbol, span) in imported_symbols.into_iter() {
             let pretty_package = package.join(".");
 
-            let resolved_package = resolved_packages.get(&package).expect("could not find preloaded package");
+            let resolved_package = resolved_packages
+                .get(&package)
+                .expect("could not find preloaded package");
             let resolved_package = resolved_package.borrow();
             match symbol {
                 ImportSymbol::All => {
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
                     imported_circuits.extend(resolved_package.circuits.clone().into_iter());
-                },
+                }
                 ImportSymbol::Direct(name) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(name.clone(), function.clone());
                     } else if let Some(function) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(name.clone(), function.clone());
                     } else {
-                        return Err(AsgConvertError::unresolved_import(&*format!("{}.{}", pretty_package, name), &span));
+                        return Err(AsgConvertError::unresolved_import(
+                            &*format!("{}.{}", pretty_package, name),
+                            &span,
+                        ));
                     }
-                },
+                }
                 ImportSymbol::Alias(name, alias) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(alias.clone(), function.clone());
                     } else if let Some(function) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(alias.clone(), function.clone());
                     } else {
-                        return Err(AsgConvertError::unresolved_import(&*format!("{}.{}", pretty_package, name), &span));
+                        return Err(AsgConvertError::unresolved_import(
+                            &*format!("{}.{}", pretty_package, name),
+                            &span,
+                        ));
                     }
-                },
+                }
             }
         }
 
@@ -142,8 +174,14 @@ impl InnerProgram {
             parent_scope: None,
             circuit_self: None,
             variables: IndexMap::new(),
-            functions: imported_functions.iter().map(|(name, func)| (name.clone(), func.function.clone())).collect(),
-            circuits: imported_circuits.iter().map(|(name, circuit)| (name.clone(), circuit.circuit.clone())).collect(),
+            functions: imported_functions
+                .iter()
+                .map(|(name, func)| (name.clone(), func.function.clone()))
+                .collect(),
+            circuits: imported_circuits
+                .iter()
+                .map(|(name, circuit)| (name.clone(), circuit.circuit.clone()))
+                .collect(),
             function: None,
             input: None,
         }));
@@ -153,7 +191,7 @@ impl InnerProgram {
         for (name, circuit) in value.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(circuit)?;
-            
+
             proto_circuits.insert(name.name.clone(), asg_circuit);
         }
 
@@ -164,7 +202,10 @@ impl InnerProgram {
             circuit_self: None,
             variables: IndexMap::new(),
             functions: IndexMap::new(),
-            circuits: proto_circuits.iter().map(|(name, circuit)| (name.clone(), circuit.clone())).collect(),
+            circuits: proto_circuits
+                .iter()
+                .map(|(name, circuit)| (name.clone(), circuit.clone()))
+                .collect(),
             function: None,
         }));
 
@@ -187,7 +228,10 @@ impl InnerProgram {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = Arc::new(Function::from_ast(&scope, function)?);
 
-            scope.borrow_mut().functions.insert(name.name.clone(), asg_function.clone());
+            scope
+                .borrow_mut()
+                .functions
+                .insert(name.name.clone(), asg_function.clone());
             proto_functions.insert(name.name.clone(), asg_function);
         }
 
@@ -197,7 +241,11 @@ impl InnerProgram {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = proto_test_functions.get(&name.name).unwrap();
 
-            let body = Arc::new(FunctionBody::from_ast(&scope, &test_function.function, function.clone())?);
+            let body = Arc::new(FunctionBody::from_ast(
+                &scope,
+                &test_function.function,
+                function.clone(),
+            )?);
             function.body.replace(Arc::downgrade(&body));
 
             test_functions.insert(name.name.clone(), (body, test_function.input_file.clone()));
@@ -228,7 +276,10 @@ impl InnerProgram {
             test_functions,
             functions,
             circuits,
-            imported_modules: resolved_packages.into_iter().map(|(package, program)| (package.join("."), program)).collect(),
+            imported_modules: resolved_packages
+                .into_iter()
+                .map(|(package, program)| (package.join("."), program))
+                .collect(),
             scope,
         })))
     }
@@ -259,7 +310,11 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         program_stack.extend(program.borrow().imported_modules.clone());
     }
     all_programs.insert("".to_string(), program.clone());
-    let core_programs: Vec<_> = all_programs.iter().filter(|(module, _)| module.starts_with("core.")).map(|x| x.clone()).collect();
+    let core_programs: Vec<_> = all_programs
+        .iter()
+        .filter(|(module, _)| module.starts_with("core."))
+        .map(|x| x.clone())
+        .collect();
     all_programs.retain(|module, _| !module.starts_with("core."));
 
     let mut all_circuits: IndexMap<String, Arc<CircuitBody>> = IndexMap::new();
@@ -275,7 +330,7 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         }
         for (name, function) in program.functions.iter() {
             let identifier = if name == "main" {
-                "main".to_string()   
+                "main".to_string()
             } else {
                 format!("{}{}", identifiers.next().unwrap(), name)
             };
@@ -288,33 +343,34 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
             all_test_functions.insert(identifier, function.clone());
         }
     }
-    
+
     //todo: core imports
     leo_ast::Program {
         name: "ast_aggregate".to_string(),
         imports: vec![],
         expected_input: vec![],
-        tests: all_test_functions.into_iter().map(|(name, (function, ident))| {
-            (
-                function.function.name.borrow().clone(),
-                leo_ast::TestFunction {
+        tests: all_test_functions
+            .into_iter()
+            .map(|(name, (function, ident))| {
+                (function.function.name.borrow().clone(), leo_ast::TestFunction {
                     function: function.function.as_ref().into(),
                     input_file: ident,
-                }
-            )
-        }).collect(),
-        functions: all_functions.into_iter().map(|(name, function)| {
-            (
-                function.function.name.borrow().clone(),
-                function.function.as_ref().into(),
-            )
-        }).collect(),
-        circuits: all_circuits.into_iter().map(|(name, circuit)| {
-            (
-                circuit.circuit.name.borrow().clone(),
-                circuit.circuit.as_ref().into(),
-            )
-        }).collect(),
+                })
+            })
+            .collect(),
+        functions: all_functions
+            .into_iter()
+            .map(|(name, function)| {
+                (
+                    function.function.name.borrow().clone(),
+                    function.function.as_ref().into(),
+                )
+            })
+            .collect(),
+        circuits: all_circuits
+            .into_iter()
+            .map(|(name, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into()))
+            .collect(),
     }
 }
 
@@ -324,12 +380,31 @@ impl Into<leo_ast::Program> for &InnerProgram {
             name: self.name.clone(),
             imports: vec![],
             expected_input: vec![],
-            circuits: self.circuits.iter().map(|(_, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into())).collect(),
-            functions: self.functions.iter().map(|(_, function)| (function.function.name.borrow().clone(), function.function.as_ref().into())).collect(),
-            tests: self.test_functions.iter().map(|(_, function)| (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
-                function: function.0.function.as_ref().into(),
-                input_file: function.1.clone(),
-            })).collect(),
+            circuits: self
+                .circuits
+                .iter()
+                .map(|(_, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into()))
+                .collect(),
+            functions: self
+                .functions
+                .iter()
+                .map(|(_, function)| {
+                    (
+                        function.function.name.borrow().clone(),
+                        function.function.as_ref().into(),
+                    )
+                })
+                .collect(),
+            tests: self
+                .test_functions
+                .iter()
+                .map(|(_, function)| {
+                    (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
+                        function: function.0.function.as_ref().into(),
+                        input_file: function.1.clone(),
+                    })
+                })
+                .collect(),
         }
     }
 }

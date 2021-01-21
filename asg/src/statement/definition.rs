@@ -1,7 +1,38 @@
-use crate::Span;
-use crate::{ Statement, Variable, InnerVariable, Expression, FromAst, AsgConvertError, Scope, ExpressionNode, Type, ConstValue, PartialType, Node };
-use std::sync::{ Weak, Arc };
-use std::cell::RefCell;
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::{
+    AsgConvertError,
+    ConstValue,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    InnerVariable,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Type,
+    Variable,
+};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Weak},
+};
 
 pub struct DefinitionStatement {
     pub parent: Option<Weak<Statement>>,
@@ -17,9 +48,17 @@ impl Node for DefinitionStatement {
 }
 
 impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
-    fn from_ast(scope: &Scope, statement: &leo_ast::DefinitionStatement, _expected_type: Option<PartialType>) -> Result<Self, AsgConvertError> {
-        let type_ = statement.type_.as_ref().map(|x| scope.borrow().resolve_ast_type(&x)).transpose()?;
-        
+    fn from_ast(
+        scope: &Scope,
+        statement: &leo_ast::DefinitionStatement,
+        _expected_type: Option<PartialType>,
+    ) -> Result<Self, AsgConvertError> {
+        let type_ = statement
+            .type_
+            .as_ref()
+            .map(|x| scope.borrow().resolve_ast_type(&x))
+            .transpose()?;
+
         //todo: tuple partially expected types
         let value = Arc::<Expression>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
 
@@ -29,16 +68,26 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
 
         let mut variables = vec![];
         if statement.variable_names.len() == 0 {
-            return Err(AsgConvertError::illegal_ast_structure("cannot have 0 variable names in destructuring tuple"));
-        } if statement.variable_names.len() == 1 {
+            return Err(AsgConvertError::illegal_ast_structure(
+                "cannot have 0 variable names in destructuring tuple",
+            ));
+        }
+        if statement.variable_names.len() == 1 {
             // any return type is fine
             output_types.push(type_);
-        } else { // tuple destructure
+        } else {
+            // tuple destructure
             match type_.as_ref() {
                 Some(Type::Tuple(sub_types)) if sub_types.len() == statement.variable_names.len() => {
                     output_types.extend(sub_types.clone().into_iter().map(Some).collect::<Vec<_>>());
-                },
-                type_ => return Err(AsgConvertError::unexpected_type(&*format!("{}-ary tuple", statement.variable_names.len()), type_.map(|x| x.to_string()).as_deref(), &statement.span)),
+                }
+                type_ => {
+                    return Err(AsgConvertError::unexpected_type(
+                        &*format!("{}-ary tuple", statement.variable_names.len()),
+                        type_.map(|x| x.to_string()).as_deref(),
+                        &statement.span,
+                    ));
+                }
             }
         }
 
@@ -54,7 +103,12 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
             }
         };
 
-        for (i, (variable, type_)) in statement.variable_names.iter().zip(output_types.into_iter()).enumerate() {
+        for (i, (variable, type_)) in statement
+            .variable_names
+            .iter()
+            .zip(output_types.into_iter())
+            .enumerate()
+        {
             if statement.declaration_type == leo_ast::Declare::Const && variable.mutable {
                 return Err(AsgConvertError::illegal_ast_structure("cannot have const mut"));
             }
@@ -67,7 +121,9 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
                 declaration: crate::VariableDeclaration::Definition,
                 const_value: if !variable.mutable {
                     const_values.as_ref().map(|x| x.get(i).cloned()).flatten()
-                } else { None },
+                } else {
+                    None
+                },
                 references: vec![],
                 assignments: vec![],
             })));
@@ -76,7 +132,9 @@ impl FromAst<leo_ast::DefinitionStatement> for DefinitionStatement {
         {
             let mut scope_borrow = scope.borrow_mut();
             for variable in variables.iter() {
-                scope_borrow.variables.insert(variable.borrow().name.name.clone(), variable.clone());
+                scope_borrow
+                    .variables
+                    .insert(variable.borrow().name.name.clone(), variable.clone());
             }
         }
 

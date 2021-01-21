@@ -1,8 +1,25 @@
+// Copyright (C) 2019-2020 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-pub use leo_ast::IntegerType;
-use std::sync::{ Arc, Weak };
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use crate::Circuit;
-use std::fmt;
+pub use leo_ast::IntegerType;
+use std::{
+    fmt,
+    sync::{Arc, Weak},
+};
 
 #[derive(Clone, PartialEq)]
 pub enum Type {
@@ -18,7 +35,6 @@ pub enum Type {
     Tuple(Vec<Type>),
     Circuit(Arc<Circuit>),
 }
-
 
 #[derive(Clone)]
 pub enum WeakType {
@@ -69,7 +85,12 @@ impl Into<Option<Type>> for PartialType {
         match self {
             PartialType::Type(t) => Some(t),
             PartialType::Array(element, len) => Some(Type::Array(Box::new((*element?).full()?), len?)),
-            PartialType::Tuple(sub_types) => Some(Type::Tuple(sub_types.into_iter().map(|x| x.map(|x| x.full()).flatten()).collect::<Option<Vec<Type>>>()?)),
+            PartialType::Tuple(sub_types) => Some(Type::Tuple(
+                sub_types
+                    .into_iter()
+                    .map(|x| x.map(|x| x.full()).flatten())
+                    .collect::<Option<Vec<Type>>>()?,
+            )),
         }
     }
 }
@@ -92,7 +113,7 @@ impl PartialType {
                     return len == other_len;
                 }
                 true
-            },
+            }
             (PartialType::Tuple(sub_types), Type::Tuple(other_sub_types)) => {
                 // we dont enforce exact length for tuples here (relying on prior type checking) to allow for full-context-free tuple indexing
                 if sub_types.len() > other_sub_types.len() {
@@ -106,9 +127,9 @@ impl PartialType {
                     }
                 }
                 true
-            },
+            }
             _ => false,
-        } 
+        }
     }
 }
 
@@ -157,7 +178,7 @@ impl fmt::Display for Type {
                     }
                 }
                 write!(f, ")")
-            },
+            }
             Type::Circuit(circuit) => write!(f, "{}", &circuit.name.borrow().name),
         }
     }
@@ -180,7 +201,7 @@ impl fmt::Display for PartialType {
                     write!(f, "?")?;
                 }
                 write!(f, "]")
-            },
+            }
             PartialType::Tuple(sub_types) => {
                 write!(f, "(")?;
                 for (i, sub_type) in sub_types.iter().enumerate() {
@@ -194,7 +215,7 @@ impl fmt::Display for PartialType {
                     }
                 }
                 write!(f, ")")
-            },
+            }
         }
     }
 }
@@ -208,7 +229,10 @@ impl Into<leo_ast::Type> for &Type {
             Field => leo_ast::Type::Field,
             Group => leo_ast::Type::Group,
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
-            Array(type_, len) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber { value: len.to_string() }])),
+            Array(type_, len) => leo_ast::Type::Array(
+                Box::new(type_.as_ref().into()),
+                leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber { value: len.to_string() }]),
+            ),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
             Circuit(circuit) => leo_ast::Type::Circuit(circuit.name.borrow().clone()),
         }
