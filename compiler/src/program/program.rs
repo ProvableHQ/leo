@@ -19,22 +19,15 @@
 use crate::{value::ConstrainedValue, GroupType};
 
 use snarkvm_models::curves::{Field, PrimeField};
+use leo_asg::Program;
 
 use indexmap::IndexMap;
 use uuid::Uuid;
 
 pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
+    pub asg: Program,
     identifiers: IndexMap<Uuid, ConstrainedValue<F, G>>,
     pub self_alias: Option<(Uuid, Uuid)>, // current self id -> id that self resolves to
-}
-
-impl<F: Field + PrimeField, G: GroupType<F>> Default for ConstrainedProgram<F, G> {
-    fn default() -> Self {
-        Self {
-            identifiers: IndexMap::new(),
-            self_alias: None,
-        }
-    }
 }
 
 pub fn new_scope(outer: &str, inner: &str) -> String {
@@ -46,8 +39,12 @@ pub fn is_in_scope(current_scope: &str, desired_scope: &str) -> bool {
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(asg: Program) -> Self {
+        Self {
+            asg,
+            identifiers: IndexMap::new(),
+            self_alias: None,
+        }
     }
 
     pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<F, G>) {

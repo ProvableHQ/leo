@@ -25,12 +25,9 @@ use crate::{
 };
 use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
-use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
-use leo_symbol_table::SymbolTable;
-use leo_type_inference::TypeInference;
 
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_errors::gadgets::SynthesisError;
@@ -56,7 +53,6 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     program: Program,
     program_input: Input,
     asg: Option<AsgProgram>,
-    imported_programs: ImportParser,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -73,7 +69,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             program: Program::new(package_name),
             program_input: Input::new(),
             asg: None,
-            imported_programs: ImportParser::default(),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -165,11 +160,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Runs program parser and type inference checker consecutively.
     ///
     pub(crate) fn parse_and_check_program(&mut self) -> Result<(), CompilerError> {
-        self.parse_program()?;
-
-        self.check_program()?;
-
-        self.program_asg_generate()
+        self.parse_program()
     }
 
     ///
@@ -194,45 +185,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Store the main program file.
         self.program = core_ast.into_repr();
 
-        // Parse and store all programs imported by the main program file.
-        self.imported_programs = ImportParser::parse(&self.program)?;
-
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
-        Ok(())
-    }
-
-    ///
-    /// Runs a type check on the program, imports, and input.
-    ///
-    /// First, a symbol table of all user defined types is created.
-    /// Second, a type inference check is run on the program - inferring a data type for all implicit types and
-    /// catching type mismatch errors.
-    ///
-    pub(crate) fn check_program(&self) -> Result<(), CompilerError> {
-        // Create a new symbol table from the program, imported_programs, and program_input.
-        let symbol_table =
-            SymbolTable::new(&self.program, &self.imported_programs, &self.program_input).map_err(|mut e| {
-                e.set_path(&self.main_file_path);
-
-                e
-            })?;
-
-        // Run type inference check on program.
-        TypeInference::new(&self.program, symbol_table).map_err(|mut e| {
-            e.set_path(&self.main_file_path);
-
-            e
-        })?;
-
-        tracing::debug!("Program checks complete");
+        self.program_asg_generate()?;
 
         Ok(())
     }
 
     pub(crate) fn program_asg_generate(&mut self) -> Result<(), CompilerError> {
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = leo_asg::InnerProgram::new(&self.program, &leo_asg::NullImportResolver)?;
+        let asg = leo_asg::InnerProgram::new(&self.program, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 
@@ -262,16 +224,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         // Store the main program file.
         self.program = core_ast.into_repr();
 
-        // Parse and store all programs imported by the main program file.
-        self.imported_programs = ImportParser::parse(&self.program)?;
-
-        // Create a new symbol table from the program, imported programs, and program input.
-        let symbol_table = SymbolTable::new(&self.program, &self.imported_programs, &self.program_input)?;
-
-        // Run type inference check on program.
-        TypeInference::new(&self.program, symbol_table)?;
-
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
+
+        self.program_asg_generate()?;
 
         Ok(())
     }

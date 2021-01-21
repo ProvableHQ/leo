@@ -1,5 +1,5 @@
 use crate::Span;
-use crate::{ Expression, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, Circuit, CircuitMember, ConstValue, PartialType };
+use crate::{ Expression, Identifier, Type, Node, ExpressionNode, FromAst, Scope, AsgConvertError, Circuit, CircuitMember, ConstValue, PartialType, CircuitMemberBody };
 use std::sync::{ Weak, Arc };
 use std::cell::RefCell;
 
@@ -91,7 +91,15 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
                 circuit.members.borrow_mut().insert(
                     value.name.name.clone(),
                     CircuitMember::Variable(
-                        expected_type.into()
+                        expected_type.clone().into()
+                    )
+                );
+                let body = circuit.body.borrow().upgrade().expect("stale input circuit body");
+
+                body.members.borrow_mut().insert(
+                    value.name.name.clone(),
+                    CircuitMemberBody::Variable(
+                        expected_type
                     )
                 );
             } else {

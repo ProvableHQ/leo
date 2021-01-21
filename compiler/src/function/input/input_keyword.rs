@@ -16,6 +16,8 @@
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_ast::{Identifier, Input, Span};
+use leo_asg::{CircuitBody, CircuitMemberBody, Type};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -32,25 +34,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         span: Span,
+        expected_type: &Arc<CircuitBody>,
         input: &Input,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
             name: REGISTERS_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
         let record_name = Identifier {
             name: RECORD_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
         let state_name = Identifier {
             name: STATE_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
 
         // Fetch each input variable's definitions
@@ -72,8 +75,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut members = Vec::with_capacity(sections.len());
 
         for (name, values) in sections {
+            let sub_circuit = match expected_type.members.borrow().get(&name.name) {
+                Some(CircuitMemberBody::Variable(Type::Circuit(circuit))) =>  {
+                    circuit.body.borrow().upgrade().expect("stale circuit body for input subtype")
+                },
+                _ => panic!("illegal input type definition from asg"),
+            };
+                
             let member_name = name.clone();
-            let member_value = self.allocate_input_section(cs, name, values)?;
+            let member_value = self.allocate_input_section(cs, name, sub_circuit, values)?;
 
             let member = ConstrainedCircuitMember(member_name, member_value);
 
@@ -82,6 +92,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return input variable keyword as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(Identifier::from(keyword), members))
+        Ok(ConstrainedValue::CircuitExpression(expected_type.clone(), members))
     }
 }

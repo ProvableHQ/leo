@@ -64,13 +64,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
         }
 
-        let id = uuid::Uuid::new_v4();
         let value = ConstrainedValue::CircuitExpression(
-            circuit,
-            id.clone(),
+            circuit.clone(),
             resolved_members,
         );
-        self.store(id, value.clone());
         Ok(value)
     }
 }

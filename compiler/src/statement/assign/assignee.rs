@@ -187,7 +187,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     return Err(StatementError::array_assign_interior_index(span.clone()));
                 }
                 match Self::unwrap_mutable(value.remove(0)) {
-                    ConstrainedValue::CircuitExpression(_variable, _, members) => {
+                    ConstrainedValue::CircuitExpression(_variable, members) => {
                         // Modify the circuit variable in place
                         let matched_variable = members.iter_mut().find(|member| member.0 == name);
 

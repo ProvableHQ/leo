@@ -23,7 +23,8 @@ use crate::{
     GroupType,
 };
 
-use leo_ast::{InputValue, Span, Type};
+use leo_ast::{InputValue, Span};
+use leo_asg::Type;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -35,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         name: &str,
-        types: Vec<Type>,
+        types: &Vec<Type>,
         input_value: Option<InputValue>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
@@ -44,7 +45,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         match input_value {
             Some(InputValue::Tuple(values)) => {
                 // Allocate each value in the tuple
-                for (i, (value, type_)) in values.into_iter().zip(types.into_iter()).enumerate() {
+                for (i, (value, type_)) in values.into_iter().zip(types.iter()).enumerate() {
                     let value_name = new_scope(name, &i.to_string());
 
                     tuple_values.push(self.allocate_main_function_input(cs, type_, &value_name, Some(value), span)?)
@@ -52,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             None => {
                 // Allocate all tuple values as none
-                for (i, type_) in types.into_iter().enumerate() {
+                for (i, type_) in types.iter().enumerate() {
                     let value_name = new_scope(name, &i.to_string());
 
                     tuple_values.push(self.allocate_main_function_input(cs, type_, &value_name, None, span)?);

@@ -39,7 +39,7 @@ pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: Constrai
     program: &Program,
     input: &Input,
 ) -> Result<OutputBytes, CompilerError> {
-    let mut resolved_program = ConstrainedProgram::<F, G>::new();
+    let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
     let program_name = program.borrow().name.clone();
 
     let main = {
@@ -62,7 +62,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
     main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
-    let mut resolved_program = ConstrainedProgram::<F, G>::new();
+    let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
     let program_name = program.borrow().name.clone();
 
     // Get default input
@@ -84,7 +84,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.name;
+                let file_name = file_id.name.clone();
 
                 output_file_name = file_name.clone();
 

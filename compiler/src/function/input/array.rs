@@ -18,16 +18,14 @@
 
 use crate::{
     errors::FunctionError,
-    inner_array_type,
-    parse_index,
     program::{new_scope, ConstrainedProgram},
     value::ConstrainedValue,
     GroupType,
 };
 
-use leo_ast::{ArrayDimensions, InputValue, Span, Type};
+use leo_ast::{InputValue, Span};
+use leo_asg::Type;
 
-use crate::errors::ExpressionError;
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -38,26 +36,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         name: &str,
-        array_type: Type,
-        mut array_dimensions: ArrayDimensions,
+        array_type: &Type,
+        array_len: usize,
         input_value: Option<InputValue>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let expected_length = match array_dimensions.remove_first() {
-            Some(number) => {
-                // Parse the array dimension into a `usize`.
-                parse_index(&number, &span)?
-            }
-            None => {
-                return Err(FunctionError::ExpressionError(ExpressionError::unexpected_array(
-                    array_type.to_string(),
-                    span.to_owned(),
-                )));
-            }
-        };
-
-        // Get the expected type for each array element.
-        let inner_array_type = inner_array_type(array_type, array_dimensions);
 
         // Build the array value using the expected types.
         let mut array_value = vec![];
@@ -70,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
-                        inner_array_type.clone(),
+                        array_type,
                         &value_name,
                         Some(value),
                         span,
@@ -79,12 +62,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             None => {
                 // Allocate all row values as none
-                for i in 0..expected_length {
+                for i in 0..array_len {
                     let value_name = new_scope(&name, &i.to_string());
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
-                        inner_array_type.clone(),
+                        array_type,
                         &value_name,
                         None,
                         span,

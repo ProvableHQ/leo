@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, expect_type_inference_error, parse_program};
+use crate::{assert_satisfied, expect_compiler_error, expect_asg_error, parse_program};
 
 // Expressions
 
@@ -39,7 +39,7 @@ fn test_inline_undefined() {
     let program_string = include_str!("inline_undefined.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 // Members
@@ -57,7 +57,7 @@ fn test_member_variable_fail() {
     let program_string = include_str!("member_variable_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -81,7 +81,7 @@ fn test_member_function_fail() {
     let program_string = include_str!("member_function_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn test_member_function_invalid() {
     let program_string = include_str!("member_function_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn test_member_static_function_invalid() {
     let program_string = include_str!("member_static_function_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error)
+    expect_asg_error(error)
 }
 
 #[test]
@@ -129,7 +129,7 @@ fn test_member_static_function_undefined() {
     let program_string = include_str!("member_static_function_undefined.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error)
+    expect_asg_error(error)
 }
 
 // Mutability
@@ -139,7 +139,7 @@ fn test_mutate_function_fail() {
     let program_string = include_str!("mut_function_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -171,7 +171,7 @@ fn test_mutate_self_function_fail() {
     let program_string = include_str!("mut_self_function_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -179,7 +179,7 @@ fn test_mutate_self_static_function_fail() {
     let program_string = include_str!("mut_self_static_function_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -187,7 +187,7 @@ fn test_mutate_static_function_fail() {
     let program_string = include_str!("mut_static_function_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -213,7 +213,7 @@ fn test_self_fail() {
     let program_string = include_str!("self_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -229,7 +229,7 @@ fn test_self_member_invalid() {
     let program_string = include_str!("self_member_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -237,7 +237,7 @@ fn test_self_member_undefined() {
     let program_string = include_str!("self_member_undefined.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 // All

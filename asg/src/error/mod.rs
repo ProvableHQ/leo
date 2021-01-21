@@ -1,10 +1,15 @@
 use crate::Span;
 use leo_ast::Error as FormattedError;
+use leo_grammar::ParserError;
 
 #[derive(Debug, Error)]
 pub enum AsgConvertError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
+    #[error("{}", _0)]
+    ImportError(FormattedError),
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
     #[error("{}", _0)]
     InternalError(String),
 }

@@ -161,7 +161,6 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                         Some(Type::Integer(_)) | None => (),
                         Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("integer"), &value.span)),
                     }
-
                 }
         }
 

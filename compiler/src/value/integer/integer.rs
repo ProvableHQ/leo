@@ -130,7 +130,7 @@ impl Integer {
 
     pub fn allocate_type<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         option: Option<String>,
         span: &Span,
@@ -281,7 +281,7 @@ impl Integer {
 
     pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         integer_value: Option<InputValue>,
         span: &Span,

@@ -25,6 +25,10 @@ version = "1.0.7"
 path = "../grammar"
 version = "1.0.7"
 
+[dependencies.leo-asg]
+path = "../asg"
+version = "1.0.7"
+
 [dependencies.indexmap]
 version = "1.6.1"
 features = [ "serde-1" ]

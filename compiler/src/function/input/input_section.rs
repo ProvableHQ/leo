@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
+use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType, errors::{FunctionError}};
+use leo_asg::{CircuitBody, CircuitMemberBody, AsgConvertError};
 use leo_ast::{Identifier, InputValue, Parameter};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -29,6 +31,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
+        expected_type: Arc<CircuitBody>,
         section: IndexMap<Parameter, Option<InputValue>>,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
@@ -36,10 +39,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Allocate each section definition as a circuit member value
 
         for (parameter, option) in section.into_iter() {
+            let section_members = expected_type.members.borrow();
+            let expected_type = match section_members.get(&parameter.variable.name) {
+                Some(CircuitMemberBody::Variable(inner)) => inner,
+                _ => continue, // present, but unused
+            };
+            let declared_type = self.asg.borrow().scope.borrow().resolve_ast_type(&parameter.type_)?;
+            if !expected_type.is_assignable_from(&declared_type) {
+                Err(AsgConvertError::unexpected_type(&expected_type.to_string(), Some(&declared_type.to_string()), &identifier.span))?;
+            }
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(
                 cs,
-                parameter.type_,
+                &declared_type,
                 &parameter.variable.name,
                 option,
                 &parameter.span,
@@ -51,6 +63,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return section as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(identifier, members))
+        Ok(ConstrainedValue::CircuitExpression(expected_type, members))
     }
 }

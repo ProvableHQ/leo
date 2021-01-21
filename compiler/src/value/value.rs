@@ -37,7 +37,6 @@ use snarkvm_models::{
 };
 use std::fmt;
 use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<F: Field + PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<F, G>);
@@ -58,7 +57,7 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
     Tuple(Vec<ConstrainedValue<F, G>>),
 
     // Circuits
-    CircuitExpression(Arc<CircuitBody>, Uuid, Vec<ConstrainedCircuitMember<F, G>>),
+    CircuitExpression(Arc<CircuitBody>, Vec<ConstrainedCircuitMember<F, G>>),
 
     // Modifiers
     Mutable(Box<ConstrainedValue<F, G>>),
@@ -91,7 +90,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
 
                 Type::Tuple(types)
             }
-            ConstrainedValue::CircuitExpression(id, _, _members) => Type::Circuit(id.circuit.clone()),
+            ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.circuit.clone()),
             ConstrainedValue::Mutable(value) => return value.to_type(span),
             value => return Err(ValueError::implicit(value.to_string(), span.to_owned())),
         })
@@ -174,7 +173,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 let option = integer.get_value();
                 let name = option.clone().unwrap_or_else(|| "[allocated]".to_string());
 
-                *integer = Integer::allocate_type(&mut cs, integer_type, &name, option, span)?;
+                *integer = Integer::allocate_type(&mut cs, &integer_type, &name, option, span)?;
             }
 
             // Data type wrappers
@@ -192,7 +191,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                     value.allocate_value(cs.ns(|| unique_name), span)
                 })?;
             }
-            ConstrainedValue::CircuitExpression(_id, _, members) => {
+            ConstrainedValue::CircuitExpression(_id, members) => {
                 members.iter_mut().enumerate().try_for_each(|(i, member)| {
                     let unique_name = format!("allocate circuit member {} {}:{}", i, span.line, span.start);
 
@@ -241,7 +240,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
 
                 write!(f, "({})", values)
             }
-            ConstrainedValue::CircuitExpression(ref circuit, _, ref members) => {
+            ConstrainedValue::CircuitExpression(ref circuit, ref members) => {
                 write!(f, "{} {{", circuit.circuit.name.borrow())?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;
@@ -358,8 +357,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                 ConstrainedValue::Tuple(array)
             }
             (
-                ConstrainedValue::CircuitExpression(identifier, _, members_1),
-                ConstrainedValue::CircuitExpression(_identifier, _, members_2),
+                ConstrainedValue::CircuitExpression(identifier, members_1),
+                ConstrainedValue::CircuitExpression(_identifier, members_2),
             ) => {
                 let mut members = Vec::with_capacity(members_1.len());
 
@@ -372,7 +371,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
                     )?);
                 }
 
-                ConstrainedValue::CircuitExpression(identifier.clone(), Uuid::new_v4(), members)
+                ConstrainedValue::CircuitExpression(identifier.clone(), members)
             }
             (ConstrainedValue::Mutable(first), _) => Self::conditionally_select(cs, cond, first, second)?,
             (_, ConstrainedValue::Mutable(second)) => Self::conditionally_select(cs, cond, first, second)?,

@@ -49,12 +49,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut return_value = ConstrainedValue::Tuple(vec![]);
 
         // Error if the function or one of its branches does not return.
-        if results
-            .iter()
-            .find(|(indicator, _res)| get_indicator_value(indicator))
-            .is_none()
-        {
-            return Err(StatementError::no_returns(&expected_return, span.to_owned()));
+        if !matches!(expected_return, Type::Tuple(x) if x.len() == 0) {
+            if results
+                .iter()
+                .find(|(indicator, _res)| get_indicator_value(indicator))
+                .is_none()
+            {
+                return Err(StatementError::no_returns(&expected_return, span.to_owned()));
+            }
         }
 
         // Find the return value

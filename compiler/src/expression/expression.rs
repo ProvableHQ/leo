@@ -179,7 +179,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 target,
                 arguments,
                 ..
-            }) => match *function {
+            }) => match function {
                 function if function.name.borrow().is_core() => self.enforce_core_circuit_call_expression(
                     cs,
                     file_scope,

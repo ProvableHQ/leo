@@ -117,7 +117,7 @@ impl InnerScope {
         }))
     }
 
-    pub(crate) fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type, AsgConvertError> {
+    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type, AsgConvertError> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,

@@ -106,7 +106,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             results.push((*indicator, value));
                         }
                     }
-                    _ => return Err(StatementError::unassigned(statement.span.map(|x| x.text.clone()).unwrap_or_default(), statement.span.clone().unwrap_or_default())),
+                    _ => return Err(StatementError::unassigned(statement.span.as_ref().map(|x| x.text.clone()).unwrap_or_default(), statement.span.clone().unwrap_or_default())),
                 }
             }
             Statement::Block(statement) => {

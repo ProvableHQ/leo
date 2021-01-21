@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use leo_ast::{Error as FormattedError, Identifier, Span};
 use leo_grammar::ParserError;
+use leo_asg::AsgConvertError;
 
 use std::{io, path::Path};
 
@@ -25,6 +26,18 @@ pub enum ImportParserError {
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
+    #[error("{}", _0)]
+    AsgConvertError(#[from] AsgConvertError),
+}
+
+impl Into<AsgConvertError> for ImportParserError {
+    fn into(self) -> AsgConvertError {
+        match self {
+            ImportParserError::Error(x) => AsgConvertError::ImportError(x),
+            ImportParserError::ParserError(x) => x.into(),
+            ImportParserError::AsgConvertError(x) => x,
+        }
+    }
 }
 
 impl ImportParserError {
@@ -43,6 +56,12 @@ impl ImportParserError {
         let message = format!("conflicting imports found for `{}`.", identifier.name);
 
         Self::new_from_span(message, identifier.span)
+    }
+
+    pub fn recursive_imports(package: &str, span: &Span) -> Self {
+        let message = format!("recursive imports for `{}`.", package);
+
+        Self::new_from_span(message, span.clone())
     }
 
     ///

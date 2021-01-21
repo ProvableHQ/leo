@@ -55,19 +55,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         };
 
         let old_self_alias = self.self_alias.take();
-        self.self_alias = if let Some(target) = &target {
+        // self.self_alias = 
+        if let Some(target) = &target {
             let self_var = function.scope.borrow().resolve_variable("self").expect("attempted to call static function from non-static context");
-            match target {
-                ConstrainedValue::CircuitExpression(circuit, id, values) => {
-                    assert!(Some(&circuit.circuit) == function.function.circuit.borrow().map(|x| x.upgrade()).flatten().as_ref());
-                    Some((self_var.borrow().id.clone(), id.clone()))
-                },
-                _ => panic!("attempted to pass non-circuit as target"),
-            }
-        } else {
-            None
-        };
+            self.store(self_var.borrow().id.clone(), target.clone());
+            // match target {
+            //     ConstrainedValue::CircuitExpression(circuit, values) => {
+            //         assert!(Some(&circuit.circuit) == function.function.circuit.borrow().map(|x| x.upgrade()).flatten().as_ref());
+            //         Some((self_var.borrow().id.clone(), id.clone()))
+            //     },
+            //     _ => panic!("attempted to pass non-circuit as target"),
+            // }
+        }
+        // } else {
+        //     None
+        // };
         
+        //todo: mut self
+
+
         let return_value = self.enforce_function(
             &mut cs.ns(name_unique),
             file_scope,
@@ -78,6 +84,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         )
         .map_err(|error| ExpressionError::from(Box::new(error)))?;
 
+        self.self_alias = old_self_alias;
         Ok(return_value)
     }
 }

@@ -49,14 +49,6 @@ version = "1.0.7"
 path = "../state"
 version = "1.0.7"
 
-[dependencies.leo-symbol-table]
-path = "../symbol-table"
-version = "1.0.7"
-
-[dependencies.leo-type-inference]
-path = "../type-inference"
-version = "1.0.7"
-
 [dependencies.leo-asg]
 path = "../asg"
 version = "1.0.7"

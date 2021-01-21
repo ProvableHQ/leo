@@ -17,12 +17,11 @@
 use crate::{
     assert_satisfied,
     expect_compiler_error,
-    expect_type_inference_error,
+    expect_asg_error,
     get_output,
     parse_program,
     parse_program_with_input,
 };
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 
 #[test]
 fn test_empty() {
@@ -118,17 +117,9 @@ fn test_return() {
 #[test]
 fn test_scope_fail() {
     let program_string = include_str!("scope_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::FunctionError(value),
-        ))) => match *value {
-            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::Error(_))) => {}
-            error => panic!("Expected function undefined, got {}", error),
-        },
-        error => panic!("Expected function undefined, got {}", error),
-    }
+    expect_asg_error(error);
 }
 
 #[test]
@@ -136,7 +127,7 @@ fn test_undefined() {
     let program_string = include_str!("undefined.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -152,7 +143,7 @@ fn test_array_input() {
     let program_string = include_str!("array_input.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error)
+    expect_asg_error(error)
 }
 
 // Test return multidimensional arrays

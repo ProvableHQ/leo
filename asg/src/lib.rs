@@ -56,10 +56,10 @@ pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<le
     Ok(leo_ast::Ast::new("load_ast", &ast).into_repr())
 }
 
-pub fn load_asg_from_ast<T: ImportResolver + 'static>(content: leo_ast::Program, resolver: &T) -> Result<Program, AsgConvertError> {
+pub fn load_asg_from_ast<T: ImportResolver + 'static>(content: leo_ast::Program, resolver: &mut T) -> Result<Program, AsgConvertError> {
     InnerProgram::new(&content, resolver)
 }
 
-pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &T) -> Result<Program, AsgConvertError> {
+pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
     InnerProgram::new(&load_ast("input.leo", content)?, resolver)
 }

@@ -29,8 +29,6 @@ use snarkvm_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-static SELF_KEYWORD: &str = "self";
-
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
@@ -45,7 +43,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
             let target_value = self.enforce_operand(cs, file_scope, function_scope, target)?;
             match target_value {
-                ConstrainedValue::CircuitExpression(def, _, members) => {
+                ConstrainedValue::CircuitExpression(def, members) => {
                     assert!(def.circuit == expr.circuit);
                     if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
                         Ok(member.1)

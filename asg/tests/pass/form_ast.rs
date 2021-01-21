@@ -58,7 +58,7 @@ fn test_imports() {
     "#;
     println!("{}", serde_json::to_string(&crate::load_ast("test-import.leo", test_import).unwrap()).unwrap());
     println!("{}", serde_json::to_string(&crate::load_ast("test.leo", program_string).unwrap()).unwrap());
-    let asg = crate::load_asg_imports(program_string, &imports).unwrap();
+    let asg = crate::load_asg_imports(program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", serde_json::to_string(&reformed_ast).unwrap());
     panic!();

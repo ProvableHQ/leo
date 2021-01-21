@@ -73,21 +73,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         //     FunctionQualifier::Static => (),
         // }
         if function.arguments.len() != arguments.len() {
-            return Err(FunctionError::input_not_found("arguments length invalid".to_string(), function.span.unwrap_or_default()));
+            return Err(FunctionError::input_not_found("arguments length invalid".to_string(), function.span.clone().unwrap_or_default()));
         }
 
         // Store input values as new variables in resolved program
         for (variable, input_expression) in function.arguments.iter().zip(arguments.into_iter()) {
-            let variable = variable.borrow();
 
             let mut input_value = self.enforce_function_input(
                 cs,
                 scope,
                 caller_scope,
                 &function_name,
-                Some(variable.type_.clone()),
                 input_expression,
             )?;
+            let variable = variable.borrow();
 
             if variable.mutable {
                 input_value = ConstrainedValue::Mutable(Box::new(input_value))
@@ -114,7 +113,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         results.append(&mut result);
 
         // Conditionally select a result based on returned indicators
-        Self::conditionally_select_result(cs, &output, results, &function.span.unwrap_or_default())
+        Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
             .map_err(FunctionError::StatementError)
     }
 }

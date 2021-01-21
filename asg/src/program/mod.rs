@@ -73,7 +73,7 @@ impl InnerProgram {
     3. finalize declared functions
     4. resolve all asg nodes
     */
-    pub fn new<'a, T: ImportResolver + 'static>(value: &leo_ast::Program, import_resolver: &'a T) -> Result<Program, AsgConvertError> {
+    pub fn new<'a, T: ImportResolver + 'static>(value: &leo_ast::Program, import_resolver: &'a mut T) -> Result<Program, AsgConvertError> {
         // TODO: right now if some program A is imported from programs B and C, it will be copied to both, which is not optimal -- needs fixed
 
         // recursively extract our imported symbols
@@ -83,18 +83,18 @@ impl InnerProgram {
         }
 
         // package list
-        let mut deduplicated_imports: IndexSet<Vec<String>> = IndexSet::new();
-        for (package, _symbol, _span) in imported_symbols.iter() {
-            deduplicated_imports.insert(package.clone());
+        let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
+        for (package, _symbol, span) in imported_symbols.iter() {
+            deduplicated_imports.insert(package.clone(), span.clone());
         }
 
-        let wrapped_resolver = crate::CoreImportResolver(import_resolver);
+        let mut wrapped_resolver = crate::CoreImportResolver(import_resolver);
         // load imported programs
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new(); 
-        for package in deduplicated_imports.iter() {
+        for (package, span) in deduplicated_imports.iter() {
             let pretty_package = package.join(".");
 
-            let resolved_package = match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..])? {
+            let resolved_package = match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], span)? {
                 Some(x) => x,
                 None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())), // todo: better span
             };
@@ -158,6 +158,7 @@ impl InnerProgram {
         }
 
         let scope = Arc::new(RefCell::new(InnerScope {
+            input: Some(Input::new(&import_scope)), // we use import_scope to avoid recursive scope ref here
             id: uuid::Uuid::new_v4(),
             parent_scope: Some(import_scope),
             circuit_self: None,
@@ -165,7 +166,6 @@ impl InnerProgram {
             functions: IndexMap::new(),
             circuits: proto_circuits.iter().map(|(name, circuit)| (name.clone(), circuit.clone())).collect(),
             function: None,
-            input: Some(Input::new()),
         }));
 
         for (name, circuit) in value.circuits.iter() {

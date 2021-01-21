@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{expect_compiler_error, EdwardsTestCompiler};
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, IntegerError, StatementError, ValueError};
+use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, IntegerError, StatementError};
 
 pub trait IntegerTester {
     /// Tests defining the smalled value that can be represented by the integer type
@@ -68,15 +68,6 @@ pub trait IntegerTester {
 
     /// Test ternary if bool ? num_1 : num_2;
     fn test_ternary();
-}
-
-pub(crate) fn expect_parsing_error(program: EdwardsTestCompiler) {
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::ValueError(ValueError::IntegerError(IntegerError::Error(_))),
-        ))) => {}
-        error => panic!("Expected integer parsing error, found {:?}", error),
-    }
 }
 
 pub(crate) fn expect_computation_error(program: EdwardsTestCompiler) {

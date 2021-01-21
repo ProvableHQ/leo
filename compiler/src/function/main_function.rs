@@ -46,11 +46,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // Iterate over main function input variables and allocate new values
         if function.function.has_input {
             // let input_var = function.scope.
-            let variable = function.scope.borrow().resolve_variable("input").expect("no input variable in scope when function is qualified");
+            let asg_input = function.scope.borrow().resolve_input().expect("no input variable in scope when function is qualified");
 
-            let value = self.allocate_input_keyword(cs, function.function.name.borrow().span.clone(), input)?;
+            let value = self.allocate_input_keyword(cs, function.function.name.borrow().span.clone(), &asg_input.container_circuit, input)?;
 
-            self.store(variable.borrow().id.clone(), value);
+            self.store(asg_input.container.borrow().id.clone(), value);
         }
 
 

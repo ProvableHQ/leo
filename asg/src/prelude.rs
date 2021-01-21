@@ -15,7 +15,7 @@ pub fn resolve_core_module(module: &str) -> Result<Option<Program>, AsgConvertEr
                     return [0; 32]
                 }
             }
-            "#, &crate::NullImportResolver)?))
+            "#, &mut crate::NullImportResolver)?))
         },
         _ => Ok(None),
     }

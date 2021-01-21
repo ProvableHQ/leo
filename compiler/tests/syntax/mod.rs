@@ -18,7 +18,6 @@ use crate::{expect_compiler_error, parse_input, parse_program};
 use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
 use leo_grammar::ParserError;
 use leo_input::InputParserError;
-use leo_type_inference::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 
 pub mod identifiers;
 
@@ -80,10 +79,5 @@ fn test_compare_mismatched_types() {
     let error = parse_program(program_string).err().unwrap();
 
     // Expect a type inference error.
-    match error {
-        CompilerError::TypeInferenceError(TypeInferenceError::FrameError(FrameError::TypeAssertionError(
-            TypeAssertionError::Error(_),
-        ))) => {}
-        error => panic!("Expected type inference error, found {}", error),
-    }
+    crate::expect_asg_error(error);
 }

@@ -1291,8 +1291,6 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-symbol-table",
- "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1362,6 +1360,7 @@ name = "leo-imports"
 version = "1.0.7"
 dependencies = [
  "indexmap",
+ "leo-asg",
  "leo-ast",
  "leo-grammar",
  "thiserror",
