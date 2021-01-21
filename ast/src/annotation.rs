@@ -40,7 +40,7 @@ pub fn load_annotation(
         Definition::Function(function) => match ast_annotation.name {
             AnnotationName::Test(_) => {
                 let ident = Identifier::from(function.identifier.clone());
-                _functions.remove(&ident.clone());
+                _functions.remove(&ident);
 
                 let test_function = leo_grammar::functions::TestFunction::from(function);
                 let test = TestFunction::from(test_function);
