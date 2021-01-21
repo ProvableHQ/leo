@@ -48,7 +48,6 @@ pub fn load_annotation(
 
                 load_annotated_test(test, ast_annotation, tests);
             }
-            _ => unimplemented!("annotated functions are not supported yet"),
         },
         Definition::Annotated(_) => unimplemented!("nested annotations are not supported yet"),
     }
@@ -61,12 +60,6 @@ pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &m
     match name {
         AnnotationName::Test(_) => (),
         AnnotationName::TestWithContext(_) if ast_arguments.is_some() => {
-            load_annotated_test_context(test, ast_arguments.unwrap(), tests)
-        }
-        AnnotationName::TestWithContext(_) if ast_arguments.is_some() => {
-            load_annotated_test_context(test, ast_arguments.unwrap(), tests)
-        }
-        AnnotationName::Context(_) if ast_arguments.is_some() => {
             load_annotated_test_context(test, ast_arguments.unwrap(), tests)
         }
         _ => (),

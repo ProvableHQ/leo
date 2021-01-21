@@ -517,12 +517,10 @@ annotation_symbol = ${"@"}
 
 // Declared in annotations/annotation_name.rs
 annotation_name = {
-    context
-    | test
+    test
 }
 
-// Declared in annotations/context.rs
-context = {"context"}
+// Declared in annotations/annotation_name.rs
 test = {"test"}
 
 // Declared in annotations/annotation_argument.rs
