@@ -38,7 +38,7 @@ pub fn load_annotation(
         Definition::Circuit(_) => unimplemented!("annotated circuits are not supported yet"),
         // TODO need someone to take functions annotated with @test to be moved from function to tests.
         Definition::Function(function) => match ast_annotation.name {
-            AnnotationName::Test(_) | AnnotationName::TestWithContext(_) => {
+            AnnotationName::Test(_) => {
                 let ident = Identifier::from(function.identifier.clone());
                 _functions.remove(&ident.clone());
 
@@ -58,8 +58,7 @@ pub fn load_annotated_test(test: TestFunction, annotation: Annotation, tests: &m
     let ast_arguments = annotation.arguments;
 
     match name {
-        AnnotationName::Test(_) => (),
-        AnnotationName::TestWithContext(_) if ast_arguments.is_some() => {
+        AnnotationName::Test(_) if ast_arguments.is_some() => {
             load_annotated_test_context(test, ast_arguments.unwrap(), tests)
         }
         _ => (),
