@@ -25,12 +25,13 @@ use crate::{
     cli::CLI,
     cli_types::*,
     config::*,
-    errors::LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
+    errors::{CLIError, LoginError::*},
 };
 
 use std::collections::HashMap;
 
 pub const LOGIN_URL: &str = "v1/account/authenticate";
+pub const PROFILE_URL: &str = "v1/account/my_profile";
 
 #[derive(Debug)]
 pub struct LoginCommand;
@@ -75,7 +76,7 @@ impl CLI for LoginCommand {
         }
     }
 
-    fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Login" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Login");
         let _enter = span.enter();
@@ -86,13 +87,13 @@ impl CLI for LoginCommand {
 
             // Login using username and password
             (None, Some(username), Some(password)) => {
-                let client = reqwest::blocking::Client::new();
-                let url = format!("{}{}", PACKAGE_MANAGER_URL, LOGIN_URL);
-
+                // prepare JSON data to be sent
                 let mut json = HashMap::new();
                 json.insert("email_username", username);
                 json.insert("password", password);
 
+                let client = reqwest::blocking::Client::new();
+                let url = format!("{}{}", PACKAGE_MANAGER_URL, LOGIN_URL);
                 let response: HashMap<String, String> = match client.post(&url).json(&json).send() {
                     Ok(result) => match result.json() {
                         Ok(json) => json,
@@ -116,7 +117,11 @@ impl CLI for LoginCommand {
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
-            (_, _, _) => Some(read_token()?),
+            (_, _, _) => {
+                let token = read_token().map_err(|_| -> CLIError { NoCredentialsProvided.into() })?;
+
+                Some(token)
+            }
         };
 
         match token {
@@ -133,5 +138,92 @@ impl CLI for LoginCommand {
                 Err(NoCredentialsProvided.into())
             }
         }
+    }
+
+    fn new<'a, 'b>() -> clap::App<'a, 'b> {
+        let arguments = &Self::ARGUMENTS
+            .iter()
+            .map(|a| {
+                let mut args = clap::Arg::with_name(a.0).help(a.1).required(a.3).index(a.4);
+                if !a.2.is_empty() {
+                    args = args.possible_values(a.2);
+                }
+                args
+            })
+            .collect::<Vec<clap::Arg<'static, 'static>>>();
+        let flags = &Self::FLAGS
+            .iter()
+            .map(|a| clap::Arg::from_usage(a))
+            .collect::<Vec<clap::Arg<'static, 'static>>>();
+        let options = &Self::OPTIONS
+            .iter()
+            .map(|a| match !a.2.is_empty() {
+                true => clap::Arg::from_usage(a.0)
+                    .conflicts_with_all(a.1)
+                    .possible_values(a.2)
+                    .requires_all(a.3),
+                false => clap::Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
+            })
+            .collect::<Vec<clap::Arg<'static, 'static>>>();
+        let subcommands = Self::SUBCOMMANDS.iter().map(|s| {
+            clap::SubCommand::with_name(s.0)
+                .about(s.1)
+                .args(
+                    &s.2.iter()
+                        .map(|a| {
+                            let mut args = clap::Arg::with_name(a.0).help(a.1).required(a.3).index(a.4);
+                            if !a.2.is_empty() {
+                                args = args.possible_values(a.2);
+                            }
+                            args
+                        })
+                        .collect::<Vec<clap::Arg<'static, 'static>>>(),
+                )
+                .args(
+                    &s.3.iter()
+                        .map(|a| clap::Arg::from_usage(a))
+                        .collect::<Vec<clap::Arg<'static, 'static>>>(),
+                )
+                .args(
+                    &s.4.iter()
+                        .map(|a| match !a.2.is_empty() {
+                            true => clap::Arg::from_usage(a.0)
+                                .conflicts_with_all(a.1)
+                                .possible_values(a.2)
+                                .requires_all(a.3),
+                            false => clap::Arg::from_usage(a.0).conflicts_with_all(a.1).requires_all(a.3),
+                        })
+                        .collect::<Vec<clap::Arg<'static, 'static>>>(),
+                )
+                .settings(s.5)
+        });
+
+        clap::SubCommand::with_name(Self::NAME)
+            .about(Self::ABOUT)
+            .settings(&[
+                clap::AppSettings::ColoredHelp,
+                clap::AppSettings::DisableHelpSubcommand,
+                clap::AppSettings::DisableVersion,
+            ])
+            .args(arguments)
+            .args(flags)
+            .args(options)
+            .subcommands(subcommands)
+    }
+
+    fn process(arguments: &clap::ArgMatches) -> Result<(), CLIError> {
+        // Set logging environment
+        match arguments.is_present("debug") {
+            true => crate::logger::init_logger("leo", 2),
+            false => crate::logger::init_logger("leo", 1),
+        }
+
+        if arguments.subcommand().0 != "update" {
+            crate::updater::Updater::print_cli();
+        }
+
+        let options = Self::parse(arguments)?;
+        let _output = Self::output(options)?;
+        Ok(())
     }
 }

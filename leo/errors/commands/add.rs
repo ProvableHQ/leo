@@ -18,14 +18,17 @@ use std::ffi::OsString;
 
 #[derive(Debug, Error)]
 pub enum AddError {
-    #[error("connection unavailable {:?}", _0)]
+    #[error("Connection unavailable {:?}", _0)]
     ConnectionUnavailable(OsString),
 
-    #[error("missing author or package name")]
+    #[error("Missing author or package name: leo add author/package")]
     MissingAuthorOrPackageName,
 
-    #[error("invalid remote")]
+    #[error("Invalid remote")]
     InvalidRemote,
+
+    #[error("Not authorized in package manager. Use leo login to sign in")]
+    NotAuthorized,
 
     #[error("{:?}", _0)]
     ZipError(OsString),
