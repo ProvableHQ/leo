@@ -21,7 +21,13 @@
 //    leo add -a author -p package_name
 //
 
-use crate::{cli::CLI, cli_types::*, config::*, errors::AddError::*};
+use crate::{
+    cli::CLI,
+    cli_types::*,
+    config::*,
+    errors::{AddError::*, CLIError},
+};
+
 use leo_package::{
     imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME},
     root::Manifest,
@@ -105,14 +111,16 @@ impl CLI for AddCommand {
         }
     }
 
-    fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Adding" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Adding");
         let _enter = span.enter();
 
-        let token = read_token()?;
-
+        // token can only be there if user has signed into Aleo PM
+        // so we need to verify that token exists before doing anything else
+        let token = read_token().map_err(|_| -> CLIError { NotAuthorized.into() })?;
         let path = current_dir()?;
+
         // Enforce that the current directory is a leo package
         Manifest::try_from(path.as_path())?;
 

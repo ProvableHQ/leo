@@ -25,12 +25,13 @@ use crate::{
     cli::CLI,
     cli_types::*,
     config::*,
-    errors::LoginError::{CannotGetToken, NoConnectionFound, NoCredentialsProvided, WrongLoginOrPassword},
+    errors::{CLIError, LoginError::*},
 };
 
 use std::collections::HashMap;
 
 pub const LOGIN_URL: &str = "v1/account/authenticate";
+pub const PROFILE_URL: &str = "v1/account/my_profile";
 
 #[derive(Debug)]
 pub struct LoginCommand;
@@ -75,7 +76,7 @@ impl CLI for LoginCommand {
         }
     }
 
-    fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
+    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
         // Begin "Login" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Login");
         let _enter = span.enter();
@@ -86,13 +87,13 @@ impl CLI for LoginCommand {
 
             // Login using username and password
             (None, Some(username), Some(password)) => {
-                let client = reqwest::blocking::Client::new();
-                let url = format!("{}{}", PACKAGE_MANAGER_URL, LOGIN_URL);
-
+                // prepare JSON data to be sent
                 let mut json = HashMap::new();
                 json.insert("email_username", username);
                 json.insert("password", password);
 
+                let client = reqwest::blocking::Client::new();
+                let url = format!("{}{}", PACKAGE_MANAGER_URL, LOGIN_URL);
                 let response: HashMap<String, String> = match client.post(&url).json(&json).send() {
                     Ok(result) => match result.json() {
                         Ok(json) => json,
@@ -116,7 +117,11 @@ impl CLI for LoginCommand {
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
-            (_, _, _) => Some(read_token()?),
+            (_, _, _) => {
+                let token = read_token().map_err(|_| -> CLIError { NoCredentialsProvided.into() })?;
+
+                Some(token)
+            }
         };
 
         match token {
