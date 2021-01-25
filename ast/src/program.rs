@@ -57,7 +57,8 @@ impl<'ast> Program {
             .definitions
             .to_owned()
             .into_iter()
-            .find_map::<Result<(), _>, _>(|definition| match definition {
+            // Use of Infallible to say we never expect an Some(Ok(...))
+            .find_map::<Result<std::convert::Infallible, _>, _>(|definition| match definition {
                 Definition::Import(import) => {
                     imports.push(ImportStatement::from(import));
                     None
@@ -75,12 +76,6 @@ impl<'ast> Program {
                     None
                 }
                 Definition::Deprecated(deprecated) => {
-                    // 1. convert pest span to ast span.
-                    // ast source common span
-                    // new from span -> don't call direcrtly
-
-                    // create separate file for error warnings
-                    // "\"test function\" is deprecated. Did you mean @test?"
                     Some(Err(DeprecatedError::from(deprecated)))
                 }
                 Definition::Annotated(annotated_definition) => {
