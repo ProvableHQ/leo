@@ -91,7 +91,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let span = function.span.clone().unwrap_or_default();
         let result_value = self.enforce_function(cs, function, None, &arguments)?;
-        let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
+        let output_bytes = OutputBytes::new_from_constrained_value(&self.asg, registers, result_value, span)?;
 
         Ok(output_bytes)
     }

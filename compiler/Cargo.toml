@@ -47,7 +47,7 @@ version = "1.0.8"
 
 [dependencies.leo-asg]
 path = "../asg"
-version = "1.0.7"
+version = "1.0.8"
 
 [dependencies.snarkvm-curves]
 version = "0.0.2"
