@@ -176,7 +176,10 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
             BinaryOperationClass::Numeric => match left_type {
                 Some(Type::Integer(_)) => (),
                 Some(Type::Group) | Some(Type::Field)
-                    if value.op == BinaryOperation::Add || value.op == BinaryOperation::Sub => {}
+                    if value.op == BinaryOperation::Add || value.op == BinaryOperation::Sub =>
+                {
+                    ()
+                }
                 Some(Type::Field) if value.op == BinaryOperation::Mul || value.op == BinaryOperation::Div => (),
                 type_ => {
                     return Err(AsgConvertError::unexpected_type(
