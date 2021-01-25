@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::Circuit, definitions::AnnotatedDefinition, functions::Function, imports::Import};
+use crate::{
+    ast::Rule,
+    circuits::Circuit,
+    definitions::{AnnotatedDefinition, Deprecated},
+    functions::Function,
+    imports::Import,
+};
 
 use pest_ast::FromPest;
 use serde::Serialize;
@@ -26,4 +32,5 @@ pub enum Definition<'ast> {
     Import(Import<'ast>),
     Circuit(Circuit<'ast>),
     Function(Function<'ast>),
+    Deprecated(Deprecated<'ast>),
 }

@@ -36,7 +36,6 @@ pub fn load_annotation(
     match ast_definition {
         Definition::Import(_) => unimplemented!("annotated imports are not supported yet"),
         Definition::Circuit(_) => unimplemented!("annotated circuits are not supported yet"),
-        // TODO need someone to take functions annotated with @test to be moved from function to tests.
         Definition::Function(function) => match ast_annotation.name {
             AnnotationName::Test(_) => {
                 let ident = Identifier::from(function.identifier.clone());
@@ -49,6 +48,7 @@ pub fn load_annotation(
                 load_annotated_test(test, ast_annotation, tests);
             }
         },
+        Definition::Deprecated(_) => {}
         Definition::Annotated(_) => unimplemented!("nested annotations are not supported yet"),
     }
 }

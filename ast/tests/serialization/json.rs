@@ -29,7 +29,7 @@ fn to_ast(program_filepath: &Path) -> Ast {
     let ast = Grammar::new(&program_filepath, &program_string).unwrap();
 
     // Parses the pest ast and constructs a Leo ast.
-    Ast::new("leo_tree", &ast)
+    Ast::new("leo_tree", &ast).unwrap()
 }
 
 #[test]

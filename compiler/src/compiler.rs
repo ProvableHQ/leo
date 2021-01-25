@@ -184,7 +184,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         })?;
 
         // Construct the core ast from the pest ast.
-        let core_ast = Ast::new(&self.package_name, &pest_ast);
+        let core_ast = Ast::new(&self.package_name, &pest_ast)?;
 
         // Store the main program file.
         self.program = core_ast.into_repr();
@@ -241,7 +241,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let package_name = &self.package_name;
 
         // Construct the core ast from the pest ast.
-        let core_ast = Ast::new(package_name, &ast);
+        let core_ast = Ast::new(package_name, &ast)?;
 
         // Store the main program file.
         self.program = core_ast.into_repr();

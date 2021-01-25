@@ -12,6 +12,12 @@ definition = {
     | import
     | circuit
     | function
+    | deprecated
+}
+
+// but then in the struct ffor this... I need to explicitly put all the types there.
+deprecated = {
+    test_function
 }
 
 // Declared in definitions/annotated_definition.rs
@@ -408,6 +414,9 @@ statement_definition = { declare ~ variables ~ "=" ~ expression ~ LINE_END}
 
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
+
+// Decalred in functions/test_function.rs
+test_function = { "test" ~ function }
 
 // Declared in statements/for_statement.rs
 statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ block }

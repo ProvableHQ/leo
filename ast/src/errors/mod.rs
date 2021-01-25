@@ -14,5 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod deprecated;
+pub use deprecated::*;
+
 pub mod error;
 pub use error::*;

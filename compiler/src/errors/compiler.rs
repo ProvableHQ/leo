@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
+use leo_ast::DeprecatedError;
 use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
@@ -27,6 +28,9 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
+    #[error("{}", _0)]
+    DeprecatedError(#[from] DeprecatedError),
+
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
 
