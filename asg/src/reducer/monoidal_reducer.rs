@@ -61,13 +61,7 @@ pub trait MonoidalReducerExpression<T: Monoid> {
         T::default().append_all(values.into_iter())
     }
 
-    fn reduce_conditional_expression(
-        &mut self,
-        input: &ConditionalExpression,
-        condition: T,
-        if_true: T,
-        if_false: T,
-    ) -> T {
+    fn reduce_ternary_expression(&mut self, input: &TernaryExpression, condition: T, if_true: T, if_false: T) -> T {
         condition.append(if_true).append(if_false)
     }
 

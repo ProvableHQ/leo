@@ -45,7 +45,7 @@ impl<T: Monoid, R: MonoidalReducerExpression<T>> MonoidalDirector<T, R> {
             Expression::Call(e) => self.reduce_call(e),
             Expression::CircuitAccess(e) => self.reduce_circuit_access(e),
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
-            Expression::Conditional(e) => self.reduce_conditional_expression(e),
+            Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
@@ -107,13 +107,13 @@ impl<T: Monoid, R: MonoidalReducerExpression<T>> MonoidalDirector<T, R> {
         self.reducer.reduce_circuit_init(input, values)
     }
 
-    pub fn reduce_conditional_expression(&mut self, input: &ConditionalExpression) -> T {
+    pub fn reduce_ternary_expression(&mut self, input: &TernaryExpression) -> T {
         let condition = self.reduce_expression(&input.condition);
         let if_true = self.reduce_expression(&input.if_true);
         let if_false = self.reduce_expression(&input.if_false);
 
         self.reducer
-            .reduce_conditional_expression(input, condition, if_true, if_false)
+            .reduce_ternary_expression(input, condition, if_true, if_false)
     }
 
     pub fn reduce_constant(&mut self, input: &Constant) -> T {

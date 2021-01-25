@@ -20,7 +20,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
-pub struct ConditionalExpression {
+pub struct TernaryExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
     pub span: Option<Span>,
     pub condition: Arc<Expression>,
@@ -28,13 +28,13 @@ pub struct ConditionalExpression {
     pub if_false: Arc<Expression>,
 }
 
-impl Node for ConditionalExpression {
+impl Node for TernaryExpression {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for ConditionalExpression {
+impl ExpressionNode for TernaryExpression {
     fn set_parent(&self, parent: Weak<Expression>) {
         self.parent.replace(Some(parent));
     }
@@ -70,13 +70,13 @@ impl ExpressionNode for ConditionalExpression {
     }
 }
 
-impl FromAst<leo_ast::ConditionalExpression> for ConditionalExpression {
+impl FromAst<leo_ast::TernaryExpression> for TernaryExpression {
     fn from_ast(
         scope: &Scope,
-        value: &leo_ast::ConditionalExpression,
+        value: &leo_ast::TernaryExpression,
         expected_type: Option<PartialType>,
-    ) -> Result<ConditionalExpression, AsgConvertError> {
-        Ok(ConditionalExpression {
+    ) -> Result<TernaryExpression, AsgConvertError> {
+        Ok(TernaryExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             condition: Arc::<Expression>::from_ast(scope, &*value.condition, Some(Type::Boolean.partial()))?,
@@ -86,9 +86,9 @@ impl FromAst<leo_ast::ConditionalExpression> for ConditionalExpression {
     }
 }
 
-impl Into<leo_ast::ConditionalExpression> for &ConditionalExpression {
-    fn into(self) -> leo_ast::ConditionalExpression {
-        leo_ast::ConditionalExpression {
+impl Into<leo_ast::TernaryExpression> for &TernaryExpression {
+    fn into(self) -> leo_ast::TernaryExpression {
+        leo_ast::TernaryExpression {
             condition: Box::new(self.condition.as_ref().into()),
             if_true: Box::new(self.if_true.as_ref().into()),
             if_false: Box::new(self.if_false.as_ref().into()),

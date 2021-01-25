@@ -22,8 +22,8 @@ mod binary;
 pub use binary::*;
 mod unary;
 pub use unary::*;
-mod conditional;
-pub use conditional::*;
+mod ternary;
+pub use ternary::*;
 mod array_inline;
 pub use array_inline::*;
 mod array_init;
@@ -51,7 +51,7 @@ pub enum Expression {
     Constant(Constant),
     Binary(BinaryExpression),
     Unary(UnaryExpression),
-    Conditional(ConditionalExpression),
+    Ternary(TernaryExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
@@ -75,7 +75,7 @@ impl Node for Expression {
             Constant(x) => x.span(),
             Binary(x) => x.span(),
             Unary(x) => x.span(),
-            Conditional(x) => x.span(),
+            Ternary(x) => x.span(),
             ArrayInline(x) => x.span(),
             ArrayInit(x) => x.span(),
             ArrayAccess(x) => x.span(),
@@ -107,7 +107,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.set_parent(parent),
             Binary(x) => x.set_parent(parent),
             Unary(x) => x.set_parent(parent),
-            Conditional(x) => x.set_parent(parent),
+            Ternary(x) => x.set_parent(parent),
             ArrayInline(x) => x.set_parent(parent),
             ArrayInit(x) => x.set_parent(parent),
             ArrayAccess(x) => x.set_parent(parent),
@@ -127,7 +127,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.get_parent(),
             Binary(x) => x.get_parent(),
             Unary(x) => x.get_parent(),
-            Conditional(x) => x.get_parent(),
+            Ternary(x) => x.get_parent(),
             ArrayInline(x) => x.get_parent(),
             ArrayInit(x) => x.get_parent(),
             ArrayAccess(x) => x.get_parent(),
@@ -147,7 +147,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.enforce_parents(expr),
             Binary(x) => x.enforce_parents(expr),
             Unary(x) => x.enforce_parents(expr),
-            Conditional(x) => x.enforce_parents(expr),
+            Ternary(x) => x.enforce_parents(expr),
             ArrayInline(x) => x.enforce_parents(expr),
             ArrayInit(x) => x.enforce_parents(expr),
             ArrayAccess(x) => x.enforce_parents(expr),
@@ -167,7 +167,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.get_type(),
             Binary(x) => x.get_type(),
             Unary(x) => x.get_type(),
-            Conditional(x) => x.get_type(),
+            Ternary(x) => x.get_type(),
             ArrayInline(x) => x.get_type(),
             ArrayInit(x) => x.get_type(),
             ArrayAccess(x) => x.get_type(),
@@ -187,7 +187,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.is_mut_ref(),
             Binary(x) => x.is_mut_ref(),
             Unary(x) => x.is_mut_ref(),
-            Conditional(x) => x.is_mut_ref(),
+            Ternary(x) => x.is_mut_ref(),
             ArrayInline(x) => x.is_mut_ref(),
             ArrayInit(x) => x.is_mut_ref(),
             ArrayAccess(x) => x.is_mut_ref(),
@@ -207,7 +207,7 @@ impl ExpressionNode for Expression {
             Constant(x) => x.const_value(),
             Binary(x) => x.const_value(),
             Unary(x) => x.const_value(),
-            Conditional(x) => x.const_value(),
+            Ternary(x) => x.const_value(),
             ArrayInline(x) => x.const_value(),
             ArrayInit(x) => x.const_value(),
             ArrayAccess(x) => x.const_value(),
@@ -235,9 +235,9 @@ impl FromAst<leo_ast::Expression> for Arc<Expression> {
                 Arc::new(BinaryExpression::from_ast(scope, binary, expected_type).map(Expression::Binary)?)
             }
             Unary(unary) => Arc::new(UnaryExpression::from_ast(scope, unary, expected_type).map(Expression::Unary)?),
-            Conditional(conditional) => Arc::new(
-                ConditionalExpression::from_ast(scope, conditional, expected_type).map(Expression::Conditional)?,
-            ),
+            Ternary(conditional) => {
+                Arc::new(TernaryExpression::from_ast(scope, conditional, expected_type).map(Expression::Ternary)?)
+            }
 
             ArrayInline(array_inline) => Arc::new(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
@@ -287,7 +287,7 @@ impl Into<leo_ast::Expression> for &Expression {
             Constant(x) => leo_ast::Expression::Value(x.into()),
             Binary(x) => leo_ast::Expression::Binary(x.into()),
             Unary(x) => leo_ast::Expression::Unary(x.into()),
-            Conditional(x) => leo_ast::Expression::Conditional(x.into()),
+            Ternary(x) => leo_ast::Expression::Ternary(x.into()),
             ArrayInline(x) => leo_ast::Expression::ArrayInline(x.into()),
             ArrayInit(x) => leo_ast::Expression::ArrayInit(x.into()),
             ArrayAccess(x) => leo_ast::Expression::ArrayAccess(x.into()),
