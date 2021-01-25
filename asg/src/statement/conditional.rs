@@ -46,9 +46,7 @@ impl FromAst<leo_ast::ConditionalStatement> for ConditionalStatement {
         let next = statement
             .next
             .as_deref()
-            .map(|next| -> Result<Arc<Statement>, AsgConvertError> {
-                Ok(Arc::<Statement>::from_ast(scope, next, None)?)
-            })
+            .map(|next| -> Result<Arc<Statement>, AsgConvertError> { Arc::<Statement>::from_ast(scope, next, None) })
             .transpose()?;
 
         Ok(ConditionalStatement {

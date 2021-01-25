@@ -102,7 +102,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                         .as_ref()
                         .map(
                             |left: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> {
-                                Ok(Arc::<Expression>::from_ast(scope, left, index_type.clone())?)
+                                Arc::<Expression>::from_ast(scope, left, index_type.clone())
                             },
                         )
                         .transpose()?;
@@ -110,7 +110,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                         .as_ref()
                         .map(
                             |right: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> {
-                                Ok(Arc::<Expression>::from_ast(scope, right, index_type)?)
+                                Arc::<Expression>::from_ast(scope, right, index_type)
                             },
                         )
                         .transpose()?;
