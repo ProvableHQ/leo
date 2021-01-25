@@ -15,7 +15,7 @@ definition = {
     | deprecated
 }
 
-// but then in the struct ffor this... I need to explicitly put all the types there.
+// Declared in definitions/deprecated.rs
 deprecated = {
     test_function
 }
