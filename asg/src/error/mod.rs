@@ -148,6 +148,23 @@ impl AsgConvertError {
         Self::new_from_span(format!("failed to index into non-array '{}'", name), span)
     }
 
+    pub fn invalid_assign_index(name: &str, num: &str, span: &Span) -> Self {
+        Self::new_from_span(
+            format!("failed to index array with invalid integer '{}'[{}]", name, num),
+            span,
+        )
+    }
+
+    pub fn invalid_backwards_assignment(name: &str, left: usize, right: usize, span: &Span) -> Self {
+        Self::new_from_span(
+            format!(
+                "failed to index array range for assignment with left > right '{}'[{}..{}]",
+                name, left, right
+            ),
+            span,
+        )
+    }
+
     pub fn index_into_non_tuple(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("failed to index into non-tuple '{}'", name), span)
     }

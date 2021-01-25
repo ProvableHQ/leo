@@ -103,6 +103,12 @@ fn test_slice() {
 }
 
 #[test]
+fn test_slice_i8() {
+    let program_string = include_str!("slice_i8.leo");
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_slice_lower() {
     let program_string = include_str!("slice_lower.leo");
     load_asg(program_string).unwrap();

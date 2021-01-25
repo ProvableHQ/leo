@@ -14,19 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
-};
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use leo_ast::IntegerType;
 use std::{
     cell::RefCell,
@@ -73,20 +61,20 @@ impl ExpressionNode for ArrayRangeAccessExpression {
             _ => return None,
         };
         let const_left = match self.left.as_ref().map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(ConstInt::U32(x)))) => x,
+            Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => 0,
             _ => return None,
         };
         let const_right = match self.right.as_ref().map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(ConstInt::U32(x)))) => x,
-            None => array_len as u32,
+            Some(Some(ConstValue::Int(x))) => x.to_usize()?,
+            None => array_len,
             _ => return None,
         };
-        if const_left > const_right || const_right as usize > array_len {
+        if const_left > const_right || const_right > array_len {
             return None;
         }
 
-        Some(Type::Array(element, (const_right - const_left) as usize))
+        Some(Type::Array(element, const_right - const_left))
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -99,22 +87,20 @@ impl ExpressionNode for ArrayRangeAccessExpression {
             _ => return None,
         };
         let const_left = match self.left.as_ref().map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(ConstInt::U32(x)))) => x,
+            Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => 0,
             _ => return None,
         };
         let const_right = match self.right.as_ref().map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(ConstInt::U32(x)))) => x,
-            None => array.len() as u32,
+            Some(Some(ConstValue::Int(x))) => x.to_usize()?,
+            None => array.len(),
             _ => return None,
         };
         if const_left > const_right || const_right as usize > array.len() {
             return None;
         }
 
-        Some(ConstValue::Array(
-            array.drain(const_left as usize..const_right as usize).collect(),
-        ))
+        Some(ConstValue::Array(array.drain(const_left..const_right).collect()))
     }
 }
 
@@ -154,12 +140,16 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
             left: value
                 .left
                 .as_deref()
-                .map(|left| Arc::<Expression>::from_ast(scope, left, Some(Type::Integer(IntegerType::U32).partial())))
+                .map(|left| {
+                    Arc::<Expression>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+                })
                 .transpose()?,
             right: value
                 .right
                 .as_deref()
-                .map(|right| Arc::<Expression>::from_ast(scope, right, Some(Type::Integer(IntegerType::U32).partial())))
+                .map(|right| {
+                    Arc::<Expression>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+                })
                 .transpose()?,
         })
     }
