@@ -84,6 +84,7 @@ fn main() -> Result<(), CLIError> {
             Updater::print_cli();
 
             help.print_help()?;
+            println!();
             Ok(())
         }
     }
