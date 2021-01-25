@@ -170,7 +170,7 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
-            Type::Array(sub_type, len) => write!(f, "{}[{}]", sub_type, len),
+            Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
             Type::Tuple(sub_types) => {
                 write!(f, "(")?;
                 for (i, sub_type) in sub_types.iter().enumerate() {
@@ -194,12 +194,13 @@ impl fmt::Display for PartialType {
             PartialType::Integer(_, Some(sub_type)) => write!(f, "<{}>", sub_type),
             PartialType::Integer(_, _) => write!(f, "integer"),
             PartialType::Array(sub_type, len) => {
+                write!(f, "[")?;
                 if let Some(sub_type) = sub_type {
                     write!(f, "{}", *sub_type)?;
                 } else {
                     write!(f, "?")?;
                 }
-                write!(f, "[")?;
+                write!(f, "; ")?;
                 if let Some(len) = len {
                     write!(f, "{}", len)?;
                 } else {
