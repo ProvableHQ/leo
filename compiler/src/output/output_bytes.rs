@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use leo_asg::Program;
 use leo_ast::{Parameter, Registers, Span};
 
 use snarkvm_models::curves::{Field, PrimeField};
@@ -31,6 +32,7 @@ impl OutputBytes {
     }
 
     pub fn new_from_constrained_value<F: Field + PrimeField, G: GroupType<F>>(
+        program: &Program,
         registers: &Registers,
         value: ConstrainedValue<F, G>,
         span: Span,
@@ -65,13 +67,13 @@ impl OutputBytes {
             let name = parameter.variable.name;
 
             // Check register type == return value type.
-            let register_type = parameter.type_;
+            let register_type = program.borrow().scope.borrow().resolve_ast_type(&parameter.type_)?;
             let return_value_type = value.to_type(&span)?;
 
-            if !register_type.eq_flat(&return_value_type) {
+            if !register_type.is_assignable_from(&return_value_type) {
                 return Err(OutputBytesError::mismatched_output_types(
-                    register_type,
-                    return_value_type,
+                    &register_type,
+                    &return_value_type,
                     span,
                 ));
             }
