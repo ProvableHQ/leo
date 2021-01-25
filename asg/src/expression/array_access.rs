@@ -14,19 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
-};
+use leo_ast::IntegerType;
+
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
@@ -76,13 +66,13 @@ impl ExpressionNode for ArrayAccessExpression {
             _ => return None,
         };
         let const_index = match self.index.const_value()? {
-            ConstValue::Int(ConstInt::U32(x)) => x,
+            ConstValue::Int(x) => x.to_usize()?,
             _ => return None,
         };
-        if const_index as usize >= array.len() {
+        if const_index >= array.len() {
             return None;
         }
-        Some(array.remove(const_index as usize))
+        Some(array.remove(const_index))
     }
 }
 
@@ -115,7 +105,7 @@ impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
             index: Arc::<Expression>::from_ast(
                 scope,
                 &*value.index,
-                Some(Type::Integer(leo_ast::IntegerType::U32).partial()),
+                Some(PartialType::Integer(None, Some(IntegerType::U32))),
             )?,
         })
     }

@@ -22,7 +22,7 @@ fn test_basic() {
     let asg = load_asg(program_string).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", reformed_ast);
-    panic!();
+    // panic!();
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn test_function_rename() {
     let asg = load_asg(program_string).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", reformed_ast);
-    panic!();
+    // panic!();
 }
 
 #[test]
@@ -84,5 +84,5 @@ fn test_imports() {
     let asg = crate::load_asg_imports(program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", serde_json::to_string(&reformed_ast).unwrap());
-    panic!();
+    // panic!();
 }

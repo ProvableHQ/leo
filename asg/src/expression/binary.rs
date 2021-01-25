@@ -127,7 +127,7 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                 }
             },
             BinaryOperationClass::Numeric => match expected_type {
-                Some(PartialType::Type(x @ Type::Integer(_))) => Some(x),
+                Some(x @ PartialType::Integer(_, _)) => Some(x),
                 Some(x) => {
                     return Err(AsgConvertError::unexpected_type(
                         &x.to_string(),
@@ -137,8 +137,7 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                 }
                 None => None,
             },
-        }
-        .map(Type::partial);
+        };
 
         // left
         let (left, right) = match Arc::<Expression>::from_ast(scope, &*value.left, expected_type.clone()) {
@@ -172,6 +171,7 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
         };
 
         let left_type = left.get_type();
+        #[allow(clippy::unused_unit)]
         match class {
             BinaryOperationClass::Numeric => match left_type {
                 Some(Type::Integer(_)) => (),
