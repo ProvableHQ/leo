@@ -102,11 +102,9 @@ impl PartialType {
     pub fn matches(&self, other: &Type) -> bool {
         match (self, other) {
             (PartialType::Type(t), other) => t.is_assignable_from(other),
-            (PartialType::Integer(self_sub_type, self_contextual_type), Type::Integer(sub_type)) => self_sub_type
-                .as_ref()
-                .or_else(|| self_contextual_type.as_ref())
-                .map(|x| x == sub_type)
-                .unwrap_or(true),
+            (PartialType::Integer(self_sub_type, _), Type::Integer(sub_type)) => {
+                self_sub_type.as_ref().map(|x| x == sub_type).unwrap_or(true)
+            }
             (PartialType::Array(element, len), Type::Array(other_element, other_len)) => {
                 if let Some(element) = element {
                     if !element.matches(&*other_element) {

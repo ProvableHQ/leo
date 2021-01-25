@@ -203,6 +203,10 @@ impl AsgConvertError {
         )
     }
 
+    pub fn unexpected_nonconst(span: &Span) -> Self {
+        Self::new_from_span("expected const, found non-const value".to_string(), span)
+    }
+
     pub fn unresolved_reference(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("failed to resolve variable reference '{}'", name), span)
     }

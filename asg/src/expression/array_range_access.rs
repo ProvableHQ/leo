@@ -133,24 +133,41 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
                 ));
             }
         }
+        let left = value
+            .left
+            .as_deref()
+            .map(|left| {
+                Arc::<Expression>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+            })
+            .transpose()?;
+        let right = value
+            .right
+            .as_deref()
+            .map(|right| {
+                Arc::<Expression>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+            })
+            .transpose()?;
+
+        if let Some(left) = left.as_ref() {
+            if left.const_value().is_none() {
+                return Err(AsgConvertError::unexpected_nonconst(
+                    &left.span().cloned().unwrap_or_default(),
+                ));
+            }
+        }
+        if let Some(right) = right.as_ref() {
+            if right.const_value().is_none() {
+                return Err(AsgConvertError::unexpected_nonconst(
+                    &right.span().cloned().unwrap_or_default(),
+                ));
+            }
+        }
         Ok(ArrayRangeAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            left: value
-                .left
-                .as_deref()
-                .map(|left| {
-                    Arc::<Expression>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
-                })
-                .transpose()?,
-            right: value
-                .right
-                .as_deref()
-                .map(|right| {
-                    Arc::<Expression>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
-                })
-                .transpose()?,
+            left,
+            right,
         })
     }
 }
