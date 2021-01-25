@@ -63,6 +63,33 @@ pub use leo_ast::{Identifier, Span};
 
 use std::path::Path;
 
+/// The abstract syntax graph (asg) for a Leo program.
+///
+/// The [`Asg`] type represents a Leo program as a series of recursive data types.
+/// These data types form a graph that begins from a [`Program`] type root.
+///
+/// A new [`Asg`] can be created from an [`Ast`] generated in the `ast` module.
+// TODO (protryon): please uncomment and mirror the implementation from Ast. This should be the only entrypoint called by the compiler module.
+// #[derive(Debug, Eq, PartialEq)]
+// pub struct Asg {
+//     asg: InnerProgram,
+// }
+//
+// impl Asg {
+//     /// Creates a new asg from a given ast tree and import resolver.
+//     pub fn new<T: ImportResolver + 'static>(
+//         content: leo_ast::Program,
+//         resolver: &mut T,
+//     ) -> Result<Program, AsgConvertError> {
+//         InnerProgram::new(&content, resolver)
+//     }
+//
+//     /// Returns a reference to the inner program ast representation.
+//     pub fn into_repr(self) -> Program {
+//         self.asg
+//     }
+// }
+
 pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<leo_ast::Program, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
     let ast = leo_grammar::Grammar::new(path.as_ref(), content.as_ref())
