@@ -28,6 +28,9 @@ pub enum ParserError {
     FileReadError(PathBuf),
 
     #[error("{}", _0)]
+    IoError(#[from] std::io::Error),
+
+    #[error("{}", _0)]
     JsonError(#[from] serde_json::error::Error),
 
     #[error("{}", _0)]
