@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::definitions::Deprecated;
-
 use crate::{Error as FormattedError, Span};
+use leo_grammar::{annotations::AnnotationName, definitions::Deprecated};
 
-use std::path::Path;
+use std::{convert::TryFrom, path::Path};
 
 #[derive(Debug, Error)]
 pub enum DeprecatedError {
@@ -42,9 +41,23 @@ impl<'ast> From<Deprecated<'ast>> for DeprecatedError {
     fn from(deprecated: Deprecated<'ast>) -> Self {
         match deprecated {
             Deprecated::TestFunction(test_function) => DeprecatedError::new_from_span(
-                "\"test function...\" is deprecated. Did you mean @test decorator?".to_string(),
+                "\"test function...\" is deprecated. Did you mean @test annotation?".to_string(),
                 Span::from(test_function.span.clone()),
             ),
+        }
+    }
+}
+
+impl<'ast> TryFrom<AnnotationName<'ast>> for DeprecatedError {
+    type Error = bool;
+
+    fn try_from(annotation_name: AnnotationName<'ast>) -> Result<Self, bool> {
+        match annotation_name {
+            AnnotationName::Context(context) => Ok(DeprecatedError::new_from_span(
+                "\"@context(...)\" is deprecated. Did you mean @test annotation?".to_string(),
+                Span::from(context.span.clone()),
+            )),
+            _ => Err(false),
         }
     }
 }

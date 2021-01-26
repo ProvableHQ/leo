@@ -526,10 +526,12 @@ annotation_symbol = ${"@"}
 
 // Declared in annotations/annotation_name.rs
 annotation_name = {
-    test
+    context // deprecated
+    | test
 }
 
 // Declared in annotations/annotation_name.rs
+context = {"context"}
 test = {"test"}
 
 // Declared in annotations/annotation_argument.rs

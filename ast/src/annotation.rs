@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
+use crate::{Circuit, DeprecatedError, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
 use leo_grammar::{
     annotations::{Annotation, AnnotationArguments, AnnotationName},
     definitions::{AnnotatedDefinition, Definition},
 };
+
+use std::convert::TryFrom;
 
 use indexmap::IndexMap;
 
@@ -29,14 +31,21 @@ pub fn load_annotation(
     _functions: &mut IndexMap<Identifier, Function>,
     tests: &mut IndexMap<Identifier, TestFunction>,
     _expected: &mut Vec<FunctionInput>,
-) {
+) -> Result<(), DeprecatedError> {
     let ast_annotation = annotated_definition.annotation;
     let ast_definition = *annotated_definition.definition;
 
     match ast_definition {
-        Definition::Import(_) => unimplemented!("annotated imports are not supported yet"),
-        Definition::Circuit(_) => unimplemented!("annotated circuits are not supported yet"),
+        Definition::Import(_) => {
+            unimplemented!("annotated imports are not supported yet");
+        }
+        Definition::Circuit(_) => {
+            unimplemented!("annotated circuits are not supported yet");
+        }
         Definition::Function(function) => match ast_annotation.name {
+            // If it's deprecated for more than one type of syntax,
+            // we could just call it before the match on ast_definition.
+            AnnotationName::Context(_) => Err(DeprecatedError::try_from(ast_annotation.name).unwrap()),
             AnnotationName::Test(_) => {
                 let ident = Identifier::from(function.identifier.clone());
                 _functions.remove(&ident);
@@ -46,10 +55,13 @@ pub fn load_annotation(
                 tests.insert(ident, test.clone());
 
                 load_annotated_test(test, ast_annotation, tests);
+                Ok(())
             }
         },
-        Definition::Deprecated(_) => {}
-        Definition::Annotated(_) => unimplemented!("nested annotations are not supported yet"),
+        Definition::Deprecated(_) => Ok(()),
+        Definition::Annotated(_) => {
+            unimplemented!("nested annotations are not supported yet");
+        }
     }
 }
 

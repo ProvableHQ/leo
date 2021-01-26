@@ -46,8 +46,10 @@ impl TestTypeInference {
         // Get parser syntax tree.
         let ast = Grammar::new(&file_path, program_string).unwrap();
 
+        let result = Ast::new(TEST_PROGRAM_NAME, &ast);
         // Get typed syntax tree.
-        let typed = Ast::new(TEST_PROGRAM_NAME, &ast);
+        // Always expect a valid SyntaxTree for testing.
+        let typed = result.unwrap();
         let program = typed.into_repr();
 
         // Create empty import parser.

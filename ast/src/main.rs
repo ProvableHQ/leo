@@ -27,12 +27,18 @@ fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
     let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parse the pest ast and constructs a ast.
-    let leo_ast = Ast::new("leo_tree", &ast);
+    let leo_ast_result = Ast::new("leo_tree", &ast);
 
-    // Serializes the tree into JSON format.
-    let serialized_leo_ast = Ast::to_json_string(&leo_ast)?;
+    match leo_ast_result {
+        Ok(leo_ast) => {
+            // Serializes the tree into JSON format.
+            let serialized_leo_ast = Ast::to_json_string(&leo_ast)?;
 
-    Ok(serialized_leo_ast)
+            Ok(serialized_leo_ast)
+        }
+        // How to deal with this?
+        Err(_) => Err(ParserError::SyntaxTreeError),
+    }
 }
 
 fn main() -> Result<(), ParserError> {

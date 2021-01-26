@@ -79,7 +79,7 @@ impl<'ast> Program {
                     Some(Err(DeprecatedError::from(deprecated)))
                 }
                 Definition::Annotated(annotated_definition) => {
-                    load_annotation(
+                    let loaded_annotation = load_annotation(
                         annotated_definition,
                         &mut imports,
                         &mut circuits,
@@ -88,7 +88,10 @@ impl<'ast> Program {
                         &mut expected_input,
                     );
 
-                    None
+                    match loaded_annotation {
+                        Ok(_) => None,
+                        Err(deprecated_err) => Some(Err(deprecated_err))
+                    }
                 }
             })
             .transpose()?;
