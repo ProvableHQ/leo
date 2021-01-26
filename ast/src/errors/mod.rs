@@ -19,3 +19,25 @@ pub use deprecated::*;
 
 pub mod error;
 pub use error::*;
+
+use error::Error as FormattedError;
+
+use leo_grammar::ParserError;
+
+#[derive(Debug, Error)]
+pub enum AstError {
+    #[error("{}", _0)]
+    DeprecatedError(#[from] DeprecatedError),
+
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
+
+    #[error("{}", _0)]
+    IoError(#[from] std::io::Error),
+
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
+
+    #[error("{}", _0)]
+    JsonError(#[from] serde_json::error::Error),
+}
