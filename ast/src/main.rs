@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
-use leo_grammar::{Grammar, ParserError};
+use leo_ast::{Ast, AstError};
+use leo_grammar::Grammar;
 use std::{env, fs, path::Path};
 
-fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
+fn to_leo_tree(filepath: &Path) -> Result<String, AstError> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
     let program_string = Grammar::load_file(&program_filepath)?;
@@ -27,21 +27,14 @@ fn to_leo_tree(filepath: &Path) -> Result<String, ParserError> {
     let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parse the pest ast and constructs a ast.
-    let leo_ast_result = Ast::new("leo_tree", &ast);
+    let leo_ast = Ast::new("leo_tree", &ast)?;
 
-    match leo_ast_result {
-        Ok(leo_ast) => {
-            // Serializes the tree into JSON format.
-            let serialized_leo_ast = Ast::to_json_string(&leo_ast)?;
+    let serialized_leo_ast = Ast::to_json_string(&leo_ast)?;
 
-            Ok(serialized_leo_ast)
-        }
-        // How to deal with this?
-        Err(_) => Err(ParserError::SyntaxTreeError),
-    }
+    Ok(serialized_leo_ast)
 }
 
-fn main() -> Result<(), ParserError> {
+fn main() -> Result<(), AstError> {
     // Parse the command-line arguments as strings.
     let cli_arguments = env::args().collect::<Vec<String>>();
 
