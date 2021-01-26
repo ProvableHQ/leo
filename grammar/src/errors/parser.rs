@@ -59,9 +59,3 @@ impl From<Error<Rule>> for ParserError {
         ParserError::SyntaxError(SyntaxError::from(error))
     }
 }
-
-impl From<std::io::Error> for ParserError {
-    fn from(error: std::io::Error) -> Self {
-        ParserError::Crate("std::io", error.to_string())
-    }
-}
