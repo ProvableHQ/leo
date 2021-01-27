@@ -22,7 +22,7 @@ use leo_ast::{
     Assignee,
     AssigneeAccess,
     Block,
-    CircuitVariableDefinition,
+    CircuitImpliedVariableDefinition,
     Expression,
     Function,
     Identifier,
@@ -877,7 +877,7 @@ impl Frame {
     fn parse_circuit(
         &mut self,
         identifier: &Identifier,
-        members: &[CircuitVariableDefinition],
+        members: &[CircuitImpliedVariableDefinition],
         span: &Span,
     ) -> Result<Type, FrameError> {
         // Check if identifier is Self circuit type.
@@ -904,10 +904,15 @@ impl Frame {
         // Assert members are circuit type member types.
         for (expected_variable, actual_variable) in circuit_type.variables.iter().zip(members) {
             // Parse actual variable expression.
-            let actual_type = self.parse_expression(&actual_variable.expression)?;
+            match &actual_variable.expression {
+                Some(expression) => {
+                    let actual_type = self.parse_expression(expression)?;
 
-            // Assert expected variable type == actual variable type.
-            self.assert_equal(expected_variable.type_.clone(), actual_type, span)
+                    // Assert expected variable type == actual variable type.
+                    self.assert_equal(expected_variable.type_.clone(), actual_type, span)
+                }
+                None => {}
+            }
         }
 
         Ok(Type::Circuit(circuit_type.identifier))

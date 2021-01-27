@@ -22,7 +22,7 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_ast::{CircuitMember, CircuitVariableDefinition, Identifier, Span};
+use leo_ast::{CircuitImpliedVariableDefinition, CircuitMember, Expression, Identifier, Span};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -36,7 +36,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         file_scope: &str,
         function_scope: &str,
         identifier: Identifier,
-        members: Vec<CircuitVariableDefinition>,
+        members: Vec<CircuitImpliedVariableDefinition>,
         span: Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Circuit definitions are located at the minimum file scope
@@ -64,14 +64,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         .into_iter()
                         .find(|variable| variable.identifier.eq(&identifier));
                     match matched_variable {
-                        Some(variable) => {
+                        Some(variable) if variable.expression.is_some() => {
                             // Resolve and enforce circuit variable
                             let variable_value = self.enforce_expression(
                                 cs,
                                 file_scope,
                                 function_scope,
                                 Some(type_.clone()),
-                                variable.expression,
+                                variable.expression.unwrap(),
+                            )?;
+
+                            resolved_members.push(ConstrainedCircuitMember(identifier, variable_value))
+                        }
+                        Some(variable) => {
+                            let variable_value = self.enforce_expression(
+                                cs,
+                                file_scope,
+                                function_scope,
+                                Some(type_.clone()),
+                                Expression::from(variable.identifier),
                             )?;
 
                             resolved_members.push(ConstrainedCircuitMember(identifier, variable_value))

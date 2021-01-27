@@ -322,6 +322,12 @@ circuit = { "circuit " ~ identifier ~ "{" ~ circuit_member* ~ "}" }
 // Declared in circuits/circuit_variable.rs
 circuit_variable = { identifier ~ ":" ~ expression }
 
+// Declared in circuits/circuit_implied_variable.rs
+circuit_implied_variable = {
+    circuit_variable
+    | identifier
+}
+
 // Declared in circuits/circuit_variable_definition.rs
 circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
@@ -371,7 +377,7 @@ circuit_name = {
 }
 
 // Declared in expressions/circuit_inline_expression.rs
-circuit_variable_list = _{ (circuit_variable ~ ("," ~ circuit_variable)*)? ~ ","? }
+circuit_variable_list = _{ (circuit_implied_variable ~ ("," ~ circuit_implied_variable)*)? ~ ","? }
 
 // Declared in expressions/unary_expression.rs
 expression_unary = { operation_unary ~ expression_term }

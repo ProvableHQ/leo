@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod circuit;
-pub use circuit::*;
+use crate::{ast::Rule, circuits::CircuitVariable, common::Identifier};
 
-pub mod circuit_implied_variable;
-pub use circuit_implied_variable::*;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod circuit_variable;
-pub use circuit_variable::*;
-
-pub mod circuit_variable_definition;
-pub use circuit_variable_definition::*;
-
-pub mod circuit_member;
-pub use circuit_member::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::circuit_implied_variable))]
+pub enum CircuitImpliedVariable<'ast> {
+    CircuitVariable(CircuitVariable<'ast>),
+    Identifier(Identifier<'ast>),
+}

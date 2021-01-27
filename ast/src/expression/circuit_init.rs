@@ -19,7 +19,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitInitExpression {
     pub name: Identifier,
-    pub members: Vec<CircuitVariableDefinition>,
+    pub members: Vec<CircuitImpliedVariableDefinition>,
     pub span: Span,
 }
 
@@ -27,7 +27,11 @@ impl fmt::Display for CircuitInitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{", self.name)?;
         for (i, member) in self.members.iter().enumerate() {
-            write!(f, "{}: {}", member.identifier, member.expression)?;
+            match &member.expression {
+                Some(expression) => write!(f, "{}: {}", member.identifier, expression)?,
+                None => write!(f, "{}", member.identifier)?,
+            };
+
             if i < self.members.len() - 1 {
                 write!(f, ", ")?;
             }
