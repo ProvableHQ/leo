@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
 #[cfg(not(feature = "ci_skip"))]
-use leo_ast::{AstError, Program};
+use leo_ast::Program;
+use leo_ast::{Ast, AstError};
 use leo_grammar::{Grammar, ParserError};
 
 use std::path::{Path, PathBuf};
@@ -94,7 +94,6 @@ fn test_serialize_deserialize_serialize() {
 
 #[test]
 fn test_file_read_error() {
-    // Construct an ast from the given test file.
     let error_result = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/dne.leo");
@@ -108,7 +107,6 @@ fn test_file_read_error() {
 
 #[test]
 fn test_generic_parser_error() {
-    // Construct an ast from the given test file.
     let error_result = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/parser_error.leo");
