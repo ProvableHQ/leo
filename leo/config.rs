@@ -146,3 +146,8 @@ pub fn read_token() -> Result<String, io::Error> {
     credentials.read_to_string(&mut buf)?;
     Ok(buf)
 }
+
+pub fn remove_token() -> Result<(), io::Error> {
+    fs::remove_file(&LEO_CREDENTIALS_PATH.to_path_buf())?;
+    Ok(())
+}
