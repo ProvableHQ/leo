@@ -35,6 +35,9 @@ pub use self::lint::*;
 pub mod login;
 pub use self::login::*;
 
+pub mod logout;
+pub use self::logout::*;
+
 pub mod new;
 pub use self::new::*;
 
