@@ -75,6 +75,10 @@ impl ExpressionNode for UnaryExpression {
             None
         }
     }
+
+    fn is_consty(&self) -> bool {
+        self.inner.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {

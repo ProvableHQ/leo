@@ -70,6 +70,10 @@ impl ExpressionNode for TupleInitExpression {
         }
         Some(ConstValue::Tuple(consts))
     }
+
+    fn is_consty(&self) -> bool {
+        self.elements.iter().all(|x| x.is_consty())
+    }
 }
 
 impl FromAst<leo_ast::TupleInitExpression> for TupleInitExpression {

@@ -74,6 +74,10 @@ impl ExpressionNode for ArrayAccessExpression {
         }
         Some(array.remove(const_index))
     }
+
+    fn is_consty(&self) -> bool {
+        self.array.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
@@ -98,15 +102,23 @@ impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
             }
         }
 
+        let index = Arc::<Expression>::from_ast(
+            scope,
+            &*value.index,
+            Some(PartialType::Integer(None, Some(IntegerType::U32))),
+        )?;
+
+        if !index.is_consty() {
+            return Err(AsgConvertError::unexpected_nonconst(
+                &index.span().cloned().unwrap_or_default(),
+            ));
+        }
+
         Ok(ArrayAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            index: Arc::<Expression>::from_ast(
-                scope,
-                &*value.index,
-                Some(PartialType::Integer(None, Some(IntegerType::U32))),
-            )?,
+            index,
         })
     }
 }

@@ -104,6 +104,10 @@ impl ExpressionNode for CircuitAccessExpression {
     fn const_value(&self) -> Option<ConstValue> {
         None
     }
+
+    fn is_consty(&self) -> bool {
+        self.target.as_ref().map(|x| x.is_consty()).unwrap_or(true)
+    }
 }
 
 impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression {

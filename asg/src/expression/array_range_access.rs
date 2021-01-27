@@ -102,6 +102,10 @@ impl ExpressionNode for ArrayRangeAccessExpression {
 
         Some(ConstValue::Array(array.drain(const_left..const_right).collect()))
     }
+
+    fn is_consty(&self) -> bool {
+        self.array.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression {
@@ -149,14 +153,14 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
             .transpose()?;
 
         if let Some(left) = left.as_ref() {
-            if left.const_value().is_none() {
+            if !left.is_consty() {
                 return Err(AsgConvertError::unexpected_nonconst(
                     &left.span().cloned().unwrap_or_default(),
                 ));
             }
         }
         if let Some(right) = right.as_ref() {
-            if right.const_value().is_none() {
+            if !right.is_consty() {
                 return Err(AsgConvertError::unexpected_nonconst(
                     &right.span().cloned().unwrap_or_default(),
                 ));

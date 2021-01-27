@@ -98,6 +98,40 @@ impl ExpressionNode for VariableRef {
             _ => None, //todo unroll loops during asg phase
         }
     }
+
+    fn is_consty(&self) -> bool {
+        let variable = self.variable.borrow();
+        if variable.mutable || variable.assignments.len() != 1 {
+            return false;
+        }
+        let assignment = variable
+            .assignments
+            .get(0)
+            .unwrap()
+            .upgrade()
+            .expect("stale assignment for variable");
+
+        match &*assignment {
+            Statement::Definition(DefinitionStatement { variables, value, .. }) => {
+                if variables.len() == 1 {
+                    let defined_variable = variables.get(0).unwrap().borrow();
+                    assert_eq!(variable.id, defined_variable.id);
+
+                    value.is_consty()
+                } else {
+                    for defined_variable in variables.iter() {
+                        let defined_variable = defined_variable.borrow();
+                        if defined_variable.id == variable.id {
+                            return value.is_consty();
+                        }
+                    }
+                    panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
+                }
+            },
+            Statement::Iteration(_) => true,
+            _ => false
+        }
+    }
 }
 
 impl FromAst<leo_ast::Identifier> for Arc<Expression> {

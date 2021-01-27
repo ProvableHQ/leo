@@ -106,6 +106,10 @@ impl ExpressionNode for BinaryExpression {
             }),
         }
     }
+
+    fn is_consty(&self) -> bool {
+        self.left.is_consty() && self.right.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {

@@ -91,6 +91,10 @@ impl ExpressionNode for ArrayInlineExpression {
         }
         Some(ConstValue::Array(const_values))
     }
+
+    fn is_consty(&self) -> bool {
+        self.elements.iter().all(|x| x.0.is_consty())
+    }
 }
 
 impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {

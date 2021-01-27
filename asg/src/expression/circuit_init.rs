@@ -74,6 +74,10 @@ impl ExpressionNode for CircuitInitExpression {
     fn const_value(&self) -> Option<ConstValue> {
         None
     }
+
+    fn is_consty(&self) -> bool {
+        self.values.iter().all(|(_, value)| value.is_consty())
+    }
 }
 
 impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {

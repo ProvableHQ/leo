@@ -67,6 +67,10 @@ impl ExpressionNode for Constant {
     fn const_value(&self) -> Option<ConstValue> {
         Some(self.value.clone())
     }
+
+    fn is_consty(&self) -> bool {
+        true
+    }
 }
 
 impl FromAst<leo_ast::ValueExpression> for Constant {
