@@ -31,7 +31,8 @@ use snarkvm_models::{
 
 pub struct Blake2s;
 
-fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
+fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(mut arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
+    arg.get_inner_mut();
     if let ConstrainedValue::Array(args) = arg {
         assert_eq!(args.len(), 32); // asg enforced
         args.into_iter()
