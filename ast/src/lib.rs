@@ -76,7 +76,7 @@ pub struct Ast {
 
 impl Ast {
     /// Creates a new ast from a given program name and grammar tree.
-    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Result<Self, DeprecatedError> {
+    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Result<Self, AstError> {
         Ok(Self {
             ast: Program::from(program_name, ast.as_repr())?,
         })
