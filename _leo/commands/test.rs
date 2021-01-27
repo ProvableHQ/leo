@@ -36,19 +36,30 @@ use std::{convert::TryFrom, env::current_dir, time::Instant};
 pub struct TestCommand;
 
 impl CLI for TestCommand {
-    type Options = ();
+    type Options = (Vec<String>);
     type Output = ();
 
     const ABOUT: AboutType = "Compile and run all tests in the current package";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
+    const ARGUMENTS: &'static [ArgumentType] = &[
+        (
+            "--file",
+            "Sets file",
+            &[],
+            false,
+            1u64
+        )
+    ];
+    const FLAGS: &'static [FlagType] = &[("--file")];
     const NAME: NameType = "test";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+
+        println!("{:?}", arguments);
+
+        Ok((Vec::new()))
     }
 
     #[cfg_attr(tarpaulin, skip)]
@@ -92,11 +103,27 @@ impl CLI for TestCommand {
         let start = Instant::now();
 
         // Parse the current main program file
-        let program =
-            Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(package_name, file_path, output_directory)?;
+        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
+            package_name,
+            file_path,
+            output_directory
+        )?;
 
         // Parse all inputs as input pairs
-        let pairs = InputPairs::try_from(package_path.as_path())?;
+        let pairs = match InputPairs::try_from(package_path.as_path()) {
+            Ok(pairs)  => pairs,
+            Err(err) => {
+                match err {
+                    _ => {
+                        // tracing::warn!("Could not find inputs, if it is intentional - ignore \
+                        //                 or use -i or --inputs option to specify inputs directory");
+
+                        tracing::warn!("Unable to find inputs, ignore this message or put them into /inputs folder");
+                        InputPairs::new()
+                    }
+                }
+            }
+        };
 
         // Run tests
         let temporary_program = program;

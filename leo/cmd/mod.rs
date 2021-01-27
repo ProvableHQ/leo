@@ -14,8 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-extern crate structopt;
+use crate::context::{get_context, Context};
+use anyhow::Result;
 
-pub mod api;
-pub mod cmd;
-pub mod context;
+pub mod add;
+pub mod clean;
+pub mod init;
+pub mod lint;
+pub mod new;
+
+/// Leo command
+pub trait Cmd {
+    /// Returns project context.
+    fn context(&self) -> Result<Context> {
+        get_context()
+    }
+
+    /// Apply command with given context.
+    fn apply(self, ctx: Context) -> Result<()>
+    where
+        Self: std::marker::Sized;
+
+    /// Functions create execution context and apply command with it.
+    fn execute(self) -> Result<()>
+    where
+        Self: std::marker::Sized,
+    {
+        let context = self.context()?;
+        self.apply(context)
+    }
+}

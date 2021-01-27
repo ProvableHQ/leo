@@ -19,11 +19,22 @@ use crate::{cli_types::*, errors::CLIError, logger, updater::Updater};
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 
 pub trait CLI {
+
+    /// Command line options for command
     type Options;
+
+    /// Define custom output type for the command
     type Output;
 
     const ABOUT: AboutType;
+
+    /// Array of tuples of kind:
+    ///  (name, description, possible_values, required, index)
+    /// Holds named arguments for CLI (e.g. --name value)
+    /// Should not be mistaken for FLAGS
     const ARGUMENTS: &'static [ArgumentType];
+
+    /// 
     const FLAGS: &'static [FlagType];
     const NAME: NameType;
     const OPTIONS: &'static [OptionType];

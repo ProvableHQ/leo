@@ -14,8 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-extern crate structopt;
+#[macro_use]
+extern crate thiserror;
 
-pub mod api;
-pub mod cmd;
-pub mod context;
+pub mod cli;
+pub mod cli_types;
+pub mod commands;
+#[cfg_attr(tarpaulin, skip)]
+pub mod config;
+pub mod errors;
+pub mod logger;
+pub mod synthesizer;
+pub mod updater;

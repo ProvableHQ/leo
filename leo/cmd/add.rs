@@ -14,8 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-extern crate structopt;
+use crate::cmd::Cmd;
+use crate::context::{create_context, Context};
+use anyhow::Error;
+use structopt::StructOpt;
 
-pub mod api;
-pub mod cmd;
-pub mod context;
+/// Add package from Aleo Package Manager
+#[derive(StructOpt, Debug)]
+pub struct Add {}
+
+impl Add {
+    pub fn new() -> Add {
+        Add {}
+    }
+}
+
+impl Cmd for Add {
+    fn context(&self) -> Result<Context, Error> {
+        create_context()
+    }
+
+    /// TODO: add package fetching logic here
+    fn apply(self, ctx: Context) -> Result<(), Error> {
+        match ctx.api.fetch("ray".to_string(), "hello-world".to_string(), None, None) {
+            Ok(res) => println!("{:?}", res),
+            Err(err) => println!("{:?}", err),
+        };
+
+        Ok(())
+    }
+}

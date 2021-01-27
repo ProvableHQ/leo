@@ -14,80 +14,72 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_lang::{cli::*, commands::*, errors::CLIError, logger, updater::Updater};
+pub mod api;
+pub mod cmd;
+pub mod context;
 
-use clap::{App, AppSettings, Arg};
+use anyhow::Error;
+use std::process::exit;
+use structopt::StructOpt;
 
-#[cfg_attr(tarpaulin, skip)]
-fn main() -> Result<(), CLIError> {
-    let app = App::new("leo")
-        .version(include_str!("./leo-version"))
-        .about("Leo compiler and package manager")
-        .author("The Aleo Team <hello@aleo.org>")
-        .settings(&[
-            AppSettings::ColoredHelp,
-            AppSettings::DisableHelpSubcommand,
-            AppSettings::DisableVersion,
-        ])
-        .args(&[Arg::with_name("debug")
-            .short("d")
-            .long("debug")
-            .help("Enables debugging mode")
-            .global(true)])
-        .subcommands(vec![
-            NewCommand::new().display_order(0),
-            InitCommand::new().display_order(1),
-            BuildCommand::new().display_order(2),
-            WatchCommand::new().display_order(3),
-            TestCommand::new().display_order(4),
-            SetupCommand::new().display_order(5),
-            ProveCommand::new().display_order(6),
-            RunCommand::new().display_order(7),
-            LoginCommand::new().display_order(8),
-            AddCommand::new().display_order(9),
-            RemoveCommand::new().display_order(10),
-            PublishCommand::new().display_order(11),
-            DeployCommand::new().display_order(12),
-            CleanCommand::new().display_order(13),
-            LintCommand::new().display_order(14),
-            UpdateCommand::new().display_order(15),
-            LogoutCommand::new().display_order(16),
-        ])
-        .set_term_width(0);
+use cmd::add::Add;
+use cmd::clean::Clean;
+use cmd::init::Init;
+use cmd::lint::Lint;
+use cmd::new::New;
+use cmd::Cmd;
 
-    let mut help = app.clone();
-    let arguments = app.get_matches();
+#[derive(StructOpt, Debug)]
+enum Opt {
+    #[structopt(about = "Init Leo project command in current directory")]
+    Init {
+        #[structopt(flatten)]
+        cmd: Init,
+    },
 
-    match arguments.subcommand() {
-        ("new", Some(arguments)) => NewCommand::process(arguments),
-        ("init", Some(arguments)) => InitCommand::process(arguments),
-        ("build", Some(arguments)) => BuildCommand::process(arguments),
-        ("watch", Some(arguments)) => WatchCommand::process(arguments),
-        ("test", Some(arguments)) => TestCommand::process(arguments),
-        ("setup", Some(arguments)) => SetupCommand::process(arguments),
-        ("prove", Some(arguments)) => ProveCommand::process(arguments),
-        ("run", Some(arguments)) => RunCommand::process(arguments),
-        ("login", Some(arguments)) => LoginCommand::process(arguments),
-        ("add", Some(arguments)) => AddCommand::process(arguments),
-        ("remove", Some(arguments)) => RemoveCommand::process(arguments),
-        ("publish", Some(arguments)) => PublishCommand::process(arguments),
-        ("deploy", Some(arguments)) => DeployCommand::process(arguments),
-        ("clean", Some(arguments)) => CleanCommand::process(arguments),
-        ("lint", Some(arguments)) => LintCommand::process(arguments),
-        ("update", Some(arguments)) => UpdateCommand::process(arguments),
-        ("logout", Some(arguments)) => LogoutCommand::process(arguments),
-        _ => {
-            // Set logging environment
-            match arguments.is_present("debug") {
-                true => logger::init_logger("leo", 2),
-                false => logger::init_logger("leo", 1),
-            }
+    #[structopt(about = "Create Leo project in new directory")]
+    New {
+        #[structopt(flatten)]
+        cmd: New,
+    },
 
-            Updater::print_cli();
+    #[structopt(about = "Import package from Aleo PM")]
+    Add {
+        #[structopt(flatten)]
+        cmd: Add,
+    },
 
-            help.print_help()?;
-            println!();
-            Ok(())
+    #[structopt(about = "Clean current package: remove proof and circuits")]
+    Clean {
+        #[structopt(flatten)]
+        cmd: Clean,
+    },
+
+    #[structopt(about = "Lint package code (not implemented)")]
+    Lint {
+        #[structopt(flatten)]
+        cmd: Lint,
+    },
+}
+
+fn main() {
+    let matches = Opt::from_args();
+
+    handle_error(match matches {
+        Opt::Init { cmd } => cmd.execute(),
+        Opt::New { cmd } => cmd.execute(),
+        Opt::Add { cmd } => cmd.execute(),
+        Opt::Clean { cmd } => cmd.execute(),
+        Opt::Lint { cmd } => cmd.execute(),
+    });
+}
+
+fn handle_error<T>(res: Result<T, Error>) -> T {
+    match res {
+        Ok(t) => t,
+        Err(err) => {
+            eprintln!("error: {:?}", err);
+            exit(1);
         }
     }
 }

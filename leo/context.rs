@@ -14,8 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-extern crate structopt;
+use crate::api::Api;
+use anyhow::Result;
 
-pub mod api;
-pub mod cmd;
-pub mod context;
+pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
+
+/// Project context, manifest, current directory etc
+/// All the info that is relevant in most of the commands
+pub struct Context {
+    // will contain manifest
+    pub api: Api,
+}
+
+impl Context {}
+
+/// Create a new context for the current directory.
+pub fn create_context() -> Result<Context> {
+    Ok(Context {
+        api: Api::new(PACKAGE_MANAGER_URL.to_string()),
+    })
+}
+
+/// Returns project context.
+pub fn get_context() -> Result<Context> {
+    Ok(Context {
+        api: Api::new(PACKAGE_MANAGER_URL.to_string()),
+    })
+}

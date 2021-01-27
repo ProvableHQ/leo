@@ -14,8 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-extern crate structopt;
+use crate::cmd::Cmd;
+use crate::context::{create_context, Context};
+use anyhow::Error;
+use structopt::StructOpt;
 
-pub mod api;
-pub mod cmd;
-pub mod context;
+/// Lint Leo code command
+#[derive(StructOpt, Debug)]
+pub struct Lint {}
+
+impl Lint {
+    pub fn new() -> Lint {
+        Lint {}
+    }
+}
+
+impl Cmd for Lint {
+    fn apply(self, _: Context) -> Result<(), Error> {
+        eprintln!("Not implemented!");
+
+        Ok(())
+    }
+}
