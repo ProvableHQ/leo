@@ -96,10 +96,7 @@ impl Command for Add {
             return Err(anyhow!("Package manifest not found, try running `leo init`"));
         };
 
-        let (author, package_name) = match self.try_read_arguments() {
-            Ok((author, package)) => (author, package),
-            Err(err) => return Err(err),
-        };
+        let (author, package_name) = self.try_read_arguments()?;
 
         // Attempt to fetch the package.
         let reader = {

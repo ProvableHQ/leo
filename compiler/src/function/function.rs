@@ -34,11 +34,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
-        let target_value = if let Some(target) = target {
-            Some(self.enforce_expression(cs, target)?)
-        } else {
-            None
-        };
+        let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
             let self_var = function

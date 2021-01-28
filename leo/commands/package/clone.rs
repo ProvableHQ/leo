@@ -105,10 +105,7 @@ impl Command for Clone {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let (author, package_name) = match self.try_read_arguments() {
-            Ok((author, package)) => (author, package),
-            Err(err) => return Err(err),
-        };
+        let (author, package_name) = self.try_read_arguments()?;
 
         // Attempt to fetch the package.
         let reader = {

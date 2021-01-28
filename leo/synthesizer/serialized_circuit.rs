@@ -174,11 +174,11 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
         }
 
         Ok(CircuitSynthesizer::<Bls12_377> {
-            input_assignment,
-            aux_assignment,
             at,
             bt,
             ct,
+            input_assignment,
+            aux_assignment,
         })
     }
 }
