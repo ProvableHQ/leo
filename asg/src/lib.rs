@@ -17,47 +17,47 @@
 #[macro_use]
 extern crate thiserror;
 
-pub mod node;
-pub use node::*;
-
-pub mod type_;
-pub use type_::*;
-
-pub mod program;
-pub use program::*;
-
-pub mod expression;
-pub use expression::*;
-
-pub mod statement;
-pub use statement::*;
-
-pub mod variable;
-pub use variable::*;
-
-pub mod scope;
-pub use scope::*;
-
-pub mod error;
-pub use error::*;
-
-pub mod import;
-pub use import::*;
+pub mod checks;
+pub use checks::*;
 
 pub mod const_value;
 pub use const_value::*;
 
+pub mod error;
+pub use error::*;
+
+pub mod expression;
+pub use expression::*;
+
+pub mod import;
+pub use import::*;
+
 mod input;
 pub use input::*;
+
+pub mod node;
+pub use node::*;
 
 pub mod prelude;
 pub use prelude::*;
 
+pub mod program;
+pub use program::*;
+
 pub mod reducer;
 pub use reducer::*;
 
-pub mod checks;
-pub use checks::*;
+pub mod scope;
+pub use scope::*;
+
+pub mod statement;
+pub use statement::*;
+
+pub mod type_;
+pub use type_::*;
+
+pub mod variable;
+pub use variable::*;
 
 pub use leo_ast::{Identifier, Span};
 

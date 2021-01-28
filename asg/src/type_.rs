@@ -16,6 +16,7 @@
 
 use crate::Circuit;
 pub use leo_ast::IntegerType;
+
 use std::{
     fmt,
     sync::{Arc, Weak},

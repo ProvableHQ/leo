@@ -16,6 +16,7 @@
 
 use crate::{Expression, Statement, Type};
 use leo_ast::Identifier;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

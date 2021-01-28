@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, IntegerType, Span, Type};
+
 use num_bigint::BigInt;
 use std::{convert::TryInto, fmt};
 

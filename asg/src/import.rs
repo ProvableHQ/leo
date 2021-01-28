@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, Program, Span};
+
 use indexmap::IndexMap;
 
 pub trait ImportResolver {

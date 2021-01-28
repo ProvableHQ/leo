@@ -34,6 +34,7 @@ use crate::{
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
+
 use std::sync::{Arc, Weak};
 
 pub enum AssignAccess {

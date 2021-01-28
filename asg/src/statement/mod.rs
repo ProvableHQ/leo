@@ -14,24 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod return_;
-pub use return_::*;
-mod definition;
-pub use definition::*;
 mod assign;
 pub use assign::*;
-mod conditional;
-pub use conditional::*;
-mod iteration;
-pub use iteration::*;
-mod console;
-pub use console::*;
-mod expression;
-pub use expression::*;
+
 mod block;
 pub use block::*;
 
+mod conditional;
+pub use conditional::*;
+
+mod console;
+pub use console::*;
+
+mod definition;
+pub use definition::*;
+
+mod expression;
+pub use expression::*;
+
+mod iteration;
+pub use iteration::*;
+
+mod return_;
+pub use return_::*;
+
 use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
+
 use std::sync::Arc;
 
 pub enum Statement {

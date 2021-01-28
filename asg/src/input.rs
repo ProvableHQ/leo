@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, CircuitBody, CircuitMember, CircuitMemberBody, Identifier, Scope, Type, Variable, WeakType};
+
 use indexmap::IndexMap;
 use std::{
     cell::RefCell,

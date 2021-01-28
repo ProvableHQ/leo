@@ -14,36 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod variable_ref;
-pub use variable_ref::*;
-mod constant;
-pub use constant::*;
-mod binary;
-pub use binary::*;
-mod unary;
-pub use unary::*;
-mod ternary;
-pub use ternary::*;
-mod array_inline;
-pub use array_inline::*;
-mod array_init;
-pub use array_init::*;
 mod array_access;
 pub use array_access::*;
+
+mod array_inline;
+pub use array_inline::*;
+
+mod array_init;
+pub use array_init::*;
+
 mod array_range_access;
 pub use array_range_access::*;
-mod tuple_init;
-pub use tuple_init::*;
-mod tuple_access;
-pub use tuple_access::*;
-mod circuit_init;
-pub use circuit_init::*;
-mod circuit_access;
-pub use circuit_access::*;
+
+mod binary;
+pub use binary::*;
+
 mod call;
 pub use call::*;
 
+mod circuit_access;
+pub use circuit_access::*;
+
+mod circuit_init;
+pub use circuit_init::*;
+
+mod constant;
+pub use constant::*;
+
+mod ternary;
+pub use ternary::*;
+
+mod tuple_access;
+pub use tuple_access::*;
+
+mod tuple_init;
+pub use tuple_init::*;
+
+mod unary;
+pub use unary::*;
+
+mod variable_ref;
+pub use variable_ref::*;
+
 use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
+
 use std::sync::{Arc, Weak};
 
 pub enum Expression {

@@ -16,6 +16,7 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 pub use leo_ast::UnaryOperation;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

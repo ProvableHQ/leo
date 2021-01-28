@@ -22,12 +22,15 @@ use leo_grammar::ParserError;
 pub enum AsgConvertError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
+
     #[error("{}", _0)]
     ImportError(FormattedError),
-    #[error("{}", _0)]
-    ParserError(#[from] ParserError),
+
     #[error("{}", _0)]
     InternalError(String),
+
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
 }
 
 impl AsgConvertError {

@@ -16,6 +16,7 @@
 
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
+
 use std::sync::{Arc, Weak};
 
 //todo: refactor to not require/depend on span

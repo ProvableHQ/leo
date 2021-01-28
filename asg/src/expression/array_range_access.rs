@@ -28,6 +28,7 @@ use crate::{
     Type,
 };
 use leo_ast::IntegerType;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
