@@ -17,27 +17,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Leo
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --path .
+#      - name: Install Rust
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt
+#
+#      - uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.cargo/registry
+#            ~/.cargo/git
+#            target
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#
+#      - name: Install Leo
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: install
+#          args: --path .
 
       - name: Load the 'leo-fuzzer' deploy key
         run: |
@@ -54,4 +54,4 @@ jobs:
 
       - name: Run 'leo-fuzzer'
         run: |
-          leo-fuzzer run --no-update --no-load --random 10 --r-times 5 --mode random --loop 1
+          cd .. && leo-fuzzer run --no-update --no-load --random 10 --r-times 5 --mode random --loop 1
