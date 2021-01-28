@@ -20,29 +20,50 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use indexmap::IndexMap;
-
 use crate::{AsgConvertError, ImportResolver, InnerScope, Input, Scope};
 use leo_ast::{Identifier, Package, PackageAccess, Span};
+
+use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
+/// Stores the Leo program abstract syntax graph (asg).
 #[derive(Clone)]
 pub struct InnerProgram {
+    /// The unique id of the program.
     pub id: Uuid,
+
+    /// The program file name.
     pub name: String,
-    pub imported_modules: IndexMap<String, Program>, // these should generally not be accessed directly, but through scoped imports
+
+    /// The packages imported by this program.
+    /// these should generally not be accessed directly, but through scoped imports
+    pub imported_modules: IndexMap<String, Program>,
+
+    /// Maps test name => test code block.
     pub test_functions: IndexMap<String, (Arc<FunctionBody>, Option<Identifier>)>, // identifier = test input file
+
+    /// Maps function name => function code block.
     pub functions: IndexMap<String, Arc<FunctionBody>>,
+
+    /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, Arc<CircuitBody>>,
+
+    /// Bindings for names and additional program context.
     pub scope: Scope,
 }
 
 pub type Program = Arc<RefCell<InnerProgram>>;
 
+/// Enumerates what names are imported from a package.
 enum ImportSymbol {
+    /// Import the symbol by name.
     Direct(String),
+
+    /// Import the symbol by name and store it under an alias.
     Alias(String, String), // from remote -> to local
+
+    /// Import all symbols from the package.
     All,
 }
 
@@ -86,31 +107,33 @@ fn resolve_import_package_access(
 }
 
 impl InnerProgram {
-    /*
-    stages:
-    1. resolve imports into super scope
-    2. finalize declared types
-    3. finalize declared functions
-    4. resolve all asg nodes
-    */
+    /// Returns a new Leo program asg from the given Leo program ast and imports.
+    ///
+    /// stages:
+    /// 1. resolve imports into super scope
+    /// 2. finalize declared types
+    /// 3. finalize declared functions
+    /// 4. resolve all asg nodes
+    ///
     pub fn new<T: ImportResolver + 'static>(
         value: &leo_ast::Program,
         import_resolver: &mut T,
     ) -> Result<Program, AsgConvertError> {
-        // recursively extract our imported symbols
+        // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import in value.imports.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import.package);
         }
 
-        // package list
+        // Create package list.
         let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
         for (package, _symbol, span) in imported_symbols.iter() {
             deduplicated_imports.insert(package.clone(), span.clone());
         }
 
         let mut wrapped_resolver = crate::CoreImportResolver(import_resolver);
-        // load imported programs
+
+        // Load imported programs.
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, span) in deduplicated_imports.iter() {
             let pretty_package = package.join(".");
@@ -127,7 +150,7 @@ impl InnerProgram {
         let mut imported_functions: IndexMap<String, Arc<FunctionBody>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, Arc<CircuitBody>> = IndexMap::new();
 
-        // prepare locally relevant scope of imports
+        // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
             let pretty_package = package.join(".");
 
@@ -184,7 +207,7 @@ impl InnerProgram {
             input: None,
         }));
 
-        // prepare header-like scope entries
+        // Prepare header-like scope entries.
         let mut proto_circuits = IndexMap::new();
         for (name, circuit) in value.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
@@ -221,6 +244,7 @@ impl InnerProgram {
 
             proto_test_functions.insert(name.name.clone(), function);
         }
+
         let mut proto_functions = IndexMap::new();
         for (name, function) in value.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
@@ -233,7 +257,7 @@ impl InnerProgram {
             proto_functions.insert(name.name.clone(), asg_function);
         }
 
-        // load concrete definitions
+        // Load concrete definitions.
         let mut test_functions = IndexMap::new();
         for (name, test_function) in value.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
@@ -248,6 +272,7 @@ impl InnerProgram {
 
             test_functions.insert(name.name.clone(), (body, test_function.input_file.clone()));
         }
+
         let mut functions = IndexMap::new();
         for (name, function) in value.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
@@ -258,6 +283,7 @@ impl InnerProgram {
 
             functions.insert(name.name.clone(), body);
         }
+
         let mut circuits = IndexMap::new();
         for (name, circuit) in value.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
@@ -302,7 +328,7 @@ impl Iterator for InternalIdentifierGenerator {
         Some(out)
     }
 }
-
+/// TODO (protryon): Please add comments
 pub fn reform_ast(program: &Program) -> leo_ast::Program {
     let mut all_programs: IndexMap<String, Program> = IndexMap::new();
     let mut program_stack = program.borrow().imported_modules.clone();
