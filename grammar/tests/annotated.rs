@@ -14,31 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, SpanDef};
+use leo_grammar::ast::{LanguageParser, Rule};
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use pest::*;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::annotation_name))]
-pub enum AnnotationName<'ast> {
-    Context(Context<'ast>),
-    Test(Test<'ast>),
+#[test]
+fn test_annotation_no_context_test() {
+    parses_to! {
+        parser: LanguageParser,
+        input:  "@test",
+        rule:   Rule::annotation,
+        tokens: [
+            annotation(0, 5, [annotation_symbol(0, 1, []), annotation_name(1, 5, [test(1, 5, [])])])
+        ]
+    }
 }
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::context))]
-pub struct Context<'ast> {
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::test))]
-pub struct Test<'ast> {
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[test]
+fn test_annotation_context_test() {
+    parses_to! {
+        parser: LanguageParser,
+        input:  "@test(custom)",
+        rule:   Rule::annotation,
+        tokens: [
+            annotation(0, 13, [annotation_symbol(0, 1, []), annotation_name(1, 5, [test(1, 5, [])]), annotation_arguments(5, 13, [annotation_argument(6, 12, [])])])
+        ]
+    }
 }

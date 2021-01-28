@@ -21,7 +21,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, time::Duration};
 
 fn ast(ast: &Grammar) -> Ast {
-    Ast::new("leo_tree", &ast)
+    Ast::new("leo_tree", &ast).unwrap()
 }
 
 fn bench_big_if_else(c: &mut Criterion) {

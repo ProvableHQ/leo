@@ -1230,6 +1230,7 @@ dependencies = [
  "pest",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]

@@ -19,3 +19,6 @@ pub use annotated_definition::*;
 
 pub mod definition;
 pub use definition::*;
+
+pub mod deprecated;
+pub use deprecated::*;

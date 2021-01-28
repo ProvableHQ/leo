@@ -42,9 +42,12 @@ impl TestSymbolTable {
         let grammar = Grammar::new(&file_path, program_string).unwrap();
 
         // Get Leo syntax tree.
-        let ast = Ast::new(TEST_PROGRAM_PATH, &grammar);
+        let ast_result = Ast::new(TEST_PROGRAM_PATH, &grammar);
 
-        Self { ast }
+        // We always expect a valid ast for testing.
+        Self {
+            ast: ast_result.unwrap(),
+        }
     }
 
     ///
