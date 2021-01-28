@@ -17,8 +17,8 @@
 use crate::{
     ast::Rule,
     circuits::Circuit,
-    definitions::AnnotatedDefinition,
-    functions::{Function, TestFunction},
+    definitions::{AnnotatedDefinition, Deprecated},
+    functions::Function,
     imports::Import,
 };
 
@@ -32,5 +32,5 @@ pub enum Definition<'ast> {
     Import(Import<'ast>),
     Circuit(Circuit<'ast>),
     Function(Function<'ast>),
-    TestFunction(TestFunction<'ast>),
+    Deprecated(Deprecated<'ast>),
 }

@@ -55,7 +55,7 @@ fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportP
     let ast = &Grammar::new(&file_path, &program_string)?;
 
     // Build the package Leo syntax tree from the package abstract syntax tree.
-    Ok(Program::from(&file_name, ast.as_repr()))
+    Ok(Program::from(&file_name, ast.as_repr())?)
 }
 
 impl ImportParser {

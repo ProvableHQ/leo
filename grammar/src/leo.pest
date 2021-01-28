@@ -12,7 +12,12 @@ definition = {
     | import
     | circuit
     | function
-    | test_function
+    | deprecated
+}
+
+// Declared in definitions/deprecated.rs
+deprecated = {
+    test_function
 }
 
 // Declared in definitions/annotated_definition.rs
@@ -416,6 +421,9 @@ statement_definition = { declare ~ variables ~ "=" ~ expression ~ LINE_END}
 // Declared in statements/expression_statement.rs
 statement_expression = { expression ~ LINE_END }
 
+// Decalred in functions/test_function.rs
+test_function = { "test" ~ function }
+
 // Declared in statements/for_statement.rs
 statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~ block }
 
@@ -423,9 +431,6 @@ statement_for = { "for " ~ identifier ~ "in " ~ expression ~ ".." ~ expression ~
 statement_return = { "return " ~ expression}
 
 /// Functions
-
-// Declared in functions/test_function.rs
-test_function = { "test " ~ function }
 
 // Declared in functions/function.rs
 function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block }
@@ -520,18 +525,20 @@ formatted_container = { "{" ~ "}"}
 /// Annotations
 
 // Declared in annotations/annotation.rs
-annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments}
+annotation = ${annotation_symbol ~ annotation_name ~ annotation_arguments? }
 
 // Declared in annotations/annotation_symbol.rs
 annotation_symbol = ${"@"}
 
 // Declared in annotations/annotation_name.rs
 annotation_name = {
-    context
+    context // deprecated
+    | test
 }
 
-// Declared in annotations/context.rs
+// Declared in annotations/annotation_name.rs
 context = {"context"}
+test = {"test"}
 
 // Declared in annotations/annotation_argument.rs
 annotation_arguments = !{"(" ~ annotation_argument ~ ("," ~ annotation_argument)* ~ ","? ~  NEWLINE* ~ ")"}
