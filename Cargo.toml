@@ -92,7 +92,7 @@ default-features = false
 version = "0.0.2"
 
 [dependencies.anyhow]
-anyhow = "1.0"
+version = "1.0"
 
 [dependencies.structopt]
 version = "0.3"
