@@ -137,9 +137,11 @@ impl CLI for AddCommand {
                     Ok(token) => {
                         tracing::info!("Logged in, using token to authorize");
                         client.post(&url).bearer_auth(token)
-                    },
-                    Err(_) => client.post(&url)
-                }.json(&json).send();
+                    }
+                    Err(_) => client.post(&url),
+                }
+                .json(&json)
+                .send();
 
                 match result {
                     Ok(response) => (response, package_name),
