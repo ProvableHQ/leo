@@ -13,7 +13,12 @@ definition = {
     | circuit
     | function
     | deprecated
+    | define
 }
+
+define = { define_symbol ~ identifier ~ expression }
+// Declared in defines/define_symbol.rs
+define_symbol = ${"#define "}
 
 // Declared in definitions/deprecated.rs
 deprecated = {

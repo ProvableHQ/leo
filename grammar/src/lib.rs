@@ -35,6 +35,7 @@ pub mod annotations;
 pub mod circuits;
 pub mod common;
 pub mod console;
+pub mod defines;
 pub mod definitions;
 pub mod expressions;
 pub mod files;

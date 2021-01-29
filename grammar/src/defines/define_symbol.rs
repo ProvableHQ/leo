@@ -14,25 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    circuits::Circuit,
-    defines::Define,
-    definitions::{AnnotatedDefinition, Deprecated},
-    functions::Function,
-    imports::Import,
-};
+use crate::{ast::Rule, SpanDef};
 
+use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::definition))]
-pub enum Definition<'ast> {
-    Annotated(AnnotatedDefinition<'ast>),
-    Import(Import<'ast>),
-    Circuit(Circuit<'ast>),
-    Define(Define<'ast>),
-    Function(Function<'ast>),
-    Deprecated(Deprecated<'ast>),
+#[pest_ast(rule(Rule::define_symbol))]
+pub struct DefineSymbol<'ast> {
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
 }
