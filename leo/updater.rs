@@ -34,7 +34,7 @@ impl Updater {
             .build()?
             .fetch()?;
 
-        tracing::info!("List of available Leo's versions");
+        tracing::info!("List of available versions");
         for release in releases {
             tracing::info!("* {}", release.version);
         }
@@ -47,7 +47,7 @@ impl Updater {
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
-            .current_version(&include_str!("./leo-version").replace('v', ""))
+            .current_version(&env!("CARGO_PKG_VERSION"))
             .show_download_progress(show_output)
             .no_confirm(true)
             .show_output(show_output)
@@ -63,7 +63,7 @@ impl Updater {
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
-            .current_version(&include_str!("./leo-version").replace('v', ""))
+            .current_version(&env!("CARGO_PKG_VERSION"))
             .build()?;
 
         let current_version = updater.current_version();
