@@ -34,7 +34,7 @@ impl Updater {
             .build()?
             .fetch()?;
 
-        let mut output = format!("\nList of available versions\n");
+        let mut output = "\nList of available versions\n".to_string();
         for release in releases {
             output += &format!("  * {}\n", release.version);
         }
