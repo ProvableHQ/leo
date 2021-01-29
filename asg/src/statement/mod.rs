@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This module defines a statement node in an asg.
+//!
+//! Ast statement nodes can be directly converted into asg nodes with no major differences.
+
 mod assign;
 pub use assign::*;
 

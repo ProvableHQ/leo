@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// TODO (protryon): Please order dependencies in two groups alphabetically 1. Our dependencies 2. Everyone else's
 use crate::{AsgConvertError, Circuit, Function, Input, Type, Variable};
 
 use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
-// TODO (protryon): Struct defs should have a description of the data type and field.
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
 pub struct InnerScope {
     /// The unique id of the scope.
@@ -52,9 +50,8 @@ pub struct InnerScope {
 pub type Scope = Arc<RefCell<InnerScope>>;
 
 impl InnerScope {
-    // TODO (protryon): Function definitions should have one extra line above and below the description.
     ///
-    /// Returns a reference to the variable corresponding to the name. TODO (protryon): The description should clearly state the function's return and given arguments.
+    /// Returns a reference to the variable corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.

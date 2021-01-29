@@ -16,6 +16,7 @@
 
 use crate::{AsgConvertError, PartialType, Scope, Span};
 
+/// A node in the abstract semantic graph.
 pub trait Node {
     fn span(&self) -> Option<&Span>;
 }

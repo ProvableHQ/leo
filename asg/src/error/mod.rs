@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Errors encountered when attempting to convert to an asg from an ast.
+
 use crate::Span;
 use leo_ast::Error as FormattedError;
 use leo_grammar::ParserError;

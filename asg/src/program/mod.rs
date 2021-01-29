@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This module defines the program node for an asg.
+//!
+//!
+
 mod circuit;
 pub use circuit::*;
 

@@ -23,6 +23,7 @@ use std::{
 };
 use uuid::Uuid;
 
+/// Specifies how a program variable was declared.
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -30,6 +31,7 @@ pub enum VariableDeclaration {
     Input,
 }
 
+/// Stores information on a program variable.
 pub struct InnerVariable {
     pub id: Uuid,
     pub name: Identifier,

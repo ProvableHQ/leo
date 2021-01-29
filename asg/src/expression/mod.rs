@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! This module defines an expression node in an asg.
+//!
+//! Notable differences after conversion from an ast expression include:
+//! 1. Storing variable references instead of variable identifiers - better history tracking and mutability
+//! 2. Resolving constant values - optimizes execution of program circuit.
+
 mod array_access;
 pub use array_access::*;
 
