@@ -133,7 +133,15 @@ impl CLI for AddCommand {
                     json.insert("version", version);
                 }
 
-                match client.post(&url).json(&json).send() {
+                let result = match read_token() {
+                    Ok(token) => {
+                        tracing::info!("Logged in, using token to authorize");
+                        client.post(&url).bearer_auth(token)
+                    },
+                    Err(_) => client.post(&url)
+                }.json(&json).send();
+
+                match result {
                     Ok(response) => (response, package_name),
                     //Cannot connect to the server
                     Err(_error) => {
