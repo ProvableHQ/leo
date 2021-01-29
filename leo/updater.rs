@@ -34,10 +34,14 @@ impl Updater {
             .build()?
             .fetch()?;
 
-        tracing::info!("List of available versions");
+        let mut output = format!("\nList of available versions\n");
         for release in releases {
-            tracing::info!("* {}", release.version);
+            output += &format!("  * {}\n", release.version);
         }
+
+        // Forgo using tracing to list the available versions without a log status.
+        println!("{}", output);
+
         Ok(())
     }
 
