@@ -42,6 +42,9 @@ jobs:
           cd .. && leo new my-app && cd my-app
           leo login -u "$USER" -p "$PASS"
           leo add argus4130/xnor
+          leo setup
+          leo setup
+          leo setup --skip-key-check
           leo remove xnor
           leo clean
 

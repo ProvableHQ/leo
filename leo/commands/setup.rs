@@ -39,7 +39,7 @@ use std::{convert::TryFrom, env::current_dir, time::Instant};
 pub struct SetupCommand;
 
 impl CLI for SetupCommand {
-    type Options = ();
+    type Options = bool;
     type Output = (
         Compiler<Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
@@ -48,23 +48,23 @@ impl CLI for SetupCommand {
 
     const ABOUT: AboutType = "Run a program setup";
     const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
+    const FLAGS: &'static [FlagType] = &[("--skip-key-check")];
     const NAME: NameType = "setup";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(!arguments.is_present("skip-key-check"))
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+    fn output(do_check: Self::Options) -> Result<Self::Output, CLIError> {
         // Get the package name
         let path = current_dir()?;
         let package_name = Manifest::try_from(path.as_path())?.get_package_name();
 
-        match BuildCommand::output(options)? {
+        match BuildCommand::output(())? {
             Some((program, checksum_differs)) => {
                 // Begin "Setup" context for console logging
                 let span = tracing::span!(tracing::Level::INFO, "Setup");
@@ -116,8 +116,11 @@ impl CLI for SetupCommand {
 
                     // Read the proving key file from the output directory
                     tracing::info!("Loading proving key...");
+                    if !do_check {
+                        tracing::info!("Skipping curve check");
+                    }
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
+                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), do_check)?;
                     tracing::info!("Complete");
 
                     // Read the verification key file from the output directory
