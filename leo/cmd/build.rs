@@ -14,55 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    errors::CLIError,
-    synthesizer::{CircuitSynthesizer, SerializedCircuit},
-};
+use crate::synthesizer::{CircuitSynthesizer, SerializedCircuit};
+
+use crate::{cmd::Cmd, context::Context};
+
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    root::Manifest,
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
-use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+use anyhow::Error;
+use std::{convert::TryFrom, time::Instant};
+use structopt::StructOpt;
 
-#[derive(Debug)]
-pub struct BuildCommand;
+/// Init Leo project command in current directory
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Build {}
 
-impl CLI for BuildCommand {
-    type Options = ();
+impl Build {
+    pub fn new() -> Build {
+        Build {}
+    }
+}
+
+impl Cmd for Build {
     type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
 
-    const ABOUT: AboutType = "Compile the current package as a program";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "build";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Compiling" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Compiling");
-        let enter = span.enter();
-
-        let path = current_dir()?;
-
-        // Get the package name
-        let manifest = Manifest::try_from(path.as_path())?;
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        let path = ctx.dir()?;
+        let manifest = ctx.manifest()?;
         let package_name = manifest.get_package_name();
 
         // Sanitize the package path to the root directory
@@ -186,7 +172,6 @@ impl CLI for BuildCommand {
             tracing::info!("Complete");
 
             // Drop "Compiling" context for console logging
-            drop(enter);
 
             // Begin "Done" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
             tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
@@ -196,10 +181,6 @@ impl CLI for BuildCommand {
             return Ok(Some((program, checksum_differs)));
         }
 
-        drop(enter);
-
-        // Return None when compiling a package for publishing
-        // The published package does not need to have a main.leo
         Ok(None)
     }
 }

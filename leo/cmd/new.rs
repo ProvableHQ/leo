@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::cmd::Cmd;
-use crate::context::{create_context, Context};
+use crate::{cmd::Cmd, context::Context};
 use anyhow::{anyhow, Error};
+
 use leo_package::LeoPackage;
-use std::env::current_dir;
-use std::fs;
+use std::{env::current_dir, fs};
 use structopt::StructOpt;
 
 /// Create new Leo project
 #[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct New {
     #[structopt(name = "NAME", help = "Init as a library (containing lib.leo)")]
     name: String,
@@ -39,11 +39,9 @@ impl New {
 }
 
 impl Cmd for New {
-    fn context(&self) -> Result<Context, Error> {
-        create_context()
-    }
+    type Output = ();
 
-    fn apply(self, _: Context) -> Result<(), Error> {
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
         let mut path = current_dir()?;
         let package_name = self.name;
 

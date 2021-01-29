@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::cmd::Cmd;
-use crate::context::{create_context, Context};
+use crate::{cmd::Cmd, context::Context};
 use anyhow::Error;
 use structopt::StructOpt;
 
 /// Lint Leo code command
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Lint {}
 
 impl Lint {
@@ -30,7 +30,9 @@ impl Lint {
 }
 
 impl Cmd for Lint {
-    fn apply(self, _: Context) -> Result<(), Error> {
+    type Output = ();
+
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
         eprintln!("Not implemented!");
 
         Ok(())

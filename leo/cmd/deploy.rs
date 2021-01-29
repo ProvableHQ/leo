@@ -14,15 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_package::errors::ManifestError;
+use crate::{cmd::Cmd, context::Context};
+use anyhow::Error;
+use structopt::StructOpt;
 
-use std::ffi::OsString;
+/// Deploy Leo program command
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Deploy {}
 
-#[derive(Debug, Error)]
-pub enum BuildError {
-    #[error("main file {:?} does not exist", _0)]
-    MainFileDoesNotExist(OsString),
+impl Deploy {
+    pub fn new() -> Deploy {
+        Deploy {}
+    }
+}
 
-    #[error("{}", _0)]
-    ManifestError(#[from] ManifestError),
+impl Cmd for Deploy {
+    type Output = ();
+
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
+        eprintln!("Not implemented!");
+
+        Ok(())
+    }
 }

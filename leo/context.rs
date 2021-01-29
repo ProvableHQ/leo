@@ -14,8 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::env::current_dir;
+
 use crate::api::Api;
 use anyhow::Result;
+use leo_package::root::Manifest;
+use std::{convert::TryFrom, path::PathBuf};
 
 pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 
@@ -26,7 +30,16 @@ pub struct Context {
     pub api: Api,
 }
 
-impl Context {}
+impl Context {
+    pub fn dir(&self) -> Result<PathBuf> {
+        Ok(current_dir()?)
+    }
+
+    /// Get package manifest for current context
+    pub fn manifest(&self) -> Result<Manifest> {
+        Ok(Manifest::try_from(self.dir()?.as_path())?)
+    }
+}
 
 /// Create a new context for the current directory.
 pub fn create_context() -> Result<Context> {

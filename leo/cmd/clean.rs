@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::cmd::Cmd;
-use crate::context::{create_context, Context};
+use crate::{cmd::Cmd, context::Context};
 use anyhow::Error;
 use leo_compiler::OutputFile;
 use leo_package::{
@@ -26,7 +25,8 @@ use std::{convert::TryFrom, env::current_dir};
 use structopt::StructOpt;
 
 /// Clean folder command
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Clean {}
 
 impl Clean {
@@ -36,11 +36,9 @@ impl Clean {
 }
 
 impl Cmd for Clean {
-    fn context(&self) -> Result<Context, Error> {
-        create_context()
-    }
+    type Output = ();
 
-    fn apply(self, _: Context) -> Result<(), Error> {
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
         let path = current_dir()?;
         let package_name = Manifest::try_from(path.as_path())?.get_package_name();
 

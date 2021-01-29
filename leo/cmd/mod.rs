@@ -18,29 +18,42 @@ use crate::context::{get_context, Context};
 use anyhow::Result;
 
 pub mod add;
+pub mod build;
 pub mod clean;
 pub mod init;
-pub mod lint;
 pub mod new;
+
+// not implemented
+pub mod deploy;
+pub mod lint;
 
 /// Leo command
 pub trait Cmd {
+    type Output;
+
     /// Returns project context.
     fn context(&self) -> Result<Context> {
         get_context()
     }
 
     /// Apply command with given context.
-    fn apply(self, ctx: Context) -> Result<()>
+    fn apply(self, ctx: Context) -> Result<Self::Output>
     where
         Self: std::marker::Sized;
 
-    /// Functions create execution context and apply command with it.
+    /// Functions create execution context and apply command in it
     fn execute(self) -> Result<()>
     where
         Self: std::marker::Sized,
     {
+        let span = tracing::span!(tracing::Level::INFO, "Adding");
+        let span = span.enter();
+
         let context = self.context()?;
-        self.apply(context)
+        let _ = self.apply(context);
+
+        drop(span);
+
+        Ok(())
     }
 }

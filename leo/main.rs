@@ -17,19 +17,17 @@
 pub mod api;
 pub mod cmd;
 pub mod context;
+pub mod logger;
+pub mod synthesizer;
 
 use anyhow::Error;
 use std::process::exit;
-use structopt::StructOpt;
 
-use cmd::add::Add;
-use cmd::clean::Clean;
-use cmd::init::Init;
-use cmd::lint::Lint;
-use cmd::new::New;
-use cmd::Cmd;
+use cmd::{add::Add, build::Build, clean::Clean, deploy::Deploy, init::Init, lint::Lint, new::New, Cmd};
+use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(StructOpt, Debug)]
+#[structopt(setting = AppSettings::ColoredHelp)]
 enum Opt {
     #[structopt(about = "Init Leo project command in current directory")]
     Init {
@@ -41,6 +39,12 @@ enum Opt {
     New {
         #[structopt(flatten)]
         cmd: New,
+    },
+
+    #[structopt(about = "Compile current package as a program")]
+    Build {
+        #[structopt(flatten)]
+        cmd: Build,
     },
 
     #[structopt(about = "Import package from Aleo PM")]
@@ -60,6 +64,12 @@ enum Opt {
         #[structopt(flatten)]
         cmd: Lint,
     },
+
+    #[structopt(about = "Deploy the current package as a program to the network (*)")]
+    Deploy {
+        #[structopt(flatten)]
+        cmd: Deploy,
+    },
 }
 
 fn main() {
@@ -69,8 +79,10 @@ fn main() {
         Opt::Init { cmd } => cmd.execute(),
         Opt::New { cmd } => cmd.execute(),
         Opt::Add { cmd } => cmd.execute(),
+        Opt::Build { cmd } => cmd.execute(),
         Opt::Clean { cmd } => cmd.execute(),
         Opt::Lint { cmd } => cmd.execute(),
+        Opt::Deploy { cmd } => cmd.execute(),
     });
 }
 
