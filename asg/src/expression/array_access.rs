@@ -14,19 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
-};
+use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use leo_ast::IntegerType;
 
 use std::{
     cell::RefCell,
@@ -77,13 +66,17 @@ impl ExpressionNode for ArrayAccessExpression {
             _ => return None,
         };
         let const_index = match self.index.const_value()? {
-            ConstValue::Int(ConstInt::U32(x)) => x,
+            ConstValue::Int(x) => x.to_usize()?,
             _ => return None,
         };
-        if const_index as usize >= array.len() {
+        if const_index >= array.len() {
             return None;
         }
-        Some(array.remove(const_index as usize))
+        Some(array.remove(const_index))
+    }
+
+    fn is_consty(&self) -> bool {
+        self.array.is_consty()
     }
 }
 
@@ -109,15 +102,23 @@ impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
             }
         }
 
+        let index = Arc::<Expression>::from_ast(
+            scope,
+            &*value.index,
+            Some(PartialType::Integer(None, Some(IntegerType::U32))),
+        )?;
+
+        if !index.is_consty() {
+            return Err(AsgConvertError::unexpected_nonconst(
+                &index.span().cloned().unwrap_or_default(),
+            ));
+        }
+
         Ok(ArrayAccessExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
             array,
-            index: Arc::<Expression>::from_ast(
-                scope,
-                &*value.index,
-                Some(Type::Integer(leo_ast::IntegerType::U32).partial()),
-            )?,
+            index,
         })
     }
 }

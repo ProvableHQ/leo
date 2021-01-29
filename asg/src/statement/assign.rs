@@ -98,7 +98,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
         for access in statement.assignee.accesses.iter() {
             target_accesses.push(match access {
                 AstAssigneeAccess::ArrayRange(left, right) => {
-                    let index_type = Some(Type::Integer(IntegerType::U32).into());
+                    let index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
                     let left = left
                         .as_ref()
                         .map(
@@ -128,15 +128,26 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                                     .unwrap_or_else(|| Some(ConstValue::Int(ConstInt::U32(len.map(|x| x as u32)?)))),
                             ) {
                                 let left = match left {
-                                    ConstValue::Int(ConstInt::U32(x)) => x,
+                                    ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
+                                        AsgConvertError::invalid_assign_index(&name, &x.to_string(), &statement.span)
+                                    })?,
                                     _ => unimplemented!(),
                                 };
                                 let right = match right {
-                                    ConstValue::Int(ConstInt::U32(x)) => x,
+                                    ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
+                                        AsgConvertError::invalid_assign_index(&name, &x.to_string(), &statement.span)
+                                    })?,
                                     _ => unimplemented!(),
                                 };
-                                if right > left {
+                                if right >= left {
                                     target_type = Some(PartialType::Array(item.clone(), Some((right - left) as usize)))
+                                } else {
+                                    return Err(AsgConvertError::invalid_backwards_assignment(
+                                        &name,
+                                        left,
+                                        right,
+                                        &statement.span,
+                                    ));
                                 }
                             }
                         }
@@ -153,7 +164,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                     AssignAccess::ArrayIndex(Arc::<Expression>::from_ast(
                         scope,
                         index,
-                        Some(Type::Integer(IntegerType::U32).into()),
+                        Some(PartialType::Integer(None, Some(IntegerType::U32))),
                     )?)
                 }
                 AstAssigneeAccess::Tuple(index, _) => {

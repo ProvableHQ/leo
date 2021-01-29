@@ -69,6 +69,10 @@ impl ExpressionNode for TernaryExpression {
             None
         }
     }
+
+    fn is_consty(&self) -> bool {
+        self.condition.is_consty() && self.if_true.is_consty() && self.if_false.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::TernaryExpression> for TernaryExpression {

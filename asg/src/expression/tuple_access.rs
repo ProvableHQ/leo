@@ -65,6 +65,10 @@ impl ExpressionNode for TupleAccessExpression {
             _ => None,
         }
     }
+
+    fn is_consty(&self) -> bool {
+        self.tuple_ref.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {

@@ -80,6 +80,10 @@ impl ExpressionNode for CallExpression {
         // static function const evaluation
         None
     }
+
+    fn is_consty(&self) -> bool {
+        self.target.as_ref().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.is_consty())
+    }
 }
 
 impl FromAst<leo_ast::CallExpression> for CallExpression {

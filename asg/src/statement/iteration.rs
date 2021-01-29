@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::IntegerType;
+
 use crate::{
     AsgConvertError,
     Expression,
@@ -25,7 +27,6 @@ use crate::{
     Scope,
     Span,
     Statement,
-    Type,
     Variable,
 };
 
@@ -55,7 +56,7 @@ impl FromAst<leo_ast::IterationStatement> for Arc<Statement> {
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType>,
     ) -> Result<Arc<Statement>, AsgConvertError> {
-        let expected_index_type = Some(Type::Integer(leo_ast::IntegerType::U32).into());
+        let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
         let start = Arc::<Expression>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = Arc::<Expression>::from_ast(scope, &statement.stop, expected_index_type)?;
         let variable = Arc::new(RefCell::new(InnerVariable {

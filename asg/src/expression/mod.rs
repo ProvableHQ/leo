@@ -117,6 +117,7 @@ pub trait ExpressionNode: Node {
     fn get_type(&self) -> Option<Type>;
     fn is_mut_ref(&self) -> bool;
     fn const_value(&self) -> Option<ConstValue>; // todo: memoize
+    fn is_consty(&self) -> bool;
 }
 
 impl ExpressionNode for Expression {
@@ -237,6 +238,26 @@ impl ExpressionNode for Expression {
             CircuitInit(x) => x.const_value(),
             CircuitAccess(x) => x.const_value(),
             Call(x) => x.const_value(),
+        }
+    }
+
+    fn is_consty(&self) -> bool {
+        use Expression::*;
+        match self {
+            VariableRef(x) => x.is_consty(),
+            Constant(x) => x.is_consty(),
+            Binary(x) => x.is_consty(),
+            Unary(x) => x.is_consty(),
+            Ternary(x) => x.is_consty(),
+            ArrayInline(x) => x.is_consty(),
+            ArrayInit(x) => x.is_consty(),
+            ArrayAccess(x) => x.is_consty(),
+            ArrayRangeAccess(x) => x.is_consty(),
+            TupleInit(x) => x.is_consty(),
+            TupleAccess(x) => x.is_consty(),
+            CircuitInit(x) => x.is_consty(),
+            CircuitAccess(x) => x.is_consty(),
+            Call(x) => x.is_consty(),
         }
     }
 }

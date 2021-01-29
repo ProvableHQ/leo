@@ -48,7 +48,8 @@ pub enum WeakType {
 /// TODO (@protryon): Please provide comments.
 #[derive(Clone, PartialEq)]
 pub enum PartialType {
-    Type(Type), // non-array or tuple
+    Type(Type),                                        // non-array or tuple
+    Integer(Option<IntegerType>, Option<IntegerType>), // specific, context-specific
     Array(Option<Box<PartialType>>, Option<usize>),
     Tuple(Vec<Option<PartialType>>),
 }
@@ -85,6 +86,7 @@ impl Into<Option<Type>> for PartialType {
     fn into(self) -> Option<Type> {
         match self {
             PartialType::Type(t) => Some(t),
+            PartialType::Integer(sub_type, contextual_type) => Some(Type::Integer(sub_type.or(contextual_type)?)),
             PartialType::Array(element, len) => Some(Type::Array(Box::new((*element?).full()?), len?)),
             PartialType::Tuple(sub_types) => Some(Type::Tuple(
                 sub_types
@@ -104,6 +106,9 @@ impl PartialType {
     pub fn matches(&self, other: &Type) -> bool {
         match (self, other) {
             (PartialType::Type(t), other) => t.is_assignable_from(other),
+            (PartialType::Integer(self_sub_type, _), Type::Integer(sub_type)) => {
+                self_sub_type.as_ref().map(|x| x == sub_type).unwrap_or(true)
+            }
             (PartialType::Array(element, len), Type::Array(other_element, other_len)) => {
                 if let Some(element) = element {
                     if !element.matches(&*other_element) {
@@ -137,6 +142,7 @@ impl PartialType {
 impl Into<PartialType> for Type {
     fn into(self) -> PartialType {
         match self {
+            Type::Integer(sub_type) => PartialType::Integer(Some(sub_type), None),
             Type::Array(element, len) => PartialType::Array(Some(Box::new((*element).into())), Some(len)),
             Type::Tuple(sub_types) => PartialType::Tuple(sub_types.into_iter().map(Into::into).map(Some).collect()),
             x => PartialType::Type(x),
@@ -162,11 +168,11 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Type::Address => write!(f, "address"),
-            Type::Boolean => write!(f, "boolean"),
+            Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
-            Type::Array(sub_type, len) => write!(f, "{}[{}]", sub_type, len),
+            Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
             Type::Tuple(sub_types) => {
                 write!(f, "(")?;
                 for (i, sub_type) in sub_types.iter().enumerate() {
@@ -186,13 +192,17 @@ impl fmt::Display for PartialType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             PartialType::Type(t) => t.fmt(f),
+            PartialType::Integer(Some(sub_type), _) => write!(f, "{}", sub_type),
+            PartialType::Integer(_, Some(sub_type)) => write!(f, "<{}>", sub_type),
+            PartialType::Integer(_, _) => write!(f, "integer"),
             PartialType::Array(sub_type, len) => {
+                write!(f, "[")?;
                 if let Some(sub_type) = sub_type {
                     write!(f, "{}", *sub_type)?;
                 } else {
                     write!(f, "?")?;
                 }
-                write!(f, "[")?;
+                write!(f, "; ")?;
                 if let Some(len) = len {
                     write!(f, "{}", len)?;
                 } else {

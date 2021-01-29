@@ -59,6 +59,10 @@ impl ExpressionNode for ArrayInitExpression {
         // not implemented due to performance concerns
         None
     }
+
+    fn is_consty(&self) -> bool {
+        self.element.is_consty()
+    }
 }
 
 impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {

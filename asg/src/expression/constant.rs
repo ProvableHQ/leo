@@ -68,6 +68,10 @@ impl ExpressionNode for Constant {
     fn const_value(&self) -> Option<ConstValue> {
         Some(self.value.clone())
     }
+
+    fn is_consty(&self) -> bool {
+        true
+    }
 }
 
 impl FromAst<leo_ast::ValueExpression> for Constant {
@@ -155,19 +159,21 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }),
                 }
             }
-            Implicit(value, span) => match expected_type.map(PartialType::full).flatten() {
+            Implicit(value, span) => match expected_type {
                 None => return Err(AsgConvertError::unresolved_type("unknown", span)),
-                Some(Type::Integer(int_type)) => Constant {
-                    parent: RefCell::new(None),
-                    span: Some(span.clone()),
-                    value: ConstValue::Int(ConstInt::parse(&int_type, value, span)?),
-                },
-                Some(Type::Field) => Constant {
+                Some(PartialType::Integer(Some(sub_type), _)) | Some(PartialType::Integer(None, Some(sub_type))) => {
+                    Constant {
+                        parent: RefCell::new(None),
+                        span: Some(span.clone()),
+                        value: ConstValue::Int(ConstInt::parse(&sub_type, value, span)?),
+                    }
+                }
+                Some(PartialType::Type(Type::Field)) => Constant {
                     parent: RefCell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
                 },
-                Some(Type::Address) => Constant {
+                Some(PartialType::Type(Type::Address)) => Constant {
                     parent: RefCell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Address(value.to_string()),
@@ -175,8 +181,9 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("unknown"), span)),
             },
             Integer(int_type, value, span) => {
-                match expected_type.map(PartialType::full).flatten() {
-                    Some(Type::Integer(sub_type)) if &sub_type == int_type => (),
+                match expected_type {
+                    Some(PartialType::Integer(Some(sub_type), _)) if &sub_type == int_type => (),
+                    Some(PartialType::Integer(None, Some(_))) => (),
                     None => (),
                     Some(x) => {
                         return Err(AsgConvertError::unexpected_type(

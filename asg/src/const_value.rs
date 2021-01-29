@@ -188,6 +188,10 @@ impl ConstInt {
 
     const_int_map!(value_negate, x, x.checked_neg()?);
 
+    const_int_op!(to_usize, Option<usize>, x, (*x).try_into().ok());
+
+    const_int_op!(to_string, String, x, (*x).to_string());
+
     const_int_bimap!(value_add, x, y, x.checked_add(*y)?);
 
     const_int_bimap!(value_sub, x, y, x.checked_sub(*y)?);
