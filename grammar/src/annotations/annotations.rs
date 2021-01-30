@@ -29,7 +29,7 @@ use serde::Serialize;
 pub struct Annotation<'ast> {
     pub symbol: AnnotationSymbol<'ast>,
     pub name: AnnotationName<'ast>,
-    pub arguments: AnnotationArguments<'ast>,
+    pub arguments: Option<AnnotationArguments<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
