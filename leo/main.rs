@@ -21,7 +21,7 @@ use clap::{App, AppSettings, Arg};
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
     let app = App::new("leo")
-        .version(include_str!("./leo-version"))
+        .version(env!("CARGO_PKG_VERSION"))
         .about("Leo compiler and package manager")
         .author("The Aleo Team <hello@aleo.org>")
         .settings(&[
