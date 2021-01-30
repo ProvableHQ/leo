@@ -115,10 +115,6 @@ impl CLI for AddCommand {
         // Begin "Adding" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Adding");
         let _enter = span.enter();
-
-        // token can only be there if user has signed into Aleo PM
-        // so we need to verify that token exists before doing anything else
-        let token = read_token().map_err(|_| -> CLIError { NotAuthorized.into() })?;
         let path = current_dir()?;
 
         // Enforce that the current directory is a leo package
@@ -137,7 +133,17 @@ impl CLI for AddCommand {
                     json.insert("version", version);
                 }
 
-                match client.post(&url).bearer_auth(token).json(&json).send() {
+                let result = match read_token() {
+                    Ok(token) => {
+                        tracing::info!("Logged in, using token to authorize");
+                        client.post(&url).bearer_auth(token)
+                    }
+                    Err(_) => client.post(&url),
+                }
+                .json(&json)
+                .send();
+
+                match result {
                     Ok(response) => (response, package_name),
                     //Cannot connect to the server
                     Err(_error) => {

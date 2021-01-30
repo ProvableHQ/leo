@@ -1,4 +1,4 @@
-name: leo-add-remove
+name: leo-login-logout
 on:
   pull_request:
   push:
@@ -34,10 +34,15 @@ jobs:
           command: install
           args: --path .
 
-      - name: 'leo add (w/o login) & remove'
+      - name: 'leo login & logout'
+        env:
+          USER: ${{ secrets.ALEO_PM_USERNAME }}
+          PASS: ${{ secrets.ALEO_PM_PASSWORD }}
         run: |
           cd .. && leo new my-app && cd my-app
+          leo login -u "$USER" -p "$PASS"
           leo add argus4130/xnor
           leo remove xnor
           leo clean
+          leo logout
 
