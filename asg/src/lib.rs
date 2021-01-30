@@ -104,7 +104,7 @@ pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<le
         .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
 
     // Parses the pest ast and constructs a Leo ast.
-    Ok(leo_ast::Ast::new("load_ast", &ast).into_repr())
+    Ok(leo_ast::Ast::new("load_ast", &ast)?.into_repr())
 }
 
 pub fn load_asg_from_ast<T: ImportResolver + 'static>(

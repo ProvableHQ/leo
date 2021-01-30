@@ -128,9 +128,9 @@ impl ExpressionNode for VariableRef {
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
                 }
-            },
+            }
             Statement::Iteration(_) => true,
-            _ => false
+            _ => false,
         }
     }
 }
