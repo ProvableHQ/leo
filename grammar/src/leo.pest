@@ -302,7 +302,7 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 access = { access_array | access_tuple | access_call | access_member | access_static_member }
 
 // Declared in access/self_access.rs
-self_access = { access_member }
+self_access = { access_member | access_static_member }
 
 // Declared in access/array_access.rs
 access_array = !{ "[" ~ range_or_expression ~ "]" }
@@ -389,7 +389,7 @@ expression_unary = { operation_unary ~ expression_term }
 expression_postfix = ${ keyword_or_identifier ~ access+ }
 
 // Declared in expressions/self_postfix_expression.rs
-self_expression_postfix = ${ self_keyword ~ self_access+ }
+self_expression_postfix = ${ self_keyword ~ self_access+ ~ access_call? }
 
 /// Statements
 

@@ -22,6 +22,6 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::self_access))]
 pub enum SelfAccess<'ast> {
-    Call(CallAccess<'ast>),
     Object(MemberAccess<'ast>),
+    StaticObject(StaticMemberAccess<'ast>),
 }

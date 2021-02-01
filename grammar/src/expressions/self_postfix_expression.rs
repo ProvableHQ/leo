@@ -14,7 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::SelfAccess, ast::Rule, common::SelfKeyword, SpanDef};
+use crate::{
+    access::{CallAccess, SelfAccess},
+    ast::Rule,
+    common::SelfKeyword,
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -25,6 +30,7 @@ use serde::Serialize;
 pub struct SelfPostfixExpression<'ast> {
     pub name: SelfKeyword<'ast>,
     pub accesses: Vec<SelfAccess<'ast>>,
+    pub call: Option<CallAccess<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
