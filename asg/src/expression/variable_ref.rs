@@ -29,6 +29,7 @@ use crate::{
     Statement,
     Type,
     Variable,
+    VariableDeclaration,
 };
 
 use std::{
@@ -102,6 +103,9 @@ impl ExpressionNode for VariableRef {
 
     fn is_consty(&self) -> bool {
         let variable = self.variable.borrow();
+        if variable.declaration == VariableDeclaration::IterationDefinition {
+            return true;
+        }
         if variable.mutable || variable.assignments.len() != 1 {
             return false;
         }
