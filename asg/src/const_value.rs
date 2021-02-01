@@ -15,9 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, IntegerType, Span, Type};
+
 use num_bigint::BigInt;
 use std::{convert::TryInto, fmt};
 
+/// Constant integer values in a program.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ConstInt {
     I8(i8),
@@ -32,11 +34,19 @@ pub enum ConstInt {
     U128(u128),
 }
 
+/// Specifies how to calculate a group coordinate in a program.
 #[derive(Clone, Debug, PartialEq)]
 pub enum GroupCoordinate {
+    /// Explicit field element number string.
     Number(String),
+
+    /// Attempt to recover with a sign high bit.
     SignHigh,
+
+    /// Attempt to recover with a sign low bit.
     SignLow,
+
+    /// Try recovering with a sign low - upon failure try sign high.
     Inferred,
 }
 

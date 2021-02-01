@@ -1,4 +1,5 @@
-test function fake_test() {}
+@test
+function fake_test() {}
 
 function main() {}
 

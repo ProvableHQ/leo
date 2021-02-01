@@ -14,20 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Errors encountered when attempting to convert to an asg from an ast.
+
 use crate::Span;
-use leo_ast::Error as FormattedError;
+use leo_ast::{AstError, Error as FormattedError};
 use leo_grammar::ParserError;
 
 #[derive(Debug, Error)]
 pub enum AsgConvertError {
     #[error("{}", _0)]
+    AstError(#[from] AstError),
+
+    #[error("{}", _0)]
     Error(#[from] FormattedError),
+
     #[error("{}", _0)]
     ImportError(FormattedError),
-    #[error("{}", _0)]
-    ParserError(#[from] ParserError),
+
     #[error("{}", _0)]
     InternalError(String),
+
+    #[error("{}", _0)]
+    ParserError(#[from] ParserError),
 }
 
 impl AsgConvertError {

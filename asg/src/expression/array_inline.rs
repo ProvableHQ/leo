@@ -16,6 +16,7 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use leo_ast::SpreadOrExpression;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

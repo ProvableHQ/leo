@@ -16,6 +16,7 @@
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_asg::AsgConvertError;
+use leo_ast::AstError;
 use leo_grammar::ParserError;
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
@@ -26,6 +27,9 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
+    #[error("{}", _0)]
+    AstError(#[from] AstError),
+
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
 

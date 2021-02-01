@@ -96,7 +96,7 @@ impl CLI for UpdateCommand {
                     Ok(status) => {
                         if !quiet {
                             if status.uptodate() {
-                                tracing::info!("Leo is already on the latest version {}", status.version());
+                                tracing::info!("Leo is already on the latest version");
                             } else if status.updated() {
                                 tracing::info!("Leo has successfully updated to version {}", status.version());
                             }

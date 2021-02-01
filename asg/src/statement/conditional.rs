@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, BlockStatement, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+
 use std::sync::{Arc, Weak};
 
 pub struct ConditionalStatement {
@@ -46,9 +47,7 @@ impl FromAst<leo_ast::ConditionalStatement> for ConditionalStatement {
         let next = statement
             .next
             .as_deref()
-            .map(|next| -> Result<Arc<Statement>, AsgConvertError> {
-                Ok(Arc::<Statement>::from_ast(scope, next, None)?)
-            })
+            .map(|next| -> Result<Arc<Statement>, AsgConvertError> { Arc::<Statement>::from_ast(scope, next, None) })
             .transpose()?;
 
         Ok(ConditionalStatement {

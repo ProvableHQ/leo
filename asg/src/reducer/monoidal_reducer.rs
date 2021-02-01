@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{expression::*, program::*, statement::*, Monoid};
+
 use std::sync::Arc;
 
 #[allow(unused_variables)]

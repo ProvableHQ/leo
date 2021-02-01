@@ -29,6 +29,7 @@ use crate::{
     Span,
     Type,
 };
+
 use indexmap::{IndexMap, IndexSet};
 use std::{
     cell::RefCell,

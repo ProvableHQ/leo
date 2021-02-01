@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Helper methods for resolving imported packages.
+
 use crate::{AsgConvertError, Program, Span};
+
 use indexmap::IndexMap;
 
 pub trait ImportResolver {

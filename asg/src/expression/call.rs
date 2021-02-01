@@ -30,6 +30,7 @@ use crate::{
     Type,
 };
 pub use leo_ast::BinaryOperation;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

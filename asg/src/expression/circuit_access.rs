@@ -46,6 +46,7 @@ use crate::{
     Span,
     Type,
 };
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
@@ -151,7 +152,7 @@ impl FromAst<leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression
 
         if found_member {
             // skip
-        } else if circuit.is_input_psuedo_circuit() {
+        } else if circuit.is_input_pseudo_circuit() {
             // add new member to implicit input
             if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
                 circuit.members.borrow_mut().insert(

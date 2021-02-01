@@ -24,6 +24,7 @@ use crate::{
     Node,
     Span,
 };
+
 use std::sync::Arc;
 
 pub struct ReturnPathReducer {

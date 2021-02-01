@@ -28,6 +28,7 @@ use crate::{
     Span,
     Type,
 };
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

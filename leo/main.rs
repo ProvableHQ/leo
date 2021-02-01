@@ -21,7 +21,7 @@ use clap::{App, AppSettings, Arg};
 #[cfg_attr(tarpaulin, skip)]
 fn main() -> Result<(), CLIError> {
     let app = App::new("leo")
-        .version(include_str!("./leo-version"))
+        .version(env!("CARGO_PKG_VERSION"))
         .about("Leo compiler and package manager")
         .author("The Aleo Team <hello@aleo.org>")
         .settings(&[
@@ -51,6 +51,7 @@ fn main() -> Result<(), CLIError> {
             CleanCommand::new().display_order(13),
             LintCommand::new().display_order(14),
             UpdateCommand::new().display_order(15),
+            LogoutCommand::new().display_order(16),
         ])
         .set_term_width(0);
 
@@ -74,6 +75,7 @@ fn main() -> Result<(), CLIError> {
         ("clean", Some(arguments)) => CleanCommand::process(arguments),
         ("lint", Some(arguments)) => LintCommand::process(arguments),
         ("update", Some(arguments)) => UpdateCommand::process(arguments),
+        ("logout", Some(arguments)) => LogoutCommand::process(arguments),
         _ => {
             // Set logging environment
             match arguments.is_present("debug") {
@@ -84,6 +86,7 @@ fn main() -> Result<(), CLIError> {
             Updater::print_cli();
 
             help.print_help()?;
+            println!();
             Ok(())
         }
     }

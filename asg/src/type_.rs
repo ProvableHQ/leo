@@ -16,11 +16,13 @@
 
 use crate::Circuit;
 pub use leo_ast::IntegerType;
+
 use std::{
     fmt,
     sync::{Arc, Weak},
 };
 
+/// A type in an asg.
 #[derive(Clone, PartialEq)]
 pub enum Type {
     // Data types

@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, Function, FunctionBody, Identifier, InnerScope, Node, Scope, Span, Type, WeakType};
-use indexmap::IndexMap;
 
+use indexmap::IndexMap;
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

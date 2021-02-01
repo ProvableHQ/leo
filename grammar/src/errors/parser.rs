@@ -28,6 +28,9 @@ pub enum ParserError {
     FileReadError(PathBuf),
 
     #[error("{}", _0)]
+    IoError(#[from] std::io::Error),
+
+    #[error("{}", _0)]
     JsonError(#[from] serde_json::error::Error),
 
     #[error("{}", _0)]
@@ -57,11 +60,5 @@ impl ParserError {
 impl From<Error<Rule>> for ParserError {
     fn from(error: Error<Rule>) -> Self {
         ParserError::SyntaxError(SyntaxError::from(error))
-    }
-}
-
-impl From<std::io::Error> for ParserError {
-    fn from(error: std::io::Error) -> Self {
-        ParserError::Crate("std::io", error.to_string())
     }
 }

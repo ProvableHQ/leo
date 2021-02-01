@@ -14,31 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, SpanDef};
+use crate::{ast::Rule, functions::TestFunction};
 
-use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::annotation_name))]
-pub enum AnnotationName<'ast> {
-    Context(Context<'ast>),
-    Test(Test<'ast>),
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::context))]
-pub struct Context<'ast> {
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::test))]
-pub struct Test<'ast> {
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[pest_ast(rule(Rule::deprecated))]
+pub enum Deprecated<'ast> {
+    TestFunction(TestFunction<'ast>),
 }

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod vec_append;
-pub use vec_append::*;
+mod bool_and;
+pub use bool_and::*;
 
 mod set_append;
 pub use set_append::*;
 
-mod bool_and;
-pub use bool_and::*;
+mod vec_append;
+pub use vec_append::*;
 
 pub trait Monoid: Default {
     fn append(self, other: Self) -> Self;

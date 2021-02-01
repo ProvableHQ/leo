@@ -30,8 +30,8 @@ use crate::{
     Variable,
     WeakType,
 };
-
 use leo_ast::FunctionInput;
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},

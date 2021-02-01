@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, FromAst, InnerScope, Node, PartialType, Scope, Span, Statement};
+
 use std::sync::{Arc, Weak};
 
 pub struct BlockStatement {

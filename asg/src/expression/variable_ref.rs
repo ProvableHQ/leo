@@ -29,7 +29,9 @@ use crate::{
     Statement,
     Type,
     Variable,
+    VariableDeclaration,
 };
+
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
@@ -101,6 +103,9 @@ impl ExpressionNode for VariableRef {
 
     fn is_consty(&self) -> bool {
         let variable = self.variable.borrow();
+        if variable.declaration == VariableDeclaration::IterationDefinition {
+            return true;
+        }
         if variable.mutable || variable.assignments.len() != 1 {
             return false;
         }
@@ -127,9 +132,9 @@ impl ExpressionNode for VariableRef {
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
                 }
-            },
+            }
             Statement::Iteration(_) => true,
-            _ => false
+            _ => false,
         }
     }
 }

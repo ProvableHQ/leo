@@ -16,6 +16,7 @@
 
 use super::*;
 use crate::{expression::*, program::*, statement::*};
+
 use std::{marker::PhantomData, sync::Arc};
 
 pub struct MonoidalDirector<T: Monoid, R: MonoidalReducerExpression<T>> {

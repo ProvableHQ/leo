@@ -15,12 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, CircuitBody, CircuitMember, CircuitMemberBody, Identifier, Scope, Type, Variable, WeakType};
+
 use indexmap::IndexMap;
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
 };
 
+/// Stores program input values as asg nodes.
 #[derive(Clone)]
 pub struct Input {
     pub registers: Arc<CircuitBody>,
@@ -31,11 +33,11 @@ pub struct Input {
     pub container: Variable,
 }
 
-pub const CONTAINER_PSUEDO_CIRCUIT: &str = "$InputContainer";
-pub const REGISTERS_PSUEDO_CIRCUIT: &str = "$InputRegister";
-pub const RECORD_PSUEDO_CIRCUIT: &str = "$InputRecord";
-pub const STATE_PSUEDO_CIRCUIT: &str = "$InputState";
-pub const STATE_LEAF_PSUEDO_CIRCUIT: &str = "$InputStateLeaf";
+pub const CONTAINER_PSEUDO_CIRCUIT: &str = "$InputContainer";
+pub const REGISTERS_PSEUDO_CIRCUIT: &str = "$InputRegister";
+pub const RECORD_PSEUDO_CIRCUIT: &str = "$InputRecord";
+pub const STATE_PSEUDO_CIRCUIT: &str = "$InputState";
+pub const STATE_LEAF_PSEUDO_CIRCUIT: &str = "$InputStateLeaf";
 
 impl Input {
     fn make_header(name: &str) -> Arc<Circuit> {
@@ -60,10 +62,10 @@ impl Input {
     }
 
     pub fn new(scope: &Scope) -> Self {
-        let registers = Self::make_header(REGISTERS_PSUEDO_CIRCUIT);
-        let record = Self::make_header(RECORD_PSUEDO_CIRCUIT);
-        let state = Self::make_header(STATE_PSUEDO_CIRCUIT);
-        let state_leaf = Self::make_header(STATE_LEAF_PSUEDO_CIRCUIT);
+        let registers = Self::make_header(REGISTERS_PSEUDO_CIRCUIT);
+        let record = Self::make_header(RECORD_PSEUDO_CIRCUIT);
+        let state = Self::make_header(STATE_PSEUDO_CIRCUIT);
+        let state_leaf = Self::make_header(STATE_LEAF_PSEUDO_CIRCUIT);
 
         let mut container_members = IndexMap::new();
         container_members.insert(
@@ -85,7 +87,7 @@ impl Input {
 
         let container_circuit = Arc::new(Circuit {
             id: uuid::Uuid::new_v4(),
-            name: RefCell::new(Identifier::new(CONTAINER_PSUEDO_CIRCUIT.to_string())),
+            name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.to_string())),
             body: RefCell::new(Weak::new()),
             members: RefCell::new(container_members),
             core_mapping: RefCell::new(None),
@@ -136,10 +138,10 @@ impl Input {
 }
 
 impl Circuit {
-    pub fn is_input_psuedo_circuit(&self) -> bool {
+    pub fn is_input_pseudo_circuit(&self) -> bool {
         matches!(
             &*self.name.borrow().name,
-            REGISTERS_PSUEDO_CIRCUIT | RECORD_PSUEDO_CIRCUIT | STATE_PSUEDO_CIRCUIT | STATE_LEAF_PSUEDO_CIRCUIT
+            REGISTERS_PSEUDO_CIRCUIT | RECORD_PSEUDO_CIRCUIT | STATE_PSEUDO_CIRCUIT | STATE_LEAF_PSEUDO_CIRCUIT
         )
     }
 }

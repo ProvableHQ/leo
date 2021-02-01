@@ -17,7 +17,16 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
+use crate::{
+    load_annotation,
+    Circuit,
+    DeprecatedError,
+    Function,
+    FunctionInput,
+    Identifier,
+    ImportStatement,
+    TestFunction,
+};
 use leo_grammar::{definitions::Definition, files::File};
 
 use indexmap::IndexMap;
@@ -64,7 +73,7 @@ const MAIN_FUNCTION_NAME: &str = "main";
 
 impl<'ast> Program {
     //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
-    pub fn from(program_name: &str, program_ast: &File<'ast>) -> Self {
+    pub fn from(program_name: &str, program_ast: &File<'ast>) -> Result<Self, DeprecatedError> {
         let mut imports = vec![];
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
@@ -75,10 +84,15 @@ impl<'ast> Program {
             .definitions
             .to_owned()
             .into_iter()
-            .for_each(|definition| match definition {
-                Definition::Import(import) => imports.push(ImportStatement::from(import)),
+            // Use of Infallible to say we never expect an Some(Ok(...))
+            .find_map::<Result<std::convert::Infallible, _>, _>(|definition| match definition {
+                Definition::Import(import) => {
+                    imports.push(ImportStatement::from(import));
+                    None
+                }
                 Definition::Circuit(circuit) => {
                     circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
+                    None
                 }
                 Definition::Function(function_def) => {
                     let function = Function::from(function_def);
@@ -86,13 +100,13 @@ impl<'ast> Program {
                         expected_input = function.input.clone();
                     }
                     functions.insert(function.identifier.clone(), function);
+                    None
                 }
-                Definition::TestFunction(test_def) => {
-                    let test = TestFunction::from(test_def);
-                    tests.insert(test.function.identifier.clone(), test);
+                Definition::Deprecated(deprecated) => {
+                    Some(Err(DeprecatedError::from(deprecated)))
                 }
                 Definition::Annotated(annotated_definition) => {
-                    load_annotation(
+                    let loaded_annotation = load_annotation(
                         annotated_definition,
                         &mut imports,
                         &mut circuits,
@@ -100,17 +114,23 @@ impl<'ast> Program {
                         &mut tests,
                         &mut expected_input,
                     );
-                }
-            });
 
-        Self {
+                    match loaded_annotation {
+                        Ok(_) => None,
+                        Err(deprecated_err) => Some(Err(deprecated_err))
+                    }
+                }
+            })
+            .transpose()?;
+
+        Ok(Self {
             name: program_name.to_string(),
             expected_input,
             imports,
             circuits,
             functions,
             tests,
-        }
+        })
     }
 }
 

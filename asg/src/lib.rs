@@ -14,54 +14,89 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! The abstract semantic graph (asg) for a Leo program.
+//!
+//! This module contains the [`Asg`] type, an abstract data type that represents a Leo program
+//! as a series of graph nodes. The [`Asg`] type is at a greater level of abstraction than an [`Ast`].
+//!
+//! A new [`Asg`] type can be created from an [`Ast`].
+//! Converting to an [`Asg`] provides greater type safety by canonicalizing and checking program types.
+
+#![allow(clippy::from_over_into)]
 #[macro_use]
 extern crate thiserror;
-
-pub mod node;
-pub use node::*;
-
-pub mod type_;
-pub use type_::*;
-
-pub mod program;
-pub use program::*;
-
-pub mod expression;
-pub use expression::*;
-
-pub mod statement;
-pub use statement::*;
-
-pub mod variable;
-pub use variable::*;
-
-pub mod scope;
-pub use scope::*;
-
-pub mod error;
-pub use error::*;
-
-pub mod import;
-pub use import::*;
-
-pub mod const_value;
-pub use const_value::*;
-
-mod input;
-pub use input::*;
-
-pub mod prelude;
-pub use prelude::*;
-
-pub mod reducer;
-pub use reducer::*;
 
 pub mod checks;
 pub use checks::*;
 
+pub mod const_value;
+pub use const_value::*;
+
+pub mod error;
+pub use error::*;
+
+pub mod expression;
+pub use expression::*;
+
+pub mod import;
+pub use import::*;
+
+mod input;
+pub use input::*;
+
+pub mod node;
+pub use node::*;
+
+pub mod prelude;
+pub use prelude::*;
+
+pub mod program;
+pub use program::*;
+
+pub mod reducer;
+pub use reducer::*;
+
+pub mod scope;
+pub use scope::*;
+
+pub mod statement;
+pub use statement::*;
+
+pub mod type_;
+pub use type_::*;
+
+pub mod variable;
+pub use variable::*;
+
 pub use leo_ast::{Identifier, Span};
 
 use std::path::Path;
+
+/// The abstract semantic graph (asg) for a Leo program.
+///
+/// The [`Asg`] type represents a Leo program as a series of recursive data types.
+/// These data types form a graph that begins from a [`Program`] type node.
+///
+/// A new [`Asg`] can be created from an [`Ast`] generated in the `ast` module.
+// #[derive(Debug, Eq, PartialEq)]
+// pub struct Asg {
+//     asg: InnerProgram,
+// }
+//
+// impl Asg {
+//     /// Creates a new asg from a given ast tree and import resolver.
+//     pub fn new<T: ImportResolver + 'static>(
+//         content: leo_ast::Program,
+//         resolver: &mut T,
+//     ) -> Result<Program, AsgConvertError> {
+//         InnerProgram::new(&content, resolver)
+//     }
+//
+//     /// Returns a reference to the inner program ast representation.
+//     pub fn into_repr(self) -> Program {
+//         self.asg
+//     }
+// }
 
 pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<leo_ast::Program, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
@@ -69,7 +104,7 @@ pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<le
         .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
 
     // Parses the pest ast and constructs a Leo ast.
-    Ok(leo_ast::Ast::new("load_ast", &ast).into_repr())
+    Ok(leo_ast::Ast::new("load_ast", &ast)?.into_repr())
 }
 
 pub fn load_asg_from_ast<T: ImportResolver + 'static>(
