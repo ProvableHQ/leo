@@ -36,6 +36,7 @@ members = [
   "linter",
   "package",
   "state",
+  "asg",
   "symbol-table",
   "type-inference"
 ]
