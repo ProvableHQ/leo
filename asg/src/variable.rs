@@ -24,6 +24,7 @@ use std::{
 use uuid::Uuid;
 
 /// Specifies how a program variable was declared.
+#[derive(PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
