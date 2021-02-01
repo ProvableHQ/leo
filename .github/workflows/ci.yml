@@ -70,12 +70,12 @@ jobs:
           args: --examples --all-features --all
         if: matrix.rust == 'stable'
 
-#      - name: Check benchmarks on nightly
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: clippy
-#          args: --all-features --examples --all --benches
-#        if: matrix.rust == 'nightly'
+      - name: Check benchmarks on nightly
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-features --examples --all --benches
+        if: matrix.rust == 'nightly'
 
   test:
     name: Test
