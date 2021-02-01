@@ -22,6 +22,7 @@ use std::{
 };
 use uuid::Uuid;
 
+#[derive(PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
