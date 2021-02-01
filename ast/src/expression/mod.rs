@@ -25,7 +25,7 @@ use crate::{
     SpreadOrExpression,
 };
 use leo_grammar::{
-    access::{Access, AssigneeAccess},
+    access::{Access, AssigneeAccess, SelfAccess},
     common::{Assignee, Identifier as GrammarIdentifier, RangeOrExpression as GrammarRangeOrExpression},
     expressions::{
         ArrayInitializerExpression,
@@ -34,6 +34,7 @@ use leo_grammar::{
         CircuitInlineExpression,
         Expression as GrammarExpression,
         PostfixExpression,
+        SelfPostfixExpression,
         TernaryExpression as GrammarTernaryExpression,
         UnaryExpression as GrammarUnaryExpression,
     },
@@ -254,6 +255,36 @@ impl<'ast> From<PostfixExpression<'ast>> for Expression {
     }
 }
 
+impl<'ast> From<SelfPostfixExpression<'ast>> for Expression {
+    fn from(expression: SelfPostfixExpression<'ast>) -> Self {
+        let variable = Expression::Identifier(Identifier::from(expression.name));
+
+        // ast::PostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
+        // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
+
+        // we start with the id, and we fold the array of accesses by wrapping the current value
+        expression
+            .accesses
+            .into_iter()
+            .fold(variable, |acc, access| match access {
+                // Handle array accesses
+                // Handle function calls
+                SelfAccess::Call(function) => Expression::Call(CallExpression {
+                    function: Box::new(acc),
+                    arguments: function.expressions.into_iter().map(Expression::from).collect(),
+                    span: Span::from(function.span),
+                }),
+
+                // Handle circuit member accesses
+                SelfAccess::Object(circuit_object) => Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                    circuit: Box::new(acc),
+                    name: Identifier::from(circuit_object.identifier),
+                    span: Span::from(circuit_object.span),
+                }),
+            })
+    }
+}
+
 impl<'ast> From<GrammarExpression<'ast>> for Expression {
     fn from(expression: GrammarExpression<'ast>) -> Self {
         match expression {
@@ -267,6 +298,7 @@ impl<'ast> From<GrammarExpression<'ast>> for Expression {
             GrammarExpression::Tuple(expression) => Expression::from(expression),
             GrammarExpression::CircuitInline(expression) => Expression::from(expression),
             GrammarExpression::Postfix(expression) => Expression::from(expression),
+            GrammarExpression::SelfPostfix(expression) => Expression::from(expression),
         }
     }
 }

@@ -19,6 +19,9 @@
 pub mod access;
 pub use access::*;
 
+pub mod self_access;
+pub use self_access::*;
+
 pub mod array_access;
 pub use array_access::*;
 

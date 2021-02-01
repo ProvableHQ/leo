@@ -14,32 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array_initializer_expression;
-pub use array_initializer_expression::*;
+use crate::{access::SelfAccess, ast::Rule, common::SelfKeyword, SpanDef};
 
-pub mod array_inline_expression;
-pub use array_inline_expression::*;
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod binary_expression;
-pub use binary_expression::*;
-
-pub mod circuit_inline_expression;
-pub use circuit_inline_expression::*;
-
-pub mod expression;
-pub use expression::*;
-
-pub mod unary_expression;
-pub use unary_expression::*;
-
-pub mod postfix_expression;
-pub use postfix_expression::*;
-
-pub mod self_postfix_expression;
-pub use self_postfix_expression::*;
-
-pub mod ternary_expression;
-pub use ternary_expression::*;
-
-pub mod tuple_expression;
-pub use tuple_expression::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::self_expression_postfix))]
+pub struct SelfPostfixExpression<'ast> {
+    pub name: SelfKeyword<'ast>,
+    pub accesses: Vec<SelfAccess<'ast>>,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}

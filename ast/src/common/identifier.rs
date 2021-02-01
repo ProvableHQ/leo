@@ -133,7 +133,7 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
 impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
     fn from(name: KeywordOrIdentifier<'ast>) -> Self {
         match name {
-            KeywordOrIdentifier::SelfKeywordOrIdentifier(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::Identifier(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
             KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
         }
