@@ -174,7 +174,6 @@ impl InnerScope {
 
     ///
     /// Returns a new scope given a parent scope.
-    /// TODO (protryon): Rename this method to "new()" ?
     ///
     pub fn make_subscope(scope: &Scope) -> Scope {
         Arc::new(RefCell::new(InnerScope {

@@ -38,14 +38,12 @@ pub enum Type {
     Circuit(Arc<Circuit>),
 }
 
-/// TODO (@protryon): Please provide comments.
 #[derive(Clone)]
 pub enum WeakType {
     Type(Type), // circuit not allowed
     Circuit(Weak<Circuit>),
 }
 
-/// TODO (@protryon): Please provide comments.
 #[derive(Clone, PartialEq)]
 pub enum PartialType {
     Type(Type),                                        // non-array or tuple

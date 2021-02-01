@@ -31,7 +31,7 @@ use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
-/// Stores the Leo program abstract syntax graph (asg).
+/// Stores the Leo program abstract semantic graph (asg).
 #[derive(Clone)]
 pub struct InnerProgram {
     /// The unique id of the program.
@@ -332,7 +332,7 @@ impl Iterator for InternalIdentifierGenerator {
         Some(out)
     }
 }
-/// TODO (protryon): Please add comments
+/// Returns an ast from the given asg program.
 pub fn reform_ast(program: &Program) -> leo_ast::Program {
     let mut all_programs: IndexMap<String, Program> = IndexMap::new();
     let mut program_stack = program.borrow().imported_modules.clone();
