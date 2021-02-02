@@ -259,40 +259,79 @@ impl<'ast> From<SelfPostfixExpression<'ast>> for Expression {
     fn from(expression: SelfPostfixExpression<'ast>) -> Self {
         let variable = Expression::Identifier(Identifier::from(expression.name));
 
+        // Handle self expression access.
+        let self_expression = match expression.self_access {
+            // Handle circuit member accesses
+            SelfAccess::Object(circuit_object) => Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                circuit: Box::new(variable),
+                name: Identifier::from(circuit_object.identifier),
+                span: Span::from(circuit_object.span),
+            }),
+
+            // Handle static access
+            SelfAccess::StaticObject(circuit_object) => {
+                Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
+                    circuit: Box::new(variable),
+                    name: Identifier::from(circuit_object.identifier),
+                    span: Span::from(circuit_object.span),
+                })
+            }
+        };
         // ast::SelfPostFixExpression contains an array of "accesses": `a(34)[42]` is represented as `[a, [Call(34), Select(42)]]`, but Access call expressions
         // are recursive, so it is `Select(Call(a, 34), 42)`. We apply this transformation here
 
         // we start with the id, and we fold the array of accesses by wrapping the current value
-        let final_expression = expression
+        expression
             .accesses
             .into_iter()
-            .fold(variable, |acc, access| match access {
+            .fold(self_expression, |acc, access| match access {
+                // Handle array accesses
+                Access::Array(array) => match array.expression {
+                    GrammarRangeOrExpression::Expression(expression) => {
+                        Expression::ArrayAccess(ArrayAccessExpression {
+                            array: Box::new(acc),
+                            index: Box::new(Expression::from(expression)),
+                            span: Span::from(array.span),
+                        })
+                    }
+                    GrammarRangeOrExpression::Range(range) => {
+                        Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                            array: Box::new(acc),
+                            left: range.from.map(Expression::from).map(Box::new),
+                            right: range.to.map(Expression::from).map(Box::new),
+                            span: Span::from(array.span),
+                        })
+                    }
+                },
+
+                // Handle tuple access
+                Access::Tuple(tuple) => Expression::TupleAccess(TupleAccessExpression {
+                    tuple: Box::new(acc),
+                    index: PositiveNumber::from(tuple.number),
+                    span: Span::from(tuple.span),
+                }),
+
+                // Handle function calls
+                Access::Call(function) => Expression::Call(CallExpression {
+                    function: Box::new(acc),
+                    arguments: function.expressions.into_iter().map(Expression::from).collect(),
+                    span: Span::from(function.span),
+                }),
+
                 // Handle circuit member accesses
-                SelfAccess::Object(circuit_object) => Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                Access::Object(circuit_object) => Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
                     circuit: Box::new(acc),
                     name: Identifier::from(circuit_object.identifier),
                     span: Span::from(circuit_object.span),
                 }),
-
-                // Handle static access
-                SelfAccess::StaticObject(circuit_object) => {
+                Access::StaticObject(circuit_object) => {
                     Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
                         circuit: Box::new(acc),
                         name: Identifier::from(circuit_object.identifier),
                         span: Span::from(circuit_object.span),
                     })
                 }
-            });
-
-        // Handle calls, should only ever come after self. or self::
-        match expression.call {
-            Some(function) => Expression::Call(CallExpression {
-                function: Box::new(final_expression),
-                arguments: function.expressions.into_iter().map(Expression::from).collect(),
-                span: Span::from(function.span),
-            }),
-            None => final_expression,
-        }
+            })
     }
 }
 

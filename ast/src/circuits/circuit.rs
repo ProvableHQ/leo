@@ -50,3 +50,9 @@ impl fmt::Debug for Circuit {
         self.format(f)
     }
 }
+
+impl fmt::Display for Circuit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}

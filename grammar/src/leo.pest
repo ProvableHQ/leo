@@ -1,7 +1,7 @@
 /// Common
 
 // Declared in common/assignee.rs
-assignee = { identifier ~ access_assignee* }
+assignee = { self_keyword_or_identifier ~ access_assignee* }
 
 // Declared in files/file.rs
 file = { SOI ~ definition* ~ EOI }
@@ -389,7 +389,7 @@ expression_unary = { operation_unary ~ expression_term }
 expression_postfix = ${ keyword_or_identifier ~ access+ }
 
 // Declared in expressions/self_postfix_expression.rs
-self_expression_postfix = ${ self_keyword ~ self_access+ ~ access_call? }
+self_expression_postfix = ${ self_keyword ~ self_access ~ access* }
 
 /// Statements
 

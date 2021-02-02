@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    access::{CallAccess, SelfAccess},
+    access::{Access, SelfAccess},
     ast::Rule,
     common::SelfKeyword,
     SpanDef,
@@ -29,8 +29,8 @@ use serde::Serialize;
 #[pest_ast(rule(Rule::self_expression_postfix))]
 pub struct SelfPostfixExpression<'ast> {
     pub name: SelfKeyword<'ast>,
-    pub accesses: Vec<SelfAccess<'ast>>,
-    pub call: Option<CallAccess<'ast>>,
+    pub self_access: SelfAccess<'ast>,
+    pub accesses: Vec<Access<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
