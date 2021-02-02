@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,7 +27,6 @@ pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
-#[allow(clippy::vec_init_then_push)]
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,

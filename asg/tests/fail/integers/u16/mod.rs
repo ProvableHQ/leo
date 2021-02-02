@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
