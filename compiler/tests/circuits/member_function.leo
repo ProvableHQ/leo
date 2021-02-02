@@ -1,11 +1,13 @@
 circuit Foo {
-    function echo(x: u32) -> u32 {
-        return x
+    x: u32,
+
+    function echo(self) -> u32 {
+        return self.x
     }
 }
 
 function main() {
-    let a = Foo { };
+    let a = Foo { x: 1u32 };
 
-    console.assert(a.echo(1u32) == 1u32);
+    console.assert(a.echo() == 1u32);
 }

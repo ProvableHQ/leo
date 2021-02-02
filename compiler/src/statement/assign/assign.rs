@@ -16,15 +16,8 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::{
-    arithmetic::*,
-    errors::StatementError,
-    new_scope,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_ast::{AssignOperation, AssignStatement, AssigneeAccess, Span};
+use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{AssignOperation, AssignStatement, Span};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -39,28 +32,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_assign_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        declared_circuit_reference: &str,
         indicator: &Boolean,
-        mut_self: bool,
-        statement: AssignStatement,
+        statement: &AssignStatement,
     ) -> Result<(), StatementError> {
         // Get the name of the variable we are assigning to
-        let mut new_value = self.enforce_expression(cs, file_scope, function_scope, None, statement.value)?;
-        let mut resolved_assignee = self.resolve_assignee(
-            cs,
-            file_scope,
-            function_scope,
-            declared_circuit_reference,
-            mut_self,
-            statement.assignee.clone(),
-        )?;
+        let new_value = self.enforce_expression(cs, &statement.value)?;
+        let mut resolved_assignee = self.resolve_assign(cs, statement)?;
 
         if resolved_assignee.len() == 1 {
-            new_value.resolve_type(Some(resolved_assignee[0].to_type(&statement.span)?), &statement.span)?;
-
-            let span = statement.span.clone();
+            let span = statement.span.clone().unwrap_or_default();
 
             Self::enforce_assign_operation(
                 cs,
@@ -74,7 +54,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         } else {
             match new_value {
                 ConstrainedValue::Array(new_values) => {
-                    let span = statement.span.clone();
+                    let span = statement.span.clone().unwrap_or_default();
 
                     for (i, (old_ref, new_value)) in
                         resolved_assignee.into_iter().zip(new_values.into_iter()).enumerate()
@@ -90,35 +70,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                         )?;
                     }
                 }
-                _ => return Err(StatementError::array_assign_range(statement.span)),
-            };
-        }
-
-        // self re-store logic -- structure is already checked by enforce_assign_operation
-        if statement.assignee.identifier.is_self() && mut_self {
-            if let Some(AssigneeAccess::Member(member_name)) = statement.assignee.accesses.get(0) {
-                let self_circuit_variable_name = new_scope(&statement.assignee.identifier.name, &member_name.name);
-                let self_variable_name = new_scope(file_scope, &self_circuit_variable_name);
-                // get circuit ref
-                let target = match self.get(declared_circuit_reference) {
-                    Some(ConstrainedValue::Mutable(value)) => &**value,
-                    _ => unimplemented!(),
-                };
-                // get freshly assigned member ref, and clone it
-                let source = match target {
-                    ConstrainedValue::CircuitExpression(_circuit_name, members) => {
-                        let matched_variable = members.iter().find(|member| &member.0 == member_name);
-
-                        match matched_variable {
-                            Some(member) => &member.1,
-                            None => unimplemented!(),
-                        }
-                    }
-                    _ => unimplemented!(),
+                _ => {
+                    return Err(StatementError::array_assign_range(
+                        statement.span.clone().unwrap_or_default(),
+                    ));
                 }
-                .clone();
-                self.store(self_variable_name, source);
-            }
+            };
         }
 
         Ok(())
@@ -130,11 +87,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         scope: String,
         operation: &AssignOperation,
         target: &mut ConstrainedValue<F, G>,
-        mut new_value: ConstrainedValue<F, G>,
+        new_value: ConstrainedValue<F, G>,
         span: &Span,
     ) -> Result<(), StatementError> {
-        new_value.resolve_type(Some(target.to_type(span)?), span)?;
-
         let new_value = match operation {
             AssignOperation::Assign => new_value,
             AssignOperation::Add => enforce_add(cs, target.clone(), new_value, span)?,

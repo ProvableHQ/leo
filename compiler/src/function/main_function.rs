@@ -16,14 +16,11 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{
-    errors::FunctionError,
-    program::{new_scope, ConstrainedProgram},
-    GroupType,
-    OutputBytes,
-};
+use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, OutputBytes};
 
-use leo_ast::{Expression, Function, FunctionInput, Identifier, Input};
+use leo_asg::{Expression, FunctionBody, FunctionQualifier};
+use leo_ast::Input;
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -34,49 +31,67 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_main_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        scope: &str,
-        function: Function,
+        function: &Arc<FunctionBody>,
         input: &Input,
     ) -> Result<OutputBytes, FunctionError> {
-        let function_name = new_scope(scope, function.get_name());
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        let mut input_variables = Vec::with_capacity(function.input.len());
-        for input_model in function.input.clone().into_iter() {
-            let (input_id, value) = match input_model {
-                FunctionInput::InputKeyword(keyword) => {
-                    let input_id = Identifier::new_with_span(&keyword.to_string(), &keyword.span);
-                    let value = self.allocate_input_keyword(cs, keyword, input)?;
+        if function.function.has_input {
+            // let input_var = function.scope.
+            let asg_input = function
+                .scope
+                .borrow()
+                .resolve_input()
+                .expect("no input variable in scope when function is qualified");
 
-                    (input_id, value)
-                }
-                FunctionInput::SelfKeyword(_) => unimplemented!("cannot access self keyword in main function"),
-                FunctionInput::MutSelfKeyword(_) => unimplemented!("cannot access mut self keyword in main function"),
-                FunctionInput::Variable(input_model) => {
-                    let name = input_model.identifier.name.clone();
-                    let input_option = input
-                        .get(&name)
-                        .ok_or_else(|| FunctionError::input_not_found(name.clone(), function.span.clone()))?;
-                    let input_value =
-                        self.allocate_main_function_input(cs, input_model.type_, &name, input_option, &function.span)?;
+            let value = self.allocate_input_keyword(
+                cs,
+                function.function.name.borrow().span.clone(),
+                &asg_input.container_circuit,
+                input,
+            )?;
 
-                    (input_model.identifier, input_value)
-                }
-            };
-
-            // Store input as variable with {function_name}_{identifier_name}
-            let input_name = new_scope(&function_name, &input_id.to_string());
-
-            // Store a new variable for every allocated main function input
-            self.store(input_name, value);
-
-            input_variables.push(Expression::Identifier(input_id));
+            self.store(asg_input.container.borrow().id, value);
         }
 
-        let span = function.span.clone();
-        let result_value = self.enforce_function(cs, scope, &function_name, function, input_variables, "")?;
-        let output_bytes = OutputBytes::new_from_constrained_value(registers, result_value, span)?;
+        match function.function.qualifier {
+            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
+                unimplemented!("cannot access self variable in main function")
+            }
+            FunctionQualifier::Static => (),
+        }
+
+        let mut arguments = vec![];
+
+        for input_variable in function.arguments.iter() {
+            {
+                let input_variable = input_variable.borrow();
+                let name = input_variable.name.name.clone();
+                let input_option = input.get(&name).ok_or_else(|| {
+                    FunctionError::input_not_found(name.clone(), function.span.clone().unwrap_or_default())
+                })?;
+                let input_value = self.allocate_main_function_input(
+                    cs,
+                    &input_variable.type_,
+                    &name,
+                    input_option,
+                    &function.span.clone().unwrap_or_default(),
+                )?;
+
+                // Store a new variable for every allocated main function input
+                self.store(input_variable.id, input_value);
+            }
+            arguments.push(Arc::new(Expression::VariableRef(leo_asg::VariableRef {
+                parent: std::cell::RefCell::new(None),
+                span: Some(input_variable.borrow().name.span.clone()),
+                variable: input_variable.clone(),
+            })));
+        }
+
+        let span = function.span.clone().unwrap_or_default();
+        let result_value = self.enforce_function(cs, function, None, &arguments)?;
+        let output_bytes = OutputBytes::new_from_constrained_value(&self.asg, registers, result_value, span)?;
 
         Ok(output_bytes)
     }

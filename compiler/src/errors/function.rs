@@ -25,6 +25,7 @@ use crate::errors::{
     StatementError,
     ValueError,
 };
+use leo_asg::AsgConvertError;
 use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
@@ -60,6 +61,9 @@ pub enum FunctionError {
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+
+    #[error("{}", _0)]
+    ImportASGError(#[from] AsgConvertError),
 }
 
 impl FunctionError {
@@ -75,6 +79,7 @@ impl FunctionError {
             FunctionError::OutputStringError(error) => error.set_path(path),
             FunctionError::StatementError(error) => error.set_path(path),
             FunctionError::ValueError(error) => error.set_path(path),
+            FunctionError::ImportASGError(_error) => (),
         }
     }
 
