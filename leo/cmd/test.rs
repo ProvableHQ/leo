@@ -14,15 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use]
-extern crate thiserror;
+use crate::{cmd::Cmd, context::Context};
 
-pub mod cli;
-pub mod cli_types;
-pub mod commands;
-#[cfg_attr(tarpaulin, skip)]
-pub mod config;
-pub mod errors;
-pub mod logger;
-pub mod synthesizer;
-pub mod updater;
+use anyhow::Error;
+use structopt::StructOpt;
+
+/// Add package from Aleo Package Manager
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Test {}
+
+impl Test {
+    pub fn new() -> Test {
+        Test {}
+    }
+}
+
+impl Cmd for Test {
+    type Output = ();
+
+    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
+        Ok(())
+    }
+}

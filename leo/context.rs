@@ -25,6 +25,7 @@ pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
+#[derive(Clone)]
 pub struct Context {
     // will contain manifest
     pub api: Api,

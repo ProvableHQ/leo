@@ -16,6 +16,7 @@
 
 pub mod api;
 pub mod cmd;
+pub mod config;
 pub mod context;
 pub mod logger;
 pub mod synthesizer;

@@ -14,35 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::CLI, cli_types::*, commands::BuildCommand, errors::CLIError};
-use clap::ArgMatches;
+use crate::{cmd::Cmd, context::Context};
+
+use anyhow::Error;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use std::{sync::mpsc::channel, time::Duration};
+use structopt::StructOpt;
+
+use super::build::Build;
 
 const LEO_SOURCE_DIR: &str = "src/";
 
-// Time interval for watching files, in seconds
+/// Time interval for watching files, in seconds
 const INTERVAL: u64 = 3;
 
-pub struct WatchCommand;
+/// Add package from Aleo Package Manager
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Watch {}
 
-impl CLI for WatchCommand {
-    type Options = ();
+impl Watch {
+    pub fn new() -> Watch {
+        Watch {}
+    }
+}
+
+impl Cmd for Watch {
     type Output = ();
 
-    const ABOUT: AboutType = "Watch for changes of Leo source files";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "watch";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         // Begin "Watching" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Watching");
         let _enter = span.enter();
@@ -57,7 +57,7 @@ impl CLI for WatchCommand {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match BuildCommand::output(()) {
+                    match Build::new().apply(ctx.clone()) {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }

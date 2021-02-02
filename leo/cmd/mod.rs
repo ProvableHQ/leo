@@ -22,6 +22,11 @@ pub mod build;
 pub mod clean;
 pub mod init;
 pub mod new;
+pub mod prove;
+pub mod run;
+pub mod setup;
+pub mod test;
+pub mod watch;
 
 // not implemented
 pub mod deploy;
@@ -46,7 +51,8 @@ pub trait Cmd {
     where
         Self: std::marker::Sized,
     {
-        let span = tracing::span!(tracing::Level::INFO, "Adding");
+        // let value = self.name();
+        let span = tracing::span!(tracing::Level::INFO, "CMD");
         let span = span.enter();
 
         let context = self.context()?;

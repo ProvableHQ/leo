@@ -14,47 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, commands::SetupCommand, errors::CLIError};
-use leo_package::{outputs::ProofFile, root::Manifest};
+use super::setup::Setup;
+use crate::{cmd::Cmd, context::Context};
+use anyhow::Error;
+use structopt::StructOpt;
+
+use leo_package::outputs::ProofFile;
 
 use snarkvm_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 
-use clap::ArgMatches;
 use rand::thread_rng;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+use std::time::Instant;
 
-#[derive(Debug)]
-pub struct ProveCommand;
+/// Init Leo project command in current directory
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Prove {}
 
-impl CLI for ProveCommand {
-    type Options = ();
+impl Prove {
+    pub fn new() -> Prove {
+        Prove {}
+    }
+}
+
+impl Cmd for Prove {
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
-    const ABOUT: AboutType = "Run the program and produce a proof";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "prove";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        let (program, parameters, prepared_verifying_key) = Setup::new().apply(ctx.clone())?;
 
         // Begin "Proving" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Proving");
         let enter = span.enter();
 
         // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
 
         tracing::info!("Starting...");
 

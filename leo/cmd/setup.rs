@@ -14,62 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
-    errors::{CLIError, RunError},
-};
+use crate::{cmd::Cmd, context::Context};
+use anyhow::{anyhow, Error};
+
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     outputs::{ProvingKeyFile, VerificationKeyFile},
-    root::Manifest,
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use rand::thread_rng;
 use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::snark::SNARK;
 
-use clap::ArgMatches;
-use rand::thread_rng;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+use std::time::Instant;
+use structopt::StructOpt;
 
-#[derive(Debug)]
-pub struct SetupCommand;
+use super::build::Build;
 
-impl CLI for SetupCommand {
-    type Options = ();
+/// Create new Leo project
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Setup {}
+
+impl Setup {
+    pub fn new() -> Setup {
+        Setup {}
+    }
+}
+
+impl Cmd for Setup {
     type Output = (
         Compiler<Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
 
-    const ABOUT: AboutType = "Run a program setup";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "setup";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
+        let build_result = Build::new().apply(ctx);
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
-
-        match BuildCommand::output(options)? {
+        match build_result? {
             Some((program, checksum_differs)) => {
-                // Begin "Setup" context for console logging
-                let span = tracing::span!(tracing::Level::INFO, "Setup");
-                let enter = span.enter();
-
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
@@ -135,9 +123,6 @@ impl CLI for SetupCommand {
                     (end, proving_key, prepared_verifying_key)
                 };
 
-                // Drop "Setup" context for console logging
-                drop(enter);
-
                 // Begin "Done" context for console logging
                 tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
                     tracing::info!("Finished in {:?} milliseconds\n", end);
@@ -150,9 +135,7 @@ impl CLI for SetupCommand {
                 main_file_path.push(SOURCE_DIRECTORY_NAME);
                 main_file_path.push(MAIN_FILENAME);
 
-                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
-                    main_file_path.into_os_string(),
-                )))
+                Err(anyhow!("Unable to build, check that main file exists"))
             }
         }
     }

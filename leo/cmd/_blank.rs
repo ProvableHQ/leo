@@ -14,53 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod add;
-pub use self::add::*;
+use crate::{
+    cmd::Cmd,
+    context::{Context, PACKAGE_MANAGER_URL},
+};
 
-pub mod build;
-pub use self::build::*;
+use anyhow::{anyhow, Error};
+use structopt::StructOpt;
 
-pub mod clean;
-pub use self::clean::*;
+/// Add package from Aleo Package Manager
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Blank {}
 
-pub mod deploy;
-pub use self::deploy::*;
+impl Blank {
+    pub fn new() -> Blank {
+        Blank {}
+    }
+}
 
-pub mod init;
-pub use self::init::*;
+impl Cmd for Blank {
+    type Output = ();
 
-pub mod lint;
-pub use self::lint::*;
-
-pub mod login;
-pub use self::login::*;
-
-pub mod logout;
-pub use self::logout::*;
-
-pub mod new;
-pub use self::new::*;
-
-pub mod prove;
-pub use self::prove::*;
-
-pub mod publish;
-pub use self::publish::*;
-
-pub mod run;
-pub use self::run::*;
-
-pub mod setup;
-pub use self::setup::*;
-
-pub mod test;
-pub use self::test::*;
-
-pub mod remove;
-pub use self::remove::*;
-
-pub mod update;
-pub use self::update::*;
-
-pub mod watch;
-pub use self::watch::*;
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        Ok(())
+    }
+}

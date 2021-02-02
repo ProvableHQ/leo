@@ -21,6 +21,7 @@ use reqwest::{
 };
 use serde::Serialize;
 
+#[derive(Clone)]
 pub struct Api {
     host: String,
     client: Client,

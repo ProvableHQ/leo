@@ -14,38 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
+use crate::{cmd::Cmd, context::Context};
+
+use anyhow::Error;
+use structopt::StructOpt;
+
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
 use snarkvm_algorithms::snark::groth16::Groth16;
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 
-use clap::ArgMatches;
+use super::prove::Prove;
 use std::time::Instant;
 
-#[derive(Debug)]
-pub struct RunCommand;
+/// Add package from Aleo Package Manager
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Run {}
 
-impl CLI for RunCommand {
-    type Options = ();
+impl Run {
+    pub fn new() -> Run {
+        Run {}
+    }
+}
+
+impl Cmd for Run {
     type Output = ();
 
-    const ABOUT: AboutType = "Run a program with input variables";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "run";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        let (proof, prepared_verifying_key) = Prove::new().apply(ctx)?;
 
         // Begin "Verifying" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Verifying");

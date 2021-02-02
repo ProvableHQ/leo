@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::CLIError;
-
+use anyhow::Error;
 use dirs::home_dir;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -75,7 +74,7 @@ impl Default for Config {
 
 impl Config {
     /// Read the config from the `config.toml` file
-    pub fn read_config() -> Result<Self, CLIError> {
+    pub fn read_config() -> Result<Self, Error> {
         let config_dir = LEO_CONFIG_DIRECTORY.clone();
         let config_path = LEO_CONFIG_PATH.clone();
 
@@ -112,7 +111,7 @@ impl Config {
     }
 
     /// Update the `automatic` configuration in the `config.toml` file.
-    pub fn set_update_automatic(automatic: bool) -> Result<(), CLIError> {
+    pub fn set_update_automatic(automatic: bool) -> Result<(), Error> {
         let mut config = Self::read_config()?;
 
         if config.update.automatic != automatic {

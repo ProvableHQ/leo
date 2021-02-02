@@ -16,6 +16,7 @@
 
 pub mod api;
 pub mod cmd;
+pub mod config;
 pub mod context;
 pub mod logger;
 pub mod synthesizer;
@@ -23,7 +24,21 @@ pub mod synthesizer;
 use anyhow::Error;
 use std::process::exit;
 
-use cmd::{add::Add, build::Build, clean::Clean, deploy::Deploy, init::Init, lint::Lint, new::New, Cmd};
+use cmd::{
+    add::Add,
+    build::Build,
+    clean::Clean,
+    deploy::Deploy,
+    init::Init,
+    lint::Lint,
+    new::New,
+    prove::Prove,
+    run::Run,
+    setup::Setup,
+    watch::Watch,
+    Cmd,
+};
+
 use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(StructOpt, Debug)]
@@ -47,6 +62,24 @@ enum Opt {
         cmd: Build,
     },
 
+    #[structopt(about = "Run a program setup")]
+    Setup {
+        #[structopt(flatten)]
+        cmd: Setup,
+    },
+
+    #[structopt(about = "Run the program and produce a proof")]
+    Prove {
+        #[structopt(flatten)]
+        cmd: Prove,
+    },
+
+    #[structopt(about = "Run a program with input variables")]
+    Run {
+        #[structopt(flatten)]
+        cmd: Run,
+    },
+
     #[structopt(about = "Import package from Aleo PM")]
     Add {
         #[structopt(flatten)]
@@ -57,6 +90,12 @@ enum Opt {
     Clean {
         #[structopt(flatten)]
         cmd: Clean,
+    },
+
+    #[structopt(about = "Watch for changes of Leo source files and run build")]
+    Watch {
+        #[structopt(flatten)]
+        cmd: Watch,
     },
 
     #[structopt(about = "Lint package code (not implemented)")]
@@ -73,6 +112,10 @@ enum Opt {
 }
 
 fn main() {
+    // before even starting to match we init logger...
+    // TODO: add debug option here!
+    logger::init_logger("leo", 1);
+
     let matches = Opt::from_args();
 
     handle_error(match matches {
@@ -80,7 +123,11 @@ fn main() {
         Opt::New { cmd } => cmd.execute(),
         Opt::Add { cmd } => cmd.execute(),
         Opt::Build { cmd } => cmd.execute(),
+        Opt::Setup { cmd } => cmd.execute(),
+        Opt::Prove { cmd } => cmd.execute(),
+        Opt::Run { cmd } => cmd.execute(),
         Opt::Clean { cmd } => cmd.execute(),
+        Opt::Watch { cmd } => cmd.execute(),
         Opt::Lint { cmd } => cmd.execute(),
         Opt::Deploy { cmd } => cmd.execute(),
     });
