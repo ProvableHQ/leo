@@ -31,7 +31,7 @@ use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
-/// Stores the Leo program abstract semantic graph (asg).
+/// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
 pub struct InnerProgram {
     /// The unique id of the program.
