@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
-/// Stores the Leo program abstract semantic graph (asg).
+/// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
 pub struct InnerProgram {
     /// The unique id of the program.

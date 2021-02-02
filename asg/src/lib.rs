@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The abstract semantic graph (asg) for a Leo program.
+//! The abstract semantic graph (ASG) for a Leo program.
 //!
 //! This module contains the [`Asg`] type, an abstract data type that represents a Leo program
 //! as a series of graph nodes. The [`Asg`] type is at a greater level of abstraction than an [`Ast`].
@@ -22,7 +22,6 @@
 //! A new [`Asg`] type can be created from an [`Ast`].
 //! Converting to an [`Asg`] provides greater type safety by canonicalizing and checking program types.
 
-#![allow(clippy::from_over_into)]
 #[macro_use]
 extern crate thiserror;
 
@@ -72,7 +71,7 @@ pub use leo_ast::{Identifier, Span};
 
 use std::path::Path;
 
-/// The abstract semantic graph (asg) for a Leo program.
+/// The abstract semantic graph (ASG) for a Leo program.
 ///
 /// The [`Asg`] type represents a Leo program as a series of recursive data types.
 /// These data types form a graph that begins from a [`Program`] type node.
