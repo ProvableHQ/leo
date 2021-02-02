@@ -17,7 +17,7 @@
 use crate::context::{get_context, Context};
 use anyhow::Result;
 
-pub mod add;
+// local program commands
 pub mod build;
 pub mod clean;
 pub mod init;
@@ -27,6 +27,13 @@ pub mod run;
 pub mod setup;
 pub mod test;
 pub mod watch;
+
+// aleo pm related commands
+pub mod add;
+pub mod login;
+pub mod logout;
+pub mod publish;
+pub mod remove;
 
 // not implemented
 pub mod deploy;

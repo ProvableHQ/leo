@@ -31,10 +31,15 @@ use cmd::{
     deploy::Deploy,
     init::Init,
     lint::Lint,
+    login::Login,
+    logout::Logout,
     new::New,
     prove::Prove,
+    publish::Publish,
+    remove::Remove,
     run::Run,
     setup::Setup,
+    test::Test,
     watch::Watch,
     Cmd,
 };
@@ -80,12 +85,6 @@ enum Opt {
         cmd: Run,
     },
 
-    #[structopt(about = "Import package from Aleo PM")]
-    Add {
-        #[structopt(flatten)]
-        cmd: Add,
-    },
-
     #[structopt(about = "Clean current package: remove proof and circuits")]
     Clean {
         #[structopt(flatten)]
@@ -96,6 +95,42 @@ enum Opt {
     Watch {
         #[structopt(flatten)]
         cmd: Watch,
+    },
+
+    #[structopt(about = "Compile and run all tests in the current package")]
+    Test {
+        #[structopt(flatten)]
+        cmd: Test,
+    },
+
+    #[structopt(about = "Import package from Aleo PM")]
+    Add {
+        #[structopt(flatten)]
+        cmd: Add,
+    },
+
+    #[structopt(about = "Login to the Aleo Package Manager")]
+    Login {
+        #[structopt(flatten)]
+        cmd: Login,
+    },
+
+    #[structopt(about = "Logout from Aleo Package Manager")]
+    Logout {
+        #[structopt(flatten)]
+        cmd: Logout,
+    },
+
+    #[structopt(about = "Publish package to Aleo PM")]
+    Publish {
+        #[structopt(flatten)]
+        cmd: Publish,
+    },
+
+    #[structopt(about = "Remove imported package")]
+    Remove {
+        #[structopt(flatten)]
+        cmd: Remove,
     },
 
     #[structopt(about = "Lint package code (not implemented)")]
@@ -121,13 +156,20 @@ fn main() {
     handle_error(match matches {
         Opt::Init { cmd } => cmd.execute(),
         Opt::New { cmd } => cmd.execute(),
-        Opt::Add { cmd } => cmd.execute(),
         Opt::Build { cmd } => cmd.execute(),
         Opt::Setup { cmd } => cmd.execute(),
         Opt::Prove { cmd } => cmd.execute(),
+        Opt::Test { cmd } => cmd.execute(),
         Opt::Run { cmd } => cmd.execute(),
         Opt::Clean { cmd } => cmd.execute(),
         Opt::Watch { cmd } => cmd.execute(),
+
+        Opt::Add { cmd } => cmd.execute(),
+        Opt::Login { cmd } => cmd.execute(),
+        Opt::Logout { cmd } => cmd.execute(),
+        Opt::Publish { cmd } => cmd.execute(),
+        Opt::Remove { cmd } => cmd.execute(),
+
         Opt::Lint { cmd } => cmd.execute(),
         Opt::Deploy { cmd } => cmd.execute(),
     });

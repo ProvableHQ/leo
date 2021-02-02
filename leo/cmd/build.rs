@@ -32,7 +32,7 @@ use anyhow::Error;
 use std::{convert::TryFrom, time::Instant};
 use structopt::StructOpt;
 
-/// Init Leo project command in current directory
+/// Compile and build program
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {}

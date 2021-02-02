@@ -24,7 +24,7 @@ use leo_package::{
 use std::{convert::TryFrom, env::current_dir};
 use structopt::StructOpt;
 
-/// Clean folder command
+/// Clean outputs folder command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Clean {}

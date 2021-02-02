@@ -15,28 +15,23 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    cli::*,
-    cli_types::*,
-    commands::{BuildCommand, LoginCommand},
-    config::{read_token, PACKAGE_MANAGER_URL},
-    errors::{
-        commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
-        CLIError,
-        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
-    },
-};
-use leo_package::{
-    outputs::OutputsDirectory,
-    root::{Manifest, ZipFile},
+    cmd::Cmd,
+    context::{Context, PACKAGE_MANAGER_URL},
 };
 
-use clap::ArgMatches;
+use anyhow::{anyhow, Error};
+use structopt::StructOpt;
+
+use crate::config::read_token;
 use reqwest::{
     blocking::{multipart::Form, Client},
     header::{HeaderMap, HeaderValue},
 };
+
+use super::build::Build;
 use serde::Deserialize;
-use std::{convert::TryFrom, env::current_dir};
+
+use leo_package::{outputs::OutputsDirectory, root::ZipFile};
 
 pub const PUBLISH_URL: &str = "v1/package/publish";
 
@@ -45,52 +40,46 @@ struct ResponseJson {
     package_id: String,
 }
 
-#[derive(Debug)]
-pub struct PublishCommand;
+/// Publish package to Aleo Package Manager
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Publish {}
 
-impl CLI for PublishCommand {
-    type Options = ();
+impl Publish {
+    pub fn new() -> Publish {
+        Publish {}
+    }
+}
+
+impl Cmd for Publish {
     type Output = Option<String>;
 
-    const ABOUT: AboutType = "Publish the current package to the Aleo Package Manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "publish";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
-    }
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         // Build all program files.
-        let _output = BuildCommand::output(())?;
+        let _output = Build::new().apply(ctx.clone())?;
 
         // Begin "Publishing" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Publishing");
         let _enter = span.enter();
 
         // Get the package manifest
-        let path = current_dir()?;
-        let package_manifest = Manifest::try_from(path.as_path())?;
+        let path = ctx.dir()?;
+        let package_manifest = ctx.manifest()?;
 
         let package_name = package_manifest.get_package_name();
         let package_version = package_manifest.get_package_version();
 
         if package_manifest.get_package_description().is_none() {
-            return Err(MissingPackageDescription.into());
+            return Err(anyhow!("No package description"));
         }
 
         if package_manifest.get_package_license().is_none() {
-            return Err(MissingPackageLicense.into());
+            return Err(anyhow!("Missing package license"));
         }
 
         let package_remote = match package_manifest.get_package_remote() {
             Some(remote) => remote,
-            None => return Err(MissingPackageRemote.into()),
+            None => return Err(anyhow!("Missing package remote")),
         };
 
         // Create the output directory
@@ -121,11 +110,13 @@ impl CLI for PublishCommand {
 
             // If not logged in, then try logging in using JWT.
             Err(_error) => {
-                tracing::warn!("You should be logged in before attempting to publish a package");
-                tracing::info!("Trying to log in using JWT...");
-                let options = (None, None, None);
+                return Err(anyhow!("Not logged in"));
 
-                LoginCommand::output(options)?
+                // tracing::warn!("You should be logged in before attempting to publish a package");
+                // tracing::info!("Trying to log in using JWT...");
+
+                // let options = (None, None, None);
+                // LoginCommand::output(options)?
             }
         };
 
@@ -149,12 +140,12 @@ impl CLI for PublishCommand {
                 Ok(json) => json,
                 Err(error) => {
                     tracing::warn!("{:?}", error);
-                    return Err(PackageNotPublished("Package not published".into()).into());
+                    return Err(anyhow!("Package not published"));
                 }
             },
             Err(error) => {
                 tracing::warn!("{:?}", error);
-                return Err(ConnectionUnavalaible("Connection error".into()).into());
+                return Err(anyhow!("Connection unavailable"));
             }
         };
 

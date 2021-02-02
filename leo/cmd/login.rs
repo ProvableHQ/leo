@@ -14,74 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//
-// Usage:
-//
-//    leo login <token>
-//    leo login -u username -p password
-//
-
 use crate::{
-    cli::CLI,
-    cli_types::*,
-    config::*,
-    errors::{CLIError, LoginError::*},
+    cmd::Cmd,
+    context::{Context, PACKAGE_MANAGER_URL},
 };
+
+use crate::config::*;
+
+use anyhow::{anyhow, Error};
+use structopt::StructOpt;
 
 use std::collections::HashMap;
 
 pub const LOGIN_URL: &str = "v1/account/authenticate";
 pub const PROFILE_URL: &str = "v1/account/my_profile";
 
-#[derive(Debug)]
-pub struct LoginCommand;
+/// Login to Aleo PM and store credentials locally
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Login {
+    #[structopt(name = "TOKEN")]
+    token: Option<String>,
 
-impl CLI for LoginCommand {
-    // Format: token, username, password
-    type Options = (Option<String>, Option<String>, Option<String>);
+    #[structopt(short = "u", long = "user", about = "Username for Aleo PM")]
+    user: Option<String>,
+
+    #[structopt(short = "p", long = "password", about = "Password for Aleo PM")]
+    pass: Option<String>,
+}
+
+impl Login {
+    pub fn new(token: Option<String>, user: Option<String>, pass: Option<String>) -> Login {
+        Login { token, user, pass }
+    }
+}
+
+impl Cmd for Login {
     type Output = String;
 
-    const ABOUT: AboutType = "Login to the Aleo Package Manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, possible_values, required, index)
-        (
-            "NAME",
-            "Sets the authentication token for login to the package manager",
-            &[],
-            false,
-            1u64,
-        ),
-    ];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "login";
-    const OPTIONS: &'static [OptionType] = &[
-        // (argument, conflicts, possible_values, requires)
-        ("[username] -u --user=[username] 'Sets a username'", &[], &[], &[]),
-        ("[password] -p --password=[password] 'Sets a password'", &[], &[], &[]),
-    ];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
-        if arguments.is_present("username") && arguments.is_present("password") {
-            return Ok((
-                None,
-                Some(arguments.value_of("username").unwrap().to_string()),
-                Some(arguments.value_of("password").unwrap().to_string()),
-            ));
-        }
-
-        match arguments.value_of("NAME") {
-            Some(name) => Ok((Some(name.to_string()), None, None)),
-            None => Ok((None, None, None)),
-        }
-    }
-
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
+    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
         // Begin "Login" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Login");
         let _enter = span.enter();
 
-        let token = match options {
+        let token = match (self.token, self.user, self.pass) {
             // Login using existing token
             (Some(token), _, _) => Some(token),
 
@@ -98,19 +74,19 @@ impl CLI for LoginCommand {
                     Ok(result) => match result.json() {
                         Ok(json) => json,
                         Err(_error) => {
-                            return Err(WrongLoginOrPassword.into());
+                            return Err(anyhow!("Wrong login or password"));
                         }
                     },
                     //Cannot connect to the server
                     Err(_error) => {
-                        return Err(NoConnectionFound.into());
+                        return Err(anyhow!("No connection found"));
                     }
                 };
 
                 match response.get("token") {
                     Some(token) => Some(token.clone()),
                     None => {
-                        return Err(CannotGetToken.into());
+                        return Err(anyhow!("Unable to get token"));
                     }
                 }
             }
@@ -118,7 +94,7 @@ impl CLI for LoginCommand {
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
             (_, _, _) => {
-                let token = read_token().map_err(|_| -> CLIError { NoCredentialsProvided.into() })?;
+                let token = read_token().map_err(|_| -> Error { anyhow!("No credentials provided") })?;
 
                 Some(token)
             }
@@ -135,7 +111,7 @@ impl CLI for LoginCommand {
             _ => {
                 tracing::error!("Failed to login. Please run `leo login -h` for help.");
 
-                Err(NoCredentialsProvided.into())
+                Err(anyhow!("No credentials provided. Please read --help"))
             }
         }
     }
