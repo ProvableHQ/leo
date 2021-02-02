@@ -286,14 +286,12 @@ impl<'ast> From<SelfPostfixExpression<'ast>> for Expression {
 
         // Handle calls, should only ever come after self. or self::
         match expression.call {
-            Some(function) => {
-                return Expression::Call(CallExpression {
-                    function: Box::new(final_expression),
-                    arguments: function.expressions.into_iter().map(Expression::from).collect(),
-                    span: Span::from(function.span),
-                });
-            }
-            None => return final_expression,
+            Some(function) => Expression::Call(CallExpression {
+                function: Box::new(final_expression),
+                arguments: function.expressions.into_iter().map(Expression::from).collect(),
+                span: Span::from(function.span),
+            }),
+            None => final_expression,
         }
     }
 }
