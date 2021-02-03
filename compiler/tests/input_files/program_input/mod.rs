@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,6 +28,16 @@ fn expect_fail(program: EdwardsTestCompiler) {
 fn test_input_pass() {
     let program_string = include_str!("main.leo");
     let input_string = include_str!("input/main.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_input_array_fail() {
+    let program_string = include_str!("main_array.leo");
+    let input_string = include_str!("input/main_array.in");
 
     let program = parse_program_with_input(program_string, input_string).unwrap();
 

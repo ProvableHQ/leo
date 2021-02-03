@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,10 +27,7 @@ impl fmt::Display for CircuitInitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{", self.name)?;
         for (i, member) in self.members.iter().enumerate() {
-            match &member.expression {
-                Some(expression) => write!(f, "{}: {}", member.identifier, expression)?,
-                None => write!(f, "{}", member.identifier)?,
-            };
+            write!(f, "{}: {}", member.identifier, member.expression)?;
 
             if i < self.members.len() - 1 {
                 write!(f, ", ")?;

@@ -918,6 +918,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "getrandom"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9495705279e7140bf035dde1f6e750c162df8b625267cd52cc44e0b156732c8"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "wasi 0.10.0+wasi-snapshot-preview1",
+]
+
+[[package]]
 name = "gimli"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1220,6 +1231,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
+name = "leo-asg"
+version = "1.0.8"
+dependencies = [
+ "criterion",
+ "indexmap",
+ "leo-ast",
+ "leo-grammar",
+ "num-bigint",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "leo-ast"
 version = "1.0.8"
 dependencies = [
@@ -1240,16 +1266,14 @@ dependencies = [
  "bincode",
  "hex",
  "indexmap",
+ "leo-asg",
  "leo-ast",
- "leo-core",
  "leo-gadgets",
  "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-symbol-table",
- "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1266,22 +1290,7 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "leo-core"
-version = "1.0.8"
-dependencies = [
- "leo-ast",
- "leo-gadgets",
- "rand",
- "rand_xorshift",
- "snarkvm-curves",
- "snarkvm-errors",
- "snarkvm-gadgets",
- "snarkvm-models",
- "snarkvm-utilities",
- "thiserror",
+ "uuid",
 ]
 
 [[package]]
@@ -1318,6 +1327,7 @@ name = "leo-imports"
 version = "1.0.8"
 dependencies = [
  "indexmap",
+ "leo-asg",
  "leo-ast",
  "leo-grammar",
  "thiserror",
@@ -1409,33 +1419,6 @@ dependencies = [
  "snarkvm-objects",
  "snarkvm-storage",
  "snarkvm-utilities",
- "thiserror",
-]
-
-[[package]]
-name = "leo-symbol-table"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-core",
- "leo-grammar",
- "leo-imports",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "leo-type-inference"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-grammar",
- "leo-imports",
- "leo-symbol-table",
- "serde",
- "serde_json",
  "thiserror",
 ]
 
@@ -2070,7 +2053,7 @@ version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a6b1679d49b24bbfe0c803429aa1874472f50d9b363131f0e89fc356b544d03"
 dependencies = [
- "getrandom",
+ "getrandom 0.1.15",
  "libc",
  "rand_chacha",
  "rand_core 0.5.1",
@@ -2093,7 +2076,7 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90bde5296fc891b0cef12a6d03ddccc162ce7b2aff54160af9338f8d40df6d19"
 dependencies = [
- "getrandom",
+ "getrandom 0.1.15",
 ]
 
 [[package]]
@@ -2157,7 +2140,7 @@ version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de0737333e7a9502c789a36d7c7fa6092a49895d4faa31ca5df163857ded2e9d"
 dependencies = [
- "getrandom",
+ "getrandom 0.1.15",
  "redox_syscall",
  "rust-argon2",
 ]
@@ -2403,9 +2386,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.122"
+version = "1.0.123"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "974ef1bd2ad8a507599b336595454081ff68a9599b4890af7643c0c0ed73a62c"
+checksum = "92d5161132722baa40d802cc70b15262b98258453e85e5d1d365c757c73869ae"
 dependencies = [
  "serde_derive",
 ]
@@ -2422,9 +2405,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.122"
+version = "1.0.123"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dee1f300f838c8ac340ecb0112b3ac472464fa67e87292bdb3dfc9c49128e17"
+checksum = "9391c295d64fc0abb2c556bad848f33cb8296276b1ad2677d1ae1ace4f258f31"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.7",
@@ -3104,6 +3087,16 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "uuid"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom 0.2.2",
+ "serde",
 ]
 
 [[package]]

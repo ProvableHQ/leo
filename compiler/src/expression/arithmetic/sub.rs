@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -39,14 +39,6 @@ pub fn enforce_sub<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
         }
         (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
             Ok(ConstrainedValue::Group(point_1.sub(cs, &point_2, span)?))
-        }
-        (ConstrainedValue::Unresolved(string), val_2) => {
-            let val_1 = ConstrainedValue::from_other(string, &val_2, &span)?;
-            enforce_sub(cs, val_1, val_2, span)
-        }
-        (val_1, ConstrainedValue::Unresolved(string)) => {
-            let val_2 = ConstrainedValue::from_other(string, &val_1, &span)?;
-            enforce_sub(cs, val_1, val_2, span)
         }
         (val_1, val_2) => Err(ExpressionError::incompatible_types(
             format!("{} - {}", val_1, val_2),

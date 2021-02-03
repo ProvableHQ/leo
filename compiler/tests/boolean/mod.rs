@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 
 use crate::{
     assert_satisfied,
+    expect_asg_error,
     expect_compiler_error,
-    expect_type_inference_error,
     get_output,
     parse_program,
     parse_program_with_input,
@@ -104,9 +104,9 @@ fn test_not_mutable() {
 #[test]
 fn test_not_u32() {
     let program_string = include_str!("not_u32.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 // Boolean or ||
@@ -140,7 +140,7 @@ fn test_true_or_u32() {
     let program_string = include_str!("true_or_u32.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 // Boolean and &&
@@ -174,7 +174,7 @@ fn test_true_and_u32() {
     let program_string = include_str!("true_and_u32.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 // All

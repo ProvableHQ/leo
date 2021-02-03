@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -96,7 +96,7 @@ impl CLI for UpdateCommand {
                     Ok(status) => {
                         if !quiet {
                             if status.uptodate() {
-                                tracing::info!("Leo is already on the latest version {}", status.version());
+                                tracing::info!("Leo is already on the latest version");
                             } else if status.updated() {
                                 tracing::info!("Leo has successfully updated to version {}", status.version());
                             }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,8 +16,9 @@
 
 //! Enforce a function call expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, new_scope, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{expression::CircuitMemberAccessExpression, Expression, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Function, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -29,51 +30,29 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        function: Expression,
-        arguments: Vec<Expression>,
-        span: Span,
+        function: &Arc<Function>,
+        target: Option<&Arc<Expression>>,
+        arguments: &[Arc<Expression>],
+        span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let (declared_circuit_reference, function_value) = match function {
-            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
-                // Call a circuit function that can mutate self.
-
-                // Save a reference to the circuit we are mutating.
-                let circuit_id_string = circuit.to_string();
-                let declared_circuit_reference = new_scope(function_scope, &circuit_id_string);
-
-                (
-                    declared_circuit_reference,
-                    self.enforce_circuit_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)?,
-                )
-            }
-            function => (
-                function_scope.to_string(),
-                self.enforce_expression(cs, file_scope, function_scope, expected_type, function)?,
-            ),
-        };
-
-        let (outer_scope, function_call) = function_value.extract_function(file_scope, &span)?;
-
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
-                function_call.get_name(),
+                function.name.borrow().clone(),
                 span.line,
                 span.start,
             )
         };
+        let function = function
+            .body
+            .borrow()
+            .upgrade()
+            .expect("stale function in call expression");
 
-        self.enforce_function(
-            &mut cs.ns(name_unique),
-            &outer_scope,
-            function_scope,
-            function_call,
-            arguments,
-            &declared_circuit_reference,
-        )
-        .map_err(|error| ExpressionError::from(Box::new(error)))
+        let return_value = self
+            .enforce_function(&mut cs.ns(name_unique), &function, target, arguments)
+            .map_err(|error| ExpressionError::from(Box::new(error)))?;
+
+        Ok(return_value)
     }
 }

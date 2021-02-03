@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitImpliedVariableDefinition {
     pub identifier: Identifier,
-    pub expression: Option<Expression>,
+    pub expression: Expression,
 }
 
 impl<'ast> From<CircuitImpliedVariable<'ast>> for CircuitImpliedVariableDefinition {
@@ -30,11 +30,11 @@ impl<'ast> From<CircuitImpliedVariable<'ast>> for CircuitImpliedVariableDefiniti
         match member {
             CircuitImpliedVariable::CircuitVariable(circuit_variable) => Self {
                 identifier: Identifier::from(circuit_variable.identifier),
-                expression: Some(Expression::from(circuit_variable.expression)),
+                expression: Expression::from(circuit_variable.expression),
             },
             CircuitImpliedVariable::Identifier(identifier) => Self {
-                identifier: Identifier::from(identifier),
-                expression: None,
+                identifier: Identifier::from(identifier.clone()),
+                expression: Expression::from(identifier),
             },
         }
     }

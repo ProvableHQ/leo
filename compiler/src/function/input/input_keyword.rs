@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Identifier, Input, InputKeyword};
+use leo_asg::{CircuitBody, CircuitMemberBody, Type};
+use leo_ast::{Identifier, Input, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -27,31 +29,31 @@ pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
-#[allow(clippy::vec_init_then_push)]
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        keyword: InputKeyword,
+        span: Span,
+        expected_type: &Arc<CircuitBody>,
         input: &Input,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
             name: REGISTERS_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span: span.clone(),
         };
         let record_name = Identifier {
             name: RECORD_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span: span.clone(),
         };
         let state_name = Identifier {
             name: STATE_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span: span.clone(),
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span: keyword.span.clone(),
+            span,
         };
 
         // Fetch each input variable's definitions
@@ -73,8 +75,17 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut members = Vec::with_capacity(sections.len());
 
         for (name, values) in sections {
+            let sub_circuit = match expected_type.members.borrow().get(&name.name) {
+                Some(CircuitMemberBody::Variable(Type::Circuit(circuit))) => circuit
+                    .body
+                    .borrow()
+                    .upgrade()
+                    .expect("stale circuit body for input subtype"),
+                _ => panic!("illegal input type definition from asg"),
+            };
+
             let member_name = name.clone();
-            let member_value = self.allocate_input_section(cs, name, values)?;
+            let member_value = self.allocate_input_section(cs, name, sub_circuit, values)?;
 
             let member = ConstrainedCircuitMember(member_name, member_value);
 
@@ -83,6 +94,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return input variable keyword as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(Identifier::from(keyword), members))
+        Ok(ConstrainedValue::CircuitExpression(expected_type.clone(), members))
     }
 }
