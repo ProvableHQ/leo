@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "1.1.8"
+version = "1.2.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core AST of the Leo programming language"
 homepage = "https://aleo.org"
@@ -28,11 +28,11 @@ harness = false
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.1.8"
+version = "1.2.0"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.1.8"
+version = "1.2.0"
 
 [dependencies.indexmap]
 version = "1.6.1"
