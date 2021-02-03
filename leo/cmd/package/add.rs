@@ -18,21 +18,16 @@ use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 use tracing::Span;
 
 use std::{
-    collections::HashMap,
-    env::current_dir,
     fs::{create_dir_all, File},
     io::{Read, Write},
 };
 
-use crate::{
-    cmd::Cmd,
-    context::{Context, PACKAGE_MANAGER_URL},
-};
+use crate::{cmd::Cmd, context::Context};
 
 use anyhow::{anyhow, Error};
 use structopt::StructOpt;
 
-pub const ADD_URL: &str = "v1/package/fetch";
+use crate::api::Fetch;
 
 /// Add package from Aleo Package Manager
 #[derive(StructOpt, Debug)]
@@ -73,12 +68,16 @@ impl Add {
             if v.len() == 2 {
                 Ok((v[0].to_string(), v[1].to_string()))
             } else {
-                Err(anyhow!("Unable to parse argument"))
+                Err(anyhow!(
+                    "Incorrect argument, please use --help for information on command use"
+                ))
             }
         } else if let (Some(author), Some(package)) = (&self.author, &self.package) {
             Ok((author.clone(), package.clone()))
         } else {
-            Err(anyhow!("Unable to parse remote string"))
+            Err(anyhow!(
+                "Incorrect argument, please use --help for information on command use"
+            ))
         }
     }
 }
@@ -101,45 +100,39 @@ impl Cmd for Add {
             return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));
         };
 
-        let version = &self.version;
         let (author, package_name) = match self.try_read_arguments() {
             Ok((author, package)) => (author, package),
             Err(err) => return Err(err),
         };
+        let version = self.version;
 
-        let client = reqwest::blocking::Client::new();
-        let url = format!("{}{}", PACKAGE_MANAGER_URL, ADD_URL);
-
-        let mut json = HashMap::new();
-        json.insert("author", author);
-        json.insert("package_name", package_name.clone());
-
-        if let Some(version) = version {
-            json.insert("version", version.clone());
-        }
-
-        let response = match client.post(&url).json(&json).send() {
-            Ok(response) => response,
-            // Cannot connect to the server
-            Err(_error) => return Err(anyhow!("Could not connect to the Aleo Package Manager")),
+        // build request body (Options are skipped when sealizing)
+        let fetch = Fetch {
+            author,
+            package_name: package_name.clone(),
+            version,
         };
 
-        let mut path = current_dir()?;
-        ImportsDirectory::create(&path)?;
-        path.push(IMPORTS_DIRECTORY_NAME);
-        path.push(package_name);
-        create_dir_all(&path)?;
+        let bytes = ctx.api.run_route(fetch)?.bytes()?;
+        let mut path = ctx.dir()?;
 
-        let bytes = response.bytes()?;
+        {
+            // setup directory structure since request was success
+            ImportsDirectory::create(&path)?;
+            path.push(IMPORTS_DIRECTORY_NAME);
+            path.push(package_name);
+            create_dir_all(&path)?;
+        };
+
         let reader = std::io::Cursor::new(bytes);
 
-        let mut zip_arhive = match zip::ZipArchive::new(reader) {
+        let mut zip_archive = match zip::ZipArchive::new(reader) {
             Ok(zip) => zip,
             Err(error) => return Err(anyhow!(error)),
         };
 
-        for i in 0..zip_arhive.len() {
-            let file = match zip_arhive.by_index(i) {
+        for i in 0..zip_archive.len() {
+            let file = match zip_archive.by_index(i) {
                 Ok(file) => file,
                 Err(error) => return Err(anyhow!(error)),
             };
@@ -160,7 +153,7 @@ impl Cmd for Add {
             }
         }
 
-        tracing::info!("Successfully added a package\n");
+        tracing::info!("Successfully added a package");
 
         Ok(())
     }

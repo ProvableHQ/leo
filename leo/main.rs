@@ -184,7 +184,7 @@ fn main() {
 
         Command::Lint { cmd } => cmd.try_execute(),
         Command::Deploy { cmd } => cmd.try_execute(),
-    }); // map here empties the result
+    });
 }
 
 fn handle_error<T>(res: Result<T, Error>) -> T {

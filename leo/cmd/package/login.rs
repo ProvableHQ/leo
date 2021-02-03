@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cmd::Cmd,
-    context::{Context, PACKAGE_MANAGER_URL},
-};
+use crate::{cmd::Cmd, context::Context};
+
+use crate::api::Login as LoginRoute;
 
 use crate::config::*;
 
@@ -34,9 +33,6 @@ pub const PROFILE_URL: &str = "v1/account/my_profile";
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Login {
-    #[structopt(name = "TOKEN")]
-    token: Option<String>,
-
     #[structopt(short = "u", long = "user", about = "Username for Aleo PM")]
     user: Option<String>,
 
@@ -45,8 +41,8 @@ pub struct Login {
 }
 
 impl Login {
-    pub fn new(token: Option<String>, user: Option<String>, pass: Option<String>) -> Login {
-        Login { token, user, pass }
+    pub fn new(user: Option<String>, pass: Option<String>) -> Login {
+        Login { user, pass }
     }
 }
 
@@ -62,63 +58,45 @@ impl Cmd for Login {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
-        let token = match (self.token, self.user, self.pass) {
-            // Login using existing token
-            (Some(token), _, _) => Some(token),
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+        let token = match (self.user, self.pass) {
+            // Login using existing token, use get_profile route for that
+            // (Some(token), _, _) => Some(token),
+            // unimplemented!
 
             // Login using username and password
-            (None, Some(username), Some(password)) => {
-                // prepare JSON data to be sent
-                let mut json = HashMap::new();
-                json.insert("email_username", username);
-                json.insert("password", password);
-
-                let client = reqwest::blocking::Client::new();
-                let url = format!("{}{}", PACKAGE_MANAGER_URL, LOGIN_URL);
-                let response: HashMap<String, String> = match client.post(&url).json(&json).send() {
-                    Ok(result) => match result.json() {
-                        Ok(json) => json,
-                        Err(_error) => {
-                            return Err(anyhow!("Wrong login or password"));
-                        }
-                    },
-                    //Cannot connect to the server
-                    Err(_error) => {
-                        return Err(anyhow!("No connection found"));
-                    }
+            (Some(email_username), Some(password)) => {
+                let login = LoginRoute {
+                    email_username,
+                    password,
                 };
 
-                match response.get("token") {
-                    Some(token) => Some(token.clone()),
+                let res = ctx.api.run_route(login)?;
+                let mut res: HashMap<String, String> = res.json()?;
+
+                let token = match res.remove("token") {
+                    Some(token) => token,
                     None => {
                         return Err(anyhow!("Unable to get token"));
                     }
-                }
+                };
+
+                write_token(token.as_str())?;
+
+                tracing::info!("Success! You are now logged in!");
+
+                token
             }
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
-            (_, _, _) => {
+            (_, _) => {
                 let token = read_token().map_err(|_| -> Error { anyhow!("No credentials provided") })?;
 
-                Some(token)
+                token
             }
         };
 
-        match token {
-            Some(token) => {
-                write_token(token.as_str())?;
-
-                tracing::info!("success");
-
-                Ok(token)
-            }
-            _ => {
-                tracing::error!("Failed to login. Please run `leo login -h` for help.");
-
-                Err(anyhow!("No credentials provided. Please read --help"))
-            }
-        }
+        Ok(token)
     }
 }
