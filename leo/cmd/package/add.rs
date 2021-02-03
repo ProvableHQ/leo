@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
+use tracing::Span;
 
 use std::{
     collections::HashMap,
@@ -83,16 +84,22 @@ impl Add {
 }
 
 impl Cmd for Add {
+    type Input = ();
     type Output = ();
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Adding")
+    }
+
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         // checking that manifest exists...
         if ctx.manifest().is_err() {
             return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));
         };
-
-        // TODO: Add remote parsing feature in the future
-        // let _ = self.try_read_remote();
 
         let version = &self.version;
         let (author, package_name) = match self.try_read_arguments() {

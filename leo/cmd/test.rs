@@ -46,13 +46,18 @@ impl Test {
 }
 
 impl Cmd for Test {
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Test")
     }
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
 
         // Get the package name
@@ -86,10 +91,6 @@ impl Cmd for Test {
         // Create the output directory
         OutputsDirectory::create(&package_path)?;
 
-        // Begin "Test" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Test");
-        let enter = span.enter();
-
         // Start the timer
         let start = Instant::now();
 
@@ -111,9 +112,6 @@ impl Cmd for Test {
         // Run tests
         let temporary_program = program;
         let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
-
-        // Drop "Test" context for console logging
-        drop(enter);
 
         // Set the result of the test command to passed if no tests failed.
         if failed == 0 {

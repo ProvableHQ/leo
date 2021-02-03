@@ -41,17 +41,18 @@ impl Watch {
 }
 
 impl Cmd for Watch {
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Watch")
+        tracing::span!(tracing::Level::INFO, "Watching")
     }
 
-    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
-        // Begin "Watching" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Watching");
-        let _enter = span.enter();
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
 
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
         watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
@@ -62,7 +63,7 @@ impl Cmd for Watch {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match Build::new().run() {
+                    match Build::new().execute() {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }

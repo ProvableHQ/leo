@@ -20,6 +20,7 @@ use leo_package::LeoPackage;
 
 use anyhow::Error;
 use structopt::StructOpt;
+use tracing::span::Span;
 
 /// Remove imported package
 #[derive(StructOpt, Debug, Default)]
@@ -36,13 +37,18 @@ impl Remove {
 }
 
 impl Cmd for Remove {
+    type Input = ();
     type Output = ();
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        // Begin "Removing" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Removing");
-        let _enter = span.enter();
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Removing")
+    }
 
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
         let package_name = self.name;
 

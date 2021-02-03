@@ -45,13 +45,18 @@ impl Build {
 }
 
 impl Cmd for Build {
+    type Input = ();
     type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
     }
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
         let package_name = ctx.manifest()?.get_package_name();
 

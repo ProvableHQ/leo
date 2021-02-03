@@ -20,6 +20,7 @@ use crate::config::remove_token;
 use anyhow::Error;
 use std::io::ErrorKind;
 use structopt::StructOpt;
+use tracing::Span;
 
 /// Remove credentials for Aleo PM from .leo directory
 #[derive(StructOpt, Debug, Default)]
@@ -33,13 +34,18 @@ impl Logout {
 }
 
 impl Cmd for Logout {
+    type Input = ();
     type Output = ();
 
-    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
-        // we gotta do something about this span issue :confused:
-        let span = tracing::span!(tracing::Level::INFO, "Logout");
-        let _ent = span.enter();
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Logout")
+    }
 
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         if let Err(err) = remove_token() {

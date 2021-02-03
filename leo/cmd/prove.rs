@@ -40,14 +40,19 @@ impl Prove {
 }
 
 impl Cmd for Prove {
+    type Input = <Setup as Cmd>::Output;
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Proving")
     }
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        let (program, parameters, prepared_verifying_key) = Setup::new().run()?;
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Setup::new().execute()
+    }
+
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {
+        let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
         let path = ctx.dir()?;

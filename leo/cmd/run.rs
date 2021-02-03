@@ -40,14 +40,19 @@ impl Run {
 }
 
 impl Cmd for Run {
+    type Input = <Prove as Cmd>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
-        let (proof, prepared_verifying_key) = Prove::new().run()?;
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Prove::new().execute()
+    }
+
+    fn apply(self, _ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {
+        let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");
 

@@ -20,6 +20,7 @@ pub mod config;
 pub mod context;
 pub mod logger;
 pub mod synthesizer;
+pub mod updater;
 
 use anyhow::Error;
 use std::process::exit;
@@ -44,7 +45,7 @@ use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
-#[structopt(setting = AppSettings::ColoredHelp)]
+#[structopt(name = "leo", setting = AppSettings::ColoredHelp)]
 struct Opt {
     #[structopt(short, long, help = "Print additional information for debugging")]
     debug: bool,
@@ -158,31 +159,32 @@ fn main() {
     // read command line arguments
     let opt = Opt::from_args();
 
+    // init logger with optional debug flag
     logger::init_logger("leo", match opt.debug {
         false => 1,
         true => 2,
     });
 
     handle_error(match opt.command {
-        Command::Init { cmd } => cmd.execute(),
-        Command::New { cmd } => cmd.execute(),
-        Command::Build { cmd } => cmd.execute(),
-        Command::Setup { cmd } => cmd.execute(),
-        Command::Prove { cmd } => cmd.execute(),
-        Command::Test { cmd } => cmd.execute(),
-        Command::Run { cmd } => cmd.execute(),
-        Command::Clean { cmd } => cmd.execute(),
-        Command::Watch { cmd } => cmd.execute(),
+        Command::Init { cmd } => cmd.try_execute(),
+        Command::New { cmd } => cmd.try_execute(),
+        Command::Build { cmd } => cmd.try_execute(),
+        Command::Setup { cmd } => cmd.try_execute(),
+        Command::Prove { cmd } => cmd.try_execute(),
+        Command::Test { cmd } => cmd.try_execute(),
+        Command::Run { cmd } => cmd.try_execute(),
+        Command::Clean { cmd } => cmd.try_execute(),
+        Command::Watch { cmd } => cmd.try_execute(),
 
-        Command::Add { cmd } => cmd.execute(),
-        Command::Login { cmd } => cmd.execute(),
-        Command::Logout { cmd } => cmd.execute(),
-        Command::Publish { cmd } => cmd.execute(),
-        Command::Remove { cmd } => cmd.execute(),
+        Command::Add { cmd } => cmd.try_execute(),
+        Command::Login { cmd } => cmd.try_execute(),
+        Command::Logout { cmd } => cmd.try_execute(),
+        Command::Publish { cmd } => cmd.try_execute(),
+        Command::Remove { cmd } => cmd.try_execute(),
 
-        Command::Lint { cmd } => cmd.execute(),
-        Command::Deploy { cmd } => cmd.execute(),
-    });
+        Command::Lint { cmd } => cmd.try_execute(),
+        Command::Deploy { cmd } => cmd.try_execute(),
+    }); // map here empties the result
 }
 
 fn handle_error<T>(res: Result<T, Error>) -> T {

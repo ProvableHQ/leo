@@ -13,7 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::{config::Config, errors::UpdaterError};
+use crate::config::Config;
+use anyhow::{anyhow, Error};
 
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
@@ -27,27 +28,31 @@ impl Updater {
     const LEO_REPO_OWNER: &'static str = "AleoHQ";
 
     /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<(), UpdaterError> {
+    pub fn show_available_releases() -> Result<(), Error> {
         let releases = github::ReleaseList::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .build()?
             .fetch()?;
 
-        tracing::info!("List of available Leo's versions");
+        let mut output = "\nList of available versions\n".to_string();
         for release in releases {
-            tracing::info!("* {}", release.version);
+            output += &format!("  * {}\n", release.version);
         }
+
+        // Forgo using tracing to list the available versions without a log status.
+        println!("{}", output);
+
         Ok(())
     }
 
     /// Update `leo` to the latest release.
-    pub fn update_to_latest_release(show_output: bool) -> Result<Status, UpdaterError> {
+    pub fn update_to_latest_release(show_output: bool) -> Result<Status, Error> {
         let status = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
-            .current_version(&include_str!("./leo-version").replace('v', ""))
+            .current_version(&env!("CARGO_PKG_VERSION"))
             .show_download_progress(show_output)
             .no_confirm(true)
             .show_output(show_output)
@@ -58,12 +63,12 @@ impl Updater {
     }
 
     /// Check if there is an available update for `leo` and return the newest release.
-    pub fn update_available() -> Result<String, UpdaterError> {
+    pub fn update_available() -> Result<String, Error> {
         let updater = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
-            .current_version(&include_str!("./leo-version").replace('v', ""))
+            .current_version(&env!("CARGO_PKG_VERSION"))
             .build()?;
 
         let current_version = updater.current_version();
@@ -72,7 +77,11 @@ impl Updater {
         if bump_is_greater(&current_version, &latest_release.version)? {
             Ok(latest_release.version)
         } else {
-            Err(UpdaterError::OldReleaseVersion(current_version, latest_release.version))
+            Err(anyhow!(
+                "Old release version {} {}",
+                current_version,
+                latest_release.version
+            ))
         }
     }
 

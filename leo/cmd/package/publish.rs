@@ -52,12 +52,15 @@ impl Publish {
 }
 
 impl Cmd for Publish {
+    type Input = <Build as Cmd>::Output;
     type Output = Option<String>;
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        // Build all program files.
-        let _output = Build::new().run()?;
+    /// Build program before publishing
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Build::new().execute()
+    }
 
+    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output, Error> {
         // Get the package manifest
         let path = ctx.dir()?;
         let package_manifest = ctx.manifest()?;

@@ -31,13 +31,18 @@ impl Deploy {
 }
 
 impl Cmd for Deploy {
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Deploy")
     }
 
-    fn apply(self, _: Context) -> Result<Self::Output, Error> {
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output, Error> {
         unimplemented!("Deploy command has not been implemented yet");
     }
 }

@@ -31,13 +31,18 @@ impl Lint {
 }
 
 impl Cmd for Lint {
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Linting")
     }
 
-    fn apply(self, _: Context) -> Result<Self::Output, Error> {
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output, Error> {
         unimplemented!("Lint command has not been implemented yet");
     }
 }

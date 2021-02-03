@@ -46,6 +46,7 @@ impl Setup {
 }
 
 impl Cmd for Setup {
+    type Input = <Build as Cmd>::Output;
     type Output = (
         Compiler<Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
@@ -56,12 +57,15 @@ impl Cmd for Setup {
         tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Build::new().execute()
+    }
+
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
         let package_name = ctx.manifest()?.get_package_name();
-        let build_result = Build::new().run();
 
-        match build_result? {
+        match input {
             Some((program, checksum_differs)) => {
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)

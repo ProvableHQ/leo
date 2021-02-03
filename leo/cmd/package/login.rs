@@ -23,6 +23,7 @@ use crate::config::*;
 
 use anyhow::{anyhow, Error};
 use structopt::StructOpt;
+use tracing::Span;
 
 use std::collections::HashMap;
 
@@ -50,13 +51,18 @@ impl Login {
 }
 
 impl Cmd for Login {
+    type Input = ();
     type Output = String;
 
-    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
-        // Begin "Login" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Login");
-        let _enter = span.enter();
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Login")
+    }
 
+    fn prelude(&self) -> Result<Self::Input, Error> {
+        Ok(())
+    }
+
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
         let token = match (self.token, self.user, self.pass) {
             // Login using existing token
             (Some(token), _, _) => Some(token),

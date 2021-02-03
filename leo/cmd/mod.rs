@@ -37,11 +37,20 @@ pub mod package;
 pub mod deploy;
 pub mod lint;
 
-/// Leo command
+/// Base trait for Leo CLI, see methods and their documentation for details
 pub trait Cmd {
+    /// If current command requires running another command before
+    /// and needs its output results, this is the place to set.
+    /// Example: type Input: <CommandA as Cmd>::Out
+    type Input;
+
+    /// Define output of the command to be reused as an Input for another
+    /// command. If this command is not used as a prelude for another, keep empty
     type Output;
 
-    /// Returns project context.
+    /// Returns project context, currently keeping it simple but it is possible
+    /// that in the future leo will not depend on current directory, and we're keeping
+    /// option for extending current core
     fn context(&self) -> Result<Context> {
         get_context()
     }
@@ -49,22 +58,31 @@ pub trait Cmd {
     /// Add span to the logger tracing::span.
     /// Due to specifics of macro implementation it is impossible to set
     /// span name with non-literal i.e. dynamic variable even if this
-    /// variable is &'static str.  
+    /// variable is &'static str
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
     }
 
-    /// Apply command with given context.
-    fn apply(self, ctx: Context) -> Result<Self::Output>
+    /// Run prelude and get Input for current command. As simple as that.
+    /// But due to inability to pass default implementation of a type, this
+    /// method must be present in every trait implementation.
+    fn prelude(&self) -> Result<Self::Input>
     where
         Self: std::marker::Sized;
 
-    /// Wrapper around apply function, sets up tracing for
-    /// each command
-    fn run(self) -> Result<Self::Output>
+    /// Core of the execution - do what is necessary. This function is run within
+    /// context of 'execute' function, which sets logging and timers
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output>
+    where
+        Self: std::marker::Sized;
+
+    /// Wrapper around apply function, sets up tracing, time tracking and context
+    fn execute(self) -> Result<Self::Output>
     where
         Self: std::marker::Sized,
     {
+        let input = self.prelude()?;
+
         // create span for this command
         let span = self.log_span();
         let span = span.enter();
@@ -73,25 +91,25 @@ pub trait Cmd {
         let timer = Instant::now();
 
         let context = self.context()?;
-        let out = self.apply(context);
+        let out = self.apply(context, input);
 
         drop(span);
 
         // use done context to print time
         tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {} milliseconds", timer.elapsed().as_millis());
+            tracing::info!("Finished in {} milliseconds \n", timer.elapsed().as_millis());
         });
 
         out
     }
 
-    /// No-result wrapper for run function. Used to make match-arms  
-    /// compatible in command matching in entrypoint. Only errors get
-    /// through this facade.
-    fn execute(self) -> Result<()>
+    /// Execute command but empty the result. Comes in handy where there's a
+    /// need to make match arms compatible while keeping implementation-specific
+    /// output possible. Errors however are all of the type Error
+    fn try_execute(self) -> Result<()>
     where
         Self: std::marker::Sized,
     {
-        self.run().map(|_| Ok(()))?
+        self.execute().map(|_| Ok(()))?
     }
 }
