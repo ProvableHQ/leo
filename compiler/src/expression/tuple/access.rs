@@ -35,7 +35,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Get the tuple values.
-        let tuple = match self.enforce_operand(cs, tuple)? {
+        let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };

@@ -30,7 +30,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         cs: &mut CS,
         statement: &ReturnStatement,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
-        let result = self.enforce_operand(cs, &statement.expression)?;
+        let result = self.enforce_expression(cs, &statement.expression)?;
         Ok(result)
     }
 }

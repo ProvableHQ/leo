@@ -32,7 +32,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         index: &Arc<Expression>,
         span: &Span,
     ) -> Result<usize, ExpressionError> {
-        match self.enforce_operand(cs, index)? {
+        match self.enforce_expression(cs, index)? {
             ConstrainedValue::Integer(number) => Ok(number.to_usize(span)?),
             value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }

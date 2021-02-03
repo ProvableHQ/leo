@@ -102,6 +102,14 @@ fn test_not_mutable() {
 }
 
 #[test]
+fn test_conditional_mut() {
+    let program_string = include_str!("conditional_mut.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_not_u32() {
     let program_string = include_str!("not_u32.leo");
     let error = parse_program(program_string).err().unwrap();

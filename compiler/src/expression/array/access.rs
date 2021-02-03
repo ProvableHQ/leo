@@ -34,7 +34,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         index: &Arc<Expression>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_operand(cs, array)? {
+        let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         right: Option<&Arc<Expression>>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_operand(cs, array)? {
+        let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };

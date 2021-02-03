@@ -49,9 +49,6 @@ pub enum ConstrainedValue<F: Field + PrimeField, G: GroupType<F>> {
 
     // Circuits
     CircuitExpression(Arc<CircuitBody>, Vec<ConstrainedCircuitMember<F, G>>),
-
-    // Modifiers
-    Mutable(Box<ConstrainedValue<F, G>>),
 }
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
@@ -81,21 +78,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<F, G> {
                 Type::Tuple(types)
             }
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(id.circuit.clone()),
-            ConstrainedValue::Mutable(value) => return value.to_type(span),
         })
-    }
-
-    ///
-    /// Modifies the `self` [ConstrainedValue] so there are no `mut` keywords wrapping the `self` value.
-    ///
-    pub(crate) fn get_inner_mut(&mut self) {
-        if let ConstrainedValue::Mutable(inner) = self {
-            // Recursively remove `mut` keywords.
-            inner.get_inner_mut();
-
-            // Modify the value.
-            *self = *inner.clone()
-        }
     }
 }
 
@@ -142,7 +125,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<F
                 }
                 write!(f, "}}")
             }
-            ConstrainedValue::Mutable(ref value) => write!(f, "{}", value),
         }
     }
 }
@@ -265,8 +247,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constrained
 
                 ConstrainedValue::CircuitExpression(identifier.clone(), members)
             }
-            (ConstrainedValue::Mutable(first), _) => Self::conditionally_select(cs, cond, first, second)?,
-            (_, ConstrainedValue::Mutable(second)) => Self::conditionally_select(cs, cond, first, second)?,
             (_, _) => return Err(SynthesisError::Unsatisfiable),
         })
     }
