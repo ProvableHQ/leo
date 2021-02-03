@@ -17,6 +17,19 @@
 use crate::{assert_satisfied, expect_asg_error, get_output, parse_program, parse_program_with_input};
 
 #[test]
+fn test_conditional_return() {
+    let input_string = include_str!("input/conditional_return.in");
+    let program_string = include_str!("conditional_return.leo");
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    let expected_string = include_str!("output/conditional_return.out");
+    let actual_bytes = get_output(program);
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+
+    assert_eq!(expected_string, actual_string);
+}
+
+#[test]
 fn test_empty() {
     let program_string = include_str!("empty.leo");
     let program = parse_program(program_string).unwrap();
