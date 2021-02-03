@@ -42,9 +42,21 @@ use cmd::{
 
 use structopt::{clap::AppSettings, StructOpt};
 
+/// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
-enum Opt {
+struct Opt {
+    #[structopt(short, long, help = "Print additional information for debugging")]
+    debug: bool,
+
+    #[structopt(flatten)]
+    command: Command,
+}
+
+/// Leo commands (subcommands for Opt)
+#[derive(StructOpt, Debug)]
+#[structopt(setting = AppSettings::ColoredHelp)]
+enum Command {
     #[structopt(about = "Init Leo project command in current directory")]
     Init {
         #[structopt(flatten)]
@@ -143,31 +155,33 @@ enum Opt {
 }
 
 fn main() {
-    // before even starting to match we init logger...
-    // TODO: add debug option here!
-    logger::init_logger("leo", 1);
+    // read command line arguments
+    let opt = Opt::from_args();
 
-    let matches = Opt::from_args();
+    logger::init_logger("leo", match opt.debug {
+        false => 1,
+        true => 2,
+    });
 
-    handle_error(match matches {
-        Opt::Init { cmd } => cmd.execute(),
-        Opt::New { cmd } => cmd.execute(),
-        Opt::Build { cmd } => cmd.execute(),
-        Opt::Setup { cmd } => cmd.execute(),
-        Opt::Prove { cmd } => cmd.execute(),
-        Opt::Test { cmd } => cmd.execute(),
-        Opt::Run { cmd } => cmd.execute(),
-        Opt::Clean { cmd } => cmd.execute(),
-        Opt::Watch { cmd } => cmd.execute(),
+    handle_error(match opt.command {
+        Command::Init { cmd } => cmd.execute(),
+        Command::New { cmd } => cmd.execute(),
+        Command::Build { cmd } => cmd.execute(),
+        Command::Setup { cmd } => cmd.execute(),
+        Command::Prove { cmd } => cmd.execute(),
+        Command::Test { cmd } => cmd.execute(),
+        Command::Run { cmd } => cmd.execute(),
+        Command::Clean { cmd } => cmd.execute(),
+        Command::Watch { cmd } => cmd.execute(),
 
-        Opt::Add { cmd } => cmd.execute(),
-        Opt::Login { cmd } => cmd.execute(),
-        Opt::Logout { cmd } => cmd.execute(),
-        Opt::Publish { cmd } => cmd.execute(),
-        Opt::Remove { cmd } => cmd.execute(),
+        Command::Add { cmd } => cmd.execute(),
+        Command::Login { cmd } => cmd.execute(),
+        Command::Logout { cmd } => cmd.execute(),
+        Command::Publish { cmd } => cmd.execute(),
+        Command::Remove { cmd } => cmd.execute(),
 
-        Opt::Lint { cmd } => cmd.execute(),
-        Opt::Deploy { cmd } => cmd.execute(),
+        Command::Lint { cmd } => cmd.execute(),
+        Command::Deploy { cmd } => cmd.execute(),
     });
 }
 

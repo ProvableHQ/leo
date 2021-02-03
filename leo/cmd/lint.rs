@@ -17,6 +17,7 @@
 use crate::{cmd::Cmd, context::Context};
 use anyhow::Error;
 use structopt::StructOpt;
+use tracing::span::Span;
 
 /// Lint Leo code command
 #[derive(StructOpt, Debug, Default)]
@@ -32,9 +33,11 @@ impl Lint {
 impl Cmd for Lint {
     type Output = ();
 
-    fn apply(self, _: Context) -> Result<Self::Output, Error> {
-        eprintln!("Not implemented!");
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Linting")
+    }
 
-        Ok(())
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
+        unimplemented!("Lint command has not been implemented yet");
     }
 }

@@ -19,8 +19,9 @@ use anyhow::{anyhow, Error};
 use leo_package::LeoPackage;
 use std::env::current_dir;
 use structopt::StructOpt;
+use tracing::span::Span;
 
-/// Init Leo project command in current directory
+/// Init Leo project command within current directory
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Init {
@@ -36,6 +37,10 @@ impl Init {
 
 impl Cmd for Init {
     type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Initializing")
+    }
 
     fn apply(self, _: Context) -> Result<Self::Output, Error> {
         let path = current_dir()?;

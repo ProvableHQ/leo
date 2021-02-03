@@ -23,6 +23,7 @@ use leo_package::{
 };
 use std::{convert::TryFrom, env::current_dir};
 use structopt::StructOpt;
+use tracing::span::Span;
 
 /// Clean outputs folder command
 #[derive(StructOpt, Debug, Default)]
@@ -37,6 +38,10 @@ impl Clean {
 
 impl Cmd for Clean {
     type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Cleaning")
+    }
 
     fn apply(self, _: Context) -> Result<Self::Output, Error> {
         let path = current_dir()?;

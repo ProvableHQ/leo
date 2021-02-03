@@ -26,7 +26,7 @@ use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 
 use rand::thread_rng;
-use std::time::Instant;
+use tracing::span::Span;
 
 /// Init Leo project command in current directory
 #[derive(StructOpt, Debug, Default)]
@@ -42,12 +42,12 @@ impl Prove {
 impl Cmd for Prove {
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        let (program, parameters, prepared_verifying_key) = Setup::new().apply(ctx.clone())?;
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Proving")
+    }
 
-        // Begin "Proving" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Proving");
-        let enter = span.enter();
+    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+        let (program, parameters, prepared_verifying_key) = Setup::new().run()?;
 
         // Get the package name
         let path = ctx.dir()?;
@@ -55,27 +55,13 @@ impl Cmd for Prove {
 
         tracing::info!("Starting...");
 
-        // Start the timer
-        let start = Instant::now();
-
         let rng = &mut thread_rng();
         let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng)?;
-
-        // Finish the timer
-        let end = start.elapsed().as_millis();
 
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
-
-        // Drop "Proving" context for console logging
-        drop(enter);
-
-        // Begin "Done" context for console logging
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {:?} milliseconds\n", end);
-        });
 
         Ok((program_proof, prepared_verifying_key))
     }

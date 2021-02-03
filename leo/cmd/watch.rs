@@ -22,13 +22,14 @@ use std::{sync::mpsc::channel, time::Duration};
 use structopt::StructOpt;
 
 use super::build::Build;
+use tracing::span::Span;
 
 const LEO_SOURCE_DIR: &str = "src/";
 
 /// Time interval for watching files, in seconds
 const INTERVAL: u64 = 3;
 
-/// Add package from Aleo Package Manager
+/// Watch file changes in src/ directory and run Build Command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Watch {}
@@ -42,7 +43,11 @@ impl Watch {
 impl Cmd for Watch {
     type Output = ();
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Watch")
+    }
+
+    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
         // Begin "Watching" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Watching");
         let _enter = span.enter();
@@ -57,7 +62,7 @@ impl Cmd for Watch {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match Build::new().apply(ctx.clone()) {
+                    match Build::new().run() {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }

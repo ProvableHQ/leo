@@ -56,11 +56,7 @@ impl Cmd for Publish {
 
     fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         // Build all program files.
-        let _output = Build::new().apply(ctx.clone())?;
-
-        // Begin "Publishing" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Publishing");
-        let _enter = span.enter();
+        let _output = Build::new().run()?;
 
         // Get the package manifest
         let path = ctx.dir()?;

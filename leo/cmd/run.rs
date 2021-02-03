@@ -26,9 +26,9 @@ use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 
 use super::prove::Prove;
-use std::time::Instant;
+use tracing::span::Span;
 
-/// Add package from Aleo Package Manager
+/// Build, Prove and Run Leo program with inputs
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Run {}
@@ -42,17 +42,14 @@ impl Run {
 impl Cmd for Run {
     type Output = ();
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        let (proof, prepared_verifying_key) = Prove::new().apply(ctx)?;
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Verifying")
+    }
 
-        // Begin "Verifying" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Verifying");
-        let enter = span.enter();
+    fn apply(self, _ctx: Context) -> Result<Self::Output, Error> {
+        let (proof, prepared_verifying_key) = Prove::new().run()?;
 
         tracing::info!("Starting...");
-
-        // Start the timer
-        let start = Instant::now();
 
         // Run the verifier
         let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
@@ -61,22 +58,11 @@ impl Cmd for Run {
             &proof,
         )?;
 
-        // End the timer
-        let end = start.elapsed().as_millis();
-
         // Log the verifier output
         match is_success {
             true => tracing::info!("Proof is valid"),
             false => tracing::error!("Proof is invalid"),
         };
-
-        // Drop "Verifying" context for console logging
-        drop(enter);
-
-        // Begin "Done" context for console logging
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {:?} milliseconds\n", end);
-        });
 
         Ok(())
     }

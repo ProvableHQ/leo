@@ -29,10 +29,11 @@ use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 use anyhow::Error;
-use std::{convert::TryFrom, time::Instant};
+use std::convert::TryFrom;
 use structopt::StructOpt;
+use tracing::span::Span;
 
-/// Compile and build program
+/// Compile and build program command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {}
@@ -46,10 +47,13 @@ impl Build {
 impl Cmd for Build {
     type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
 
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Build")
+    }
+
     fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
-        let manifest = ctx.manifest()?;
-        let package_name = manifest.get_package_name();
+        let package_name = ctx.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
@@ -62,9 +66,6 @@ impl Cmd for Build {
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         tracing::info!("Starting...");
-
-        // Start the timer
-        let start = Instant::now();
 
         // Compile the package starting with the lib.leo file
         if LibraryFile::exists_at(&package_path) {
@@ -170,13 +171,6 @@ impl Cmd for Build {
             }
 
             tracing::info!("Complete");
-
-            // Drop "Compiling" context for console logging
-
-            // Begin "Done" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
-            tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-                tracing::info!("Finished in {} milliseconds\n", start.elapsed().as_millis());
-            });
 
             return Ok(Some((program, checksum_differs)));
         }

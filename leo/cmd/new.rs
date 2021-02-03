@@ -20,12 +20,13 @@ use anyhow::{anyhow, Error};
 use leo_package::LeoPackage;
 use std::{env::current_dir, fs};
 use structopt::StructOpt;
+use tracing::span::Span;
 
 /// Create new Leo project
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct New {
-    #[structopt(name = "NAME", help = "Init as a library (containing lib.leo)")]
+    #[structopt(name = "NAME", help = "Set package name")]
     name: String,
 
     #[structopt(help = "Init as a library (containing lib.leo)", long = "lib", short = "l")]
@@ -40,6 +41,10 @@ impl New {
 
 impl Cmd for New {
     type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "New")
+    }
 
     fn apply(self, _: Context) -> Result<Self::Output, Error> {
         let mut path = current_dir()?;

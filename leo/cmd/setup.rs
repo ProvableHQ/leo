@@ -32,8 +32,9 @@ use std::time::Instant;
 use structopt::StructOpt;
 
 use super::build::Build;
+use tracing::span::Span;
 
-/// Create new Leo project
+/// Run setup ceremony for Leo program Command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Setup {}
@@ -51,10 +52,14 @@ impl Cmd for Setup {
         PreparedVerifyingKey<Bls12_377>,
     );
 
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Setup")
+    }
+
     fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;
         let package_name = ctx.manifest()?.get_package_name();
-        let build_result = Build::new().apply(ctx);
+        let build_result = Build::new().run();
 
         match build_result? {
             Some((program, checksum_differs)) => {
@@ -64,7 +69,7 @@ impl Cmd for Setup {
 
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
-                let (end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+                let (_end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     tracing::info!("Starting...");
 
                     // Start the timer for setup
@@ -122,11 +127,6 @@ impl Cmd for Setup {
 
                     (end, proving_key, prepared_verifying_key)
                 };
-
-                // Begin "Done" context for console logging
-                tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-                    tracing::info!("Finished in {:?} milliseconds\n", end);
-                });
 
                 Ok((program, proving_key, prepared_verifying_key))
             }

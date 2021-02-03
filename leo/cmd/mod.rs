@@ -16,6 +16,8 @@
 
 use crate::context::{get_context, Context};
 use anyhow::Result;
+use std::time::Instant;
+use tracing::span::Span;
 
 // local program commands
 pub mod build;
@@ -44,25 +46,52 @@ pub trait Cmd {
         get_context()
     }
 
+    /// Add span to the logger tracing::span.
+    /// Due to specifics of macro implementation it is impossible to set
+    /// span name with non-literal i.e. dynamic variable even if this
+    /// variable is &'static str.  
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Leo")
+    }
+
     /// Apply command with given context.
     fn apply(self, ctx: Context) -> Result<Self::Output>
     where
         Self: std::marker::Sized;
 
-    /// Functions create execution context and apply command in it
+    /// Wrapper around apply function, sets up tracing for
+    /// each command
+    fn run(self) -> Result<Self::Output>
+    where
+        Self: std::marker::Sized,
+    {
+        // create span for this command
+        let span = self.log_span();
+        let span = span.enter();
+
+        // calculate command spead on each run
+        let timer = Instant::now();
+
+        let context = self.context()?;
+        let out = self.apply(context);
+
+        drop(span);
+
+        // use done context to print time
+        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+            tracing::info!("Finished in {} milliseconds", timer.elapsed().as_millis());
+        });
+
+        out
+    }
+
+    /// No-result wrapper for run function. Used to make match-arms  
+    /// compatible in command matching in entrypoint. Only errors get
+    /// through this facade.
     fn execute(self) -> Result<()>
     where
         Self: std::marker::Sized,
     {
-        // let value = self.name();
-        let span = tracing::span!(tracing::Level::INFO, "CMD");
-        let span = span.enter();
-
-        let context = self.context()?;
-        let _ = self.apply(context)?;
-
-        drop(span);
-
-        Ok(())
+        self.run().map(|_| Ok(()))?
     }
 }

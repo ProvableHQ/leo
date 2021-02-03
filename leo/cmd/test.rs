@@ -29,8 +29,9 @@ use leo_package::{
 use snarkvm_curves::edwards_bls12::Fq;
 
 use std::{convert::TryFrom, time::Instant};
+use tracing::span::Span;
 
-/// Build program and run tests
+/// Build program and run tests command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Test {
@@ -46,6 +47,10 @@ impl Test {
 
 impl Cmd for Test {
     type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Test")
+    }
 
     fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         let path = ctx.dir()?;

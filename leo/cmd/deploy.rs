@@ -17,8 +17,9 @@
 use crate::{cmd::Cmd, context::Context};
 use anyhow::Error;
 use structopt::StructOpt;
+use tracing::span::Span;
 
-/// Deploy Leo program command
+/// Deploy Leo program to the network
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Deploy {}
@@ -32,9 +33,11 @@ impl Deploy {
 impl Cmd for Deploy {
     type Output = ();
 
-    fn apply(self, _: Context) -> Result<Self::Output, Error> {
-        eprintln!("Not implemented!");
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Deploy")
+    }
 
-        Ok(())
+    fn apply(self, _: Context) -> Result<Self::Output, Error> {
+        unimplemented!("Deploy command has not been implemented yet");
     }
 }
