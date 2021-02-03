@@ -90,11 +90,7 @@ impl Cmd for Login {
 
             // Login using stored JWT credentials.
             // TODO (raychu86) Package manager re-authentication from token
-            (_, _) => {
-                let token = read_token().map_err(|_| -> Error { anyhow!("No credentials provided") })?;
-
-                token
-            }
+            (_, _) => read_token().map_err(|_| -> Error { anyhow!("No credentials provided") })?,
         };
 
         Ok(token)

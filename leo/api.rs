@@ -44,10 +44,8 @@ pub trait Route {
 
     /// Transform specific status codes into correct errors for this route.
     /// For example 404 on package fetch should mean that 'Package is not found'
-    fn status_to_err(&self, status: StatusCode) -> Error {
-        match status {
-            _ => anyhow!("Unidentified API error"),
-        }
+    fn status_to_err(&self, _status: StatusCode) -> Error {
+        anyhow!("Unidentified API error")
     }
 }
 
