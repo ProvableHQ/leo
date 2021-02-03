@@ -92,7 +92,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                     let resolved_inner = self.enforce_expression(cs, inner)?;
                     enforce_negate(cs, resolved_inner, &span)
                 }
-                UnaryOperation::Not => Ok(evaluate_not(self.enforce_operand(cs, inner)?, &span)?),
+                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner)?, &span)?),
             },
 
             Expression::Ternary(TernaryExpression {

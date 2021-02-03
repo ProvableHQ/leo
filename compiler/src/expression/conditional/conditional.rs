@@ -41,9 +41,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
         };
 
-        let first_value = self.enforce_operand(cs, first)?;
+        let first_value = self.enforce_expression(cs, first)?;
 
-        let second_value = self.enforce_operand(cs, second)?;
+        let second_value = self.enforce_expression(cs, second)?;
 
         let unique_namespace = cs.ns(|| {
             format!(

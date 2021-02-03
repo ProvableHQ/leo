@@ -109,10 +109,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let variable = variable.borrow();
 
         let mut result = vec![match self.get_mut(&variable.id) {
-            Some(value) => match value {
-                ConstrainedValue::Mutable(mutable) => &mut **mutable,
-                _ => return Err(StatementError::immutable_assign(variable.name.to_string(), span)),
-            },
+            Some(value) => value,
             None => return Err(StatementError::undefined_variable(variable.name.to_string(), span)),
         }];
 
