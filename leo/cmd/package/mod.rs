@@ -14,29 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cmd::Cmd,
-    context::{Context, PACKAGE_MANAGER_URL},
-};
+pub mod add;
+pub use add::Add;
 
-use anyhow::{anyhow, Error};
-use structopt::StructOpt;
+pub mod login;
+pub use login::Login;
 
-/// Add package from Aleo Package Manager
-#[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Blank {}
+pub mod logout;
+pub use logout::Logout;
 
-impl Blank {
-    pub fn new() -> Blank {
-        Blank {}
-    }
-}
+pub mod publish;
+pub use publish::Publish;
 
-impl Cmd for Blank {
-    type Output = ();
+pub mod remove;
+pub use remove::Remove;
 
-    fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
-        Ok(())
-    }
-}
+pub use super::*;

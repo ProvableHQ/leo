@@ -29,11 +29,7 @@ pub mod test;
 pub mod watch;
 
 // aleo pm related commands
-pub mod add;
-pub mod login;
-pub mod logout;
-pub mod publish;
-pub mod remove;
+pub mod package;
 
 // not implemented
 pub mod deploy;
@@ -63,7 +59,7 @@ pub trait Cmd {
         let span = span.enter();
 
         let context = self.context()?;
-        let _ = self.apply(context);
+        let _ = self.apply(context)?;
 
         drop(span);
 

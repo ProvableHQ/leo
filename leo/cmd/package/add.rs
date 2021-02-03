@@ -66,15 +66,19 @@ impl Add {
     }
 
     /// Try to parse author/package string from self.remote
-    pub fn try_read_remote(self) -> Result<(String, String), Error> {
-        if let Some(val) = self.remote {
+    pub fn try_read_arguments(&self) -> Result<(String, String), Error> {
+        if let Some(val) = &self.remote {
             let v: Vec<&str> = val.split('/').collect();
             if v.len() == 2 {
-                return Ok((v[0].to_string(), v[1].to_string()));
+                Ok((v[0].to_string(), v[1].to_string()))
+            } else {
+                Err(anyhow!("Unable to parse argument"))
             }
+        } else if let (Some(author), Some(package)) = (&self.author, &self.package) {
+            Ok((author.clone(), package.clone()))
+        } else {
+            Err(anyhow!("Unable to parse remote string"))
         }
-
-        Err(anyhow!("Unable to parse author and/or package from remote"))
     }
 }
 
@@ -83,31 +87,34 @@ impl Cmd for Add {
 
     fn apply(self, ctx: Context) -> Result<Self::Output, Error> {
         // checking that manifest exists...
-        let _ = ctx.manifest()?;
+        if ctx.manifest().is_err() {
+            return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));
+        };
 
         // TODO: Add remote parsing feature in the future
         // let _ = self.try_read_remote();
 
-        let (response, package_name) = match (self.author, self.package, self.version) {
-            (Some(author), Some(package_name), version) => {
-                let client = reqwest::blocking::Client::new();
-                let url = format!("{}{}", PACKAGE_MANAGER_URL, ADD_URL);
+        let version = &self.version;
+        let (author, package_name) = match self.try_read_arguments() {
+            Ok((author, package)) => (author, package),
+            Err(err) => return Err(err),
+        };
 
-                let mut json = HashMap::new();
-                json.insert("author", author);
-                json.insert("package_name", package_name.clone());
+        let client = reqwest::blocking::Client::new();
+        let url = format!("{}{}", PACKAGE_MANAGER_URL, ADD_URL);
 
-                if let Some(version) = version {
-                    json.insert("version", version);
-                }
+        let mut json = HashMap::new();
+        json.insert("author", author);
+        json.insert("package_name", package_name.clone());
 
-                match client.post(&url).json(&json).send() {
-                    Ok(response) => (response, package_name),
-                    // Cannot connect to the server
-                    Err(_error) => return Err(anyhow!("Could not connect to the Aleo Package Manager")),
-                }
-            }
-            _ => return Err(anyhow!("Could not define package name and/or author")),
+        if let Some(version) = version {
+            json.insert("version", version.clone());
+        }
+
+        let response = match client.post(&url).json(&json).send() {
+            Ok(response) => response,
+            // Cannot connect to the server
+            Err(_error) => return Err(anyhow!("Could not connect to the Aleo Package Manager")),
         };
 
         let mut path = current_dir()?;

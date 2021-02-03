@@ -25,18 +25,14 @@ use anyhow::Error;
 use std::process::exit;
 
 use cmd::{
-    add::Add,
     build::Build,
     clean::Clean,
     deploy::Deploy,
     init::Init,
     lint::Lint,
-    login::Login,
-    logout::Logout,
     new::New,
+    package::{Add, Login, Logout, Publish, Remove},
     prove::Prove,
-    publish::Publish,
-    remove::Remove,
     run::Run,
     setup::Setup,
     test::Test,
@@ -179,7 +175,7 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            eprintln!("error: {:?}", err);
+            tracing::error!("Error: {:?}", err);
             exit(1);
         }
     }
