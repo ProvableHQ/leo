@@ -53,7 +53,8 @@ pub(crate) use span::*;
 use from_pest::FromPest;
 use std::{fs, path::Path};
 
-/// The pest abstract syntax tree (ast) for a Leo program.
+///
+/// The grammar of a Leo program, encoded as an abstract syntax tree (AST).
 ///
 /// The [`Grammar`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`File`] type root.
