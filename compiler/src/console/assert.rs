@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -23,7 +23,8 @@ use crate::{
     value::ConstrainedValue,
     GroupType,
 };
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression, Span};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -34,17 +35,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
         indicator: &Boolean,
-        expression: Expression,
+        expression: &Arc<Expression>,
         span: &Span,
     ) -> Result<(), ConsoleError> {
-        let expected_type = Some(Type::Boolean);
-        let expression_string = expression.to_string();
-
         // Evaluate assert expression
-        let assert_expression = self.enforce_expression(cs, file_scope, function_scope, expected_type, expression)?;
+        let assert_expression = self.enforce_expression(cs, expression)?;
 
         // If the indicator bit is false, do not evaluate the assertion
         // This is okay since we are not enforcing any constraints
@@ -57,7 +53,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
             _ => {
                 return Err(ConsoleError::assertion_must_be_boolean(
-                    expression_string,
+                    span.text.clone(),
                     span.to_owned(),
                 ));
             }
@@ -65,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let result_bool = result_option.ok_or_else(|| ConsoleError::assertion_depends_on_input(span.to_owned()))?;
 
         if !result_bool {
-            return Err(ConsoleError::assertion_failed(expression_string, span.to_owned()));
+            return Err(ConsoleError::assertion_failed(span.text.clone(), span.to_owned()));
         }
 
         Ok(())

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,6 +19,8 @@
 //! This module contains the [`Ast`] type, a wrapper around the [`Program`] type.
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
+#[macro_use]
+extern crate thiserror;
 
 pub mod annotation;
 pub use self::annotation::*;
@@ -74,10 +76,10 @@ pub struct Ast {
 
 impl Ast {
     /// Creates a new ast from a given program name and grammar tree.
-    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Self {
-        Self {
-            ast: Program::from(program_name, ast.as_repr()),
-        }
+    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Result<Self, AstError> {
+        Ok(Self {
+            ast: Program::from(program_name, ast.as_repr())?,
+        })
     }
 
     /// Returns a reference to the inner program ast representation.

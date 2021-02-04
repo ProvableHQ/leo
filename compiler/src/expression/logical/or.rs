@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 //! Enforces a logical `||` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},

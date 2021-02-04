@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,15 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Error as FormattedError, Identifier, ImportSymbol, Span};
-use leo_core::LeoCorePackageError;
 
 #[derive(Debug, Error)]
 pub enum ImportError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCorePackageError),
 }
 
 impl ImportError {

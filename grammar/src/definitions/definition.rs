@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,8 +17,8 @@
 use crate::{
     ast::Rule,
     circuits::Circuit,
-    definitions::AnnotatedDefinition,
-    functions::{Function, TestFunction},
+    definitions::{AnnotatedDefinition, Deprecated},
+    functions::Function,
     imports::Import,
 };
 
@@ -32,5 +32,5 @@ pub enum Definition<'ast> {
     Import(Import<'ast>),
     Circuit(Circuit<'ast>),
     Function(Function<'ast>),
-    TestFunction(TestFunction<'ast>),
+    Deprecated(Deprecated<'ast>),
 }

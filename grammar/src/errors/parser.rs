@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -26,6 +26,9 @@ pub enum ParserError {
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
+
+    #[error("{}", _0)]
+    IoError(#[from] std::io::Error),
 
     #[error("{}", _0)]
     JsonError(#[from] serde_json::error::Error),
@@ -57,11 +60,5 @@ impl ParserError {
 impl From<Error<Rule>> for ParserError {
     fn from(error: Error<Rule>) -> Self {
         ParserError::SyntaxError(SyntaxError::from(error))
-    }
-}
-
-impl From<std::io::Error> for ParserError {
-    fn from(error: std::io::Error) -> Self {
-        ParserError::Crate("std::io", error.to_string())
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -37,8 +37,8 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
-pub mod identifier;
-pub use self::identifier::*;
+pub mod variable_ref;
+pub use self::variable_ref::*;
 
 pub mod logical;
 pub use self::logical::*;

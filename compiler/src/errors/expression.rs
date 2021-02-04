@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
 use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, PositiveNumber, Span};
-use leo_core::LeoCorePackageError;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use std::path::Path;
@@ -45,9 +44,6 @@ pub enum ExpressionError {
     IntegerError(#[from] IntegerError),
 
     #[error("{}", _0)]
-    LeoCoreError(#[from] LeoCorePackageError),
-
-    #[error("{}", _0)]
     ValueError(#[from] ValueError),
 }
 
@@ -61,7 +57,6 @@ impl ExpressionError {
             ExpressionError::FunctionError(error) => error.set_path(path),
             ExpressionError::GroupError(error) => error.set_path(path),
             ExpressionError::IntegerError(error) => error.set_path(path),
-            ExpressionError::LeoCoreError(error) => error.set_path(path),
             ExpressionError::ValueError(error) => error.set_path(path),
         }
     }

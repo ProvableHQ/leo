@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -31,11 +31,14 @@ use tracing::span::Span;
 /// Init Leo project command in current directory
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Prove {}
+pub struct Prove {
+    #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
+    skip_key_check: bool,
+}
 
 impl Prove {
-    pub fn new() -> Prove {
-        Prove {}
+    pub fn new(skip_key_check: bool) -> Prove {
+        Prove { skip_key_check }
     }
 }
 
@@ -48,7 +51,7 @@ impl Cmd for Prove {
     }
 
     fn prelude(&self) -> Result<Self::Input, Error> {
-        Setup::new().execute()
+        Setup::new(self.skip_key_check).execute()
     }
 
     fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {

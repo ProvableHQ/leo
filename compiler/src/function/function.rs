@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,14 +16,10 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::{
-    errors::FunctionError,
-    program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_ast::{Expression, Function, FunctionInput};
+use leo_asg::{Expression, FunctionBody, FunctionQualifier};
+use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -34,83 +30,73 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        scope: &str,
-        caller_scope: &str,
-        function: Function,
-        input: Vec<Expression>,
-        declared_circuit_reference: &str,
+        function: &Arc<FunctionBody>,
+        target: Option<&Arc<Expression>>,
+        arguments: &[Arc<Expression>],
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let function_name = new_scope(scope, function.get_name());
+        let target_value = if let Some(target) = target {
+            Some(self.enforce_expression(cs, target)?)
+        } else {
+            None
+        };
 
-        // Store if function contains input `mut self`.
-        let mut_self = function.contains_mut_self();
+        let self_var = if let Some(target) = &target_value {
+            let self_var = function
+                .scope
+                .borrow()
+                .resolve_variable("self")
+                .expect("attempted to call static function from non-static context");
+            self.store(self_var.borrow().id, target.clone());
+            Some(self_var)
+        } else {
+            None
+        };
+
+        if function.arguments.len() != arguments.len() {
+            return Err(FunctionError::input_not_found(
+                "arguments length invalid".to_string(),
+                function.span.clone().unwrap_or_default(),
+            ));
+        }
 
         // Store input values as new variables in resolved program
-        for (input_model, input_expression) in function.filter_self_inputs().zip(input.into_iter()) {
-            let (name, value) = match input_model {
-                FunctionInput::InputKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
+        for (variable, input_expression) in function.arguments.iter().zip(arguments.iter()) {
+            let input_value = self.enforce_expression(cs, input_expression)?;
+            let variable = variable.borrow();
 
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::SelfKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
-
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::MutSelfKeyword(keyword) => {
-                    let value =
-                        self.enforce_function_input(cs, scope, caller_scope, &function_name, None, input_expression)?;
-
-                    (keyword.to_string(), value)
-                }
-                FunctionInput::Variable(input_model) => {
-                    // First evaluate input expression
-                    let mut input_value = self.enforce_function_input(
-                        cs,
-                        scope,
-                        caller_scope,
-                        &function_name,
-                        Some(input_model.type_.clone()),
-                        input_expression,
-                    )?;
-
-                    if input_model.mutable {
-                        input_value = ConstrainedValue::Mutable(Box::new(input_value))
-                    }
-
-                    (input_model.identifier.name.clone(), input_value)
-                }
-            };
-
-            // Store input as variable with {function_name}_{input_name}
-            let input_program_identifier = new_scope(&function_name, &name);
-            self.store(input_program_identifier, value);
+            self.store(variable.id, input_value);
         }
 
         // Evaluate every statement in the function and save all potential results
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        for statement in function.block.statements.iter() {
-            let mut result = self.enforce_statement(
-                cs,
-                scope,
-                &function_name,
-                &indicator,
-                statement.clone(),
-                function.output.clone(),
-                declared_circuit_reference,
-                mut_self,
-            )?;
+        let output = function.function.output.clone().strong();
 
-            results.append(&mut result);
+        let mut result = self.enforce_statement(cs, &indicator, &function.body)?;
+
+        results.append(&mut result);
+
+        if function.function.qualifier == FunctionQualifier::MutSelfRef {
+            if let (Some(self_var), Some(target)) = (self_var, target) {
+                let new_self = self
+                    .get(&self_var.borrow().id)
+                    .expect("no self variable found in mut self context")
+                    .clone();
+                if let Some(assignable_target) = self.resolve_mut_ref(cs, target)? {
+                    if assignable_target.len() != 1 {
+                        panic!("found tuple as a self assignment target");
+                    }
+                    let assignable_target = assignable_target.into_iter().next().unwrap();
+                    *assignable_target = new_self;
+                } else {
+                    // todo: we should report a warning for calling a mutable function on an effectively copied self (i.e. wasn't assignable `tempStruct {x: 5}.myMutSelfFunction()`)
+                }
+            }
         }
 
         // Conditionally select a result based on returned indicators
-        Self::conditionally_select_result(cs, function.output, results, &function.span)
+        Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
             .map_err(FunctionError::StatementError)
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 //! A data type that represents members in the group formed by the set of affine points on a curve.
 
 use crate::errors::GroupError;
-use leo_ast::{GroupValue, Span};
+use leo_asg::{GroupValue, Span};
 
 use snarkvm_models::{
     curves::{Field, One},
@@ -48,7 +48,7 @@ pub trait GroupType<F: Field>:
     + ToBitsGadget<F>
     + ToBytesGadget<F>
 {
-    fn constant(value: GroupValue) -> Result<Self, GroupError>;
+    fn constant(value: &GroupValue, span: &Span) -> Result<Self, GroupError>;
 
     fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, GroupError>;
 

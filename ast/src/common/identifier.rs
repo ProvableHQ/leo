@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -87,10 +87,6 @@ impl Identifier {
 
     pub fn is_self(&self) -> bool {
         self.is_self_type() || self.name == "self"
-    }
-
-    pub fn is_core(&self) -> bool {
-        self.name.starts_with('#')
     }
 }
 

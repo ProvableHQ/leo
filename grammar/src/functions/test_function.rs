@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,4 +27,11 @@ pub struct TestFunction<'ast> {
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,
+}
+
+impl<'ast> From<Function<'ast>> for TestFunction<'ast> {
+    fn from(function: Function<'ast>) -> Self {
+        let span = function.span.clone();
+        TestFunction { function, span }
+    }
 }

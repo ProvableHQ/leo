@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,82 +16,47 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::{
-    errors::ExpressionError,
-    program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_ast::{Expression, Identifier, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{CircuitAccessExpression, Node};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-static SELF_KEYWORD: &str = "self";
-
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        circuit_identifier: Expression,
-        circuit_member: Identifier,
-        span: Span,
+        expr: &CircuitAccessExpression,
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // access a circuit member using the `self` keyword
-        if let Expression::Identifier(ref identifier) = circuit_identifier {
-            if identifier.is_self() {
-                let self_file_scope = new_scope(&file_scope, &identifier.name);
-                let self_function_scope = new_scope(&self_file_scope, &identifier.name);
-
-                let member_value =
-                    self.evaluate_identifier(&self_file_scope, &self_function_scope, None, circuit_member)?;
-
-                return Ok(member_value);
-            }
-        }
-
-        let (circuit_name, members) =
-            match self.enforce_operand(cs, file_scope, function_scope, expected_type, circuit_identifier, &span)? {
-                ConstrainedValue::CircuitExpression(name, members) => (name, members),
-                value => return Err(ExpressionError::undefined_circuit(value.to_string(), span)),
-            };
-
-        let matched_member = members.clone().into_iter().find(|member| member.0 == circuit_member);
-
-        match matched_member {
-            Some(member) => {
-                match &member.1 {
-                    ConstrainedValue::Function(ref _circuit_identifier, ref function) => {
-                        // Check for function input `self` or `mut self`.
-                        if function.contains_self() {
-                            // Pass circuit members into function call by value
-                            for stored_member in members {
-                                let circuit_scope = new_scope(&file_scope, &circuit_name.name);
-                                let self_keyword = new_scope(&circuit_scope, SELF_KEYWORD);
-                                let variable = new_scope(&self_keyword, &stored_member.0.name);
-
-                                self.store(variable, stored_member.1.clone());
-                            }
-                        }
+        if let Some(target) = &expr.target {
+            //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
+            let target_value = self.enforce_expression(cs, target)?;
+            match target_value {
+                ConstrainedValue::CircuitExpression(def, members) => {
+                    assert!(def.circuit == expr.circuit);
+                    if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
+                        Ok(member.1)
+                    } else {
+                        Err(ExpressionError::undefined_member_access(
+                            expr.circuit.name.borrow().to_string(),
+                            expr.member.to_string(),
+                            expr.member.span.clone(),
+                        ))
                     }
-                    ConstrainedValue::Static(value) => {
-                        return Err(ExpressionError::invalid_static_access(value.to_string(), span));
-                    }
-                    _ => {}
                 }
-                Ok(member.1)
+                value => Err(ExpressionError::undefined_circuit(
+                    value.to_string(),
+                    target.span().cloned().unwrap_or_default(),
+                )),
             }
-            None => Err(ExpressionError::undefined_member_access(
-                circuit_name.to_string(),
-                circuit_member.to_string(),
-                span,
-            )),
+        } else {
+            Err(ExpressionError::invalid_static_access(
+                expr.member.to_string(),
+                expr.member.span.clone(),
+            ))
         }
     }
 }

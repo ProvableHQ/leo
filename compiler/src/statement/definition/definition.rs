@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 //! Enforces a definition statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_ast::{Declare, DefinitionStatement, Span, VariableName};
+use leo_asg::{DefinitionStatement, Span, Variable};
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
@@ -25,35 +25,9 @@ use snarkvm_models::{
 };
 
 impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    fn enforce_single_definition<CS: ConstraintSystem<F>>(
+    fn enforce_multiple_definition(
         &mut self,
-        cs: &mut CS,
-        function_scope: &str,
-        is_constant: bool,
-        variable_name: VariableName,
-        mut value: ConstrainedValue<F, G>,
-        span: &Span,
-    ) -> Result<(), StatementError> {
-        if is_constant && variable_name.mutable {
-            return Err(StatementError::immutable_assign(
-                variable_name.to_string(),
-                span.to_owned(),
-            ));
-        } else {
-            value.allocate_value(cs, span)?
-        }
-
-        self.store_definition(function_scope, variable_name.mutable, variable_name.identifier, value);
-
-        Ok(())
-    }
-
-    fn enforce_multiple_definition<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        function_scope: &str,
-        is_constant: bool,
-        variable_names: Vec<VariableName>,
+        variable_names: &[Variable],
         values: Vec<ConstrainedValue<F, G>>,
         span: &Span,
     ) -> Result<(), StatementError> {
@@ -65,8 +39,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             ));
         }
 
-        for (variable, value) in variable_names.into_iter().zip(values.into_iter()) {
-            self.enforce_single_definition(cs, function_scope, is_constant, variable, value, span)?;
+        for (variable, value) in variable_names.iter().zip(values.into_iter()) {
+            self.store_definition(variable, value);
         }
 
         Ok(())
@@ -76,39 +50,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        statement: DefinitionStatement,
+        statement: &DefinitionStatement,
     ) -> Result<(), StatementError> {
-        let num_variables = statement.variable_names.len();
-        let is_constant = match statement.declaration_type {
-            Declare::Let => false,
-            Declare::Const => true,
-        };
-        let expression =
-            self.enforce_expression(cs, file_scope, function_scope, statement.type_.clone(), statement.value)?;
+        let num_variables = statement.variables.len();
+        let expression = self.enforce_expression(cs, &statement.value)?;
 
+        let span = statement.span.clone().unwrap_or_default();
         if num_variables == 1 {
             // Define a single variable with a single value
-            let variable = statement.variable_names[0].clone();
-
-            self.enforce_single_definition(cs, function_scope, is_constant, variable, expression, &statement.span)
+            self.store_definition(statement.variables.get(0).unwrap(), expression);
+            Ok(())
         } else {
             // Define multiple variables for an expression that returns multiple results (multiple definition)
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), statement.span)),
+                value => return Err(StatementError::multiple_definition(value.to_string(), span)),
             };
 
-            self.enforce_multiple_definition(
-                cs,
-                function_scope,
-                is_constant,
-                statement.variable_names,
-                values,
-                &statement.span,
-            )
+            self.enforce_multiple_definition(&statement.variables, values, &span)
         }
     }
 }

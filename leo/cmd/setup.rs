@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@ use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingK
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::snark::SNARK;
 
-use std::time::Instant;
 use structopt::StructOpt;
 
 use super::build::Build;
@@ -37,11 +36,14 @@ use tracing::span::Span;
 /// Run setup ceremony for Leo program Command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Setup {}
+pub struct Setup {
+    #[structopt(long = "skip-key-check", help = "Skip key verification")]
+    skip_key_check: bool,
+}
 
 impl Setup {
-    pub fn new() -> Setup {
-        Setup {}
+    pub fn new(skip_key_check: bool) -> Setup {
+        Setup { skip_key_check }
     }
 }
 
@@ -102,13 +104,15 @@ impl Cmd for Setup {
                 } else {
                     tracing::info!("Detected saved setup");
 
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
-
                     // Read the proving key file from the output directory
                     tracing::info!("Loading proving key...");
+
+                    if self.skip_key_check {
+                        tracing::info!("Skipping curve check");
+                    }
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
+                    let proving_key =
+                        Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)?;
                     tracing::info!("Complete");
 
                     // Read the verification key file from the output directory

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
 #[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
-use leo_grammar::Grammar;
+use leo_ast::{Ast, AstError};
+use leo_grammar::{Grammar, ParserError};
 
 use std::path::{Path, PathBuf};
 
-fn to_ast(program_filepath: &Path) -> Ast {
+fn to_ast(program_filepath: &Path) -> Result<Ast, AstError> {
     // Loads the Leo code as a string from the given file path.
-    let program_string = Grammar::load_file(program_filepath).unwrap();
+    let program_string = Grammar::load_file(program_filepath)?;
 
     // Parses the Leo file and constructs a grammar ast.
-    let ast = Grammar::new(&program_filepath, &program_string).unwrap();
+    let ast = Grammar::new(&program_filepath, &program_string)?;
 
     // Parses the pest ast and constructs a Leo ast.
     Ast::new("leo_tree", &ast)
@@ -40,7 +40,7 @@ fn test_serialize() {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_ast(&program_filepath)
+        to_ast(&program_filepath).unwrap()
     };
 
     // Serializes the ast into JSON format.
@@ -60,7 +60,7 @@ fn test_deserialize() {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_ast(&program_filepath)
+        to_ast(&program_filepath).unwrap()
     };
 
     // Construct an ast by deserializing a ast JSON file.
@@ -77,7 +77,7 @@ fn test_serialize_deserialize_serialize() {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         program_filepath.push("tests/serialization/main.leo");
 
-        to_ast(&program_filepath)
+        to_ast(&program_filepath).unwrap()
     };
 
     // Serializes the ast into JSON format.
@@ -90,4 +90,30 @@ fn test_serialize_deserialize_serialize() {
     let reserialized_ast = ast.to_json_string().unwrap();
 
     assert_eq!(serialized_ast, reserialized_ast);
+}
+
+#[test]
+fn test_file_read_error() {
+    let error_result = {
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/dne.leo");
+
+        to_ast(&program_filepath)
+    }
+    .map_err(|err| matches!(err, AstError::ParserError(x) if matches!(x, ParserError::FileReadError(_))));
+
+    assert!(error_result.err().unwrap());
+}
+
+#[test]
+fn test_generic_parser_error() {
+    let error_result = {
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/parser_error.leo");
+
+        to_ast(&program_filepath)
+    }
+    .map_err(|err| matches!(err, AstError::ParserError(_)));
+
+    assert!(error_result.err().unwrap());
 }

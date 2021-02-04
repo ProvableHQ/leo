@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,23 +28,23 @@ macro_rules! test_uint {
 
             fn test_min_fail() {
                 let program_string = include_str!("min_fail.leo");
-                let program = parse_program(program_string).unwrap();
+                let program = parse_program(program_string).err().unwrap();
 
-                expect_parsing_error(program);
+                expect_asg_error(program);
             }
 
             fn test_max() {
                 let program_string = include_str!("max.leo");
-                let program = parse_program(program_string).unwrap();
+                let error = parse_program(program_string).unwrap();
 
-                assert_satisfied(program);
+                assert_satisfied(error);
             }
 
             fn test_max_fail() {
                 let program_string = include_str!("max_fail.leo");
-                let program = parse_program(program_string).unwrap();
+                let error = parse_program(program_string).err().unwrap();
 
-                expect_parsing_error(program);
+                expect_asg_error(error);
             }
 
             fn test_add() {
