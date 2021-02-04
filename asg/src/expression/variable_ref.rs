@@ -60,7 +60,7 @@ impl ExpressionNode for VariableRef {
     fn enforce_parents(&self, _expr: &Arc<Expression>) {}
 
     fn get_type(&self) -> Option<Type> {
-        Some(self.variable.borrow().type_.clone().strong().clone())
+        Some(self.variable.borrow().type_.clone().strong())
     }
 
     fn is_mut_ref(&self) -> bool {
