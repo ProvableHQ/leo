@@ -20,7 +20,7 @@ use crate::api::{Login as LoginRoute, Profile as ProfileRoute};
 
 use crate::config::*;
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::Span;
 
@@ -57,11 +57,11 @@ impl Cmd for Login {
         tracing::span!(tracing::Level::INFO, "Login")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
         // quick hack to check if user is already logged in. ;)
         if ctx.api.auth_token().is_some() {
             tracing::info!("You are already logged in");

@@ -129,7 +129,7 @@ impl Route for Fetch {
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/package/fetch";
 
-    fn process(&self, res: Response) -> Result<Self::Output, Error> {
+    fn process(&self, res: Response) -> Result<Self::Output> {
         // check status code first
         if res.status() != 200 {
             return Err(self.status_to_err(res.status()));
@@ -165,7 +165,7 @@ impl Route for Login {
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/account/authenticate";
 
-    fn process(&self, res: Response) -> Result<Self::Output, Error> {
+    fn process(&self, res: Response) -> Result<Self::Output> {
         if res.status() != 200 {
             return Err(self.status_to_err(res.status()));
         }
@@ -196,7 +196,7 @@ impl Route for Profile {
     const METHOD: Method = Method::GET;
     const PATH: &'static str = "api/account/my_profile";
 
-    fn process(&self, res: Response) -> Result<Self::Output, Error> {
+    fn process(&self, res: Response) -> Result<Self::Output> {
         // this may be extended for more precise error handling
         Ok(res.status() == 200)
     }

@@ -17,7 +17,7 @@
 use std::env::current_dir;
 
 use crate::{api::Api, config};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use leo_package::root::Manifest;
 use std::{convert::TryFrom, path::PathBuf};
 
@@ -27,13 +27,19 @@ pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 /// All the info that is relevant in most of the commands
 #[derive(Clone)]
 pub struct Context {
-    // will contain manifest
+    /// Api client for Aleo PM
     pub api: Api,
+
+    /// Path at which the command is called, None when default
+    pub path: Option<PathBuf>,
 }
 
 impl Context {
     pub fn dir(&self) -> Result<PathBuf> {
-        Ok(current_dir()?)
+        match &self.path {
+            Some(path) => Ok(path.clone()),
+            None => Ok(current_dir()?),
+        }
     }
 
     /// Get package manifest for current context
@@ -43,8 +49,15 @@ impl Context {
 }
 
 /// Create a new context for the current directory.
-pub fn create_context() -> Result<Context> {
-    unimplemented!("this feature is not yet supported")
+pub fn create_context(path: PathBuf) -> Result<Context> {
+    let token = match config::read_token() {
+        Ok(token) => Some(token),
+        Err(_) => None,
+    };
+
+    let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
+
+    Ok(Context { api, path: Some(path) })
 }
 
 /// Returns project context.
@@ -56,5 +69,5 @@ pub fn get_context() -> Result<Context> {
 
     let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
 
-    Ok(Context { api })
+    Ok(Context { api, path: None })
 }

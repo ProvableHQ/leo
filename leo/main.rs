@@ -26,19 +26,19 @@ use anyhow::Error;
 use std::process::exit;
 
 use cmd::{
-    build::Build,
-    clean::Clean,
-    deploy::Deploy,
-    init::Init,
-    lint::Lint,
-    new::New,
     package::{Add, Login, Logout, Publish, Remove},
-    prove::Prove,
-    run::Run,
-    setup::Setup,
-    test::Test,
-    watch::Watch,
+    Build,
+    Clean,
     Cmd,
+    Deploy,
+    Init,
+    Lint,
+    New,
+    Prove,
+    Run,
+    Setup,
+    Test,
+    Watch,
 };
 
 use structopt::{clap::AppSettings, StructOpt};

@@ -24,7 +24,7 @@ use std::{
 
 use crate::{cmd::Cmd, context::Context};
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 
 use crate::api::Fetch;
@@ -62,7 +62,7 @@ impl Add {
     }
 
     /// Try to parse author/package string from self.remote
-    pub fn try_read_arguments(&self) -> Result<(String, String), Error> {
+    pub fn try_read_arguments(&self) -> Result<(String, String)> {
         if let Some(val) = &self.remote {
             let v: Vec<&str> = val.split('/').collect();
             if v.len() == 2 {
@@ -90,11 +90,11 @@ impl Cmd for Add {
         tracing::span!(tracing::Level::INFO, "Adding")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
         // checking that manifest exists...
         if ctx.manifest().is_err() {
             return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));

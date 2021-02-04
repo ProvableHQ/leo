@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{cmd::Cmd, context::Context};
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Result};
 use leo_package::LeoPackage;
 use std::env::current_dir;
 use structopt::StructOpt;
@@ -43,11 +43,11 @@ impl Cmd for Init {
         tracing::span!(tracing::Level::INFO, "Initializing")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
         let path = current_dir()?;
         let package_name = path
             .file_stem()

@@ -19,10 +19,9 @@ use crate::{
     context::{Context, PACKAGE_MANAGER_URL},
 };
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 
-use crate::config::read_token;
 use reqwest::{
     blocking::{multipart::Form, Client},
     header::{HeaderMap, HeaderValue},
@@ -56,11 +55,11 @@ impl Cmd for Publish {
     type Output = Option<String>;
 
     /// Build program before publishing
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Build::new().execute()
     }
 
-    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output> {
         // Get the package manifest
         let path = ctx.dir()?;
         let manifest = ctx.manifest()?;
@@ -103,20 +102,9 @@ impl Cmd for Publish {
         // Client for make POST request
         let client = Client::new();
 
-        // Get token to make an authorized request
-        let token = match read_token() {
-            Ok(token) => token,
-
-            // If not logged in, then try logging in using JWT.
-            Err(_error) => {
-                return Err(anyhow!("Not logged in"));
-
-                // tracing::warn!("You should be logged in before attempting to publish a package");
-                // tracing::info!("Trying to log in using JWT...");
-
-                // let options = (None, None, None);
-                // LoginCommand::output(options)?
-            }
+        let token = match ctx.api.auth_token() {
+            Some(token) => token,
+            None => return Err(anyhow!("Login before publishing package: try leo login --help")),
         };
 
         // Headers for request to publish package

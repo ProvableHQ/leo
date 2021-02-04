@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{cmd::Cmd, context::Context};
-use anyhow::Error;
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -38,11 +38,11 @@ impl Cmd for Lint {
         tracing::span!(tracing::Level::INFO, "Linting")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
         unimplemented!("Lint command has not been implemented yet");
     }
 }

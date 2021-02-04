@@ -14,35 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{
+    cmd::{build::Build, run::Run, setup::Setup, Cmd},
+    context::{create_context, Context},
+};
 use anyhow::Result;
-use structopt::StructOpt;
-use tracing::span::Span;
+use std::path::PathBuf;
 
-/// Deploy Leo program to the network
-#[derive(StructOpt, Debug, Default)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Deploy {}
+/// Path to the only complex Leo program that we have
+const PEDERSEN_HASH_PATH: &'static str = "../../examples/pedersen-hash/";
 
-impl Deploy {
-    pub fn new() -> Deploy {
-        Deploy {}
-    }
-}
+#[test]
+pub fn test_build_example() -> Result<()> {
+    let path = PathBuf::from(&PEDERSEN_HASH_PATH);
 
-impl Cmd for Deploy {
-    type Input = ();
-    type Output = ();
+    println!("{:?}", std::fs::canonicalize(path));
 
-    fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Deploy")
-    }
-
-    fn prelude(&self) -> Result<Self::Input> {
-        Ok(())
-    }
-
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        unimplemented!("Deploy command has not been implemented yet");
-    }
+    Ok(())
 }

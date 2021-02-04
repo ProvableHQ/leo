@@ -18,7 +18,7 @@ use crate::{cmd::Cmd, context::Context};
 
 use leo_package::LeoPackage;
 
-use anyhow::Error;
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -44,11 +44,11 @@ impl Cmd for Remove {
         tracing::span!(tracing::Level::INFO, "Removing")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let path = ctx.dir()?;
         let package_name = self.name;
 

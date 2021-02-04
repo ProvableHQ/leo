@@ -16,7 +16,7 @@
 
 use crate::{cmd::Cmd, context::Context};
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
@@ -53,11 +53,11 @@ impl Cmd for Test {
         tracing::span!(tracing::Level::INFO, "Test")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let path = ctx.dir()?;
 
         // Get the package name

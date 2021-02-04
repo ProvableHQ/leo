@@ -16,7 +16,7 @@
 
 use crate::{cmd::Cmd, context::Context};
 
-use anyhow::Error;
+use anyhow::Result;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use std::{sync::mpsc::channel, time::Duration};
 use structopt::StructOpt;
@@ -48,11 +48,11 @@ impl Cmd for Watch {
         tracing::span!(tracing::Level::INFO, "Watching")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
         watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();

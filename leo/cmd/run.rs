@@ -16,7 +16,7 @@
 
 use crate::{cmd::Cmd, context::Context};
 
-use anyhow::Error;
+use anyhow::Result;
 use structopt::StructOpt;
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
@@ -50,11 +50,11 @@ impl Cmd for Run {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Prove::new(self.skip_key_check).execute()
     }
 
-    fn apply(self, _ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, _ctx: Context, input: Self::Input) -> Result<Self::Output> {
         let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");

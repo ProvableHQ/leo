@@ -28,7 +28,7 @@ use leo_package::{
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
-use anyhow::Error;
+use anyhow::Result;
 use std::convert::TryFrom;
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -52,11 +52,11 @@ impl Cmd for Build {
         tracing::span!(tracing::Level::INFO, "Build")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let path = ctx.dir()?;
         let package_name = ctx.manifest()?.get_package_name();
 

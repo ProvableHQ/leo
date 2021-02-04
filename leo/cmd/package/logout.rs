@@ -17,7 +17,7 @@
 use crate::{cmd::Cmd, context::Context};
 
 use crate::config::remove_token;
-use anyhow::Error;
+use anyhow::Result;
 use std::io::ErrorKind;
 use structopt::StructOpt;
 use tracing::Span;
@@ -41,11 +41,11 @@ impl Cmd for Logout {
         tracing::span!(tracing::Level::INFO, "Logout")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         if let Err(err) = remove_token() {

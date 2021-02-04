@@ -16,7 +16,7 @@
 
 use super::setup::Setup;
 use crate::{cmd::Cmd, context::Context};
-use anyhow::Error;
+use anyhow::Result;
 use structopt::StructOpt;
 
 use leo_package::outputs::ProofFile;
@@ -50,11 +50,11 @@ impl Cmd for Prove {
         tracing::span!(tracing::Level::INFO, "Proving")
     }
 
-    fn prelude(&self) -> Result<Self::Input, Error> {
+    fn prelude(&self) -> Result<Self::Input> {
         Setup::new(self.skip_key_check).execute()
     }
 
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output, Error> {
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
         let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
