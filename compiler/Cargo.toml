@@ -54,7 +54,7 @@ version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-errors]
