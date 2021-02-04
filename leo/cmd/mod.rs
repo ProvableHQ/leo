@@ -87,7 +87,7 @@ pub trait Cmd {
         let span = self.log_span();
         let span = span.enter();
 
-        // calculate command spead on each run
+        // calculate execution time for each run
         let timer = Instant::now();
 
         let context = self.context()?;

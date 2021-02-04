@@ -63,23 +63,23 @@ impl Cmd for Publish {
     fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output, Error> {
         // Get the package manifest
         let path = ctx.dir()?;
-        let package_manifest = ctx.manifest()?;
+        let manifest = ctx.manifest()?;
 
-        let package_name = package_manifest.get_package_name();
-        let package_version = package_manifest.get_package_version();
+        let package_name = manifest.get_package_name();
+        let package_version = manifest.get_package_version();
 
-        if package_manifest.get_package_description().is_none() {
-            return Err(anyhow!("No package description"));
-        }
-
-        if package_manifest.get_package_license().is_none() {
-            return Err(anyhow!("Missing package license"));
-        }
-
-        let package_remote = match package_manifest.get_package_remote() {
-            Some(remote) => remote,
-            None => return Err(anyhow!("Missing package remote")),
+        match (
+            manifest.get_package_description(),
+            manifest.get_package_license(),
+            manifest.get_package_remote(),
+        ) {
+            (None, _, _) => return Err(anyhow!("No package description")),
+            (_, None, _) => return Err(anyhow!("Missing package license")),
+            (_, _, None) => return Err(anyhow!("Missing package remote")),
+            (_, _, _) => (),
         };
+
+        let package_remote = manifest.get_package_remote().unwrap();
 
         // Create the output directory
         OutputsDirectory::create(&path)?;

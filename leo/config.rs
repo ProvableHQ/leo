@@ -25,8 +25,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
-
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 pub const LEO_CONFIG_FILE: &str = "config.toml";
 

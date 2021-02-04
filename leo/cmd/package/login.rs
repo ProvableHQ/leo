@@ -16,7 +16,7 @@
 
 use crate::{cmd::Cmd, context::Context};
 
-use crate::api::Login as LoginRoute;
+use crate::api::{Login as LoginRoute, Profile as ProfileRoute};
 
 use crate::config::*;
 
@@ -33,6 +33,9 @@ pub const PROFILE_URL: &str = "v1/account/my_profile";
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Login {
+    #[structopt(name = "AUTH_TOKEN", about = "Pass authorization token")]
+    token: Option<String>,
+
     #[structopt(short = "u", long = "user", about = "Username for Aleo PM")]
     user: Option<String>,
 
@@ -41,8 +44,8 @@ pub struct Login {
 }
 
 impl Login {
-    pub fn new(user: Option<String>, pass: Option<String>) -> Login {
-        Login { user, pass }
+    pub fn new(token: Option<String>, user: Option<String>, pass: Option<String>) -> Login {
+        Login { token, user, pass }
     }
 }
 
@@ -59,39 +62,56 @@ impl Cmd for Login {
     }
 
     fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
-        let token = match (self.user, self.pass) {
+        // quick hack to check if user is already logged in. ;)
+        if ctx.api.auth_token().is_some() {
+            tracing::info!("You are already logged in");
+            return Ok(ctx.api.auth_token().unwrap());
+        };
+
+        let mut api = ctx.api;
+
+        // ...or trying to use arguments to either get token or user-pass
+        let token = match (self.token, self.user, self.pass) {
             // Login using existing token, use get_profile route for that
-            // (Some(token), _, _) => Some(token),
-            // unimplemented!
+            (Some(token), _, _) => {
+                tracing::info!("Token passed, checking...");
+
+                api.set_auth_token(token.clone());
+
+                let is_ok = api.run_route(ProfileRoute {})?;
+                if !is_ok {
+                    return Err(anyhow!("Supplied token is incorrect"));
+                };
+
+                token
+            }
 
             // Login using username and password
-            (Some(email_username), Some(password)) => {
+            (None, Some(email_username), Some(password)) => {
                 let login = LoginRoute {
                     email_username,
                     password,
                 };
 
-                let res = ctx.api.run_route(login)?;
+                let res = api.run_route(login)?;
                 let mut res: HashMap<String, String> = res.json()?;
 
-                let token = match res.remove("token") {
-                    Some(token) => token,
-                    None => {
-                        return Err(anyhow!("Unable to get token"));
-                    }
+                let tok_opt = res.remove("token");
+                if tok_opt.is_none() {
+                    return Err(anyhow!("Unable to get token"));
                 };
 
-                write_token(token.as_str())?;
-
-                tracing::info!("Success! You are now logged in!");
-
-                token
+                tok_opt.unwrap()
             }
 
-            // Login using stored JWT credentials.
-            // TODO (raychu86) Package manager re-authentication from token
-            (_, _) => read_token().map_err(|_| -> Error { anyhow!("No credentials provided") })?,
+            // In case token or login/pass were not passed as arguments
+            (_, _, _) => return Err(anyhow!("No credentials provided")),
         };
+
+        // write token either after logging or if it was passed
+        write_token(token.as_str())?;
+
+        tracing::info!("Success! You are now logged in!");
 
         Ok(token)
     }

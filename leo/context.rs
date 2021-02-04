@@ -16,7 +16,7 @@
 
 use std::env::current_dir;
 
-use crate::api::Api;
+use crate::{api::Api, config};
 use anyhow::Result;
 use leo_package::root::Manifest;
 use std::{convert::TryFrom, path::PathBuf};
@@ -44,14 +44,17 @@ impl Context {
 
 /// Create a new context for the current directory.
 pub fn create_context() -> Result<Context> {
-    Ok(Context {
-        api: Api::new(PACKAGE_MANAGER_URL.to_string()),
-    })
+    unimplemented!("this feature is not yet supported")
 }
 
 /// Returns project context.
 pub fn get_context() -> Result<Context> {
-    Ok(Context {
-        api: Api::new(PACKAGE_MANAGER_URL.to_string()),
-    })
+    let token = match config::read_token() {
+        Ok(token) => Some(token),
+        Err(_) => None,
+    };
+
+    let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
+
+    Ok(Context { api })
 }

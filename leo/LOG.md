@@ -1,7 +1,0 @@
-- wrapped everything into StructOpt
-- removed TOKEN from `leo login <TOKEN>`
-- all API calls are now done via `api.rs` which knows how to handle each API route and its statuses
-- custom errors classes removed - anyhow now rules everything
-- adding global params for leo cli is now easier - global object is defined in main.rs
-- 50% of the code removed - due to optimisations and restructuring
-- 

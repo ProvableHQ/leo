@@ -23,6 +23,8 @@ use reqwest::{
     StatusCode,
 };
 
+/// Trait describes API Routes and Request bodies, struct which implements
+/// Route MUST also support Serialize to be usable in Api::run_route(r: Route)
 pub trait Route {
     /// Whether to use bearer auth or not. Some routes may have additional
     /// features for logged-in users, so authorization token should be sent
@@ -54,16 +56,29 @@ pub trait Route {
 pub struct Api {
     host: String,
     client: Client,
+    /// Authorization token for API requests
+    auth_token: Option<String>,
 }
 
 impl Api {
     /// Create new instance of API, set host and Client is going to be
     /// created and set automatically
-    pub fn new(host: String) -> Api {
+    pub fn new(host: String, auth_token: Option<String>) -> Api {
         Api {
             client: Client::new(),
+            auth_token,
             host,
         }
+    }
+
+    /// Get token for bearer auth, should be passed into Api through Context
+    pub fn auth_token(&self) -> Option<String> {
+        self.auth_token.clone()
+    }
+
+    /// Set authorization token for future requests
+    pub fn set_auth_token(&mut self, token: String) {
+        self.auth_token = Some(token);
     }
 
     /// Run specific route struct. Turn struct into request body
@@ -73,13 +88,22 @@ impl Api {
         T: Route,
         T: Serialize,
     {
-        let res = self
-            .client
-            .request(T::METHOD, &format!("{}{}", self.host, T::PATH))
-            .json(&route)
-            .send()
-            .map_err(|_| anyhow!("Unable to connect to Aleo PM"))?;
+        let mut res = self.client.request(T::METHOD, &format!("{}{}", self.host, T::PATH));
 
+        // add body for POST and PUT requests
+        if T::METHOD == Method::POST || T::METHOD == Method::PUT {
+            res = res.json(&route);
+        };
+
+        // if Route::Auth is true and token is present - pass it
+        if T::AUTH && self.auth_token().is_some() {
+            res = res.bearer_auth(&self.auth_token().unwrap());
+        };
+
+        // only one error is possible here
+        let res = res.send().map_err(|_| anyhow!("Unable to connect to Aleo PM"))?;
+
+        // where magic begins
         route.process(res)
     }
 }
@@ -117,8 +141,9 @@ impl Route for Fetch {
     fn status_to_err(&self, status: StatusCode) -> Error {
         match status {
             StatusCode::BAD_REQUEST => anyhow!("Package is not found - check author and/or package name"),
-            // This one is ILLOGICAL - we should return 404 on incorrect author/package
-            // and return BAD_REQUEST if data format is incorrect
+            // TODO: we should return 404 on not found author/package
+            // and return BAD_REQUEST if data format is incorrect or some of the arguments
+            // were not passed
             StatusCode::NOT_FOUND => anyhow!("Package is hidden"),
             _ => anyhow!("Unknown API error: {}", status),
         }
@@ -151,10 +176,28 @@ impl Route for Login {
     fn status_to_err(&self, status: StatusCode) -> Error {
         match status {
             StatusCode::BAD_REQUEST => anyhow!("This username is not yet registered or the password is incorrect"),
-            // NOT_FOUND here should be replaced, this error code has no relation
-            // to what this route is doing
+            // TODO: NOT_FOUND here should be replaced, this error code has no relation to what this route is doing
             StatusCode::NOT_FOUND => anyhow!("Incorrect password"),
             _ => anyhow!("Unknown API error: {}", status),
         }
+    }
+}
+
+/// Handler for 'my_profile' route. Meant to be used to get profile details but
+/// in current application is used to check if user is logged in. Any non-200 response
+/// is treated as Unauthorized
+#[derive(Serialize)]
+pub struct Profile {}
+
+impl Route for Profile {
+    type Output = bool;
+
+    const AUTH: bool = true;
+    const METHOD: Method = Method::GET;
+    const PATH: &'static str = "api/account/my_profile";
+
+    fn process(&self, res: Response) -> Result<Self::Output, Error> {
+        // this may be extended for more precise error handling
+        Ok(res.status() == 200)
     }
 }
