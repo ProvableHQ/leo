@@ -24,7 +24,7 @@ use std::path::PathBuf;
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located
-const PEDERSEN_HASH_PATH: &'static str = "./examples/pedersen-hash/";
+const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
 
 #[test]
 pub fn build_pedersen_hash() -> Result<()> {
