@@ -50,7 +50,7 @@ version = "0.0.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.2"
+version = "0.0.3"
 
 [dependencies.indexmap]
 version = "1.6.1"
