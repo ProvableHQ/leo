@@ -73,19 +73,13 @@ impl Cmd for Setup {
 
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
-                let (_end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+                let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     tracing::info!("Starting...");
-
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
 
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
                         Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
-
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory
@@ -104,7 +98,7 @@ impl Cmd for Setup {
                     let _ = verification_key_file.write_to(&path, &verification_key)?;
                     tracing::info!("Complete");
 
-                    (end, proving_key, prepared_verifying_key)
+                    (proving_key, prepared_verifying_key)
                 } else {
                     tracing::info!("Detected saved setup");
 
@@ -126,10 +120,7 @@ impl Cmd for Setup {
                     let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
                     tracing::info!("Complete");
 
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
-
-                    (end, proving_key, prepared_verifying_key)
+                    (proving_key, prepared_verifying_key)
                 };
 
                 Ok((program, proving_key, prepared_verifying_key))

@@ -185,9 +185,6 @@ impl CLI for UpdateAutomatic {
             };
         }
 
-        // Drop "Settings" context for console logging.
-        drop(enter);
-
         Ok(())
     }
 }

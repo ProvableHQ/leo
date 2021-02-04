@@ -17,11 +17,7 @@
 use crate::{cmd::Cmd, context::Context};
 use anyhow::Error;
 use leo_compiler::OutputFile;
-use leo_package::{
-    outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile},
-    root::Manifest,
-};
-use std::{convert::TryFrom, env::current_dir};
+use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -48,9 +44,9 @@ impl Cmd for Clean {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output, Error> {
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output, Error> {
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;
