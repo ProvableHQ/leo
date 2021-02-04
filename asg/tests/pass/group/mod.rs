@@ -23,6 +23,16 @@ fn test_one() {
 }
 
 #[test]
+fn test_implicit() {
+    let program_string = r#"
+    function main() {
+        let element: group = 0;
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_zero() {
     let program_string = include_str!("zero.leo");
     load_asg(program_string).unwrap();

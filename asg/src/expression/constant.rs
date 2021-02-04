@@ -173,6 +173,11 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
                 },
+                Some(PartialType::Type(Type::Group)) => Constant {
+                    parent: RefCell::new(None),
+                    span: Some(span.clone()),
+                    value: ConstValue::Group(GroupValue::Single(value.to_string())),
+                },
                 Some(PartialType::Type(Type::Address)) => Constant {
                     parent: RefCell::new(None),
                     span: Some(span.clone()),
