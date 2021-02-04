@@ -17,7 +17,7 @@
 use std::env::current_dir;
 
 use crate::{api::Api, config};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use leo_package::root::Manifest;
 use std::{convert::TryFrom, path::PathBuf};
 
