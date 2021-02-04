@@ -50,11 +50,44 @@ struct Opt {
     #[structopt(short, long, help = "Print additional information for debugging")]
     debug: bool,
 
-    #[structopt(flatten)]
+    #[structopt(subcommand)]
     command: Command,
 }
+#[derive(StructOpt, Debug)]
+#[structopt(setting = AppSettings::ColoredHelp)]
+enum Package {
+    #[structopt(about = "Import package from Aleo PM")]
+    Add {
+        #[structopt(flatten)]
+        cmd: Add,
+    },
 
-/// Leo commands (subcommands for Opt)
+    #[structopt(about = "Login to the package manager and store credentials")]
+    Login {
+        #[structopt(flatten)]
+        cmd: Login,
+    },
+
+    #[structopt(about = "Logout - remove local credentials")]
+    Logout {
+        #[structopt(flatten)]
+        cmd: Logout,
+    },
+
+    #[structopt(about = "Publish package")]
+    Publish {
+        #[structopt(flatten)]
+        cmd: Publish,
+    },
+
+    #[structopt(about = "Remove imported package")]
+    Remove {
+        #[structopt(flatten)]
+        cmd: Remove,
+    },
+}
+
+/// Leo Command Line Interface
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
 enum Command {
@@ -112,34 +145,10 @@ enum Command {
         cmd: Test,
     },
 
-    #[structopt(about = "Import package from Aleo PM")]
-    Add {
+    #[structopt(about = "Aleo Package Manager related commands")]
+    Package {
         #[structopt(flatten)]
-        cmd: Add,
-    },
-
-    #[structopt(about = "Login to the Aleo Package Manager")]
-    Login {
-        #[structopt(flatten)]
-        cmd: Login,
-    },
-
-    #[structopt(about = "Logout from Aleo Package Manager")]
-    Logout {
-        #[structopt(flatten)]
-        cmd: Logout,
-    },
-
-    #[structopt(about = "Publish package to Aleo PM")]
-    Publish {
-        #[structopt(flatten)]
-        cmd: Publish,
-    },
-
-    #[structopt(about = "Remove imported package")]
-    Remove {
-        #[structopt(flatten)]
-        cmd: Remove,
+        cmd: Package,
     },
 
     #[structopt(about = "Lint package code (not implemented)")]
@@ -176,11 +185,13 @@ fn main() {
         Command::Clean { cmd } => cmd.try_execute(),
         Command::Watch { cmd } => cmd.try_execute(),
 
-        Command::Add { cmd } => cmd.try_execute(),
-        Command::Login { cmd } => cmd.try_execute(),
-        Command::Logout { cmd } => cmd.try_execute(),
-        Command::Publish { cmd } => cmd.try_execute(),
-        Command::Remove { cmd } => cmd.try_execute(),
+        Command::Package { cmd } => match cmd {
+            Package::Add { cmd } => cmd.try_execute(),
+            Package::Login { cmd } => cmd.try_execute(),
+            Package::Logout { cmd } => cmd.try_execute(),
+            Package::Publish { cmd } => cmd.try_execute(),
+            Package::Remove { cmd } => cmd.try_execute(),
+        },
 
         Command::Lint { cmd } => cmd.try_execute(),
         Command::Deploy { cmd } => cmd.try_execute(),
