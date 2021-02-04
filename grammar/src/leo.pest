@@ -448,19 +448,24 @@ input_tuple = _{ "(" ~ (input ~ ("," ~ input)* ~ ","?)? ~ ")"}
 /// Imports
 
 // Declared in imports/import.rs
-import = { "import " ~ package ~ LINE_END}
+import = { "import " ~ package_type ~ LINE_END}
 
 // Declared in imports/package_name.rs
 package_name = @{ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+ ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+)* }
 
 // Declared in imports/package.rs
+package_type = {
+    packages
+    | package
+}
 package = { package_name ~ "." ~ package_access }
+packages = { package_name ~ "." ~ multiple_package_access }
 
 // Declared in imports/package_access
 package_access = {
-    multiple_package_access
-    | star
-    | package // subpackage
+    star
+    | packages // subpackage
+    | package
     | import_symbol
 }
 

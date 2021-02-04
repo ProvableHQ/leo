@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Package, Span};
+use crate::{ImportSymbol, Package, Packages, Span};
 use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
 
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub enum PackageAccess {
     Star(Span),
     SubPackage(Box<Package>),
     Symbol(ImportSymbol),
-    Multiple(Vec<PackageAccess>),
+    Multiple(Packages),
 }
 
 impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
@@ -34,9 +34,7 @@ impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
             GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
             GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
             GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
-            GrammarPackageAccess::Multiple(accesses) => {
-                PackageAccess::Multiple(accesses.into_iter().map(PackageAccess::from).collect())
-            }
+            GrammarPackageAccess::Multiple(packages) => PackageAccess::Multiple(Packages::from(packages)),
         }
     }
 }
@@ -47,11 +45,11 @@ impl PackageAccess {
             PackageAccess::Star(ref _span) => write!(f, "*"),
             PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
             PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
-            PackageAccess::Multiple(ref accesses) => {
+            PackageAccess::Multiple(ref packages) => {
                 write!(f, "(")?;
-                for (i, access) in accesses.iter().enumerate() {
+                for (i, access) in packages.accesses.iter().enumerate() {
                     write!(f, "{}", access)?;
-                    if i < accesses.len() - 1 {
+                    if i < packages.accesses.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }

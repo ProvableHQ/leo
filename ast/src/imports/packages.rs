@@ -14,53 +14,49 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{PackageType, Span};
-use leo_grammar::imports::Import as GrammarImport;
+use crate::{common::Identifier, PackageAccess, Span};
+use leo_grammar::imports::Packages as GrammarPackages;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Represents an import statement in a Leo program.
-#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ImportStatement {
-    pub package_type: PackageType,
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct Packages {
+    pub name: Identifier,
+    pub accesses: Vec<PackageAccess>,
     pub span: Span,
 }
 
-impl ImportStatement {
-    ///
-    /// Returns the the package file name of the self import statement.
-    ///
-    pub fn get_file_name(&self) -> &str {
-        match self.package_type {
-            PackageType::Package(ref package) => &package.name.name,
-            PackageType::Packages(ref packages) => &packages.name.name,
+impl<'ast> From<GrammarPackages<'ast>> for Packages {
+    fn from(packages: GrammarPackages<'ast>) -> Self {
+        Packages {
+            name: Identifier::from(packages.name),
+            accesses: packages.accesses.into_iter().map(PackageAccess::from).collect(),
+            span: Span::from(packages.span),
         }
     }
 }
 
-impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
-    fn from(import: GrammarImport<'ast>) -> Self {
-        ImportStatement {
-            package_type: PackageType::from(import.package_type),
-            span: Span::from(import.span),
-        }
-    }
-}
-
-impl ImportStatement {
+impl Packages {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "import {};", self.package_type)
+        write!(f, "{}.(", self.name)?;
+        for (i, access) in self.accesses.iter().enumerate() {
+            write!(f, "{}", access)?;
+            if i < self.accesses.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, ")")
     }
 }
 
-impl fmt::Display for ImportStatement {
+impl fmt::Display for Packages {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Debug for ImportStatement {
+impl fmt::Debug for Packages {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

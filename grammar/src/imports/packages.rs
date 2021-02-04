@@ -14,26 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod import;
-pub use import::*;
+use crate::{
+    ast::Rule,
+    imports::{PackageAccess, PackageName},
+    SpanDef,
+};
 
-pub mod import_symbol;
-pub use import_symbol::*;
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod package;
-pub use package::*;
-
-pub mod packages;
-pub use packages::*;
-
-pub mod package_type;
-pub use package_type::*;
-
-pub mod package_access;
-pub use package_access::*;
-
-pub mod package_name;
-pub use package_name::*;
-
-pub mod star;
-pub use star::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::packages))]
+pub struct Packages<'ast> {
+    pub name: PackageName<'ast>,
+    pub accesses: Vec<PackageAccess<'ast>>,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}
