@@ -44,7 +44,7 @@ impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
 impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: bool
-        if self.mutable {
+        if self.const_ {
             write!(f, "const ")?;
         }
         if self.mutable {
