@@ -35,8 +35,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         left: &Arc<Expression>,
         right: &Arc<Expression>,
     ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
-        let resolved_left = self.enforce_operand(cs, left)?;
-        let resolved_right = self.enforce_operand(cs, right)?;
+        let resolved_left = self.enforce_expression(cs, left)?;
+        let resolved_right = self.enforce_expression(cs, right)?;
 
         Ok((resolved_left, resolved_right))
     }

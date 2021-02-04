@@ -61,12 +61,8 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Store input values as new variables in resolved program
         for (variable, input_expression) in function.arguments.iter().zip(arguments.iter()) {
-            let mut input_value = self.enforce_expression(cs, input_expression)?;
+            let input_value = self.enforce_expression(cs, input_expression)?;
             let variable = variable.borrow();
-
-            if variable.mutable {
-                input_value = ConstrainedValue::Mutable(Box::new(input_value))
-            }
 
             self.store(variable.id, input_value);
         }

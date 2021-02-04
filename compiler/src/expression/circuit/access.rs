@@ -33,7 +33,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         if let Some(target) = &expr.target {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
-            let target_value = self.enforce_operand(cs, target)?;
+            let target_value = self.enforce_expression(cs, target)?;
             match target_value {
                 ConstrainedValue::CircuitExpression(def, members) => {
                     assert!(def.circuit == expr.circuit);
