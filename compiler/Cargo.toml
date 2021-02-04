@@ -116,7 +116,7 @@ features = [ "v4", "serde" ]
 version = "0.3"
 
 [dev-dependencies.snarkvm-algorithms]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [features]
