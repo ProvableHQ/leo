@@ -48,7 +48,7 @@ pub mod watch;
 pub use watch::Watch;
 
 pub mod update;
-pub use update::Update;
+pub use update::{Sub as UpdateAutomatic, Update};
 
 // aleo pm related commands
 pub mod package;

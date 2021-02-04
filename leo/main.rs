@@ -57,6 +57,7 @@ struct Opt {
     #[structopt(subcommand)]
     command: Command,
 }
+
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
 enum Package {

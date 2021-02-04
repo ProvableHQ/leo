@@ -15,11 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    cmd::{package::Login, Build, Cmd, Prove, Run, Setup},
+    cmd::{package::Login, Build, Cmd, Prove, Run, Setup, Update, UpdateAutomatic},
+    config,
     context::{create_context, Context},
 };
-use anyhow::{anyhow, Result};
-use std::{any, path::PathBuf};
+use anyhow::Result;
+use std::path::PathBuf;
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located
@@ -60,6 +61,8 @@ pub fn run_pedersen_hash() -> Result<()> {
 // So this test only tells that error cases are errors
 #[test]
 pub fn login_incorrect_credentials_or_token() -> Result<()> {
+    let _ = config::remove_token();
+
     // no credentials passed
     let login = Login::new(None, None, None).apply(ctx()?, ());
     assert!(login.is_err());
@@ -75,6 +78,18 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
     // no user, only pass
     let login = Login::new(None, None, Some("pass".to_string())).apply(ctx()?, ());
     assert!(login.is_err());
+
+    Ok(())
+}
+
+#[test]
+pub fn leo_update_and_update_automatic() -> Result<()> {
+    Update::new(true, true, None).apply(ctx()?, ())?;
+    Update::new(false, true, None).apply(ctx()?, ())?;
+    Update::new(false, false, None).apply(ctx()?, ())?;
+
+    Update::new(false, false, Some(UpdateAutomatic::Automatic { value: true })).apply(ctx()?, ())?;
+    Update::new(false, false, Some(UpdateAutomatic::Automatic { value: false })).apply(ctx()?, ())?;
 
     Ok(())
 }
