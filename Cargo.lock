@@ -1266,16 +1266,14 @@ dependencies = [
  "bincode",
  "hex",
  "indexmap",
+ "leo-asg",
  "leo-ast",
- "leo-core",
  "leo-gadgets",
  "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
  "leo-state",
- "leo-symbol-table",
- "leo-type-inference",
  "num-bigint",
  "pest",
  "rand",
@@ -1292,22 +1290,7 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "leo-core"
-version = "1.0.8"
-dependencies = [
- "leo-ast",
- "leo-gadgets",
- "rand",
- "rand_xorshift",
- "snarkvm-curves",
- "snarkvm-errors",
- "snarkvm-gadgets",
- "snarkvm-models",
- "snarkvm-utilities",
- "thiserror",
+ "uuid",
 ]
 
 [[package]]
@@ -1344,6 +1327,7 @@ name = "leo-imports"
 version = "1.0.8"
 dependencies = [
  "indexmap",
+ "leo-asg",
  "leo-ast",
  "leo-grammar",
  "thiserror",
@@ -1435,33 +1419,6 @@ dependencies = [
  "snarkvm-objects",
  "snarkvm-storage",
  "snarkvm-utilities",
- "thiserror",
-]
-
-[[package]]
-name = "leo-symbol-table"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-core",
- "leo-grammar",
- "leo-imports",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "leo-type-inference"
-version = "1.0.8"
-dependencies = [
- "indexmap",
- "leo-ast",
- "leo-grammar",
- "leo-imports",
- "leo-symbol-table",
- "serde",
- "serde_json",
  "thiserror",
 ]
 

@@ -16,14 +16,14 @@
 
 pub mod packages;
 
-use crate::{assert_satisfied, expect_symbol_table_error, parse_program};
+use crate::{assert_satisfied, expect_asg_error, parse_program};
 
 #[test]
 fn test_core_circuit_invalid() {
     let program_string = include_str!("core_package_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_symbol_table_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn test_core_circuit_star_fail() {
     let program_string = include_str!("core_circuit_star_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_symbol_table_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn test_core_package_invalid() {
     let program_string = include_str!("core_package_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_symbol_table_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn test_core_unstable_package_invalid() {
     let program_string = include_str!("core_unstable_package_invalid.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_symbol_table_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
