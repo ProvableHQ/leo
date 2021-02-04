@@ -16,7 +16,7 @@
 
 use crate::{cmd::Cmd, context::Context};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use std::{sync::mpsc::channel, time::Duration};
 use structopt::StructOpt;
@@ -26,17 +26,18 @@ use tracing::span::Span;
 
 const LEO_SOURCE_DIR: &str = "src/";
 
-/// Time interval for watching files, in seconds
-const INTERVAL: u64 = 3;
-
 /// Watch file changes in src/ directory and run Build Command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Watch {}
+pub struct Watch {
+    /// Set up watch interval
+    #[structopt(short, long, default_value = "3")]
+    interval: u64,
+}
 
 impl Watch {
-    pub fn new() -> Watch {
-        Watch {}
+    pub fn new(interval: u64) -> Watch {
+        Watch { interval }
     }
 }
 
@@ -54,8 +55,14 @@ impl Cmd for Watch {
 
     fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
-        let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
-        watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
+        let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
+
+        watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).map_err(|e| {
+            anyhow!(
+                "Unable to watch, check that directory contains Leo.toml file. Error: {}",
+                e
+            )
+        })?;
 
         tracing::info!("Watching Leo source code");
 

@@ -47,6 +47,9 @@ pub use test::Test;
 pub mod watch;
 pub use watch::Watch;
 
+pub mod update;
+pub use update::Update;
+
 // aleo pm related commands
 pub mod package;
 

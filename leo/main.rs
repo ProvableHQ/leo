@@ -38,6 +38,7 @@ use cmd::{
     Run,
     Setup,
     Test,
+    Update,
     Watch,
 };
 
@@ -45,10 +46,13 @@ use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
-#[structopt(name = "leo", setting = AppSettings::ColoredHelp)]
+#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
 struct Opt {
     #[structopt(short, long, help = "Print additional information for debugging")]
     debug: bool,
+
+    #[structopt(short, long, help = "Suppress CLI output")]
+    quiet: bool,
 
     #[structopt(subcommand)]
     command: Command,
@@ -87,17 +91,17 @@ enum Package {
     },
 }
 
-/// Leo Command Line Interface
+///Leo compiler and package manager
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
 enum Command {
-    #[structopt(about = "Init Leo project command in current directory")]
+    #[structopt(about = "Init new Leo project command in current directory")]
     Init {
         #[structopt(flatten)]
         cmd: Init,
     },
 
-    #[structopt(about = "Create Leo project in new directory")]
+    #[structopt(about = "Create new Leo project in new directory")]
     New {
         #[structopt(flatten)]
         cmd: New,
@@ -139,6 +143,12 @@ enum Command {
         cmd: Watch,
     },
 
+    #[structopt(about = "Watch for changes of Leo source files and run build")]
+    Update {
+        #[structopt(flatten)]
+        cmd: Update,
+    },
+
     #[structopt(about = "Compile and run all tests in the current package")]
     Test {
         #[structopt(flatten)]
@@ -168,11 +178,13 @@ fn main() {
     // read command line arguments
     let opt = Opt::from_args();
 
-    // init logger with optional debug flag
-    logger::init_logger("leo", match opt.debug {
-        false => 1,
-        true => 2,
-    });
+    if !opt.quiet {
+        // init logger with optional debug flag
+        logger::init_logger("leo", match opt.debug {
+            false => 1,
+            true => 2,
+        });
+    }
 
     handle_error(match opt.command {
         Command::Init { cmd } => cmd.try_execute(),
@@ -184,6 +196,7 @@ fn main() {
         Command::Run { cmd } => cmd.try_execute(),
         Command::Clean { cmd } => cmd.try_execute(),
         Command::Watch { cmd } => cmd.try_execute(),
+        Command::Update { cmd } => cmd.try_execute(),
 
         Command::Package { cmd } => match cmd {
             Package::Add { cmd } => cmd.try_execute(),
@@ -202,7 +215,7 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            tracing::error!("Error: {:?}", err);
+            eprintln!("Error: {}", err);
             exit(1);
         }
     }
