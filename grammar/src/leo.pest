@@ -430,7 +430,7 @@ statement_return = { "return " ~ expression}
 function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block }
 
 // Declared in functions/input/function_input.rs
-function_input = { mutable? ~ identifier ~ ":" ~ type_ }
+function_input = { const_? ~ mutable? ~ identifier ~ ":" ~ type_ }
 
 // Declared in functions/input/input_keyword.rs
 input_keyword = { "input" }

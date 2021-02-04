@@ -157,6 +157,10 @@ impl Type {
         self.into()
     }
 
+    pub fn weak(self) -> WeakType {
+        self.into()
+    }
+
     pub fn is_unit(&self) -> bool {
         matches!(self, Type::Tuple(t) if t.is_empty())
     }

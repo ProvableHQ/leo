@@ -23,6 +23,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInputVariable {
     pub identifier: Identifier,
+    pub const_: bool,
     pub mutable: bool,
     pub type_: Type,
     pub span: Span,
@@ -32,6 +33,7 @@ impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
     fn from(parameter: GrammarFunctionInput<'ast>) -> Self {
         FunctionInputVariable {
             identifier: Identifier::from(parameter.identifier),
+            const_: parameter.const_.is_some(),
             mutable: parameter.mutable.is_some(),
             type_: Type::from(parameter.type_),
             span: Span::from(parameter.span),
@@ -42,6 +44,9 @@ impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
 impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: bool
+        if self.mutable {
+            write!(f, "const ")?;
+        }
         if self.mutable {
             write!(f, "mut ")?;
         }
