@@ -33,7 +33,7 @@ version = "0.7"
 default-features = false
 
 [dependencies.rand_xorshift]
-version = "0.2"
+version = "0.3"
 default-features = false
 
 [dependencies.thiserror]

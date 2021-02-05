@@ -60,7 +60,7 @@ features = [ "serde-1" ]
 version = "0.7"
 
 [dependencies.rand_xorshift]
-version = "0.2"
+version = "0.3"
 
 [dependencies.thiserror]
 version = "1.0"

@@ -1315,7 +1315,7 @@ dependencies = [
  "num-bigint",
  "pest",
  "rand",
- "rand_xorshift",
+ "rand_xorshift 0.3.0",
  "serde",
  "sha2",
  "snarkvm-algorithms",
@@ -1337,7 +1337,7 @@ version = "1.2.0"
 dependencies = [
  "criterion",
  "rand",
- "rand_xorshift",
+ "rand_xorshift 0.3.0",
  "snarkvm-errors",
  "snarkvm-models",
  "snarkvm-utilities",
@@ -1448,7 +1448,7 @@ dependencies = [
  "leo-ast",
  "leo-input",
  "rand",
- "rand_xorshift",
+ "rand_xorshift 0.3.0",
  "snarkvm-algorithms",
  "snarkvm-curves",
  "snarkvm-dpc",
@@ -2186,6 +2186,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rand_xorshift"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
+dependencies = [
+ "rand_core 0.6.1",
+]
+
+[[package]]
 name = "rayon"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2619,7 +2628,7 @@ checksum = "e7f9bb31389dce334a6c0c5855829afbb1e4469c4c03143e167c5353ccb1e307"
 dependencies = [
  "derivative",
  "rand",
- "rand_xorshift",
+ "rand_xorshift 0.2.0",
  "rustc_version 0.3.3",
  "serde",
  "snarkvm-errors",
@@ -2710,7 +2719,7 @@ dependencies = [
  "indexmap",
  "itertools 0.10.0",
  "rand",
- "rand_xorshift",
+ "rand_xorshift 0.2.0",
  "serde",
  "snarkvm-errors",
  "snarkvm-utilities",
