@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    command::Command,
+    commands::Command,
     context::{Context, PACKAGE_MANAGER_URL},
 };
 

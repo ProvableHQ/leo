@@ -22,8 +22,8 @@ use std::{
     sync::{Arc, Weak},
 };
 
-/// A type in an asg.
-#[derive(Clone, PartialEq)]
+/// A type in an ASG.
+#[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     // Data types
     Address,
@@ -38,13 +38,13 @@ pub enum Type {
     Circuit(Arc<Circuit>),
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum WeakType {
     Type(Type), // circuit not allowed
     Circuit(Weak<Circuit>),
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum PartialType {
     Type(Type),                                        // non-array or tuple
     Integer(Option<IntegerType>, Option<IntegerType>), // specific, context-specific
@@ -154,6 +154,10 @@ impl Type {
     }
 
     pub fn partial(self) -> PartialType {
+        self.into()
+    }
+
+    pub fn weak(self) -> WeakType {
         self.into()
     }
 

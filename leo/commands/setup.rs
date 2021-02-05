@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{command::Command, context::Context};
+use crate::{commands::Command, context::Context};
 use anyhow::{anyhow, Result};
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};

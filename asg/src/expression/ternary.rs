@@ -21,6 +21,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct TernaryExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
     pub span: Option<Span>,

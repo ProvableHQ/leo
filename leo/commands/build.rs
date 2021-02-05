@@ -16,7 +16,7 @@
 
 use crate::synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use crate::{command::Command, context::Context};
+use crate::{commands::Command, context::Context};
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{

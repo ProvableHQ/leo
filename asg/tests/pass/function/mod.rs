@@ -14,22 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// Copyright (C) 2019-2021 Aleo Systems Inc.
-// This file is part of the Leo library.
-
-// The Leo library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// The Leo library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
 use crate::load_asg;
 
 #[test]
@@ -42,6 +26,66 @@ fn test_empty() {
 fn test_iteration() {
     let program_string = include_str!("iteration.leo");
     load_asg(program_string).unwrap();
+}
+
+#[test]
+fn test_const_args() {
+    let program_string = r#"
+    function one(const value: u32) -> u32 {
+        return value + 1
+    }
+    
+    function main() {
+        let mut a = 0u32;
+    
+        for i in 0..10 {
+            a += one(i);
+        }
+    
+        console.assert(a == 20u32);
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
+fn test_const_args_used() {
+    let program_string = r#"
+    function index(arr: [u8; 3], const value: u32) -> u8 {
+        return arr[value]
+    }
+    
+    function main() {
+        let mut a = 0u8;
+        let arr = [1u8, 2, 3];
+    
+        for i in 0..3 {
+            a += index(arr, i);
+        }
+    
+        console.assert(a == 6u8);
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
+fn test_const_args_fail() {
+    let program_string = r#"
+    function index(arr: [u8; 3], const value: u32) -> u8 {
+        return arr[value]
+    }
+    
+    function main(x_value: u32) {
+        let mut a = 0u8;
+        let arr = [1u8, 2, 3];
+    
+        a += index(arr, x_value);
+    
+        console.assert(a == 1u8);
+    }
+    "#;
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]

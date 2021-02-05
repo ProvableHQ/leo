@@ -14,46 +14,59 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{command::Command, context::Context};
+use crate::{commands::Command, context::Context};
+use anyhow::{anyhow, Result};
 
 use leo_package::LeoPackage;
-
-use anyhow::Result;
+use std::{env::current_dir, fs};
 use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Remove imported package
-#[derive(StructOpt, Debug, Default)]
+/// Create new Leo project
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Remove {
-    #[structopt(name = "PACKAGE")]
+pub struct New {
+    #[structopt(name = "NAME", help = "Set package name")]
     name: String,
+
+    #[structopt(help = "Init as a library (containing lib.leo)", long = "lib", short = "l")]
+    is_lib: Option<bool>,
 }
 
-impl Remove {
-    pub fn new(name: String) -> Remove {
-        Remove { name }
+impl New {
+    pub fn new(name: String, is_lib: Option<bool>) -> New {
+        New { name, is_lib }
     }
 }
 
-impl Command for Remove {
+impl Command for New {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Removing")
+        tracing::span!(tracing::Level::INFO, "New")
     }
 
     fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+        let mut path = current_dir()?;
         let package_name = self.name;
 
-        LeoPackage::remove_imported_package(&package_name, &path)?;
-        tracing::info!("Successfully removed package \"{}\"\n", package_name);
+        // Derive the package directory path
+        path.push(&package_name);
+
+        // Verify the package directory path does not exist yet
+        if path.exists() {
+            return Err(anyhow!("Directory already exists {:?}", path));
+        }
+
+        // Create the package directory
+        fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
+
+        LeoPackage::initialize(&package_name, self.is_lib.unwrap_or(false), &path)?;
 
         Ok(())
     }

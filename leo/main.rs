@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod api;
-pub mod command;
+pub mod commands;
 pub mod config;
 pub mod context;
 pub mod logger;
@@ -25,7 +25,7 @@ pub mod updater;
 use anyhow::Error;
 use std::process::exit;
 
-use command::{
+use commands::{
     package::{Add, Login, Logout, Publish, Remove},
     Build,
     Clean,

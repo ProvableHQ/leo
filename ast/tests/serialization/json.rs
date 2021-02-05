@@ -44,7 +44,7 @@ fn test_serialize() {
     };
 
     // Serializes the ast into JSON format.
-    let serialized_ast: Program = serde_json::from_value(serde_json::to_value(ast.into_repr()).unwrap()).unwrap();
+    let serialized_ast: Program = serde_json::from_value(serde_json::to_value(ast.as_repr()).unwrap()).unwrap();
 
     // Load the expected ast.
     let expected: Program = serde_json::from_str(include_str!("expected_leo_ast.json")).unwrap();

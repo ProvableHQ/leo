@@ -34,6 +34,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct DefinitionStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,
@@ -98,8 +99,10 @@ impl FromAst<leo_ast::DefinitionStatement> for Arc<Statement> {
                 id: uuid::Uuid::new_v4(),
                 name: variable.identifier.clone(),
                 type_: type_
-                    .ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?,
+                    .ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?
+                    .weak(),
                 mutable: variable.mutable,
+                const_: false,
                 declaration: crate::VariableDeclaration::Definition,
                 references: vec![],
                 assignments: vec![],
@@ -144,7 +147,7 @@ impl Into<leo_ast::DefinitionStatement> for &DefinitionStatement {
                 span: variable.name.span.clone(),
             });
             if type_.is_none() {
-                type_ = Some((&variable.type_).into());
+                type_ = Some((&variable.type_.clone().strong()).into());
             }
         }
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    command::{package::Login, Build, Command, Prove, Run, Setup, Update, UpdateAutomatic},
+    commands::{package::Login, Build, Command, Prove, Run, Setup, Update, UpdateAutomatic},
     config,
     context::{create_context, Context},
 };

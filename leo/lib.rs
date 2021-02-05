@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod api;
-pub mod command;
+pub mod commands;
 pub mod config;
 pub mod context;
 pub mod logger;

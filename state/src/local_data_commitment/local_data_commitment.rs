@@ -31,18 +31,18 @@ use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 use std::convert::TryFrom;
 
 /// Returns `true` if the path to the local data commitment leaf is a valid path in the record
-/// commitment merkle tree.
+/// commitment Merkle tree.
 pub fn verify_local_data_commitment(
     system_parameters: &SystemParameters<Components>,
     ast_input: &AstInput,
 ) -> Result<bool, LocalDataVerificationError> {
-    // verify record commitment.
+    // Verify record commitment.
     let typed_record = ast_input.get_record();
     let dpc_record_values = verify_record_commitment(system_parameters, typed_record)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
-    // parse typed state values.
+    // Parse typed state values.
     let typed_state = ast_input.get_state();
     let state_values = StateValues::try_from(typed_state)?;
     let leaf_index: u32 = state_values.leaf_index;

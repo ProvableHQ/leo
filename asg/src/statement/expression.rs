@@ -18,6 +18,7 @@ use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub struct ExpressionStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

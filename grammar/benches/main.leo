@@ -2,7 +2,7 @@ circuit PedersenHash {
     parameters: [group; 256],
 
     // Instantiates a Pedersen hash circuit
-    static function new(parameters: [group; 256]) -> Self {
+    function new(self, parameters: [group; 256]) -> Self {
         return Self { parameters: parameters }
     }
 

@@ -17,8 +17,8 @@
 use crate::ast::Rule;
 
 use pest_ast::FromPest;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize, Deserialize)]
 #[pest_ast(rule(Rule::EOI))]
 pub struct EOI;

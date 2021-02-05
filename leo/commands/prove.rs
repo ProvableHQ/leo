@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::setup::Setup;
-use crate::{command::Command, context::Context};
+use crate::{commands::Command, context::Context};
 use anyhow::Result;
 use structopt::StructOpt;
 
@@ -24,6 +24,7 @@ use leo_package::outputs::ProofFile;
 use snarkvm_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
+use snarkvm_utilities::bytes::ToBytes;
 
 use rand::thread_rng;
 use tracing::span::Span;

@@ -22,7 +22,7 @@ use std::{
     io::{Read, Write},
 };
 
-use crate::{command::Command, context::Context};
+use crate::{commands::Command, context::Context};
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
