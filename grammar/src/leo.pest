@@ -453,19 +453,21 @@ import = { "import " ~ package_type ~ LINE_END}
 // Declared in imports/package_name.rs
 package_name = @{ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+ ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+)* }
 
-// Declared in imports/package.rs
+// Declared in imports/package_type.rs
 package_type = {
     packages
     | package
 }
+// Declared in imports/package.rs
 package = { package_name ~ "." ~ package_access }
+// Declared in imports/packages.rs
 packages = { package_name ~ "." ~ multiple_package_access }
 
 // Declared in imports/package_access
 package_access = {
     star
-    | packages // subpackage
-    | package
+    | packages 
+    | package // subpackage
     | import_symbol
 }
 

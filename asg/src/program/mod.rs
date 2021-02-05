@@ -83,7 +83,6 @@ fn resolve_import_package(
         }
         PackageType::Packages(packages) => {
             package_segments.push(packages.name.name.clone());
-
             for access in packages.accesses.clone() {
                 resolve_import_package_access(output, package_segments.clone(), &access);
             }
@@ -93,7 +92,7 @@ fn resolve_import_package(
 
 fn resolve_import_package_access(
     output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    package_segments: Vec<String>,
+    mut package_segments: Vec<String>,
     package: &PackageAccess,
 ) {
     match package {
@@ -113,6 +112,7 @@ fn resolve_import_package_access(
             output.push((package_segments, symbol, span));
         }
         PackageAccess::Multiple(packages) => {
+            package_segments.push(packages.name.name.clone());
             for subaccess in packages.accesses.iter() {
                 resolve_import_package_access(output, package_segments.clone(), &subaccess);
             }
