@@ -1,4 +1,3 @@
-// The dummy 'pedersen-hash' main function.
-function main() -> u32 {
+function main() {
     return 1 + 1
 }

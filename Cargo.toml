@@ -26,6 +26,7 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
+  "asg",
   "ast",
   "compiler",
   "gadgets",
@@ -35,7 +36,7 @@ members = [
   "linter",
   "package",
   "state",
-  "asg"
+  "wasm"
 ]
 
 [dependencies.leo-ast]
