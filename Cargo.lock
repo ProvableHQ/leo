@@ -1438,10 +1438,8 @@ dependencies = [
 name = "leo-wasm"
 version = "1.2.0"
 dependencies = [
- "leo-asg",
  "leo-ast",
  "leo-grammar",
- "leo-imports",
  "serde",
  "wasm-bindgen",
  "wasm-bindgen-test",
