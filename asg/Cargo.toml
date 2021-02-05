@@ -39,7 +39,7 @@ path = "../grammar"
 
 [dependencies.uuid]
 version = "0.8"
-features = [ "v4", "serde" ]
+features = [ "v4", "serde", "wasm-bindgen" ]
 
 [dependencies.num-bigint]
 version = "0.3"

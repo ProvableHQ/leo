@@ -21,7 +21,7 @@ use std::path::Path;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub struct Ast(LeoAst);
+pub struct Ast(pub(crate) LeoAst);
 
 #[wasm_bindgen]
 impl Ast {
@@ -38,25 +38,25 @@ impl Ast {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     use wasm_bindgen_test::*;
-//
-//     #[wasm_bindgen_test]
-//     fn ast_test() {
-//         let expected = include_str!("../.resources/basic/expected_ast.json");
-//
-//         let filepath = "../.resources/basic/main.leo";
-//         let program_name = "basic";
-//         let program_string = include_str!("../.resources/basic/main.leo");
-//
-//         let candidate = Ast::new(filepath, program_name, program_string).to_string();
-//
-//         let expected = JsValue::from_str(expected);
-//         let candidate = JsValue::from_serde(&candidate).unwrap();
-//
-//         assert_eq!(expected, candidate);
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
+    fn ast_test() {
+        let expected = include_str!("../.resources/basic/expected_ast.json");
+
+        let filepath = "../.resources/basic/main.leo";
+        let program_name = "basic";
+        let program_string = include_str!("../.resources/basic/main.leo");
+
+        let candidate = Ast::new(filepath, program_name, program_string).to_string();
+
+        let expected = JsValue::from_str(expected);
+        let candidate = JsValue::from_serde(&candidate).unwrap();
+
+        assert_eq!(expected, candidate);
+    }
+}

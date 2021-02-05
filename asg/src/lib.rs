@@ -110,7 +110,7 @@ impl Asg {
 // TODO (howardwu): Remove this.
 pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
-    let ast = leo_grammar::Grammar::new(&Path::new("input.leo"), content.as_ref())
+    let ast = leo_grammar::Grammar::new(&Path::new("input.leo"), content)
         .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
 
     InternalProgram::new(leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)

@@ -242,7 +242,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     /// Verifies the input to the program.
     ///
-    fn verify_local_data_commitment(
+    pub fn verify_local_data_commitment(
         &self,
         system_parameters: &SystemParameters<Components>,
     ) -> Result<bool, CompilerError> {
