@@ -20,5 +20,8 @@
 pub mod ast;
 pub use ast::*;
 
+pub mod grammar;
+pub use grammar::*;
+
 // pub mod compiler;
 // pub use compiler::*;
