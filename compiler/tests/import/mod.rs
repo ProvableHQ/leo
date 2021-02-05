@@ -132,7 +132,6 @@ fn test_names_fail_4() {
 
 // more complex tests
 #[test]
-#[ignore]
 fn test_many_import() {
     set_local_dir();
 

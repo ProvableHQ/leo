@@ -5,7 +5,7 @@ import test-import.( // local import
 
 import bar.( // imports directory import
     Bar,
-    baz.Baz,
+    baz.(Baz, Bazzar),
     bat.bat.Bat,
 );
 
@@ -17,6 +17,7 @@ function main() {
 
     const bar = Bar { r: 1u32 };
     const baz = Baz { z: 1u32 };
+    const bazzar = Bazzar { a: 1u32 };
     const bat = Bat { t: 1u32 };
 
     const car = Car { c: 1u32 };
