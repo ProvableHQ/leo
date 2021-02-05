@@ -36,6 +36,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct CircuitInitExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
     pub span: Option<Span>,

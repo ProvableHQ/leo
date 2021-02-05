@@ -24,7 +24,7 @@ use std::{
 use uuid::Uuid;
 
 /// Specifies how a program variable was declared.
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -33,6 +33,7 @@ pub enum VariableDeclaration {
 }
 
 /// Stores information on a program variable.
+#[derive(Debug)]
 pub struct InnerVariable {
     pub id: Uuid,
     pub name: Identifier,

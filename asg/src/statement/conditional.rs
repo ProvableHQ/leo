@@ -18,6 +18,7 @@ use crate::{AsgConvertError, BlockStatement, Expression, FromAst, Node, PartialT
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub struct ConditionalStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

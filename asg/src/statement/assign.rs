@@ -37,6 +37,7 @@ use leo_ast::AssigneeAccess as AstAssigneeAccess;
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub enum AssignAccess {
     ArrayRange(Option<Arc<Expression>>, Option<Arc<Expression>>),
     ArrayIndex(Arc<Expression>),
@@ -44,6 +45,7 @@ pub enum AssignAccess {
     Member(Identifier),
 }
 
+#[derive(Debug)]
 pub struct AssignStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

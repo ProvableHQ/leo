@@ -32,7 +32,7 @@ use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
 /// Stores the Leo program abstract semantic graph (ASG).
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct InternalProgram {
     /// The unique id of the program.
     pub id: Uuid,
@@ -111,21 +111,21 @@ fn resolve_import_package_access(
 }
 
 impl InternalProgram {
-    /// Returns a new Leo program asg from the given Leo program ast and imports.
+    /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
-    /// stages:
+    /// Stages:
     /// 1. resolve imports into super scope
     /// 2. finalize declared types
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
     pub fn new<T: ImportResolver + 'static>(
-        value: &leo_ast::Program,
+        program: &leo_ast::Program,
         import_resolver: &mut T,
     ) -> Result<Program, AsgConvertError> {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
-        for import in value.imports.iter() {
+        for import in program.imports.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import.package);
         }
 
@@ -213,7 +213,7 @@ impl InternalProgram {
 
         // Prepare header-like scope entries.
         let mut proto_circuits = IndexMap::new();
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(circuit);
 
@@ -234,7 +234,7 @@ impl InternalProgram {
             function: None,
         }));
 
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = proto_circuits.get(&name.name).unwrap();
 
@@ -242,7 +242,7 @@ impl InternalProgram {
         }
 
         let mut proto_test_functions = IndexMap::new();
-        for (name, test_function) in value.tests.iter() {
+        for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = Arc::new(Function::from_ast(&scope, &test_function.function)?);
 
@@ -250,7 +250,7 @@ impl InternalProgram {
         }
 
         let mut proto_functions = IndexMap::new();
-        for (name, function) in value.functions.iter() {
+        for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = Arc::new(Function::from_ast(&scope, function)?);
 
@@ -263,7 +263,7 @@ impl InternalProgram {
 
         // Load concrete definitions.
         let mut test_functions = IndexMap::new();
-        for (name, test_function) in value.tests.iter() {
+        for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = proto_test_functions.get(&name.name).unwrap();
 
@@ -278,7 +278,7 @@ impl InternalProgram {
         }
 
         let mut functions = IndexMap::new();
-        for (name, function) in value.functions.iter() {
+        for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = proto_functions.get(&name.name).unwrap();
 
@@ -289,7 +289,7 @@ impl InternalProgram {
         }
 
         let mut circuits = IndexMap::new();
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = proto_circuits.get(&name.name).unwrap();
             let body = Arc::new(CircuitBody::from_ast(&scope, circuit, asg_circuit.clone())?);
@@ -300,7 +300,7 @@ impl InternalProgram {
 
         Ok(Arc::new(RefCell::new(InternalProgram {
             id: Uuid::new_v4(),
-            name: value.name.clone(),
+            name: program.name.clone(),
             test_functions,
             functions,
             circuits,
@@ -332,7 +332,7 @@ impl Iterator for InternalIdentifierGenerator {
         Some(out)
     }
 }
-/// Returns an ast from the given asg program.
+/// Returns an AST from the given ASG program.
 pub fn reform_ast(program: &Program) -> leo_ast::Program {
     let mut all_programs: IndexMap<String, Program> = IndexMap::new();
     let mut program_stack = program.borrow().imported_modules.clone();
@@ -395,13 +395,10 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         tests: all_test_functions
             .into_iter()
             .map(|(_, (function, ident))| {
-                (
-                    function.function.name.borrow().clone(),
-                    leo_ast::TestFunction {
-                        function: function.function.as_ref().into(),
-                        input_file: ident,
-                    },
-                )
+                (function.function.name.borrow().clone(), leo_ast::TestFunction {
+                    function: function.function.as_ref().into(),
+                    input_file: ident,
+                })
             })
             .collect(),
         functions: all_functions
@@ -445,13 +442,10 @@ impl Into<leo_ast::Program> for &InternalProgram {
                 .test_functions
                 .iter()
                 .map(|(_, function)| {
-                    (
-                        function.0.function.name.borrow().clone(),
-                        leo_ast::TestFunction {
-                            function: function.0.function.as_ref().into(),
-                            input_file: function.1.clone(),
-                        },
-                    )
+                    (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
+                        function: function.0.function.as_ref().into(),
+                        input_file: function.1.clone(),
+                    })
                 })
                 .collect(),
         }

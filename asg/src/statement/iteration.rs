@@ -35,6 +35,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct IterationStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

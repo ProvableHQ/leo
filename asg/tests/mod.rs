@@ -15,16 +15,28 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::*;
+use leo_ast::Ast;
+use leo_grammar::Grammar;
+
+use std::path::Path;
 
 mod fail;
 mod pass;
 
-fn load_asg(content: &str) -> Result<Program, AsgConvertError> {
-    leo_asg::load_asg(content, &mut NullImportResolver)
+const TESTING_FILEPATH: &str = "input.leo";
+const TESTING_PROGRAM_NAME: &str = "test_program";
+
+fn load_asg(program_string: &str) -> Result<Program, AsgConvertError> {
+    load_asg_imports(program_string, &mut NullImportResolver)
 }
 
-fn load_asg_imports<T: ImportResolver + 'static>(content: &str, imports: &mut T) -> Result<Program, AsgConvertError> {
-    leo_asg::load_asg(content, imports)
+fn load_asg_imports<T: ImportResolver + 'static>(
+    program_string: &str,
+    imports: &mut T,
+) -> Result<Program, AsgConvertError> {
+    let grammar = Grammar::new(Path::new(&TESTING_FILEPATH), program_string)?;
+    let ast = Ast::new(TESTING_PROGRAM_NAME, &grammar)?;
+    InternalProgram::new(&ast.as_repr(), imports)
 }
 
 fn mocked_resolver() -> MockedImportResolver {

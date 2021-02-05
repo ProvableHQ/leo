@@ -19,15 +19,17 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
-    GroupType, OutputBytes, OutputFile,
+    GroupType,
+    OutputBytes,
+    OutputFile,
 };
+use leo_asg::Asg;
 use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 
-use leo_asg::Program as AsgProgram;
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
@@ -50,7 +52,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     output_directory: PathBuf,
     program: Program,
     program_input: Input,
-    asg: Option<AsgProgram>,
+    asg: Option<Asg>,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -182,12 +184,12 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         let core_ast = Ast::new(&self.program_name, &grammar)?;
 
         // Store the main program file.
-        self.program = core_ast.into_repr();
+        self.program = core_ast.as_repr().clone();
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = leo_asg::InternalProgram::new(&self.program, &mut leo_imports::ImportParser::default())?;
+        let asg = Asg::new(&core_ast, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 
@@ -201,7 +203,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Synthesizes the circuit with program input to verify correctness.
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
-        generate_constraints::<F, G, CS>(cs, self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
+        generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
             error.set_path(&self.main_file_path);
             error
         })
@@ -212,7 +214,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         generate_test_constraints::<F, G>(
-            self.asg.as_ref().unwrap(),
+            &self.asg.as_ref().unwrap(),
             input_pairs,
             &self.main_file_path,
             &self.output_directory,

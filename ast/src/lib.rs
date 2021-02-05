@@ -83,8 +83,8 @@ impl Ast {
     }
 
     /// Returns a reference to the inner program AST representation.
-    pub fn into_repr(self) -> Program {
-        self.ast
+    pub fn as_repr(&self) -> &Program {
+        &self.ast
     }
 
     /// Serializes the ast into a JSON string.
