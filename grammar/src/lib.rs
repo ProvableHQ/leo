@@ -61,12 +61,15 @@ use std::{fs, path::Path};
 ///
 /// A new [`Grammar`] type can be created from a `*.leo` file at a [`Path`].
 /// A [`Grammar`] type can be used to create a new [`Ast`] type.
+///
 pub struct Grammar<'ast> {
     ast: files::File<'ast>,
 }
 
 impl<'ast> Grammar<'ast> {
-    /// Creates a new abstract syntax tree given the file path.
+    ///
+    /// Creates a new abstract syntax tree from a given program string, and optional file path.
+    ///
     pub fn new(file_path: &'ast Path, program_string: &'ast str) -> Result<Self, ParserError> {
         // TODO (howardwu): Turn this check back on after fixing the testing module.
         // assert_eq!(program_string, fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.clone()))?);
@@ -84,17 +87,23 @@ impl<'ast> Grammar<'ast> {
 
     // TODO (howardwu): Remove this in favor of a dedicated file loader to verify checksums
     //  and maintain a global cache of program strings during the compilation process.
+    ///
     /// Loads the Leo code as a string from the given file path.
+    ///
     pub fn load_file(file_path: &'ast Path) -> Result<String, ParserError> {
         fs::read_to_string(file_path).map_err(|_| ParserError::FileReadError(file_path.to_owned()))
     }
 
+    ///
     /// Returns a reference to the inner abstract syntax tree representation.
+    ///
     pub fn as_repr(&self) -> &files::File<'ast> {
         &self.ast
     }
 
+    ///
     /// Serializes the abstract syntax tree into a JSON string.
+    ///
     pub fn to_json_string(&self) -> Result<String, ParserError> {
         Ok(serde_json::to_string_pretty(&self.ast)?)
     }
