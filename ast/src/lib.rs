@@ -63,7 +63,7 @@ pub use node::*;
 
 use leo_grammar::Grammar;
 
-/// The abstract syntax tree (ast) for a Leo program.
+/// The abstract syntax tree (AST) for a Leo program.
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
@@ -75,14 +75,14 @@ pub struct Ast {
 }
 
 impl Ast {
-    /// Creates a new ast from a given program name and grammar tree.
-    pub fn new<'ast>(program_name: &str, ast: &Grammar<'ast>) -> Result<Self, AstError> {
+    /// Creates a new AST from a given program name and grammar tree.
+    pub fn new<'ast>(program_name: &str, grammar: &Grammar<'ast>) -> Result<Self, AstError> {
         Ok(Self {
-            ast: Program::from(program_name, ast.as_repr())?,
+            ast: Program::from(program_name, grammar.as_repr())?,
         })
     }
 
-    /// Returns a reference to the inner program ast representation.
+    /// Returns a reference to the inner program AST representation.
     pub fn into_repr(self) -> Program {
         self.ast
     }
