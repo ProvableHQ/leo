@@ -33,7 +33,7 @@ use uuid::Uuid;
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
-pub struct InnerProgram {
+pub struct InternalProgram {
     /// The unique id of the program.
     pub id: Uuid,
 
@@ -57,7 +57,7 @@ pub struct InnerProgram {
     pub scope: Scope,
 }
 
-pub type Program = Arc<RefCell<InnerProgram>>;
+pub type Program = Arc<RefCell<InternalProgram>>;
 
 /// Enumerates what names are imported from a package.
 enum ImportSymbol {
@@ -110,7 +110,7 @@ fn resolve_import_package_access(
     }
 }
 
-impl InnerProgram {
+impl InternalProgram {
     /// Returns a new Leo program asg from the given Leo program ast and imports.
     ///
     /// stages:
@@ -298,7 +298,7 @@ impl InnerProgram {
             circuits.insert(name.name.clone(), body);
         }
 
-        Ok(Arc::new(RefCell::new(InnerProgram {
+        Ok(Arc::new(RefCell::new(InternalProgram {
             id: Uuid::new_v4(),
             name: value.name.clone(),
             test_functions,
@@ -395,10 +395,13 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         tests: all_test_functions
             .into_iter()
             .map(|(_, (function, ident))| {
-                (function.function.name.borrow().clone(), leo_ast::TestFunction {
-                    function: function.function.as_ref().into(),
-                    input_file: ident,
-                })
+                (
+                    function.function.name.borrow().clone(),
+                    leo_ast::TestFunction {
+                        function: function.function.as_ref().into(),
+                        input_file: ident,
+                    },
+                )
             })
             .collect(),
         functions: all_functions
@@ -417,7 +420,7 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
     }
 }
 
-impl Into<leo_ast::Program> for &InnerProgram {
+impl Into<leo_ast::Program> for &InternalProgram {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),
@@ -442,10 +445,13 @@ impl Into<leo_ast::Program> for &InnerProgram {
                 .test_functions
                 .iter()
                 .map(|(_, function)| {
-                    (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
-                        function: function.0.function.as_ref().into(),
-                        input_file: function.1.clone(),
-                    })
+                    (
+                        function.0.function.name.borrow().clone(),
+                        leo_ast::TestFunction {
+                            function: function.0.function.as_ref().into(),
+                            input_file: function.1.clone(),
+                        },
+                    )
                 })
                 .collect(),
         }

@@ -19,9 +19,7 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
-    GroupType,
-    OutputBytes,
-    OutputFile,
+    GroupType, OutputBytes, OutputFile,
 };
 use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
@@ -189,7 +187,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = leo_asg::InnerProgram::new(&self.program, &mut leo_imports::ImportParser::default())?;
+        let asg = leo_asg::InternalProgram::new(&self.program, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 

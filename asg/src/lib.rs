@@ -110,9 +110,9 @@ pub fn load_asg_from_ast<T: ImportResolver + 'static>(
     content: leo_ast::Program,
     resolver: &mut T,
 ) -> Result<Program, AsgConvertError> {
-    InnerProgram::new(&content, resolver)
+    InternalProgram::new(&content, resolver)
 }
 
 pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
-    InnerProgram::new(&load_ast("input.leo", content)?, resolver)
+    InternalProgram::new(&load_ast("input.leo", content)?, resolver)
 }

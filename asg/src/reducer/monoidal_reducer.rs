@@ -157,7 +157,7 @@ pub trait MonoidalReducerProgram<T: Monoid>: MonoidalReducerStatement<T> {
 
     fn reduce_program(
         &mut self,
-        input: &InnerProgram,
+        input: &InternalProgram,
         imported_modules: Vec<T>,
         test_functions: Vec<T>,
         functions: Vec<T>,
