@@ -1,5 +1,5 @@
 // Swap two elements of an array.
-function swap(mut a: [u32; 2], i: u32, j: u32) -> [u32; 2] {
+function swap(mut a: [u32; 2], const i: u32, const j: u32) -> [u32; 2] {
     let t = a[i];
     a[i] = a[j];
     a[j] = t;

@@ -46,6 +46,7 @@ use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
 
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub enum Statement {
     Return(ReturnStatement),
     Definition(DefinitionStatement),

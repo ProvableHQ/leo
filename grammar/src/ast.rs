@@ -45,8 +45,8 @@ use pest::{
 #[grammar = "leo.pest"]
 pub struct LanguageParser;
 
-pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
-    LanguageParser::parse(Rule::file, input)
+pub fn parse(program_string: &str) -> Result<Pairs<Rule>, Error<Rule>> {
+    LanguageParser::parse(Rule::file, program_string)
 }
 
 pub(crate) fn span_into_string(span: Span) -> String {

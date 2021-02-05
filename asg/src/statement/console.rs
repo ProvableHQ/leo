@@ -19,7 +19,8 @@ use leo_ast::ConsoleFunction as AstConsoleFunction;
 
 use std::sync::{Arc, Weak};
 
-//todo: refactor to not require/depend on span
+// TODO (protryon): Refactor to not require/depend on span
+#[derive(Debug)]
 pub struct FormattedString {
     pub string: String,
     pub containers: Vec<Span>,
@@ -27,6 +28,7 @@ pub struct FormattedString {
     pub span: Span,
 }
 
+#[derive(Debug)]
 pub enum ConsoleFunction {
     Assert(Arc<Expression>),
     Debug(FormattedString),
@@ -34,6 +36,7 @@ pub enum ConsoleFunction {
     Log(FormattedString),
 }
 
+#[derive(Debug)]
 pub struct ConsoleStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

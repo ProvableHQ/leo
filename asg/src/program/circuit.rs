@@ -23,16 +23,19 @@ use std::{
 };
 use uuid::Uuid;
 
+#[derive(Debug)]
 pub enum CircuitMemberBody {
     Variable(Type),
     Function(Arc<FunctionBody>),
 }
 
+#[derive(Debug)]
 pub enum CircuitMember {
     Variable(WeakType),
     Function(Arc<Function>),
 }
 
+#[derive(Debug)]
 pub struct Circuit {
     pub id: Uuid,
     pub name: RefCell<Identifier>,
@@ -51,6 +54,7 @@ impl PartialEq for Circuit {
 }
 impl Eq for Circuit {}
 
+#[derive(Debug)]
 pub struct CircuitBody {
     pub scope: Scope,
     pub span: Option<Span>,

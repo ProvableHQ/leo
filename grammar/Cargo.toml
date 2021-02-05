@@ -22,8 +22,8 @@ name = "leo_grammar"
 path = "src/main.rs"
 
 [[bench]]
-name = "ast"
-path = "benches/ast.rs"
+name = "grammar"
+path = "benches/grammar.rs"
 harness = false
 
 [dependencies.from-pest]

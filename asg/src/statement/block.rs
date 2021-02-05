@@ -18,6 +18,7 @@ use crate::{AsgConvertError, FromAst, InnerScope, Node, PartialType, Scope, Span
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub struct BlockStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,

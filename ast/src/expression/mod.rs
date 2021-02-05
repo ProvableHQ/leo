@@ -16,7 +16,7 @@
 
 use crate::{
     ArrayDimensions,
-    CircuitVariableDefinition,
+    CircuitImpliedVariableDefinition,
     GroupValue,
     Identifier,
     IntegerType,
@@ -182,8 +182,8 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
         let members = expression
             .members
             .into_iter()
-            .map(CircuitVariableDefinition::from)
-            .collect::<Vec<CircuitVariableDefinition>>();
+            .map(CircuitImpliedVariableDefinition::from)
+            .collect::<Vec<CircuitImpliedVariableDefinition>>();
 
         Expression::CircuitInit(CircuitInitExpression {
             name: circuit_name,
@@ -565,5 +565,11 @@ impl<'ast> From<TupleAccess<'ast>> for Expression {
 impl<'ast> From<GrammarIdentifier<'ast>> for Expression {
     fn from(identifier: GrammarIdentifier<'ast>) -> Self {
         Expression::Identifier(Identifier::from(identifier))
+    }
+}
+
+impl From<Identifier> for Expression {
+    fn from(identifier: Identifier) -> Self {
+        Expression::Identifier(identifier)
     }
 }

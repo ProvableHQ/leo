@@ -36,6 +36,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct CircuitInitExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
     pub span: Option<Span>,
@@ -166,7 +167,7 @@ impl Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression {
             members: self
                 .values
                 .iter()
-                .map(|(name, value)| leo_ast::CircuitVariableDefinition {
+                .map(|(name, value)| leo_ast::CircuitImpliedVariableDefinition {
                     identifier: name.clone(),
                     expression: value.as_ref().into(),
                 })

@@ -64,7 +64,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let mut arguments = vec![];
 
-        for input_variable in function.arguments.iter() {
+        for input_variable in function.function.arguments.iter() {
             {
                 let input_variable = input_variable.borrow();
                 let name = input_variable.name.name.clone();
@@ -73,7 +73,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 })?;
                 let input_value = self.allocate_main_function_input(
                     cs,
-                    &input_variable.type_,
+                    &input_variable.type_.clone().strong(),
                     &name,
                     input_option,
                     &function.span.clone().unwrap_or_default(),
