@@ -127,8 +127,9 @@ impl Input {
             container: Arc::new(RefCell::new(crate::InnerVariable {
                 id: uuid::Uuid::new_v4(),
                 name: Identifier::new("input".to_string()),
-                type_: Type::Circuit(container_circuit),
+                type_: Type::Circuit(container_circuit).weak(),
                 mutable: false,
+                const_: false,
                 declaration: crate::VariableDeclaration::Input,
                 references: vec![],
                 assignments: vec![],

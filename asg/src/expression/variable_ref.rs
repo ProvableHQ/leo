@@ -29,7 +29,6 @@ use crate::{
     Statement,
     Type,
     Variable,
-    VariableDeclaration,
 };
 
 use std::{
@@ -62,7 +61,7 @@ impl ExpressionNode for VariableRef {
     fn enforce_parents(&self, _expr: &Arc<Expression>) {}
 
     fn get_type(&self) -> Option<Type> {
-        Some(self.variable.borrow().type_.clone())
+        Some(self.variable.borrow().type_.clone().strong())
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -104,7 +103,7 @@ impl ExpressionNode for VariableRef {
 
     fn is_consty(&self) -> bool {
         let variable = self.variable.borrow();
-        if variable.declaration == VariableDeclaration::IterationDefinition {
+        if variable.const_ {
             return true;
         }
         if variable.mutable || variable.assignments.len() != 1 {

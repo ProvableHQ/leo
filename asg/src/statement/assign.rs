@@ -94,7 +94,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
         if !variable.borrow().mutable {
             return Err(AsgConvertError::immutable_assignment(&name, &statement.span));
         }
-        let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
+        let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().strong().into());
 
         let mut target_accesses = vec![];
         for access in statement.assignee.accesses.iter() {
