@@ -38,13 +38,14 @@ use std::{
 };
 use uuid::Uuid;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum FunctionQualifier {
     SelfRef,
     MutSelfRef,
     Static,
 }
 
+#[derive(Debug)]
 pub struct Function {
     pub id: Uuid,
     pub name: RefCell<Identifier>,
@@ -66,6 +67,7 @@ impl PartialEq for Function {
 }
 impl Eq for Function {}
 
+#[derive(Debug)]
 pub struct FunctionBody {
     pub span: Option<Span>,
     pub function: Arc<Function>,

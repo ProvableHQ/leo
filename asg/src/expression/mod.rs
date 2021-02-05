@@ -66,6 +66,7 @@ use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub enum Expression {
     VariableRef(VariableRef),
     Constant(Constant),

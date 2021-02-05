@@ -15,6 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::load_asg;
+use leo_ast::Ast;
+use leo_grammar::Grammar;
+
+use std::path::Path;
 
 #[test]
 fn test_basic() {
@@ -73,14 +77,19 @@ fn test_imports() {
             console.assert(foo() == 1u32);
         }
     "#;
+
+    let test_import_grammar = Grammar::new(Path::new("test-import.leo"), test_import).unwrap();
     println!(
         "{}",
-        serde_json::to_string(&crate::load_ast("test-import.leo", test_import).unwrap()).unwrap()
+        serde_json::to_string(Ast::new("test-import", &test_import_grammar).unwrap().as_repr()).unwrap()
     );
+
+    let test_grammar = Grammar::new(Path::new("test.leo"), program_string).unwrap();
     println!(
         "{}",
-        serde_json::to_string(&crate::load_ast("test.leo", program_string).unwrap()).unwrap()
+        serde_json::to_string(Ast::new("test", &test_grammar).unwrap().as_repr()).unwrap()
     );
+
     let asg = crate::load_asg_imports(program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", serde_json::to_string(&reformed_ast).unwrap());

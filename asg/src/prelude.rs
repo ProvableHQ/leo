@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//todo: we should merge this with core
+// TODO (protryon): We should merge this with core
 
 use crate::{AsgConvertError, Program};
 
-// todo: make asg deep copy so we can cache resolved core modules
-// todo: figure out how to do headers without bogus returns
+// TODO (protryon): Make asg deep copy so we can cache resolved core modules
+// TODO (protryon): Figure out how to do headers without bogus returns
 
 pub fn resolve_core_module(module: &str) -> Result<Option<Program>, AsgConvertError> {
     match module {

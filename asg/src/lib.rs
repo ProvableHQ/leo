@@ -67,9 +67,9 @@ pub use type_::*;
 pub mod variable;
 pub use variable::*;
 
-pub use leo_ast::{Identifier, Span};
+pub use leo_ast::{Ast, Identifier, Span};
 
-use std::path::Path;
+use std::{cell::RefCell, path::Path, sync::Arc};
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
@@ -77,42 +77,41 @@ use std::path::Path;
 /// These data types form a graph that begins from a [`Program`] type node.
 ///
 /// A new [`Asg`] can be created from an [`Ast`] generated in the `ast` module.
-// #[derive(Debug, Eq, PartialEq)]
-// pub struct Asg {
-//     asg: InnerProgram,
-// }
-//
-// impl Asg {
-//     /// Creates a new asg from a given ast tree and import resolver.
-//     pub fn new<T: ImportResolver + 'static>(
-//         content: leo_ast::Program,
-//         resolver: &mut T,
-//     ) -> Result<Program, AsgConvertError> {
-//         InnerProgram::new(&content, resolver)
-//     }
-//
-//     /// Returns a reference to the inner program ast representation.
-//     pub fn into_repr(self) -> Program {
-//         self.asg
-//     }
-// }
+#[derive(Debug, Clone)]
+pub struct Asg {
+    asg: Arc<RefCell<InternalProgram>>,
+}
 
-pub fn load_ast<T: AsRef<Path>, Y: AsRef<str>>(path: T, content: Y) -> Result<leo_ast::Program, AsgConvertError> {
+impl Asg {
+    /// Creates a new ASG from a given AST and import resolver.
+    pub fn new<T: ImportResolver + 'static>(ast: &Ast, resolver: &mut T) -> Result<Self, AsgConvertError> {
+        Ok(Self {
+            asg: InternalProgram::new(&ast.as_repr(), resolver)?,
+        })
+    }
+
+    /// Returns the internal program ASG representation.
+    pub fn as_repr(&self) -> Arc<RefCell<InternalProgram>> {
+        self.asg.clone()
+    }
+
+    // /// Serializes the ast into a JSON string.
+    // pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
+    //     serde_json::to_string_pretty(&self.asg)
+    // }
+    //
+    // /// Deserializes the JSON string into a ast.
+    // pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
+    //     let ast: Program = serde_json::from_str(json)?;
+    //     Ok(Self { ast })
+    // }
+}
+
+// TODO (howardwu): Remove this.
+pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
-    let ast = leo_grammar::Grammar::new(path.as_ref(), content.as_ref())
+    let ast = leo_grammar::Grammar::new(&Path::new("input.leo"), content)
         .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
 
-    // Parses the pest ast and constructs a Leo ast.
-    Ok(leo_ast::Ast::new("load_ast", &ast)?.into_repr())
-}
-
-pub fn load_asg_from_ast<T: ImportResolver + 'static>(
-    content: leo_ast::Program,
-    resolver: &mut T,
-) -> Result<Program, AsgConvertError> {
-    InnerProgram::new(&content, resolver)
-}
-
-pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
-    InnerProgram::new(&load_ast("input.leo", content)?, resolver)
+    InternalProgram::new(leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)
 }

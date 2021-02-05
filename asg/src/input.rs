@@ -23,7 +23,7 @@ use std::{
 };
 
 /// Stores program input values as asg nodes.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Input {
     pub registers: Arc<CircuitBody>,
     pub state: Arc<CircuitBody>,

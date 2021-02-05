@@ -15,11 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use pest::Span;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // Provide getters for every private field of the remote struct. The getter must
 // return either `T` or `&T` where `T` is the type of the field.
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(remote = "Span")]
 pub(crate) struct SpanDef<'i> {
     /// # Attention
