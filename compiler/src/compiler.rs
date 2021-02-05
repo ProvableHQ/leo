@@ -237,19 +237,19 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         Ok(hex::encode(hash))
     }
 
-    /// TODO (howardwu): Incorporate this for real program executions and intentionally-real
-    ///  test executions. Exclude it for test executions on dummy data.
-    ///
-    /// Verifies the input to the program.
-    ///
-    fn verify_local_data_commitment(
-        &self,
-        system_parameters: &SystemParameters<Components>,
-    ) -> Result<bool, CompilerError> {
-        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
-
-        Ok(result)
-    }
+    // /// TODO (howardwu): Incorporate this for real program executions and intentionally-real
+    // ///  test executions. Exclude it for test executions on dummy data.
+    // ///
+    // /// Verifies the input to the program.
+    // ///
+    // fn verify_local_data_commitment(
+    //     &self,
+    //     system_parameters: &SystemParameters<Components>,
+    // ) -> Result<bool, CompilerError> {
+    //     let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
+    //
+    //     Ok(result)
+    // }
 
     ///
     /// Manually sets main function input.
