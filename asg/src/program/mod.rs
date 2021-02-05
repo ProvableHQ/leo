@@ -32,8 +32,8 @@ use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
 /// Stores the Leo program abstract semantic graph (ASG).
-#[derive(Clone)]
-pub struct InnerProgram {
+#[derive(Debug, Clone)]
+pub struct InternalProgram {
     /// The unique id of the program.
     pub id: Uuid,
 
@@ -57,7 +57,7 @@ pub struct InnerProgram {
     pub scope: Scope,
 }
 
-pub type Program = Arc<RefCell<InnerProgram>>;
+pub type Program = Arc<RefCell<InternalProgram>>;
 
 /// Enumerates what names are imported from a package.
 enum ImportSymbol {
@@ -120,22 +120,22 @@ fn resolve_import_package_access(
     }
 }
 
-impl InnerProgram {
-    /// Returns a new Leo program asg from the given Leo program ast and imports.
+impl InternalProgram {
+    /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
-    /// stages:
+    /// Stages:
     /// 1. resolve imports into super scope
     /// 2. finalize declared types
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
     pub fn new<T: ImportResolver + 'static>(
-        value: &leo_ast::Program,
+        program: &leo_ast::Program,
         import_resolver: &mut T,
     ) -> Result<Program, AsgConvertError> {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
-        for import in value.imports.iter() {
+        for import in program.imports.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import.package_type);
         }
 
@@ -223,7 +223,7 @@ impl InnerProgram {
 
         // Prepare header-like scope entries.
         let mut proto_circuits = IndexMap::new();
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(circuit);
 
@@ -244,7 +244,7 @@ impl InnerProgram {
             function: None,
         }));
 
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = proto_circuits.get(&name.name).unwrap();
 
@@ -252,7 +252,7 @@ impl InnerProgram {
         }
 
         let mut proto_test_functions = IndexMap::new();
-        for (name, test_function) in value.tests.iter() {
+        for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = Arc::new(Function::from_ast(&scope, &test_function.function)?);
 
@@ -260,7 +260,7 @@ impl InnerProgram {
         }
 
         let mut proto_functions = IndexMap::new();
-        for (name, function) in value.functions.iter() {
+        for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = Arc::new(Function::from_ast(&scope, function)?);
 
@@ -273,7 +273,7 @@ impl InnerProgram {
 
         // Load concrete definitions.
         let mut test_functions = IndexMap::new();
-        for (name, test_function) in value.tests.iter() {
+        for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = proto_test_functions.get(&name.name).unwrap();
 
@@ -288,7 +288,7 @@ impl InnerProgram {
         }
 
         let mut functions = IndexMap::new();
-        for (name, function) in value.functions.iter() {
+        for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = proto_functions.get(&name.name).unwrap();
 
@@ -299,7 +299,7 @@ impl InnerProgram {
         }
 
         let mut circuits = IndexMap::new();
-        for (name, circuit) in value.circuits.iter() {
+        for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = proto_circuits.get(&name.name).unwrap();
             let body = Arc::new(CircuitBody::from_ast(&scope, circuit, asg_circuit.clone())?);
@@ -308,9 +308,9 @@ impl InnerProgram {
             circuits.insert(name.name.clone(), body);
         }
 
-        Ok(Arc::new(RefCell::new(InnerProgram {
+        Ok(Arc::new(RefCell::new(InternalProgram {
             id: Uuid::new_v4(),
-            name: value.name.clone(),
+            name: program.name.clone(),
             test_functions,
             functions,
             circuits,
@@ -342,7 +342,7 @@ impl Iterator for InternalIdentifierGenerator {
         Some(out)
     }
 }
-/// Returns an ast from the given asg program.
+/// Returns an AST from the given ASG program.
 pub fn reform_ast(program: &Program) -> leo_ast::Program {
     let mut all_programs: IndexMap<String, Program> = IndexMap::new();
     let mut program_stack = program.borrow().imported_modules.clone();
@@ -427,7 +427,7 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
     }
 }
 
-impl Into<leo_ast::Program> for &InnerProgram {
+impl Into<leo_ast::Program> for &InternalProgram {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),

@@ -17,6 +17,9 @@
 pub mod circuit;
 pub use circuit::*;
 
+pub mod circuit_implied_variable;
+pub use circuit_implied_variable::*;
+
 pub mod circuit_variable;
 pub use circuit_variable::*;
 

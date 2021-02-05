@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Statement, Type};
+use crate::{Expression, Statement, WeakType};
 use leo_ast::Identifier;
 
 use std::{
@@ -24,7 +24,7 @@ use std::{
 use uuid::Uuid;
 
 /// Specifies how a program variable was declared.
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -33,11 +33,13 @@ pub enum VariableDeclaration {
 }
 
 /// Stores information on a program variable.
+#[derive(Debug)]
 pub struct InnerVariable {
     pub id: Uuid,
     pub name: Identifier,
-    pub type_: Type,
+    pub type_: WeakType,
     pub mutable: bool,
+    pub const_: bool, // only function arguments, const var definitions NOT included
     pub declaration: VariableDeclaration,
     pub references: Vec<Weak<Expression>>, // all Expression::VariableRef or panic
     pub assignments: Vec<Weak<Statement>>, // all Statement::Assign or panic -- must be 1 if not mutable, or 0 if declaration == input | parameter

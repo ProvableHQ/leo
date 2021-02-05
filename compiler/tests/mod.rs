@@ -146,7 +146,7 @@ pub fn parse_program_with_input_and_state(
 pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
-    let output = program.generate_constraints_helper(&mut cs).unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
 
     // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
@@ -164,7 +164,7 @@ pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
 
 pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
-    program.generate_constraints_helper(&mut cs).unwrap_err()
+    program.compile_constraints(&mut cs).unwrap_err()
 }
 
 pub(crate) fn expect_asg_error(error: CompilerError) {

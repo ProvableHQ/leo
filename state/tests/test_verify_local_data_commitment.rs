@@ -98,7 +98,7 @@ fn test_generate_values_from_dpc() {
     let payload: [u8; 32] = rng.gen();
 
     let old_record = DPC::generate_record(
-        system_parameters.clone(),
+        &system_parameters,
         sn_nonce,
         dummy_account.address,
         false,

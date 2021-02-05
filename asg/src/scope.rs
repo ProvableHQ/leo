@@ -21,6 +21,7 @@ use std::{cell::RefCell, sync::Arc};
 use uuid::Uuid;
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
+#[derive(Debug)]
 pub struct InnerScope {
     /// The unique id of the scope.
     pub id: Uuid,

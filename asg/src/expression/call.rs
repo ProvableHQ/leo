@@ -29,13 +29,14 @@ use crate::{
     Span,
     Type,
 };
-pub use leo_ast::BinaryOperation;
+pub use leo_ast::{BinaryOperation, Node as AstNode};
 
 use std::{
     cell::RefCell,
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct CallExpression {
     pub parent: RefCell<Option<Weak<Expression>>>,
     pub span: Option<Span>,
@@ -194,25 +195,33 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                 ));
             }
         }
-        if value.arguments.len() != function.argument_types.len() {
+        if value.arguments.len() != function.arguments.len() {
             return Err(AsgConvertError::unexpected_call_argument_count(
-                function.argument_types.len(),
+                function.arguments.len(),
                 value.arguments.len(),
                 &value.span,
             ));
         }
 
+        let arguments = value
+            .arguments
+            .iter()
+            .zip(function.arguments.iter())
+            .map(|(expr, argument)| {
+                let argument = argument.borrow();
+                let converted =
+                    Arc::<Expression>::from_ast(scope, expr, Some(argument.type_.clone().strong().partial()))?;
+                if argument.const_ && !converted.is_consty() {
+                    return Err(AsgConvertError::unexpected_nonconst(&expr.span()));
+                }
+                Ok(converted)
+            })
+            .collect::<Result<Vec<_>, AsgConvertError>>()?;
+
         Ok(CallExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
-            arguments: value
-                .arguments
-                .iter()
-                .zip(function.argument_types.iter())
-                .map(|(expr, argument)| {
-                    Arc::<Expression>::from_ast(scope, expr, Some(argument.clone().strong().partial()))
-                })
-                .collect::<Result<Vec<_>, AsgConvertError>>()?,
+            arguments,
             function,
             target,
         })

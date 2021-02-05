@@ -35,6 +35,7 @@ use std::{
     sync::{Arc, Weak},
 };
 
+#[derive(Debug)]
 pub struct IterationStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,
@@ -64,8 +65,10 @@ impl FromAst<leo_ast::IterationStatement> for Arc<Statement> {
             name: statement.variable.clone(),
             type_: start
                 .get_type()
-                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
+                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?
+                .weak(),
             mutable: false,
+            const_: true,
             declaration: crate::VariableDeclaration::IterationDefinition,
             references: vec![],
             assignments: vec![],

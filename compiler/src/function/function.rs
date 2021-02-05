@@ -52,7 +52,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             None
         };
 
-        if function.arguments.len() != arguments.len() {
+        if function.function.arguments.len() != arguments.len() {
             return Err(FunctionError::input_not_found(
                 "arguments length invalid".to_string(),
                 function.span.clone().unwrap_or_default(),
@@ -60,7 +60,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Store input values as new variables in resolved program
-        for (variable, input_expression) in function.arguments.iter().zip(arguments.iter()) {
+        for (variable, input_expression) in function.function.arguments.iter().zip(arguments.iter()) {
             let input_value = self.enforce_expression(cs, input_expression)?;
             let variable = variable.borrow();
 

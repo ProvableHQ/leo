@@ -37,6 +37,7 @@ use leo_ast::AssigneeAccess as AstAssigneeAccess;
 
 use std::sync::{Arc, Weak};
 
+#[derive(Debug)]
 pub enum AssignAccess {
     ArrayRange(Option<Arc<Expression>>, Option<Arc<Expression>>),
     ArrayIndex(Arc<Expression>),
@@ -44,6 +45,7 @@ pub enum AssignAccess {
     Member(Identifier),
 }
 
+#[derive(Debug)]
 pub struct AssignStatement {
     pub parent: Option<Weak<Statement>>,
     pub span: Option<Span>,
@@ -92,7 +94,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
         if !variable.borrow().mutable {
             return Err(AsgConvertError::immutable_assignment(&name, &statement.span));
         }
-        let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
+        let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().strong().into());
 
         let mut target_accesses = vec![];
         for access in statement.assignee.accesses.iter() {
