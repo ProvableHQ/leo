@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 
 use anyhow::Result;
 use structopt::StructOpt;
@@ -42,8 +42,8 @@ impl Run {
     }
 }
 
-impl Cmd for Run {
-    type Input = <Prove as Cmd>::Output;
+impl Command for Run {
+    type Input = <Prove as Command>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {

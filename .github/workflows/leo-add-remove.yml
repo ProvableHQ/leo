@@ -37,7 +37,7 @@ jobs:
       - name: 'leo add (w/o login) & remove'
         run: |
           cd .. && leo new my-app && cd my-app
-          leo package add argus4130/xnor
-          leo package remove xnor
+          leo add argus4130/xnor
+          leo remove xnor
           leo clean
 

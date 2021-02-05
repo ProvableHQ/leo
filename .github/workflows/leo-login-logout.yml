@@ -40,8 +40,8 @@ jobs:
           PASS: ${{ secrets.ALEO_PM_PASSWORD }}
         run: |
           cd .. && leo new my-app && cd my-app
-          leo package login -u "$USER" -p "$PASS"
-          leo package add argus4130/xnor
-          leo package remove xnor
-          leo package logout
+          leo login -u "$USER" -p "$PASS"
+          leo add argus4130/xnor
+          leo remove xnor
+          leo logout
 

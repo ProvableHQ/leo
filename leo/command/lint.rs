@@ -14,28 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Deploy Leo program to the network
+/// Lint Leo code command
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Deploy {}
+pub struct Lint {}
 
-impl Deploy {
-    pub fn new() -> Deploy {
-        Deploy {}
+impl Lint {
+    pub fn new() -> Lint {
+        Lint {}
     }
 }
 
-impl Cmd for Deploy {
+impl Command for Lint {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Deploy")
+        tracing::span!(tracing::Level::INFO, "Linting")
     }
 
     fn prelude(&self) -> Result<Self::Input> {
@@ -43,6 +43,6 @@ impl Cmd for Deploy {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        unimplemented!("Deploy command has not been implemented yet");
+        unimplemented!("Lint command has not been implemented yet");
     }
 }

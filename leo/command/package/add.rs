@@ -22,7 +22,7 @@ use std::{
     io::{Read, Write},
 };
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
@@ -82,7 +82,7 @@ impl Add {
     }
 }
 
-impl Cmd for Add {
+impl Command for Add {
     type Input = ();
     type Output = ();
 

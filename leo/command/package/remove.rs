@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 
 use leo_package::LeoPackage;
 
@@ -36,7 +36,7 @@ impl Remove {
     }
 }
 
-impl Cmd for Remove {
+impl Command for Remove {
     type Input = ();
     type Output = ();
 

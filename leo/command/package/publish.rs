@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    cmd::Cmd,
+    command::Command,
     context::{Context, PACKAGE_MANAGER_URL},
 };
 
@@ -50,8 +50,8 @@ impl Publish {
     }
 }
 
-impl Cmd for Publish {
-    type Input = <Build as Cmd>::Output;
+impl Command for Publish {
+    type Input = <Build as Command>::Output;
     type Output = Option<String>;
 
     /// Build program before publishing

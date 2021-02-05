@@ -16,7 +16,7 @@
 
 use crate::synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
@@ -44,7 +44,7 @@ impl Build {
     }
 }
 
-impl Cmd for Build {
+impl Command for Build {
     type Input = ();
     type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
 

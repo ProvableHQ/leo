@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, config::Config, context::Context, updater::Updater};
+use crate::{command::Command, config::Config, context::Context, updater::Updater};
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -55,7 +55,7 @@ impl Update {
     }
 }
 
-impl Cmd for Update {
+impl Command for Update {
     type Input = ();
     type Output = ();
 

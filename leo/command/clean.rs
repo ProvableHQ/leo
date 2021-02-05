@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 use anyhow::Result;
 use leo_compiler::OutputFile;
 use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
@@ -32,7 +32,7 @@ impl Clean {
     }
 }
 
-impl Cmd for Clean {
+impl Command for Clean {
     type Input = ();
     type Output = ();
 

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::setup::Setup;
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 use anyhow::Result;
 use structopt::StructOpt;
 
@@ -42,8 +42,8 @@ impl Prove {
     }
 }
 
-impl Cmd for Prove {
-    type Input = <Setup as Cmd>::Output;
+impl Command for Prove {
+    type Input = <Setup as Command>::Output;
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {

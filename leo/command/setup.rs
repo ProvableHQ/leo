@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cmd::Cmd, context::Context};
+use crate::{command::Command, context::Context};
 use anyhow::{anyhow, Result};
 
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
@@ -47,8 +47,8 @@ impl Setup {
     }
 }
 
-impl Cmd for Setup {
-    type Input = <Build as Cmd>::Output;
+impl Command for Setup {
+    type Input = <Build as Command>::Output;
     type Output = (
         Compiler<Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod api;
-pub mod cmd;
+pub mod command;
 pub mod config;
 pub mod context;
 pub mod logger;
@@ -25,11 +25,11 @@ pub mod updater;
 use anyhow::Error;
 use std::process::exit;
 
-use cmd::{
+use command::{
     package::{Add, Login, Logout, Publish, Remove},
     Build,
     Clean,
-    Cmd,
+    Command,
     Deploy,
     Init,
     Lint,
@@ -55,47 +55,13 @@ struct Opt {
     quiet: bool,
 
     #[structopt(subcommand)]
-    command: Command,
-}
-
-#[derive(StructOpt, Debug)]
-#[structopt(setting = AppSettings::ColoredHelp)]
-enum Package {
-    #[structopt(about = "Import package from Aleo PM")]
-    Add {
-        #[structopt(flatten)]
-        cmd: Add,
-    },
-
-    #[structopt(about = "Login to the package manager and store credentials")]
-    Login {
-        #[structopt(flatten)]
-        cmd: Login,
-    },
-
-    #[structopt(about = "Logout - remove local credentials")]
-    Logout {
-        #[structopt(flatten)]
-        cmd: Logout,
-    },
-
-    #[structopt(about = "Publish package")]
-    Publish {
-        #[structopt(flatten)]
-        cmd: Publish,
-    },
-
-    #[structopt(about = "Remove imported package")]
-    Remove {
-        #[structopt(flatten)]
-        cmd: Remove,
-    },
+    command: CommandOpts,
 }
 
 ///Leo compiler and package manager
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
-enum Command {
+enum CommandOpts {
     #[structopt(about = "Init new Leo project command in current directory")]
     Init {
         #[structopt(flatten)]
@@ -156,10 +122,34 @@ enum Command {
         cmd: Test,
     },
 
-    #[structopt(about = "Aleo Package Manager related commands")]
-    Package {
+    #[structopt(about = "Import package from Aleo PM")]
+    Add {
         #[structopt(flatten)]
-        cmd: Package,
+        cmd: Add,
+    },
+
+    #[structopt(about = "Login to the package manager and store credentials")]
+    Login {
+        #[structopt(flatten)]
+        cmd: Login,
+    },
+
+    #[structopt(about = "Logout - remove local credentials")]
+    Logout {
+        #[structopt(flatten)]
+        cmd: Logout,
+    },
+
+    #[structopt(about = "Publish package")]
+    Publish {
+        #[structopt(flatten)]
+        cmd: Publish,
+    },
+
+    #[structopt(about = "Remove imported package")]
+    Remove {
+        #[structopt(flatten)]
+        cmd: Remove,
     },
 
     #[structopt(about = "Lint package code (not implemented)")]
@@ -188,27 +178,25 @@ fn main() {
     }
 
     handle_error(match opt.command {
-        Command::Init { cmd } => cmd.try_execute(),
-        Command::New { cmd } => cmd.try_execute(),
-        Command::Build { cmd } => cmd.try_execute(),
-        Command::Setup { cmd } => cmd.try_execute(),
-        Command::Prove { cmd } => cmd.try_execute(),
-        Command::Test { cmd } => cmd.try_execute(),
-        Command::Run { cmd } => cmd.try_execute(),
-        Command::Clean { cmd } => cmd.try_execute(),
-        Command::Watch { cmd } => cmd.try_execute(),
-        Command::Update { cmd } => cmd.try_execute(),
+        CommandOpts::Init { cmd } => cmd.try_execute(),
+        CommandOpts::New { cmd } => cmd.try_execute(),
+        CommandOpts::Build { cmd } => cmd.try_execute(),
+        CommandOpts::Setup { cmd } => cmd.try_execute(),
+        CommandOpts::Prove { cmd } => cmd.try_execute(),
+        CommandOpts::Test { cmd } => cmd.try_execute(),
+        CommandOpts::Run { cmd } => cmd.try_execute(),
+        CommandOpts::Clean { cmd } => cmd.try_execute(),
+        CommandOpts::Watch { cmd } => cmd.try_execute(),
+        CommandOpts::Update { cmd } => cmd.try_execute(),
 
-        Command::Package { cmd } => match cmd {
-            Package::Add { cmd } => cmd.try_execute(),
-            Package::Login { cmd } => cmd.try_execute(),
-            Package::Logout { cmd } => cmd.try_execute(),
-            Package::Publish { cmd } => cmd.try_execute(),
-            Package::Remove { cmd } => cmd.try_execute(),
-        },
+        CommandOpts::Add { cmd } => cmd.try_execute(),
+        CommandOpts::Login { cmd } => cmd.try_execute(),
+        CommandOpts::Logout { cmd } => cmd.try_execute(),
+        CommandOpts::Publish { cmd } => cmd.try_execute(),
+        CommandOpts::Remove { cmd } => cmd.try_execute(),
 
-        Command::Lint { cmd } => cmd.try_execute(),
-        Command::Deploy { cmd } => cmd.try_execute(),
+        CommandOpts::Lint { cmd } => cmd.try_execute(),
+        CommandOpts::Deploy { cmd } => cmd.try_execute(),
     });
 }
 

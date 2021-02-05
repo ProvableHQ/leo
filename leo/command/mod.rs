@@ -61,10 +61,10 @@ pub mod lint;
 pub use lint::Lint;
 
 /// Base trait for Leo CLI, see methods and their documentation for details
-pub trait Cmd {
+pub trait Command {
     /// If current command requires running another command before
     /// and needs its output results, this is the place to set.
-    /// Example: type Input: <CommandA as Cmd>::Out
+    /// Example: type Input: <CommandA as Command>::Out
     type Input;
 
     /// Define output of the command to be reused as an Input for another
