@@ -1,6 +1,6 @@
 [package]
 name = "leo-wasm"
-version = "1.2.0"
+version = "1.2.1"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "WASM interpreter of the Leo programming language"
 homepage = "https://aleo.org"
@@ -18,16 +18,23 @@ license = "GPL-3.0"
 edition = "2018"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = [ "cdylib", "rlib" ]
 
-[dependencies]
-#leo-asg = { path = "../asg", version = "1.2.0" }
-leo-ast = { path = "../ast", version = "1.2.0" }
-#leo-imports = { path = "../imports", version = "1.2.0" }
-leo-grammar = { path = "../grammar", version = "1.2.0" }
+[dependencies.leo-ast]
+path = "../ast"
+version = "1.2.1"
 
-serde = { version = "1.0", features = ["derive"] }
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+[dependencies.leo-grammar]
+path = "../grammar"
+version = "1.2.1"
 
-[dev-dependencies]
-wasm-bindgen-test = { version = "0.3.20" }
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.wasm-bindgen]
+version = "0.2"
+features = [ "serde-serialize" ]
+
+[dev-dependencies.wasm-bindgen-test]
+version = "0.3.20"
