@@ -1,6 +1,6 @@
 [package]
 name = "leo-gadgets"
-version = "1.2.0"
+version = "1.2.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Gadgets of the Leo programming language"
 homepage = "https://aleo.org"

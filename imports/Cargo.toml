@@ -1,6 +1,6 @@
 [package]
 name = "leo-imports"
-version = "1.2.0"
+version = "1.2.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Import parser for Leo program package dependencies"
 homepage = "https://aleo.org"
@@ -19,15 +19,15 @@ edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.2.0"
+version = "1.2.2"
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.2.0"
+version = "1.2.2"
 
 [dependencies.leo-asg]
 path = "../asg"
-version = "1.2.0"
+version = "1.2.2"
 
 [dependencies.indexmap]
 version = "1.6.1"
