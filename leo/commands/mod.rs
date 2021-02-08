@@ -14,53 +14,125 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod add;
-pub use self::add::*;
+use crate::context::{get_context, Context};
+use anyhow::Result;
+use std::time::Instant;
+use tracing::span::Span;
 
+// local program commands
 pub mod build;
-pub use self::build::*;
+pub use build::Build;
 
 pub mod clean;
-pub use self::clean::*;
-
-pub mod deploy;
-pub use self::deploy::*;
+pub use clean::Clean;
 
 pub mod init;
-pub use self::init::*;
-
-pub mod lint;
-pub use self::lint::*;
-
-pub mod login;
-pub use self::login::*;
-
-pub mod logout;
-pub use self::logout::*;
+pub use init::Init;
 
 pub mod new;
-pub use self::new::*;
+pub use new::New;
 
 pub mod prove;
-pub use self::prove::*;
-
-pub mod publish;
-pub use self::publish::*;
+pub use prove::Prove;
 
 pub mod run;
-pub use self::run::*;
+pub use run::Run;
 
 pub mod setup;
-pub use self::setup::*;
+pub use setup::Setup;
 
 pub mod test;
-pub use self::test::*;
-
-pub mod remove;
-pub use self::remove::*;
-
-pub mod update;
-pub use self::update::*;
+pub use test::Test;
 
 pub mod watch;
-pub use self::watch::*;
+pub use watch::Watch;
+
+pub mod update;
+pub use update::{Sub as UpdateAutomatic, Update};
+
+// aleo pm related commands
+pub mod package;
+
+// not implemented
+pub mod deploy;
+pub use deploy::Deploy;
+
+pub mod lint;
+pub use lint::Lint;
+
+/// Base trait for Leo CLI, see methods and their documentation for details
+pub trait Command {
+    /// If current command requires running another command before
+    /// and needs its output results, this is the place to set.
+    /// Example: type Input: <CommandA as Command>::Out
+    type Input;
+
+    /// Define output of the command to be reused as an Input for another
+    /// command. If this command is not used as a prelude for another, keep empty
+    type Output;
+
+    /// Returns project context, currently keeping it simple but it is possible
+    /// that in the future leo will not depend on current directory, and we're keeping
+    /// option for extending current core
+    fn context(&self) -> Result<Context> {
+        get_context()
+    }
+
+    /// Add span to the logger tracing::span.
+    /// Due to specifics of macro implementation it is impossible to set
+    /// span name with non-literal i.e. dynamic variable even if this
+    /// variable is &'static str
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Leo")
+    }
+
+    /// Run prelude and get Input for current command. As simple as that.
+    /// But due to inability to pass default implementation of a type, this
+    /// method must be present in every trait implementation.
+    fn prelude(&self) -> Result<Self::Input>
+    where
+        Self: std::marker::Sized;
+
+    /// Core of the execution - do what is necessary. This function is run within
+    /// context of 'execute' function, which sets logging and timers
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output>
+    where
+        Self: std::marker::Sized;
+
+    /// Wrapper around apply function, sets up tracing, time tracking and context
+    fn execute(self) -> Result<Self::Output>
+    where
+        Self: std::marker::Sized,
+    {
+        let input = self.prelude()?;
+
+        // create span for this command
+        let span = self.log_span();
+        let span = span.enter();
+
+        // calculate execution time for each run
+        let timer = Instant::now();
+
+        let context = self.context()?;
+        let out = self.apply(context, input);
+
+        drop(span);
+
+        // use done context to print time
+        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+            tracing::info!("Finished in {} milliseconds \n", timer.elapsed().as_millis());
+        });
+
+        out
+    }
+
+    /// Execute command but empty the result. Comes in handy where there's a
+    /// need to make match arms compatible while keeping implementation-specific
+    /// output possible. Errors however are all of the type Error
+    fn try_execute(self) -> Result<()>
+    where
+        Self: std::marker::Sized,
+    {
+        self.execute().map(|_| Ok(()))?
+    }
+}

@@ -14,40 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//
-// Usage:
-//
-//  leo logout
-//
+use crate::{commands::Command, context::Context};
 
-#[derive(Debug)]
-pub struct LogoutCommand;
-
-use crate::{cli::CLI, cli_types::*, config::remove_token, errors::CLIError};
+use crate::config::remove_token;
+use anyhow::Result;
 use std::io::ErrorKind;
+use structopt::StructOpt;
+use tracing::Span;
 
-impl CLI for LogoutCommand {
-    type Options = ();
+/// Remove credentials for Aleo PM from .leo directory
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Logout {}
+
+impl Logout {
+    pub fn new() -> Logout {
+        Logout {}
+    }
+}
+
+impl Command for Logout {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Logout from Aleo Package Manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "logout";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Logout")
+    }
 
-    /// no options and no arguments for this buddy
-    fn parse(_: &clap::ArgMatches) -> Result<Self::Options, CLIError> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    /// as simple as it could be - remove credentials file
-    fn output(_: Self::Options) -> Result<Self::Output, CLIError> {
-        // we gotta do something about this span issue :confused:
-        let span = tracing::span!(tracing::Level::INFO, "Logout");
-        let _ent = span.enter();
-
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         if let Err(err) = remove_token() {

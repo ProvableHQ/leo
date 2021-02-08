@@ -15,25 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod add;
-pub use self::add::*;
-
-pub mod build;
-pub use self::build::*;
-
-pub mod init;
-pub use self::init::*;
+pub use add::Add;
 
 pub mod login;
-pub use self::login::*;
+pub use login::Login;
 
-pub mod new;
-pub use self::new::*;
+pub mod logout;
+pub use logout::Logout;
 
 pub mod publish;
-pub use self::publish::*;
+pub use publish::Publish;
 
-pub mod run;
-pub use self::run::*;
+pub mod remove;
+pub use remove::Remove;
 
-pub mod test;
-pub use self::test::*;
+pub use super::*;
