@@ -22,7 +22,6 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::declare))]
 pub enum Declare {
-    Const(Const),
     Let(Let),
 }
 

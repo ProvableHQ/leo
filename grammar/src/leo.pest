@@ -99,7 +99,7 @@ variable_name_tuple = _{"(" ~ variable_name ~ ("," ~ variable_name)+ ~ ")"}
 variables = { ( variable_name_tuple | variable_name ) ~ (":" ~ type_ )? }
 
 // Declared in common/declare.rs
-declare = { let_ | const_ }
+declare = { let_ }
 const_ = { "const " }
 let_ = { "let " }
 

@@ -92,9 +92,6 @@ impl FromAst<leo_ast::DefinitionStatement> for Arc<Statement> {
         }
 
         for (variable, type_) in statement.variable_names.iter().zip(output_types.into_iter()) {
-            if statement.declaration_type == leo_ast::Declare::Const && variable.mutable {
-                return Err(AsgConvertError::illegal_ast_structure("cannot have const mut"));
-            }
             variables.push(Arc::new(RefCell::new(InnerVariable {
                 id: uuid::Uuid::new_v4(),
                 name: variable.identifier.clone(),
