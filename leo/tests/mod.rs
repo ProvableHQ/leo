@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    commands::{package::Login, Build, Command, Prove, Run, Setup, Update, UpdateAutomatic},
+    commands::{package::Login, Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic},
     config,
     context::{create_context, Context},
 };
@@ -54,6 +54,13 @@ pub fn run_pedersen_hash() -> Result<()> {
     let setup = Setup::new(false).apply(ctx()?, build)?;
     let prove = Prove::new(false).apply(ctx()?, setup)?;
     Run::new(false).apply(ctx()?, prove)?;
+    Ok(())
+}
+
+#[test]
+pub fn test_pedersen_hash() -> Result<()> {
+    Test::new(Vec::new()).apply(ctx()?, ())?;
+    Test::new(vec![String::from("src/main.leo")]).apply(ctx()?, ())?;
     Ok(())
 }
 

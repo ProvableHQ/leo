@@ -30,11 +30,11 @@ pub struct New {
     name: String,
 
     #[structopt(help = "Init as a library (containing lib.leo)", long = "lib", short = "l")]
-    is_lib: Option<bool>,
+    is_lib: bool,
 }
 
 impl New {
-    pub fn new(name: String, is_lib: Option<bool>) -> New {
+    pub fn new(name: String, is_lib: bool) -> New {
         New { name, is_lib }
     }
 }
@@ -66,7 +66,7 @@ impl Command for New {
         // Create the package directory
         fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
 
-        LeoPackage::initialize(&package_name, self.is_lib.unwrap_or(false), &path)?;
+        LeoPackage::initialize(&package_name, self.is_lib, &path)?;
 
         Ok(())
     }

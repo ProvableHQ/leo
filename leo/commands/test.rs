@@ -28,7 +28,7 @@ use leo_package::{
 
 use snarkvm_curves::edwards_bls12::Fq;
 
-use std::{convert::TryFrom, time::Instant};
+use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use tracing::span::Span;
 
 /// Build program and run tests command
@@ -58,25 +58,46 @@ impl Command for Test {
     }
 
     fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-
         // Get the package name
         let package_name = ctx.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
-        let mut package_path = path;
+        let mut package_path = ctx.dir()?;
         if package_path.is_file() {
             package_path.pop();
         }
 
-        let mut file_path = package_path.clone();
-        file_path.push(SOURCE_DIRECTORY_NAME);
+        let mut to_test: Vec<PathBuf> = Vec::new();
 
-        // Verify a main or library file exists
-        if MainFile::exists_at(&package_path) {
+        // if -f flag was used, then we'll test only this files
+        if self.files.is_empty() {
+            let files: Vec<PathBuf> = self
+                .files
+                .into_iter()
+                .map(|file| {
+                    let mut file_path = package_path.clone();
+                    file_path.push(file);
+                    file_path
+                })
+                .collect();
+
+            to_test.extend(files);
+
+        // if args were not passed - try main file
+        } else if MainFile::exists_at(&package_path) {
+            let mut file_path = package_path.clone();
+            file_path.push(SOURCE_DIRECTORY_NAME);
             file_path.push(MAIN_FILENAME);
+            to_test.push(file_path);
+
+        // if main file is not present and no arguments - try library
         } else if LibraryFile::exists_at(&package_path) {
+            let mut file_path = package_path.clone();
+            file_path.push(SOURCE_DIRECTORY_NAME);
             file_path.push(LIBRARY_FILENAME);
+            to_test.push(file_path);
+
+        // nothing found - skip
         } else {
             return Err(anyhow!(
                 "Program file does not exist {}",
@@ -91,50 +112,45 @@ impl Command for Test {
         // Create the output directory
         OutputsDirectory::create(&package_path)?;
 
-        // Start the timer
-        let start = Instant::now();
+        // Finally test every passed file
+        for file_path in to_test {
+            tracing::info!("Running tests in file {:?}", file_path);
 
-        // Parse the current main program file
-        let program =
-            Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(package_name, file_path, output_directory)?;
+            let input_pairs = match InputPairs::try_from(package_path.as_path()) {
+                Ok(pairs) => pairs,
+                Err(_) => {
+                    tracing::warn!("Unable to find inputs, ignore this message or put them into /inputs folder");
+                    InputPairs::new()
+                }
+            };
 
-        // Parse all inputs as input pairs
-        let pairs = match InputPairs::try_from(package_path.as_path()) {
-            Ok(pairs) => pairs,
-            Err(_) => {
-                // tracing::warn!("Could not find inputs, if it is intentional - ignore \
-                //                 or use -i or --inputs option to specify inputs directory");
-                tracing::warn!("Unable to find inputs, ignore this message or put them into /inputs folder");
-                InputPairs::new()
-            }
-        };
+            let timer = Instant::now();
+            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
+                package_name.clone(),
+                file_path,
+                output_directory.clone(),
+            )?;
 
-        // Run tests
-        let temporary_program = program;
-        let (passed, failed) = temporary_program.compile_test_constraints(pairs)?;
+            let temporary_program = program;
+            let (passed, failed) = temporary_program.compile_test_constraints(input_pairs)?;
+            let time_taken = timer.elapsed().as_millis();
 
-        // Set the result of the test command to passed if no tests failed.
-        if failed == 0 {
-            // Begin "Done" context for console logging
-            tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
+            if failed == 0 {
                 tracing::info!(
                     "Tests passed in {} milliseconds. {} passed; {} failed;\n",
-                    start.elapsed().as_millis(),
+                    time_taken,
                     passed,
                     failed
                 );
-            });
-        } else {
-            // Begin "Done" context for console logging
-            tracing::span!(tracing::Level::ERROR, "Done").in_scope(|| {
+            } else {
                 tracing::error!(
                     "Tests failed in {} milliseconds. {} passed; {} failed;\n",
-                    start.elapsed().as_millis(),
+                    time_taken,
                     passed,
                     failed
                 );
-            });
-        };
+            }
+        }
 
         Ok(())
     }
