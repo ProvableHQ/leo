@@ -283,3 +283,11 @@ fn test_define_circuit_inside_circuit_function() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_duplicate_name_context() {
+    let program_string = include_str!("duplicate_name_context.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
