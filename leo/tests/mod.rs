@@ -15,8 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    commands::{package::Login, Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic},
-    config,
+    commands::{
+        package::{Login, Logout},
+        Build,
+        Command,
+        Prove,
+        Run,
+        Setup,
+        Test,
+        Update,
+        UpdateAutomatic,
+    },
     context::{create_context, Context},
 };
 use anyhow::Result;
@@ -44,7 +53,8 @@ pub fn setup_pedersen_hash() -> Result<()> {
 pub fn prove_pedersen_hash() -> Result<()> {
     let build = Build::new().apply(ctx()?, ())?;
     let setup = Setup::new(false).apply(ctx()?, build)?;
-    Prove::new(false).apply(ctx()?, setup)?;
+    Prove::new(false).apply(ctx()?, setup.clone())?;
+    Prove::new(true).apply(ctx()?, setup)?;
     Ok(())
 }
 
@@ -53,14 +63,24 @@ pub fn run_pedersen_hash() -> Result<()> {
     let build = Build::new().apply(ctx()?, ())?;
     let setup = Setup::new(false).apply(ctx()?, build)?;
     let prove = Prove::new(false).apply(ctx()?, setup)?;
-    Run::new(false).apply(ctx()?, prove)?;
+    Run::new(false).apply(ctx()?, prove.clone())?;
+    Run::new(true).apply(ctx()?, prove)?;
     Ok(())
 }
 
 #[test]
 pub fn test_pedersen_hash() -> Result<()> {
+    let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
+    main_file.push("src/main.leo");
+
     Test::new(Vec::new()).apply(ctx()?, ())?;
-    Test::new(vec![String::from("src/main.leo")]).apply(ctx()?, ())?;
+    Test::new(vec![main_file]).apply(ctx()?, ())?;
+    Ok(())
+}
+
+#[test]
+pub fn test_logout() -> Result<()> {
+    Logout::new().apply(ctx()?, ())?;
     Ok(())
 }
 
@@ -68,8 +88,6 @@ pub fn test_pedersen_hash() -> Result<()> {
 // So this test only tells that error cases are errors
 #[test]
 pub fn login_incorrect_credentials_or_token() -> Result<()> {
-    let _ = config::remove_token();
-
     // no credentials passed
     let login = Login::new(None, None, None).apply(ctx()?, ());
     assert!(login.is_err());

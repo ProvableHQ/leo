@@ -36,11 +36,11 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Test {
     #[structopt(short = "f", long = "file", name = "file")]
-    files: Vec<String>,
+    files: Vec<PathBuf>,
 }
 
 impl Test {
-    pub fn new(files: Vec<String>) -> Test {
+    pub fn new(files: Vec<PathBuf>) -> Test {
         Test { files }
     }
 }
@@ -70,18 +70,8 @@ impl Command for Test {
         let mut to_test: Vec<PathBuf> = Vec::new();
 
         // if -f flag was used, then we'll test only this files
-        if self.files.is_empty() {
-            let files: Vec<PathBuf> = self
-                .files
-                .into_iter()
-                .map(|file| {
-                    let mut file_path = package_path.clone();
-                    file_path.push(file);
-                    file_path
-                })
-                .collect();
-
-            to_test.extend(files);
+        if !self.files.is_empty() {
+            to_test.extend(self.files.iter().cloned());
 
         // if args were not passed - try main file
         } else if MainFile::exists_at(&package_path) {
