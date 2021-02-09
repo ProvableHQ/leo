@@ -177,7 +177,7 @@ impl InputValue {
         let mut elements = vec![];
 
         // Build the elements of the array using the `vec!` macro
-        for (i, dimension) in initializer_dimensions.into_iter().enumerate() {
+        for (i, dimension) in initializer_dimensions.into_iter().rev().enumerate() {
             if i == 0 {
                 elements = vec![value.clone(); dimension];
             } else {
