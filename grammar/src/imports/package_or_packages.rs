@@ -23,8 +23,8 @@ use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::package_type))]
-pub enum PackageType<'ast> {
+#[pest_ast(rule(Rule::package_or_packages))]
+pub enum PackageOrPackages<'ast> {
     Package(Package<'ast>),
     Packages(Packages<'ast>),
 }

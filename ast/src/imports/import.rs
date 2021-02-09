@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{PackageType, Span};
+use crate::{PackageOrPackages, Span};
 use leo_grammar::imports::Import as GrammarImport;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ use std::fmt;
 /// Represents an import statement in a Leo program.
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ImportStatement {
-    pub package_type: PackageType,
+    pub package_or_packages: PackageOrPackages,
     pub span: Span,
 }
 
@@ -32,9 +32,9 @@ impl ImportStatement {
     /// Returns the the package file name of the self import statement.
     ///
     pub fn get_file_name(&self) -> &str {
-        match self.package_type {
-            PackageType::Package(ref package) => &package.name.name,
-            PackageType::Packages(ref packages) => &packages.name.name,
+        match self.package_or_packages {
+            PackageOrPackages::Package(ref package) => &package.name.name,
+            PackageOrPackages::Packages(ref packages) => &packages.name.name,
         }
     }
 }
@@ -42,7 +42,7 @@ impl ImportStatement {
 impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
     fn from(import: GrammarImport<'ast>) -> Self {
         ImportStatement {
-            package_type: PackageType::from(import.package_type),
+            package_or_packages: PackageOrPackages::from(import.package_or_packages),
             span: Span::from(import.span),
         }
     }
@@ -50,7 +50,7 @@ impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
 
 impl ImportStatement {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "import {};", self.package_type)
+        write!(f, "import {};", self.package_or_packages)
     }
 }
 

@@ -454,13 +454,13 @@ input_tuple = _{ "(" ~ (input ~ ("," ~ input)* ~ ","?)? ~ ")"}
 /// Imports
 
 // Declared in imports/import.rs
-import = { "import " ~ package_type ~ LINE_END}
+import = { "import " ~ package_or_packages ~ LINE_END}
 
 // Declared in imports/package_name.rs
 package_name = @{ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+ ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+)* }
 
-// Declared in imports/package_type.rs
-package_type = {
+// Declared in imports/package_or_packages.rs
+package_or_packages = {
     packages
     | package
 }
