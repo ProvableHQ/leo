@@ -26,7 +26,7 @@ fn test_import_package_rule() {
         rule:   Rule::import,
         tokens: [
             import(0, 11, [
-                package_type(7, 10, [
+                package_or_packages(7, 10, [
                     package(7, 10, [
                         package_name(7, 8, []),
                         package_access(9, 10, [star(9, 10, [])])
@@ -46,7 +46,7 @@ fn test_import_packages_rule() {
         rule:   Rule::import,
         tokens: [
             import(0, 16, [
-                package_type(7, 15, [
+                package_or_packages(7, 15, [
                     packages(7, 15, [
                         package_name(7, 8, []),
                         package_access(10, 11, [
@@ -71,7 +71,7 @@ fn test_complex_import_rule() {
         rule:   Rule::import,
         tokens: [
             import(0, 23, [
-                package_type(7, 22, [
+                package_or_packages(7, 22, [
                     packages(7, 22, [
                         package_name(7, 8, []),
                         package_access(10, 18, [
