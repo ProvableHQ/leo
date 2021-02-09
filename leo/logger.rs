@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use colored::Colorize;
 use std::fmt;
+
+use colored::Colorize;
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
     fmt::{format::*, time::*, FmtContext, FormattedFields},

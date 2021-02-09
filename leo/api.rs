@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::Serialize;
-
 use anyhow::{anyhow, Error, Result};
 use reqwest::{
     blocking::{Client, Response},
     Method,
     StatusCode,
 };
+use serde::Serialize;
 
 /// Trait describes API Routes and Request bodies, struct which implements
 /// Route MUST also support Serialize to be usable in Api::run_route(r: Route)

@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::path::PathBuf;
+
+use anyhow::Result;
+
 use crate::{
     commands::{
         package::{Login, Logout},
@@ -28,8 +32,6 @@ use crate::{
     },
     context::{create_context, Context},
 };
-use anyhow::Result;
-use std::path::PathBuf;
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located

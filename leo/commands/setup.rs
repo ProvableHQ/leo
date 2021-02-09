@@ -14,26 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
 use anyhow::{anyhow, Result};
-
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     outputs::{ProvingKeyFile, VerificationKeyFile},
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
-
 use rand::thread_rng;
 use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::snark::SNARK;
-
 use structopt::StructOpt;
-
-use super::build::Build;
 use tracing::span::Span;
 
-/// Run setup ceremony for Leo program Command
+use super::build::Build;
+use crate::{commands::Command, context::Context};
+
+/// Run a program setup
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Setup {

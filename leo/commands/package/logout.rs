@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-
-use crate::config::remove_token;
-use anyhow::Result;
 use std::io::ErrorKind;
+
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::Span;
+
+use crate::{commands::Command, config::remove_token, context::Context};
 
 /// Remove credentials for Aleo PM from .leo directory
 #[derive(StructOpt, Debug, Default)]

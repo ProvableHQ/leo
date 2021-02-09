@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use std::{sync::mpsc::channel, time::Duration};
 
 use anyhow::{anyhow, Result};
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-use std::{sync::mpsc::channel, time::Duration};
 use structopt::StructOpt;
+use tracing::span::Span;
 
 use super::build::Build;
-use tracing::span::Span;
+use crate::{commands::Command, context::Context};
 
 const LEO_SOURCE_DIR: &str = "src/";
 

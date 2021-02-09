@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-use anyhow::{anyhow, Result};
-
-use leo_package::LeoPackage;
 use std::{env::current_dir, fs};
+
+use anyhow::{anyhow, Result};
+use leo_package::LeoPackage;
 use structopt::StructOpt;
 use tracing::span::Span;
+
+use crate::{commands::Command, context::Context};
 
 /// Create new Leo project
 #[derive(StructOpt, Debug)]

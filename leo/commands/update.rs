@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, config::Config, context::Context, updater::Updater};
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::span::Span;
+
+use crate::{commands::Command, config::Config, context::Context, updater::Updater};
 
 /// Setting for automatic updates of Leo
 #[derive(Debug, StructOpt, PartialEq)]

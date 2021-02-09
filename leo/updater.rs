@@ -13,11 +13,11 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use crate::config::Config;
-use anyhow::{anyhow, Error};
-
+use anyhow::{anyhow, Result};
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
+
+use crate::config::Config;
 
 pub struct Updater;
 
@@ -28,7 +28,7 @@ impl Updater {
     const LEO_REPO_OWNER: &'static str = "AleoHQ";
 
     /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<(), Error> {
+    pub fn show_available_releases() -> Result<()> {
         let releases = github::ReleaseList::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -47,7 +47,7 @@ impl Updater {
     }
 
     /// Update `leo` to the latest release.
-    pub fn update_to_latest_release(show_output: bool) -> Result<Status, Error> {
+    pub fn update_to_latest_release(show_output: bool) -> Result<Status> {
         let status = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -63,7 +63,7 @@ impl Updater {
     }
 
     /// Check if there is an available update for `leo` and return the newest release.
-    pub fn update_available() -> Result<String, Error> {
+    pub fn update_available() -> Result<String> {
         let updater = github::Update::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)

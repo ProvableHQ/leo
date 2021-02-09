@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-
-use crate::api::{Login as LoginRoute, Profile as ProfileRoute};
-
-use crate::config::*;
+use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::Span;
 
-use std::collections::HashMap;
+use crate::{
+    api::{Login as LoginRoute, Profile as ProfileRoute},
+    commands::Command,
+    config::*,
+    context::Context,
+};
 
 pub const LOGIN_URL: &str = "v1/account/authenticate";
 pub const PROFILE_URL: &str = "v1/account/my_profile";

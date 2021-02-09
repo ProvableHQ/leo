@@ -14,20 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
-use tracing::Span;
-
 use std::{
     fs::{create_dir_all, File},
     io::{Read, Write},
 };
 
-use crate::{commands::Command, context::Context};
-
 use anyhow::{anyhow, Result};
+use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 use structopt::StructOpt;
+use tracing::Span;
 
-use crate::api::Fetch;
+use crate::{api::Fetch, commands::Command, context::Context};
 
 /// Add package from Aleo Package Manager
 #[derive(StructOpt, Debug)]

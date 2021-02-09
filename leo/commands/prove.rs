@@ -14,22 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::setup::Setup;
-use crate::{commands::Command, context::Context};
 use anyhow::Result;
-use structopt::StructOpt;
-
 use leo_package::outputs::ProofFile;
-
+use rand::thread_rng;
 use snarkvm_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 use snarkvm_utilities::bytes::ToBytes;
-
-use rand::thread_rng;
+use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Init Leo project command in current directory
+use super::setup::Setup;
+use crate::{commands::Command, context::Context};
+
+/// Run the program and produce a proof
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Prove {
