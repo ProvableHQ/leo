@@ -26,9 +26,6 @@ use std::collections::HashMap;
 use structopt::StructOpt;
 use tracing::Span;
 
-pub const LOGIN_URL: &str = "v1/account/authenticate";
-pub const PROFILE_URL: &str = "v1/account/my_profile";
-
 /// Login to Aleo PM and store credentials locally
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
