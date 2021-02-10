@@ -1,3 +1,8 @@
+# Required status checks that must pass before merging
 status = [
-    "CI" # triggers ci workflow
+    # Cargo fmt check must pass
+    "style",
+
+    # Cargo clippy check must pass
+    "clippy"
 ]
