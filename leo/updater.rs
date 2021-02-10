@@ -13,11 +13,12 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use crate::config::Config;
+
 use anyhow::{anyhow, Result};
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
-
-use crate::config::Config;
 
 pub struct Updater;
 

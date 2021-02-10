@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::Result;
+use crate::{commands::Command, context::Context};
 use leo_package::LeoPackage;
+
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{commands::Command, context::Context};
 
 /// Remove imported package
 #[derive(StructOpt, Debug, Default)]

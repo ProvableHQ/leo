@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::Result;
+use super::prove::Prove;
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+
+use anyhow::Result;
 use snarkvm_algorithms::snark::groth16::Groth16;
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use super::prove::Prove;
-use crate::{commands::Command, context::Context};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(StructOpt, Debug, Default)]

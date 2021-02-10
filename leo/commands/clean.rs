@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::Result;
+use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
 use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
+
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{commands::Command, context::Context};
 
 /// Clean outputs folder command
 #[derive(StructOpt, Debug, Default)]

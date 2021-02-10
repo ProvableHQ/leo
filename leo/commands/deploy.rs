@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{commands::Command, context::Context};
+
 use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{commands::Command, context::Context};
 
 /// Deploy Leo program to the network
 #[derive(StructOpt, Debug, Default)]

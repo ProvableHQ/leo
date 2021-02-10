@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::{anyhow, Result};
+use super::build::Build;
+use crate::{
+    commands::Command,
+    context::{Context, PACKAGE_MANAGER_URL},
+};
 use leo_package::{outputs::OutputsDirectory, root::ZipFile};
+
+use anyhow::{anyhow, Result};
 use reqwest::{
     blocking::{multipart::Form, Client},
     header::{HeaderMap, HeaderValue},
 };
 use serde::Deserialize;
 use structopt::StructOpt;
-
-use super::build::Build;
-use crate::{
-    commands::Command,
-    context::{Context, PACKAGE_MANAGER_URL},
-};
 
 pub const PUBLISH_URL: &str = "v1/package/publish";
 

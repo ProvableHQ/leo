@@ -22,9 +22,6 @@ pub mod logger;
 pub mod synthesizer;
 pub mod updater;
 
-use std::process::exit;
-
-use anyhow::Error;
 use commands::{
     package::{Add, Login, Logout, Publish, Remove},
     Build,
@@ -41,6 +38,9 @@ use commands::{
     Update,
     Watch,
 };
+
+use anyhow::Error;
+use std::process::exit;
 use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -61,19 +61,19 @@ struct Opt {
 #[derive(StructOpt, Debug)]
 #[structopt(setting = AppSettings::ColoredHelp)]
 enum CommandOpts {
-    #[structopt(about = "Init new Leo project command in current directory")]
+    #[structopt(about = "Create a new Leo package in an existing directory")]
     Init {
         #[structopt(flatten)]
         command: Init,
     },
 
-    #[structopt(about = "Create new Leo project in new directory")]
+    #[structopt(about = "Create a new Leo package in a new directory")]
     New {
         #[structopt(flatten)]
         command: New,
     },
 
-    #[structopt(about = "Compile current package as a program")]
+    #[structopt(about = "Compile the current package as a program")]
     Build {
         #[structopt(flatten)]
         command: Build,
@@ -97,19 +97,19 @@ enum CommandOpts {
         command: Run,
     },
 
-    #[structopt(about = "Clean current package: remove proof and circuits")]
+    #[structopt(about = "Clean the output directory")]
     Clean {
         #[structopt(flatten)]
         command: Clean,
     },
 
-    #[structopt(about = "Watch for changes of Leo source files and run build")]
+    #[structopt(about = "Watch for changes of Leo source files")]
     Watch {
         #[structopt(flatten)]
         command: Watch,
     },
 
-    #[structopt(about = "Watch for changes of Leo source files and run build")]
+    #[structopt(about = "Update Leo to the latest version")]
     Update {
         #[structopt(flatten)]
         command: Update,
@@ -121,37 +121,37 @@ enum CommandOpts {
         command: Test,
     },
 
-    #[structopt(about = "Import package from Aleo PM")]
+    #[structopt(about = "Install a package from the Aleo Package Manager")]
     Add {
         #[structopt(flatten)]
         command: Add,
     },
 
-    #[structopt(about = "Login to the package manager and store credentials")]
+    #[structopt(about = "Login to the Aleo Package Manager")]
     Login {
         #[structopt(flatten)]
         command: Login,
     },
 
-    #[structopt(about = "Logout - remove local credentials")]
+    #[structopt(about = "Logout of the package manager and removes credentials")]
     Logout {
         #[structopt(flatten)]
         command: Logout,
     },
 
-    #[structopt(about = "Publish package")]
+    #[structopt(about = "Publish the current package to the Aleo Package Manager")]
     Publish {
         #[structopt(flatten)]
         command: Publish,
     },
 
-    #[structopt(about = "Remove imported package")]
+    #[structopt(about = "Uninstall a package from the current package")]
     Remove {
         #[structopt(flatten)]
         command: Remove,
     },
 
-    #[structopt(about = "Lint package code (not implemented)")]
+    #[structopt(about = "Lints the Leo files in the package (*)")]
     Lint {
         #[structopt(flatten)]
         command: Lint,

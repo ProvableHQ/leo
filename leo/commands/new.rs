@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{env::current_dir, fs};
+use crate::{commands::Command, context::Context};
+use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use leo_package::LeoPackage;
+use std::{env::current_dir, fs};
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{commands::Command, context::Context};
 
 /// Create new Leo project
 #[derive(StructOpt, Debug)]
@@ -29,14 +28,11 @@ use crate::{commands::Command, context::Context};
 pub struct New {
     #[structopt(name = "NAME", help = "Set package name")]
     name: String,
-
-    #[structopt(help = "Init as a library (containing lib.leo)", long = "lib", short = "l")]
-    is_lib: bool,
 }
 
 impl New {
-    pub fn new(name: String, is_lib: bool) -> New {
-        New { name, is_lib }
+    pub fn new(name: String) -> New {
+        New { name }
     }
 }
 
@@ -67,7 +63,7 @@ impl Command for New {
         // Create the package directory
         fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
 
-        LeoPackage::initialize(&package_name, self.is_lib, &path)?;
+        LeoPackage::initialize(&package_name, false, &path)?;
 
         Ok(())
     }

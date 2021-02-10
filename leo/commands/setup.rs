@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::{anyhow, Result};
+use super::build::Build;
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     outputs::{ProvingKeyFile, VerificationKeyFile},
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+
+use anyhow::{anyhow, Result};
 use rand::thread_rng;
 use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
@@ -27,10 +30,7 @@ use snarkvm_models::algorithms::snark::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-use super::build::Build;
-use crate::{commands::Command, context::Context};
-
-/// Run a program setup
+/// Executes the setup command for a Leo program
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Setup {
@@ -78,7 +78,7 @@ impl Command for Setup {
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
-                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
+                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)?;
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory

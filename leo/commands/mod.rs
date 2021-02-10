@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::time::Instant;
+use crate::context::{get_context, Context};
 
 use anyhow::Result;
+use std::time::Instant;
 use tracing::span::Span;
-
-use crate::context::{get_context, Context};
 
 // local program commands
 pub mod build;

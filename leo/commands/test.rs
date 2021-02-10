@@ -14,20 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{convert::TryFrom, path::PathBuf, time::Instant};
-
-use anyhow::{anyhow, Result};
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+
+use anyhow::{anyhow, Result};
 use snarkvm_curves::edwards_bls12::Fq;
+use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{commands::Command, context::Context};
 
 /// Build program and run tests command
 #[derive(StructOpt, Debug, Default)]
@@ -78,14 +77,7 @@ impl Command for Test {
             file_path.push(MAIN_FILENAME);
             to_test.push(file_path);
 
-        // if main file is not present and no arguments - try library
-        } else if LibraryFile::exists_at(&package_path) {
-            let mut file_path = package_path.clone();
-            file_path.push(SOURCE_DIRECTORY_NAME);
-            file_path.push(LIBRARY_FILENAME);
-            to_test.push(file_path);
-
-        // nothing found - skip
+        // when no main file and no files marked - error
         } else {
             return Err(anyhow!(
                 "Program file does not exist {}",

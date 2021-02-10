@@ -14,26 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::env::current_dir;
+use crate::{commands::Command, context::Context};
+use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use leo_package::LeoPackage;
+use std::env::current_dir;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-use crate::{commands::Command, context::Context};
-
 /// Init Leo project command within current directory
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Init {
-    #[structopt(help = "Init as a library (containing lib.leo)", long = "lib", short = "l")]
-    is_lib: Option<bool>,
-}
+pub struct Init {}
 
 impl Init {
-    pub fn new(is_lib: Option<bool>) -> Init {
-        Init { is_lib }
+    pub fn new() -> Init {
+        Init {}
     }
 }
 
@@ -61,7 +57,7 @@ impl Command for Init {
             return Err(anyhow!("Directory does not exist"));
         }
 
-        LeoPackage::initialize(&package_name, self.is_lib.unwrap_or(false), &path)?;
+        LeoPackage::initialize(&package_name, false, &path)?;
 
         Ok(())
     }

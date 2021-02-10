@@ -14,25 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::convert::TryFrom;
-
-use anyhow::Result;
+use crate::{
+    commands::Command,
+    context::Context,
+    synthesizer::{CircuitSynthesizer, SerializedCircuit},
+};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+
+use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use std::convert::TryFrom;
 use structopt::StructOpt;
 use tracing::span::Span;
-
-use crate::{
-    commands::Command,
-    context::Context,
-    synthesizer::{CircuitSynthesizer, SerializedCircuit},
-};
 
 /// Compile and build program command
 #[derive(StructOpt, Debug, Default)]
