@@ -25,7 +25,7 @@ use pest::Span;
 
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum InputValue {
     Address(String),
     Boolean(bool),

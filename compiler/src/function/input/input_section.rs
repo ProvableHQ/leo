@@ -37,7 +37,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut members = Vec::with_capacity(section.len());
 
         // Allocate each section definition as a circuit member value
-
         for (parameter, option) in section.into_iter() {
             let section_members = expected_type.members.borrow();
             let expected_type = match section_members.get(&parameter.variable.name) {
