@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitVariable, common::Identifier, types::SelfType, SpanDef};
+use crate::{ast::Rule, circuits::CircuitImpliedVariable, common::Identifier, types::SelfType, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -24,7 +24,7 @@ use serde::Serialize;
 #[pest_ast(rule(Rule::expression_circuit_inline))]
 pub struct CircuitInlineExpression<'ast> {
     pub name: CircuitName<'ast>,
-    pub members: Vec<CircuitVariable<'ast>>,
+    pub members: Vec<CircuitImpliedVariable<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

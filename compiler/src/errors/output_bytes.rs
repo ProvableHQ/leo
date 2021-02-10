@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ValueError;
-use leo_ast::{Error as FormattedError, Span, Type};
+use leo_asg::{AsgConvertError, Type};
+use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
 
@@ -26,6 +27,9 @@ pub enum OutputBytesError {
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+
+    #[error("{}", _0)]
+    AsgConvertError(#[from] AsgConvertError),
 }
 
 impl OutputBytesError {
@@ -33,6 +37,7 @@ impl OutputBytesError {
         match self {
             OutputBytesError::Error(error) => error.set_path(path),
             OutputBytesError::ValueError(error) => error.set_path(path),
+            OutputBytesError::AsgConvertError(_error) => (),
         }
     }
 
@@ -46,7 +51,7 @@ impl OutputBytesError {
         Self::new_from_span(message, span)
     }
 
-    pub fn mismatched_output_types(left: Type, right: Type, span: Span) -> Self {
+    pub fn mismatched_output_types(left: &Type, right: &Type, span: Span) -> Self {
         let message = format!(
             "Mismatched types. Expected register output type `{}`, found type `{}`.",
             left, right

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,4 +20,4 @@ pub mod assign;
 pub use self::assign::*;
 
 pub mod assignee;
-pub use self::assignee::*;
+pub(crate) use self::assignee::*;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ use leo_package::{outputs::ProofFile, root::Manifest};
 use snarkvm_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
+use snarkvm_utilities::bytes::ToBytes;
 
 use clap::ArgMatches;
 use rand::thread_rng;
@@ -29,24 +30,24 @@ use std::{convert::TryFrom, env::current_dir, time::Instant};
 pub struct ProveCommand;
 
 impl CLI for ProveCommand {
-    type Options = ();
+    type Options = bool;
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     const ABOUT: AboutType = "Run the program and produce a proof";
     const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
+    const FLAGS: &'static [FlagType] = &[("--skip-key-check")];
     const NAME: NameType = "prove";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(!arguments.is_present("skip-key-check"))
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+    fn output(do_setup_check: Self::Options) -> Result<Self::Output, CLIError> {
+        let (program, parameters, prepared_verifying_key) = SetupCommand::output(do_setup_check)?;
 
         // Begin "Proving" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Proving");

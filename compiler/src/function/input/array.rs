@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,18 +16,11 @@
 
 //! Allocates an array as a main function input parameter in a compiled Leo program.
 
-use crate::{
-    errors::FunctionError,
-    inner_array_type,
-    parse_index,
-    program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_ast::{ArrayDimensions, InputValue, Span, Type};
+use leo_asg::Type;
+use leo_ast::{InputValue, Span};
 
-use crate::errors::ExpressionError;
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
@@ -38,27 +31,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         name: &str,
-        array_type: Type,
-        mut array_dimensions: ArrayDimensions,
+        array_type: &Type,
+        array_len: usize,
         input_value: Option<InputValue>,
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let expected_length = match array_dimensions.remove_first() {
-            Some(number) => {
-                // Parse the array dimension into a `usize`.
-                parse_index(&number, &span)?
-            }
-            None => {
-                return Err(FunctionError::ExpressionError(ExpressionError::unexpected_array(
-                    array_type.to_string(),
-                    span.to_owned(),
-                )));
-            }
-        };
-
-        // Get the expected type for each array element.
-        let inner_array_type = inner_array_type(array_type, array_dimensions);
-
         // Build the array value using the expected types.
         let mut array_value = vec![];
 
@@ -66,11 +43,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Some(InputValue::Array(arr)) => {
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
-                    let value_name = new_scope(&name, &i.to_string());
+                    let value_name = format!("{}_{}", &name, &i.to_string());
 
                     array_value.push(self.allocate_main_function_input(
                         cs,
-                        inner_array_type.clone(),
+                        array_type,
                         &value_name,
                         Some(value),
                         span,
@@ -79,16 +56,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             }
             None => {
                 // Allocate all row values as none
-                for i in 0..expected_length {
-                    let value_name = new_scope(&name, &i.to_string());
+                for i in 0..array_len {
+                    let value_name = format!("{}_{}", &name, &i.to_string());
 
-                    array_value.push(self.allocate_main_function_input(
-                        cs,
-                        inner_array_type.clone(),
-                        &value_name,
-                        None,
-                        span,
-                    )?);
+                    array_value.push(self.allocate_main_function_input(cs, array_type, &value_name, None, span)?);
                 }
             }
             _ => {

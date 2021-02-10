@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.0.8"
+version = "1.2.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -26,70 +26,68 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
+  "asg",
   "ast",
   "compiler",
-  "core",
   "gadgets",
   "grammar",
   "imports",
   "input",
   "linter",
   "package",
-  "state",
-  "symbol-table",
-  "type-inference"
+  "state"
 ]
 
 [dependencies.leo-ast]
 path = "./ast"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-gadgets]
 path = "./gadgets"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-imports]
 path = "./imports"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-input]
 path = "./input"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-package]
 path = "./package"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.0.8"
+version = "1.2.2"
 
 [dependencies.snarkvm-algorithms]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-errors]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.2"
+version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.2"
+version = "0.0.3"
 
 [dependencies.clap]
 version = "2.33.3"

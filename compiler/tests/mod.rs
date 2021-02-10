@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -146,7 +146,7 @@ pub fn parse_program_with_input_and_state(
 pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
-    let output = program.generate_constraints_helper(&mut cs).unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
 
     // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
@@ -164,15 +164,11 @@ pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
 
 pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
-    program.generate_constraints_helper(&mut cs).unwrap_err()
+    program.compile_constraints(&mut cs).unwrap_err()
 }
 
-pub(crate) fn expect_type_inference_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::TypeInferenceError(_)))
-}
-
-pub(crate) fn expect_symbol_table_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::SymbolTableError(_)))
+pub(crate) fn expect_asg_error(error: CompilerError) {
+    assert!(matches!(error, CompilerError::AsgConvertError(_)))
 }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expect_compiler_error, parse_input, parse_program};
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
+use crate::{expect_asg_error, parse_input, parse_program};
+use leo_compiler::errors::CompilerError;
 use leo_grammar::ParserError;
 use leo_input::InputParserError;
-use leo_type_inference::errors::{FrameError, TypeAssertionError, TypeInferenceError};
 
 pub mod identifiers;
 
@@ -37,29 +36,9 @@ fn test_semicolon() {
 #[test]
 fn test_undefined() {
     let program_string = include_str!("undefined.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let error = expect_compiler_error(program);
-
-    match error {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::Error(error),
-        ))) => {
-            assert_eq!(
-                error.to_string(),
-                vec![
-                    "    --> \"/test/src/main.leo\": 2:12",
-                    "     |",
-                    "   2 |      return a",
-                    "     |             ^",
-                    "     |",
-                    "     = Cannot find value `a` in this scope",
-                ]
-                .join("\n")
-            );
-        }
-        _ => panic!("expected an undefined identifier error"),
-    }
+    expect_asg_error(error);
 }
 
 #[test]
@@ -80,10 +59,5 @@ fn test_compare_mismatched_types() {
     let error = parse_program(program_string).err().unwrap();
 
     // Expect a type inference error.
-    match error {
-        CompilerError::TypeInferenceError(TypeInferenceError::FrameError(FrameError::TypeAssertionError(
-            TypeAssertionError::Error(_),
-        ))) => {}
-        error => panic!("Expected type inference error, found {}", error),
-    }
+    crate::expect_asg_error(error);
 }

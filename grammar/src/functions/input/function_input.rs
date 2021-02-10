@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    common::{Identifier, Mutable},
+    common::{Const, Identifier, Mutable},
     types::Type,
     SpanDef,
 };
@@ -28,6 +28,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::function_input))]
 pub struct FunctionInput<'ast> {
+    pub const_: Option<Const>,
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
     pub type_: Type<'ast>,

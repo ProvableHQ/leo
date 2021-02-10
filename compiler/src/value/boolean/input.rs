@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,14 +27,6 @@ use snarkvm_models::{
         utilities::{alloc::AllocGadget, boolean::Boolean},
     },
 };
-
-pub(crate) fn new_bool_constant(string: String, span: &Span) -> Result<Boolean, BooleanError> {
-    let boolean = string
-        .parse::<bool>()
-        .map_err(|_| BooleanError::invalid_boolean(string, span.to_owned()))?;
-
-    Ok(Boolean::constant(boolean))
-}
 
 pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

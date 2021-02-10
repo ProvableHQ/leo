@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{
     ArrayDimensions,
-    CircuitVariableDefinition,
+    CircuitImpliedVariableDefinition,
     GroupValue,
     Identifier,
     IntegerType,
@@ -181,8 +181,8 @@ impl<'ast> From<CircuitInlineExpression<'ast>> for Expression {
         let members = expression
             .members
             .into_iter()
-            .map(CircuitVariableDefinition::from)
-            .collect::<Vec<CircuitVariableDefinition>>();
+            .map(CircuitImpliedVariableDefinition::from)
+            .collect::<Vec<CircuitImpliedVariableDefinition>>();
 
         Expression::CircuitInit(CircuitInitExpression {
             name: circuit_name,
@@ -483,5 +483,11 @@ impl<'ast> From<TupleAccess<'ast>> for Expression {
 impl<'ast> From<GrammarIdentifier<'ast>> for Expression {
     fn from(identifier: GrammarIdentifier<'ast>) -> Self {
         Expression::Identifier(Identifier::from(identifier))
+    }
+}
+
+impl From<Identifier> for Expression {
+    fn from(identifier: Identifier) -> Self {
+        Expression::Identifier(identifier)
     }
 }

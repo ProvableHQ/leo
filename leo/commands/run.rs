@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,24 +28,24 @@ use std::time::Instant;
 pub struct RunCommand;
 
 impl CLI for RunCommand {
-    type Options = ();
+    type Options = bool;
     type Output = ();
 
     const ABOUT: AboutType = "Run a program with input variables";
     const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
+    const FLAGS: &'static [FlagType] = &[("--skip-key-check")];
     const NAME: NameType = "run";
     const OPTIONS: &'static [OptionType] = &[];
     const SUBCOMMANDS: &'static [SubCommandType] = &[];
 
     #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+        Ok(!arguments.is_present("skip-key-check"))
     }
 
     #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<(), CLIError> {
-        let (proof, prepared_verifying_key) = ProveCommand::output(options)?;
+    fn output(do_setup_check: Self::Options) -> Result<(), CLIError> {
+        let (proof, prepared_verifying_key) = ProveCommand::output(do_setup_check)?;
 
         // Begin "Verifying" context for console logging
         let span = tracing::span!(tracing::Level::INFO, "Verifying");

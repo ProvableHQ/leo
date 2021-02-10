@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,11 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use pest::Span;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // Provide getters for every private field of the remote struct. The getter must
 // return either `T` or `&T` where `T` is the type of the field.
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(remote = "Span")]
 pub(crate) struct SpanDef<'i> {
     /// # Attention

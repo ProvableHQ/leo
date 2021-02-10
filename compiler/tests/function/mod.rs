@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,15 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    assert_satisfied,
-    expect_compiler_error,
-    expect_type_inference_error,
-    get_output,
-    parse_program,
-    parse_program_with_input,
-};
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, StatementError};
+use crate::{assert_satisfied, expect_asg_error, get_output, parse_program, parse_program_with_input};
+
+#[test]
+fn test_conditional_return() {
+    let input_string = include_str!("input/conditional_return.in");
+    let program_string = include_str!("conditional_return.leo");
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    let expected_string = include_str!("output/conditional_return.out");
+    let actual_bytes = get_output(program);
+    let actual_string = std::str::from_utf8(actual_bytes.bytes().as_slice()).unwrap();
+
+    assert_eq!(expected_string, actual_string);
+}
 
 #[test]
 fn test_empty() {
@@ -72,17 +77,17 @@ fn test_multiple_returns() {
 #[test]
 fn test_multiple_returns_fail() {
     let program_string = include_str!("multiple_returns_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_multiple_returns_fail_conditional() {
     let program_string = include_str!("multiple_returns_fail_conditional.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -118,17 +123,9 @@ fn test_return() {
 #[test]
 fn test_scope_fail() {
     let program_string = include_str!("scope_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    match expect_compiler_error(program) {
-        CompilerError::FunctionError(FunctionError::StatementError(StatementError::ExpressionError(
-            ExpressionError::FunctionError(value),
-        ))) => match *value {
-            FunctionError::StatementError(StatementError::ExpressionError(ExpressionError::Error(_))) => {}
-            error => panic!("Expected function undefined, got {}", error),
-        },
-        error => panic!("Expected function undefined, got {}", error),
-    }
+    expect_asg_error(error);
 }
 
 #[test]
@@ -136,7 +133,7 @@ fn test_undefined() {
     let program_string = include_str!("undefined.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -152,7 +149,7 @@ fn test_array_input() {
     let program_string = include_str!("array_input.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error)
+    expect_asg_error(error)
 }
 
 // Test return multidimensional arrays
@@ -160,9 +157,9 @@ fn test_array_input() {
 #[test]
 fn test_return_array_nested_fail() {
     let program_string = include_str!("return_array_nested_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -176,9 +173,9 @@ fn test_return_array_nested_pass() {
 #[test]
 fn test_return_array_tuple_fail() {
     let program_string = include_str!("return_array_tuple_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
