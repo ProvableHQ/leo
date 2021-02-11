@@ -14,17 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::LineEnd, imports::PackageOrPackages, SpanDef};
+use crate::{
+    ast::Rule,
+    imports::{PackageAccess, PackageName},
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;
 use serde::Serialize;
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::import))]
-pub struct Import<'ast> {
-    pub package_or_packages: PackageOrPackages<'ast>,
-    pub line_end: LineEnd,
+#[pest_ast(rule(Rule::packages))]
+pub struct Packages<'ast> {
+    pub name: PackageName<'ast>,
+    pub accesses: Vec<PackageAccess<'ast>>,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]
     pub span: Span<'ast>,

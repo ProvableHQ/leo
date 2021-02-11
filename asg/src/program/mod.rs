@@ -25,7 +25,7 @@ mod function;
 pub use function::*;
 
 use crate::{AsgConvertError, ImportResolver, InnerScope, Input, Scope};
-use leo_ast::{Identifier, Package, PackageAccess, Span};
+use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
 use std::{cell::RefCell, sync::Arc};
@@ -74,16 +74,25 @@ enum ImportSymbol {
 fn resolve_import_package(
     output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
     mut package_segments: Vec<String>,
-    package: &Package,
+    package_or_packages: &PackageOrPackages,
 ) {
-    package_segments.push(package.name.name.clone());
-
-    resolve_import_package_access(output, package_segments, &package.access);
+    match package_or_packages {
+        PackageOrPackages::Package(package) => {
+            package_segments.push(package.name.name.clone());
+            resolve_import_package_access(output, package_segments, &package.access);
+        }
+        PackageOrPackages::Packages(packages) => {
+            package_segments.push(packages.name.name.clone());
+            for access in packages.accesses.clone() {
+                resolve_import_package_access(output, package_segments.clone(), &access);
+            }
+        }
+    }
 }
 
 fn resolve_import_package_access(
     output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    package_segments: Vec<String>,
+    mut package_segments: Vec<String>,
     package: &PackageAccess,
 ) {
     match package {
@@ -91,7 +100,11 @@ fn resolve_import_package_access(
             output.push((package_segments, ImportSymbol::All, span.clone()));
         }
         PackageAccess::SubPackage(subpackage) => {
-            resolve_import_package(output, package_segments, &*subpackage);
+            resolve_import_package(
+                output,
+                package_segments,
+                &PackageOrPackages::Package(*(*subpackage).clone()),
+            );
         }
         PackageAccess::Symbol(symbol) => {
             let span = symbol.symbol.span.clone();
@@ -102,8 +115,9 @@ fn resolve_import_package_access(
             };
             output.push((package_segments, symbol, span));
         }
-        PackageAccess::Multiple(subaccesses) => {
-            for subaccess in subaccesses.iter() {
+        PackageAccess::Multiple(packages) => {
+            package_segments.push(packages.name.name.clone());
+            for subaccess in packages.accesses.iter() {
                 resolve_import_package_access(output, package_segments.clone(), &subaccess);
             }
         }
@@ -126,7 +140,7 @@ impl InternalProgram {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import in program.imports.iter() {
-            resolve_import_package(&mut imported_symbols, vec![], &import.package);
+            resolve_import_package(&mut imported_symbols, vec![], &import.package_or_packages);
         }
 
         // Create package list.
@@ -383,11 +397,11 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         imports: core_programs
             .iter()
             .map(|(module, _)| leo_ast::ImportStatement {
-                package: leo_ast::Package {
+                package_or_packages: leo_ast::PackageOrPackages::Package(leo_ast::Package {
                     name: Identifier::new(module.clone()),
                     access: leo_ast::PackageAccess::Star(Span::default()),
                     span: Default::default(),
-                },
+                }),
                 span: Span::default(),
             })
             .collect(),

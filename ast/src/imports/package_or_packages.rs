@@ -14,38 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Package, Packages, Span};
-use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
+use crate::{Package, Packages};
+use leo_grammar::imports::PackageOrPackages as GrammarPackageOrPackages;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum PackageAccess {
-    Star(Span),
-    SubPackage(Box<Package>),
-    Symbol(ImportSymbol),
-    Multiple(Packages),
+pub enum PackageOrPackages {
+    Package(Package),
+    Packages(Packages),
 }
 
-impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
-    fn from(access: GrammarPackageAccess<'ast>) -> Self {
-        match access {
-            GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
-            GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
-            GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
-            GrammarPackageAccess::Multiple(packages) => PackageAccess::Multiple(Packages::from(packages)),
+impl<'ast> From<GrammarPackageOrPackages<'ast>> for PackageOrPackages {
+    fn from(package_or_packages: GrammarPackageOrPackages<'ast>) -> Self {
+        match package_or_packages {
+            GrammarPackageOrPackages::Package(package) => PackageOrPackages::Package(Package::from(package)),
+            GrammarPackageOrPackages::Packages(packages) => PackageOrPackages::Packages(Packages::from(packages)),
         }
     }
 }
 
-impl PackageAccess {
+impl PackageOrPackages {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PackageAccess::Star(ref _span) => write!(f, "*"),
-            PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
-            PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
-            PackageAccess::Multiple(ref packages) => {
+            PackageOrPackages::Package(ref package) => write!(f, "{}", package),
+            PackageOrPackages::Packages(ref packages) => {
                 write!(f, "(")?;
                 for (i, access) in packages.accesses.iter().enumerate() {
                     write!(f, "{}", access)?;
@@ -59,13 +53,13 @@ impl PackageAccess {
     }
 }
 
-impl fmt::Debug for PackageAccess {
+impl fmt::Debug for PackageOrPackages {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
 }
 
-impl fmt::Display for PackageAccess {
+impl fmt::Display for PackageOrPackages {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }
