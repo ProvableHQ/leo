@@ -24,16 +24,18 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{AsgConvertError, ImportResolver, InnerScope, Input, Scope};
+use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
-use std::{cell::RefCell, sync::Arc};
+use std::cell::{Cell, RefCell};
 use uuid::Uuid;
 
 /// Stores the Leo program abstract semantic graph (ASG).
-#[derive(Debug, Clone)]
-pub struct InternalProgram {
+#[derive(Clone)]
+pub struct InternalProgram<'a> {
+    pub context: AsgContext<'a>,
+
     /// The unique id of the program.
     pub id: Uuid,
 
@@ -42,24 +44,25 @@ pub struct InternalProgram {
 
     /// The packages imported by this program.
     /// these should generally not be accessed directly, but through scoped imports
-    pub imported_modules: IndexMap<String, Program>,
+    pub imported_modules: IndexMap<String, Program<'a>>,
 
     /// Maps test name => test code block.
-    pub test_functions: IndexMap<String, (Arc<FunctionBody>, Option<Identifier>)>, // identifier = test input file
+    pub test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)>, // identifier = test input file
 
     /// Maps function name => function code block.
-    pub functions: IndexMap<String, Arc<FunctionBody>>,
+    pub functions: IndexMap<String, &'a Function<'a>>,
 
     /// Maps circuit name => circuit code block.
-    pub circuits: IndexMap<String, Arc<CircuitBody>>,
+    pub circuits: IndexMap<String, &'a Circuit<'a>>,
 
     /// Bindings for names and additional program context.
-    pub scope: Scope,
+    pub scope: &'a Scope<'a>,
 }
 
-pub type Program = Arc<RefCell<InternalProgram>>;
+pub type Program<'a> = InternalProgram<'a>;
 
 /// Enumerates what names are imported from a package.
+#[derive(Clone)]
 enum ImportSymbol {
     /// Import the symbol by name.
     Direct(String),
@@ -124,7 +127,7 @@ fn resolve_import_package_access(
     }
 }
 
-impl InternalProgram {
+impl<'a> InternalProgram<'a> {
     /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
     /// Stages:
@@ -133,10 +136,11 @@ impl InternalProgram {
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
-    pub fn new<T: ImportResolver + 'static>(
+    pub fn new<T: ImportResolver<'a>>(
+        arena: AsgContext<'a>,
         program: &leo_ast::Program,
         import_resolver: &mut T,
-    ) -> Result<Program, AsgConvertError> {
+    ) -> Result<Program<'a>, AsgConvertError> {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import in program.imports.iter() {
@@ -149,24 +153,27 @@ impl InternalProgram {
             deduplicated_imports.insert(package.clone(), span.clone());
         }
 
-        let mut wrapped_resolver = crate::CoreImportResolver(import_resolver);
+        let mut wrapped_resolver = crate::CoreImportResolver::new(import_resolver);
 
         // Load imported programs.
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, span) in deduplicated_imports.iter() {
             let pretty_package = package.join(".");
 
-            let resolved_package =
-                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], span)? {
-                    Some(x) => x,
-                    None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())),
-                };
+            let resolved_package = match wrapped_resolver.resolve_package(
+                arena.clone(),
+                &package.iter().map(|x| &**x).collect::<Vec<_>>()[..],
+                span,
+            )? {
+                Some(x) => x,
+                None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())),
+            };
 
             resolved_packages.insert(package.clone(), resolved_package);
         }
 
-        let mut imported_functions: IndexMap<String, Arc<FunctionBody>> = IndexMap::new();
-        let mut imported_circuits: IndexMap<String, Arc<CircuitBody>> = IndexMap::new();
+        let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
+        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
 
         // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
@@ -175,7 +182,6 @@ impl InternalProgram {
             let resolved_package = resolved_packages
                 .get(&package)
                 .expect("could not find preloaded package");
-            let resolved_package = resolved_package.borrow();
             match symbol {
                 ImportSymbol::All => {
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
@@ -208,71 +214,54 @@ impl InternalProgram {
             }
         }
 
-        let import_scope = Arc::new(RefCell::new(InnerScope {
+        let import_scope = match arena.alloc(ArenaNode::Scope(Scope {
+            arena,
             id: uuid::Uuid::new_v4(),
-            parent_scope: None,
-            circuit_self: None,
-            variables: IndexMap::new(),
-            functions: imported_functions
-                .iter()
-                .map(|(name, func)| (name.clone(), func.function.clone()))
-                .collect(),
-            circuits: imported_circuits
-                .iter()
-                .map(|(name, circuit)| (name.clone(), circuit.circuit.clone()))
-                .collect(),
-            function: None,
-            input: None,
-        }));
+            parent_scope: Cell::new(None),
+            circuit_self: Cell::new(None),
+            variables: RefCell::new(IndexMap::new()),
+            functions: RefCell::new(imported_functions),
+            circuits: RefCell::new(imported_circuits),
+            function: Cell::new(None),
+            input: Cell::new(None),
+        })) {
+            ArenaNode::Scope(c) => c,
+            _ => unimplemented!(),
+        };
+
+        let scope = import_scope.alloc_scope(Scope {
+            arena,
+            input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
+            id: uuid::Uuid::new_v4(),
+            parent_scope: Cell::new(Some(import_scope)),
+            circuit_self: Cell::new(None),
+            variables: RefCell::new(IndexMap::new()),
+            functions: RefCell::new(IndexMap::new()),
+            circuits: RefCell::new(IndexMap::new()),
+            function: Cell::new(None),
+        });
 
         // Prepare header-like scope entries.
-        let mut proto_circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = Circuit::init(circuit);
+            let asg_circuit = Circuit::init(scope, circuit)?;
 
-            proto_circuits.insert(name.name.clone(), asg_circuit);
-        }
-
-        let scope = Arc::new(RefCell::new(InnerScope {
-            input: Some(Input::new(&import_scope)), // we use import_scope to avoid recursive scope ref here
-            id: uuid::Uuid::new_v4(),
-            parent_scope: Some(import_scope),
-            circuit_self: None,
-            variables: IndexMap::new(),
-            functions: IndexMap::new(),
-            circuits: proto_circuits
-                .iter()
-                .map(|(name, circuit)| (name.clone(), circuit.clone()))
-                .collect(),
-            function: None,
-        }));
-
-        for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = proto_circuits.get(&name.name).unwrap();
-
-            asg_circuit.clone().from_ast(&scope, &circuit)?;
+            scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
 
         let mut proto_test_functions = IndexMap::new();
         for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);
-            let function = Arc::new(Function::from_ast(&scope, &test_function.function)?);
+            let function = Function::init(scope, &test_function.function)?;
 
             proto_test_functions.insert(name.name.clone(), function);
         }
 
-        let mut proto_functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
-            let asg_function = Arc::new(Function::from_ast(&scope, function)?);
+            let function = Function::init(scope, function)?;
 
-            scope
-                .borrow_mut()
-                .functions
-                .insert(name.name.clone(), asg_function.clone());
-            proto_functions.insert(name.name.clone(), asg_function);
+            scope.functions.borrow_mut().insert(name.name.clone(), function);
         }
 
         // Load concrete definitions.
@@ -281,38 +270,33 @@ impl InternalProgram {
             assert_eq!(name.name, test_function.function.identifier.name);
             let function = proto_test_functions.get(&name.name).unwrap();
 
-            let body = Arc::new(FunctionBody::from_ast(
-                &scope,
-                &test_function.function,
-                function.clone(),
-            )?);
-            function.body.replace(Arc::downgrade(&body));
+            function.fill_from_ast(&test_function.function)?;
 
-            test_functions.insert(name.name.clone(), (body, test_function.input_file.clone()));
+            test_functions.insert(name.name.clone(), (*function, test_function.input_file.clone()));
         }
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
-            let asg_function = proto_functions.get(&name.name).unwrap();
+            let asg_function = *scope.functions.borrow().get(&name.name).unwrap();
 
-            let body = Arc::new(FunctionBody::from_ast(&scope, function, asg_function.clone())?);
-            asg_function.body.replace(Arc::downgrade(&body));
+            asg_function.fill_from_ast(function)?;
 
-            functions.insert(name.name.clone(), body);
+            functions.insert(name.name.clone(), asg_function);
         }
 
         let mut circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = proto_circuits.get(&name.name).unwrap();
-            let body = Arc::new(CircuitBody::from_ast(&scope, circuit, asg_circuit.clone())?);
-            asg_circuit.body.replace(Arc::downgrade(&body));
+            let asg_circuit = *scope.circuits.borrow().get(&name.name).unwrap();
 
-            circuits.insert(name.name.clone(), body);
+            asg_circuit.fill_from_ast(circuit)?;
+
+            circuits.insert(name.name.clone(), asg_circuit);
         }
 
-        Ok(Arc::new(RefCell::new(InternalProgram {
+        Ok(InternalProgram {
+            context: arena,
             id: Uuid::new_v4(),
             name: program.name.clone(),
             test_functions,
@@ -323,12 +307,12 @@ impl InternalProgram {
                 .map(|(package, program)| (package.join("."), program))
                 .collect(),
             scope,
-        })))
+        })
     }
 
     pub(crate) fn set_core_mapping(&self, mapping: &str) {
         for (_, circuit) in self.circuits.iter() {
-            circuit.circuit.core_mapping.replace(Some(mapping.to_string()));
+            circuit.core_mapping.replace(Some(mapping.to_string()));
         }
     }
 }
@@ -347,15 +331,15 @@ impl Iterator for InternalIdentifierGenerator {
     }
 }
 /// Returns an AST from the given ASG program.
-pub fn reform_ast(program: &Program) -> leo_ast::Program {
+pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
     let mut all_programs: IndexMap<String, Program> = IndexMap::new();
-    let mut program_stack = program.borrow().imported_modules.clone();
+    let mut program_stack = program.imported_modules.clone();
     while let Some((module, program)) = program_stack.pop() {
         if all_programs.contains_key(&module) {
             continue;
         }
         all_programs.insert(module, program.clone());
-        program_stack.extend(program.borrow().imported_modules.clone());
+        program_stack.extend(program.imported_modules.clone());
     }
     all_programs.insert("".to_string(), program.clone());
     let core_programs: Vec<_> = all_programs
@@ -365,15 +349,14 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         .collect();
     all_programs.retain(|module, _| !module.starts_with("core."));
 
-    let mut all_circuits: IndexMap<String, Arc<CircuitBody>> = IndexMap::new();
-    let mut all_functions: IndexMap<String, Arc<FunctionBody>> = IndexMap::new();
-    let mut all_test_functions: IndexMap<String, (Arc<FunctionBody>, Option<Identifier>)> = IndexMap::new();
+    let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
+    let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
+    let mut all_test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
-        let program = program.borrow();
         for (name, circuit) in program.circuits.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            circuit.circuit.name.borrow_mut().name = identifier.clone();
+            circuit.name.borrow_mut().name = identifier.clone();
             all_circuits.insert(identifier, circuit.clone());
         }
         for (name, function) in program.functions.iter() {
@@ -382,12 +365,12 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
             } else {
                 format!("{}{}", identifiers.next().unwrap(), name)
             };
-            function.function.name.borrow_mut().name = identifier.clone();
+            function.name.borrow_mut().name = identifier.clone();
             all_functions.insert(identifier, function.clone());
         }
         for (name, function) in program.test_functions.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            function.0.function.name.borrow_mut().name = identifier.clone();
+            function.0.name.borrow_mut().name = identifier.clone();
             all_test_functions.insert(identifier, function.clone());
         }
     }
@@ -409,29 +392,24 @@ pub fn reform_ast(program: &Program) -> leo_ast::Program {
         tests: all_test_functions
             .into_iter()
             .map(|(_, (function, ident))| {
-                (function.function.name.borrow().clone(), leo_ast::TestFunction {
-                    function: function.function.as_ref().into(),
+                (function.name.borrow().clone(), leo_ast::TestFunction {
+                    function: function.into(),
                     input_file: ident,
                 })
             })
             .collect(),
         functions: all_functions
             .into_iter()
-            .map(|(_, function)| {
-                (
-                    function.function.name.borrow().clone(),
-                    function.function.as_ref().into(),
-                )
-            })
+            .map(|(_, function)| (function.name.borrow().clone(), function.into()))
             .collect(),
         circuits: all_circuits
             .into_iter()
-            .map(|(_, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into()))
+            .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
     }
 }
 
-impl Into<leo_ast::Program> for &InternalProgram {
+impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),
@@ -440,24 +418,19 @@ impl Into<leo_ast::Program> for &InternalProgram {
             circuits: self
                 .circuits
                 .iter()
-                .map(|(_, circuit)| (circuit.circuit.name.borrow().clone(), circuit.circuit.as_ref().into()))
+                .map(|(_, circuit)| (circuit.name.borrow().clone(), (*circuit).into()))
                 .collect(),
             functions: self
                 .functions
                 .iter()
-                .map(|(_, function)| {
-                    (
-                        function.function.name.borrow().clone(),
-                        function.function.as_ref().into(),
-                    )
-                })
+                .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
                 .collect(),
             tests: self
                 .test_functions
                 .iter()
                 .map(|(_, function)| {
-                    (function.0.function.name.borrow().clone(), leo_ast::TestFunction {
-                        function: function.0.function.as_ref().into(),
+                    (function.0.name.borrow().clone(), leo_ast::TestFunction {
+                        function: function.0.into(),
                         input_file: function.1.clone(),
                     })
                 })

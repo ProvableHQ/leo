@@ -44,21 +44,19 @@ pub use return_::*;
 
 use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
 
-use std::sync::Arc;
-
-#[derive(Debug)]
-pub enum Statement {
-    Return(ReturnStatement),
-    Definition(DefinitionStatement),
-    Assign(AssignStatement),
-    Conditional(ConditionalStatement),
-    Iteration(IterationStatement),
-    Console(ConsoleStatement),
-    Expression(ExpressionStatement),
-    Block(BlockStatement),
+#[derive(Clone)]
+pub enum Statement<'a> {
+    Return(ReturnStatement<'a>),
+    Definition(DefinitionStatement<'a>),
+    Assign(AssignStatement<'a>),
+    Conditional(ConditionalStatement<'a>),
+    Iteration(IterationStatement<'a>),
+    Console(ConsoleStatement<'a>),
+    Expression(ExpressionStatement<'a>),
+    Block(BlockStatement<'a>),
 }
 
-impl Node for Statement {
+impl<'a> Node for Statement<'a> {
     fn span(&self) -> Option<&Span> {
         use Statement::*;
         match self {
@@ -74,31 +72,37 @@ impl Node for Statement {
     }
 }
 
-impl FromAst<leo_ast::Statement> for Arc<Statement> {
+impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::Statement,
-        _expected_type: Option<PartialType>,
-    ) -> Result<Arc<Statement>, AsgConvertError> {
+        _expected_type: Option<PartialType<'a>>,
+    ) -> Result<&'a Statement<'a>, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
-            Return(statement) => Arc::new(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?)),
-            Definition(statement) => Arc::<Statement>::from_ast(scope, statement, None)?,
-            Assign(statement) => Arc::<Statement>::from_ast(scope, statement, None)?,
-            Conditional(statement) => Arc::new(Statement::Conditional(ConditionalStatement::from_ast(
+            Return(statement) => {
+                scope.alloc_statement(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?))
+            }
+            Definition(statement) => Self::from_ast(scope, statement, None)?,
+            Assign(statement) => Self::from_ast(scope, statement, None)?,
+            Conditional(statement) => scope.alloc_statement(Statement::Conditional(ConditionalStatement::from_ast(
                 scope, statement, None,
             )?)),
-            Iteration(statement) => Arc::<Statement>::from_ast(scope, statement, None)?,
-            Console(statement) => Arc::new(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?)),
-            Expression(statement) => Arc::new(Statement::Expression(ExpressionStatement::from_ast(
+            Iteration(statement) => Self::from_ast(scope, statement, None)?,
+            Console(statement) => {
+                scope.alloc_statement(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?))
+            }
+            Expression(statement) => scope.alloc_statement(Statement::Expression(ExpressionStatement::from_ast(
                 scope, statement, None,
             )?)),
-            Block(statement) => Arc::new(Statement::Block(BlockStatement::from_ast(scope, statement, None)?)),
+            Block(statement) => {
+                scope.alloc_statement(Statement::Block(BlockStatement::from_ast(scope, statement, None)?))
+            }
         })
     }
 }
 
-impl Into<leo_ast::Statement> for &Statement {
+impl<'a> Into<leo_ast::Statement> for &Statement<'a> {
     fn into(self) -> leo_ast::Statement {
         use Statement::*;
         match self {

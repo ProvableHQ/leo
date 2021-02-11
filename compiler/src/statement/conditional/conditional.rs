@@ -38,7 +38,7 @@ fn indicator_to_string(indicator: &Boolean) -> String {
         .unwrap_or_else(|| "[input]".to_string())
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforces a conditional statement with one or more branches.
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.
@@ -48,14 +48,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        statement: &ConditionalStatement,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        statement: &ConditionalStatement<'a>,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let span = statement.span.clone().unwrap_or_default();
         // Inherit an indicator from a previous statement.
         let outer_indicator = indicator;
 
         // Evaluate the conditional boolean as the inner indicator
-        let inner_indicator = match self.enforce_expression(cs, &statement.condition)? {
+        let inner_indicator = match self.enforce_expression(cs, statement.condition.get())? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
                 return Err(StatementError::conditional_boolean(value.to_string(), span));
@@ -79,7 +79,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
 
         // Evaluate branch 1
-        let mut branch_1_result = self.enforce_statement(cs, &branch_1_indicator, &statement.result)?;
+        let mut branch_1_result = self.enforce_statement(cs, &branch_1_indicator, statement.result.get())?;
 
         results.append(&mut branch_1_result);
 
@@ -98,7 +98,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
 
         // Evaluate branch 2
-        let mut branch_2_result = match &statement.next {
+        let mut branch_2_result = match statement.next.get() {
             Some(next) => self.enforce_statement(cs, &branch_2_indicator, next)?,
             None => vec![],
         };

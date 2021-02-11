@@ -31,42 +31,39 @@ use crate::{
 };
 
 use indexmap::{IndexMap, IndexSet};
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct CircuitInitExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct CircuitInitExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub circuit: Arc<Circuit>,
-    pub values: Vec<(Identifier, Arc<Expression>)>,
+    pub circuit: Cell<&'a Circuit<'a>>,
+    pub values: Vec<(Identifier, Cell<&'a Expression<'a>>)>,
 }
 
-impl Node for CircuitInitExpression {
+impl<'a> Node for CircuitInitExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for CircuitInitExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for CircuitInitExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
         self.values.iter().for_each(|(_, element)| {
-            element.set_parent(Arc::downgrade(expr));
+            element.get().set_parent(expr);
         })
     }
 
-    fn get_type(&self) -> Option<Type> {
-        Some(Type::Circuit(self.circuit.clone()))
+    fn get_type(&self) -> Option<Type<'a>> {
+        Some(Type::Circuit(self.circuit.get()))
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -78,18 +75,17 @@ impl ExpressionNode for CircuitInitExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.values.iter().all(|(_, value)| value.is_consty())
+        self.values.iter().all(|(_, value)| value.get().is_consty())
     }
 }
 
-impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
+impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::CircuitInitExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<CircuitInitExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<CircuitInitExpression<'a>, AsgConvertError> {
         let circuit = scope
-            .borrow()
             .resolve_circuit(&value.name.name)
             .ok_or_else(|| AsgConvertError::unresolved_circuit(&value.name.name, &value.name.span))?;
         match expected_type {
@@ -109,7 +105,7 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
             .map(|x| (&x.identifier.name, (&x.identifier, &x.expression)))
             .collect();
 
-        let mut values: Vec<(Identifier, Arc<Expression>)> = vec![];
+        let mut values: Vec<(Identifier, Cell<&'a Expression<'a>>)> = vec![];
         let mut defined_variables = IndexSet::<String>::new();
 
         {
@@ -129,8 +125,8 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
                     continue;
                 };
                 if let Some((identifier, receiver)) = members.get(&name) {
-                    let received = Arc::<Expression>::from_ast(scope, *receiver, Some(type_.partial()))?;
-                    values.push(((*identifier).clone(), received));
+                    let received = <&Expression<'a>>::from_ast(scope, *receiver, Some(type_.partial()))?;
+                    values.push(((*identifier).clone(), Cell::new(received)));
                 } else {
                     return Err(AsgConvertError::missing_circuit_member(
                         &circuit.name.borrow().name,
@@ -152,24 +148,24 @@ impl FromAst<leo_ast::CircuitInitExpression> for CircuitInitExpression {
         }
 
         Ok(CircuitInitExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            circuit,
+            circuit: Cell::new(circuit),
             values,
         })
     }
 }
 
-impl Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression {
+impl<'a> Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression<'a> {
     fn into(self) -> leo_ast::CircuitInitExpression {
         leo_ast::CircuitInitExpression {
-            name: self.circuit.name.borrow().clone(),
+            name: self.circuit.get().name.borrow().clone(),
             members: self
                 .values
                 .iter()
                 .map(|(name, value)| leo_ast::CircuitImpliedVariableDefinition {
                     identifier: name.clone(),
-                    expression: value.as_ref().into(),
+                    expression: value.get().into(),
                 })
                 .collect(),
             span: self.span.clone().unwrap_or_default(),

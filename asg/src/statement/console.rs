@@ -17,43 +17,43 @@
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 
-use std::sync::{Arc, Weak};
+use std::cell::Cell;
 
 // TODO (protryon): Refactor to not require/depend on span
-#[derive(Debug)]
-pub struct FormattedString {
+#[derive(Clone)]
+pub struct FormattedString<'a> {
     pub string: String,
     pub containers: Vec<Span>,
-    pub parameters: Vec<Arc<Expression>>,
+    pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
 }
 
-#[derive(Debug)]
-pub enum ConsoleFunction {
-    Assert(Arc<Expression>),
-    Debug(FormattedString),
-    Error(FormattedString),
-    Log(FormattedString),
+#[derive(Clone)]
+pub enum ConsoleFunction<'a> {
+    Assert(Cell<&'a Expression<'a>>),
+    Debug(FormattedString<'a>),
+    Error(FormattedString<'a>),
+    Log(FormattedString<'a>),
 }
 
-#[derive(Debug)]
-pub struct ConsoleStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct ConsoleStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub function: ConsoleFunction,
+    pub function: ConsoleFunction<'a>,
 }
 
-impl Node for ConsoleStatement {
+impl<'a> Node for ConsoleStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::FormattedString> for FormattedString {
+impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::FormattedString,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         if value.parameters.len() != value.containers.len() {
             // + 1 for formatting string as to not confuse user
@@ -65,7 +65,7 @@ impl FromAst<leo_ast::FormattedString> for FormattedString {
         }
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
-            parameters.push(Arc::<Expression>::from_ast(scope, parameter, None)?);
+            parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
         Ok(FormattedString {
             string: value.string.clone(),
@@ -76,7 +76,7 @@ impl FromAst<leo_ast::FormattedString> for FormattedString {
     }
 }
 
-impl Into<leo_ast::FormattedString> for &FormattedString {
+impl<'a> Into<leo_ast::FormattedString> for &FormattedString<'a> {
     fn into(self) -> leo_ast::FormattedString {
         leo_ast::FormattedString {
             string: self.string.clone(),
@@ -85,27 +85,25 @@ impl Into<leo_ast::FormattedString> for &FormattedString {
                 .iter()
                 .map(|span| leo_ast::FormattedContainer { span: span.clone() })
                 .collect(),
-            parameters: self.parameters.iter().map(|e| e.as_ref().into()).collect(),
+            parameters: self.parameters.iter().map(|e| e.get().into()).collect(),
             span: self.span.clone(),
         }
     }
 }
 
-impl FromAst<leo_ast::ConsoleStatement> for ConsoleStatement {
+impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::ConsoleStatement,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         Ok(ConsoleStatement {
-            parent: None,
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
             function: match &statement.function {
-                AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Arc::<Expression>::from_ast(
-                    scope,
-                    expression,
-                    Some(Type::Boolean.into()),
-                )?),
+                AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Cell::new(
+                    <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()))?,
+                )),
                 AstConsoleFunction::Debug(formatted_string) => {
                     ConsoleFunction::Debug(FormattedString::from_ast(scope, formatted_string, None)?)
                 }
@@ -120,12 +118,12 @@ impl FromAst<leo_ast::ConsoleStatement> for ConsoleStatement {
     }
 }
 
-impl Into<leo_ast::ConsoleStatement> for &ConsoleStatement {
+impl<'a> Into<leo_ast::ConsoleStatement> for &ConsoleStatement<'a> {
     fn into(self) -> leo_ast::ConsoleStatement {
         use ConsoleFunction::*;
         leo_ast::ConsoleStatement {
             function: match &self.function {
-                Assert(e) => AstConsoleFunction::Assert(e.as_ref().into()),
+                Assert(e) => AstConsoleFunction::Assert(e.get().into()),
                 Debug(formatted_string) => AstConsoleFunction::Debug(formatted_string.into()),
                 Error(formatted_string) => AstConsoleFunction::Error(formatted_string.into()),
                 Log(formatted_string) => AstConsoleFunction::Log(formatted_string.into()),

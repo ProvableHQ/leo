@@ -18,22 +18,21 @@
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_array_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        array: &Arc<Expression>,
-        index: &Arc<Expression>,
+        array: &'a Expression<'a>,
+        index: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
@@ -47,21 +46,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array_range_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        array: &Arc<Expression>,
-        left: Option<&Arc<Expression>>,
-        right: Option<&Arc<Expression>>,
+        array: &'a Expression<'a>,
+        left: Option<&'a Expression<'a>>,
+        right: Option<&'a Expression<'a>>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
-        let from_resolved = match left.as_deref() {
+        let from_resolved = match left {
             Some(from_index) => self.enforce_index(cs, from_index, span)?,
             None => 0usize, // Array slice starts at index 0
         };
-        let to_resolved = match right.as_deref() {
+        let to_resolved = match right {
             Some(to_index) => self.enforce_index(cs, to_index, span)?,
             None => array.len(), // Array slice ends at array length
         };

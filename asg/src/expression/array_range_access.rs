@@ -17,57 +17,54 @@
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use leo_ast::IntegerType;
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ArrayRangeAccessExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct ArrayRangeAccessExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub array: Arc<Expression>,
-    pub left: Option<Arc<Expression>>,
-    pub right: Option<Arc<Expression>>,
+    pub array: Cell<&'a Expression<'a>>,
+    pub left: Cell<Option<&'a Expression<'a>>>,
+    pub right: Cell<Option<&'a Expression<'a>>>,
 }
 
-impl Node for ArrayRangeAccessExpression {
+impl<'a> Node for ArrayRangeAccessExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for ArrayRangeAccessExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for ArrayRangeAccessExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.array.set_parent(Arc::downgrade(expr));
-        self.array.enforce_parents(&self.array);
-        if let Some(left) = self.left.as_ref() {
-            left.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.array.get().set_parent(expr);
+        self.array.get().enforce_parents(self.array.get());
+        if let Some(left) = self.left.get() {
+            left.set_parent(expr);
         }
-        if let Some(right) = self.right.as_ref() {
-            right.set_parent(Arc::downgrade(expr));
+        if let Some(right) = self.right.get() {
+            right.set_parent(expr);
         }
     }
 
-    fn get_type(&self) -> Option<Type> {
-        let (element, array_len) = match self.array.get_type() {
+    fn get_type(&self) -> Option<Type<'a>> {
+        let (element, array_len) = match self.array.get().get_type() {
             Some(Type::Array(element, len)) => (element, len),
             _ => return None,
         };
-        let const_left = match self.left.as_ref().map(|x| x.const_value()) {
+        let const_left = match self.left.get().map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => 0,
             _ => return None,
         };
-        let const_right = match self.right.as_ref().map(|x| x.const_value()) {
+        let const_right = match self.right.get().map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => array_len,
             _ => return None,
@@ -80,20 +77,20 @@ impl ExpressionNode for ArrayRangeAccessExpression {
     }
 
     fn is_mut_ref(&self) -> bool {
-        self.array.is_mut_ref()
+        self.array.get().is_mut_ref()
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        let mut array = match self.array.const_value()? {
+        let mut array = match self.array.get().const_value()? {
             ConstValue::Array(values) => values,
             _ => return None,
         };
-        let const_left = match self.left.as_ref().map(|x| x.const_value()) {
+        let const_left = match self.left.get().map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => 0,
             _ => return None,
         };
-        let const_right = match self.right.as_ref().map(|x| x.const_value()) {
+        let const_right = match self.right.get().map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(x))) => x.to_usize()?,
             None => array.len(),
             _ => return None,
@@ -106,16 +103,16 @@ impl ExpressionNode for ArrayRangeAccessExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.array.is_consty()
+        self.array.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression {
+impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::ArrayRangeAccessExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<ArrayRangeAccessExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<ArrayRangeAccessExpression<'a>, AsgConvertError> {
         let expected_array = match expected_type {
             Some(PartialType::Array(element, _len)) => Some(PartialType::Array(element, None)),
             None => None,
@@ -127,7 +124,7 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
                 ));
             }
         };
-        let array = Arc::<Expression>::from_ast(scope, &*value.array, expected_array)?;
+        let array = <&Expression<'a>>::from_ast(scope, &*value.array, expected_array)?;
         let array_type = array.get_type();
         match array_type {
             Some(Type::Array(_, _)) => (),
@@ -143,14 +140,14 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
             .left
             .as_deref()
             .map(|left| {
-                Arc::<Expression>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+                <&Expression<'a>>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
             })
             .transpose()?;
         let right = value
             .right
             .as_deref()
             .map(|right| {
-                Arc::<Expression>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
+                <&Expression<'a>>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
             })
             .transpose()?;
 
@@ -169,21 +166,21 @@ impl FromAst<leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression
             }
         }
         Ok(ArrayRangeAccessExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            array,
-            left,
-            right,
+            array: Cell::new(array),
+            left: Cell::new(left),
+            right: Cell::new(right),
         })
     }
 }
 
-impl Into<leo_ast::ArrayRangeAccessExpression> for &ArrayRangeAccessExpression {
+impl<'a> Into<leo_ast::ArrayRangeAccessExpression> for &ArrayRangeAccessExpression<'a> {
     fn into(self) -> leo_ast::ArrayRangeAccessExpression {
         leo_ast::ArrayRangeAccessExpression {
-            array: Box::new(self.array.as_ref().into()),
-            left: self.left.as_ref().map(|left| Box::new(left.as_ref().into())),
-            right: self.right.as_ref().map(|right| Box::new(right.as_ref().into())),
+            array: Box::new(self.array.get().into()),
+            left: self.left.get().map(|left| Box::new(left.into())),
+            right: self.right.get().map(|right| Box::new(right.into())),
             span: self.span.clone().unwrap_or_default(),
         }
     }

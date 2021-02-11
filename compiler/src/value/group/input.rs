@@ -39,12 +39,12 @@ pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: Constra
     .map_err(|_| GroupError::missing_group(format!("{}: group", name), span.to_owned()))
 }
 
-pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn group_from_input<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, GroupError> {
+) -> Result<ConstrainedValue<'a, F, G>, GroupError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {

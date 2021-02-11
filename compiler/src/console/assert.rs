@@ -24,19 +24,18 @@ use crate::{
     GroupType,
 };
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        expression: &Arc<Expression>,
+        expression: &'a Expression<'a>,
         span: &Span,
     ) -> Result<(), ConsoleError> {
         // Evaluate assert expression

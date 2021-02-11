@@ -25,12 +25,12 @@ use snarkvm_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-pub fn evaluate_ge<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_ge<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
     let unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line, span.start));
     let constraint_result = match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {

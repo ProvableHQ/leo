@@ -24,28 +24,28 @@ use snarkvm_models::curves::{Field, PrimeField};
 use indexmap::IndexMap;
 use uuid::Uuid;
 
-pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
-    pub asg: Program,
-    identifiers: IndexMap<Uuid, ConstrainedValue<F, G>>,
+pub struct ConstrainedProgram<'a, F: Field + PrimeField, G: GroupType<F>> {
+    pub asg: Program<'a>,
+    identifiers: IndexMap<Uuid, ConstrainedValue<'a, F, G>>,
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn new(asg: Program) -> Self {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub fn new(asg: Program<'a>) -> Self {
         Self {
             asg,
             identifiers: IndexMap::new(),
         }
     }
 
-    pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<F, G>) {
+    pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<'a, F, G>) {
         self.identifiers.insert(name, value);
     }
 
-    pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<F, G>> {
+    pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<'a, F, G>> {
         self.identifiers.get(name)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &Uuid) -> Option<&mut ConstrainedValue<F, G>> {
+    pub(crate) fn get_mut(&mut self, name: &Uuid) -> Option<&mut ConstrainedValue<'a, F, G>> {
         self.identifiers.get_mut(name)
     }
 }

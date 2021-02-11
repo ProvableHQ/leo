@@ -47,7 +47,7 @@ impl Setup {
 impl Command for Setup {
     type Input = <Build as Command>::Output;
     type Output = (
-        Compiler<Fr, EdwardsGroupType>,
+        Compiler<'static, Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );

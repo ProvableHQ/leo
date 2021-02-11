@@ -14,52 +14,54 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_let() {
     let program_string = include_str!("let.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_const_fail() {
     let program_string = include_str!("const.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_const_mut_fail() {
     let program_string = include_str!("const_mut.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_array() {
     let program_string = include_str!("array.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_circuit() {
     let program_string = include_str!("circuit.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_circuit_function_mut() {
     let program_string = include_str!("circuit_function_mut.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_circuit_static_function_mut() {
     let program_string = include_str!("circuit_static_function_mut.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_function_input() {
     let program_string = include_str!("function_input.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }

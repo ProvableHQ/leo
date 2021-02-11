@@ -31,46 +31,43 @@ use crate::{
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct CallExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct CallExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub function: Arc<Function>,
-    pub target: Option<Arc<Expression>>,
-    pub arguments: Vec<Arc<Expression>>,
+    pub function: Cell<&'a Function<'a>>,
+    pub target: Cell<Option<&'a Expression<'a>>>,
+    pub arguments: Vec<Cell<&'a Expression<'a>>>,
 }
 
-impl Node for CallExpression {
+impl<'a> Node for CallExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for CallExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for CallExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        if let Some(target) = self.target.as_ref() {
-            target.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        if let Some(target) = self.target.get() {
+            target.set_parent(expr);
         }
         self.arguments.iter().for_each(|element| {
-            element.set_parent(Arc::downgrade(expr));
+            element.get().set_parent(expr);
         })
     }
 
-    fn get_type(&self) -> Option<Type> {
-        Some(self.function.output.clone().into())
+    fn get_type(&self) -> Option<Type<'a>> {
+        Some(self.function.get().output.clone())
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -83,21 +80,20 @@ impl ExpressionNode for CallExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.target.as_ref().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.is_consty())
+        self.target.get().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.get().is_consty())
     }
 }
 
-impl FromAst<leo_ast::CallExpression> for CallExpression {
+impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::CallExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<CallExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<CallExpression<'a>, AsgConvertError> {
         let (target, function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
                 None,
                 scope
-                    .borrow()
                     .resolve_function(&name.name)
                     .ok_or_else(|| AsgConvertError::unresolved_function(&name.name, &name.span))?,
             ),
@@ -106,7 +102,7 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
                 name,
                 span,
             }) => {
-                let target = Arc::<Expression>::from_ast(scope, &**ast_circuit, None)?;
+                let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None)?;
                 let circuit = match target.get_type() {
                     Some(Type::Circuit(circuit)) => circuit,
                     type_ => {
@@ -151,7 +147,6 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
             }) => {
                 let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_circuit {
                     scope
-                        .borrow()
                         .resolve_circuit(&circuit_name.name)
                         .ok_or_else(|| AsgConvertError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
                 } else {
@@ -207,46 +202,45 @@ impl FromAst<leo_ast::CallExpression> for CallExpression {
             .arguments
             .iter()
             .zip(function.arguments.iter())
-            .map(|(expr, argument)| {
-                let argument = argument.borrow();
-                let converted =
-                    Arc::<Expression>::from_ast(scope, expr, Some(argument.type_.clone().strong().partial()))?;
+            .map(|(expr, (_, argument))| {
+                let argument = argument.get().borrow();
+                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
                     return Err(AsgConvertError::unexpected_nonconst(&expr.span()));
                 }
-                Ok(converted)
+                Ok(Cell::new(converted))
             })
             .collect::<Result<Vec<_>, AsgConvertError>>()?;
 
         Ok(CallExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
             arguments,
-            function,
-            target,
+            function: Cell::new(function),
+            target: Cell::new(target),
         })
     }
 }
 
-impl Into<leo_ast::CallExpression> for &CallExpression {
+impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
     fn into(self) -> leo_ast::CallExpression {
-        let target_function = if let Some(target) = &self.target {
-            target.as_ref().into()
+        let target_function = if let Some(target) = self.target.get() {
+            target.into()
         } else {
-            let circuit = self.function.circuit.borrow().as_ref().map(|x| x.upgrade()).flatten();
+            let circuit = self.function.get().circuit.get();
             if let Some(circuit) = circuit {
                 leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
                     circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
-                    name: self.function.name.borrow().clone(),
+                    name: self.function.get().name.borrow().clone(),
                     span: self.span.clone().unwrap_or_default(),
                 })
             } else {
-                leo_ast::Expression::Identifier(self.function.name.borrow().clone())
+                leo_ast::Expression::Identifier(self.function.get().name.borrow().clone())
             }
         };
         leo_ast::CallExpression {
             function: Box::new(target_function),
-            arguments: self.arguments.iter().map(|arg| arg.as_ref().into()).collect(),
+            arguments: self.arguments.iter().map(|arg| arg.get().into()).collect(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

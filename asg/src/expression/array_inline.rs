@@ -17,25 +17,22 @@
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use leo_ast::SpreadOrExpression;
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ArrayInlineExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct ArrayInlineExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub elements: Vec<(Arc<Expression>, bool)>, // bool = if spread
+    pub elements: Vec<(Cell<&'a Expression<'a>>, bool)>, // bool = if spread
 }
 
-impl ArrayInlineExpression {
+impl<'a> ArrayInlineExpression<'a> {
     pub fn expanded_length(&self) -> usize {
         self.elements
             .iter()
             .map(|(expr, is_spread)| {
                 if *is_spread {
-                    match expr.get_type() {
+                    match expr.get().get_type() {
                         Some(Type::Array(_item, len)) => len,
                         _ => 0,
                     }
@@ -47,30 +44,30 @@ impl ArrayInlineExpression {
     }
 }
 
-impl Node for ArrayInlineExpression {
+impl<'a> Node for ArrayInlineExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for ArrayInlineExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for ArrayInlineExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
         self.elements.iter().for_each(|(element, _)| {
-            element.set_parent(Arc::downgrade(expr));
+            element.get().set_parent(expr);
         })
     }
 
-    fn get_type(&self) -> Option<Type> {
+    fn get_type(&self) -> Option<Type<'a>> {
         Some(Type::Array(
-            Box::new(self.elements.first()?.0.get_type()?),
+            Box::new(self.elements.first()?.0.get().get_type()?),
             self.expanded_length(),
         ))
     }
@@ -83,28 +80,28 @@ impl ExpressionNode for ArrayInlineExpression {
         let mut const_values = vec![];
         for (expr, spread) in self.elements.iter() {
             if *spread {
-                match expr.const_value()? {
+                match expr.get().const_value()? {
                     ConstValue::Array(items) => const_values.extend(items),
                     _ => return None,
                 }
             } else {
-                const_values.push(expr.const_value()?);
+                const_values.push(expr.get().const_value()?);
             }
         }
         Some(ConstValue::Array(const_values))
     }
 
     fn is_consty(&self) -> bool {
-        self.elements.iter().all(|x| x.0.is_consty())
+        self.elements.iter().all(|x| x.0.get().is_consty())
     }
 }
 
-impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
+impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInlineExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<ArrayInlineExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<ArrayInlineExpression<'a>, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
@@ -119,22 +116,22 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
 
         let mut len = 0;
         let output = ArrayInlineExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
             elements: value
                 .elements
                 .iter()
                 .map(|e| match e {
                     SpreadOrExpression::Expression(e) => {
-                        let expr = Arc::<Expression>::from_ast(scope, e, expected_item.clone())?;
+                        let expr = <&Expression<'a>>::from_ast(scope, e, expected_item.clone())?;
                         if expected_item.is_none() {
                             expected_item = expr.get_type().map(Type::partial);
                         }
                         len += 1;
-                        Ok((expr, false))
+                        Ok((Cell::new(expr), false))
                     }
                     SpreadOrExpression::Spread(e) => {
-                        let expr = Arc::<Expression>::from_ast(
+                        let expr = <&Expression<'a>>::from_ast(
                             scope,
                             e,
                             Some(PartialType::Array(expected_item.clone().map(Box::new), None)),
@@ -160,7 +157,7 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
                                 ));
                             }
                         }
-                        Ok((expr, true))
+                        Ok((Cell::new(expr), true))
                     }
                 })
                 .collect::<Result<Vec<_>, AsgConvertError>>()?,
@@ -178,14 +175,14 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
     }
 }
 
-impl Into<leo_ast::ArrayInlineExpression> for &ArrayInlineExpression {
+impl<'a> Into<leo_ast::ArrayInlineExpression> for &ArrayInlineExpression<'a> {
     fn into(self) -> leo_ast::ArrayInlineExpression {
         leo_ast::ArrayInlineExpression {
             elements: self
                 .elements
                 .iter()
                 .map(|(element, spread)| {
-                    let element = element.as_ref().into();
+                    let element = element.get().into();
                     if *spread {
                         SpreadOrExpression::Spread(element)
                     } else {

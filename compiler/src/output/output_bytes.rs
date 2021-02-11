@@ -31,10 +31,10 @@ impl OutputBytes {
         &self.0
     }
 
-    pub fn new_from_constrained_value<F: Field + PrimeField, G: GroupType<F>>(
-        program: &Program,
+    pub fn new_from_constrained_value<'a, F: Field + PrimeField, G: GroupType<F>>(
+        program: &Program<'a>,
         registers: &Registers,
-        value: ConstrainedValue<F, G>,
+        value: ConstrainedValue<'a, F, G>,
         span: Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
@@ -67,7 +67,7 @@ impl OutputBytes {
             let name = parameter.variable.name;
 
             // Check register type == return value type.
-            let register_type = program.borrow().scope.borrow().resolve_ast_type(&parameter.type_)?;
+            let register_type = program.scope.resolve_ast_type(&parameter.type_)?;
             let return_value_type = value.to_type(&span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {

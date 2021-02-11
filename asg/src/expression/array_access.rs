@@ -17,56 +17,53 @@
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 use leo_ast::IntegerType;
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ArrayAccessExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct ArrayAccessExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub array: Arc<Expression>,
-    pub index: Arc<Expression>,
+    pub array: Cell<&'a Expression<'a>>,
+    pub index: Cell<&'a Expression<'a>>,
 }
 
-impl Node for ArrayAccessExpression {
+impl<'a> Node for ArrayAccessExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for ArrayAccessExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for ArrayAccessExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.array.set_parent(Arc::downgrade(expr));
-        self.index.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.array.get().set_parent(expr);
+        self.index.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
-        match self.array.get_type() {
+    fn get_type(&self) -> Option<Type<'a>> {
+        match self.array.get().get_type() {
             Some(Type::Array(element, _)) => Some(*element),
             _ => None,
         }
     }
 
     fn is_mut_ref(&self) -> bool {
-        self.array.is_mut_ref()
+        self.array.get().is_mut_ref()
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        let mut array = match self.array.const_value()? {
+        let mut array = match self.array.get().const_value()? {
             ConstValue::Array(values) => values,
             _ => return None,
         };
-        let const_index = match self.index.const_value()? {
+        let const_index = match self.index.get().const_value()? {
             ConstValue::Int(x) => x.to_usize()?,
             _ => return None,
         };
@@ -77,17 +74,17 @@ impl ExpressionNode for ArrayAccessExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.array.is_consty()
+        self.array.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
+impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::ArrayAccessExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<ArrayAccessExpression, AsgConvertError> {
-        let array = Arc::<Expression>::from_ast(
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<ArrayAccessExpression<'a>, AsgConvertError> {
+        let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,
             Some(PartialType::Array(expected_type.map(Box::new), None)),
@@ -103,7 +100,7 @@ impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
             }
         }
 
-        let index = Arc::<Expression>::from_ast(
+        let index = <&Expression<'a>>::from_ast(
             scope,
             &*value.index,
             Some(PartialType::Integer(None, Some(IntegerType::U32))),
@@ -116,19 +113,19 @@ impl FromAst<leo_ast::ArrayAccessExpression> for ArrayAccessExpression {
         }
 
         Ok(ArrayAccessExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            array,
-            index,
+            array: Cell::new(array),
+            index: Cell::new(index),
         })
     }
 }
 
-impl Into<leo_ast::ArrayAccessExpression> for &ArrayAccessExpression {
+impl<'a> Into<leo_ast::ArrayAccessExpression> for &ArrayAccessExpression<'a> {
     fn into(self) -> leo_ast::ArrayAccessExpression {
         leo_ast::ArrayAccessExpression {
-            array: Box::new(self.array.as_ref().into()),
-            index: Box::new(self.index.as_ref().into()),
+            array: Box::new(self.array.get().into()),
+            index: Box::new(self.index.get().into()),
             span: self.span.clone().unwrap_or_default(),
         }
     }

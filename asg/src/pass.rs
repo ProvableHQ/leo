@@ -14,18 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
+use crate::Program;
+pub use leo_ast::Error as FormattedError;
 
-use crate::load_asg;
-
-#[test]
-fn test_input_pass() {
-    let program_string = include_str!("main.leo");
-    load_asg(&new_context(), program_string).unwrap();
-}
-
-#[test]
-fn test_input_multiple() {
-    let program_string = include_str!("main_multiple.leo");
-    load_asg(&new_context(), program_string).unwrap();
+pub trait AsgPass {
+    fn do_pass(asg: &Program) -> Result<(), FormattedError>;
 }
