@@ -43,6 +43,5 @@ jobs:
           leo login -u "$USER" -p "$PASS"
           leo add argus4130/xnor
           leo remove xnor
-          leo clean
           leo logout
 

@@ -15,35 +15,45 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
+use leo_package::LeoPackage;
 
 use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Lint Leo code command
+/// Remove imported package
 #[derive(StructOpt, Debug, Default)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Lint {}
+pub struct Remove {
+    #[structopt(name = "PACKAGE")]
+    name: String,
+}
 
-impl Lint {
-    pub fn new() -> Lint {
-        Lint {}
+impl Remove {
+    pub fn new(name: String) -> Remove {
+        Remove { name }
     }
 }
 
-impl Command for Lint {
+impl Command for Remove {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Linting")
+        tracing::span!(tracing::Level::INFO, "Removing")
     }
 
     fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        unimplemented!("Lint command has not been implemented yet");
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = ctx.dir()?;
+        let package_name = self.name;
+
+        LeoPackage::remove_imported_package(&package_name, &path)?;
+        tracing::info!("Successfully removed package \"{}\"\n", package_name);
+
+        Ok(())
     }
 }

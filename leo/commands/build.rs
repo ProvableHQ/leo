@@ -15,55 +15,50 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    cli::*,
-    cli_types::*,
-    errors::CLIError,
+    commands::Command,
+    context::Context,
     synthesizer::{CircuitSynthesizer, SerializedCircuit},
 };
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    root::Manifest,
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use std::convert::TryFrom;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+/// Compile and build program command
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Build {}
 
-#[derive(Debug)]
-pub struct BuildCommand;
+impl Build {
+    pub fn new() -> Build {
+        Build {}
+    }
+}
 
-impl CLI for BuildCommand {
-    type Options = ();
+impl Command for Build {
+    type Input = ();
     type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
 
-    const ABOUT: AboutType = "Compile the current package as a program";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "build";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Build")
+    }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Compiling" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Compiling");
-        let enter = span.enter();
-
-        let path = current_dir()?;
-
-        // Get the package name
-        let manifest = Manifest::try_from(path.as_path())?;
-        let package_name = manifest.get_package_name();
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
@@ -76,9 +71,6 @@ impl CLI for BuildCommand {
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         tracing::info!("Starting...");
-
-        // Start the timer
-        let start = Instant::now();
 
         // Compile the package starting with the lib.leo file
         if LibraryFile::exists_at(&package_path) {
@@ -185,21 +177,9 @@ impl CLI for BuildCommand {
 
             tracing::info!("Complete");
 
-            // Drop "Compiling" context for console logging
-            drop(enter);
-
-            // Begin "Done" context for console logging todo: @collin figure a way to get this output with tracing without dropping span
-            tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-                tracing::info!("Finished in {} milliseconds\n", start.elapsed().as_millis());
-            });
-
             return Ok(Some((program, checksum_differs)));
         }
 
-        drop(enter);
-
-        // Return None when compiling a package for publishing
-        // The published package does not need to have a main.leo
         Ok(None)
     }
 }
