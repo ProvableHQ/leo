@@ -41,6 +41,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         match input_value {
             Some(InputValue::Array(arr)) => {
+                if array_len != arr.len() {
+                    return Err(FunctionError::invalid_input_array_dimensions(
+                        arr.len(),
+                        array_len,
+                        span.clone(),
+                    ));
+                }
+
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = format!("{}_{}", &name, &i.to_string());

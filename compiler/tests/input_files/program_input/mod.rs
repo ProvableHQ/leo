@@ -83,3 +83,13 @@ fn test_input_multiple() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_input_array_dimensions_mismatch() {
+    let program_string = include_str!("main_array_fail.leo");
+    let input_string = include_str!("input/main_array_fail.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_fail(program);
+}

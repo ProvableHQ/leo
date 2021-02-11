@@ -93,6 +93,15 @@ impl FunctionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn invalid_input_array_dimensions(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "Input array dimensions mismatch expected {}, found array dimensions {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_tuple(actual: String, span: Span) -> Self {
         let message = format!("Expected function input tuple, found `{}`", actual);
 
