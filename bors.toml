@@ -1,8 +1,8 @@
 # Required status checks that must pass before merging
 status = [
     # Cargo fmt check must pass
-    "style",
+    "Check Style",
 
     # Cargo clippy check must pass
-    "clippy"
+    "Clippy"
 ]
