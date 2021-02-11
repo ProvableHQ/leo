@@ -65,7 +65,7 @@ self_keyword_or_identifier = {
 keyword_or_identifier = {
     input_keyword
     | type_self
-    | self_keyword_or_identifier
+    | identifier
 }
 
 // Declared in common/line_end.rs
@@ -299,7 +299,10 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 /// Access
 
 // Declared in access/access.rs
-access = { access_array | access_tuple | access_call | access_member | access_static_member}
+access = { access_array | access_tuple | access_call | access_member | access_static_member }
+
+// Declared in access/self_access.rs
+self_access = { access_member | access_static_member }
 
 // Declared in access/array_access.rs
 access_array = !{ "[" ~ range_or_expression ~ "]" }
@@ -354,6 +357,7 @@ expression_term = {
     | expression_array_inline
     | expression_circuit_inline
     | expression_unary
+    | self_expression_postfix
     | expression_postfix
     | identifier
 }
@@ -389,6 +393,9 @@ expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
 expression_postfix = ${ keyword_or_identifier ~ access+ }
+
+// Declared in expressions/self_postfix_expression.rs
+self_expression_postfix = ${ self_keyword ~ self_access ~ access* }
 
 /// Statements
 
