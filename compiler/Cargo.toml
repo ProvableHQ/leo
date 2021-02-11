@@ -62,7 +62,7 @@ version = "0.0.3"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-models]
