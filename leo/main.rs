@@ -133,7 +133,7 @@ enum CommandOpts {
         command: Login,
     },
 
-    #[structopt(about = "Logout of the package manager and removes credentials")]
+    #[structopt(about = "Logout of the Aleo Package Manager")]
     Logout {
         #[structopt(flatten)]
         command: Logout,
