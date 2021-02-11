@@ -1,0 +1,20 @@
+# List of commit statuses that must pass on the merge commit before it is pushed to master.
+status = [
+    # Cargo fmt check must pass
+    "Check Style",
+
+    # Cargo clippy check must pass
+    "Clippy",
+    
+    # Cargo test check must pass
+    "Test"
+]
+
+# Number of project members who must approve the PR (using GitHub Reviews) before it is pushed to master.
+required_approvals = 2
+
+# Approvals up to date with the latest PR commit will count towards the number of required approvals.
+up_to_date_approvals = true
+
+# List of PR labels that may not be attached to a PR when it is r+-ed.
+# block_labels = [ "wip" ]
