@@ -161,7 +161,7 @@ impl<'a> InternalProgram<'a> {
             let pretty_package = package.join(".");
 
             let resolved_package = match wrapped_resolver.resolve_package(
-                arena.clone(),
+                arena,
                 &package.iter().map(|x| &**x).collect::<Vec<_>>()[..],
                 span,
             )? {
@@ -189,9 +189,9 @@ impl<'a> InternalProgram<'a> {
                 }
                 ImportSymbol::Direct(name) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(name.clone(), function.clone());
-                    } else if let Some(function) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(name.clone(), function.clone());
+                        imported_functions.insert(name.clone(), *function);
+                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
+                        imported_circuits.insert(name.clone(), *circuit);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -201,9 +201,9 @@ impl<'a> InternalProgram<'a> {
                 }
                 ImportSymbol::Alias(name, alias) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(alias.clone(), function.clone());
-                    } else if let Some(function) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(alias.clone(), function.clone());
+                        imported_functions.insert(alias.clone(), *function);
+                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
+                        imported_circuits.insert(alias.clone(), *circuit);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -357,7 +357,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
         for (name, circuit) in program.circuits.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
             circuit.name.borrow_mut().name = identifier.clone();
-            all_circuits.insert(identifier, circuit.clone());
+            all_circuits.insert(identifier, *circuit);
         }
         for (name, function) in program.functions.iter() {
             let identifier = if name == "main" {
@@ -366,7 +366,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
                 format!("{}{}", identifiers.next().unwrap(), name)
             };
             function.name.borrow_mut().name = identifier.clone();
-            all_functions.insert(identifier, function.clone());
+            all_functions.insert(identifier, *function);
         }
         for (name, function) in program.test_functions.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);

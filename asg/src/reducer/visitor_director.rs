@@ -398,9 +398,8 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
     fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_circuit_member(input) {
             VisitResult::VisitChildren => {
-                match input {
-                    CircuitMember::Function(f) => self.visit_function(f)?,
-                    _ => (),
+                if let CircuitMember::Function(f) = input {
+                    self.visit_function(f)?;
                 }
                 Ok(())
             }

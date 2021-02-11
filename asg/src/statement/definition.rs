@@ -109,7 +109,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             scope
                 .variables
                 .borrow_mut()
-                .insert(variable.borrow().name.name.clone(), variable.clone());
+                .insert(variable.borrow().name.name.clone(), *variable);
         }
 
         let statement = scope.alloc_statement(Statement::Definition(DefinitionStatement {

@@ -69,7 +69,7 @@ impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
             let members = self.circuit.get().members.borrow();
             let member = members.get(&self.member.name)?;
             match member {
-                CircuitMember::Variable(type_) => Some(type_.clone().into()),
+                CircuitMember::Variable(type_) => Some(type_.clone()),
                 CircuitMember::Function(_) => None,
             }
         }
@@ -115,7 +115,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
             if let Some(member) = circuit.members.borrow().get(&value.name.name) {
                 if let Some(expected_type) = &expected_type {
                     if let CircuitMember::Variable(type_) = &member {
-                        let type_: Type = type_.clone().into();
+                        let type_: Type = type_.clone();
                         if !expected_type.matches(&type_) {
                             return Err(AsgConvertError::unexpected_type(
                                 &expected_type.to_string(),
@@ -138,7 +138,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
             if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
                 circuit.members.borrow_mut().insert(
                     value.name.name.clone(),
-                    CircuitMember::Variable(expected_type.clone().into()),
+                    CircuitMember::Variable(expected_type.clone()),
                 );
             } else {
                 return Err(AsgConvertError::input_ref_needs_type(

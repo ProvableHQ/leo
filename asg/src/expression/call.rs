@@ -133,7 +133,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                 &span,
                             ));
                         }
-                        (Some(target), body.clone())
+                        (Some(target), *body)
                     }
                     CircuitMember::Variable(_) => {
                         return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, &span));
@@ -167,7 +167,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                 &span,
                             ));
                         }
-                        (None, body.clone())
+                        (None, *body)
                     }
                     CircuitMember::Variable(_) => {
                         return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, &span));
@@ -181,7 +181,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             }
         };
         if let Some(expected) = expected_type {
-            let output: Type = function.output.clone().into();
+            let output: Type = function.output.clone();
             if !expected.matches(&output) {
                 return Err(AsgConvertError::unexpected_type(
                     &expected.to_string(),

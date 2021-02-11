@@ -119,7 +119,7 @@ impl<'a> Function<'a> {
         let function = scope.alloc_function(Function {
             id: Uuid::new_v4(),
             name: RefCell::new(value.identifier.clone()),
-            output: output.into(),
+            output,
             has_input,
             arguments,
             circuit: Cell::new(None),
@@ -207,7 +207,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
                 Default::default(),
             ),
         };
-        let output: Type = self.output.clone().into();
+        let output: Type = self.output.clone();
         leo_ast::Function {
             identifier: self.name.borrow().clone(),
             input,

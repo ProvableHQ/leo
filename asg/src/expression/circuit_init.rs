@@ -120,7 +120,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 }
                 defined_variables.insert(name.clone());
                 let type_: Type = if let CircuitMember::Variable(type_) = &member {
-                    type_.clone().into()
+                    type_.clone()
                 } else {
                     continue;
                 };

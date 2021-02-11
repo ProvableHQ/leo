@@ -51,6 +51,7 @@ pub struct Scope<'a> {
     pub input: Cell<Option<Input<'a>>>,
 }
 
+#[allow(clippy::mut_from_ref)]
 impl<'a> Scope<'a> {
     pub fn alloc_expression(&'a self, expr: Expression<'a>) -> &'a mut Expression<'a> {
         match self.arena.alloc(ArenaNode::Expression(expr)) {
@@ -197,7 +198,7 @@ impl<'a> Scope<'a> {
     ///
     pub fn make_subscope(self: &'a Scope<'a>) -> &'a Scope<'a> {
         self.alloc_scope(Scope::<'a> {
-            arena: self.arena.clone(),
+            arena: self.arena,
             id: Uuid::new_v4(),
             parent_scope: Cell::new(Some(self)),
             circuit_self: Cell::new(None),
