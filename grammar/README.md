@@ -1,5 +1,9 @@
 # leo-grammar
 
+[![Crates.io](https://img.shields.io/crates/v/leo-grammar.svg?color=neon)](https://crates.io/crates/leo-grammar)
+[![Authors](https://img.shields.io/badge/authors-Aleo-orange.svg)](../AUTHORS)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
+
 ## Command-line instructions
 
 To generate an AST of the Leo program and save it as a JSON file , run:
