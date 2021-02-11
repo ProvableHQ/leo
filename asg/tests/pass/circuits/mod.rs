@@ -120,3 +120,16 @@ fn test_define_circuit_inside_circuit_function() {
     let program_string = include_str!("define_circuit_inside_circuit_function.leo");
     load_asg(program_string).unwrap();
 }
+
+#[test]
+fn test_circuit_explicit_define() {
+    let program_string = r#"
+    circuit One {
+        x: u8,
+    }
+    function main () {
+        let x: One = One {x: 5};
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
