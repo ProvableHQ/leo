@@ -1327,14 +1327,14 @@ dependencies = [
  "rand_xorshift",
  "serde",
  "sha2",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.4",
  "snarkvm-curves",
  "snarkvm-dpc",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.3",
  "snarkvm-gadgets",
- "snarkvm-models",
+ "snarkvm-models 0.0.3",
  "snarkvm-objects",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.0.3",
  "thiserror",
  "tracing",
  "uuid",
@@ -1347,9 +1347,9 @@ dependencies = [
  "criterion",
  "rand",
  "rand_xorshift",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
  "thiserror",
 ]
 
@@ -1420,12 +1420,12 @@ dependencies = [
  "self_update",
  "serde",
  "serde_json",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.4",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.3",
  "snarkvm-gadgets",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
  "structopt",
  "thiserror",
  "toml",
@@ -1460,14 +1460,14 @@ dependencies = [
  "leo-input",
  "rand",
  "rand_xorshift",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.4",
  "snarkvm-curves",
  "snarkvm-dpc",
- "snarkvm-errors",
- "snarkvm-models",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
  "snarkvm-objects",
  "snarkvm-storage",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.0.3",
  "thiserror",
 ]
 
@@ -2617,10 +2617,31 @@ dependencies = [
  "rayon",
  "sha2",
  "smallvec",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-profiler",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-profiler 0.0.3",
+ "snarkvm-utilities 0.0.3",
+]
+
+[[package]]
+name = "snarkvm-algorithms"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d13ddcfa5b127d425986460cd28c79f55fdc1c80fe167ed6e51ce8729bdc3e9"
+dependencies = [
+ "blake2",
+ "derivative",
+ "digest 0.8.1",
+ "itertools 0.10.0",
+ "rand",
+ "rand_chacha",
+ "rayon",
+ "sha2",
+ "smallvec",
+ "snarkvm-errors 0.0.4",
+ "snarkvm-models 0.0.4",
+ "snarkvm-profiler 0.0.4",
+ "snarkvm-utilities 0.0.4",
 ]
 
 [[package]]
@@ -2634,9 +2655,9 @@ dependencies = [
  "rand_xorshift",
  "rustc_version 0.3.3",
  "serde",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
 ]
 
 [[package]]
@@ -2664,15 +2685,15 @@ dependencies = [
  "hex",
  "itertools 0.10.0",
  "rand",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.3",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.3",
  "snarkvm-gadgets",
- "snarkvm-models",
+ "snarkvm-models 0.0.3",
  "snarkvm-objects",
  "snarkvm-parameters",
- "snarkvm-profiler",
- "snarkvm-utilities",
+ "snarkvm-profiler 0.0.3",
+ "snarkvm-utilities 0.0.3",
 ]
 
 [[package]]
@@ -2693,6 +2714,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "snarkvm-errors"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a05d620a0ffff945800ab2ef231631a02bed1f7b3e6d962aeea993779892be4f"
+dependencies = [
+ "base58",
+ "bech32",
+ "bincode",
+ "hex",
+ "jsonrpc-core",
+ "thiserror",
+ "toml",
+]
+
+[[package]]
 name = "snarkvm-gadgets"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2701,11 +2737,11 @@ dependencies = [
  "derivative",
  "digest 0.8.1",
  "itertools 0.10.0",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.3",
  "snarkvm-curves",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
 ]
 
 [[package]]
@@ -2724,8 +2760,28 @@ dependencies = [
  "rand",
  "rand_xorshift",
  "serde",
- "snarkvm-errors",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-utilities 0.0.3",
+]
+
+[[package]]
+name = "snarkvm-models"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1020532f62f262ce5a0debc60b3fd11088e69b81ce3583cfd53a6bb7fde49094"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "cfg-if 1.0.0",
+ "derivative",
+ "fxhash",
+ "indexmap",
+ "itertools 0.10.0",
+ "rand",
+ "rand_xorshift",
+ "serde",
+ "snarkvm-errors 0.0.4",
+ "snarkvm-utilities 0.0.4",
 ]
 
 [[package]]
@@ -2743,11 +2799,11 @@ dependencies = [
  "rand",
  "serde",
  "sha2",
- "snarkvm-algorithms",
+ "snarkvm-algorithms 0.0.3",
  "snarkvm-curves",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
 ]
 
 [[package]]
@@ -2758,10 +2814,10 @@ checksum = "dd0e2f9bdbce0750aa0def386e4324f278c7e0d58cfbdb42128c03d246c862f4"
 dependencies = [
  "curl",
  "hex",
- "snarkvm-algorithms",
- "snarkvm-errors",
- "snarkvm-models",
- "snarkvm-utilities",
+ "snarkvm-algorithms 0.0.3",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
+ "snarkvm-utilities 0.0.3",
 ]
 
 [[package]]
@@ -2769,6 +2825,12 @@ name = "snarkvm-profiler"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d5f9c37df04e66b18ef0c4a69861eaf1f83170f1e71509e208d6006c20e65b91"
+
+[[package]]
+name = "snarkvm-profiler"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acd1cc18cc2c34eb1229481218862fddc5e03df217ab23e6494459f7c483c0a1"
 
 [[package]]
 name = "snarkvm-storage"
@@ -2783,12 +2845,12 @@ dependencies = [
  "rand",
  "rocksdb",
  "serde",
- "snarkvm-algorithms",
- "snarkvm-errors",
- "snarkvm-models",
+ "snarkvm-algorithms 0.0.3",
+ "snarkvm-errors 0.0.3",
+ "snarkvm-models 0.0.3",
  "snarkvm-objects",
  "snarkvm-parameters",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.0.3",
  "thiserror",
 ]
 
@@ -2801,7 +2863,18 @@ dependencies = [
  "bincode",
  "rand",
  "snarkvm-derives",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.3",
+]
+
+[[package]]
+name = "snarkvm-utilities"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bce6e8fc5be0967a1b1d16a0c87b3ff8f9920089efe7541304b562a118f8ae4a"
+dependencies = [
+ "bincode",
+ "rand",
+ "snarkvm-errors 0.0.4",
 ]
 
 [[package]]
