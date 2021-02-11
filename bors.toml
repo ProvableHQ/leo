@@ -7,7 +7,8 @@ status = [
     "Clippy",
     
     # Cargo test check must pass
-    "Test"
+    "Test (stable)",
+    "Test (nightly)"
 ]
 
 # Number of project members who must approve the PR (using GitHub Reviews) before it is pushed to master.
