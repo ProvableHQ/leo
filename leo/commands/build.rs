@@ -29,7 +29,6 @@ use leo_package::{
 use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use std::convert::TryFrom;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -149,11 +148,11 @@ impl Command for Build {
                 circuit_file.write_to(&path, json)?;
 
                 // Check that we can read the serialized circuit file
-                let serialized = circuit_file.read_from(&package_path)?;
+                // let serialized = circuit_file.read_from(&package_path)?;
 
                 // Deserialize the circuit
-                let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
-                let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
+                // let deserialized = SerializedCircuit::from_json_string(&serialized).unwrap();
+                // let _circuit_synthesizer = CircuitSynthesizer::<Bls12_377>::try_from(deserialized).unwrap();
                 // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
             }
 
