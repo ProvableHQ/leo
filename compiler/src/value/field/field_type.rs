@@ -67,7 +67,7 @@ impl<F: Field + PrimeField> FieldType<F> {
                 .chars()
                 .next()
                 .map(|c| &string[c.len_utf8()..])
-                .ok_or(FieldError::invalid_field(string.clone(), span.to_owned()))?;
+                .ok_or_else(|| FieldError::invalid_field(string.clone(), span.to_owned()))?;
             value = -F::from_str(&new_string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
         } else {
             value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
