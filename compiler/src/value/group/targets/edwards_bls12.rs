@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::GroupError, GroupType};
+use crate::{errors::GroupError, evaluate_eq_fp_gadget, GroupType};
 use leo_asg::{GroupCoordinate, GroupValue, Span};
 
 use snarkvm_curves::{
@@ -358,29 +358,29 @@ impl PartialEq for EdwardsGroupType {
 
 impl Eq for EdwardsGroupType {}
 
-// fn compare_allocated_edwards_bls_gadgets<CS: ConstraintSystem<Fq>>(
-//     mut cs: CS,
-//     first: &EdwardsBlsGadget,
-//     second: &EdwardsBlsGadget,
-// ) -> Result<Boolean, SynthesisError> {
-//     // compare x coordinates
-//     let x_first = &first.x;
-//     let x_second = &second.x;
-//
-//     let compare_x = x_first.evaluate_equal(&mut cs.ns(|| format!("compare x")), x_second)?;
-//
-//     // compare y coordinates
-//     let y_first = &first.y;
-//     let y_second = &second.y;
-//
-//     let compare_y = y_first.evaluate_equal(&mut cs.ns(|| format!("compare y")), y_second)?;
-//
-//     Boolean::and(
-//         &mut cs.ns(|| format!("compare x and y results")),
-//         &compare_x,
-//         &compare_y,
-//     )
-// }
+fn compare_allocated_edwards_bls_gadgets<CS: ConstraintSystem<Fq>>(
+    mut cs: CS,
+    first: &EdwardsBlsGadget,
+    second: &EdwardsBlsGadget,
+) -> Result<Boolean, SynthesisError> {
+    // compare x coordinates
+    let x_first = &first.x;
+    let x_second = &second.x;
+
+    let compare_x = evaluate_eq_fp_gadget(&mut cs.ns(|| format!("compare x")), x_first, x_second)?;
+
+    // compare y coordinates
+    let y_first = &first.y;
+    let y_second = &second.y;
+
+    let compare_y = evaluate_eq_fp_gadget(&mut cs.ns(|| format!("compare y")), y_first, y_second)?;
+
+    Boolean::and(
+        &mut cs.ns(|| format!("compare x and y results")),
+        &compare_x,
+        &compare_y,
+    )
+}
 
 impl EvaluateEqGadget<Fq> for EdwardsGroupType {
     fn evaluate_equal<CS: ConstraintSystem<Fq>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
@@ -388,19 +388,11 @@ impl EvaluateEqGadget<Fq> for EdwardsGroupType {
             (EdwardsGroupType::Constant(self_value), EdwardsGroupType::Constant(other_value)) => {
                 Ok(Boolean::constant(self_value.eq(other_value)))
             }
-            _ => unimplemented!(),
-            // (EdwardsGroupType::Allocated(first), EdwardsGroupType::Allocated(second)) => {
-            //     compare_allocated_edwards_bls_gadgets(cs, first, second)
-            // }
-            // (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
-            // | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
-            //     let allocated_constant_value =
-            //         <EdwardsBlsGadget as AllocGadget<GroupAffine<EdwardsParameters>, Fq>>::alloc(
-            //             &mut cs.ns(|| format!("alloc constant for eq")),
-            //             || Ok(constant_value),
-            //         )?;
-            //     compare_allocated_edwards_bls_gadgets(cs, allocated_value, &allocated_constant_value)
-            // }
+            (EdwardsGroupType::Allocated(first), EdwardsGroupType::Allocated(second)) => {
+                compare_allocated_edwards_bls_gadgets(cs, first, second)
+            }
+            (EdwardsGroupType::Constant(_), EdwardsGroupType::Allocated(_)) => unimplemented!(),
+            (EdwardsGroupType::Allocated(_), EdwardsGroupType::Constant(_)) => unimplemented!(),
         }
     }
 }
