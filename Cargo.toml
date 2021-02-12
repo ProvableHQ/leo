@@ -67,27 +67,27 @@ path = "./state"
 version = "1.2.2"
 
 [dependencies.snarkvm-algorithms]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-errors]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.3"
+version = "0.0.4"
 
 [dependencies.anyhow]
 version = "1.0"
