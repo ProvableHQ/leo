@@ -134,10 +134,12 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
             },
             BinaryOperationClass::Numeric => match expected_type {
                 Some(x @ PartialType::Integer(_, _)) => Some(x),
+                Some(x @ PartialType::Type(Type::Field)) => Some(x),
+                Some(x @ PartialType::Type(Type::Group)) => Some(x),
                 Some(x) => {
                     return Err(AsgConvertError::unexpected_type(
                         &x.to_string(),
-                        Some("integer"),
+                        Some("integer, field, or group"),
                         &value.span,
                     ));
                 }
