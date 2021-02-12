@@ -203,7 +203,7 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            eprintln!("Error: {}", err);
+            println!("Error: {}", err);
             exit(1);
         }
     }
