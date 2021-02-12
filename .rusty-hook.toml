@@ -1,5 +1,6 @@
 [hooks]
-pre-commit = "cargo clippy && cargo +nightly fmt --all -- --check"
+# TODO @collinc97: uncomment after snark-std is updated
+#pre-commit = "cargo clippy && cargo +nightly fmt --all -- --check"
 
 [logging]
 verbose = true

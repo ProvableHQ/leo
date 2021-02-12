@@ -49,6 +49,10 @@ version = "1.2.2"
 path = "../asg"
 version = "1.2.2"
 
+[dependencies.snark-std]
+git = "ssh://git@github.com/AleoHQ/snark-std.git"
+features = ["aleo"]
+
 [dependencies.snarkvm-curves]
 version = "0.0.4"
 default-features = false
