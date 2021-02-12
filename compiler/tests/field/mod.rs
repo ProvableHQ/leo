@@ -67,6 +67,14 @@ fn test_negate() {
 }
 
 #[test]
+fn test_negative_declaration() {
+    let program_string = include_str!("negative_declaration.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program)
+}
+
+#[test]
 fn test_add() {
     use std::ops::Add;
 
