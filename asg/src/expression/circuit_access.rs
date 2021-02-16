@@ -136,10 +136,10 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         } else if circuit.is_input_pseudo_circuit() {
             // add new member to implicit input
             if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
-                circuit.members.borrow_mut().insert(
-                    value.name.name.clone(),
-                    CircuitMember::Variable(expected_type.clone()),
-                );
+                circuit
+                    .members
+                    .borrow_mut()
+                    .insert(value.name.name.clone(), CircuitMember::Variable(expected_type.clone()));
             } else {
                 return Err(AsgConvertError::input_ref_needs_type(
                     &circuit.name.borrow().name,
