@@ -20,12 +20,9 @@ use crate::{errors::ExpressionError, program::ConstrainedProgram, value::Constra
 use leo_asg::{Expression, Function, Span};
 use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,

@@ -19,10 +19,7 @@
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignAccess, AssignStatement, Identifier, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 pub(crate) enum ResolvedAssigneeAccess {
     ArrayRange(Option<usize>, Option<usize>),
@@ -31,7 +28,7 @@ pub(crate) enum ResolvedAssigneeAccess {
     Member(Identifier),
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn resolve_assign<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

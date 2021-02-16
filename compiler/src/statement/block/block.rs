@@ -20,11 +20,11 @@ use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue
 use leo_asg::BlockStatement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Evaluates a branch of one or more statements and returns a result in
     /// the given scope.
     #[allow(clippy::too_many_arguments)]

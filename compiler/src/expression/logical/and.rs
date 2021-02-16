@@ -20,11 +20,11 @@ use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-pub fn enforce_and<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_and<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,

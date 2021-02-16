@@ -21,7 +21,7 @@ use crate::{errors::ExpressionError, ConstrainedValue, GroupType, Integer};
 use leo_asg::{FunctionBody, Span};
 use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         algorithms::PRFGadget,
         r1cs::ConstraintSystem,
@@ -31,7 +31,7 @@ use snarkvm_models::{
 
 pub struct Blake2s;
 
-fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
+fn unwrap_argument<F: PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
     if let ConstrainedValue::Array(args) = arg {
         assert_eq!(args.len(), 32); // asg enforced
         args.into_iter()
@@ -48,7 +48,7 @@ fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(arg: ConstrainedValue
     }
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> CoreCircuit<F, G> for Blake2s {
+impl<F: PrimeField, G: GroupType<F>> CoreCircuit<F, G> for Blake2s {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,

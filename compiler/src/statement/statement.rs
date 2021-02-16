@@ -21,14 +21,14 @@ use leo_asg::Statement;
 use std::sync::Arc;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
 pub type IndicatorAndConstrainedValue<T, U> = (Boolean, ConstrainedValue<T, U>);
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.

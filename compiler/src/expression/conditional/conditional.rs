@@ -21,11 +21,11 @@ use leo_asg::{Expression, Span};
 use std::sync::Arc;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::select::CondSelectGadget},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce ternary conditional expression
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(

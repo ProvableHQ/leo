@@ -20,14 +20,11 @@ use crate::{errors::ExpressionError, program::ConstrainedProgram, value::Constra
 use leo_asg::Expression;
 use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 type ConstrainedValuePair<T, U> = (ConstrainedValue<T, U>, ConstrainedValue<T, U>);
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,

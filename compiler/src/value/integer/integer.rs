@@ -298,7 +298,7 @@ impl Integer {
         Self::allocate_type(cs, integer_type, name, option, span)
     }
 
-    pub fn negate<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         span: &Span,
@@ -312,7 +312,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::negate_operation(span.to_owned()))
     }
 
-    pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -328,7 +328,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span.to_owned()))
     }
 
-    pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -344,7 +344,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span.to_owned()))
     }
 
-    pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -360,7 +360,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span.to_owned()))
     }
 
-    pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -376,7 +376,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span.to_owned()))
     }
 
-    pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -393,7 +393,7 @@ impl Integer {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
+impl<F: PrimeField> EvaluateEqGadget<F> for Integer {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -404,7 +404,7 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
+impl<F: PrimeField> EvaluateLtGadget<F> for Integer {
     fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -414,11 +414,11 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> ComparatorGadget<F> for Integer {}
+impl<F: PrimeField> ComparatorGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> EqGadget<F> for Integer {}
+impl<F: PrimeField> EqGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
+impl<F: PrimeField> ConditionalEqGadget<F> for Integer {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         cs: CS,
@@ -438,7 +438,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
+impl<F: PrimeField> CondSelectGadget<F> for Integer {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         cs: CS,
         cond: &Boolean,

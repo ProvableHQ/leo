@@ -19,9 +19,9 @@
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
-pub fn evaluate_not<F: Field + PrimeField, G: GroupType<F>>(
+pub fn evaluate_not<F: PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<F, G>, BooleanError> {

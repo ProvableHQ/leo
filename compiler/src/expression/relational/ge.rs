@@ -20,12 +20,9 @@ use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 use leo_gadgets::bits::ComparatorGadget;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-pub fn evaluate_ge<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_ge<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,

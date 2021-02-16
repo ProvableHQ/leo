@@ -19,14 +19,11 @@ use leo_asg::{AsgConvertError, CircuitBody, CircuitMemberBody};
 use leo_ast::{Identifier, InputValue, Parameter};
 use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 use indexmap::IndexMap;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

@@ -27,14 +27,14 @@ use crate::{
 use leo_asg::IterationStatement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, uint::UInt32},
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
         &mut self,

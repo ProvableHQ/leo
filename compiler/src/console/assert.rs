@@ -27,11 +27,11 @@ use leo_asg::{Expression, Span};
 use std::sync::Arc;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

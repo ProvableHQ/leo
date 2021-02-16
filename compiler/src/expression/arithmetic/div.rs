@@ -19,12 +19,9 @@
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-pub fn enforce_div<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_div<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<F, G>,
     right: ConstrainedValue<F, G>,

@@ -24,12 +24,9 @@ use crate::{
 };
 use leo_asg::{CircuitInitExpression, CircuitMemberBody, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_circuit<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

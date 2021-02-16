@@ -19,9 +19,9 @@
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::VariableRef;
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforce a variable expression by getting the resolved value
     pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope

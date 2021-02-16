@@ -36,7 +36,7 @@ where
 // Implement unsigned integers
 macro_rules! add_uint_impl {
     ($($gadget: ident),*) => ($(
-        impl<F: Field + PrimeField> Add<F> for $gadget {
+        impl<F: PrimeField> Add<F> for $gadget {
             type ErrorType = SynthesisError;
 
             fn add<CS: ConstraintSystem<F>>(

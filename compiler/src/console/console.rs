@@ -20,11 +20,11 @@ use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_in
 use leo_asg::{ConsoleFunction, ConsoleStatement};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn evaluate_console_function_call<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

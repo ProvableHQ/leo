@@ -33,7 +33,7 @@ use leo_state::verify_local_data_commitment;
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
@@ -46,7 +46,7 @@ use std::{
 
 /// Stores information to compile a Leo program.
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
+pub struct Compiler<F: PrimeField, G: GroupType<F>> {
     program_name: String,
     main_file_path: PathBuf,
     output_directory: PathBuf,
@@ -57,7 +57,7 @@ pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
     _group: PhantomData<G>,
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
+impl<F: PrimeField, G: GroupType<F>> Compiler<F, G> {
     ///
     /// Returns a new Leo program compiler.
     ///
@@ -261,7 +261,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
     ///
     /// Synthesizes the circuit with program input.
     ///

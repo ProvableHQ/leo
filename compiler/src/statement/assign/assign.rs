@@ -20,14 +20,14 @@ use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, 
 use leo_asg::{AssignOperation, AssignStatement, Span};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, select::CondSelectGadget},
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_assign_statement<CS: ConstraintSystem<F>>(
         &mut self,

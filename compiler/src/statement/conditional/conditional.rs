@@ -27,7 +27,7 @@ use crate::{
 use leo_asg::ConditionalStatement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
@@ -38,7 +38,7 @@ fn indicator_to_string(indicator: &Boolean) -> String {
         .unwrap_or_else(|| "[input]".to_string())
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     /// Enforces a conditional statement with one or more branches.
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.

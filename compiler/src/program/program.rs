@@ -19,17 +19,17 @@
 use crate::{value::ConstrainedValue, GroupType};
 
 use leo_asg::Program;
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
 use indexmap::IndexMap;
 use uuid::Uuid;
 
-pub struct ConstrainedProgram<F: Field + PrimeField, G: GroupType<F>> {
+pub struct ConstrainedProgram<F: PrimeField, G: GroupType<F>> {
     pub asg: Program,
     identifiers: IndexMap<Uuid, ConstrainedValue<F, G>>,
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn new(asg: Program) -> Self {
         Self {
             asg,
