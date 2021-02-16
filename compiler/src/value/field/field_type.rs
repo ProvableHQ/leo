@@ -40,7 +40,6 @@ use snarkvm_models::{
 use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
-// PrimeField already implements Field.
 pub enum FieldType<F: Field + PrimeField> {
     Constant(F),
     Allocated(FpGadget<F>),
