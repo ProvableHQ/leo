@@ -21,12 +21,14 @@ use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Declare {
+    Const,
     Let,
 }
 
 impl<'ast> From<GrammarDeclare> for Declare {
     fn from(declare: GrammarDeclare) -> Self {
         match declare {
+            GrammarDeclare::Const(_) => Declare::Const,
             GrammarDeclare::Let(_) => Declare::Let,
         }
     }
@@ -35,6 +37,7 @@ impl<'ast> From<GrammarDeclare> for Declare {
 impl fmt::Display for Declare {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Declare::Const => write!(f, "const"),
             Declare::Let => write!(f, "let"),
         }
     }
