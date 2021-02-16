@@ -248,7 +248,7 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constra
                     )?);
                 }
 
-                ConstrainedValue::CircuitExpression(identifier.clone(), members)
+                ConstrainedValue::CircuitExpression(*identifier, members)
             }
             (_, _) => return Err(SynthesisError::Unsatisfiable),
         })

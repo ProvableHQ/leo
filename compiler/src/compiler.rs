@@ -115,6 +115,7 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Parses and stores all imported programs.
     /// Performs type inference checking on the program, imported programs, and program input.
     ///
+    #[allow(clippy::too_many_arguments)]
     pub fn parse_program_with_input(
         package_name: String,
         main_file_path: PathBuf,
