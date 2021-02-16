@@ -25,7 +25,7 @@ use pest::Span;
 
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum InputValue {
     Address(String),
     Boolean(bool),
@@ -177,7 +177,7 @@ impl InputValue {
         let mut elements = vec![];
 
         // Build the elements of the array using the `vec!` macro
-        for (i, dimension) in initializer_dimensions.into_iter().enumerate() {
+        for (i, dimension) in initializer_dimensions.into_iter().rev().enumerate() {
             if i == 0 {
                 elements = vec![value.clone(); dimension];
             } else {

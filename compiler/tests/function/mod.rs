@@ -203,3 +203,11 @@ fn test_return_tuple_conditional() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_array_params_direct_call() {
+    let program_string = include_str!("array_params_direct_call.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}

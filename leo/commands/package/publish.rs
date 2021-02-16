@@ -14,29 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::build::Build;
 use crate::{
-    cli::*,
-    cli_types::*,
-    commands::{BuildCommand, LoginCommand},
-    config::{read_token, PACKAGE_MANAGER_URL},
-    errors::{
-        commands::PublishError::{ConnectionUnavalaible, PackageNotPublished},
-        CLIError,
-        PublishError::{MissingPackageDescription, MissingPackageLicense, MissingPackageRemote},
-    },
+    commands::Command,
+    context::{Context, PACKAGE_MANAGER_URL},
 };
-use leo_package::{
-    outputs::OutputsDirectory,
-    root::{Manifest, ZipFile},
-};
+use leo_package::{outputs::OutputsDirectory, root::ZipFile};
 
-use clap::ArgMatches;
+use anyhow::{anyhow, Result};
 use reqwest::{
     blocking::{multipart::Form, Client},
     header::{HeaderMap, HeaderValue},
 };
 use serde::Deserialize;
-use std::{convert::TryFrom, env::current_dir};
+use structopt::StructOpt;
 
 pub const PUBLISH_URL: &str = "v1/package/publish";
 
@@ -45,53 +36,46 @@ struct ResponseJson {
     package_id: String,
 }
 
-#[derive(Debug)]
-pub struct PublishCommand;
+/// Publish package to Aleo Package Manager
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Publish {}
 
-impl CLI for PublishCommand {
-    type Options = ();
+impl Publish {
+    pub fn new() -> Publish {
+        Publish {}
+    }
+}
+
+impl Command for Publish {
+    type Input = <Build as Command>::Output;
     type Output = Option<String>;
 
-    const ABOUT: AboutType = "Publish the current package to the Aleo Package Manager";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "publish";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    /// Build program before publishing
+    fn prelude(&self) -> Result<Self::Input> {
+        Build::new().execute()
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Build all program files.
-        let _output = BuildCommand::output(())?;
-
-        // Begin "Publishing" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Publishing");
-        let _enter = span.enter();
-
+    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output> {
         // Get the package manifest
-        let path = current_dir()?;
-        let package_manifest = Manifest::try_from(path.as_path())?;
+        let path = ctx.dir()?;
+        let manifest = ctx.manifest()?;
 
-        let package_name = package_manifest.get_package_name();
-        let package_version = package_manifest.get_package_version();
+        let package_name = manifest.get_package_name();
+        let package_version = manifest.get_package_version();
 
-        if package_manifest.get_package_description().is_none() {
-            return Err(MissingPackageDescription.into());
-        }
-
-        if package_manifest.get_package_license().is_none() {
-            return Err(MissingPackageLicense.into());
-        }
-
-        let package_remote = match package_manifest.get_package_remote() {
-            Some(remote) => remote,
-            None => return Err(MissingPackageRemote.into()),
+        match (
+            manifest.get_package_description(),
+            manifest.get_package_license(),
+            manifest.get_package_remote(),
+        ) {
+            (None, _, _) => return Err(anyhow!("No package description")),
+            (_, None, _) => return Err(anyhow!("Missing package license")),
+            (_, _, None) => return Err(anyhow!("Missing package remote")),
+            (_, _, _) => (),
         };
+
+        let package_remote = manifest.get_package_remote().unwrap();
 
         // Create the output directory
         OutputsDirectory::create(&path)?;
@@ -115,18 +99,9 @@ impl CLI for PublishCommand {
         // Client for make POST request
         let client = Client::new();
 
-        // Get token to make an authorized request
-        let token = match read_token() {
-            Ok(token) => token,
-
-            // If not logged in, then try logging in using JWT.
-            Err(_error) => {
-                tracing::warn!("You should be logged in before attempting to publish a package");
-                tracing::info!("Trying to log in using JWT...");
-                let options = (None, None, None);
-
-                LoginCommand::output(options)?
-            }
+        let token = match ctx.api.auth_token() {
+            Some(token) => token,
+            None => return Err(anyhow!("Login before publishing package: try leo login --help")),
         };
 
         // Headers for request to publish package
@@ -149,12 +124,12 @@ impl CLI for PublishCommand {
                 Ok(json) => json,
                 Err(error) => {
                     tracing::warn!("{:?}", error);
-                    return Err(PackageNotPublished("Package not published".into()).into());
+                    return Err(anyhow!("Package not published"));
                 }
             },
             Err(error) => {
                 tracing::warn!("{:?}", error);
-                return Err(ConnectionUnavalaible("Connection error".into()).into());
+                return Err(anyhow!("Connection unavailable"));
             }
         };
 

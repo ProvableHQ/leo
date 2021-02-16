@@ -14,15 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_package::errors::ManifestError;
+pub mod add;
+pub use add::Add;
 
-use std::ffi::OsString;
+pub mod login;
+pub use login::Login;
 
-#[derive(Debug, Error)]
-pub enum RunError {
-    #[error("main file {:?} does not exist", _0)]
-    MainFileDoesNotExist(OsString),
+pub mod logout;
+pub use logout::Logout;
 
-    #[error("{}", _0)]
-    ManifestError(#[from] ManifestError),
-}
+pub mod publish;
+pub use publish::Publish;
+
+pub mod remove;
+pub use remove::Remove;
+
+pub use super::*;

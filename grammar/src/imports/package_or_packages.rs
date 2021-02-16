@@ -14,22 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::ffi::OsString;
+use crate::{
+    ast::Rule,
+    imports::{Package, Packages},
+};
 
-#[derive(Debug, Error)]
-pub enum PublishError {
-    #[error("connection unavailable {:?}", _0)]
-    ConnectionUnavalaible(OsString),
+use pest_ast::FromPest;
+use serde::Serialize;
 
-    #[error("package toml file is missing a description")]
-    MissingPackageDescription,
-
-    #[error("package toml file is missing a license")]
-    MissingPackageLicense,
-
-    #[error("package toml file is missing a remote")]
-    MissingPackageRemote,
-
-    #[error("package not published {:?}", _0)]
-    PackageNotPublished(OsString),
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::package_or_packages))]
+pub enum PackageOrPackages<'ast> {
+    Package(Package<'ast>),
+    Packages(Packages<'ast>),
 }

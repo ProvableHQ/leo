@@ -14,26 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod add;
-pub use self::add::*;
+use crate::{
+    access::{Access, SelfAccess},
+    ast::Rule,
+    common::SelfKeyword,
+    SpanDef,
+};
 
-pub mod build;
-pub use self::build::*;
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 
-pub mod init;
-pub use self::init::*;
-
-pub mod login;
-pub use self::login::*;
-
-pub mod new;
-pub use self::new::*;
-
-pub mod publish;
-pub use self::publish::*;
-
-pub mod run;
-pub use self::run::*;
-
-pub mod test;
-pub use self::test::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::self_expression_postfix))]
+pub struct SelfPostfixExpression<'ast> {
+    pub name: SelfKeyword<'ast>,
+    pub self_access: SelfAccess<'ast>,
+    pub accesses: Vec<Access<'ast>>,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
+}

@@ -105,6 +105,16 @@ fn test_add() {
 }
 
 #[test]
+fn test_add_explicit() {
+    let program_string = r#"
+    function main() {
+        let c: group = 0group + 1group;
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_sub() {
     let program_string = include_str!("sub.leo");
     load_asg(program_string).unwrap();

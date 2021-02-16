@@ -218,20 +218,16 @@ impl InnerScope {
                     .collect::<Result<Vec<_>, AsgConvertError>>()?,
             ),
             Circuit(name) if name.name == "Self" => Type::Circuit(
-                self.circuit_self
-                    .clone()
+                self.resolve_circuit_self()
                     .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
             ),
-            Circuit(name) => Type::Circuit(
-                self.circuits
-                    .get(&name.name)
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?
-                    .clone(),
-            ),
             SelfType => Type::Circuit(
-                self.circuit_self
-                    .clone()
+                self.resolve_circuit_self()
                     .ok_or_else(AsgConvertError::reference_self_outside_circuit)?,
+            ),
+            Circuit(name) => Type::Circuit(
+                self.resolve_circuit(&name.name)
+                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
             ),
         })
     }

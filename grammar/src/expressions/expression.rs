@@ -31,6 +31,7 @@ pub enum Expression<'ast> {
     ArrayInitializer(Box<ArrayInitializerExpression<'ast>>),
     CircuitInline(CircuitInlineExpression<'ast>),
     Postfix(PostfixExpression<'ast>),
+    SelfPostfix(SelfPostfixExpression<'ast>),
     Tuple(TupleExpression<'ast>),
 }
 
@@ -74,6 +75,7 @@ impl<'ast> Expression<'ast> {
             Expression::ArrayInitializer(expression) => &expression.span,
             Expression::CircuitInline(expression) => &expression.span,
             Expression::Postfix(expression) => &expression.span,
+            Expression::SelfPostfix(expression) => &expression.span,
             Expression::Tuple(expression) => &expression.span,
         }
     }
@@ -105,6 +107,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
             }
             Expression::CircuitInline(ref expression) => write!(f, "{}", expression.span.as_str()),
             Expression::Postfix(ref expression) => write!(f, "{}", expression.span.as_str()),
+            Expression::SelfPostfix(ref expression) => write!(f, "{}", expression.span.as_str()),
             Expression::Tuple(ref expression) => write!(f, "{}", expression.span.as_str()),
         }
     }

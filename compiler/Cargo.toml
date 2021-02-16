@@ -50,31 +50,31 @@ path = "../asg"
 version = "1.2.2"
 
 [dependencies.snarkvm-curves]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-errors]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-objects]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.3"
+version = "0.0.4"
 
 [dependencies.bincode]
 version = "1.0"
@@ -116,7 +116,7 @@ features = [ "v4", "serde" ]
 version = "0.3"
 
 [dev-dependencies.snarkvm-algorithms]
-version = "0.0.3"
+version = "0.0.4"
 default-features = false
 
 [features]

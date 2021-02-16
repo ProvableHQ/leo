@@ -13,10 +13,15 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use std::ffi::OsString;
 
-#[derive(Debug, Error)]
-pub enum TestError {
-    #[error("could not find main or library file in  {:?}", _0)]
-    ProgramFileDoesNotExist(OsString),
+use crate::{access::*, ast::Rule};
+
+use pest_ast::FromPest;
+use serde::Serialize;
+
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::self_access))]
+pub enum SelfAccess<'ast> {
+    Object(MemberAccess<'ast>),
+    StaticObject(StaticMemberAccess<'ast>),
 }

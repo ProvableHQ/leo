@@ -45,6 +45,16 @@ fn test_input_array_fail() {
 }
 
 #[test]
+fn test_input_multi_dimension_array() {
+    let program_string = include_str!("main_multi_dimension_array.leo");
+    let input_string = include_str!("input/main_multi_dimension_array.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_input_fail_name() {
     let program_string = include_str!("main.leo");
     let input_string = include_str!("input/main_fail_name.in");
@@ -72,4 +82,14 @@ fn test_input_multiple() {
     let program = parse_program_with_input(program_string, input_string).unwrap();
 
     assert_satisfied(program);
+}
+
+#[test]
+fn test_input_array_dimensions_mismatch() {
+    let program_string = include_str!("main_array_fail.leo");
+    let input_string = include_str!("input/main_array_fail.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_fail(program);
 }

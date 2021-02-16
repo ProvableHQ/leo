@@ -46,11 +46,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         span: &Span,
     ) -> Result<ConstrainedValue<F, G>, StatementError> {
         // Initialize empty return value.
-        let mut return_value = ConstrainedValue::Tuple(vec![]);
+        let mut return_value = None;
 
         // Find the return value
         let mut ignored = vec![];
-        let mut found_return = false;
         for (indicator, result) in results.into_iter() {
             // Error if a statement returned a result with an incorrect type
             let result_type = result.to_type(span)?;
@@ -64,12 +63,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
-                if found_return {
+                if return_value.is_some() {
                     return Err(StatementError::multiple_returns(span.to_owned()));
                 } else {
                     // Set the function return value.
-                    return_value = result;
-                    found_return = true;
+                    return_value = Some(result);
                 }
             } else {
                 // Ignore a possible function return value.
@@ -82,15 +80,25 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         // If there are branches in the function we need to use the `ConditionalSelectGadget` to parse through and select the correct one.
         // This can be thought of as de-multiplexing all previous wires that may have returned results into one.
         for (i, (indicator, result)) in ignored.into_iter().enumerate() {
-            return_value = ConstrainedValue::conditionally_select(
-                cs.ns(|| format!("select result {} {}:{}", i, span.line, span.start)),
-                &indicator,
-                &result,
-                &return_value,
-            )
-            .map_err(|_| StatementError::select_fail(result.to_string(), return_value.to_string(), span.to_owned()))?;
+            if let Some(value) = &return_value {
+                return_value = Some(
+                    ConstrainedValue::conditionally_select(
+                        cs.ns(|| format!("select result {} {}:{}", i, span.line, span.start)),
+                        &indicator,
+                        &result,
+                        &value,
+                    )
+                    .map_err(|_| StatementError::select_fail(result.to_string(), value.to_string(), span.to_owned()))?,
+                );
+            } else {
+                return_value = Some(result); // we ignore indicator for default -- questionable
+            }
         }
 
-        Ok(return_value)
+        if expected_return.is_unit() {
+            Ok(ConstrainedValue::Tuple(vec![]))
+        } else {
+            return_value.ok_or_else(|| StatementError::no_returns(&expected_return, span.to_owned()))
+        }
     }
 }
