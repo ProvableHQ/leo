@@ -67,8 +67,8 @@ fn test_negate() {
 }
 
 #[test]
-fn test_negative_declaration() {
-    let program_string = include_str!("negative_declaration.leo");
+fn test_field() {
+    let program_string = include_str!("field.leo");
     let mut program = parse_program(program_string).unwrap();
 
     assert_satisfied(program)
