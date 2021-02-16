@@ -12,15 +12,15 @@ import bar.( // imports directory import
 import car.Car; // imports directory import
 
 function main() {
-    const point = Point { x: 1u32, y: 1u32 };
-    const foo = foo();
+    let point = Point { x: 1u32, y: 1u32 };
+    let foo = foo();
 
-    const bar = Bar { r: 1u32 };
-    const baz = Baz { z: 1u32 };
-    const bazzar = Bazzar { a: 1u32 };
-    const bat = Bat { t: 1u32 };
+    let bar = Bar { r: 1u32 };
+    let baz = Baz { z: 1u32 };
+    let bazzar = Bazzar { a: 1u32 };
+    let bat = Bat { t: 1u32 };
 
-    const car = Car { c: 1u32 };
+    let car = Car { c: 1u32 };
 
     console.assert(car.c == 1u32);
 }
