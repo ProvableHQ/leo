@@ -161,7 +161,9 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 }
             }
             Implicit(value, span) => match expected_type {
-                None => return Err(AsgConvertError::unresolved_type("unknown", span)),
+                None => {
+                    return Err(AsgConvertError::unresolved_type("unknown", span))
+                },
                 Some(PartialType::Integer(Some(sub_type), _)) | Some(PartialType::Integer(None, Some(sub_type))) => {
                     Constant {
                         parent: RefCell::new(None),

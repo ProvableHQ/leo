@@ -105,6 +105,7 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
         value: &leo_ast::ArrayInlineExpression,
         expected_type: Option<PartialType>,
     ) -> Result<ArrayInlineExpression, AsgConvertError> {
+        // println!("v: {:?}", value);
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
@@ -118,6 +119,27 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
         };
 
         let mut len = 0;
+
+        if len == 0 && expected_item.is_none() {
+            for expr in value.elements.iter() {
+                expected_item = match expr {
+                    SpreadOrExpression::Expression(e) => {
+                        match Arc::<Expression>::from_ast(scope, e, expected_item.clone()) {
+                            Ok(expr) => {
+                                expr.get_type().map(Type::partial)
+                            },
+                            Err(_) => continue,
+                        }
+                    },
+                    _ => None
+                };
+
+                if expected_item.is_some() {
+                    break;
+                }
+            }
+        }
+
         let output = ArrayInlineExpression {
             parent: RefCell::new(None),
             span: Some(value.span.clone()),
