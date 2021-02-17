@@ -113,7 +113,7 @@ fn test_add_explicit() {
         let c: group = 0group + 1group;
     }
     "#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]

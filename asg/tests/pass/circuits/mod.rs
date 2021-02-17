@@ -133,5 +133,5 @@ fn test_circuit_explicit_define() {
         let x: One = One {x: 5};
     }
     "#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
