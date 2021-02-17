@@ -126,7 +126,6 @@ impl Command for Publish {
                 match serde_json::from_str(&text) {
                     Ok(json) => json,
                     Err(_) => {
-                        // tracing::warn!("Received an error from PM {:?}", text.clone());
                         return Err(anyhow!("Package not published: {}", text));
                     }
                 }
