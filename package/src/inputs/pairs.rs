@@ -27,6 +27,7 @@ pub struct InputPairs {
     pub pairs: HashMap<String, InputPair>,
 }
 
+#[derive(Debug)]
 pub struct InputPair {
     pub input_file: String,
     pub state_file: String,
@@ -47,9 +48,12 @@ impl TryFrom<&Path> for InputPairs {
         let mut pairs = HashMap::<String, InputPair>::new();
 
         for file in files {
-            let file_extension = file
-                .extension()
-                .ok_or_else(|| InputsDirectoryError::GettingFileExtension(file.as_os_str().to_owned()))?;
+            // if file name starts with . (dot) None is returned - we're
+            // skipping these files intentionally but not exiting
+            let file_extension = match file.extension() {
+                Some(extension) => extension,
+                None => continue,
+            };
 
             let file_name = file
                 .file_stem()
@@ -84,10 +88,8 @@ impl TryFrom<&Path> for InputPairs {
                     pairs.insert(file_name.to_owned(), pair);
                 }
             } else {
-                return Err(InputsDirectoryError::InvalidFileExtension(
-                    file_name.to_owned(),
-                    file_extension.to_owned(),
-                ));
+                // kept for verbosity, can be removed
+                continue;
             }
         }
 
