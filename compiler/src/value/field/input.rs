@@ -38,12 +38,12 @@ pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))
 }
 
-pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn field_from_input<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, FieldError> {
+) -> Result<ConstrainedValue<'a, F, G>, FieldError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {

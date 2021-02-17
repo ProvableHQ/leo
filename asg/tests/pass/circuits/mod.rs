@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 // Expressions
@@ -21,7 +23,7 @@ use crate::load_asg;
 #[test]
 fn test_inline() {
     let program_string = include_str!("inline.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Members
@@ -29,19 +31,19 @@ fn test_inline() {
 #[test]
 fn test_member_variable() {
     let program_string = include_str!("member_variable.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_member_variable_and_function() {
     let program_string = include_str!("member_variable_and_function.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_member_function() {
     let program_string = include_str!("member_function.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
@@ -58,25 +60,25 @@ fn test_mut_member_function() {
         
             console.assert(a.echo(1u32) == 1u32);
         }"#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_member_function_nested() {
     let program_string = include_str!("member_function_nested.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_member_static_function() {
     let program_string = include_str!("member_static_function.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_member_static_function_nested() {
     let program_string = include_str!("member_static_function_nested.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Mutability
@@ -84,19 +86,19 @@ fn test_member_static_function_nested() {
 #[test]
 fn test_mutate_self_variable() {
     let program_string = include_str!("mut_self_variable.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_mutate_self_variable_conditional() {
     let program_string = include_str!("mut_self_variable_conditional.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_mutate_variable() {
     let program_string = include_str!("mut_variable.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Self
@@ -104,7 +106,7 @@ fn test_mutate_variable() {
 #[test]
 fn test_self_member_pass() {
     let program_string = include_str!("self_member.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // All
@@ -112,13 +114,13 @@ fn test_self_member_pass() {
 #[test]
 fn test_pedersen_mock() {
     let program_string = include_str!("pedersen_mock.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_define_circuit_inside_circuit_function() {
     let program_string = include_str!("define_circuit_inside_circuit_function.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
@@ -131,5 +133,5 @@ fn test_circuit_explicit_define() {
         let x: One = One {x: 5};
     }
     "#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }

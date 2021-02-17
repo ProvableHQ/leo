@@ -18,18 +18,17 @@
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_index<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        index: &Arc<Expression>,
+        index: &'a Expression<'a>,
         span: &Span,
     ) -> Result<usize, ExpressionError> {
         match self.enforce_expression(cs, index)? {

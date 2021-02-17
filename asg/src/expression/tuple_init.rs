@@ -16,43 +16,40 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct TupleInitExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct TupleInitExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub elements: Vec<Arc<Expression>>,
+    pub elements: Vec<Cell<&'a Expression<'a>>>,
 }
 
-impl Node for TupleInitExpression {
+impl<'a> Node for TupleInitExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for TupleInitExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for TupleInitExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
         self.elements.iter().for_each(|element| {
-            element.set_parent(Arc::downgrade(expr));
+            element.get().set_parent(expr);
         })
     }
 
-    fn get_type(&self) -> Option<Type> {
+    fn get_type(&self) -> Option<Type<'a>> {
         let mut output = vec![];
         for element in self.elements.iter() {
-            output.push(element.get_type()?);
+            output.push(element.get().get_type()?);
         }
         Some(Type::Tuple(output))
     }
@@ -64,7 +61,7 @@ impl ExpressionNode for TupleInitExpression {
     fn const_value(&self) -> Option<ConstValue> {
         let mut consts = vec![];
         for element in self.elements.iter() {
-            if let Some(const_value) = element.const_value() {
+            if let Some(const_value) = element.get().const_value() {
                 consts.push(const_value);
             } else {
                 return None;
@@ -74,16 +71,16 @@ impl ExpressionNode for TupleInitExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.elements.iter().all(|x| x.is_consty())
+        self.elements.iter().all(|x| x.get().is_consty())
     }
 }
 
-impl FromAst<leo_ast::TupleInitExpression> for TupleInitExpression {
+impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::TupleInitExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<TupleInitExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<TupleInitExpression<'a>, AsgConvertError> {
         let tuple_types = match expected_type {
             Some(PartialType::Tuple(sub_types)) => Some(sub_types),
             None => None,
@@ -111,26 +108,27 @@ impl FromAst<leo_ast::TupleInitExpression> for TupleInitExpression {
             .iter()
             .enumerate()
             .map(|(i, e)| {
-                Arc::<Expression>::from_ast(
+                <&Expression<'a>>::from_ast(
                     scope,
                     e,
                     tuple_types.as_ref().map(|x| x.get(i)).flatten().cloned().flatten(),
                 )
+                .map(Cell::new)
             })
             .collect::<Result<Vec<_>, AsgConvertError>>()?;
 
         Ok(TupleInitExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
             elements,
         })
     }
 }
 
-impl Into<leo_ast::TupleInitExpression> for &TupleInitExpression {
+impl<'a> Into<leo_ast::TupleInitExpression> for &TupleInitExpression<'a> {
     fn into(self) -> leo_ast::TupleInitExpression {
         leo_ast::TupleInitExpression {
-            elements: self.elements.iter().map(|e| e.as_ref().into()).collect(),
+            elements: self.elements.iter().map(|e| e.get().into()).collect(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

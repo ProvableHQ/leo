@@ -14,17 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_out_of_order() {
     let program_string = include_str!("out_of_order.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // #[test]
 // #[ignore]
 // fn test_out_of_order_with_import() {
 //     let program_string = include_str!("out_of_order_with_import.leo");
-//     load_asg(program_string).unwrap();
+//     load_asg(&new_context(), program_string).unwrap();
 // }

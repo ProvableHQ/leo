@@ -16,55 +16,52 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct TernaryExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct TernaryExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub condition: Arc<Expression>,
-    pub if_true: Arc<Expression>,
-    pub if_false: Arc<Expression>,
+    pub condition: Cell<&'a Expression<'a>>,
+    pub if_true: Cell<&'a Expression<'a>>,
+    pub if_false: Cell<&'a Expression<'a>>,
 }
 
-impl Node for TernaryExpression {
+impl<'a> Node for TernaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for TernaryExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for TernaryExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.condition.set_parent(Arc::downgrade(expr));
-        self.if_true.set_parent(Arc::downgrade(expr));
-        self.if_false.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.condition.get().set_parent(expr);
+        self.if_true.get().set_parent(expr);
+        self.if_false.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
-        self.if_true.get_type()
+    fn get_type(&self) -> Option<Type<'a>> {
+        self.if_true.get().get_type()
     }
 
     fn is_mut_ref(&self) -> bool {
-        self.if_true.is_mut_ref() && self.if_false.is_mut_ref()
+        self.if_true.get().is_mut_ref() && self.if_false.get().is_mut_ref()
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        if let Some(ConstValue::Boolean(switch)) = self.condition.const_value() {
+        if let Some(ConstValue::Boolean(switch)) = self.condition.get().const_value() {
             if switch {
-                self.if_true.const_value()
+                self.if_true.get().const_value()
             } else {
-                self.if_false.const_value()
+                self.if_false.get().const_value()
             }
         } else {
             None
@@ -72,32 +69,40 @@ impl ExpressionNode for TernaryExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.condition.is_consty() && self.if_true.is_consty() && self.if_false.is_consty()
+        self.condition.get().is_consty() && self.if_true.get().is_consty() && self.if_false.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::TernaryExpression> for TernaryExpression {
+impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::TernaryExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<TernaryExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<TernaryExpression<'a>, AsgConvertError> {
         Ok(TernaryExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            condition: Arc::<Expression>::from_ast(scope, &*value.condition, Some(Type::Boolean.partial()))?,
-            if_true: Arc::<Expression>::from_ast(scope, &*value.if_true, expected_type.clone())?,
-            if_false: Arc::<Expression>::from_ast(scope, &*value.if_false, expected_type)?,
+            condition: Cell::new(<&Expression<'a>>::from_ast(
+                scope,
+                &*value.condition,
+                Some(Type::Boolean.partial()),
+            )?),
+            if_true: Cell::new(<&Expression<'a>>::from_ast(
+                scope,
+                &*value.if_true,
+                expected_type.clone(),
+            )?),
+            if_false: Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?),
         })
     }
 }
 
-impl Into<leo_ast::TernaryExpression> for &TernaryExpression {
+impl<'a> Into<leo_ast::TernaryExpression> for &TernaryExpression<'a> {
     fn into(self) -> leo_ast::TernaryExpression {
         leo_ast::TernaryExpression {
-            condition: Box::new(self.condition.as_ref().into()),
-            if_true: Box::new(self.if_true.as_ref().into()),
-            if_false: Box::new(self.if_false.as_ref().into()),
+            condition: Box::new(self.condition.get().into()),
+            if_true: Box::new(self.if_true.get().into()),
+            if_false: Box::new(self.if_false.get().into()),
             span: self.span.clone().unwrap_or_default(),
         }
     }

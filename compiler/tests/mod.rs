@@ -36,6 +36,7 @@ pub mod statements;
 pub mod syntax;
 pub mod tuples;
 
+use leo_asg::{new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
@@ -54,18 +55,23 @@ use std::path::PathBuf;
 pub const TEST_OUTPUT_DIRECTORY: &str = "/output/";
 const EMPTY_FILE: &str = "";
 
-pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
-pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
+pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
+pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
+
+//convenience function for tests, leaks memory
+pub(crate) fn make_test_context() -> AsgContext<'static> {
+    Box::leak(Box::new(new_context()))
+}
 
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, output_dir)
+    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context())
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program<'a>(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
     compiler.parse_program_from_string(program_string)?;
@@ -73,7 +79,7 @@ pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_input<'a>(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -82,7 +88,7 @@ pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, Com
     Ok(compiler)
 }
 
-pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_state<'a>(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -91,7 +97,7 @@ pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, Com
     Ok(compiler)
 }
 
-pub(crate) fn parse_input_and_state(
+pub(crate) fn parse_input_and_state<'a>(
     input_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -103,7 +109,7 @@ pub(crate) fn parse_input_and_state(
     Ok(compiler)
 }
 
-pub fn parse_program_with_input(
+pub fn parse_program_with_input<'a>(
     program_string: &str,
     input_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -116,7 +122,7 @@ pub fn parse_program_with_input(
     Ok(compiler)
 }
 
-pub fn parse_program_with_state(
+pub fn parse_program_with_state<'a>(
     program_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {

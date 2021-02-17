@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 // Expressions
@@ -21,13 +23,13 @@ use crate::load_asg;
 #[test]
 fn test_inline_fail() {
     let program_string = include_str!("inline_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_inline_undefined() {
     let program_string = include_str!("inline_undefined.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 // Members
@@ -35,19 +37,19 @@ fn test_inline_undefined() {
 #[test]
 fn test_member_variable_fail() {
     let program_string = include_str!("member_variable_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_member_function_fail() {
     let program_string = include_str!("member_function_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_member_function_invalid() {
     let program_string = include_str!("member_function_invalid.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
@@ -64,19 +66,19 @@ fn test_mut_member_function_fail() {
         
             console.assert(a.echo(1u32) == 1u32);
         }"#;
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_member_static_function_invalid() {
     let program_string = include_str!("member_static_function_invalid.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_member_static_function_undefined() {
     let program_string = include_str!("member_static_function_undefined.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 // Mutability
@@ -84,37 +86,37 @@ fn test_member_static_function_undefined() {
 #[test]
 fn test_mutate_function_fail() {
     let program_string = include_str!("mut_function_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_mutate_self_variable_fail() {
     let program_string = include_str!("mut_self_variable_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_mutate_self_function_fail() {
     let program_string = include_str!("mut_self_function_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_mutate_self_static_function_fail() {
     let program_string = include_str!("mut_self_static_function_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_mutate_static_function_fail() {
     let program_string = include_str!("mut_static_function_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_mutate_variable_fail() {
     let program_string = include_str!("mut_variable_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 // Self
@@ -122,17 +124,17 @@ fn test_mutate_variable_fail() {
 #[test]
 fn test_self_fail() {
     let program_string = include_str!("self_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_self_member_invalid() {
     let program_string = include_str!("self_member_invalid.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_self_member_undefined() {
     let program_string = include_str!("self_member_undefined.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }

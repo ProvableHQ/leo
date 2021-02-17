@@ -21,9 +21,9 @@ use leo_asg::VariableRef;
 
 use snarkvm_models::curves::{Field, PrimeField};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce a variable expression by getting the resolved value
-    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable = variable_ref.variable.borrow();
         let result_value = if let Some(value) = self.get(&variable.id) {
