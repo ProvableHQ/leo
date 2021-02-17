@@ -125,13 +125,11 @@ impl FromAst<leo_ast::ArrayInlineExpression> for ArrayInlineExpression {
                 expected_item = match expr {
                     SpreadOrExpression::Expression(e) => {
                         match Arc::<Expression>::from_ast(scope, e, expected_item.clone()) {
-                            Ok(expr) => {
-                                expr.get_type().map(Type::partial)
-                            },
+                            Ok(expr) => expr.get_type().map(Type::partial),
                             Err(_) => continue,
                         }
-                    },
-                    _ => None
+                    }
+                    _ => None,
                 };
 
                 if expected_item.is_some() {
