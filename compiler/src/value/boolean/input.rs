@@ -41,12 +41,12 @@ pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span.to_owned()))
 }
 
-pub(crate) fn bool_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn bool_from_input<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
     // Check that the input value is the correct type
     let option = match input_value {
         Some(input) => {

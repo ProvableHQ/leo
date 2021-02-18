@@ -19,7 +19,10 @@ use crate::{
     context::Context,
     synthesizer::{CircuitSynthesizer, SerializedCircuit},
 };
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_compiler::{
+    compiler::{thread_leaked_context, Compiler},
+    group::targets::edwards_bls12::EdwardsGroupType,
+};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -45,7 +48,7 @@ impl Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
+    type Output = Option<(Compiler<'static, Fq, EdwardsGroupType>, bool)>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -86,6 +89,7 @@ impl Command for Build {
                 package_name.clone(),
                 lib_file_path,
                 output_directory.clone(),
+                thread_leaked_context(),
             )?;
             tracing::info!("Complete");
         };
@@ -118,6 +122,7 @@ impl Command for Build {
                 &input_path,
                 &state_string,
                 &state_path,
+                thread_leaked_context(),
             )?;
 
             // Compute the current program checksum

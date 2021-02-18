@@ -31,37 +31,34 @@ use crate::{
     Variable,
 };
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct VariableRef {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct VariableRef<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub variable: Variable,
+    pub variable: &'a Variable<'a>,
 }
 
-impl Node for VariableRef {
+impl<'a> Node for VariableRef<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for VariableRef {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for VariableRef<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, _expr: &Arc<Expression>) {}
+    fn enforce_parents(&self, _expr: &'a Expression<'a>) {}
 
-    fn get_type(&self) -> Option<Type> {
-        Some(self.variable.borrow().type_.clone().strong())
+    fn get_type(&self) -> Option<Type<'a>> {
+        Some(self.variable.borrow().type_.clone())
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -74,24 +71,19 @@ impl ExpressionNode for VariableRef {
         if variable.mutable || variable.assignments.len() != 1 {
             return None;
         }
-        let assignment = variable
-            .assignments
-            .get(0)
-            .unwrap()
-            .upgrade()
-            .expect("stale assignment for variable");
+        let assignment = variable.assignments.get(0).unwrap();
         match &*assignment {
             Statement::Definition(DefinitionStatement { variables, value, .. }) => {
                 if variables.len() == 1 {
                     let defined_variable = variables.get(0).unwrap().borrow();
                     assert_eq!(variable.id, defined_variable.id);
 
-                    value.const_value()
+                    value.get().const_value()
                 } else {
                     for defined_variable in variables.iter() {
                         let defined_variable = defined_variable.borrow();
                         if defined_variable.id == variable.id {
-                            return value.const_value();
+                            return value.get().const_value();
                         }
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
@@ -109,12 +101,7 @@ impl ExpressionNode for VariableRef {
         if variable.mutable || variable.assignments.len() != 1 {
             return false;
         }
-        let assignment = variable
-            .assignments
-            .get(0)
-            .unwrap()
-            .upgrade()
-            .expect("stale assignment for variable");
+        let assignment = variable.assignments.get(0).unwrap();
 
         match &*assignment {
             Statement::Definition(DefinitionStatement { variables, value, .. }) => {
@@ -122,12 +109,12 @@ impl ExpressionNode for VariableRef {
                     let defined_variable = variables.get(0).unwrap().borrow();
                     assert_eq!(variable.id, defined_variable.id);
 
-                    value.is_consty()
+                    value.get().is_consty()
                 } else {
                     for defined_variable in variables.iter() {
                         let defined_variable = defined_variable.borrow();
                         if defined_variable.id == variable.id {
-                            return value.is_consty();
+                            return value.get().is_consty();
                         }
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
@@ -139,21 +126,21 @@ impl ExpressionNode for VariableRef {
     }
 }
 
-impl FromAst<leo_ast::Identifier> for Arc<Expression> {
+impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::Identifier,
-        expected_type: Option<PartialType>,
-    ) -> Result<Arc<Expression>, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<&'a Expression<'a>, AsgConvertError> {
         let variable = if value.name == "input" {
-            if let Some(function) = scope.borrow().resolve_current_function() {
+            if let Some(function) = scope.resolve_current_function() {
                 if !function.has_input {
                     return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
                 }
             } else {
                 return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
             }
-            if let Some(input) = scope.borrow().resolve_input() {
+            if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
                 return Err(AsgConvertError::InternalError(
@@ -161,12 +148,12 @@ impl FromAst<leo_ast::Identifier> for Arc<Expression> {
                 ));
             }
         } else {
-            match scope.borrow().resolve_variable(&value.name) {
+            match scope.resolve_variable(&value.name) {
                 Some(v) => v,
                 None => {
                     if value.name.starts_with("aleo1") {
-                        return Ok(Arc::new(Expression::Constant(Constant {
-                            parent: RefCell::new(None),
+                        return Ok(scope.alloc_expression(Expression::Constant(Constant {
+                            parent: Cell::new(None),
                             span: Some(value.span.clone()),
                             value: ConstValue::Address(value.name.clone()),
                         })));
@@ -177,11 +164,11 @@ impl FromAst<leo_ast::Identifier> for Arc<Expression> {
         };
 
         let variable_ref = VariableRef {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            variable: variable.clone(),
+            variable,
         };
-        let expression = Arc::new(Expression::VariableRef(variable_ref));
+        let expression = scope.alloc_expression(Expression::VariableRef(variable_ref));
 
         if let Some(expected_type) = expected_type {
             let type_ = expression
@@ -197,13 +184,13 @@ impl FromAst<leo_ast::Identifier> for Arc<Expression> {
         }
 
         let mut variable_ref = variable.borrow_mut();
-        variable_ref.references.push(Arc::downgrade(&expression));
+        variable_ref.references.push(expression);
 
         Ok(expression)
     }
 }
 
-impl Into<leo_ast::Identifier> for &VariableRef {
+impl<'a> Into<leo_ast::Identifier> for &VariableRef<'a> {
     fn into(self) -> leo_ast::Identifier {
         self.variable.borrow().name.clone()
     }

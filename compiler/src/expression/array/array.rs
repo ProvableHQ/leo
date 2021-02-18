@@ -16,28 +16,29 @@
 
 //! Enforces an array expression in a compiled Leo program.
 
+use std::cell::Cell;
+
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce array expressions
     pub fn enforce_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        array: &[(Arc<Expression>, bool)],
+        array: &[(Cell<&'a Expression<'a>>, bool)],
         span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let expected_dimension = None;
 
         let mut result = vec![];
         for (element, is_spread) in array.iter() {
-            let element_value = self.enforce_expression(cs, element)?;
+            let element_value = self.enforce_expression(cs, element.get())?;
             if *is_spread {
                 match element_value {
                     ConstrainedValue::Array(array) => result.extend(array),
@@ -66,9 +67,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array_initializer<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        element_expression: &Arc<Expression>,
+        element_expression: &'a Expression<'a>,
         actual_size: usize,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let mut value = self.enforce_expression(cs, element_expression)?;
 
         // Allocate the array.

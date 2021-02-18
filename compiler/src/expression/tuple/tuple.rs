@@ -16,25 +16,26 @@
 
 //! Enforces an tuple expression in a compiled Leo program.
 
+use std::cell::Cell;
+
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce tuple expressions
     pub fn enforce_tuple<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        tuple: &[Arc<Expression>],
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        tuple: &[Cell<&'a Expression<'a>>],
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let mut result = Vec::with_capacity(tuple.len());
         for expression in tuple.iter() {
-            result.push(self.enforce_expression(cs, expression)?);
+            result.push(self.enforce_expression(cs, expression.get())?);
         }
 
         Ok(ConstrainedValue::Tuple(result))

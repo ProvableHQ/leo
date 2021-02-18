@@ -18,22 +18,21 @@
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::{Field, PrimeField},
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_tuple_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        tuple: &Arc<Expression>,
+        tuple: &'a Expression<'a>,
         index: usize,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         // Get the tuple values.
         let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,

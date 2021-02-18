@@ -388,3 +388,12 @@ fn test_ternary() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_positive_and_negative() {
+    let program_string = include_str!("positive_and_negative.leo");
+
+    let program = parse_program(program_string).unwrap();
+    
+    assert_satisfied(program);
+}

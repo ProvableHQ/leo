@@ -16,40 +16,37 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ArrayInitExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct ArrayInitExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub element: Arc<Expression>,
+    pub element: Cell<&'a Expression<'a>>,
     pub len: usize,
 }
 
-impl Node for ArrayInitExpression {
+impl<'a> Node for ArrayInitExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for ArrayInitExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for ArrayInitExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.element.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.element.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
-        Some(Type::Array(Box::new(self.element.get_type()?), self.len))
+    fn get_type(&self) -> Option<Type<'a>> {
+        Some(Type::Array(Box::new(self.element.get().get_type()?), self.len))
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -62,16 +59,16 @@ impl ExpressionNode for ArrayInitExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.element.is_consty()
+        self.element.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
+impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInitExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<ArrayInitExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<ArrayInitExpression<'a>, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
@@ -130,17 +127,19 @@ impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
                 }
             }
         }
-        let mut element = Some(Arc::<Expression>::from_ast(scope, &*value.element, expected_item)?);
+        let mut element = Some(<&'a Expression<'a>>::from_ast(scope, &*value.element, expected_item)?);
         let mut output = None;
 
         for dimension in dimensions.iter().rev().copied() {
             output = Some(ArrayInitExpression {
-                parent: RefCell::new(None),
+                parent: Cell::new(None),
                 span: Some(value.span.clone()),
-                element: output
-                    .map(Expression::ArrayInit)
-                    .map(Arc::new)
-                    .unwrap_or_else(|| element.take().unwrap()),
+                element: Cell::new(
+                    output
+                        .map(Expression::ArrayInit)
+                        .map(|expr| &*scope.alloc_expression(expr))
+                        .unwrap_or_else(|| element.take().unwrap()),
+                ),
                 len: dimension,
             });
         }
@@ -148,10 +147,10 @@ impl FromAst<leo_ast::ArrayInitExpression> for ArrayInitExpression {
     }
 }
 
-impl Into<leo_ast::ArrayInitExpression> for &ArrayInitExpression {
+impl<'a> Into<leo_ast::ArrayInitExpression> for &ArrayInitExpression<'a> {
     fn into(self) -> leo_ast::ArrayInitExpression {
         leo_ast::ArrayInitExpression {
-            element: Box::new(self.element.as_ref().into()),
+            element: Box::new(self.element.get().into()),
             dimensions: leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
                 value: self.len.to_string(),
             }]),

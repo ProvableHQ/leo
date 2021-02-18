@@ -28,41 +28,37 @@ use crate::{
     Type,
     Variable,
 };
-
 use leo_ast::{AstError, DeprecatedError};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::{Cell, RefCell};
 
-#[derive(Debug)]
-pub struct DefinitionStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct DefinitionStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub variables: Vec<Variable>,
-    pub value: Arc<Expression>,
+    pub variables: Vec<&'a Variable<'a>>,
+    pub value: Cell<&'a Expression<'a>>,
 }
 
-impl Node for DefinitionStatement {
+impl<'a> Node for DefinitionStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::DefinitionStatement> for Arc<Statement> {
+impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::DefinitionStatement,
-        _expected_type: Option<PartialType>,
-    ) -> Result<Arc<Statement>, AsgConvertError> {
+        _expected_type: Option<PartialType<'a>>,
+    ) -> Result<Self, AsgConvertError> {
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.borrow().resolve_ast_type(&x))
+            .map(|x| scope.resolve_ast_type(&x))
             .transpose()?;
 
-        let value = Arc::<Expression>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
+        let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
 
         let type_ = type_.or_else(|| value.get_type());
 
@@ -99,13 +95,11 @@ impl FromAst<leo_ast::DefinitionStatement> for Arc<Statement> {
                     DeprecatedError::const_statement(&statement.span),
                 )));
             }
-
-            variables.push(Arc::new(RefCell::new(InnerVariable {
+            variables.push(&*scope.alloc_variable(RefCell::new(InnerVariable {
                 id: uuid::Uuid::new_v4(),
                 name: variable.identifier.clone(),
-                type_: type_
-                    .ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?
-                    .weak(),
+                type_:
+                    type_.ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?,
                 mutable: variable.mutable,
                 const_: false,
                 declaration: crate::VariableDeclaration::Definition,
@@ -114,31 +108,29 @@ impl FromAst<leo_ast::DefinitionStatement> for Arc<Statement> {
             })));
         }
 
-        {
-            let mut scope_borrow = scope.borrow_mut();
-            for variable in variables.iter() {
-                scope_borrow
-                    .variables
-                    .insert(variable.borrow().name.name.clone(), variable.clone());
-            }
+        for variable in variables.iter() {
+            scope
+                .variables
+                .borrow_mut()
+                .insert(variable.borrow().name.name.clone(), *variable);
         }
 
-        let statement = Arc::new(Statement::Definition(DefinitionStatement {
-            parent: None,
+        let statement = scope.alloc_statement(Statement::Definition(DefinitionStatement {
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
             variables: variables.clone(),
-            value,
+            value: Cell::new(value),
         }));
 
-        variables.iter().for_each(|variable| {
-            variable.borrow_mut().assignments.push(Arc::downgrade(&statement));
-        });
+        for variable in variables {
+            variable.borrow_mut().assignments.push(statement);
+        }
 
         Ok(statement)
     }
 }
 
-impl Into<leo_ast::DefinitionStatement> for &DefinitionStatement {
+impl<'a> Into<leo_ast::DefinitionStatement> for &DefinitionStatement<'a> {
     fn into(self) -> leo_ast::DefinitionStatement {
         assert!(!self.variables.is_empty());
 
@@ -152,7 +144,7 @@ impl Into<leo_ast::DefinitionStatement> for &DefinitionStatement {
                 span: variable.name.span.clone(),
             });
             if type_.is_none() {
-                type_ = Some((&variable.type_.clone().strong()).into());
+                type_ = Some((&variable.type_.clone()).into());
             }
         }
 
@@ -160,7 +152,7 @@ impl Into<leo_ast::DefinitionStatement> for &DefinitionStatement {
             declaration_type: leo_ast::Declare::Let,
             variable_names,
             type_,
-            value: self.value.as_ref().into(),
+            value: self.value.get().into(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

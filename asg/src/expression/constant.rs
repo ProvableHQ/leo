@@ -29,36 +29,33 @@ use crate::{
     Type,
 };
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct Constant {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct Constant<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub value: ConstValue, // should not be compound constants
 }
 
-impl Node for Constant {
+impl<'a> Node for Constant<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for Constant {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for Constant<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, _expr: &Arc<Expression>) {}
+    fn enforce_parents(&self, _expr: &'a Expression<'a>) {}
 
-    fn get_type(&self) -> Option<Type> {
+    fn get_type(&self) -> Option<Type<'a>> {
         self.value.get_type()
     }
 
@@ -75,12 +72,12 @@ impl ExpressionNode for Constant {
     }
 }
 
-impl FromAst<leo_ast::ValueExpression> for Constant {
+impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
     fn from_ast(
-        _scope: &Scope,
+        _scope: &'a Scope<'a>,
         value: &leo_ast::ValueExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<Constant, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<Constant<'a>, AsgConvertError> {
         use leo_ast::ValueExpression::*;
         Ok(match value {
             Address(value, span) => {
@@ -95,7 +92,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }
                 }
                 Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Address(value.clone()),
                 }
@@ -112,7 +109,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }
                 }
                 Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Boolean(
                         value
@@ -133,7 +130,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }
                 }
                 Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
                 }
@@ -150,7 +147,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }
                 }
                 Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(value.span().clone()),
                     value: ConstValue::Group(match &**value {
                         leo_ast::GroupValue::Single(value, _) => GroupValue::Single(value.clone()),
@@ -164,23 +161,23 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                 None => return Err(AsgConvertError::unresolved_type("unknown", span)),
                 Some(PartialType::Integer(Some(sub_type), _)) | Some(PartialType::Integer(None, Some(sub_type))) => {
                     Constant {
-                        parent: RefCell::new(None),
+                        parent: Cell::new(None),
                         span: Some(span.clone()),
                         value: ConstValue::Int(ConstInt::parse(&sub_type, value, span)?),
                     }
                 }
                 Some(PartialType::Type(Type::Field)) => Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
                 },
                 Some(PartialType::Type(Type::Group)) => Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Group(GroupValue::Single(value.to_string())),
                 },
                 Some(PartialType::Type(Type::Address)) => Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Address(value.to_string()),
                 },
@@ -200,7 +197,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
                     }
                 }
                 Constant {
-                    parent: RefCell::new(None),
+                    parent: Cell::new(None),
                     span: Some(span.clone()),
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),
                 }
@@ -209,7 +206,7 @@ impl FromAst<leo_ast::ValueExpression> for Constant {
     }
 }
 
-impl Into<leo_ast::ValueExpression> for &Constant {
+impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
     fn into(self) -> leo_ast::ValueExpression {
         match &self.value {
             ConstValue::Address(value) => {

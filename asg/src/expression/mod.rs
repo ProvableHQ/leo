@@ -64,31 +64,29 @@ pub use variable_ref::*;
 
 use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
 
-use std::sync::{Arc, Weak};
+#[derive(Clone)]
+pub enum Expression<'a> {
+    VariableRef(VariableRef<'a>),
+    Constant(Constant<'a>),
+    Binary(BinaryExpression<'a>),
+    Unary(UnaryExpression<'a>),
+    Ternary(TernaryExpression<'a>),
 
-#[derive(Debug)]
-pub enum Expression {
-    VariableRef(VariableRef),
-    Constant(Constant),
-    Binary(BinaryExpression),
-    Unary(UnaryExpression),
-    Ternary(TernaryExpression),
+    ArrayInline(ArrayInlineExpression<'a>),
+    ArrayInit(ArrayInitExpression<'a>),
+    ArrayAccess(ArrayAccessExpression<'a>),
+    ArrayRangeAccess(ArrayRangeAccessExpression<'a>),
 
-    ArrayInline(ArrayInlineExpression),
-    ArrayInit(ArrayInitExpression),
-    ArrayAccess(ArrayAccessExpression),
-    ArrayRangeAccess(ArrayRangeAccessExpression),
+    TupleInit(TupleInitExpression<'a>),
+    TupleAccess(TupleAccessExpression<'a>),
 
-    TupleInit(TupleInitExpression),
-    TupleAccess(TupleAccessExpression),
+    CircuitInit(CircuitInitExpression<'a>),
+    CircuitAccess(CircuitAccessExpression<'a>),
 
-    CircuitInit(CircuitInitExpression),
-    CircuitAccess(CircuitAccessExpression),
-
-    Call(CallExpression),
+    Call(CallExpression<'a>),
 }
 
-impl Node for Expression {
+impl<'a> Node for Expression<'a> {
     fn span(&self) -> Option<&Span> {
         use Expression::*;
         match self {
@@ -110,19 +108,19 @@ impl Node for Expression {
     }
 }
 
-pub trait ExpressionNode: Node {
-    fn set_parent(&self, parent: Weak<Expression>);
-    fn get_parent(&self) -> Option<Arc<Expression>>;
-    fn enforce_parents(&self, expr: &Arc<Expression>);
+pub trait ExpressionNode<'a>: Node {
+    fn set_parent(&self, parent: &'a Expression<'a>);
+    fn get_parent(&self) -> Option<&'a Expression<'a>>;
+    fn enforce_parents(&self, expr: &'a Expression<'a>);
 
-    fn get_type(&self) -> Option<Type>;
+    fn get_type(&self) -> Option<Type<'a>>;
     fn is_mut_ref(&self) -> bool;
     fn const_value(&self) -> Option<ConstValue>; // todo: memoize
     fn is_consty(&self) -> bool;
 }
 
-impl ExpressionNode for Expression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for Expression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         use Expression::*;
         match self {
             VariableRef(x) => x.set_parent(parent),
@@ -142,7 +140,7 @@ impl ExpressionNode for Expression {
         }
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
         use Expression::*;
         match self {
             VariableRef(x) => x.get_parent(),
@@ -162,7 +160,7 @@ impl ExpressionNode for Expression {
         }
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
         use Expression::*;
         match self {
             VariableRef(x) => x.enforce_parents(expr),
@@ -182,7 +180,7 @@ impl ExpressionNode for Expression {
         }
     }
 
-    fn get_type(&self) -> Option<Type> {
+    fn get_type(&self) -> Option<Type<'a>> {
         use Expression::*;
         match self {
             VariableRef(x) => x.get_type(),
@@ -263,65 +261,70 @@ impl ExpressionNode for Expression {
     }
 }
 
-impl FromAst<leo_ast::Expression> for Arc<Expression> {
+impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::Expression,
-        expected_type: Option<PartialType>,
+        expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type)?,
-            Value(value) => Arc::new(Constant::from_ast(scope, value, expected_type).map(Expression::Constant)?),
-            Binary(binary) => {
-                Arc::new(BinaryExpression::from_ast(scope, binary, expected_type).map(Expression::Binary)?)
+            Value(value) => {
+                scope.alloc_expression(Constant::from_ast(scope, value, expected_type).map(Expression::Constant)?)
             }
-            Unary(unary) => Arc::new(UnaryExpression::from_ast(scope, unary, expected_type).map(Expression::Unary)?),
-            Ternary(conditional) => {
-                Arc::new(TernaryExpression::from_ast(scope, conditional, expected_type).map(Expression::Ternary)?)
+            Binary(binary) => scope
+                .alloc_expression(BinaryExpression::from_ast(scope, binary, expected_type).map(Expression::Binary)?),
+            Unary(unary) => {
+                scope.alloc_expression(UnaryExpression::from_ast(scope, unary, expected_type).map(Expression::Unary)?)
             }
+            Ternary(conditional) => scope.alloc_expression(
+                TernaryExpression::from_ast(scope, conditional, expected_type).map(Expression::Ternary)?,
+            ),
 
-            ArrayInline(array_inline) => Arc::new(
+            ArrayInline(array_inline) => scope.alloc_expression(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
             ),
-            ArrayInit(array_init) => {
-                Arc::new(ArrayInitExpression::from_ast(scope, array_init, expected_type).map(Expression::ArrayInit)?)
-            }
-            ArrayAccess(array_access) => Arc::new(
+            ArrayInit(array_init) => scope.alloc_expression(
+                ArrayInitExpression::from_ast(scope, array_init, expected_type).map(Expression::ArrayInit)?,
+            ),
+            ArrayAccess(array_access) => scope.alloc_expression(
                 ArrayAccessExpression::from_ast(scope, array_access, expected_type).map(Expression::ArrayAccess)?,
             ),
-            ArrayRangeAccess(array_range_access) => Arc::new(
+            ArrayRangeAccess(array_range_access) => scope.alloc_expression(
                 ArrayRangeAccessExpression::from_ast(scope, array_range_access, expected_type)
                     .map(Expression::ArrayRangeAccess)?,
             ),
 
-            TupleInit(tuple_init) => {
-                Arc::new(TupleInitExpression::from_ast(scope, tuple_init, expected_type).map(Expression::TupleInit)?)
-            }
-            TupleAccess(tuple_access) => Arc::new(
+            TupleInit(tuple_init) => scope.alloc_expression(
+                TupleInitExpression::from_ast(scope, tuple_init, expected_type).map(Expression::TupleInit)?,
+            ),
+            TupleAccess(tuple_access) => scope.alloc_expression(
                 TupleAccessExpression::from_ast(scope, tuple_access, expected_type).map(Expression::TupleAccess)?,
             ),
 
-            CircuitInit(circuit_init) => Arc::new(
+            CircuitInit(circuit_init) => scope.alloc_expression(
                 CircuitInitExpression::from_ast(scope, circuit_init, expected_type).map(Expression::CircuitInit)?,
             ),
-            CircuitMemberAccess(circuit_member) => Arc::new(
+            CircuitMemberAccess(circuit_member) => scope.alloc_expression(
                 CircuitAccessExpression::from_ast(scope, circuit_member, expected_type)
                     .map(Expression::CircuitAccess)?,
             ),
-            CircuitStaticFunctionAccess(circuit_member) => Arc::new(
+            CircuitStaticFunctionAccess(circuit_member) => scope.alloc_expression(
                 CircuitAccessExpression::from_ast(scope, circuit_member, expected_type)
                     .map(Expression::CircuitAccess)?,
             ),
 
-            Call(call) => Arc::new(CallExpression::from_ast(scope, call, expected_type).map(Expression::Call)?),
+            Call(call) => {
+                scope.alloc_expression(CallExpression::from_ast(scope, call, expected_type).map(Expression::Call)?)
+            }
         };
         expression.enforce_parents(&expression);
         Ok(expression)
     }
 }
 
-impl Into<leo_ast::Expression> for &Expression {
+impl<'a> Into<leo_ast::Expression> for &Expression<'a> {
     fn into(self) -> leo_ast::Expression {
         use Expression::*;
         match self {

@@ -24,13 +24,13 @@ use snarkvm_models::{
     gadgets::r1cs::ConstraintSystem,
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_return_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        statement: &ReturnStatement,
-    ) -> Result<ConstrainedValue<F, G>, StatementError> {
-        let result = self.enforce_expression(cs, &statement.expression)?;
+        statement: &ReturnStatement<'a>,
+    ) -> Result<ConstrainedValue<'a, F, G>, StatementError> {
+        let result = self.enforce_expression(cs, statement.expression.get())?;
         Ok(result)
     }
 }

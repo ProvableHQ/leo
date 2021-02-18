@@ -16,51 +16,48 @@
 
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct TupleAccessExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct TupleAccessExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub tuple_ref: Arc<Expression>,
+    pub tuple_ref: Cell<&'a Expression<'a>>,
     pub index: usize,
 }
 
-impl Node for TupleAccessExpression {
+impl<'a> Node for TupleAccessExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for TupleAccessExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for TupleAccessExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.tuple_ref.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.tuple_ref.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
-        match self.tuple_ref.get_type()? {
+    fn get_type(&self) -> Option<Type<'a>> {
+        match self.tuple_ref.get().get_type()? {
             Type::Tuple(subtypes) => subtypes.get(self.index).cloned(),
             _ => None,
         }
     }
 
     fn is_mut_ref(&self) -> bool {
-        self.tuple_ref.is_mut_ref()
+        self.tuple_ref.get().is_mut_ref()
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        let tuple_const = self.tuple_ref.const_value()?;
+        let tuple_const = self.tuple_ref.get().const_value()?;
         match tuple_const {
             ConstValue::Tuple(sub_consts) => sub_consts.get(self.index).cloned(),
             _ => None,
@@ -68,16 +65,16 @@ impl ExpressionNode for TupleAccessExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.tuple_ref.is_consty()
+        self.tuple_ref.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
+impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::TupleAccessExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<TupleAccessExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<TupleAccessExpression<'a>, AsgConvertError> {
         let index = value
             .index
             .value
@@ -87,7 +84,7 @@ impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type;
 
-        let tuple = Arc::<Expression>::from_ast(scope, &*value.tuple, Some(PartialType::Tuple(expected_tuple)))?;
+        let tuple = <&Expression<'a>>::from_ast(scope, &*value.tuple, Some(PartialType::Tuple(expected_tuple)))?;
         let tuple_type = tuple.get_type();
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
@@ -99,18 +96,18 @@ impl FromAst<leo_ast::TupleAccessExpression> for TupleAccessExpression {
         }
 
         Ok(TupleAccessExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
-            tuple_ref: tuple,
+            tuple_ref: Cell::new(tuple),
             index,
         })
     }
 }
 
-impl Into<leo_ast::TupleAccessExpression> for &TupleAccessExpression {
+impl<'a> Into<leo_ast::TupleAccessExpression> for &TupleAccessExpression<'a> {
     fn into(self) -> leo_ast::TupleAccessExpression {
         leo_ast::TupleAccessExpression {
-            tuple: Box::new(self.tuple_ref.as_ref().into()),
+            tuple: Box::new(self.tuple_ref.get().into()),
             index: leo_ast::PositiveNumber {
                 value: self.index.to_string(),
             },

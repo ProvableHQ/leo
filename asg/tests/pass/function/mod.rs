@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_empty() {
     let program_string = include_str!("empty.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_iteration() {
     let program_string = include_str!("iteration.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
@@ -45,7 +47,7 @@ fn test_const_args() {
         console.assert(a == 20u32);
     }
     "#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
@@ -66,7 +68,7 @@ fn test_const_args_used() {
         console.assert(a == 6u8);
     }
     "#;
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
@@ -85,61 +87,61 @@ fn test_const_args_fail() {
         console.assert(a == 1u8);
     }
     "#;
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_iteration_repeated() {
     let program_string = include_str!("iteration_repeated.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_newlines() {
     let program_string = include_str!("newlines.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_multiple_returns() {
     let program_string = include_str!("multiple_returns.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_multiple_returns_main() {
     let program_string = include_str!("multiple_returns_main.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_repeated_function_call() {
     let program_string = include_str!("repeated.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_return() {
     let program_string = include_str!("return.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_undefined() {
     let program_string = include_str!("undefined.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_value_unchanged() {
     let program_string = include_str!("value_unchanged.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_array_input() {
     let program_string = include_str!("array_input.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 // Test return multidimensional arrays
@@ -147,13 +149,13 @@ fn test_array_input() {
 #[test]
 fn test_return_array_nested_pass() {
     let program_string = include_str!("return_array_nested_pass.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_return_array_tuple_pass() {
     let program_string = include_str!("return_array_tuple_pass.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Test return tuples
@@ -161,11 +163,11 @@ fn test_return_array_tuple_pass() {
 #[test]
 fn test_return_tuple() {
     let program_string = include_str!("return_tuple.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_return_tuple_conditional() {
     let program_string = include_str!("return_tuple_conditional.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }

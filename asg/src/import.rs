@@ -16,56 +16,74 @@
 
 //! Helper methods for resolving imported packages.
 
-use crate::{AsgConvertError, Program, Span};
+use std::marker::PhantomData;
+
+use crate::{AsgContext, AsgConvertError, Program, Span};
 
 use indexmap::IndexMap;
 
-pub trait ImportResolver {
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, AsgConvertError>;
+pub trait ImportResolver<'a> {
+    fn resolve_package(
+        &mut self,
+        context: AsgContext<'a>,
+        package_segments: &[&str],
+        span: &Span,
+    ) -> Result<Option<Program<'a>>, AsgConvertError>;
 }
 
 pub struct NullImportResolver;
 
-impl ImportResolver for NullImportResolver {
+impl<'a> ImportResolver<'a> for NullImportResolver {
     fn resolve_package(
         &mut self,
+        _context: AsgContext<'a>,
         _package_segments: &[&str],
         _span: &Span,
-    ) -> Result<Option<Program>, AsgConvertError> {
+    ) -> Result<Option<Program<'a>>, AsgConvertError> {
         Ok(None)
     }
 }
 
-pub struct CoreImportResolver<'a, T: ImportResolver + 'static>(pub &'a mut T);
+pub struct CoreImportResolver<'a, 'b, T: ImportResolver<'b>> {
+    inner: &'a mut T,
+    lifetime: PhantomData<&'b ()>,
+}
 
-impl<'a, T: ImportResolver + 'static> ImportResolver for CoreImportResolver<'a, T> {
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, AsgConvertError> {
-        if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"core" {
-            Ok(crate::resolve_core_module(&*package_segments[1..].join("."))?)
-        } else {
-            self.0.resolve_package(package_segments, span)
+impl<'a, 'b, T: ImportResolver<'b>> CoreImportResolver<'a, 'b, T> {
+    pub fn new(inner: &'a mut T) -> Self {
+        CoreImportResolver {
+            inner,
+            lifetime: PhantomData,
         }
     }
 }
 
-pub struct StandardImportResolver;
-
-impl ImportResolver for StandardImportResolver {
+impl<'a, 'b, T: ImportResolver<'b>> ImportResolver<'b> for CoreImportResolver<'a, 'b, T> {
     fn resolve_package(
         &mut self,
-        _package_segments: &[&str],
-        _span: &Span,
-    ) -> Result<Option<Program>, AsgConvertError> {
-        Ok(None)
+        context: AsgContext<'b>,
+        package_segments: &[&str],
+        span: &Span,
+    ) -> Result<Option<Program<'b>>, AsgConvertError> {
+        if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"core" {
+            Ok(crate::resolve_core_module(context, &*package_segments[1..].join("."))?)
+        } else {
+            self.inner.resolve_package(context, package_segments, span)
+        }
     }
 }
 
-pub struct MockedImportResolver {
-    pub packages: IndexMap<String, Program>,
+pub struct MockedImportResolver<'a> {
+    pub packages: IndexMap<String, Program<'a>>,
 }
 
-impl ImportResolver for MockedImportResolver {
-    fn resolve_package(&mut self, package_segments: &[&str], _span: &Span) -> Result<Option<Program>, AsgConvertError> {
+impl<'a> ImportResolver<'a> for MockedImportResolver<'a> {
+    fn resolve_package(
+        &mut self,
+        _context: AsgContext<'a>,
+        package_segments: &[&str],
+        _span: &Span,
+    ) -> Result<Option<Program<'a>>, AsgConvertError> {
         Ok(self.packages.get(&package_segments.join(".")).cloned())
     }
 }
