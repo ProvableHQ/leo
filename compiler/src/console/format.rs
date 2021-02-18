@@ -21,11 +21,11 @@ use leo_asg::FormattedString;
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        formatted: &FormattedString,
+        formatted: &FormattedString<'a>,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
         if formatted.containers.len() != formatted.parameters.len() {
@@ -47,7 +47,7 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut result = string.to_string();
 
         for parameter in formatted.parameters.iter() {
-            let parameter_value = self.enforce_expression(cs, parameter)?;
+            let parameter_value = self.enforce_expression(cs, parameter.get())?;
 
             result = result.replacen("{}", &parameter_value.to_string(), 1);
         }

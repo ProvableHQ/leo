@@ -17,40 +17,37 @@
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 pub use leo_ast::UnaryOperation;
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct UnaryExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct UnaryExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub operation: UnaryOperation,
-    pub inner: Arc<Expression>,
+    pub inner: Cell<&'a Expression<'a>>,
 }
 
-impl Node for UnaryExpression {
+impl<'a> Node for UnaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for UnaryExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for UnaryExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.inner.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.inner.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
-        self.inner.get_type()
+    fn get_type(&self) -> Option<Type<'a>> {
+        self.inner.get().get_type()
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -58,7 +55,7 @@ impl ExpressionNode for UnaryExpression {
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        if let Some(inner) = self.inner.const_value() {
+        if let Some(inner) = self.inner.get().const_value() {
             match self.operation {
                 UnaryOperation::Not => match inner {
                     ConstValue::Boolean(value) => Some(ConstValue::Boolean(!value)),
@@ -79,16 +76,16 @@ impl ExpressionNode for UnaryExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.inner.is_consty()
+        self.inner.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {
+impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::UnaryExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<UnaryExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<UnaryExpression<'a>, AsgConvertError> {
         let expected_type = match value.op {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),
@@ -115,19 +112,23 @@ impl FromAst<leo_ast::UnaryExpression> for UnaryExpression {
             },
         };
         Ok(UnaryExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),
-            inner: Arc::<Expression>::from_ast(scope, &*value.inner, expected_type.map(Into::into))?,
+            inner: Cell::new(<&Expression<'a>>::from_ast(
+                scope,
+                &*value.inner,
+                expected_type.map(Into::into),
+            )?),
         })
     }
 }
 
-impl Into<leo_ast::UnaryExpression> for &UnaryExpression {
+impl<'a> Into<leo_ast::UnaryExpression> for &UnaryExpression<'a> {
     fn into(self) -> leo_ast::UnaryExpression {
         leo_ast::UnaryExpression {
             op: self.operation.clone(),
-            inner: Box::new(self.inner.as_ref().into()),
+            inner: Box::new(self.inner.get().into()),
             span: self.span.clone().unwrap_or_default(),
         }
     }

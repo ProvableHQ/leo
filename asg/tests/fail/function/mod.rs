@@ -14,42 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_multiple_returns_fail() {
     let program_string = include_str!("multiple_returns_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_multiple_returns_input_ambiguous() {
     let program_string = include_str!("multiple_returns_input_ambiguous.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_multiple_returns_fail_conditional() {
     let program_string = include_str!("multiple_returns_fail_conditional.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_scope_fail() {
     let program_string = include_str!("scope_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_undefined() {
     let program_string = include_str!("undefined.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_array_input() {
     let program_string = include_str!("array_input.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 // Test return multidimensional arrays
@@ -57,11 +59,11 @@ fn test_array_input() {
 #[test]
 fn test_return_array_nested_fail() {
     let program_string = include_str!("return_array_nested_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_return_array_tuple_fail() {
     let program_string = include_str!("return_array_tuple_fail.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }

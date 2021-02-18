@@ -21,12 +21,12 @@ use leo_ast::Span;
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-pub fn enforce_div<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_div<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
     match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             Ok(ConstrainedValue::Integer(num_1.div(cs, num_2, span)?))

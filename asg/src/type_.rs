@@ -17,14 +17,11 @@
 use crate::Circuit;
 pub use leo_ast::IntegerType;
 
-use std::{
-    fmt,
-    sync::{Arc, Weak},
-};
+use std::fmt;
 
-/// A type in an ASG.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Type {
+/// A type in an asg.
+#[derive(Clone, PartialEq)]
+pub enum Type<'a> {
     // Data types
     Address,
     Boolean,
@@ -33,55 +30,21 @@ pub enum Type {
     Integer(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type>, usize),
-    Tuple(Vec<Type>),
-    Circuit(Arc<Circuit>),
+    Array(Box<Type<'a>>, usize),
+    Tuple(Vec<Type<'a>>),
+    Circuit(&'a Circuit<'a>),
 }
 
-#[derive(Debug, Clone)]
-pub enum WeakType {
-    Type(Type), // circuit not allowed
-    Circuit(Weak<Circuit>),
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum PartialType {
-    Type(Type),                                        // non-array or tuple
+#[derive(Clone, PartialEq)]
+pub enum PartialType<'a> {
+    Type(Type<'a>),                                    // non-array or tuple
     Integer(Option<IntegerType>, Option<IntegerType>), // specific, context-specific
-    Array(Option<Box<PartialType>>, Option<usize>),
-    Tuple(Vec<Option<PartialType>>),
+    Array(Option<Box<PartialType<'a>>>, Option<usize>),
+    Tuple(Vec<Option<PartialType<'a>>>),
 }
 
-impl Into<Type> for WeakType {
-    fn into(self) -> Type {
-        match self {
-            WeakType::Type(t) => t,
-            WeakType::Circuit(circuit) => Type::Circuit(circuit.upgrade().unwrap()),
-        }
-    }
-}
-
-impl WeakType {
-    pub fn strong(self) -> Type {
-        self.into()
-    }
-
-    pub fn is_unit(&self) -> bool {
-        matches!(self, WeakType::Type(Type::Tuple(t)) if t.is_empty())
-    }
-}
-
-impl Into<WeakType> for Type {
-    fn into(self) -> WeakType {
-        match self {
-            Type::Circuit(circuit) => WeakType::Circuit(Arc::downgrade(&circuit)),
-            t => WeakType::Type(t),
-        }
-    }
-}
-
-impl Into<Option<Type>> for PartialType {
-    fn into(self) -> Option<Type> {
+impl<'a> Into<Option<Type<'a>>> for PartialType<'a> {
+    fn into(self) -> Option<Type<'a>> {
         match self {
             PartialType::Type(t) => Some(t),
             PartialType::Integer(sub_type, contextual_type) => Some(Type::Integer(sub_type.or(contextual_type)?)),
@@ -96,12 +59,12 @@ impl Into<Option<Type>> for PartialType {
     }
 }
 
-impl PartialType {
-    pub fn full(self) -> Option<Type> {
+impl<'a> PartialType<'a> {
+    pub fn full(self) -> Option<Type<'a>> {
         self.into()
     }
 
-    pub fn matches(&self, other: &Type) -> bool {
+    pub fn matches(&self, other: &Type<'a>) -> bool {
         match (self, other) {
             (PartialType::Type(t), other) => t.is_assignable_from(other),
             (PartialType::Integer(self_sub_type, _), Type::Integer(sub_type)) => {
@@ -137,8 +100,8 @@ impl PartialType {
     }
 }
 
-impl Into<PartialType> for Type {
-    fn into(self) -> PartialType {
+impl<'a> Into<PartialType<'a>> for Type<'a> {
+    fn into(self) -> PartialType<'a> {
         match self {
             Type::Integer(sub_type) => PartialType::Integer(Some(sub_type), None),
             Type::Array(element, len) => PartialType::Array(Some(Box::new((*element).into())), Some(len)),
@@ -148,16 +111,12 @@ impl Into<PartialType> for Type {
     }
 }
 
-impl Type {
-    pub fn is_assignable_from(&self, from: &Type) -> bool {
+impl<'a> Type<'a> {
+    pub fn is_assignable_from(&self, from: &Type<'a>) -> bool {
         self == from
     }
 
-    pub fn partial(self) -> PartialType {
-        self.into()
-    }
-
-    pub fn weak(self) -> WeakType {
+    pub fn partial(self) -> PartialType<'a> {
         self.into()
     }
 
@@ -166,7 +125,7 @@ impl Type {
     }
 }
 
-impl fmt::Display for Type {
+impl<'a> fmt::Display for Type<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Type::Address => write!(f, "address"),
@@ -190,7 +149,7 @@ impl fmt::Display for Type {
     }
 }
 
-impl fmt::Display for PartialType {
+impl<'a> fmt::Display for PartialType<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             PartialType::Type(t) => t.fmt(f),
@@ -230,7 +189,7 @@ impl fmt::Display for PartialType {
     }
 }
 
-impl Into<leo_ast::Type> for &Type {
+impl<'a> Into<leo_ast::Type> for &Type<'a> {
     fn into(self) -> leo_ast::Type {
         use Type::*;
         match self {

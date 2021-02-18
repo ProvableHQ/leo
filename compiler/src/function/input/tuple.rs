@@ -23,7 +23,7 @@ use leo_ast::{InputValue, Span};
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_tuple<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -31,7 +31,7 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         types: &[Type],
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         let mut tuple_values = vec![];
 
         match input_value {

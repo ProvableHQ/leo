@@ -28,16 +28,16 @@ use snarkvm_models::{
 };
 use std::path::Path;
 
-pub fn generate_constraints<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    asg: &Asg,
+    asg: &Asg<'a>,
     input: &Input,
 ) -> Result<OutputBytes, CompilerError> {
     let program = asg.as_repr();
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
     let main = {
-        let program = program.borrow();
+        let program = program;
         program.functions.get("main").cloned()
     };
 
@@ -50,20 +50,19 @@ pub fn generate_constraints<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem
     }
 }
 
-pub fn generate_test_constraints<F: PrimeField, G: GroupType<F>>(
-    asg: &Asg,
+pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
+    asg: &Asg<'a>,
     input: InputPairs,
     main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
     let program = asg.as_repr();
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
-    let program_name = program.borrow().name.clone();
+    let program_name = program.name.clone();
 
     // Get default input
     let default = input.pairs.get(&program_name);
 
-    let program = program.borrow();
     let tests = &program.test_functions;
     tracing::info!("Running {} tests", tests.len());
 

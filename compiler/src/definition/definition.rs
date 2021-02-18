@@ -21,8 +21,8 @@ use leo_asg::Variable;
 
 use snarkvm_models::curves::PrimeField;
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<F, G>) {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
         let variable = variable.borrow();
 
         self.store(variable.id, value);

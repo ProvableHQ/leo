@@ -21,24 +21,24 @@ use leo_asg::{CircuitAccessExpression, Node};
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expr: &CircuitAccessExpression,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        if let Some(target) = &expr.target {
+        expr: &CircuitAccessExpression<'a>,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        if let Some(target) = expr.target.get() {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
             let target_value = self.enforce_expression(cs, target)?;
             match target_value {
                 ConstrainedValue::CircuitExpression(def, members) => {
-                    assert!(def.circuit == expr.circuit);
+                    assert!(def == expr.circuit.get());
                     if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
                         Ok(member.1)
                     } else {
                         Err(ExpressionError::undefined_member_access(
-                            expr.circuit.name.borrow().to_string(),
+                            expr.circuit.get().name.borrow().to_string(),
                             expr.member.to_string(),
                             expr.member.span.clone(),
                         ))

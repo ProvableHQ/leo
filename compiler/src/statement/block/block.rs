@@ -24,7 +24,7 @@ use snarkvm_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Evaluates a branch of one or more statements and returns a result in
     /// the given scope.
     #[allow(clippy::too_many_arguments)]
@@ -32,12 +32,12 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        block: &BlockStatement,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        block: &BlockStatement<'a>,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let mut results = Vec::with_capacity(block.statements.len());
         // Evaluate statements. Only allow a single return argument to be returned.
         for statement in block.statements.iter() {
-            let value = self.enforce_statement(cs, indicator, statement)?;
+            let value = self.enforce_statement(cs, indicator, statement.get())?;
 
             results.extend(value);
         }

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 // Registers
@@ -21,7 +23,7 @@ use crate::load_asg;
 #[test]
 fn test_registers() {
     let program_string = include_str!("registers.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Expressions
@@ -29,173 +31,173 @@ fn test_registers() {
 #[test]
 fn test_inline() {
     let program_string = include_str!("inline.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_initializer() {
     let program_string = include_str!("initializer.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_initializer_input() {
     let program_string = include_str!("initializer_input.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_nested_3x2() {
     let program_string = include_str!("input_nested_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_tuple_3x2() {
     let program_string = include_str!("input_tuple_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_multi_initializer() {
     let program_string = include_str!("multi_initializer.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_nested_3x2_value() {
     let program_string = include_str!("nested_3x2_value.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_tuple_3x2_value() {
     let program_string = include_str!("tuple_3x2_value.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_spread() {
     let program_string = include_str!("spread.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_slice() {
     let program_string = include_str!("slice.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_index_u8() {
     let program_string = include_str!("index_u8.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_slice_i8() {
     let program_string = include_str!("slice_i8.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_slice_lower() {
     let program_string = include_str!("slice_lower.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_nested_value_nested_3x2() {
     let program_string = include_str!("type_nested_value_nested_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_nested_value_nested_4x3x2() {
     let program_string = include_str!("type_nested_value_nested_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_nested_value_tuple_3x2() {
     let program_string = include_str!("type_nested_value_tuple_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_nested_value_tuple_4x3x2() {
     let program_string = include_str!("type_nested_value_tuple_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_tuple_value_nested_3x2() {
     let program_string = include_str!("type_tuple_value_nested_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_tuple_value_nested_4x3x2() {
     let program_string = include_str!("type_tuple_value_nested_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_tuple_value_tuple_3x2() {
     let program_string = include_str!("type_tuple_value_tuple_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_type_tuple_value_tuple_4x3x2() {
     let program_string = include_str!("type_tuple_value_tuple_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_nested_value_nested_3x2() {
     let program_string = include_str!("type_input_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_nested_value_nested_4x3x2() {
     let program_string = include_str!("type_input_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_nested_value_tuple_3x2() {
     let program_string = include_str!("type_input_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_nested_value_tuple_4x3x2() {
     let program_string = include_str!("type_input_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_tuple_value_nested_3x2() {
     let program_string = include_str!("type_input_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_tuple_value_nested_4x3x2() {
     let program_string = include_str!("type_input_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_tuple_value_tuple_3x2() {
     let program_string = include_str!("type_input_3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_input_type_tuple_value_tuple_4x3x2() {
     let program_string = include_str!("type_input_4x3x2.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }

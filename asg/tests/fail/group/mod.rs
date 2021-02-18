@@ -19,17 +19,17 @@ use crate::load_asg;
 #[test]
 fn test_both_sign_high() {
     let program_string = include_str!("both_sign_high.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_both_sign_low() {
     let program_string = include_str!("both_sign_low.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }
 
 #[test]
 fn test_both_sign_inferred() {
     let program_string = include_str!("both_sign_inferred.leo");
-    load_asg(program_string).err().unwrap();
+    load_asg(&new_context(), program_string).err().unwrap();
 }

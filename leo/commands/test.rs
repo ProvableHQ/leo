@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_compiler::{
+    compiler::{thread_leaked_context, Compiler},
+    group::targets::edwards_bls12::EdwardsGroupType,
+};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -109,6 +112,7 @@ impl Command for Test {
                 package_name.clone(),
                 file_path,
                 output_directory.clone(),
+                thread_leaked_context(),
             )?;
 
             let temporary_program = program;

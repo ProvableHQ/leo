@@ -33,27 +33,26 @@ use leo_asg::{
     TupleAccessExpression,
     Variable,
 };
-use std::sync::Arc;
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn prepare_mut_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expr: &Arc<Expression>,
+        expr: &'a Expression<'a>,
         span: &Span,
         output: &mut Vec<ResolvedAssigneeAccess>,
-    ) -> Result<Option<Variable>, StatementError> {
-        match &**expr {
+    ) -> Result<Option<Variable<'a>>, StatementError> {
+        match expr {
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                let inner = self.prepare_mut_access(cs, array, span, output)?;
+                let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
                 let start_index = left
-                    .as_ref()
+                    .get()
                     .map(|start| self.enforce_index(cs, start, &span))
                     .transpose()?;
                 let stop_index = right
-                    .as_ref()
+                    .get()
                     .map(|stop| self.enforce_index(cs, stop, &span))
                     .transpose()?;
 
@@ -61,27 +60,27 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 Ok(inner)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                let inner = self.prepare_mut_access(cs, array, span, output)?;
-                let index = self.enforce_index(cs, index, &span)?;
+                let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
+                let index = self.enforce_index(cs, index.get(), &span)?;
 
                 output.push(ResolvedAssigneeAccess::ArrayIndex(index));
                 Ok(inner)
             }
             Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                let inner = self.prepare_mut_access(cs, tuple_ref, span, output)?;
+                let inner = self.prepare_mut_access(cs, tuple_ref.get(), span, output)?;
 
                 output.push(ResolvedAssigneeAccess::Tuple(*index, span.clone()));
                 Ok(inner)
             }
-            Expression::CircuitAccess(CircuitAccessExpression {
-                target: Some(target),
-                member,
-                ..
-            }) => {
-                let inner = self.prepare_mut_access(cs, target, span, output)?;
+            Expression::CircuitAccess(CircuitAccessExpression { target, member, .. }) => {
+                if let Some(target) = target.get() {
+                    let inner = self.prepare_mut_access(cs, target, span, output)?;
 
-                output.push(ResolvedAssigneeAccess::Member(member.clone()));
-                Ok(inner)
+                    output.push(ResolvedAssigneeAccess::Member(member.clone()));
+                    Ok(inner)
+                } else {
+                    Ok(None)
+                }
             }
             Expression::VariableRef(variable_ref) => Ok(Some(variable_ref.variable.clone())),
             _ => Ok(None), // not a valid reference to mutable variable, we copy
@@ -93,8 +92,8 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn resolve_mut_ref<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        assignee: &Arc<Expression>,
-    ) -> Result<Option<Vec<&mut ConstrainedValue<F, G>>>, StatementError> {
+        assignee: &'a Expression<'a>,
+    ) -> Result<Option<Vec<&mut ConstrainedValue<'a, F, G>>>, StatementError> {
         let span = assignee.span().cloned().unwrap_or_default();
 
         let mut accesses = vec![];

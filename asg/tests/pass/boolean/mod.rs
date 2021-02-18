@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_input_pass() {
     let program_string = include_str!("assert_eq_input.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_registers() {
     let program_string = include_str!("output_register.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Boolean not !
@@ -33,19 +35,19 @@ fn test_registers() {
 #[test]
 fn test_not_true() {
     let program_string = include_str!("not_true.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_not_false() {
     let program_string = include_str!("not_false.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_not_mutable() {
     let program_string = include_str!("not_mutable.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Boolean or ||
@@ -53,19 +55,19 @@ fn test_not_mutable() {
 #[test]
 fn test_true_or_true() {
     let program_string = include_str!("true_or_true.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_true_or_false() {
     let program_string = include_str!("true_or_false.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_false_or_false() {
     let program_string = include_str!("false_or_false.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // Boolean and &&
@@ -73,19 +75,19 @@ fn test_false_or_false() {
 #[test]
 fn test_true_and_true() {
     let program_string = include_str!("true_and_true.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_true_and_false() {
     let program_string = include_str!("true_and_false.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 #[test]
 fn test_false_and_false() {
     let program_string = include_str!("false_and_false.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }
 
 // All
@@ -93,5 +95,5 @@ fn test_false_and_false() {
 #[test]
 fn test_all() {
     let program_string = include_str!("all.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }

@@ -18,24 +18,23 @@
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::select::CondSelectGadget},
 };
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce ternary conditional expression
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        conditional: &Arc<Expression>,
-        first: &Arc<Expression>,
-        second: &Arc<Expression>,
+        conditional: &'a Expression<'a>,
+        first: &'a Expression<'a>,
+        second: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let conditional_value = match self.enforce_expression(cs, conditional)? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),

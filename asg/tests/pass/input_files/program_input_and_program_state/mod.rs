@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::new_context;
+
 use crate::load_asg;
 
 #[test]
 fn test_access() {
     let program_string = include_str!("access.leo");
-    load_asg(program_string).unwrap();
+    load_asg(&new_context(), program_string).unwrap();
 }

@@ -21,10 +21,10 @@ use leo_asg::Span;
 
 use snarkvm_models::curves::PrimeField;
 
-pub fn evaluate_not<F: PrimeField, G: GroupType<F>>(
-    value: ConstrainedValue<F, G>,
+pub fn evaluate_not<'a, F: PrimeField, G: GroupType<F>>(
+    value: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
     match value {
         ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
         value => Err(BooleanError::cannot_evaluate(format!("!{}", value), span.clone())),

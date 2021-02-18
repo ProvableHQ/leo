@@ -34,7 +34,7 @@ use leo_asg::Type;
 use leo_ast::{InputValue, Span};
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -42,7 +42,7 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         name: &str,
         input_option: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         match type_ {
             Type::Address => Ok(Address::from_input(cs, name, input_option, span)?),
             Type::Boolean => Ok(bool_from_input(cs, name, input_option, span)?),

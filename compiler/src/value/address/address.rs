@@ -63,12 +63,12 @@ impl Address {
         self.bytes.iter().all(|byte| byte.is_constant())
     }
 
-    pub(crate) fn from_input<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+    pub(crate) fn from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         name: &str,
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, AddressError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, AddressError> {
         // Check that the input value is the correct type
         let address_value = match input_value {
             Some(input) => {

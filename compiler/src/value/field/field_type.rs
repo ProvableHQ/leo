@@ -54,7 +54,22 @@ impl<F: PrimeField> FieldType<F> {
     }
 
     pub fn constant(string: String, span: &Span) -> Result<Self, FieldError> {
-        let value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
+        let first_char = string.chars().next().unwrap();
+        let new_string: &str;
+        let value;
+
+        // Check if first symbol is a negative.
+        // If so strip it, parse rest of string and then negate it.
+        if first_char == '-' {
+            new_string = string
+                .chars()
+                .next()
+                .map(|c| &string[c.len_utf8()..])
+                .ok_or_else(|| FieldError::invalid_field(string.clone(), span.to_owned()))?;
+            value = -F::from_str(&new_string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
+        } else {
+            value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
+        }
 
         Ok(FieldType::Constant(value))
     }

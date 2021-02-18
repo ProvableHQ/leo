@@ -18,7 +18,6 @@
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Statement;
-use std::sync::Arc;
 
 use snarkvm_models::{
     curves::PrimeField,
@@ -26,9 +25,9 @@ use snarkvm_models::{
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
-pub type IndicatorAndConstrainedValue<T, U> = (Boolean, ConstrainedValue<T, U>);
+pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
@@ -41,11 +40,11 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        statement: &Arc<Statement>,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        statement: &'a Statement<'a>,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let mut results = vec![];
 
-        match &**statement {
+        match statement {
             Statement::Return(statement) => {
                 let return_value = (*indicator, self.enforce_return_statement(cs, statement)?);
 
@@ -71,7 +70,7 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 self.evaluate_console_function_call(cs, indicator, statement)?;
             }
             Statement::Expression(statement) => {
-                let value = self.enforce_expression(cs, &statement.expression)?;
+                let value = self.enforce_expression(cs, statement.expression.get())?;
                 // handle empty return value cases
                 match &value {
                     ConstrainedValue::Tuple(values) => {

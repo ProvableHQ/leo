@@ -16,22 +16,23 @@
 
 //! Enforce a function call expression in a compiled Leo program.
 
+use std::cell::Cell;
+
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Function, Span};
-use std::sync::Arc;
 
 use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function: &Arc<Function>,
-        target: Option<&Arc<Expression>>,
-        arguments: &[Arc<Expression>],
+        function: &'a Function<'a>,
+        target: Option<&'a Expression<'a>>,
+        arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
@@ -40,11 +41,6 @@ impl<F: PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 span.start,
             )
         };
-        let function = function
-            .body
-            .borrow()
-            .upgrade()
-            .expect("stale function in call expression");
 
         let return_value = self
             .enforce_function(&mut cs.ns(name_unique), &function, target, arguments)

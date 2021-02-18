@@ -24,12 +24,12 @@ use snarkvm_models::{
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-pub fn enforce_or<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
     let name = format!("{} || {}", left, right);
 
     if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {

@@ -22,7 +22,7 @@ use std::fs::DirEntry;
 
 static LIBRARY_FILE: &str = "src/lib.leo";
 
-impl ImportParser {
+impl<'a> ImportParser<'a> {
     ///
     /// Returns a Leo syntax tree from a given package.
     ///
