@@ -16,7 +16,7 @@
 
 //! A data type that represents a field value
 
-use crate::errors::FieldError;
+use crate::{errors::FieldError, number_string_typing};
 use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
@@ -54,22 +54,14 @@ impl<F: Field + PrimeField> FieldType<F> {
     }
 
     pub fn constant(string: String, span: &Span) -> Result<Self, FieldError> {
-        let first_char = string.chars().next().unwrap();
-        let new_string: &str;
-        let value;
+        let number_info = number_string_typing(&string);
 
-        // Check if first symbol is a negative.
-        // If so strip it, parse rest of string and then negate it.
-        if first_char == '-' {
-            new_string = string
-                .chars()
-                .next()
-                .map(|c| &string[c.len_utf8()..])
-                .ok_or_else(|| FieldError::invalid_field(string.clone(), span.to_owned()))?;
-            value = -F::from_str(&new_string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
-        } else {
-            value = F::from_str(&string).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?;
-        }
+        let value = match number_info {
+            (number, neg) if neg => {
+                -F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?
+            }
+            (number, _) => F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?,
+        };
 
         Ok(FieldType::Constant(value))
     }
