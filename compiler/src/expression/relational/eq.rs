@@ -20,14 +20,14 @@ use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, Group
 use leo_asg::Span;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, eq::EvaluateEqGadget},
     },
 };
 
-pub fn evaluate_eq<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     left: ConstrainedValue<'a, F, G>,
     right: ConstrainedValue<'a, F, G>,

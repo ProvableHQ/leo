@@ -20,11 +20,11 @@ use crate::{errors::ExpressionError, program::ConstrainedProgram, value::Constra
 use leo_asg::{Expression, Span};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::select::CondSelectGadget},
 };
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce ternary conditional expression
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(

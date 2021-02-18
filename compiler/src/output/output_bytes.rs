@@ -18,7 +18,7 @@ use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VAR
 use leo_asg::Program;
 use leo_ast::{Parameter, Registers, Span};
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
 use serde::{Deserialize, Serialize};
 
@@ -31,7 +31,7 @@ impl OutputBytes {
         &self.0
     }
 
-    pub fn new_from_constrained_value<'a, F: Field + PrimeField, G: GroupType<F>>(
+    pub fn new_from_constrained_value<'a, F: PrimeField, G: GroupType<F>>(
         program: &Program<'a>,
         registers: &Registers,
         value: ConstrainedValue<'a, F, G>,

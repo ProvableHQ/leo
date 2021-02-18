@@ -26,11 +26,11 @@ use crate::{
 use leo_asg::{Expression, Span};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

@@ -18,14 +18,11 @@ use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram,
 use leo_asg::{AsgConvertError, Circuit, CircuitMember};
 use leo_ast::{Identifier, InputValue, Parameter};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 use indexmap::IndexMap;
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

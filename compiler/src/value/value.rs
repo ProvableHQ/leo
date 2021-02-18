@@ -21,7 +21,7 @@ use leo_asg::{Circuit, Identifier, Span, Type};
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
@@ -30,13 +30,10 @@ use snarkvm_models::{
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]
-pub struct ConstrainedCircuitMember<'a, F: Field + PrimeField, G: GroupType<F>>(
-    pub Identifier,
-    pub ConstrainedValue<'a, F, G>,
-);
+pub struct ConstrainedCircuitMember<'a, F: PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<'a, F, G>);
 
 #[derive(Clone, PartialEq, Eq)]
-pub enum ConstrainedValue<'a, F: Field + PrimeField, G: GroupType<F>> {
+pub enum ConstrainedValue<'a, F: PrimeField, G: GroupType<F>> {
     // Data types
     Address(Address),
     Boolean(Boolean),
@@ -54,7 +51,7 @@ pub enum ConstrainedValue<'a, F: Field + PrimeField, G: GroupType<F>> {
     CircuitExpression(&'a Circuit<'a>, Vec<ConstrainedCircuitMember<'a, F, G>>),
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
     pub(crate) fn to_type(&self, span: &Span) -> Result<Type<'a>, ValueError> {
         Ok(match self {
             // Data types
@@ -85,7 +82,7 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
     }
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             // Data types
@@ -132,13 +129,13 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> fmt::Display for ConstrainedVal
     }
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> fmt::Debug for ConstrainedValue<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> fmt::Debug for ConstrainedValue<'a, F, G> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for ConstrainedValue<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for ConstrainedValue<'a, F, G> {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         mut cs: CS,
@@ -182,7 +179,7 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for Cons
     }
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValue<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValue<'a, F, G> {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         mut cs: CS,
         cond: &Boolean,
@@ -259,7 +256,7 @@ impl<'a, F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for Constra
     }
 }
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedCircuitMember<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedCircuitMember<'a, F, G> {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         cs: CS,
         cond: &Boolean,

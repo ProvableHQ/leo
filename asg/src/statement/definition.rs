@@ -28,6 +28,7 @@ use crate::{
     Type,
     Variable,
 };
+use leo_ast::{AstError, DeprecatedError};
 
 use std::cell::{Cell, RefCell};
 
@@ -89,8 +90,10 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         }
 
         for (variable, type_) in statement.variable_names.iter().zip(output_types.into_iter()) {
-            if statement.declaration_type == leo_ast::Declare::Const && variable.mutable {
-                return Err(AsgConvertError::illegal_ast_structure("cannot have const mut"));
+            if statement.declaration_type == leo_ast::Declare::Const {
+                return Err(AsgConvertError::AstError(AstError::DeprecatedError(
+                    DeprecatedError::const_statement(&statement.span),
+                )));
             }
             variables.push(&*scope.alloc_variable(RefCell::new(InnerVariable {
                 id: uuid::Uuid::new_v4(),

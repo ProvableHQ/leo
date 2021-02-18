@@ -21,7 +21,7 @@ use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         curves::{FieldGadget, FpGadget},
         r1cs::ConstraintSystem,
@@ -40,12 +40,12 @@ use snarkvm_models::{
 use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
-pub enum FieldType<F: Field + PrimeField> {
+pub enum FieldType<F: PrimeField> {
     Constant(F),
     Allocated(FpGadget<F>),
 }
 
-impl<F: Field + PrimeField> FieldType<F> {
+impl<F: PrimeField> FieldType<F> {
     pub fn get_value(&self) -> Option<F> {
         match self {
             FieldType::Constant(field) => Some(*field),
@@ -201,7 +201,7 @@ impl<F: Field + PrimeField> FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> AllocGadget<String, F> for FieldType<F> {
+impl<F: PrimeField> AllocGadget<String, F> for FieldType<F> {
     fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
         cs: CS,
         value_gen: Fn,
@@ -221,7 +221,7 @@ impl<F: Field + PrimeField> AllocGadget<String, F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> PartialEq for FieldType<F> {
+impl<F: PrimeField> PartialEq for FieldType<F> {
     fn eq(&self, other: &Self) -> bool {
         let self_value = self.get_value();
         let other_value = other.get_value();
@@ -230,9 +230,9 @@ impl<F: Field + PrimeField> PartialEq for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> Eq for FieldType<F> {}
+impl<F: PrimeField> Eq for FieldType<F> {}
 
-impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
+impl<F: PrimeField> PartialOrd for FieldType<F> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let self_value = self.get_value();
         let other_value = other.get_value();
@@ -241,7 +241,7 @@ impl<F: Field + PrimeField> PartialOrd for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
+impl<F: PrimeField> EvaluateEqGadget<F> for FieldType<F> {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         match (self, other) {
             (FieldType::Constant(first), FieldType::Constant(second)) => Ok(Boolean::constant(first.eq(second))),
@@ -257,9 +257,9 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> EqGadget<F> for FieldType<F> {}
+impl<F: PrimeField> EqGadget<F> for FieldType<F> {}
 
-impl<F: Field + PrimeField> ConditionalEqGadget<F> for FieldType<F> {
+impl<F: PrimeField> ConditionalEqGadget<F> for FieldType<F> {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         mut cs: CS,
@@ -293,7 +293,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> CondSelectGadget<F> for FieldType<F> {
+impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         mut cs: CS,
         cond: &Boolean,
@@ -316,7 +316,7 @@ impl<F: Field + PrimeField> CondSelectGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> ToBitsGadget<F> for FieldType<F> {
+impl<F: PrimeField> ToBitsGadget<F> for FieldType<F> {
     fn to_bits<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bits(cs)
@@ -328,7 +328,7 @@ impl<F: Field + PrimeField> ToBitsGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> ToBytesGadget<F> for FieldType<F> {
+impl<F: PrimeField> ToBytesGadget<F> for FieldType<F> {
     fn to_bytes<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<UInt8>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
         self_gadget.to_bytes(cs)
@@ -340,7 +340,7 @@ impl<F: Field + PrimeField> ToBytesGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: Field + PrimeField> std::fmt::Display for FieldType<F> {
+impl<F: PrimeField> std::fmt::Display for FieldType<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{:?}", self.get_value().ok_or(std::fmt::Error))
     }

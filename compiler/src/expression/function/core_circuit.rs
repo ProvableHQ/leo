@@ -20,12 +20,9 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, G
 
 use crate::errors::ExpressionError;
 use leo_asg::{Expression, Function, Span};
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Call a default core circuit function with arguments
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>, C: CoreCircuit<'a, F, G>>(

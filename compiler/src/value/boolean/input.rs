@@ -21,14 +21,14 @@ use leo_ast::{InputValue, Span};
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{alloc::AllocGadget, boolean::Boolean},
     },
 };
 
-pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     option: Option<bool>,
@@ -41,7 +41,7 @@ pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
     .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span.to_owned()))
 }
 
-pub(crate) fn bool_from_input<'a, F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,

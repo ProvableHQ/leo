@@ -27,14 +27,14 @@ use crate::{
 use leo_asg::{Span, Type};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, select::CondSelectGadget},
     },
 };
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
     /// Returns a conditionally selected result from the given possible function returns and
     /// given function return type.

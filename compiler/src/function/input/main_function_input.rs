@@ -32,12 +32,9 @@ use crate::{
 
 use leo_asg::Type;
 use leo_ast::{InputValue, Span};
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

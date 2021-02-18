@@ -18,17 +18,14 @@ use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram,
 use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
 pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,

@@ -19,9 +19,9 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Variable;
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
         let variable = variable.borrow();
 

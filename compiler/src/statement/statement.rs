@@ -20,14 +20,14 @@ use crate::{errors::StatementError, program::ConstrainedProgram, value::Constrai
 use leo_asg::Statement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
 pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);
 
-impl<'a, F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
