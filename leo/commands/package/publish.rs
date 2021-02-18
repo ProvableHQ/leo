@@ -119,14 +119,17 @@ impl Command for Publish {
             .send();
 
         // Get a response result
-        let result = match response {
-            Ok(json_result) => match json_result.json::<ResponseJson>() {
-                Ok(json) => json,
-                Err(error) => {
-                    tracing::warn!("{:?}", error);
-                    return Err(anyhow!("Package not published"));
+        let result: ResponseJson = match response {
+            Ok(json_result) => {
+                let text = json_result.text()?;
+
+                match serde_json::from_str(&text) {
+                    Ok(json) => json,
+                    Err(_) => {
+                        return Err(anyhow!("Package not published: {}", text));
+                    }
                 }
-            },
+            }
             Err(error) => {
                 tracing::warn!("{:?}", error);
                 return Err(anyhow!("Connection unavailable"));
