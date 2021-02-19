@@ -49,7 +49,7 @@ pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
                 .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned())),
             }
         }
-        None => return Err(FieldError::missing_field(format!("{}: field", name), span.to_owned())),
+        None => Err(FieldError::missing_field(format!("{}: field", name), span.to_owned())),
     }
 }
 
