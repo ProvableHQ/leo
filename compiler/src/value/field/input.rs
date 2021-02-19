@@ -16,7 +16,7 @@
 
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
-use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
+use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
 use leo_ast::{InputValue, Span};
 
 use snarkvm_errors::gadgets::SynthesisError;
@@ -31,11 +31,26 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     option: Option<String>,
     span: &Span,
 ) -> Result<FieldType<F>, FieldError> {
-    FieldType::alloc(
-        cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
-        || option.ok_or(SynthesisError::AssignmentMissing),
-    )
-    .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))
+    match option {
+        Some(string) => {
+            let number_info = number_string_typing(&string);
+
+            match number_info {
+                (number, neg) if neg => FieldType::alloc(
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+                    || Some(number).ok_or(SynthesisError::AssignmentMissing),
+                )
+                .map(|value| value.negate(cs, span))
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))?,
+                (number, _) => FieldType::alloc(
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+                    || Some(number).ok_or(SynthesisError::AssignmentMissing),
+                )
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned())),
+            }
+        }
+        None => Err(FieldError::missing_field(format!("{}: field", name), span.to_owned())),
+    }
 }
 
 pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

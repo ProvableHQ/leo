@@ -32,3 +32,16 @@ pub use self::integer::*;
 
 pub mod value;
 pub use self::value::*;
+
+pub(crate) fn number_string_typing(number: &str) -> (String, bool) {
+    let first_char = number.chars().next().unwrap();
+
+    // Check if first symbol is a negative.
+    // If so strip it, parse rest of string and then negate it.
+    if first_char == '-' {
+        let uint = number.chars().next().map(|c| &number[c.len_utf8()..]).unwrap_or("");
+        (uint.to_string(), true)
+    } else {
+        (number.to_string(), false)
+    }
+}

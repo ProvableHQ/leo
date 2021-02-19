@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::GroupError, GroupType};
+use crate::{errors::GroupError, number_string_typing, GroupType};
 use leo_asg::{GroupCoordinate, GroupValue, Span};
 
 use snarkvm_curves::{
@@ -133,23 +133,6 @@ impl GroupType<Fq> for EdwardsGroupType {
     }
 }
 
-fn number_string_typing(number: &str, span: &Span) -> Result<(String, bool), GroupError> {
-    let first_char = number.chars().next().unwrap();
-
-    // Check if first symbol is a negative.
-    // If so strip it, parse rest of string and then negate it.
-    if first_char == '-' {
-        let uint = number
-            .chars()
-            .next()
-            .map(|c| &number[c.len_utf8()..])
-            .ok_or_else(|| GroupError::invalid_group(number.to_string(), span.to_owned()))?;
-        Ok((uint.to_string(), true))
-    } else {
-        Ok((number.to_string(), false))
-    }
-}
-
 impl EdwardsGroupType {
     pub fn edwards_affine_from_value(value: &GroupValue, span: &Span) -> Result<EdwardsAffine, GroupError> {
         match value {
@@ -159,7 +142,7 @@ impl EdwardsGroupType {
     }
 
     pub fn edwards_affine_from_single(number: &str, span: &Span) -> Result<EdwardsAffine, GroupError> {
-        let number_info = number_string_typing(number, &span.clone())?;
+        let number_info = number_string_typing(number);
 
         if number_info.0.eq("0") {
             Ok(EdwardsAffine::zero())
@@ -189,41 +172,35 @@ impl EdwardsGroupType {
         match (x, y) {
             // (x, y)
             (GroupCoordinate::Number(x_string), GroupCoordinate::Number(y_string)) => Self::edwards_affine_from_pair(
-                number_string_typing(&x_string, &span.clone())?,
-                number_string_typing(&y_string, &span.clone())?,
+                number_string_typing(&x_string),
+                number_string_typing(&y_string),
                 span,
                 span,
                 span,
             ),
             // (x, +)
             (GroupCoordinate::Number(x_string), GroupCoordinate::SignHigh) => {
-                Self::edwards_affine_from_x_str(number_string_typing(&x_string, &span.clone())?, span, Some(true), span)
+                Self::edwards_affine_from_x_str(number_string_typing(&x_string), span, Some(true), span)
             }
             // (x, -)
-            (GroupCoordinate::Number(x_string), GroupCoordinate::SignLow) => Self::edwards_affine_from_x_str(
-                number_string_typing(&x_string, &span.clone())?,
-                span,
-                Some(false),
-                span,
-            ),
+            (GroupCoordinate::Number(x_string), GroupCoordinate::SignLow) => {
+                Self::edwards_affine_from_x_str(number_string_typing(&x_string), span, Some(false), span)
+            }
             // (x, _)
             (GroupCoordinate::Number(x_string), GroupCoordinate::Inferred) => {
-                Self::edwards_affine_from_x_str(number_string_typing(&x_string, &span.clone())?, span, None, span)
+                Self::edwards_affine_from_x_str(number_string_typing(&x_string), span, None, span)
             }
             // (+, y)
             (GroupCoordinate::SignHigh, GroupCoordinate::Number(y_string)) => {
-                Self::edwards_affine_from_y_str(number_string_typing(&y_string, &span.clone())?, span, Some(true), span)
+                Self::edwards_affine_from_y_str(number_string_typing(&y_string), span, Some(true), span)
             }
             // (-, y)
-            (GroupCoordinate::SignLow, GroupCoordinate::Number(y_string)) => Self::edwards_affine_from_y_str(
-                number_string_typing(&y_string, &span.clone())?,
-                span,
-                Some(false),
-                span,
-            ),
+            (GroupCoordinate::SignLow, GroupCoordinate::Number(y_string)) => {
+                Self::edwards_affine_from_y_str(number_string_typing(&y_string), span, Some(false), span)
+            }
             // (_, y)
             (GroupCoordinate::Inferred, GroupCoordinate::Number(y_string)) => {
-                Self::edwards_affine_from_y_str(number_string_typing(&y_string, &span.clone())?, span, None, span)
+                Self::edwards_affine_from_y_str(number_string_typing(&y_string), span, None, span)
             }
             // Invalid
             (x, y) => Err(GroupError::invalid_group(format!("({}, {})", x, y), span.clone())),
