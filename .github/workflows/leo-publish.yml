@@ -1,0 +1,49 @@
+name: leo-publish
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'documentation/**'
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  add:
+    name: Add Package ('leo add')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt
+
+      - name: Install Leo
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+        with:
+          command: install
+          args: --path .
+
+      - name: 'leo login, publish and logout'
+        env:
+          USER: ${{ secrets.ALEO_PM_USERNAME }}
+          PASS: ${{ secrets.ALEO_PM_PASSWORD }}
+        run: |
+          cd .. && leo new test-app && cd test-app
+          leo login -u "$USER" -p "$PASS"
+          cat Leo.toml | sed "s/0.1.0/0.1.$GITHUB_RUN_ID/g" | sed "s/\[AUTHOR\]/$USER/g" > Leo.toml
+          leo publish
+          leo logout
+          
+          
+
