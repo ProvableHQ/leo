@@ -42,7 +42,7 @@ pub fn load_annotation(
         Definition::Circuit(_) => {
             unimplemented!("annotated circuits are not supported yet");
         }
-        Definition::Define(_) => {
+        Definition::GlobalConst(_) => {
             unimplemented!("annotated defines are not supported yet");
         }
         Definition::Function(function) => match ast_annotation.name {

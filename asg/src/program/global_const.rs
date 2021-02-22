@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,19 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::Identifier, defines::DefineSymbol, expressions::Expression, SpanDef};
+use crate::{AsgConvertError, ExpressionStatement, Identifier, Node, Scope, Span, Type};
 
-use pest::Span;
-use pest_ast::FromPest;
-use serde::Serialize;
+use uuid::Uuid;
 
-#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
-#[pest_ast(rule(Rule::define))]
-pub struct Define<'ast> {
-    pub symbol: DefineSymbol<'ast>,
-    pub identifier: Identifier<'ast>,
-    pub expression: Expression<'ast>,
-    #[pest_ast(outer())]
-    #[serde(with = "SpanDef")]
-    pub span: Span<'ast>,
+#[derive(Clone)]
+pub struct Define<'a> {
+    pub id: Uuid,
+    pub name: Identifier,
+    pub expression: ExpressionStatement<'a>,
 }
+
+impl<'a> PartialEq for Define<'a> {
+    fn eq(&self, other: &Define) -> bool {
+        if self.name != other.name {
+            return false;
+        }
+        self.id == other.id
+    }
+}
+
+impl<'a> Eq for Define<'a> {}

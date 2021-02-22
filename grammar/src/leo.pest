@@ -13,12 +13,10 @@ definition = {
     | circuit
     | function
     | deprecated
-    | define
+    | global_const
 }
 
-define = { define_symbol ~ identifier ~ expression }
-// Declared in defines/define_symbol.rs
-define_symbol = ${"#define "}
+global_const = { const_ ~ variables ~ "=" ~ expression ~ LINE_END }
 
 // Declared in definitions/deprecated.rs
 deprecated = {

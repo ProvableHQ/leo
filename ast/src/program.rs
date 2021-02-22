@@ -20,7 +20,7 @@
 use crate::{
     load_annotation,
     Circuit,
-    Define,
+    GlobalConst,
     DeprecatedError,
     Function,
     FunctionInput,
@@ -41,7 +41,7 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub imports: Vec<ImportStatement>,
     pub circuits: IndexMap<Identifier, Circuit>,
-    pub defines: IndexMap<Identifier, Define>,
+    pub global_consts: Vec<GlobalConst>,
     pub functions: IndexMap<Identifier, Function>,
     pub tests: IndexMap<Identifier, TestFunction>,
 }
@@ -78,7 +78,7 @@ impl<'ast> Program {
     pub fn from(program_name: &str, program_ast: &File<'ast>) -> Result<Self, DeprecatedError> {
         let mut imports = vec![];
         let mut circuits = IndexMap::new();
-        let mut defines = IndexMap::new();
+        let mut global_consts = vec![];
         let mut functions = IndexMap::new();
         let mut tests = IndexMap::new();
         let mut expected_input = vec![];
@@ -97,8 +97,8 @@ impl<'ast> Program {
                     circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
                     None
                 }
-                Definition::Define(define) => {
-                    defines.insert(Identifier::from(define.identifier.clone()), Define::from(define));
+                Definition::GlobalConst(global_const) => {
+                    global_consts.push(GlobalConst::from(global_const));
                     None
                 }
                 Definition::Function(function_def) => {
@@ -135,7 +135,7 @@ impl<'ast> Program {
             expected_input,
             imports,
             circuits,
-            defines,
+            global_consts,
             functions,
             tests,
         })
@@ -149,7 +149,7 @@ impl Program {
             expected_input: vec![],
             imports: vec![],
             circuits: IndexMap::new(),
-            defines: IndexMap::new(),
+            global_consts: vec![],
             functions: IndexMap::new(),
             tests: IndexMap::new(),
         }

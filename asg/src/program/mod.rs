@@ -24,6 +24,9 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
+mod global_const;
+pub use global_const::*; 
+
 use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
@@ -54,6 +57,8 @@ pub struct InternalProgram<'a> {
 
     /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, &'a Circuit<'a>>,
+
+    // pub global_consts: IndexMap<String, (Identifier, &'a ExpressionStatement<'a>)>,
 
     /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
@@ -223,6 +228,7 @@ impl<'a> InternalProgram<'a> {
             functions: RefCell::new(imported_functions),
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
+            // global_consts: RefCell::new(Vec::new()),
             input: Cell::new(None),
         })) {
             ArenaNode::Scope(c) => c,
@@ -237,6 +243,7 @@ impl<'a> InternalProgram<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
+            // global_consts: RefCell(vec![]),
             circuits: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
         });
@@ -295,6 +302,11 @@ impl<'a> InternalProgram<'a> {
             circuits.insert(name.name.clone(), asg_circuit);
         }
 
+        // let global_consts = vec![];
+        for (global_const) in program.global_consts.iter() {
+            // assert_eq!(name.name, define.name.name);
+        }
+
         Ok(InternalProgram {
             context: arena,
             id: Uuid::new_v4(),
@@ -302,6 +314,7 @@ impl<'a> InternalProgram<'a> {
             test_functions,
             functions,
             circuits,
+            // global_consts,
             imported_modules: resolved_packages
                 .into_iter()
                 .map(|(package, program)| (package.join("."), program))
@@ -406,7 +419,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .into_iter()
             .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
-        defines: IndexMap::new(),
+        global_consts: Vec::new(),
     }
 }
 
@@ -436,7 +449,7 @@ impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
                     })
                 })
                 .collect(),
-            defines: IndexMap::new(),
+            global_consts: Vec::new(),
         }
     }
 }

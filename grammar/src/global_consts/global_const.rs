@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,35 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier};
-use leo_grammar::defines::Define as GrammarDefine;
+use crate::{
+    ast::Rule,
+    common::{Const, LineEnd, Variables},
+    expressions::Expression,
+    SpanDef,
+};
 
-use serde::{Deserialize, Serialize};
+use pest::Span;
+use pest_ast::FromPest;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Define {
-    pub name: Identifier,
-    pub expression: Expression,
+#[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
+#[pest_ast(rule(Rule::global_const))]
+pub struct GlobalConst<'ast> {
+    pub const_keyword: Const,
+    pub variables: Variables<'ast>,
+    pub expression: Expression<'ast>,
+    pub line_end: LineEnd,
+    #[pest_ast(outer())]
+    #[serde(with = "SpanDef")]
+    pub span: Span<'ast>,
 }
 
-impl<'ast> From<GrammarDefine<'ast>> for Define {
-    fn from(define: GrammarDefine<'ast>) -> Self {
-        Self {
-            name: Identifier::from(define.identifier),
-            expression: Expression::from(define.expression),
-        }
-    }
-}
-
-impl Define {
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "define {} ", self.name)
-    }
-}
-
-impl fmt::Debug for Define {
+impl<'ast> fmt::Display for GlobalConst<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        write!(f, "let {} = {};", self.variables, self.expression)
     }
 }

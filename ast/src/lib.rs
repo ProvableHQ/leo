@@ -31,9 +31,6 @@ pub use self::circuits::*;
 pub mod common;
 pub use self::common::*;
 
-pub mod defines;
-pub use self::defines::*;
-
 pub mod errors;
 pub use self::errors::*;
 
@@ -42,6 +39,9 @@ pub use self::expression::*;
 
 pub mod functions;
 pub use self::functions::*;
+
+pub mod global_consts;
+pub use self::global_consts::*;
 
 pub mod groups;
 pub use self::groups::*;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,8 +16,5 @@
 
 // #![allow(clippy::module_inception)]
 
-pub mod define_symbol;
-pub use define_symbol::*;
-
-pub mod defines;
-pub use defines::*;
+pub mod global_const;
+pub use global_const::*;
