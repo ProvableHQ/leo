@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,6 +22,12 @@ pub use import_symbol::*;
 
 pub mod package;
 pub use package::*;
+
+pub mod packages;
+pub use packages::*;
+
+pub mod package_or_packages;
+pub use package_or_packages::*;
 
 pub mod package_access;
 pub use package_access::*;

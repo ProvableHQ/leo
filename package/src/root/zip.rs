@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 use crate::{
     errors::ZipFileError,
     imports::IMPORTS_DIRECTORY_NAME,
-    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION},
+    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
     outputs::{
         CHECKSUM_FILE_EXTENSION,
         CIRCUIT_FILE_EXTENSION,
@@ -151,9 +151,8 @@ impl ZipFile {
 
 /// Check if the file path should be included in the package zip file.
 fn is_included(path: &Path) -> bool {
-    // excluded directories: `input`, `output`, `imports`
-    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches('/'))
-        | path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches('/'))
+    // excluded directories: `output`, `imports`
+    if path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches('/'))
         | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches('/'))
     {
         return false;
@@ -161,8 +160,7 @@ fn is_included(path: &Path) -> bool {
 
     // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
     if let Some(true) = path.extension().map(|ext| {
-        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
+        ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
             | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches('.'))
             | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches('.'))
             | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches('.'))
@@ -171,6 +169,18 @@ fn is_included(path: &Path) -> bool {
             | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches('.'))
     }) {
         return false;
+    }
+
+    // Allow `inputs` folder
+    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches('/')) {
+        return true;
+    }
+
+    // Allow `.state` and `.in` files
+    if let Some(true) = path.extension().map(|ext| {
+        ext.eq(INPUT_FILE_EXTENSION.trim_start_matches('.')) | ext.eq(STATE_FILE_EXTENSION.trim_start_matches('.'))
+    }) {
+        return true;
     }
 
     // Allow the README.md and Leo.toml files in the root directory

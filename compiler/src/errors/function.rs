@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ use crate::errors::{
     StatementError,
     ValueError,
 };
+use leo_asg::AsgConvertError;
 use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
@@ -60,6 +61,9 @@ pub enum FunctionError {
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+
+    #[error("{}", _0)]
+    ImportASGError(#[from] AsgConvertError),
 }
 
 impl FunctionError {
@@ -75,6 +79,7 @@ impl FunctionError {
             FunctionError::OutputStringError(error) => error.set_path(path),
             FunctionError::StatementError(error) => error.set_path(path),
             FunctionError::ValueError(error) => error.set_path(path),
+            FunctionError::ImportASGError(_error) => (),
         }
     }
 
@@ -84,6 +89,15 @@ impl FunctionError {
 
     pub fn invalid_array(actual: String, span: Span) -> Self {
         let message = format!("Expected function input array, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_input_array_dimensions(expected: usize, actual: usize, span: Span) -> Self {
+        let message = format!(
+            "Input array dimensions mismatch expected {}, found array dimensions {}",
+            expected, actual
+        );
 
         Self::new_from_span(message, span)
     }

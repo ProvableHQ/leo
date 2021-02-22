@@ -1,6 +1,6 @@
 [package]
 name = "leo-gadgets"
-version = "1.0.8"
+version = "1.2.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Gadgets of the Leo programming language"
 homepage = "https://aleo.org"
@@ -18,15 +18,15 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.snarkvm-errors]
-version = "0.0.2"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.2"
+version = "0.0.4"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.2"
+version = "0.0.4"
 
 [dependencies.rand]
 version = "0.7"

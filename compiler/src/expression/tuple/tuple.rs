@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,51 +16,23 @@
 
 //! Enforces an tuple expression in a compiled Leo program.
 
+use std::cell::Cell;
+
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::Expression;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce tuple expressions
     pub fn enforce_tuple<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        tuple: Vec<Expression>,
-        span: Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        // Check explicit tuple type dimension if given
-        let mut expected_types = vec![];
-
-        match expected_type {
-            Some(Type::Tuple(ref types)) => {
-                expected_types = types.clone();
-            }
-            Some(ref type_) => {
-                return Err(ExpressionError::unexpected_tuple(
-                    type_.to_string(),
-                    format!("{:?}", tuple),
-                    span,
-                ));
-            }
-            None => {}
-        }
-
+        tuple: &[Cell<&'a Expression<'a>>],
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let mut result = Vec::with_capacity(tuple.len());
-        for (i, expression) in tuple.into_iter().enumerate() {
-            let type_ = if expected_types.is_empty() {
-                None
-            } else {
-                Some(expected_types[i].clone())
-            };
-
-            result.push(self.enforce_expression(cs, file_scope, function_scope, type_, expression)?);
+        for expression in tuple.iter() {
+            result.push(self.enforce_expression(cs, expression.get())?);
         }
 
         Ok(ConstrainedValue::Tuple(result))

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -88,10 +88,6 @@ impl Identifier {
     pub fn is_self(&self) -> bool {
         self.is_self_type() || self.name == "self"
     }
-
-    pub fn is_core(&self) -> bool {
-        self.name.starts_with('#')
-    }
 }
 
 impl<'ast> From<GrammarIdentifier<'ast>> for Identifier {
@@ -133,7 +129,7 @@ impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
 impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
     fn from(name: KeywordOrIdentifier<'ast>) -> Self {
         match name {
-            KeywordOrIdentifier::SelfKeywordOrIdentifier(keyword) => Identifier::from(keyword),
+            KeywordOrIdentifier::Identifier(keyword) => Identifier::from(keyword),
             KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
             KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
         }

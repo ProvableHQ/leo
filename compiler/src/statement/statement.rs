@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,17 +17,17 @@
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Statement, Type};
+use leo_asg::Statement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
 pub type StatementResult<T> = Result<T, StatementError>;
-pub type IndicatorAndConstrainedValue<T, U> = (Boolean, ConstrainedValue<T, U>);
+pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
@@ -39,73 +39,38 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
         indicator: &Boolean,
-        statement: Statement,
-        return_type: Option<Type>,
-        declared_circuit_reference: &str,
-        mut_self: bool,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        statement: &'a Statement<'a>,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let mut results = vec![];
 
         match statement {
             Statement::Return(statement) => {
-                let return_value = (
-                    *indicator,
-                    self.enforce_return_statement(cs, file_scope, function_scope, return_type, statement)?,
-                );
+                let return_value = (*indicator, self.enforce_return_statement(cs, statement)?);
 
                 results.push(return_value);
             }
             Statement::Definition(statement) => {
-                self.enforce_definition_statement(cs, file_scope, function_scope, statement)?;
+                self.enforce_definition_statement(cs, statement)?;
             }
             Statement::Assign(statement) => {
-                self.enforce_assign_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    declared_circuit_reference,
-                    indicator,
-                    mut_self,
-                    statement,
-                )?;
+                self.enforce_assign_statement(cs, indicator, statement)?;
             }
             Statement::Conditional(statement) => {
-                let result = self.enforce_conditional_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    return_type,
-                    declared_circuit_reference,
-                    mut_self,
-                    statement,
-                )?;
+                let result = self.enforce_conditional_statement(cs, indicator, statement)?;
 
                 results.extend(result);
             }
             Statement::Iteration(statement) => {
-                let result = self.enforce_iteration_statement(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    indicator,
-                    return_type,
-                    declared_circuit_reference,
-                    mut_self,
-                    statement,
-                )?;
+                let result = self.enforce_iteration_statement(cs, indicator, statement)?;
 
                 results.extend(result);
             }
             Statement::Console(statement) => {
-                self.evaluate_console_function_call(cs, file_scope, function_scope, indicator, statement)?;
+                self.evaluate_console_function_call(cs, indicator, statement)?;
             }
             Statement::Expression(statement) => {
-                let expression_string = statement.expression.to_string();
-                let value = self.enforce_expression(cs, file_scope, function_scope, None, statement.expression)?;
+                let value = self.enforce_expression(cs, statement.expression.get())?;
                 // handle empty return value cases
                 match &value {
                     ConstrainedValue::Tuple(values) => {
@@ -113,20 +78,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                             results.push((*indicator, value));
                         }
                     }
-                    _ => return Err(StatementError::unassigned(expression_string, statement.span)),
+                    _ => {
+                        return Err(StatementError::unassigned(
+                            statement.span.as_ref().map(|x| x.text.clone()).unwrap_or_default(),
+                            statement.span.clone().unwrap_or_default(),
+                        ));
+                    }
                 }
             }
             Statement::Block(statement) => {
-                let span = statement.span.clone();
+                let span = statement.span.clone().unwrap_or_default();
                 let result = self.evaluate_block(
                     &mut cs.ns(|| format!("block {}:{}", &span.line, &span.start)),
-                    file_scope,
-                    function_scope,
                     indicator,
                     statement,
-                    return_type,
-                    declared_circuit_reference,
-                    mut_self,
                 )?;
 
                 results.extend(result);

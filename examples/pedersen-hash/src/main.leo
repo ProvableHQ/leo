@@ -7,7 +7,7 @@ circuit PedersenHash {
     }
 
     function hash(self, bits: [bool; 256]) -> group {
-        let mut digest: group = 0;
+        let mut digest: group = 0group;
         for i in 0..256 {
             if bits[i] {
                 digest += self.parameters[i];
@@ -19,8 +19,8 @@ circuit PedersenHash {
 
 // The 'pedersen-hash' main function.
 function main() -> group {
-    const parameters = [1group; 256];
-    const pedersen = PedersenHash::new(parameters);
+    let parameters = [1group; 256];
+    let pedersen = PedersenHash::new(parameters);
     let hash_input: [bool; 256] = [true; 256];
     return pedersen.hash(hash_input)
 }

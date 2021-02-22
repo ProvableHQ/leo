@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use leo_asg::Program;
 use leo_ast::{Parameter, Registers, Span};
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_models::curves::PrimeField;
 
 use serde::{Deserialize, Serialize};
 
@@ -30,9 +31,10 @@ impl OutputBytes {
         &self.0
     }
 
-    pub fn new_from_constrained_value<F: Field + PrimeField, G: GroupType<F>>(
+    pub fn new_from_constrained_value<'a, F: PrimeField, G: GroupType<F>>(
+        program: &Program<'a>,
         registers: &Registers,
-        value: ConstrainedValue<F, G>,
+        value: ConstrainedValue<'a, F, G>,
         span: Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
@@ -65,13 +67,13 @@ impl OutputBytes {
             let name = parameter.variable.name;
 
             // Check register type == return value type.
-            let register_type = parameter.type_;
+            let register_type = program.scope.resolve_ast_type(&parameter.type_)?;
             let return_value_type = value.to_type(&span)?;
 
-            if !register_type.eq_flat(&return_value_type) {
+            if !register_type.is_assignable_from(&return_value_type) {
                 return Err(OutputBytesError::mismatched_output_types(
-                    register_type,
-                    return_value_type,
+                    &register_type,
+                    &return_value_type,
                     span,
                 ));
             }

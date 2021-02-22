@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,71 +14,61 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, commands::SetupCommand, errors::CLIError};
-use leo_package::{outputs::ProofFile, root::Manifest};
-
+use super::setup::Setup;
+use crate::{commands::Command, context::Context};
+use leo_package::outputs::ProofFile;
 use snarkvm_algorithms::snark::groth16::{Groth16, PreparedVerifyingKey, Proof};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
+use snarkvm_utilities::bytes::ToBytes;
 
-use clap::ArgMatches;
+use anyhow::Result;
 use rand::thread_rng;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+use structopt::StructOpt;
+use tracing::span::Span;
 
-#[derive(Debug)]
-pub struct ProveCommand;
+/// Run the program and produce a proof
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Prove {
+    #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
+    skip_key_check: bool,
+}
 
-impl CLI for ProveCommand {
-    type Options = ();
+impl Prove {
+    pub fn new(skip_key_check: bool) -> Prove {
+        Prove { skip_key_check }
+    }
+}
+
+impl Command for Prove {
+    type Input = <Setup as Command>::Output;
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
-    const ABOUT: AboutType = "Run the program and produce a proof";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "prove";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Proving")
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        let (program, parameters, prepared_verifying_key) = SetupCommand::output(options)?;
+    fn prelude(&self) -> Result<Self::Input> {
+        Setup::new(self.skip_key_check).execute()
+    }
 
-        // Begin "Proving" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Proving");
-        let enter = span.enter();
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
+        let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
 
         tracing::info!("Starting...");
 
-        // Start the timer
-        let start = Instant::now();
-
         let rng = &mut thread_rng();
         let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng)?;
-
-        // Finish the timer
-        let end = start.elapsed().as_millis();
 
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
-
-        // Drop "Proving" context for console logging
-        drop(enter);
-
-        // Begin "Done" context for console logging
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {:?} milliseconds\n", end);
-        });
 
         Ok((program_proof, prepared_verifying_key))
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@ where
 // Implement unsigned integers
 macro_rules! add_uint_impl {
     ($($gadget: ident),*) => ($(
-        impl<F: Field + PrimeField> Add<F> for $gadget {
+        impl<F: PrimeField> Add<F> for $gadget {
             type ErrorType = SynthesisError;
 
             fn add<CS: ConstraintSystem<F>>(

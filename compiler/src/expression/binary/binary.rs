@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,33 +17,22 @@
 //! Enforces a binary expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::Expression;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-type ConstrainedValuePair<T, U> = (ConstrainedValue<T, U>, ConstrainedValue<T, U>);
+type ConstrainedValuePair<'a, T, U> = (ConstrainedValue<'a, T, U>, ConstrainedValue<'a, T, U>);
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        left: Expression,
-        right: Expression,
-        span: &Span,
-    ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
-        let mut resolved_left =
-            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), left, span)?;
-        let mut resolved_right =
-            self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), right, span)?;
-
-        resolved_left.resolve_types(&mut resolved_right, expected_type, span)?;
+        left: &'a Expression<'a>,
+        right: &'a Expression<'a>,
+    ) -> Result<ConstrainedValuePair<'a, F, G>, ExpressionError> {
+        let resolved_left = self.enforce_expression(cs, left)?;
+        let resolved_right = self.enforce_expression(cs, right)?;
 
         Ok((resolved_left, resolved_right))
     }

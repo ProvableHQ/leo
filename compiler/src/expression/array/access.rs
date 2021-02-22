@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,31 +17,25 @@
 //! Enforces array access in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_array_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        array: Expression,
-        index: Expression,
+        array: &'a Expression<'a>,
+        index: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_operand(cs, file_scope, function_scope, expected_type, array, span)? {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
-        let index_resolved = self.enforce_index(cs, file_scope, function_scope, index, span)?;
+        let index_resolved = self.enforce_index(cs, index, span)?;
         Ok(array[index_resolved].to_owned())
     }
 
@@ -49,25 +43,22 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_array_range_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        array: Expression,
-        left: Option<Expression>,
-        right: Option<Expression>,
+        array: &'a Expression<'a>,
+        left: Option<&'a Expression<'a>>,
+        right: Option<&'a Expression<'a>>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let array = match self.enforce_operand(cs, file_scope, function_scope, expected_type, array, span)? {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
             value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
         };
 
         let from_resolved = match left {
-            Some(from_index) => self.enforce_index(cs, file_scope, function_scope, from_index, span)?,
+            Some(from_index) => self.enforce_index(cs, from_index, span)?,
             None => 0usize, // Array slice starts at index 0
         };
         let to_resolved = match right {
-            Some(to_index) => self.enforce_index(cs, file_scope, function_scope, to_index, span)?,
+            Some(to_index) => self.enforce_index(cs, to_index, span)?,
             None => array.len(), // Array slice ends at array length
         };
         Ok(ConstrainedValue::Array(array[from_resolved..to_resolved].to_owned()))

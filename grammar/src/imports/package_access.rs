@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    imports::{ImportSymbol, Package, Star},
+    imports::{ImportSymbol, Package, Packages, Star},
 };
 
 use pest_ast::FromPest;
@@ -28,5 +28,5 @@ pub enum PackageAccess<'ast> {
     Star(Star<'ast>),
     SubPackage(Box<Package<'ast>>),
     Symbol(ImportSymbol<'ast>),
-    Multiple(Vec<PackageAccess<'ast>>),
+    Multiple(Packages<'ast>),
 }

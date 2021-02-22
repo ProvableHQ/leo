@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -98,7 +98,7 @@ fn test_generate_values_from_dpc() {
     let payload: [u8; 32] = rng.gen();
 
     let old_record = DPC::generate_record(
-        system_parameters.clone(),
+        &system_parameters,
         sn_nonce,
         dummy_account.address,
         false,

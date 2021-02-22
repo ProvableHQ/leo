@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -53,7 +53,7 @@ where
 macro_rules! uint_cmp_impl {
     ($($gadget: ident),*) => ($(
         /*  Bitwise less than comparison of two unsigned integers */
-        impl<F: Field + PrimeField> EvaluateLtGadget<F> for $gadget {
+        impl<F: PrimeField> EvaluateLtGadget<F> for $gadget {
             fn less_than<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
 
                 let mut result = Boolean::constant(true);
@@ -91,7 +91,7 @@ macro_rules! uint_cmp_impl {
         }
 
         /* Bitwise comparison of two unsigned integers */
-        impl<F: Field + PrimeField> ComparatorGadget<F> for $gadget {}
+        impl<F: PrimeField> ComparatorGadget<F> for $gadget {}
     )*)
 }
 

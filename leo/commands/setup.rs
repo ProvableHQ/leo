@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,81 +14,71 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
-    errors::{CLIError, RunError},
-};
+use super::build::Build;
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::{
     outputs::{ProvingKeyFile, VerificationKeyFile},
-    root::Manifest,
     source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use anyhow::{anyhow, Result};
+use rand::thread_rng;
 use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::snark::SNARK;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-use clap::ArgMatches;
-use rand::thread_rng;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+/// Executes the setup command for a Leo program
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Setup {
+    #[structopt(long = "skip-key-check", help = "Skip key verification")]
+    skip_key_check: bool,
+}
 
-#[derive(Debug)]
-pub struct SetupCommand;
+impl Setup {
+    pub fn new(skip_key_check: bool) -> Setup {
+        Setup { skip_key_check }
+    }
+}
 
-impl CLI for SetupCommand {
-    type Options = ();
+impl Command for Setup {
+    type Input = <Build as Command>::Output;
     type Output = (
-        Compiler<Fr, EdwardsGroupType>,
+        Compiler<'static, Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
 
-    const ABOUT: AboutType = "Run a program setup";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "setup";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+    fn prelude(&self) -> Result<Self::Input> {
+        Build::new().execute()
+    }
 
-        match BuildCommand::output(options)? {
+    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
+        let path = ctx.dir()?;
+        let package_name = ctx.manifest()?.get_package_name();
+
+        match input {
             Some((program, checksum_differs)) => {
-                // Begin "Setup" context for console logging
-                let span = tracing::span!(tracing::Level::INFO, "Setup");
-                let enter = span.enter();
-
                 // Check if a proving key and verification key already exists
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
 
                 // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
-                let (end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+                let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     tracing::info!("Starting...");
-
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
 
                     // Run the program setup operation
                     let rng = &mut thread_rng();
                     let (proving_key, prepared_verifying_key) =
-                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
-
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
+                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)?;
 
                     // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
                     // Write the proving key file to the output directory
@@ -107,17 +97,19 @@ impl CLI for SetupCommand {
                     let _ = verification_key_file.write_to(&path, &verification_key)?;
                     tracing::info!("Complete");
 
-                    (end, proving_key, prepared_verifying_key)
+                    (proving_key, prepared_verifying_key)
                 } else {
                     tracing::info!("Detected saved setup");
 
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
-
                     // Read the proving key file from the output directory
                     tracing::info!("Loading proving key...");
+
+                    if self.skip_key_check {
+                        tracing::info!("Skipping curve check");
+                    }
                     let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
+                    let proving_key =
+                        Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)?;
                     tracing::info!("Complete");
 
                     // Read the verification key file from the output directory
@@ -129,19 +121,8 @@ impl CLI for SetupCommand {
                     let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
                     tracing::info!("Complete");
 
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
-
-                    (end, proving_key, prepared_verifying_key)
+                    (proving_key, prepared_verifying_key)
                 };
-
-                // Drop "Setup" context for console logging
-                drop(enter);
-
-                // Begin "Done" context for console logging
-                tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-                    tracing::info!("Finished in {:?} milliseconds\n", end);
-                });
 
                 Ok((program, proving_key, prepared_verifying_key))
             }
@@ -150,9 +131,7 @@ impl CLI for SetupCommand {
                 main_file_path.push(SOURCE_DIRECTORY_NAME);
                 main_file_path.push(MAIN_FILENAME);
 
-                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
-                    main_file_path.into_os_string(),
-                )))
+                Err(anyhow!("Unable to build, check that main file exists"))
             }
         }
     }

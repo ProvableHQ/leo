@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,22 +17,22 @@
 //! Enforces a relational `==` operator in a resolved Leo program.
 
 use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, eq::EvaluateEqGadget},
     },
 };
 
-pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
     let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line, span.start);
     let constraint_result = match (left, right) {
         (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
@@ -73,16 +73,6 @@ pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<
                 current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
             }
             return Ok(current);
-        }
-        (ConstrainedValue::Unresolved(string), val_2) => {
-            let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_1 = ConstrainedValue::from_other(string, &val_2, span)?;
-            return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
-        }
-        (val_1, ConstrainedValue::Unresolved(string)) => {
-            let mut unique_namespace = cs.ns(|| namespace_string);
-            let val_2 = ConstrainedValue::from_other(string, &val_1, span)?;
-            return evaluate_eq(&mut unique_namespace, val_1, val_2, span);
         }
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(

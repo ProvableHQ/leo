@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -23,6 +23,7 @@ use crate::{
         CircuitInlineExpression,
         Expression,
         PostfixExpression,
+        SelfPostfixExpression,
         TernaryExpression,
         UnaryExpression,
     },
@@ -44,8 +45,8 @@ use pest::{
 #[grammar = "leo.pest"]
 pub struct LanguageParser;
 
-pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
-    LanguageParser::parse(Rule::file, input)
+pub fn parse(program_string: &str) -> Result<Pairs<Rule>, Error<Rule>> {
+    LanguageParser::parse(Rule::file, program_string)
 }
 
 pub(crate) fn span_into_string(span: Span) -> String {
@@ -115,6 +116,9 @@ fn parse_term(pair: Pair<Rule>) -> Expression {
                 }
                 Rule::expression_postfix => {
                     Expression::Postfix(PostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
+                Rule::self_expression_postfix => {
+                    Expression::SelfPostfix(SelfPostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
                 Rule::value => Expression::Value(Value::from_pest(&mut pair.into_inner()).unwrap()),
                 Rule::identifier => Expression::Identifier(Identifier::from_pest(&mut pair.into_inner()).unwrap()),

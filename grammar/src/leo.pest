@@ -70,7 +70,7 @@ self_keyword_or_identifier = {
 keyword_or_identifier = {
     input_keyword
     | type_self
-    | self_keyword_or_identifier
+    | identifier
 }
 
 // Declared in common/line_end.rs
@@ -304,7 +304,10 @@ value_address = ${ type_address ~ "(" ~ address ~ ")" }
 /// Access
 
 // Declared in access/access.rs
-access = { access_array | access_tuple | access_call | access_member | access_static_member}
+access = { access_array | access_tuple | access_call | access_member | access_static_member }
+
+// Declared in access/self_access.rs
+self_access = { access_member | access_static_member }
 
 // Declared in access/array_access.rs
 access_array = !{ "[" ~ range_or_expression ~ "]" }
@@ -332,6 +335,12 @@ circuit = { "circuit " ~ identifier ~ "{" ~ circuit_member* ~ "}" }
 // Declared in circuits/circuit_variable.rs
 circuit_variable = { identifier ~ ":" ~ expression }
 
+// Declared in circuits/circuit_implied_variable.rs
+circuit_implied_variable = {
+    circuit_variable
+    | identifier
+}
+
 // Declared in circuits/circuit_variable_definition.rs
 circuit_variable_definition = { identifier ~ ":" ~ type_ ~ ","?}
 
@@ -353,6 +362,7 @@ expression_term = {
     | expression_array_inline
     | expression_circuit_inline
     | expression_unary
+    | self_expression_postfix
     | expression_postfix
     | identifier
 }
@@ -381,13 +391,16 @@ circuit_name = {
 }
 
 // Declared in expressions/circuit_inline_expression.rs
-circuit_variable_list = _{ (circuit_variable ~ ("," ~ circuit_variable)*)? ~ ","? }
+circuit_variable_list = _{ (circuit_implied_variable ~ ("," ~ circuit_implied_variable)*)? ~ ","? }
 
 // Declared in expressions/unary_expression.rs
 expression_unary = { operation_unary ~ expression_term }
 
 // Declared in expressions/postfix_expression.rs
 expression_postfix = ${ keyword_or_identifier ~ access+ }
+
+// Declared in expressions/self_postfix_expression.rs
+self_expression_postfix = ${ self_keyword ~ self_access ~ access* }
 
 /// Statements
 
@@ -435,7 +448,7 @@ statement_return = { "return " ~ expression}
 function = { "function " ~ identifier ~ input_tuple  ~ ("->" ~ type_)? ~ block }
 
 // Declared in functions/input/function_input.rs
-function_input = { mutable? ~ identifier ~ ":" ~ type_ }
+function_input = { const_? ~ mutable? ~ identifier ~ ":" ~ type_ }
 
 // Declared in functions/input/input_keyword.rs
 input_keyword = { "input" }
@@ -453,18 +466,25 @@ input_tuple = _{ "(" ~ (input ~ ("," ~ input)* ~ ","?)? ~ ")"}
 /// Imports
 
 // Declared in imports/import.rs
-import = { "import " ~ package ~ LINE_END}
+import = { "import " ~ package_or_packages ~ LINE_END}
 
 // Declared in imports/package_name.rs
 package_name = @{ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+ ~ ( "-" ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT)+)* }
 
+// Declared in imports/package_or_packages.rs
+package_or_packages = {
+    packages
+    | package
+}
 // Declared in imports/package.rs
 package = { package_name ~ "." ~ package_access }
+// Declared in imports/packages.rs
+packages = { package_name ~ "." ~ multiple_package_access }
 
 // Declared in imports/package_access
 package_access = {
-    multiple_package_access
-    | star
+    star
+    | packages 
     | package // subpackage
     | import_symbol
 }

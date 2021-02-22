@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,15 +17,13 @@
 //! Methods to enforce constraints on input group values in a Leo program.
 
 use crate::{errors::GroupError, ConstrainedValue, GroupType};
-use leo_ast::{GroupValue, InputValue, Span};
+use leo_asg::{GroupValue, Span};
+use leo_ast::InputValue;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     option: Option<GroupValue>,
@@ -38,12 +36,12 @@ pub(crate) fn allocate_group<F: Field + PrimeField, G: GroupType<F>, CS: Constra
     .map_err(|_| GroupError::missing_group(format!("{}: group", name), span.to_owned()))
 }
 
-pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, GroupError> {
+) -> Result<ConstrainedValue<'a, F, G>, GroupError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
@@ -56,7 +54,15 @@ pub(crate) fn group_from_input<F: Field + PrimeField, G: GroupType<F>, CS: Const
         None => None,
     };
 
-    let group = allocate_group(cs, name, option, span)?;
+    let group = allocate_group(
+        cs,
+        name,
+        option.map(|x| match x {
+            leo_ast::GroupValue::Single(s, _) => GroupValue::Single(s),
+            leo_ast::GroupValue::Tuple(leo_ast::GroupTuple { x, y, .. }) => GroupValue::Tuple((&x).into(), (&y).into()),
+        }),
+        span,
+    )?;
 
     Ok(ConstrainedValue::Group(group))
 }

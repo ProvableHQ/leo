@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
-use leo_ast::{InputValue, IntegerType, Span, Type};
+use leo_asg::{ConstInt, IntegerType, Span};
+use leo_ast::InputValue;
 use leo_gadgets::{
     arithmetic::*,
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
@@ -72,112 +73,18 @@ impl Integer {
     ///
     /// Checks that the expression is equal to the expected type if given.
     ///
-    pub fn new(
-        expected_type: Option<Type>,
-        actual_integer_type: &IntegerType,
-        string: String,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
-        // Check expected type if given.
-        if let Some(type_) = expected_type {
-            // Check expected type is an integer.
-            match type_ {
-                Type::IntegerType(expected_integer_type) => {
-                    // Check expected integer type == actual integer type
-                    if expected_integer_type.ne(actual_integer_type) {
-                        return Err(IntegerError::invalid_integer_type(
-                            &expected_integer_type,
-                            actual_integer_type,
-                            span.to_owned(),
-                        ));
-                    }
-                }
-                type_ => return Err(IntegerError::invalid_type(&type_, span.to_owned())),
-            }
-        }
-
-        // Return a new constant integer.
-        Self::new_constant(actual_integer_type, string, span)
-    }
-
-    ///
-    /// Returns a new integer value from an expression.
-    ///
-    /// The returned integer value is "constant" and is not allocated in the constraint system.
-    ///
-    pub fn new_constant(integer_type: &IntegerType, string: String, span: &Span) -> Result<Self, IntegerError> {
-        match integer_type {
-            IntegerType::U8 => {
-                let number = string
-                    .parse::<u8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U8(UInt8::constant(number)))
-            }
-            IntegerType::U16 => {
-                let number = string
-                    .parse::<u16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U16(UInt16::constant(number)))
-            }
-            IntegerType::U32 => {
-                let number = string
-                    .parse::<u32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U32(UInt32::constant(number)))
-            }
-            IntegerType::U64 => {
-                let number = string
-                    .parse::<u64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U64(UInt64::constant(number)))
-            }
-            IntegerType::U128 => {
-                let number = string
-                    .parse::<u128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U128(UInt128::constant(number)))
-            }
-
-            IntegerType::I8 => {
-                let number = string
-                    .parse::<i8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I8(Int8::constant(number)))
-            }
-            IntegerType::I16 => {
-                let number = string
-                    .parse::<i16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I16(Int16::constant(number)))
-            }
-            IntegerType::I32 => {
-                let number = string
-                    .parse::<i32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I32(Int32::constant(number)))
-            }
-            IntegerType::I64 => {
-                let number = string
-                    .parse::<i64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I64(Int64::constant(number)))
-            }
-            IntegerType::I128 => {
-                let number = string
-                    .parse::<i128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I128(Int128::constant(number)))
-            }
+    pub fn new(value: &ConstInt) -> Self {
+        match value {
+            ConstInt::U8(i) => Integer::U8(UInt8::constant(*i)),
+            ConstInt::U16(i) => Integer::U16(UInt16::constant(*i)),
+            ConstInt::U32(i) => Integer::U32(UInt32::constant(*i)),
+            ConstInt::U64(i) => Integer::U64(UInt64::constant(*i)),
+            ConstInt::U128(i) => Integer::U128(UInt128::constant(*i)),
+            ConstInt::I8(i) => Integer::I8(Int8::constant(*i)),
+            ConstInt::I16(i) => Integer::I16(Int16::constant(*i)),
+            ConstInt::I32(i) => Integer::I32(Int32::constant(*i)),
+            ConstInt::I64(i) => Integer::I64(Int64::constant(*i)),
+            ConstInt::I128(i) => Integer::I128(Int128::constant(*i)),
         }
     }
 
@@ -220,7 +127,7 @@ impl Integer {
 
     pub fn allocate_type<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         option: Option<String>,
         span: &Span,
@@ -371,7 +278,7 @@ impl Integer {
 
     pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         integer_value: Option<InputValue>,
         span: &Span,
@@ -391,7 +298,7 @@ impl Integer {
         Self::allocate_type(cs, integer_type, name, option, span)
     }
 
-    pub fn negate<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         span: &Span,
@@ -405,7 +312,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::negate_operation(span.to_owned()))
     }
 
-    pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -421,7 +328,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span.to_owned()))
     }
 
-    pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -437,7 +344,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span.to_owned()))
     }
 
-    pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -453,7 +360,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span.to_owned()))
     }
 
-    pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -469,7 +376,7 @@ impl Integer {
         result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span.to_owned()))
     }
 
-    pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
@@ -486,7 +393,7 @@ impl Integer {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
+impl<F: PrimeField> EvaluateEqGadget<F> for Integer {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -497,7 +404,7 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
+impl<F: PrimeField> EvaluateLtGadget<F> for Integer {
     fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -507,11 +414,11 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> ComparatorGadget<F> for Integer {}
+impl<F: PrimeField> ComparatorGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> EqGadget<F> for Integer {}
+impl<F: PrimeField> EqGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
+impl<F: PrimeField> ConditionalEqGadget<F> for Integer {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         cs: CS,
@@ -531,7 +438,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
+impl<F: PrimeField> CondSelectGadget<F> for Integer {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         cs: CS,
         cond: &Boolean,

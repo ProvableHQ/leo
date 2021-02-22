@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+      - staging
+      - trying
     paths-ignore:
       - 'docs/**'
       - 'documentation/**'
@@ -39,21 +41,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -Dwarnings
-    strategy:
-      matrix:
-        rust:
-          - stable
-          - nightly
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install Rust (${{ matrix.rust }})
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
           override: true
           components: clippy
 
@@ -68,14 +64,12 @@ jobs:
         with:
           command: clippy
           args: --examples --all-features --all
-        if: matrix.rust == 'stable'
 
       - name: Check benchmarks on nightly
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --all-features --examples --all --benches
-        if: matrix.rust == 'nightly'
 
   test:
     name: Test

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -13,7 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use leo_ast::{DeprecatedError, Error as FormattedError, Identifier, Span};
+use leo_asg::AsgConvertError;
+use leo_ast::{AstError, DeprecatedError, Error as FormattedError, Identifier, Span};
 use leo_grammar::ParserError;
 
 use std::{io, path::Path};
@@ -28,6 +29,19 @@ pub enum ImportParserError {
 
     #[error("{}", _0)]
     ParserError(#[from] ParserError),
+    #[error("{}", _0)]
+    AsgConvertError(#[from] AsgConvertError),
+}
+
+impl Into<AsgConvertError> for ImportParserError {
+    fn into(self) -> AsgConvertError {
+        match self {
+            ImportParserError::Error(x) => AsgConvertError::ImportError(x),
+            ImportParserError::ParserError(x) => x.into(),
+            ImportParserError::DeprecatedError(x) => AsgConvertError::AstError(AstError::DeprecatedError(x)),
+            ImportParserError::AsgConvertError(x) => x,
+        }
+    }
 }
 
 impl ImportParserError {
@@ -46,6 +60,12 @@ impl ImportParserError {
         let message = format!("conflicting imports found for `{}`.", identifier.name);
 
         Self::new_from_span(message, identifier.span)
+    }
+
+    pub fn recursive_imports(package: &str, span: &Span) -> Self {
+        let message = format!("recursive imports for `{}`.", package);
+
+        Self::new_from_span(message, span.clone())
     }
 
     ///

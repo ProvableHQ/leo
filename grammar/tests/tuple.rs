@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -67,7 +67,7 @@ fn access() {
         rule:   Rule::expression_postfix,
         tokens: [
             expression_postfix(0, 3, [
-                keyword_or_identifier(0, 1, [self_keyword_or_identifier(0, 1, [identifier(0, 1, [])])]),
+                keyword_or_identifier(0, 1, [identifier(0, 1, [])]),
                 access(1, 3, [access_tuple(1, 3, [number_positive(2, 3, [])])])
             ])
         ]

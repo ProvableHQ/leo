@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -34,6 +34,9 @@ pub use unary_expression::*;
 
 pub mod postfix_expression;
 pub use postfix_expression::*;
+
+pub mod self_postfix_expression;
+pub use self_postfix_expression::*;
 
 pub mod ternary_expression;
 pub use ternary_expression::*;

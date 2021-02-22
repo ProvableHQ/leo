@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::LineEnd, imports::Package, SpanDef};
+use crate::{ast::Rule, common::LineEnd, imports::PackageOrPackages, SpanDef};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,7 +23,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::import))]
 pub struct Import<'ast> {
-    pub package: Package<'ast>,
+    pub package_or_packages: PackageOrPackages<'ast>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]
     #[serde(with = "SpanDef")]

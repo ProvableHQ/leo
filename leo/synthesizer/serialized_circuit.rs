@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::synthesizer::{CircuitSynthesizer, SerializedField, SerializedIndex};
+use std::convert::TryFrom;
 
+use serde::{Deserialize, Serialize};
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_errors::curves::FieldError;
 use snarkvm_models::{
@@ -23,8 +24,7 @@ use snarkvm_models::{
     gadgets::r1cs::{ConstraintSystem, Index},
 };
 
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use crate::synthesizer::{CircuitSynthesizer, SerializedField, SerializedIndex};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {

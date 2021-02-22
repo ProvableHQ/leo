@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -32,6 +32,8 @@ use leo_grammar::{definitions::Definition, files::File};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+
 /// Stores the Leo program abstract syntax tree.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
@@ -42,6 +44,31 @@ pub struct Program {
     pub defines: IndexMap<Identifier, Define>,
     pub functions: IndexMap<Identifier, Function>,
     pub tests: IndexMap<Identifier, TestFunction>,
+}
+
+impl fmt::Display for Program {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for import in self.imports.iter() {
+            import.fmt(f)?;
+            writeln!(f,)?;
+        }
+        writeln!(f,)?;
+        for (_, circuit) in self.circuits.iter() {
+            circuit.fmt(f)?;
+            writeln!(f,)?;
+        }
+        writeln!(f,)?;
+        for (_, function) in self.functions.iter() {
+            function.fmt(f)?;
+            writeln!(f,)?;
+        }
+        for (_, test) in self.tests.iter() {
+            write!(f, "test ")?;
+            test.function.fmt(f)?;
+            writeln!(f,)?;
+        }
+        write!(f, "")
+    }
 }
 
 const MAIN_FUNCTION_NAME: &str = "main";

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,9 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 /// The import parser creates a hashmap of import program names -> import program structs
-pub mod core_package;
-pub use self::core_package::*;
-
 pub mod parse_symbol;
 pub use self::parse_symbol::*;
 

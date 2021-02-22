@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,42 +14,55 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::CLI, cli_types::*, commands::BuildCommand, errors::CLIError};
-use clap::ArgMatches;
-use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use super::build::Build;
+use crate::{commands::Command, context::Context};
+
 use std::{sync::mpsc::channel, time::Duration};
+
+use anyhow::{anyhow, Result};
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use structopt::StructOpt;
+use tracing::span::Span;
 
 const LEO_SOURCE_DIR: &str = "src/";
 
-// Time interval for watching files, in seconds
-const INTERVAL: u64 = 3;
+/// Watch file changes in src/ directory and run Build Command
+#[derive(StructOpt, Debug, Default)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Watch {
+    /// Set up watch interval
+    #[structopt(short, long, default_value = "3")]
+    interval: u64,
+}
 
-pub struct WatchCommand;
+impl Watch {
+    pub fn new(interval: u64) -> Watch {
+        Watch { interval }
+    }
+}
 
-impl CLI for WatchCommand {
-    type Options = ();
+impl Command for Watch {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Watch for changes of Leo source files";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "watch";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Watching")
+    }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+    fn prelude(&self) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Watching" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Watching");
-        let _enter = span.enter();
-
+    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
-        let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
-        watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).unwrap();
+        let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
+
+        watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).map_err(|e| {
+            anyhow!(
+                "Unable to watch, check that directory contains Leo.toml file. Error: {}",
+                e
+            )
+        })?;
 
         tracing::info!("Watching Leo source code");
 
@@ -57,7 +70,7 @@ impl CLI for WatchCommand {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match BuildCommand::output(()) {
+                    match Build::new().execute() {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }
