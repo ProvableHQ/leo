@@ -16,3 +16,6 @@
 
 pub mod global_const;
 pub use global_const::*;
+
+pub mod global_consts;
+pub use global_consts::*;

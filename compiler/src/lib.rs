@@ -41,6 +41,9 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
+pub mod global_const;
+pub use self::global_const::*;
+
 pub mod output;
 pub use self::output::*;
 

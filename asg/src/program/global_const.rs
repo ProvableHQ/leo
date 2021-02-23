@@ -14,24 +14,94 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ExpressionStatement, Identifier, Node, Scope, Span, Type};
+use crate::{
+    AsgConvertError,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    InnerVariable,
+    Node,
+    Scope,
+    Span,
+    Statement,
+    Variable,
+};
 
-use uuid::Uuid;
+use std::cell::{Cell, RefCell};
 
 #[derive(Clone)]
-pub struct Define<'a> {
-    pub id: Uuid,
-    pub name: Identifier,
-    pub expression: ExpressionStatement<'a>,
+pub struct GlobalConst<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
+    pub span: Option<Span>,
+    pub variable: &'a Variable<'a>,
+    pub value: Cell<&'a Expression<'a>>,
 }
 
-impl<'a> PartialEq for Define<'a> {
-    fn eq(&self, other: &Define) -> bool {
-        if self.name != other.name {
-            return false;
-        }
-        self.id == other.id
+impl<'a> Node for GlobalConst<'a> {
+    fn span(&self) -> Option<&Span> {
+        self.span.as_ref()
     }
 }
 
-impl<'a> Eq for Define<'a> {}
+impl<'a> GlobalConst<'a> {
+    pub(super) fn init(
+        scope: &'a Scope<'a>,
+        global_const: &leo_ast::GlobalConst,
+    ) -> Result<&'a GlobalConst<'a>, AsgConvertError> {
+        let type_ = global_const
+            .type_
+            .as_ref()
+            .map(|x| scope.resolve_ast_type(&x))
+            .transpose()?;
+
+        let value = <&Expression<'a>>::from_ast(scope, &global_const.value, type_.clone().map(Into::into))?;
+
+        let type_ = type_.or_else(|| value.get_type());
+
+        let variable = scope.alloc_variable(RefCell::new(InnerVariable {
+            id: uuid::Uuid::new_v4(),
+            name: global_const.variable_name.identifier.clone(),
+            type_: type_.ok_or_else(|| {
+                AsgConvertError::unresolved_type(&global_const.variable_name.identifier.name, &global_const.span)
+            })?,
+            mutable: global_const.variable_name.mutable,
+            const_: false,
+            declaration: crate::VariableDeclaration::Definition,
+            references: vec![],
+            assignments: vec![],
+        }));
+
+        //TODO add scope onto this for reference other global consts?
+        let global_const = scope.alloc_global_const(GlobalConst {
+            parent: Cell::new(None),
+            span: Some(global_const.span.clone()),
+            variable,
+            value: Cell::new(value),
+        });
+
+        Ok(global_const)
+    }
+}
+
+impl<'a> Into<leo_ast::GlobalConst> for &GlobalConst<'a> {
+    fn into(self) -> leo_ast::GlobalConst {
+        let mut type_ = None::<leo_ast::Type>;
+        let variable = self.variable.borrow();
+        let variable_name = leo_ast::VariableName {
+            mutable: variable.mutable,
+            identifier: variable.name.clone(),
+            span: variable.name.span.clone(),
+        };
+        if type_.is_none() {
+            type_ = Some((&variable.type_.clone()).into());
+        }
+
+        leo_ast::GlobalConst {
+            declaration_type: leo_ast::Declare::Let,
+            variable_name,
+            type_,
+            value: self.value.get().into(),
+            span: self.span.clone().unwrap_or_default(),
+        }
+    }
+}

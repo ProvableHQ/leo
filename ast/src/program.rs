@@ -20,10 +20,11 @@
 use crate::{
     load_annotation,
     Circuit,
-    GlobalConst,
     DeprecatedError,
     Function,
     FunctionInput,
+    GlobalConst,
+    GlobalConsts,
     Identifier,
     ImportStatement,
     TestFunction,
@@ -41,7 +42,7 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub imports: Vec<ImportStatement>,
     pub circuits: IndexMap<Identifier, Circuit>,
-    pub global_consts: Vec<GlobalConst>,
+    pub global_consts: IndexMap<Identifier, GlobalConst>,
     pub functions: IndexMap<Identifier, Function>,
     pub tests: IndexMap<Identifier, TestFunction>,
 }
@@ -78,7 +79,7 @@ impl<'ast> Program {
     pub fn from(program_name: &str, program_ast: &File<'ast>) -> Result<Self, DeprecatedError> {
         let mut imports = vec![];
         let mut circuits = IndexMap::new();
-        let mut global_consts = vec![];
+        let mut global_consts = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut tests = IndexMap::new();
         let mut expected_input = vec![];
@@ -98,7 +99,10 @@ impl<'ast> Program {
                     None
                 }
                 Definition::GlobalConst(global_const) => {
-                    global_consts.push(GlobalConst::from(global_const));
+                    let global_const_vec = GlobalConsts::from(global_const).into_global_const();
+                    for gc in global_const_vec {
+                        global_consts.insert(gc.variable_name.identifier.clone(), gc);
+                    }
                     None
                 }
                 Definition::Function(function_def) => {
@@ -149,7 +153,7 @@ impl Program {
             expected_input: vec![],
             imports: vec![],
             circuits: IndexMap::new(),
-            global_consts: vec![],
+            global_consts: IndexMap::new(),
             functions: IndexMap::new(),
             tests: IndexMap::new(),
         }

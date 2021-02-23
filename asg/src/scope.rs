@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArenaNode, AsgConvertError, Circuit, Expression, Function, Input, Statement, Type, Variable};
+use crate::{ArenaNode, AsgConvertError, Circuit, Expression, Function, GlobalConst, Input, Statement, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -43,6 +43,9 @@ pub struct Scope<'a> {
 
     /// Maps function name => function.
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
+
+    /// Maps global constant name => global const code block.
+    pub global_consts: RefCell<IndexMap<String, &'a GlobalConst<'a>>>,
 
     /// Maps circuit name => circuit.
     pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
@@ -95,6 +98,13 @@ impl<'a> Scope<'a> {
         }
     }
 
+    pub fn alloc_global_const(&'a self, global_const: GlobalConst<'a>) -> &'a mut GlobalConst<'a> {
+        match self.arena.alloc(ArenaNode::GlobalConst(global_const)) {
+            ArenaNode::GlobalConst(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
     ///
     /// Returns a reference to the variable corresponding to the name.
     ///
@@ -104,6 +114,8 @@ impl<'a> Scope<'a> {
     pub fn resolve_variable(&self, name: &str) -> Option<&'a Variable<'a>> {
         if let Some(resolved) = self.variables.borrow().get(name) {
             Some(*resolved)
+        } else if let Some(resolved) = self.global_consts.borrow().get(name) {
+            Some(resolved.variable)
         } else if let Some(scope) = self.parent_scope.get() {
             scope.resolve_variable(name)
         } else {
@@ -205,6 +217,7 @@ impl<'a> Scope<'a> {
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
+            global_consts: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
             input: Cell::new(None),
         })

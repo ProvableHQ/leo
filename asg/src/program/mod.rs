@@ -25,7 +25,7 @@ mod function;
 pub use function::*;
 
 mod global_const;
-pub use global_const::*; 
+pub use global_const::*;
 
 use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
@@ -55,11 +55,13 @@ pub struct InternalProgram<'a> {
     /// Maps function name => function code block.
     pub functions: IndexMap<String, &'a Function<'a>>,
 
+    /// Maps global constant name => global const code block.
+    pub global_consts: IndexMap<String, &'a GlobalConst<'a>>,
+
     /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, &'a Circuit<'a>>,
 
     // pub global_consts: IndexMap<String, (Identifier, &'a ExpressionStatement<'a>)>,
-
     /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
 }
@@ -179,6 +181,8 @@ impl<'a> InternalProgram<'a> {
 
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
+        //TODO
+        let imported_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
 
         // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
@@ -226,9 +230,9 @@ impl<'a> InternalProgram<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
+            global_consts: RefCell::new(imported_global_consts),
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
-            // global_consts: RefCell::new(Vec::new()),
             input: Cell::new(None),
         })) {
             ArenaNode::Scope(c) => c,
@@ -243,7 +247,7 @@ impl<'a> InternalProgram<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
-            // global_consts: RefCell(vec![]),
+            global_consts: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
         });
@@ -269,6 +273,23 @@ impl<'a> InternalProgram<'a> {
             let function = Function::init(scope, function)?;
 
             scope.functions.borrow_mut().insert(name.name.clone(), function);
+        }
+
+        for (name, global_const) in program.global_consts.iter() {
+            assert_eq!(name.name, global_const.variable_name.identifier.name);
+            let gc = GlobalConst::init(scope, global_const)?;
+            scope.global_consts.borrow_mut().insert(name.name.clone(), gc);
+        }
+
+        let mut global_consts = IndexMap::new();
+        for (name, global_const) in program.global_consts.iter() {
+            assert_eq!(name.name, global_const.variable_name.identifier.name);
+            let asg_global_const = *scope.global_consts.borrow().get(&name.name).unwrap();
+
+            //TODO?
+            // asg_global_const.fill_from_ast(global_const)?;
+
+            global_consts.insert(name.name.clone(), asg_global_const);
         }
 
         // Load concrete definitions.
@@ -302,19 +323,14 @@ impl<'a> InternalProgram<'a> {
             circuits.insert(name.name.clone(), asg_circuit);
         }
 
-        // let global_consts = vec![];
-        for (global_const) in program.global_consts.iter() {
-            // assert_eq!(name.name, define.name.name);
-        }
-
         Ok(InternalProgram {
             context: arena,
             id: Uuid::new_v4(),
             name: program.name.clone(),
             test_functions,
             functions,
+            global_consts,
             circuits,
-            // global_consts,
             imported_modules: resolved_packages
                 .into_iter()
                 .map(|(package, program)| (package.join("."), program))
@@ -364,6 +380,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
 
     let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
     let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
+    let mut all_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
     let mut all_test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
@@ -380,6 +397,11 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             };
             function.name.borrow_mut().name = identifier.clone();
             all_functions.insert(identifier, *function);
+        }
+        for (name, global_const) in program.global_consts.iter() {
+            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+            global_const.variable.borrow_mut().name.name = identifier.clone();
+            all_global_consts.insert(identifier, *global_const);
         }
         for (name, function) in program.test_functions.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
@@ -419,7 +441,10 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .into_iter()
             .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
-        global_consts: Vec::new(),
+        global_consts: all_global_consts
+            .into_iter()
+            .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), global_const.into()))
+            .collect(),
     }
 }
 
@@ -449,7 +474,11 @@ impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
                     })
                 })
                 .collect(),
-            global_consts: Vec::new(),
+            global_consts: self
+                .global_consts
+                .iter()
+                .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), (*global_const).into()))
+                .collect(),
         }
     }
 }

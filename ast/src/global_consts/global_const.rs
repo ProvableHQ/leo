@@ -14,8 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, Span, statements::{Declare, VariableName}, Type};
-use leo_grammar::global_consts::GlobalConst as GrammarGlobalConst;
+use crate::{
+    statements::{Declare, VariableName},
+    Expression,
+    Node,
+    Span,
+    Type,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,7 +28,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct GlobalConst {
     pub declaration_type: Declare,
-    pub variable_names: Vec<VariableName>,
+    pub variable_name: VariableName,
     pub type_: Option<Type>,
     pub value: Expression,
     pub span: Span,
@@ -31,47 +36,12 @@ pub struct GlobalConst {
 
 impl fmt::Display for GlobalConst {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} ", self.declaration_type)?;
-        if self.variable_names.len() == 1 {
-            // mut a
-            write!(f, "{}", self.variable_names[0])?;
-        } else {
-            // (a, mut b)
-            let names = self
-                .variable_names
-                .iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<_>>()
-                .join(",");
-
-            write!(f, "({})", names)?;
-        }
+        write!(f, "{} {}", self.declaration_type, self.variable_name)?;
 
         if self.type_.is_some() {
             write!(f, ": {}", self.type_.as_ref().unwrap())?;
         }
         write!(f, " = {};", self.value)
-    }
-}
-
-impl<'ast> From<GrammarGlobalConst<'ast>> for GlobalConst {
-    fn from(statement: GrammarGlobalConst<'ast>) -> Self {
-        let variable_names = statement
-            .variables
-            .names
-            .into_iter()
-            .map(VariableName::from)
-            .collect::<Vec<_>>();
-
-        let type_ = statement.variables.type_.map(Type::from);
-
-        GlobalConst {
-            declaration_type: Declare::Const,
-            variable_names,
-            type_,
-            value: Expression::from(statement.expression),
-            span: Span::from(statement.span),
-        }
     }
 }
 
