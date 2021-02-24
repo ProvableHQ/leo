@@ -52,12 +52,17 @@ impl GlobalConsts {
             }
         }
 
+        let values = match self.value.clone() {
+            Expression::TupleInit(expr) => expr.elements,
+            _ => vec![self.value.clone()],
+        };
+
         for (i, variable_name) in self.variable_names.iter().enumerate() {
             global_consts.push(GlobalConst {
                 declaration_type: self.declaration_type.clone(),
                 variable_name: variable_name.clone(),
                 type_: types.get(i).unwrap_or(&None).clone(),
-                value: self.value.clone(),
+                value: values.get(i).unwrap_or(&self.value.clone()).clone(),
                 span: self.span.clone(),
             });
         }
