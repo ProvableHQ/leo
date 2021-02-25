@@ -1,0 +1,82 @@
+version: 2.1
+commands:
+  setup_environment:
+    description: "Setup testing environment"
+    parameters:
+      cache_key:
+        type: string
+        default: leo-stable-cache
+    steps:
+      - run: set -e
+      - setup_remote_docker
+      - run:
+          name: Prepare environment and install dependencies
+          command: |
+            export SCCACHE_CACHE_SIZE=200M
+            export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
+            export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
+            mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
+            wget https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
+            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
+            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
+            export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
+            export RUSTC_WRAPPER="sccache"
+            rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
+            sudo apt-get update && sudo apt-get install -y clang llvm-dev llvm pkg-config xz-utils make libssl-dev libssl-dev
+      - restore_cache:
+          keys:
+            - << parameters.cache_key >>
+  clear_environment:
+    description: "Clear environment"
+    parameters:
+      cache_key:
+        type: string
+        default: leo-stable-cache
+    steps:
+      - run: (sccache -s||true)
+      - run: set +e
+      - save_cache:
+          key: << parameters.cache_key >>
+          paths:
+            - .cache/sccache
+            - .cargo
+jobs:
+  rust-stable:
+    docker:
+      - image: cimg/rust:1.49.0
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-stable-cache
+      - run:
+          name: Build and run tests
+          no_output_timeout: 30m
+          command: cargo install --path .
+      - persist_to_workspace:
+          root: ~/
+          paths: project/
+      - clear_environment:
+          cache_key: leo-stable-cache
+  leo-new:
+    docker:
+      - image: cimg/rust:1.49.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo new
+          command: >
+            echo "hey"
+            leo
+            echo "Hello"
+
+workflows:
+  version: 2
+  main-workflow:
+    jobs:
+      - rust-stable
+      - leo-new:
+          requires:
+            - rust-stable
