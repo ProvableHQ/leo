@@ -71,10 +71,7 @@ jobs:
           name: leo new
           command: |
             export LEO=./project/bin/leo
-            leo new hello-world
-            ls -la
-            cd hello-world && ls -la
-            leo run
+            ./home/circleci/project/.circleci/leo-new.sh
 
 workflows:
   version: 2
