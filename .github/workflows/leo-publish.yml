@@ -11,8 +11,8 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  add:
-    name: Add Package ('leo add')
+  publish:
+    name: Publish Package ('leo publish')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
