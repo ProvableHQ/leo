@@ -1,7 +1,7 @@
 version: 2.1
 commands:
   setup_environment:
-    description: "Setup testing environment"
+    description: "Setup environment"
     parameters:
       cache_key:
         type: string
@@ -69,11 +69,7 @@ jobs:
           at: /home/circleci/project/
       - run:
           name: leo new
-          command: >
-            echo "hey"
-            leo new test
-            ls -la
-            echo "Hello"
+          command: leo
 
 workflows:
   version: 2
