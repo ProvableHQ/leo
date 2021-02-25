@@ -69,7 +69,7 @@ jobs:
           at: /home/circleci/project/
       - run:
           name: leo new
-          command: ls -la
+          command: ls -la project
 
 workflows:
   version: 2
