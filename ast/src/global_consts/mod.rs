@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod all_global_consts;
+pub use all_global_consts::*;
+
 pub mod global_const;
 pub use global_const::*;
-
-pub mod global_consts;
-pub use global_consts::*;

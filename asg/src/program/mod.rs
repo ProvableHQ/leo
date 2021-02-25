@@ -181,8 +181,8 @@ impl<'a> InternalProgram<'a> {
 
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-        //TODO
-        let imported_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
+        //TODO: Do we want to import global consts?
+        // let imported_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
 
         // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
@@ -230,7 +230,7 @@ impl<'a> InternalProgram<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
-            global_consts: RefCell::new(imported_global_consts),
+            global_consts: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
             input: Cell::new(None),
@@ -285,9 +285,6 @@ impl<'a> InternalProgram<'a> {
         for (name, global_const) in program.global_consts.iter() {
             assert_eq!(name.name, global_const.variable_name.identifier.name);
             let asg_global_const = *scope.global_consts.borrow().get(&name.name).unwrap();
-
-            //TODO?
-            // asg_global_const.fill_from_ast(global_const)?;
 
             global_consts.insert(name.name.clone(), asg_global_const);
         }

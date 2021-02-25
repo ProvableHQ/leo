@@ -71,7 +71,6 @@ impl<'a> GlobalConst<'a> {
             assignments: vec![],
         }));
 
-        //TODO add scope onto this for reference other global consts?
         let global_const = scope.alloc_global_const(GlobalConst {
             parent: Cell::new(None),
             span: Some(global_const.span.clone()),

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
+use crate::errors::{ExpressionError, FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_asg::AsgConvertError;
 use leo_ast::AstError;
 use leo_grammar::ParserError;
@@ -29,6 +29,9 @@ use std::path::{Path, PathBuf};
 pub enum CompilerError {
     #[error("{}", _0)]
     AstError(#[from] AstError),
+
+    #[error("{}", _0)]
+    ExpressionError(#[from] ExpressionError),
 
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
