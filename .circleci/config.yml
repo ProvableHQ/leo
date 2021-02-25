@@ -70,7 +70,7 @@ jobs:
       - run:
           name: leo new
           command: |
-            export LEO=./project/bin/leo
+            export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-new.sh
 
   leo-init:
@@ -83,7 +83,7 @@ jobs:
       - run:
           name: leo new
           command: |
-            export LEO=./project/bin/leo
+            export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-init.sh
 
 workflows:
