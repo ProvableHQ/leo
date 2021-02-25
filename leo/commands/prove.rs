@@ -32,7 +32,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Prove {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
-    pub(super) skip_key_check: bool,
+    pub(crate) skip_key_check: bool,
 }
 
 impl Command for Prove {

@@ -35,15 +35,15 @@ pub enum Automatic {
 pub struct Update {
     /// List all available versions of Leo
     #[structopt(short, long)]
-    list: bool,
+    pub(crate) list: bool,
 
     /// For Aleo Studio only
     #[structopt(short, long)]
-    studio: bool,
+    pub(crate) studio: bool,
 
     /// Setting for automatic updates of Leo
     #[structopt(subcommand)]
-    automatic: Option<Automatic>,
+    pub(crate) automatic: Option<Automatic>,
 }
 
 impl Command for Update {

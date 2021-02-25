@@ -40,13 +40,20 @@ impl Command for Init {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = current_dir()?;
+        // Derive the package directory path.
+        let mut path = current_dir()?;
+
+        // Check that the given package name is valid.
         let package_name = path
             .file_stem()
             .ok_or_else(|| anyhow!("Project name invalid"))?
             .to_string_lossy()
             .to_string();
+        if !LeoPackage::is_package_name_valid(&package_name) {
+            return Err(anyhow!("Invalid Leo project name"));
+        }
 
+        // Check that the current package directory path exists.
         if !path.exists() {
             return Err(anyhow!("Directory does not exist"));
         }

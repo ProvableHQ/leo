@@ -36,7 +36,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Test {
     #[structopt(short = "f", long = "file", name = "file")]
-    files: Vec<PathBuf>,
+    pub(crate) files: Vec<PathBuf>,
 }
 
 impl Command for Test {

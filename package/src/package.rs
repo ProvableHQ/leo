@@ -34,17 +34,51 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn new(package_name: &str) -> Self {
-        Self {
+    pub fn new(package_name: &str) -> Result<Self, PackageError> {
+        // Check that the package name is valid.
+        if !Self::is_package_name_valid(package_name) {
+            return Err(PackageError::InvalidPackageName(package_name.to_string()));
+        }
+
+        Ok(Self {
             name: package_name.to_owned(),
             version: "0.1.0".to_owned(),
             description: None,
             license: None,
-        }
+        })
+    }
+
+    /// Returns `true` if the package name is valid.
+    ///
+    /// Package names must be lowercase and composed solely
+    /// of ASCII alphanumeric characters, and may be word-separated
+    /// by a single dash '-'.
+    pub fn is_package_name_valid(package_name: &str) -> bool {
+        // Check that the package name:
+        // 1. is lowercase,
+        // 2. is ASCII alphanumeric or a dash.
+        package_name.chars().all(|x| {
+            if !x.is_lowercase() {
+                tracing::error!("Project names must be all lowercase");
+                return false;
+            }
+
+            if x.is_ascii_alphanumeric() || x == '-' {
+                tracing::error!("Project names must be ASCII alphanumeric, and may be word-separated with a dash");
+                return false;
+            }
+
+            true
+        })
     }
 
     /// Returns `true` if a package is can be initialized at a given path.
     pub fn can_initialize(package_name: &str, is_lib: bool, path: &Path) -> bool {
+        // Check that the package name is valid.
+        if !Self::is_package_name_valid(package_name) {
+            return false;
+        }
+
         let mut result = true;
         let mut existing_files = vec![];
 
@@ -91,6 +125,11 @@ impl Package {
 
     /// Returns `true` if a package is initialized at the given path
     pub fn is_initialized(package_name: &str, is_lib: bool, path: &Path) -> bool {
+        // Check that the package name is valid.
+        if !Self::is_package_name_valid(package_name) {
+            return false;
+        }
+
         // Check if the manifest file exists.
         if !Manifest::exists_at(&path) {
             return false;
@@ -137,7 +176,7 @@ impl Package {
         // Next, initialize this directory as a Leo package.
         {
             // Create the manifest file.
-            Manifest::new(&package_name).write_to(&path)?;
+            Manifest::new(&package_name)?.write_to(&path)?;
 
             // Verify that the .gitignore file does not exist.
             if !Gitignore::exists_at(&path) {
