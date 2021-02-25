@@ -69,12 +69,12 @@ impl Command for Update {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        // if --list is passed - simply list everything and exit
+        // If --list is passed, list all available versions and return.
         if self.list {
             return Updater::show_available_releases().map_err(|e| anyhow!("Could not fetch versions: {}", e));
         }
 
-        // in case automatic subcommand was called
+        // Handles enabling and disabling automatic updates in the config file.
         if let Some(Automatic::Automatic { value }) = self.automatic {
             Config::set_update_automatic(value)?;
 
