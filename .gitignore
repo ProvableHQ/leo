@@ -2,4 +2,9 @@
 /tmp/
 **.idea/
 *.DS_Store
+
 **/process.yml
+
+**/.crates.toml
+**/.crates2.json
+**/bin/

@@ -55,7 +55,7 @@ jobs:
           no_output_timeout: 30m
           command: cargo install --path . --root .
       - persist_to_workspace:
-          root: ~/
+          root: ./
           paths: project/
       - clear_environment:
           cache_key: leo-stable-cache
