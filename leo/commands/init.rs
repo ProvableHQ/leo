@@ -41,7 +41,7 @@ impl Command for Init {
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
         // Derive the package directory path.
-        let mut path = current_dir()?;
+        let path = current_dir()?;
 
         // Check that the given package name is valid.
         let package_name = path

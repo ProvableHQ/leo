@@ -55,12 +55,12 @@ impl Package {
     /// by a single dash '-'.
     pub fn is_package_name_valid(package_name: &str) -> bool {
         // Check that the package name is nonempty.
-        if package_name.len() == 0 {
+        if package_name.is_empty() {
             tracing::error!("Project names must be nonempty");
             return false;
         }
 
-        let mut previous = package_name.chars().nth(0).unwrap();
+        let mut previous = package_name.chars().next().unwrap();
 
         // Check that the first character is not a dash.
         if previous == '-' {
