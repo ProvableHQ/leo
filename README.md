@@ -1,5 +1,5 @@
 <p align="center">
-    <img width="1412" src="./.resources/leo.png">
+    <img width="1412" src=".resources/banner.png">
 </p>
 
 <h1 align="center">The Leo Programming Language</h1>
