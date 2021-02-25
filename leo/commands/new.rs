@@ -30,12 +30,6 @@ pub struct New {
     name: String,
 }
 
-impl New {
-    pub fn new(name: String) -> New {
-        New { name }
-    }
-}
-
 impl Command for New {
     type Input = ();
     type Output = ();
@@ -49,13 +43,17 @@ impl Command for New {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        let mut path = current_dir()?;
+        // Check that the given package name is valid.
         let package_name = self.name;
+        if !LeoPackage::is_package_name_valid(&package_name) {
+            return Err(anyhow!("Invalid Leo project name"));
+        }
 
-        // Derive the package directory path
+        // Derive the package directory path.
+        let mut path = current_dir()?;
         path.push(&package_name);
 
-        // Verify the package directory path does not exist yet
+        // Verify the package directory path does not exist yet.
         if path.exists() {
             return Err(anyhow!("Directory already exists {:?}", path));
         }

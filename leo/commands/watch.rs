@@ -27,18 +27,12 @@ use tracing::span::Span;
 const LEO_SOURCE_DIR: &str = "src/";
 
 /// Watch file changes in src/ directory and run Build Command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Watch {
     /// Set up watch interval
     #[structopt(short, long, default_value = "3")]
     interval: u64,
-}
-
-impl Watch {
-    pub fn new(interval: u64) -> Watch {
-        Watch { interval }
-    }
 }
 
 impl Command for Watch {
@@ -70,7 +64,7 @@ impl Command for Watch {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match Build::new().execute() {
+                    match (Build {}).execute() {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }

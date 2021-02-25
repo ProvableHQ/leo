@@ -22,7 +22,7 @@ use tracing::span::Span;
 
 /// Setting for automatic updates of Leo
 #[derive(Debug, StructOpt, PartialEq)]
-pub enum Sub {
+pub enum Automatic {
     Automatic {
         #[structopt(name = "bool", help = "Boolean value: true or false", parse(try_from_str))]
         value: bool,
@@ -30,30 +30,20 @@ pub enum Sub {
 }
 
 /// Update Leo to the latest version
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Update {
     /// List all available versions of Leo
     #[structopt(short, long)]
-    list: bool,
+    pub(crate) list: bool,
 
     /// For Aleo Studio only
     #[structopt(short, long)]
-    studio: bool,
+    pub(crate) studio: bool,
 
     /// Setting for automatic updates of Leo
     #[structopt(subcommand)]
-    automatic: Option<Sub>,
-}
-
-impl Update {
-    pub fn new(list: bool, studio: bool, automatic: Option<Sub>) -> Update {
-        Update {
-            list,
-            studio,
-            automatic,
-        }
-    }
+    pub(crate) automatic: Option<Automatic>,
 }
 
 impl Command for Update {
@@ -69,13 +59,13 @@ impl Command for Update {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        // if --list is passed - simply list everything and exit
+        // If --list is passed, list all available versions and return.
         if self.list {
             return Updater::show_available_releases().map_err(|e| anyhow!("Could not fetch versions: {}", e));
         }
 
-        // in case automatic subcommand was called
-        if let Some(Sub::Automatic { value }) = self.automatic {
+        // Handles enabling and disabling automatic updates in the config file.
+        if let Some(Automatic::Automatic { value }) = self.automatic {
             Config::set_update_automatic(value)?;
 
             match value {

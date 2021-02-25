@@ -21,15 +21,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Deploy Leo program to the network
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Deploy {}
-
-impl Deploy {
-    pub fn new() -> Deploy {
-        Deploy {}
-    }
-}
 
 impl Command for Deploy {
     type Input = ();

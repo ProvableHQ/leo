@@ -31,17 +31,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Executes the setup command for a Leo program
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Setup {
     #[structopt(long = "skip-key-check", help = "Skip key verification")]
-    skip_key_check: bool,
-}
-
-impl Setup {
-    pub fn new(skip_key_check: bool) -> Setup {
-        Setup { skip_key_check }
-    }
+    pub(crate) skip_key_check: bool,
 }
 
 impl Command for Setup {
@@ -57,7 +51,7 @@ impl Command for Setup {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        Build::new().execute()
+        (Build {}).execute()
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
@@ -70,7 +64,6 @@ impl Command for Setup {
                 let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
 
-                // If keys do not exist or the checksum differs, run the program setup
                 // If keys do not exist or the checksum differs, run the program setup
                 let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     tracing::info!("Starting...");

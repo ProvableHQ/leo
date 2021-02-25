@@ -23,15 +23,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Clean outputs folder command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Clean {}
-
-impl Clean {
-    pub fn new() -> Clean {
-        Clean {}
-    }
-}
 
 impl Command for Clean {
     type Input = ();

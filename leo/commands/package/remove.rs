@@ -22,17 +22,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Remove imported package
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Remove {
     #[structopt(name = "PACKAGE")]
     name: String,
-}
-
-impl Remove {
-    pub fn new(name: String) -> Remove {
-        Remove { name }
-    }
 }
 
 impl Command for Remove {

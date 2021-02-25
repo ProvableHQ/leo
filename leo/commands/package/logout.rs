@@ -22,15 +22,9 @@ use structopt::StructOpt;
 use tracing::Span;
 
 /// Remove credentials for Aleo PM from .leo directory
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Logout {}
-
-impl Logout {
-    pub fn new() -> Logout {
-        Logout {}
-    }
-}
 
 impl Command for Logout {
     type Input = ();

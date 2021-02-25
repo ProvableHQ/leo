@@ -26,17 +26,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Build, Prove and Run Leo program with inputs
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Run {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
-    skip_key_check: bool,
-}
-
-impl Run {
-    pub fn new(skip_key_check: bool) -> Run {
-        Run { skip_key_check }
-    }
+    pub(crate) skip_key_check: bool,
 }
 
 impl Command for Run {
@@ -48,7 +42,8 @@ impl Command for Run {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        Prove::new(self.skip_key_check).execute()
+        let skip_key_check = self.skip_key_check;
+        (Prove { skip_key_check }).execute()
     }
 
     fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
