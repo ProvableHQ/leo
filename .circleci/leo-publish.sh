@@ -4,7 +4,8 @@
 $LEO login -u "$ALEO_PM_USERNAME" -p "$ALEO_PM_PASSWORD"
 
 # Clone the test-app package.
-$LEO clone "$ALEO_PM_USERNAME/test-app"
+export PACKAGE="$ALEO_PM_USERNAME/test-app"
+$LEO clone $PACKAGE
 cd test-app || exit 1
 
 # Fetch the current Leo package version number.
