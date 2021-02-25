@@ -37,6 +37,11 @@ impl LeoPackage {
         package::Package::initialize(package_name, is_lib, path)
     }
 
+    /// Returns `true` if the given Leo package name is valid.
+    pub fn is_package_name_valid(package_name: &str) -> bool {
+        package::Package::is_package_name_valid(package_name)
+    }
+
     /// Removes an imported Leo package
     pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
         package::Package::remove_imported_package(package_name, path)
