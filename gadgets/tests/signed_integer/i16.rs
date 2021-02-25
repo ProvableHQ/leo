@@ -24,7 +24,8 @@ use snarkvm_models::{
     },
 };
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i16;
 
@@ -238,8 +239,8 @@ fn test_int16_mul_constants() {
         let max = i8::MAX as i16;
         let min = i8::MIN as i16;
 
-        let a: i16 = rng.gen_range(min, max);
-        let b: i16 = rng.gen_range(min, max);
+        let a: i16 = rng.gen_range(min..max);
+        let b: i16 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -267,8 +268,8 @@ fn test_int16_mul() {
         let max = i8::MAX as i16;
         let min = i8::MIN as i16;
 
-        let a: i16 = rng.gen_range(min, max);
-        let b: i16 = rng.gen_range(min, max);
+        let a: i16 = rng.gen_range(min..max);
+        let b: i16 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -366,8 +367,8 @@ fn test_int16_pow_constants() {
     for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i16 = rng.gen_range(-16, 16);
-        let b: i16 = rng.gen_range(-4, 4);
+        let a: i16 = rng.gen_range(-16..16);
+        let b: i16 = rng.gen_range(-4..4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
@@ -392,8 +393,8 @@ fn test_int16_pow() {
     for _ in 0..3 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i16 = rng.gen_range(-16, 16);
-        let b: i16 = rng.gen_range(-4, 4);
+        let a: i16 = rng.gen_range(-16..16);
+        let b: i16 = rng.gen_range(-4..4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,

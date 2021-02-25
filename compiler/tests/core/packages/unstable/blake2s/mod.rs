@@ -25,7 +25,8 @@ use crate::{
 
 use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
 use snarkvm_models::algorithms::PRF;
