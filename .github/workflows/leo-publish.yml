@@ -34,6 +34,10 @@ jobs:
           command: install
           args: --path .
 
+      # sed command below takes 0.1.0 version (which is default for new programs)
+      # and replaces it with GITHUB_RUN_ID - a unique incremental number for each 
+      # GH Actions run; [AUTHOR] gets replaced with $USER variable; and we're ready
+      # to publish package with newer version and correct author
       - name: 'leo login, publish and logout'
         env:
           USER: ${{ secrets.ALEO_PM_USERNAME }}
