@@ -56,10 +56,10 @@ impl Command for Publish {
         Build::new().execute()
     }
 
-    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Get the package manifest
-        let path = ctx.dir()?;
-        let manifest = ctx.manifest()?;
+        let path = context.dir()?;
+        let manifest = context.manifest()?;
 
         let package_name = manifest.get_package_name();
         let package_version = manifest.get_package_version();
@@ -99,7 +99,7 @@ impl Command for Publish {
         // Client for make POST request
         let client = Client::new();
 
-        let token = match ctx.api.auth_token() {
+        let token = match context.api.auth_token() {
             Some(token) => token,
             None => return Err(anyhow!("Login before publishing package: try leo login --help")),
         };

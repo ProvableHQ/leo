@@ -58,9 +58,9 @@ impl Command for Build {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();

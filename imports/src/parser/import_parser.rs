@@ -34,7 +34,7 @@ pub struct ImportParser<'a> {
 impl<'a> ImportResolver<'a> for ImportParser<'a> {
     fn resolve_package(
         &mut self,
-        ctx: AsgContext<'a>,
+        context: AsgContext<'a>,
         package_segments: &[&str],
         span: &Span,
     ) -> Result<Option<Program<'a>>, AsgConvertError> {
@@ -51,7 +51,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
 
         self.partial_imports.insert(full_path.clone());
         let program = imports
-            .parse_package(ctx, path, package_segments, span)
+            .parse_package(context, path, package_segments, span)
             .map_err(|x| -> AsgConvertError { x.into() })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());

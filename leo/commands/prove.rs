@@ -53,12 +53,12 @@ impl Command for Prove {
         Setup::new(self.skip_key_check).execute()
     }
 
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         tracing::info!("Starting...");
 

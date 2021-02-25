@@ -51,7 +51,7 @@ impl Command for Run {
         Prove::new(self.skip_key_check).execute()
     }
 
-    fn apply(self, _ctx: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
         let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");

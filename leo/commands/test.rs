@@ -57,12 +57,12 @@ impl Command for Test {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the package name
-        let package_name = ctx.manifest()?.get_package_name();
+        let package_name = context.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
-        let mut package_path = ctx.dir()?;
+        let mut package_path = context.dir()?;
         if package_path.is_file() {
             package_path.pop();
         }

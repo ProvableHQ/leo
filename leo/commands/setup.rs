@@ -60,9 +60,9 @@ impl Command for Setup {
         Build::new().execute()
     }
 
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         match input {
             Some((program, checksum_differs)) => {

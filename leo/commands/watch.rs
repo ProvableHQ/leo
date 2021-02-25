@@ -53,7 +53,7 @@ impl Command for Watch {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
 

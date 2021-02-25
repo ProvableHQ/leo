@@ -44,7 +44,7 @@ impl Command for Logout {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         if let Err(err) = remove_token() {

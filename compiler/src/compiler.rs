@@ -63,7 +63,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     output_directory: PathBuf,
     program: Program,
     program_input: Input,
-    ctx: AsgContext<'a>,
+    context: AsgContext<'a>,
     asg: Option<Asg<'a>>,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -73,7 +73,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Returns a new Leo program compiler.
     ///
-    pub fn new(package_name: String, main_file_path: PathBuf, output_directory: PathBuf, ctx: AsgContext<'a>) -> Self {
+    pub fn new(
+        package_name: String,
+        main_file_path: PathBuf,
+        output_directory: PathBuf,
+        context: AsgContext<'a>,
+    ) -> Self {
         Self {
             program_name: package_name.clone(),
             main_file_path,
@@ -81,7 +86,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program: Program::new(package_name),
             program_input: Input::new(),
             asg: None,
-            ctx,
+            context,
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -98,9 +103,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         package_name: String,
         main_file_path: PathBuf,
         output_directory: PathBuf,
-        ctx: AsgContext<'a>,
+        context: AsgContext<'a>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory, ctx);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
 
         compiler.parse_program()?;
 
@@ -124,9 +129,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         input_path: &Path,
         state_string: &str,
         state_path: &Path,
-        ctx: AsgContext<'a>,
+        context: AsgContext<'a>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory, ctx);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
 
         compiler.parse_input(input_string, input_path, state_string, state_path)?;
 
@@ -205,7 +210,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(self.ctx, &core_ast, &mut leo_imports::ImportParser::default())?;
+        let asg = Asg::new(self.context, &core_ast, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 

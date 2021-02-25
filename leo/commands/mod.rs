@@ -95,7 +95,7 @@ pub trait Command {
 
     /// Core of the execution - do what is necessary. This function is run within
     /// context of 'execute' function, which sets logging and timers
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output>
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output>
     where
         Self: std::marker::Sized;
 
