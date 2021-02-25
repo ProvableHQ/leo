@@ -99,6 +99,19 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-clean.sh
 
+  leo-setup:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo setup
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-setup.sh
+
   leo-add-remove:
     docker:
       - image: cimg/rust:1.50.0
@@ -112,7 +125,7 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-add-remove.sh
 
-  leo-setup:
+  leo-login-logout:
     docker:
       - image: cimg/rust:1.50.0
     resource_class: xlarge
@@ -120,10 +133,10 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project/
       - run:
-          name: leo setup
+          name: leo login & logout
           command: |
             export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-setup.sh
+            ./project/.circleci/leo-login-logout.sh
 
 workflows:
   version: 2
@@ -139,9 +152,12 @@ workflows:
       - leo-clean:
           requires:
             - rust-stable
+      - leo-setup:
+          requires:
+            - rust-stable
       - leo-add-remove:
           requires:
             - rust-stable
-      - leo-setup:
+      - leo-login-logout:
           requires:
             - rust-stable
