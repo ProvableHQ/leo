@@ -41,6 +41,7 @@ commands:
             - .cache/sccache
             - .cargo
 jobs:
+
   rust-stable:
     docker:
       - image: cimg/rust:1.49.0
@@ -58,6 +59,7 @@ jobs:
           paths: project/
       - clear_environment:
           cache_key: leo-stable-cache
+
   leo-new:
     docker:
       - image: cimg/rust:1.49.0
@@ -69,7 +71,8 @@ jobs:
           name: leo new
           command: >
             echo "hey"
-            leo
+            leo new test
+            ls -la
             echo "Hello"
 
 workflows:
